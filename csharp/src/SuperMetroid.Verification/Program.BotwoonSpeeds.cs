@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -13,12 +14,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon speed algorithm")]
     private static void VerifyBotwoonSpeedAlgorithm(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (byte phase = 0; phase < 3; phase++)
         {
             var speed = BotwoonSpeedDefinitions.ForHealthPhase(phase);
-            AssertEqual(Word(0xb394bb + phase * 4), speed.MovementSpeed, "Botwoon native movement speed");
-            AssertEqual(Word(0xb39e77 + phase * 2), speed.SpitSpeed, "Botwoon native spit speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb394bb + phase * 4)), speed.MovementSpeed, "Botwoon native movement speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39e77 + phase * 2)), speed.SpitSpeed, "Botwoon native spit speed");
         }
         var update = typeof(RoomEnemySystem).GetMethod("UpdateBotwoonHealthPhase", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
@@ -31,7 +31,7 @@ internal static partial class Program
             state.InsideHole = false;
             update(head, state);
             AssertEqual(phase, state.HealthPhase, "Botwoon real phase selection without bus");
-            AssertEqual(Word(0xb394bb + phase * 4), state.Speed, "Botwoon real phase speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb394bb + phase * 4)), state.Speed, "Botwoon real phase speed");
             state.InsideHole = true;
             head.Health = (ushort)(3000 - health);
             update(head, state);
@@ -48,7 +48,7 @@ internal static partial class Program
         for (byte phase = 0; phase < 3; phase++)
         {
             int address = BotwoonSpeedDefinitions.MovementReferenceAddress + phase * 4 + 2;
-            ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, BotwoonSpeedDefinitions.ForHealthPhase(phase).SegmentSpacingBytes,
                 $"Botwoon native body spacing phase {phase}");
         }

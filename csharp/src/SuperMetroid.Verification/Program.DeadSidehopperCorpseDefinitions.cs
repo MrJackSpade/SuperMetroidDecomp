@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -40,7 +41,7 @@ internal static partial class Program
         int address = 0xa90000 | definition.ConfigurationPointer;
         // Word five, the graphics-initialization callback, has no compiled consumer.
         ushort[] expected = [.. new[] { 0, 1, 2, 3, 4, 6, 7 }
-            .Select(index => ReadDeadSidehopperCorpseWord(rom, address + index * 2))];
+            .Select(index => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + index * 2)))];
 
         ushort[] actual =
         [
@@ -55,9 +56,7 @@ internal static partial class Program
         AssertTrue(actual.AsSpan().SequenceEqual(expected),
             $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4}");
 
-        ushort secondRotationOffset = ReadDeadSidehopperCorpseWord(
-            rom,
-            0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2)));
+        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4} wrap offset");
     }
@@ -106,12 +105,6 @@ internal static partial class Program
         AssertEqual(expected.WrapOffset, state.WrapOffset,
             $"dead sidehopper parameter {parameter1} wrap offset");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Sidehopper corpse words")]
-    private static ushort ReadDeadSidehopperCorpseWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewDeadSidehopperCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

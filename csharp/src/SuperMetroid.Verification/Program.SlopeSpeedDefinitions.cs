@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -11,7 +12,7 @@ internal static partial class Program
         for (int shape = 0; shape < multipliers.Length; shape++)
         {
             int address = SamusMovementRomDataSlopes.HorizontalMultipliers + shape * 4 + 2;
-            multipliers[shape] = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            multipliers[shape] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(multipliers[shape], SlopeSpeedDefinitions.HorizontalMultiplier(shape), "All native horizontal slope multipliers");
         }
 

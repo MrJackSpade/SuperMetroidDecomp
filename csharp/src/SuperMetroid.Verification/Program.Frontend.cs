@@ -691,8 +691,7 @@ static void VerifyDemoInputObject()
 
 [CpuBusBoundary("exact bus test: retail and constructed cartridge oracle for bank-$91 demo-input object and instruction words")]
 static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
-    (ushort)(bus.ReadCartridgeByte(DemoInputRomData.BankBase | pointer) |
-        bus.ReadCartridgeByte(DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))) << 8);
+    CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
 static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -89,11 +90,7 @@ internal static class LibraryBackgroundSourceInventory
     }
 
     private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank | pointer) |
-        (bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank |
-            unchecked((ushort)(pointer + 1))) << 8) |
-        (bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank |
-            unchecked((ushort)(pointer + 2))) << 16);
+        (CartridgeImportSource.Require(bus).ReadCartridgeLongFixedBank(RoomAssetRomData.LibraryBackground.CommandBank | pointer));
 }
 
 /// <summary>One source operand in a native library-background list, not a synthesized image.</summary>

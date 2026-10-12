@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Globalization;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -246,12 +247,12 @@ internal static partial class Program
                  recordIndex < RoomEnemySystem.MaximumEnemyCount;
                  recordIndex++, cursor += 16)
             {
-                ushort definitionPointerWord = ReadEnemyOwnerAuditWord(rom, cursor);
+                ushort definitionPointerWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
                 if (definitionPointerWord == 0xffff)
                     break;
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
 
-                var record = new RoomEnemyPopulationRecord(definitionPointer, new(ReadEnemyOwnerAuditWord(rom, cursor + 2), ReadEnemyOwnerAuditWord(rom, cursor + 4)), ReadEnemyOwnerAuditWord(rom, cursor + 6), ReadEnemyOwnerAuditWord(rom, cursor + 8), ReadEnemyOwnerAuditWord(rom, cursor + 10), ReadEnemyOwnerAuditWord(rom, cursor + 12), ReadEnemyOwnerAuditWord(rom, cursor + 14));
+                var record = new RoomEnemyPopulationRecord(definitionPointer, new(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 6)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 8)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 10)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 12)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 14)));
                 if (!records.TryGetValue(
                     definitionPointer,
                     out List<RoomEnemyPopulationRecord>? definitionRecords))
@@ -265,12 +266,6 @@ internal static partial class Program
 
         return records;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy instruction owner audit words")]
-    private static ushort ReadEnemyOwnerAuditWord(
-        ISnesAddressSpace bus,
-        int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewEnemyInstructionOwnerReadProbe(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(_ => true,

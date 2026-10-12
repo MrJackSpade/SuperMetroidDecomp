@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
@@ -235,15 +236,14 @@ internal static partial class Program
                 new((ushort)point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual heading draw preserves exact native ordered OAM");
-            ushort Word(int location) => (ushort)(rom.ReadCartridgeByte(location) | rom.ReadCartridgeByte(location + 1) << 8);
-            AssertEqual((ushort)count, Word(address), "native border header");
+            AssertEqual((ushort)count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "native border header");
             for (int index = 0; index < count; index++)
             {
                 int entry = address + 2 + index * 5;
                 var part = stock.Part(index);
-                AssertEqual(Word(entry), part.X.Raw, "native border X/size");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), part.X.Raw, "native border X/size");
                 AssertEqual(rom.ReadCartridgeByte(entry + 2), part.Y, "native border Y");
-                AssertEqual((ushort)(Word(entry + 3) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
+                AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
                 AssertTrue(part.InheritPalette, "border palette remains owner supplied");
                 foreach (int field in new[] { 0, 1, 2, 3 })
                 {
@@ -306,15 +306,14 @@ internal static partial class Program
                 new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(original.ObjectPalette << 9));
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual file-select border draw preserves native OAM");
-            ushort Word(int location) => (ushort)(rom.ReadCartridgeByte(location) | rom.ReadCartridgeByte(location + 1) << 8);
-            AssertEqual((ushort)count, Word(address), "native border header");
+            AssertEqual((ushort)count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "native border header");
             for (int index = 0; index < count; index++)
             {
                 int entry = address + 2 + index * 5;
                 var part = stock.Part(index);
-                AssertEqual(Word(entry), part.X.Raw, "native border X/size");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), part.X.Raw, "native border X/size");
                 AssertEqual(rom.ReadCartridgeByte(entry + 2), part.Y, "native border Y");
-                AssertEqual((ushort)(Word(entry + 3) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
+                AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)) & ~0x0e00), part.Attributes.Raw, "native border inherited-palette attributes");
                 AssertTrue(part.InheritPalette, "border palette remains owner supplied");
                 foreach (int field in new[] { 0, 1, 2, 3 })
                 {
@@ -393,7 +392,6 @@ internal static partial class Program
     private static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
     {
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         int nativeCharacters = 0;
         foreach (var source in IntroNarrationDefinitions.Pages)
         {
@@ -405,10 +403,10 @@ internal static partial class Program
                 "narration retains only the one independently chosen hard break");
             var expected = new List<IntroNarrationCharacter>();
             int cursor = 0x8c0000 | (source.InstructionPointer + 8);
-            while ((Read(cursor) & 0x8000) == 0)
+            while ((CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor) & 0x8000) == 0)
             {
-                ushort position = Read(cursor + 2);
-                ushort glyph = Read(0x8c0000 | (Read(cursor + 4) + 4));
+                ushort position = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
+                ushort glyph = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8c0000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4) + 4)));
                 expected.Add(new(position & 255, position >> 8, glyph, glyph == (ushort)IntroNarrationSymbolWord.Blank));
                 cursor += 6;
             }
@@ -462,7 +460,7 @@ internal static partial class Program
                 AssertEqual((byte)0xa3, frame.Bank, "Mochtroid native frame bank");
                 AssertEqual((ushort)pointer, frame.Pointer, "Mochtroid native counted-record stride");
                 AssertEqual($"mochtroid_{(family == 0 ? "flight" : "attached")}_{pose}", frame.Name, "Mochtroid legacy frame name");
-                int count = rom.ReadCartridgeByte(0xa30000 | pointer) | rom.ReadCartridgeByte(0xa30000 | (pointer + 1)) << 8;
+                int count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer);
                 pointer += 2 + 5 * count;
             }
             for (int offset = -1; offset <= 16; offset++)
@@ -470,7 +468,7 @@ internal static partial class Program
                 ushort operand = (ushort)(start + offset);
                 if (offset >= 0 && offset <= 12 && offset % 4 == 0)
                 {
-                    ushort expected = (ushort)(rom.ReadCartridgeByte(0xa30000 | operand) | rom.ReadCartridgeByte(0xa30000 | (operand + 1)) << 8);
+                    ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | operand);
                     AssertEqual(expected, MochtroidVisualDefinitions.FrameAt(operand), "Mochtroid native ping-pong selector");
                 }
                 else
@@ -599,7 +597,7 @@ internal static partial class Program
         for (int index = 0; index < RoomSpriteObjectInstructionProgramDefinitions.PresentationWordCount; index++)
         {
             int address = 0xb40000 | RoomSpriteObjectInstructionProgramDefinitions.PresentationWordAddress(index);
-            ushort pointer = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
         }
         var expectedAdditional = additionalPointers.Select(pointer =>
@@ -613,15 +611,14 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for hopper operand positions")]
     private static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var operands = new SortedSet<ushort>();
         for (int selector = 0; selector < 16; selector++)
         {
-            int cursor = 0xa30000 | Word(0xa3aac2 + selector * 2);
+            int cursor = 0xa30000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3aac2 + selector * 2));
             cursor += 2; // Each native program first changes off-screen processing.
-            if (Word(cursor) == (ushort)HopperInstruction.SidehopperQueueSoundInY)
+            if (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor) == (ushort)HopperInstruction.SidehopperQueueSoundInY)
                 cursor += 4;
-            while (Word(cursor) < 0x8000)
+            while (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor) < 0x8000)
             {
                 operands.Add((ushort)(cursor + 2));
                 cursor += 4;
@@ -653,7 +650,7 @@ internal static partial class Program
                 "file-select stock patch retains no cells " + name);
             for (int index = 0; index < count; index++)
             {
-                ushort word = (ushort)(rom.ReadCartridgeByte(address + index * 2) | rom.ReadCartridgeByte(address + index * 2 + 1) << 8);
+                ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
                 AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), word), FileSelectPresentationDefinitions.PatchCell(name, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
@@ -745,7 +742,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for options geometry")]
     private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
     {
-        ushort LookupWord(ISnesAddressSpace source, int address) => (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
         byte[] imported = SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(rom);
         GameOptionsPresentationDocument ReadDocument() => System.Text.Json.JsonSerializer.Deserialize<GameOptionsPresentationDocument>(
             imported, MapPresentationFormat.JsonOptions)!;
@@ -758,7 +754,7 @@ internal static partial class Program
                 System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded) is null, "stock options geometry calculates " + field);
         for (int action = 0; action < 7; action++)
         {
-            ushort offset = LookupWord(rom, 0x82f639 + action * 2);
+            ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
                 GameOptionsPresentationDefinitions.ControllerAnchor(action), "native options label anchor");
         }
@@ -769,14 +765,14 @@ internal static partial class Program
             (GameOptionsPresentationDefinitions.SpecialMenu, 0x82f33f, 3),
         })
             for (int row = 0; row < count; row++)
-                AssertEqual(new Position16<OamPixels>(LookupWord(rom, address + row * 4), LookupWord(rom, address + row * 4 + 2)),
+                AssertEqual(new Position16<OamPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
                     loaded.CursorPosition(page, row), "native options cursor anchor");
         var stockLabels = (Dictionary<string, ushort[]>)typeof(GameOptionsPresentation).GetField("controllerLabels",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(loaded)!;
         AssertEqual(0, stockLabels.Count, "options stock button glyphs retain no tilemap rows");
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
-            AssertEqual(LookupWord(rom, 0x82f659 + button * 12 + cell * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
                 GameOptionsPresentationDefinitions.ControllerLabelWord(GameOptionsPresentationDefinitions.ControllerLabelName(button), cell),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
@@ -868,6 +864,7 @@ internal static partial class Program
             }
         }
     }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for stream-3 inline tables")]
     private static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyStream3GameOverText), () => VerifyStream3GameOverText(rom));
@@ -974,7 +971,7 @@ internal static partial class Program
         for (int pair = 0; pair < 16; pair++)
         {
             int address = 0xadde5f + 2 * pair;
-            int pointer = ReadLookupStream3RomByte(rom, address) | ReadLookupStream3RomByte(rom, address + 1) << 8;
+            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             var expected = pointer switch
             {
                 0xe1a6 => MotherBrainBeamRomData.Direction.Down,
@@ -1011,12 +1008,12 @@ internal static partial class Program
             for (int index = 0; index < nativeIntroOperands[group].Length; index++)
             {
                 int address = nativeIntroOperands[group][index];
-                AssertEqual((byte)0xa2, ReadLookupStream3RomByte(rom, address), "stream 3 intro native LDX region");
-                AssertEqual((byte)0xa0, ReadLookupStream3RomByte(rom, address + 3), "stream 3 intro native LDY color count");
+                AssertEqual((byte)0xa2, rom.ReadCartridgeByte(address), "stream 3 intro native LDX region");
+                AssertEqual((byte)0xa0, rom.ReadCartridgeByte(address + 3), "stream 3 intro native LDY color count");
                 AssertEqual((int)introRegions[group][index].ByteOffset,
-                    ReadLookupStream3RomByte(rom, address + 1) | ReadLookupStream3RomByte(rom, address + 2) << 8, "stream 3 intro native offset");
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 1), "stream 3 intro native offset");
                 AssertEqual((int)introRegions[group][index].ByteCount,
-                    ReadLookupStream3RomByte(rom, address + 4) | ReadLookupStream3RomByte(rom, address + 5) << 8, "stream 3 intro native count");
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4), "stream 3 intro native count");
             }
             foreach (int invalid in new[] { -1, introRegions[group].Count, int.MaxValue })
                 AssertThrows<IndexOutOfRangeException>(() => _ = introRegions[group][invalid], "stream 3 intro region bounds");
@@ -1035,7 +1032,7 @@ internal static partial class Program
             AssertEqual((byte)0xa9, actual.Bank, "stream 3 Mother Brain visual bank");
             AssertEqual($"mother_brain_a9_{motherBrainRoots[index]:x4}", actual.Name, "stream 3 Mother Brain visual identity name");
             int address = 0xa90000 | actual.Pointer;
-            AssertEqual(nativeCharacterCounts[index], ReadLookupStream3RomByte(rom, address) | ReadLookupStream3RomByte(rom, address + 1) << 8,
+            AssertEqual(nativeCharacterCounts[index], CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 "stream 3 native OAM record widths used for root strides");
         }
         foreach (int invalid in new[] { -1, 18, int.MaxValue })
@@ -1066,7 +1063,7 @@ internal static partial class Program
             [0x82e22f, 0x82e235, 0x82e23b, 0x82e241, 0x82e247],
             [0x82e252, 0x82e258, 0x82e25e, 0x82e264],
         ];
-        int targetPaletteBase = ReadLookupStream3RomByte(rom, 0x82e1f5) + (ReadLookupStream3RomByte(rom, 0x82e1f6) << 8) - 18;
+        int targetPaletteBase = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82e1f5) - 18;
         ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
         for (int group = 0; group < nativeDoorCopies.Length; group++)
         {
@@ -1074,8 +1071,8 @@ internal static partial class Program
             ushort[] expected = new ushort[256];
             foreach (int instruction in nativeDoorCopies[group])
             {
-                AssertEqual((byte)0x8d, ReadLookupStream3RomByte(rom, instruction), "stream 3 native door color store opcode");
-                int destination = ReadLookupStream3RomByte(rom, instruction + 1) + (ReadLookupStream3RomByte(rom, instruction + 2) << 8);
+                AssertEqual((byte)0x8d, rom.ReadCartridgeByte(instruction), "stream 3 native door color store opcode");
+                int destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(instruction + 1);
                 int color = (destination - targetPaletteBase) / 2;
                 expected[color] = sourceColors[color];
             }
@@ -1091,7 +1088,7 @@ internal static partial class Program
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
-            int expected = 0x9a0000 | ReadLookupStream3RomByte(rom, address) | ReadLookupStream3RomByte(rom, address + 1) << 8;
+            int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
             var asset = GrappleTileDefinitions.SegmentAssetFor((ushort)angle);
             AssertEqual(expected, GrappleTileDefinitions.TransferFor(asset).SourceAddress,
                 "stream 3 native grapple angle sector");
@@ -1126,8 +1123,8 @@ internal static partial class Program
         for (int parameter = 0; parameter <= ushort.MaxValue; parameter++)
         {
             int offset = 2 * (parameter & 3);
-            ushort list = (ushort)(ReadLookupStream3RomByte(rom, 0xa8e682 + offset) | ReadLookupStream3RomByte(rom, 0xa8e683 + offset) << 8);
-            var function = (SparkEnemyFunction)(ReadLookupStream3RomByte(rom, 0xa8e688 + offset) | ReadLookupStream3RomByte(rom, 0xa8e689 + offset) << 8);
+            ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
+            var function = (SparkEnemyFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset);
             AssertEqual(new SparkMovementDefinition(list, function),
                 SparkMovementDefinitions.InitialState((ushort)parameter),
                 "stream 3 native Spark selector including adjacent-word case");
@@ -1141,7 +1138,7 @@ internal static partial class Program
             else
             {
                 int address = 0xaadd15 + 2 * (bucket >> 5);
-                ushort expected = (ushort)(ReadLookupStream3RomByte(rom, address) | ReadLookupStream3RomByte(rom, address + 1) << 8);
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 AssertEqual(expected, ShaktoolInstructionDefinitions.ForOrientationBucket(direction),
                     "stream 3 native Shaktool orientation");
             }
@@ -1149,7 +1146,7 @@ internal static partial class Program
         for (int segment = 0; segment < 7; segment++)
         {
             int offset = segment * 2;
-            ushort collision = (ushort)(ReadLookupStream3RomByte(rom, 0xaadf13 + offset) | ReadLookupStream3RomByte(rom, 0xaadf14 + offset) << 8);
+            ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
             AssertEqual(collision, ShaktoolInstructionDefinitions.CollisionForSegment(segment),
                 "stream 3 native Shaktool collision program");
         }
@@ -1185,7 +1182,7 @@ internal static partial class Program
         for (int frame = 0; frame < 4; frame++)
         {
             int address = 0x94b18d + 4 * frame;
-            AssertEqual((ushort)(ReadLookupStream3RomByte(rom, address) | ReadLookupStream3RomByte(rom, address + 1) << 8), grappleSprites.Segment(frame), "stream 3 calculated native rope attributes");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), grappleSprites.Segment(frame), "stream 3 calculated native rope attributes");
             foreach (string field in new[] { "tileColumn", "tileRow", "palette", "priority", "flipX", "flipY" })
             {
                 var node = System.Text.Json.Nodes.JsonNode.Parse(grappleSpriteJson)!;
@@ -1206,10 +1203,10 @@ internal static partial class Program
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.GrappleSwingFrameExtractor.Extract(rom)));
         for (int angle = 0; angle < 256; angle++)
-            AssertEqual(ReadLookupStream3RomByte(rom, 0x9bc1c2 + angle), swingFrames.Resolve((byte)angle), "stream 3 native calculated swing art frame");
+            AssertEqual(rom.ReadCartridgeByte(0x9bc1c2 + angle), swingFrames.Resolve((byte)angle), "stream 3 native calculated swing art frame");
         AssertTrue(typeof(GrappleSwingFrameCatalog).GetField("frames", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .GetValue(swingFrames) is null, "stream 3 stock swing frame lookup discarded");
-        int[] editedFrames = Enumerable.Range(0, 256).Select(angle => (int)ReadLookupStream3RomByte(rom, 0x9bc1c2 + angle)).ToArray();
+        int[] editedFrames = Enumerable.Range(0, 256).Select(angle => (int)rom.ReadCartridgeByte(0x9bc1c2 + angle)).ToArray();
         for (int editedAngle = 0; editedAngle < 256; editedAngle++)
         {
             int original = editedFrames[editedAngle];
@@ -1293,7 +1290,7 @@ internal static partial class Program
         foreach (int address in new[] { 0xc19a, 0xc19c, 0xc19e, 0xc1a2, 0xc1a6, 0xc1aa, 0xc1ae, 0xc1b2 })
             turretMechanics.Add(address);
         foreach (int address in turretMechanics)
-            AssertEqual((ushort)(ReadLookupStream3RomByte(rom, 0x860000 | address) | ReadLookupStream3RomByte(rom, 0x860000 | (address + 1)) << 8),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x860000 | address),
                 MotherBrainTurretInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "stream 3 turret calculated word read");
         for (int address = 0; address <= ushort.MaxValue; address++)
             AssertEqual(turretMechanics.Contains(address) || turretMechanics.Contains(address - 1),
@@ -1312,22 +1309,18 @@ internal static partial class Program
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
     }
 
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the stream-3 inline intro palette, door color, spark, grapple and Mother Brain turret tables")]
-    private static byte ReadLookupStream3RomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
     [CpuBusBoundary("exact bus test: retail ROM oracle for death selectors")]
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(Read(0x86c929 + 2 * parameter), MotherBrainDeathExplosionDefinitions.InstructionList(parameter),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), MotherBrainDeathExplosionDefinitions.InstructionList(parameter),
                 "stream 3 native death explosion variant");
         foreach (ushort invalid in new ushort[] { 3, 4, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainDeathExplosionDefinitions.InstructionList(invalid),
                 "stream 3 death explosion selector bounds");
         // Confirm the retained visual payload's catalog move and the independent group arithmetic.
         for (int index = 0; index < 28; index++)
-            AssertEqual(((short)Read(0xa9b099 + 4 * index), (short)Read(0xa9b09b + 4 * index)),
+            AssertEqual(((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 4 * index)), (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 4 * index))),
                 MotherBrainDeathExplosionDefinitions.Anchor(index), "stream 3 native decorative death anchor");
         var generate = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("GenerateDeathExplosions",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
@@ -1347,8 +1340,8 @@ internal static partial class Program
                 AssertEqual(requests.Count, calls, "stream 3 one RNG call per death projectile");
                 for (int item = 0; item < requests.Count; item++)
                 {
-                    short x = (short)Read(0xa9b099 + 16 * group + 4 * item);
-                    short y = (short)Read(0xa9b09b + 16 * group + 4 * item);
+                    short x = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 16 * group + 4 * item));
+                    short y = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 16 * group + 4 * item));
                     AssertEqual((ushort)group, scatter.DeathAndEscapeExplosionIndex, "stream 3 death scatter reverse group order");
                     AssertEqual((x, y), (requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
                     AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.Body.Position.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
@@ -1367,7 +1360,7 @@ internal static partial class Program
         var handoff = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(4, handoff.EscapePaletteFxRequests.Count, "stream 3 four escape palette registrations");
         for (int effect = 0; effect < 4; effect++)
-            AssertEqual(Read(0xa9b296 + 7 * effect), handoff.EscapePaletteFxRequests[effect],
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b296 + 7 * effect)), handoff.EscapePaletteFxRequests[effect],
                 "stream 3 native escape palette registration order");
         var text = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, text.EscapePaletteFxRequests.Count, "stream 3 escape palette registrations occur once");
@@ -1376,12 +1369,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for painful walking")]
     private static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int stage = 0; stage < 8; stage++)
         {
-            AssertEqual(Read(0xa9beee + 2 * stage), MotherBrainPainfulWalkingDefinitions.AnimationDelay(stage), "stream 3 native stagger animation delay");
-            AssertEqual(Read(0xa9befe + 2 * stage), MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
-            AssertEqual(Read(0xa9c049 + 2 * stage), MotherBrainPainfulWalkingDefinitions.FunctionTimer(stage), "stream 3 native stagger pause timer");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), MotherBrainPainfulWalkingDefinitions.AnimationDelay(stage), "stream 3 native stagger animation delay");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), MotherBrainPainfulWalkingDefinitions.NeckAngleDelta(stage), "stream 3 native stagger neck angle delta");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), MotherBrainPainfulWalkingDefinitions.FunctionTimer(stage), "stream 3 native stagger pause timer");
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
@@ -1397,7 +1389,7 @@ internal static partial class Program
             sequence.Body.Position = sequence.Body.Position.WithX(0);
             typeof(MotherBrainRainbowBeamAttackSequence).GetProperty("PainfulWalkingStage")!.SetValue(sequence, stage);
             step.Invoke(sequence, null);
-            AssertEqual(Read(0xa9c049 + 2 * Math.Min(stage, (ushort)7)), sequence.PainfulWalkingFunctionTimer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * Math.Min(stage, (ushort)7))), sequence.PainfulWalkingFunctionTimer,
                 "stream 3 real stagger timer clamps terminal stages");
         }
     }
@@ -1405,7 +1397,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for escape geometry")]
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var timer = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("CreateNextEscapeTimerTileTransfer", flags)!;
@@ -1418,8 +1409,8 @@ internal static partial class Program
             for (int index = 0; index < count; index++)
             {
                 int address = start + index * 7;
-                var expected = new MotherBrainSpriteTileTransferRequest((ushort)index, Read(address),
-                    (uint)(Read(address + 2) | rom.ReadCartridgeByte(address + 4) << 16), Read(address + 5));
+                var expected = new MotherBrainSpriteTileTransferRequest((ushort)index, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+                    (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong((address + 2))), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 5)));
                 var calculated = timerList ? MotherBrainEscapeTextArtworkDefinitions.Transfer(index)
                     : MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(index);
                 AssertEqual(expected, calculated, "stream 3 native escape graphics record");
@@ -1451,11 +1442,11 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for stream-3 inline tables")]
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => ReadMotherBrainCorpseRomWord(rom, address);
         for (int row = 0; row < 8; row++)
-            AssertEqual((int)Read(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitions.TileRowOffset(row),
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitions.TileRowOffset(row),
                 "stream 3 corpse native tile row offset");
         var transfers = MotherBrainCorpseArtworkDefinitions.RotTransfers;
         AssertEqual(6, transfers.Count, "stream 3 corpse transfer count");
@@ -1463,14 +1454,14 @@ internal static partial class Program
         for (int row = 0; row < 6; row++)
         {
             int entry = 0xa9e1f4 + row * 8;
-            var expected = new MotherBrainSpriteTileTransferRequest((ushort)row, Read(entry),
-                (uint)(Read(entry + 4) | (Read(entry + 2) >> 8) << 16), Read(entry + 6));
+            var expected = new MotherBrainSpriteTileTransferRequest((ushort)row, CartridgeImportSource.Require(rom).ReadCartridgeWord(entry),
+                (uint)(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4) | (CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2) >> 8) << 16), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6));
             AssertEqual(expected, transfers[row], "stream 3 native corpse rot transfer");
             AssertEqual(expected, enumerated[row], "stream 3 corpse transfer enumeration order");
             int pageEntry = 0xa99003 + row * 7;
-            uint source = (uint)(Read(pageEntry + 2) | ReadMotherBrainCorpseRomByte(rom, pageEntry + 4) << 16);
+            uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, MotherBrainCorpseArtworkDefinitions.VramPageSource(row), "stream 3 corpse source page");
-            AssertEqual(Read(pageEntry + 5), MotherBrainCorpseArtworkDefinitions.VramPageDestination(row), "stream 3 corpse destination page");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5), MotherBrainCorpseArtworkDefinitions.VramPageDestination(row), "stream 3 corpse destination page");
         }
         int[] minimumY = [16, 8, 0, 0, 0, 8, 32]; // CMP/BCC gates in native $A9:EA40/$EB0B.
         for (int column = 0; column < 7; column++)
@@ -1490,7 +1481,7 @@ internal static partial class Program
                 actualTiles[offset] = value;
                 expectedTiles[offset] = value;
             }
-            int source = Read(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
+            int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + (y >> 3) * 2) + (y & 7) * 2;
             int destination = source + ((y & 7) < 6 ? 0 : 0xd4);
             for (int column = 0; column < 7; column++)
             {
@@ -1529,19 +1520,11 @@ internal static partial class Program
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }
 
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain corpse tile rows, rot transfers and VRAM pages")]
-    private static ushort ReadMotherBrainCorpseRomWord(ISnesAddressSpace rom, int address) =>
-        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain corpse VRAM page banks")]
-    private static byte ReadMotherBrainCorpseRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shitroid pulse")]
     private static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         PaletteRgb5 Rgb(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-        ushort[] Words(int address, int count) => Enumerable.Range(0, count).Select(i => Read(address + 2 * i)).ToArray();
+        ushort[] Words(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2 * i))).ToArray();
         var normal = Enumerable.Range(0, 8).Select(frame => Words(0xa9f6d1 + 8 * frame, 4)).ToArray();
         var sidehopper = Words(0xa9f8c6, 16);
         var shitroid = Words(0xa9f8e6, 16);
@@ -1610,7 +1593,7 @@ internal static partial class Program
             rows[frame][color] = Rgb(original);
         }
         for (int color = 0; color < 15; color++)
-            AssertEqual(Read(0xa994d4 + color * 2), stock.TargetColor(ShitroidColorTarget.Shitroid, color + 1),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + color * 2)), stock.TargetColor(ShitroidColorTarget.Shitroid, color + 1),
                 "stream 3 native Baby/Shitroid palette duplication");
         for (int color = 0; color < 16; color++)
         for (int channel = 0; channel < 3; channel++)
@@ -1620,7 +1603,7 @@ internal static partial class Program
             document.Shitroid[color] = Rgb(shitroid[color]);
             Check(Load());
             for (int other = 0; other < 15; other++)
-                AssertEqual(Read(0xa994d4 + other * 2), baby.InitialColor(other), "stream 3 target edits retain independent Baby colors");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + other * 2)), baby.InitialColor(other), "stream 3 target edits retain independent Baby colors");
             shitroid[color] = original;
             document.Shitroid[color] = Rgb(original);
             if (color == 0) continue;
@@ -1665,18 +1648,17 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for drain fades")]
     private static void VerifyStream3DrainFades(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
 
         MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
         {
-            Body = Enumerable.Range(0, 15).Select(color => Color(Read(bodySource + 2 * color))).ToArray(),
-            BackLegs = Enumerable.Range(0, 15).Select(color => Color(Read(legSource + 2 * color))).ToArray(),
+            Body = Enumerable.Range(0, 15).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((bodySource + 2 * color)))).ToArray(),
+            BackLegs = Enumerable.Range(0, 15).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((legSource + 2 * color)))).ToArray(),
         };
         var rainbow = Enumerable.Range(0, 10).Select(frame =>
         {
-            int source = 0xad0000 | Read(0xade434 + 2 * frame);
+            int source = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade434 + 2 * frame));
             return ReadFull(source, source + 30);
         }).ToArray();
         var drain = new MotherBrainRainbowPaletteFrameDocument[8];
@@ -1684,29 +1666,29 @@ internal static partial class Program
         var revival = new MotherBrainRainbowPaletteFrameDocument[8];
         for (int frame = 0; frame < 8; frame++)
         {
-            int source = 0xad0000 | Read(0xadef87 + 2 * frame);
+            int source = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadef87 + 2 * frame));
             drain[frame] = new()
             {
-                Body = Enumerable.Range(0, 15).Select(color => Color(Read(source + 2 * color))).ToArray(),
-                BackLegs = Enumerable.Range(0, 5).Select(color => Color(Read(source + 30 + 2 * color))).ToArray(),
-                TrailingColor = Color(Read(source + 40)),
+                Body = Enumerable.Range(0, 15).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 2 * color)))).ToArray(),
+                BackLegs = Enumerable.Range(0, 5).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 30 + 2 * color)))).ToArray(),
+                TrailingColor = Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 40))),
             };
-            int revivalSource = 0xad0000 | Read(0xaded9c + 2 * frame);
+            int revivalSource = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaded9c + 2 * frame));
             revival[frame] = new()
             {
-                Body = Enumerable.Range(0, 13).Select(color => Color(Read(revivalSource + 2 * color))).ToArray(),
-                BackLegs = Enumerable.Range(0, 5).Select(color => Color(Read(revivalSource + 26 + 2 * color))).ToArray(),
-                TrailingColor = Color(Read(revivalSource + 36)),
+                Body = Enumerable.Range(0, 13).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 2 * color)))).ToArray(),
+                BackLegs = Enumerable.Range(0, 5).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 26 + 2 * color)))).ToArray(),
+                TrailingColor = Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 36))),
             };
-            int fakeSource = 0xad0000 | Read(0xaded8a + 2 * frame);
-            fake[frame] = Enumerable.Range(0, 3).Select(color => Color(Read(fakeSource + 2 * color))).ToArray();
+            int fakeSource = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaded8a + 2 * frame));
+            fake[frame] = Enumerable.Range(0, 3).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((fakeSource + 2 * color)))).ToArray();
         }
         var document = new MotherBrainRainbowPaletteDocument
         {
             Version = 3, Rainbow = rainbow,
             ToGrey = drain, FromGrey = revival,
             FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494), BeamInitial = Color(0x3ce0),
-            BeamCycle = Enumerable.Range(0, 38).Select(index => Color(Read(0x88e833 + 4 * index))).ToArray(),
+            BeamCycle = Enumerable.Range(0, 38).Select(index => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))).ToArray(),
         };
         MotherBrainRainbowPalettePresentation Load(MotherBrainRainbowPaletteDocument value,
             MotherBrainRainbowPalettePresentation? stock = null) => MotherBrainRainbowPalettePresentation.Load(
@@ -1949,16 +1931,15 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby fade")]
     private static void VerifyStream3BabyFade(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var initial = new ushort[15];
         var fade = new ushort[6][];
         for (int color = 0; color < initial.Length; color++)
-            initial[color] = Read(0xa994d4 + 2 * color);
+            initial[color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + 2 * color));
         for (int frame = 0; frame < fade.Length; frame++)
         {
             fade[frame] = new ushort[14];
             for (int color = 0; color < fade[frame].Length; color++)
-                fade[frame][color] = Read(0xade90c + 28 * frame + 2 * color);
+                fade[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade90c + 28 * frame + 2 * color));
         }
         static PaletteRgb5 Rgb(ushort value) => new()
         {
@@ -2013,11 +1994,11 @@ internal static partial class Program
         var endpointMethod = selectedFade.GetType().GetMethod("Endpoint", fields | System.Reflection.BindingFlags.Static)!;
         for (int color = 0; color < 14; color++)
         {
-            AssertEqual(Read(0xade8f0 + 2 * color), ScaleHealth(((Bgr555)endpointMethod.Invoke(null, [color])!).ToWord(), 6),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade8f0 + 2 * color)), ScaleHealth(((Bgr555)endpointMethod.Invoke(null, [color])!).ToWord(), 6),
                 "stream 3 reviewed final-health endpoint reproduces original undisplayed fade step");
             int healthAddress = color < 4 ? 0xade870 + 2 * color :
                 color < 9 ? 0xade8d8 + 2 * (color - 4) : 0xade878 + 2 * (color - 9);
-            ushort nativeHealth = Read(healthAddress);
+            ushort nativeHealth = CartridgeImportSource.Require(rom).ReadCartridgeWord(healthAddress);
             AssertEqual(nativeHealth, (Bgr555)endpointMethod.Invoke(null, [color])!, "stream 3 exact native final-health endpoint");
             for (int frame = 0; frame < fade.Length; frame++)
                 AssertEqual(fade[frame][color], ScaleHealth(nativeHealth, 5 - frame),
@@ -2041,7 +2022,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain fades")]
     private static void VerifyStream3MotherBrainFades(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var body = new ushort[16][];
         var leg = new ushort[16][];
         var corpse = new ushort[8][];
@@ -2051,19 +2031,19 @@ internal static partial class Program
             leg[frame] = new ushort[14];
             for (int color = 0; color < 14; color++)
             {
-                body[frame][color] = Read(0xadea0a + 56 * frame + 2 * color);
-                leg[frame][color] = Read(0xadea26 + 56 * frame + 2 * color);
+                body[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadea0a + 56 * frame + 2 * color));
+                leg[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadea26 + 56 * frame + 2 * color));
             }
         }
         for (int frame = 0; frame < 8; frame++)
         {
             corpse[frame] = new ushort[15];
             for (int color = 0; color < 15; color++)
-                corpse[frame][color] = Read(0xadf119 + 30 * frame + 2 * color);
+                corpse[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadf119 + 30 * frame + 2 * color));
         }
         var door = new ushort[14];
         for (int color = 0; color < door.Length; color++)
-            door[color] = Read(0xa99534 + 2 * color);
+            door[color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa99534 + 2 * color));
 
         static PaletteRgb5 Rgb(ushort value) => new()
         {
@@ -2190,7 +2170,7 @@ internal static partial class Program
                 foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 })
                 {
                     ushort address = (ushort)(start + offset);
-                    ushort value = (ushort)(rom.ReadCartridgeByte(bank | address) | rom.ReadCartridgeByte(bank | (address + 1)) << 8);
+                    ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(bank | address);
                     AssertEqual((address, value), wordAt(wordIndex++), "stream 3 uniform loop native mechanic");
                     AssertEqual(value, read(address), "stream 3 uniform loop mechanic dispatch");
                     bytes.Add(address);
@@ -2224,7 +2204,7 @@ internal static partial class Program
             foreach (int offset in new[] { 0, 4, 8, 12, 16, 18 })
             {
                 ushort address = (ushort)(start + offset);
-                ushort value = (ushort)(rom.ReadCartridgeByte(0xa20000 | address) | rom.ReadCartridgeByte(0xa20000 | (address + 1)) << 8);
+                ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | address);
                 AssertEqual(new InstructionMechanicsWord(address, value), RipperInstructionProgramDefinitionsTooling.MechanicsWord(wordIndex++),
                     "stream 3 Ripper mechanic order and value");
                 bytes.Add(address);
@@ -2237,7 +2217,7 @@ internal static partial class Program
                     "stream 3 Ripper visual operand order");
                 if (start < 0xe477)
                 {
-                    ushort expected = (ushort)(rom.ReadCartridgeByte(0xa20000 | address) | rom.ReadCartridgeByte(0xa20000 | (address + 1)) << 8);
+                    ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | address);
                     AssertEqual(expected, RipperVisualDefinitions.FrameAt(EnemyDefinitionId.GRipper, address),
                         "stream 3 GRipper preserves shared operand domain");
                     AssertEqual(expected, RipperVisualDefinitions.FrameAt(EnemyDefinitionId.Ripper2, address),
@@ -2264,12 +2244,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Choot control")]
     private static void VerifyStream3ChootControl(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (ushort pattern = 0; pattern < 5; pattern++)
         {
-            ushort pointer = Read(0xa2df5e + 2 * pattern);
-            ushort distancePointer = Read(0xa2df6a + 2 * pattern);
-            AssertEqual(new ChootPatternDefinition((ChootFallingPath)pointer, Read(0xa20000 | distancePointer)),
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + 2 * pattern));
+            ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + 2 * pattern));
+            AssertEqual(new ChootPatternDefinition((ChootFallingPath)pointer, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer))),
                 ChootPatternDefinitions.ForIndex(pattern), "stream 3 Choot pattern identity and loop advance");
         }
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
@@ -2282,7 +2261,7 @@ internal static partial class Program
         for (int index = 0; index < mechanics.Length; index++)
         {
             ushort address = mechanics[index];
-            ushort value = Read(0xa20000 | address);
+            ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | address));
             AssertEqual(new InstructionMechanicsWord(address, value), ChootInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "stream 3 Choot native control instruction");
             AssertEqual(value, ChootInstructionProgramDefinitions.ReadMechanicsWord(address), "stream 3 Choot control dispatch");
@@ -2314,12 +2293,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for pickup and Fireflea programs")]
     private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)
     {
-        ushort Read(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int kind = 0; kind < 6; kind++)
-            AssertEqual(new EnemyPickupAnimationDefinition((ushort)(2 * kind), Read(0x86ef04 + 2 * kind)),
+            AssertEqual(new EnemyPickupAnimationDefinition((ushort)(2 * kind), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind))),
                 EnemyPickupDefinitions.Animation((EnemyPickupKind)kind), "stream 3 pickup kind dispatch");
         for (ushort animation = 0; animation < 5; animation++)
-            AssertEqual(Read(0x86efd5 + 2 * animation), EnemyDeathExplosionDefinitions.InstructionPointer(animation),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + 2 * animation)), EnemyDeathExplosionDefinitions.InstructionPointer(animation),
                 "stream 3 death variant dispatch");
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => EnemyPickupDefinitions.Animation((EnemyPickupKind)invalid),
@@ -2348,9 +2326,9 @@ internal static partial class Program
         for (int index = 0; index < pickupMechanics.Length; index++)
         {
             ushort address = pickupMechanics[index];
-            AssertEqual(new InstructionMechanicsWord(address, Read(0x860000 | address)),
+            AssertEqual(new InstructionMechanicsWord(address, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | address))),
                 EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWord(index), "stream 3 native pickup mechanic");
-            AssertEqual(Read(0x860000 | address), EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | address)), EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address),
                 "stream 3 pickup mechanic dispatch");
         }
         for (int index = 0; index < pickupPresentation.Length; index++)
@@ -2384,7 +2362,7 @@ internal static partial class Program
         for (int index = 0; index < 54; index++)
         {
             ushort address = (ushort)(index < 52 ? 0x8c2f + index * 4 : 0x8cff + (index - 52) * 2);
-            ushort value = Read(0xa30000 | address);
+            ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address));
             AssertEqual(new InstructionMechanicsWord(address, value), FirefleaInstructionProgramDefinitionsTooling.MechanicsWord(index),
                 "stream 3 native Fireflea mechanic");
             AssertEqual(value, FirefleaInstructionProgramDefinitions.ReadMechanicsWord(address),
@@ -2430,7 +2408,7 @@ internal static partial class Program
             for (int color = 0; color < 4; color++)
             {
                 int address = 0xa8ccc1 + 10 * frame + 2 * color;
-                ushort value = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+                ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 words[frame][color] = value;
                 colors[frame][color] = new PaletteRgb5
                 {
@@ -2524,11 +2502,11 @@ internal static partial class Program
                 (MotherBrainHealthPaletteRomData.BackLegTable, MotherBrainRainbowPaletteRomData.SecondaryColor),
             })
             {
-                int pointer = rom.ReadCartridgeByte(table + state * 2) | rom.ReadCartridgeByte(table + state * 2 + 1) << 8;
+                int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(table + state * 2);
                 for (int color = 0; color < 15; color++)
                 {
                     int address = 0xad0000 | pointer + color * 2;
-                    ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+                    ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                     AssertEqual(expected, actual.Colors[destination + color], "stream 3 all native health tint words");
                 }
             }
@@ -2591,7 +2569,7 @@ internal static partial class Program
             for (int color = 0; color < 28; color++)
             {
                 int address = 0xadf3d3 - frame * 0x38 + color * 2;
-                ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 int destination = color < 14 ? MotherBrainRoomColorRomData.RecoveryLightsFirstColor + color :
                     MotherBrainRoomColorRomData.RecoveryLightsSecondColor + color - 14;
                 AssertEqual(expected, actual.Colors[destination], "stream 3 all native recovery light words");
@@ -2683,13 +2661,13 @@ internal static partial class Program
         {
             ushort entry = checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + frame * MotherBrainRoomColorRomData.TimedEntryByteCount));
             int operand = MotherBrainRoomColorRomData.SourceBank + entry + MotherBrainRoomColorRomDataTooling.PaletteOperandByteOffset;
-            int source = MotherBrainRoomColorRomData.SourceBank | rom.ReadCartridgeByte(operand) | rom.ReadCartridgeByte(operand + 1) << 8;
+            int source = (MotherBrainRoomColorRomData.SourceBank|CartridgeImportSource.Require(rom).ReadCartridgeWord(operand));
             var actual = new SnesCgram();
             stock.ApplyFlash(actual, entry);
             for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors * 2; color++)
             {
                 int address = source + color * sizeof(ushort);
-                ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 int destination = color < MotherBrainRoomColorRomData.SliceColors
                     ? MotherBrainRoomColorRomData.FirstColor + color
                     : MotherBrainRoomColorRomData.SecondColor + color - MotherBrainRoomColorRomData.SliceColors;
@@ -2776,9 +2754,7 @@ internal static partial class Program
                     break;
 
                 case 0x8f: // STA long
-                    int destination = bus.ReadCartridgeByte(pc) |
-                        (bus.ReadCartridgeByte(pc + 1) << 8) |
-                        (bus.ReadCartridgeByte(pc + 2) << 16);
+                    int destination = (CartridgeImportSource.Require(bus).ReadCartridgeLong(pc));
                     pc += 3;
                     int storageIndex = destination - RoomScrollGrid.WorkRamAddress;
                     if ((uint)storageIndex >= RoomScrollGrid.StorageByteCount)
@@ -2826,7 +2802,7 @@ internal static partial class Program
         for (int color = 0; color < 15; color++)
         {
             int address = 0xa99494 + color * 2;
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, phaseTwo.Colors[0xb1 + color], "stream 3 native phase-two rear color and destination");
             foreach (string component in new[] { "red", "green", "blue" })
             {
@@ -2868,7 +2844,7 @@ internal static partial class Program
                 Enumerable.Range(0, definition.ColorCount).Select(color =>
                 {
                     int address = definition.SourceAddress + 2 * (frame * definition.NativeFrameStrideColors + color);
-                    return (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+                    return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 }).ToArray()).ToArray());
         EnemyAuxiliaryColorCatalog Load()
         {
@@ -2932,7 +2908,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby sprite reflection")]
     private static void VerifyStream3BabySpriteReflection(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
         {
@@ -2945,12 +2920,12 @@ internal static partial class Program
         foreach (var frame in selected)
         {
             int source = (frame.Bank << 16) | frame.Pointer;
-            AssertEqual(30, Word(source), "stream 3 native Baby counted-record extent");
+            AssertEqual(30, CartridgeImportSource.Require(rom).ReadCartridgeWord(source), "stream 3 native Baby counted-record extent");
             document.Frames[frame.Name] = Enumerable.Range(0, 30).Select(index =>
             {
                 int entry = source + 2 + index * 5;
-                var x = new SnesSpritemapXWord(Word(entry));
-                var attributes = new SnesObjAttributeWord(Word(entry + 3));
+                var x = new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry));
+                var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)));
                 return new SpriteVisualPart
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
@@ -3097,7 +3072,7 @@ internal static partial class Program
         {
             var word = MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(mechanics[index], word.Address, "Baby exact native mechanics enumeration");
-            AssertEqual((ushort)(rom.ReadCartridgeByte(0xa90000 | word.Address) | rom.ReadCartridgeByte(0xa90000 | (word.Address + 1)) << 8),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | word.Address),
                 word.Value, "Baby exact native mechanics operand");
         }
         for (int index = 0; index < visual.Length; index++)
@@ -3128,7 +3103,7 @@ internal static partial class Program
         for (int color = 0; color < MotherBrainRoomColorRomData.PhaseTwoColors; color++)
         {
             int address = MotherBrainRoomColorRomData.PhaseTwoAttackSource + color * sizeof(ushort);
-            ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, native.Colors[MotherBrainRoomColorRomData.PhaseTwoAttackColor + color],
                 "attack palette exact native color and CGRAM destination");
             foreach (string component in new[] { "red", "green", "blue" })
@@ -3180,7 +3155,7 @@ internal static partial class Program
         for (int color = 0; color < document.FinalRoom.Length; color++)
         {
             int address = MotherBrainRoomColorRomData.SourceBank + MotherBrainRoomPaletteProgramDefinitions.FinalPalette + color * sizeof(ushort);
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, Word(document.FinalRoom[color]), "final-room direct native word");
         }
         Confirm(stock);
@@ -3246,8 +3221,8 @@ internal static partial class Program
         {
             int glassAddress = MotherBrainRoomColorRomData.InitialGlassShardSource + color * sizeof(ushort);
             int tubeAddress = MotherBrainRoomColorRomData.InitialTubeProjectileSource + color * sizeof(ushort);
-            AssertEqual((ushort)(rom.ReadCartridgeByte(glassAddress) | rom.ReadCartridgeByte(glassAddress + 1) << 8), Word(document.InitialGlassShard![color]), "glass direct native color");
-            AssertEqual((ushort)(rom.ReadCartridgeByte(tubeAddress) | rom.ReadCartridgeByte(tubeAddress + 1) << 8), Word(document.InitialTubeProjectile![color]), "tube direct native color");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(glassAddress), Word(document.InitialGlassShard![color]), "glass direct native color");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(tubeAddress), Word(document.InitialTubeProjectile![color]), "tube direct native color");
         }
         Confirm(stock, document);
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -3344,7 +3319,7 @@ internal static partial class Program
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
         {
             int address = BabyMetroidCutsceneColorRomData.InitialSource + color * sizeof(ushort);
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, stock.InitialColor(color), "Baby initial exact native color");
             AssertEqual(native, liveStock.TargetColor(ShitroidColorTarget.Shitroid, color + 1), "Baby live initial alias");
         }

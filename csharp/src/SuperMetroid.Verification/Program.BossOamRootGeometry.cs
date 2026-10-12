@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -50,7 +51,7 @@ internal static partial class Program
         {
             AssertEqual(expected[index], actual(index), "original selected OAM root");
             int address = bank << 16 | expected[index];
-            int count = rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8;
+            int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(componentCount(index), count, "native component count explains record geometry");
         }
         foreach (int invalid in new[] { -1, expected.Length, int.MaxValue })

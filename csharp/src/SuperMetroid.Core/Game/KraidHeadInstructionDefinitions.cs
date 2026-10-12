@@ -128,8 +128,7 @@ internal static class KraidHeadInstructionDefinitions
             if (address == frame.Pointer + 6) return frame.InvulnerableHitbox;
         }
         if (address < 0x8000)
-            return (ushort)(ReadLiveByte(bus, address) |
-                ReadLiveByte(bus, unchecked((ushort)(address + 1))) << 8);
+            return SnesLittleEndian.Word(ReadLiveByte(bus, address), ReadLiveByte(bus, unchecked((ushort)(address + 1))));
         throw new InvalidDataException($"Kraid collision selector $A7:{address:X4} is outside the compiled head frames.");
     }
 
@@ -168,9 +167,7 @@ internal static class KraidHeadInstructionDefinitions
         }
 
         ushort tilemapPointer = unchecked((ushort)(pointer + 2));
-        return unchecked((ushort)(
-            ReadLiveByte(bus, tilemapPointer) |
-            ReadLiveByte(bus, unchecked((ushort)(tilemapPointer + 1))) << 8));
+        return SnesLittleEndian.Word(ReadLiveByte(bus, tilemapPointer), ReadLiveByte(bus, unchecked((ushort)(tilemapPointer + 1))));
     }
 
     /// <summary>

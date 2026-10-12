@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -9,7 +10,7 @@ internal static partial class Program
         short Original(int index)
         {
             int address = EnemyMathReferenceData.ShaktoolOrbit + 2 * index;
-            return unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+            return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
         for (int index = 0; index < 320; index++)
         {

@@ -29,7 +29,7 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
     {
         ISnesMutableMemory memory = WorkRam("Atmospheric type two's mirrored WRAM");
         int source = SamusMovementRomData.Banks.Movement | (frame * sizeof(ushort));
-        return (ushort)(memory.ReadWorkRamByte(source) | memory.ReadWorkRamByte(source + 1) << 8);
+        return memory.ReadWorkRamWord(source);
     }
 
     /// <summary>
@@ -40,12 +40,12 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
     {
         ISnesMutableMemory memory = WorkRam("A wrapped speed table's live WRAM");
         return new SpeedTableEntry(
-            SnesWorkRam.ReadWord(memory, address + 0),
-            SnesWorkRam.ReadWord(memory, address + 2),
-            SnesWorkRam.ReadWord(memory, address + 4),
-            SnesWorkRam.ReadWord(memory, address + 6),
-            SnesWorkRam.ReadWord(memory, address + 8),
-            SnesWorkRam.ReadWord(memory, address + 10));
+            memory.ReadWorkRamWordFixedBank(address + 0),
+            memory.ReadWorkRamWordFixedBank(address + 2),
+            memory.ReadWorkRamWordFixedBank(address + 4),
+            memory.ReadWorkRamWordFixedBank(address + 6),
+            memory.ReadWorkRamWordFixedBank(address + 8),
+            memory.ReadWorkRamWordFixedBank(address + 10));
     }
 
     /// <summary>A projectile-trail program word at a bank-$90 low-half <paramref name="source"/>.</summary>
@@ -110,16 +110,14 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
     {
         Ensure.NotNull(memory);
         const int spritemapAddress = SamusRenderingRomData.Banks.GraphicsDefinitions;
-        ushort ReadWord(int address) => (ushort)(memory.ReadWorkRamByte(address) |
-            memory.ReadWorkRamByte(SnesAddressMath.AddWithinBank(address, 1)) << 8);
-        ushort entryCount = ReadWord(spritemapAddress);
+        ushort entryCount = memory.ReadWorkRamWordFixedBank(spritemapAddress);
         var entries = new SamusZeroSpritemapEntry[entryCount];
         int entryAddress = SnesAddressMath.AddWithinBank(spritemapAddress, 2);
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
-            ushort x = ReadWord(entryAddress);
+            ushort x = memory.ReadWorkRamWordFixedBank(entryAddress);
             byte y = memory.ReadWorkRamByte(SnesAddressMath.AddWithinBank(entryAddress, 2));
-            ushort attributes = ReadWord(SnesAddressMath.AddWithinBank(entryAddress, 3));
+            ushort attributes = memory.ReadWorkRamWordFixedBank(SnesAddressMath.AddWithinBank(entryAddress, 3));
             entries[entryIndex] = new SamusZeroSpritemapEntry(x, y, attributes);
             entryAddress = SnesAddressMath.AddWithinBank(entryAddress, 5);
         }

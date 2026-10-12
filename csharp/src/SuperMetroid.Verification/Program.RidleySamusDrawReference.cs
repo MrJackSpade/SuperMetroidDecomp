@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,13 +24,12 @@ internal static partial class Program
         ISnesAddressSpace rom, byte[] checkpoint, bool invincibleAtDraw, ushort nmi)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
-        ushort R(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         if ((W(NativeSnapshotMemory.CannonDrawingMode) & 15) == 0) return default;
         ushort frame = W(NativeSnapshotMemory.CannonFrame);
         if (frame == 0 || (invincibleAtDraw && (nmi & 1) != 0))
             return new RidleyNativeCannonDrawResult(false, false, frame);
         ushort pose = W(NativeSnapshotMemory.Pose), animation = W(NativeSnapshotMemory.Animation);
-        int drawing = NativeSnapshotMemory.CannonDefinitionBank | R(NativeSnapshotMemory.CannonPosePointers + pose * 2);
+        int drawing = NativeSnapshotMemory.CannonDefinitionBank | CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.CannonPosePointers + pose * 2));
         byte first = rom.ReadCartridgeByte(drawing);
         bool alternate = (first & 128) != 0;
         byte direction = (byte)((alternate && animation != 0 ? rom.ReadCartridgeByte(drawing + 2) : first) & 127);
@@ -38,10 +38,10 @@ internal static partial class Program
         // C6F4 masks the pose graphics offset to a byte, unlike the body renderer's sign extension.
         short y = unchecked((short)(W(NativeSnapshotMemory.Y) + (sbyte)rom.ReadCartridgeByte(offsets + 1) -
             rom.ReadCartridgeByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4) - W(NativeSnapshotMemory.CameraY)));
-        ushort attributes = R(NativeSnapshotMemory.CannonAttributes + direction * 2);
-        int tiles = NativeSnapshotMemory.CannonDefinitionBank | R(NativeSnapshotMemory.CannonTileLists + direction * 2);
+        ushort attributes = CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.CannonAttributes + direction * 2));
+        int tiles = NativeSnapshotMemory.CannonDefinitionBank | CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.CannonTileLists + direction * 2));
         return new RidleyNativeCannonDrawResult(x >= 0 && x < 256 && y >= 0 && y < 256,
-            true, frame, direction, attributes, R(tiles + frame * 2), new(unchecked((ushort)x), unchecked((ushort)y)));
+            true, frame, direction, attributes, CartridgeImportSource.Require(rom).ReadCartridgeWord((tiles + frame * 2)), new(unchecked((ushort)x), unchecked((ushort)y)));
     }
 
     private static bool ContainsMovieCannonSprite(ReadOnlySpan<byte> low, ReadOnlySpan<byte> high,
@@ -68,7 +68,6 @@ internal static partial class Program
         ISnesAddressSpace rom, byte[] checkpoint)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
-        ushort R(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         if ((W(NativeSnapshotMemory.CeresStatus) & 0x8000) != 0)
             throw new InvalidDataException("Movie body oracle requires a native Mode 7 transform mapping.");
         ushort pose = W(NativeSnapshotMemory.Pose), frame = W(NativeSnapshotMemory.Animation);
@@ -82,8 +81,8 @@ internal static partial class Program
                 if (frame >= 2) yOffset = -1;
             }
             else if (poseId is >= SamusPoseId.NormalLandingRightPose and <= SamusPoseId.SpinLandingLeftPose)
-                yOffset = -R(NativeSnapshotMemory.LandingDrawOffsets +
-                    (poseId - SamusPoseId.NormalLandingRightPose) * 4 + frame);
+                yOffset = -CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.LandingDrawOffsets +
+                    (poseId - SamusPoseId.NormalLandingRightPose) * 4 + frame));
         }
         else if (movement == SamusMovementType.PostureTransition &&
             poseId >= SamusPoseId.CrouchingTransitionRightPose && poseId < SamusPoseId.MorphBallGroundLeftPose)
@@ -122,8 +121,8 @@ internal static partial class Program
             _ when (ushort)movement < 28 => true,
             _ => throw new InvalidDataException($"Unknown native body movement type {movement}"),
         };
-        return (unchecked((ushort)(R(NativeSnapshotMemory.TopSpritemapBases + pose * 2) + frame)),
-            bottom ? unchecked((ushort)(R(NativeSnapshotMemory.BottomSpritemapBases + pose * 2) + frame)) : (ushort)0,
+        return (unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.TopSpritemapBases + pose * 2)) + frame)),
+            bottom ? unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.BottomSpritemapBases + pose * 2)) + frame)) : (ushort)0,
             unchecked((ushort)(W(NativeSnapshotMemory.X) - W(NativeSnapshotMemory.CameraX))),
             unchecked((ushort)(W(NativeSnapshotMemory.Y) + yOffset - W(NativeSnapshotMemory.CameraY))));
     }

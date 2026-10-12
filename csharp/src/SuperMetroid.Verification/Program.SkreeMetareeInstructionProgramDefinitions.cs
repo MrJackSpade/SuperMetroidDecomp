@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -24,7 +25,7 @@ internal static partial class Program
                 InstructionMechanicsWord definition =
                     SkreeMetareeInstructionProgramDefinitions.MechanicsWord(metaree, index);
                 AssertEqual(definition.Value,
-                    ReadSkreeMetareeInstructionWord(rom, 0xa30000 | definition.Address),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | definition.Address)),
                     $"{(metaree ? "Metaree" : "Skree")} mechanics $A3:{definition.Address:X4}");
             }
         }
@@ -45,7 +46,7 @@ internal static partial class Program
                 ushort address =
                     SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(
                         metaree, index);
-                AssertEqual(ReadSkreeMetareeInstructionWord(rom, 0xa30000 | address),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address)),
                     EnemySpritemapDefinitions.SkreeMetareeFrameAt(metaree, address),
                     $"compiled {(metaree ? "Metaree" : "Skree")} frame $A3:{address:X4}");
             }
@@ -179,12 +180,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Skree Metaree instruction words")]
-    private static ushort ReadSkreeMetareeInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewSkreeMetareeInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

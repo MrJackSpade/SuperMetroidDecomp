@@ -122,8 +122,6 @@ internal static partial class Program
     private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
         SamusProjectileTrailSlot pair, OamBuffer oam, bool frozen)
     {
-        ushort Word(ushort pointer) => (ushort)(rom.ReadCartridgeByte(0x900000 | pointer) |
-            rom.ReadCartridgeByte(0x900000 | unchecked((ushort)(pointer + 1))) << 8);
         foreach (SamusProjectileTrailSide side in new[] { pair.Left, pair.Right })
         {
             if (side.InstructionTimer == 0) continue;
@@ -133,13 +131,13 @@ internal static partial class Program
                 for (int operations = 0; ; operations++)
                 {
                     AssertTrue(operations < 16, "native trail reaches a timed frame or terminator");
-                    ushort command = Word(cursor);
+                    ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | cursor);
                     if (command < 0x8000)
                     {
                         side.InstructionTimer = command;
                         if (command != 0)
                         {
-                            side.TileNumberAttributes = Word(unchecked((ushort)(cursor + 2)));
+                            side.TileNumberAttributes = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | (unchecked((ushort)(cursor + 2))));
                             side.InstructionPointer = unchecked((ushort)(cursor + 4));
                         }
                         break;

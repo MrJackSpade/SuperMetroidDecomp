@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -120,10 +121,10 @@ internal static partial class Program
             0x95f3, 0x95f9, 0x95fd, 0x9601, 0x9605, 0x9609, 0x9611, 0x9615, 0x9619, 0x961d];
         foreach (ushort address in addresses)
         {
-            ushort expected = ReadFuneNamiheProgramWord(rom, address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | address);
             AssertEqual(expected, EnemySpritemapDefinitions.FuneNamiheFrameAt(address),
                 "Fune/Namihe calculated pose matches native visual word");
-            AssertEqual((ushort)8, ReadFuneNamiheProgramWord(rom, expected),
+            AssertEqual((ushort)8, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | expected),
                 "Fune/Namihe original map has eight OAM entries");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort shared),
                 "shared catalog dispatches Fune/Namihe operand");
@@ -154,7 +155,7 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            ushort expected = ReadFuneNamiheProgramWord(rom, address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | address);
             var word = FuneNamiheInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, word.Address, "Fune/Namihe native mechanics address");
             AssertEqual(expected, word.Value, "Fune/Namihe enumerated native mechanics value");
@@ -241,14 +242,6 @@ internal static partial class Program
 
         return (enemies, slot);
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe program words")]
-    private static ushort ReadFuneNamiheProgramWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa80000 | address) |
-            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private readonly record struct FuneNamiheProgramCase(
         ushort Entry,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +20,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord word =
                 BombTorizoDormantInstructionProgramDefinitions.MechanicsWord(index);
-            ushort native = ReadWord(word.Address);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | word.Address);
             AssertEqual(native, word.Value,
                 $"Bomb Torizo dormant mechanics $AA:{word.Address:X4}");
             AssertTrue(BombTorizoDormantInstructionProgramDefinitions
@@ -38,7 +39,7 @@ internal static partial class Program
             .PresentationWordAddress(0);
         AssertTrue(CompiledEnemyVisualSelectors.TryGet(bank, visualOperand,
                 out ushort installedFrame) &&
-                   installedFrame == ReadWord(visualOperand),
+                   installedFrame == CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | visualOperand),
             "Bomb Torizo dormant visual selector is compiled from the cartridge");
         AssertTrue(!BombTorizoDormantInstructionProgramDefinitions
                 .TryReadMechanicsWord(visualOperand, out _),
@@ -50,11 +51,6 @@ internal static partial class Program
         Console.WriteLine(
             "Bomb Torizo dormant entry: six mechanics words and one visual selector " +
             "match the pinned cartridge.");
-
-        ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadCartridgeByte((bank << 16) | address) |
-                rom.ReadCartridgeByte((bank << 16) |
-                    unchecked((ushort)(address + 1))) << 8);
     }
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo dormant control mapping")]
     private static void VerifyBombTorizoDormantControlMapping(ISnesAddressSpace rom)
@@ -69,7 +65,7 @@ internal static partial class Program
         {
             bool found = BombTorizoDormantInstructionProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
             AssertEqual(words.Contains((ushort)address), found, "dormant full control membership");
-            ushort native = found ? (ushort)(rom.ReadCartridgeByte(0xaa0000 | address) | rom.ReadCartridgeByte(0xaa0000 | (address + 1)) << 8) : (ushort)0;
+            ushort native = found ? CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xaa0000 | address) : (ushort)0;
             AssertEqual(native, value, "dormant original control value or cleared missing output");
             AssertEqual(bytes.Contains(address), BombTorizoDormantInstructionProgramDefinitions.IsCompiledMechanicsByte(0xaa0000 | address), "dormant exact byte ownership");
             AssertEqual(bytes.Contains(address), BombTorizoDormantInstructionProgramDefinitions.IsCompiledMechanicsByte(0x1aa0000 | address), "dormant existing high-bit alias");

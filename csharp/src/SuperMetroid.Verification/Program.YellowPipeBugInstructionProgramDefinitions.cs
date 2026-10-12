@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 YellowPipeBugInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadYellowPipeBugInstructionWord(rom, 0xb30000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | definition.Address)),
                 $"Yellow Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
         }
 
@@ -51,7 +52,7 @@ internal static partial class Program
         {
             ushort address =
                 YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(ReadYellowPipeBugInstructionWord(rom, 0xb30000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | address)),
                 PipeBugVisualDefinitions.FrameAt(
                     EnemyDefinitionId.Geega, address),
                 $"compiled Yellow Pipe Bug frame $B3:{address:X4}");
@@ -118,11 +119,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Yellow Pipe Bug instruction words")]
-    private static ushort ReadYellowPipeBugInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewYellowPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

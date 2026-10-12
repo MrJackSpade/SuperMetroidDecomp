@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,10 +24,10 @@ public static class GameplayMessageTitleExtractor
         {
             int definition = GameplayMessageRomData.Assets.DefinitionTable +
                 ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
-            ushort setup = ReadWord(bus, definition);
-            ushort draw = ReadWord(bus, definition + 2);
-            ushort pointer = ReadWord(bus, definition + 4);
-            ushort next = ReadWord(bus, definition + GameplayMessageRomData.Layout.DefinitionBytes + 4);
+            ushort setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
+            ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
+            ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + GameplayMessageRomData.Layout.DefinitionBytes + 4));
             if (setup != GameplayMessageRomData.Routines.SetupSmall ||
                 draw != GameplayMessageRomData.Routines.DrawSmallTilemap ||
                 next - pointer != GameplayMessageRomData.Layout.TilemapWidth * sizeof(ushort))
@@ -39,7 +40,7 @@ public static class GameplayMessageTitleExtractor
             int content = GameplayMessageRomData.Assets.BankBase | pointer;
             for (int column = 0; column < GameplayMessageRomData.Layout.TilemapWidth; column++)
             {
-                ushort word = ReadWord(bus, content + column * sizeof(ushort));
+                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + column * sizeof(ushort)));
                 if (column is < GameplayMessageTitleDefinitions.OuterLeftColumns or
                     >= (GameplayMessageRomData.Layout.TilemapWidth -
                         GameplayMessageTitleDefinitions.OuterRightColumns))
@@ -66,8 +67,7 @@ public static class GameplayMessageTitleExtractor
 
         var border = new GameplayMessageTitleCell[GameplayMessageRomData.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Raw = ReadWord(bus,
-                GameplayMessageRomData.Assets.SmallBorder + column * sizeof(ushort)) };
+            border[column] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.SmallBorder + column * sizeof(ushort))) };
 
         using var output = new MemoryStream();
         GameplayMessageTitlePresentation.Write(output, new()
@@ -78,7 +78,4 @@ public static class GameplayMessageTitleExtractor
         });
         return output.ToArray();
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 }

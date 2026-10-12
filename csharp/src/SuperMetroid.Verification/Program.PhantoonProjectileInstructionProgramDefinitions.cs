@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -20,7 +21,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 PhantoonProjectileInstructionProgramDefinitions.MechanicsWord(index);
-            AssertEqual(definition.Value, ReadWord(rom, definition.Address),
+            AssertEqual(definition.Value, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Phantoon projectile mechanics word $86:{definition.Address:X4}");
         }
 
@@ -119,7 +120,7 @@ internal static partial class Program
                 $"PhantoonProjectile executes native presentation operand {address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
                 "PhantoonProjectile has a compiled visual selector");
-            AssertEqual(ReadWord(rom, address), selector,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address), selector,
                 "PhantoonProjectile compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -183,12 +184,6 @@ internal static partial class Program
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }
-
-        static ushort ReadWord(SuperMetroidAddressSpace source, ushort address) =>
-            unchecked((ushort)(
-                source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-                source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(address + 1))) << 8));
     }
 
     private static int ProbePhantoonProjectileInstructionMechanicsAllocation()

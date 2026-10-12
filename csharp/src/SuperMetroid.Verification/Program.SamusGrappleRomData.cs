@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -67,9 +68,7 @@ internal static partial class Program
         // pointer for each folded two-degree angle pair through the next connection table.
         for (int point = 0; point < 2; point++)
         {
-            ushort pointer = ReadGrappleWord(
-                bus,
-                SamusGrappleRomData.Rendering.PointTilePointers + point * sizeof(ushort));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusGrappleRomData.Rendering.PointTilePointers + point * sizeof(ushort)));
             TouchRange(bus, SamusGrappleRomData.Banks.CharacterData | pointer,
                 SamusGrappleRomData.Rendering.PointTileByteCount,
                 $"Grapple point character frame {point}");
@@ -80,9 +79,7 @@ internal static partial class Program
                 SamusGrappleRomData.Rendering.SegmentTilePointers) / sizeof(ushort);
         for (int segment = 0; segment < segmentPointerCount; segment++)
         {
-            ushort pointer = ReadGrappleWord(
-                bus,
-                SamusGrappleRomData.Rendering.SegmentTilePointers + segment * sizeof(ushort));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusGrappleRomData.Rendering.SegmentTilePointers + segment * sizeof(ushort)));
             TouchRange(bus, SamusGrappleRomData.Banks.CharacterData | pointer,
                 SamusGrappleRomData.Rendering.SegmentTileByteCount,
                 $"Grapple segment character set {segment}");
@@ -102,8 +99,8 @@ internal static partial class Program
                 direction < SamusGrappleRomData.Connections.DirectionCount;
                 direction++)
             {
-                ushort function = ReadGrappleWord(bus, connectionTable + direction * 4);
-                ushort handler = ReadGrappleWord(bus, connectionTable + direction * 4 + 2);
+                ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord((connectionTable + direction * 4));
+                ushort handler = CartridgeImportSource.Require(bus).ReadCartridgeWord((connectionTable + direction * 4 + 2));
                 AssertTrue((GrappleConnectionFunction)function is
                     GrappleConnectionFunction.Swinging or
                     GrappleConnectionFunction.LockedInPlace,
@@ -126,8 +123,4 @@ internal static partial class Program
             $"  Samus Grapple ROM data: {SamusGrappleRomData.Firing.DirectionCount} directions, " +
             $"{segmentPointerCount} segment sets, three connection tables, and special angles are in range.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple data words")]
-    private static ushort ReadGrappleWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

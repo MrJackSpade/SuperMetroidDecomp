@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -32,7 +33,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 ZebetiteInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadZebetiteInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | definition.Address),
                 $"Zebetite mechanics word $A6:{definition.Address:X4}");
         }
 
@@ -72,7 +73,7 @@ internal static partial class Program
             AssertEqual(expected.Presentation, unchecked((ushort)(slot.CurrentInstruction - 2)),
                 $"Zebetite program {programIndex} executed visual operand");
             executedOperands.Add(expected.Presentation);
-            AssertEqual(ReadZebetiteInstructionWord(rom, expected.Presentation), slot.SpritemapPointer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | expected.Presentation), slot.SpritemapPointer,
                 $"Zebetite program {programIndex} selected sprite matches the cartridge");
             // The sleep instruction immediately follows the two-word timed frame record.
             ushort sleep = unchecked((ushort)(expected.Entry + 4));
@@ -97,7 +98,7 @@ internal static partial class Program
                 $"production execution selects Zebetite presentation word $A6:{address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selected),
                 $"compiled Zebetite selector $A6:{address:X4}");
-            AssertEqual(ReadZebetiteInstructionWord(rom, address), selected,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | address), selected,
                 $"exact native Zebetite selector $A6:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -136,14 +137,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Zebetite instruction words")]
-    private static ushort ReadZebetiteInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa60000 | address) |
-            source.ReadCartridgeByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewZebetiteInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

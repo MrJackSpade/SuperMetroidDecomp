@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -18,7 +19,7 @@ internal static partial class Program
         {
             int address = WorkRobotPaletteTimingDefinitions.NativeFirstTimerAddress +
                 record * WorkRobotPaletteTimingDefinitions.RecordByteCount;
-            ushort nativeDuration = ReadWord(rom, address);
+            ushort nativeDuration = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             ushort byteOffset = unchecked((ushort)(
                 record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
             AssertEqual(nativeDuration,
@@ -29,7 +30,7 @@ internal static partial class Program
                 $"Work Robot palette offset {record} remains selected");
         }
         AssertEqual((ushort)0xffff,
-            ReadWord(rom, WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord(WorkRobotPaletteTimingDefinitions.NativeTerminatorAddress),
             "Work Robot palette native terminator");
         AssertEqual((ushort)0,
             WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(
@@ -58,7 +59,7 @@ internal static partial class Program
             int source = EnemyRomTablePointers.WorkRobot.PaletteAnimationRecords +
                 record * WorkRobotPaletteTimingDefinitions.RecordByteCount +
                 color * sizeof(ushort);
-            AssertEqual(ReadWord(rom, source), stock.Resolve(record, color),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), stock.Resolve(record, color),
                 $"Work Robot color record {record} slot {color} preserves ROM RGB5");
         }
         WorkRobotPaletteCycleDocument visual =
@@ -131,9 +132,6 @@ internal static partial class Program
         Console.WriteLine(
             "Work Robot palette: all six native durations and 24 colors, the terminator and " +
             "the complete 193-call edited-color production cycle pass with ROM reads forbidden.");
-
-        static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-            bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
     }
 
     private static CartridgeReadGuard NewWorkRobotPaletteTimingReadGuard(ISnesAddressSpace source) =>

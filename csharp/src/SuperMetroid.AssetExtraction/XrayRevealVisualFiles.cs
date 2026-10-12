@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -78,12 +79,10 @@ public static class XrayRevealVisualFiles
         ushort[] itemMetatiles = Enumerable.Range(0, XrayOverlayRomData.DynamicGraphicsSlots * 2)
             .Select(slot =>
             {
-                ushort pointer = ReadAbsoluteWord(bus,
-                    XrayOverlayRomData.ItemDrawPointers + slot * sizeof(ushort));
+                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemDrawPointers + slot * sizeof(ushort)));
                 if (pointer is < 0x8000 or > (ushort.MaxValue - 3))
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
-                return (ushort)(ReadAbsoluteWord(bus,
-                    XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff);
+                return (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemBank | (pointer + 2))) & 0x0fff);
             }).ToArray();
         XrayRoomOverlayEntry[] rooms = RoomStateDefinitions.All
             .Select(state => state.XrayPointer).Where(pointer => pointer != 0)
@@ -283,8 +282,7 @@ public static class XrayRevealVisualFiles
     {
         if (pointer is < 0x8000 or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return unchecked((ushort)(bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | pointer) |
-            bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));
+        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealCodePointers.Bank | pointer);
     }
 
     private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)
@@ -292,14 +290,14 @@ public static class XrayRevealVisualFiles
         var tiles = new List<XrayRoomOverlayTileDocument>();
         for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
         {
-            ushort coordinate = ReadAbsoluteWord(bus, XrayOverlayRomData.RoomBank | cursor);
+            ushort coordinate = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.RoomBank | cursor));
             if (coordinate == 0)
             {
                 if (tiles.Count == 0)
                     throw new InvalidDataException($"X-ray room overlay ${pointer:X4} is empty.");
                 return new XrayRoomOverlayEntry(pointer, tiles.ToArray());
             }
-            ushort word = ReadAbsoluteWord(bus, XrayOverlayRomData.RoomBank | (cursor + 2));
+            ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.RoomBank | (cursor + 2)));
             if (word > 0x0fff)
                 throw new InvalidDataException(
                     $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");
@@ -308,9 +306,6 @@ public static class XrayRevealVisualFiles
         }
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }
-
-    private static ushort ReadAbsoluteWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static T ReadJson<T>(string path) where T : class =>
         ReadJson<T>(File.ReadAllBytes(path), path);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,7 +10,6 @@ internal static partial class Program
     private static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var bus = new RunningCadenceReadGuard(rom);
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         Suite(nameof(VerifyOrdinaryRunningPointer), () => VerifyOrdinaryRunningPointer(rom));
         Suite(nameof(VerifyOrdinaryRunningStream), () => VerifyOrdinaryRunningStream(rom));
         Suite(nameof(VerifyBoostRunningPointers), () => VerifyBoostRunningPointers(rom));
@@ -37,7 +37,7 @@ internal static partial class Program
         for (byte stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
         {
             speed.SpeedBoostCounter = (ushort)(stage << 8);
-            ushort pointer = Word(0x91b5de + stage * 2);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2));
             for (ushort index = 0; index <= 10; index++)
             {
                 int address = 0x910000 | unchecked((ushort)(pointer + index));
@@ -71,9 +71,9 @@ internal static partial class Program
             if (intercept && (next & 0x0400) == 0) next = unchecked((ushort)(next + 0x0100));
             int selection = sound ? 5 : next >> 8;
             ushort expectedTimer = intercept
-                ? unchecked((ushort)(raw + (selection == 5 ? bus.MutableDelay : rom.ReadCartridgeByte(0x910000 | Word(0x91b5de + selection * 2)))))
+                ? unchecked((ushort)(raw + (selection == 5 ? bus.MutableDelay : rom.ReadCartridgeByte(0x910000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + selection * 2))))))
                 : (ushort)0;
-            if (intercept) next = (ushort)((next & 0xff00) | Word(0x91b61f + selection * 2));
+            if (intercept) next = (ushort)((next & 0xff00) | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + selection * 2)));
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = (ushort)raw;
             speed.EchoSoundRequested = false; speed.ContactDamageIndex = SamusContactDamageIndex.None;
@@ -103,10 +103,10 @@ internal static partial class Program
             ushort frame = 9;
             speed.TryAdvanceSpeedBoosterAnimationStage(bus, SamusMovementType.Running, (ushort)SnesButton.B,
                 (ushort)accumulator, ref frame, out ushort timer, () => (ushort)accumulator);
-            AssertEqual(0x0400 | Word(0x91b61f + stage * 2), speed.SpeedBoostCounter, "All returned queue words retain native reset selection");
+            AssertEqual(0x0400 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + stage * 2)), speed.SpeedBoostCounter, "All returned queue words retain native reset selection");
             byte expectedDelay = stage == 5
                 ? bus.MutableDelay
-                : rom.ReadCartridgeByte(0x910000 | Word(0x91b5de + stage * 2));
+                : rom.ReadCartridgeByte(0x910000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2)));
             AssertEqual(unchecked((ushort)(accumulator + expectedDelay)), timer,
                 "Queue-selected delay includes live mutable aliases");
         }
@@ -141,7 +141,7 @@ internal static partial class Program
     private static void VerifyOrdinaryRunningPointer(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5d1, 2));
-        AssertEqual((ushort)(rom.ReadCartridgeByte(0x91b5d1) | rom.ReadCartridgeByte(0x91b5d2) << 8),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91b5d1),
             SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer, "Original ordinary pointer");
     }
 
@@ -159,7 +159,7 @@ internal static partial class Program
         for (byte selection = 0; selection <= 5; selection++)
         {
             int address = 0x91b5de + 2 * selection;
-            AssertEqual((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(selection), "Original pointer including stage5 alias");
         }
         for (int selection = 6; selection <= byte.MaxValue; selection++)
@@ -173,7 +173,7 @@ internal static partial class Program
         for (byte selection = 0; selection <= 5; selection++)
         {
             int address = 0x91b61f + 2 * selection;
-            AssertEqual((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 SamusRunningCadenceDefinitions.ReadResetWord(selection), "Original reset including pose0 alias");
         }
         for (int selection = 6; selection <= byte.MaxValue; selection++)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -73,8 +74,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres elevator arrival definitions")]
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
-        static ushort Word(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadCartridgeByte(address) | (source.ReadCartridgeByte(address + 1) << 8)));
 
         foreach (CeresElevatorProjectileDefinition definition in new[]
         {
@@ -83,7 +82,7 @@ internal static partial class Program
         })
         {
             int address = CeresElevatorArrivalDefinitions.BankBase | definition.DefinitionPointer;
-            VerificationAssert.AssertEqual(Word(rom, address + 4), definition.InitialInstruction,
+            VerificationAssert.AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), definition.InitialInstruction,
                 "Ceres elevator compiled instruction-list identity");
         }
 
@@ -96,21 +95,21 @@ internal static partial class Program
             switch (instruction.Operation)
             {
                 case CeresElevatorProjectileOperation.Frame:
-                    VerificationAssert.AssertEqual(Word(rom, address), instruction.Duration,
+                    VerificationAssert.AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), instruction.Duration,
                         "Ceres elevator compiled frame duration");
-                    VerificationAssert.AssertEqual(Word(rom, address + 2), instruction.SpritemapPointer,
+                    VerificationAssert.AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), instruction.SpritemapPointer,
                         "Ceres elevator compiled spritemap identity");
                     VerificationAssert.AssertEqual(unchecked((ushort)(pointer + 4)), instruction.NextInstruction,
                         "Ceres elevator compiled frame continuation");
                     break;
                 case CeresElevatorProjectileOperation.Delete:
-                    VerificationAssert.AssertEqual(CeresElevatorArrivalDefinitions.DeleteOpcode, Word(rom, address),
+                    VerificationAssert.AssertEqual(CeresElevatorArrivalDefinitions.DeleteOpcode, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                         "Ceres elevator compiled delete opcode");
                     break;
                 case CeresElevatorProjectileOperation.Goto:
-                    VerificationAssert.AssertEqual(CeresElevatorArrivalDefinitions.GotoOpcode, Word(rom, address),
+                    VerificationAssert.AssertEqual(CeresElevatorArrivalDefinitions.GotoOpcode, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                         "Ceres elevator compiled goto opcode");
-                    VerificationAssert.AssertEqual(Word(rom, address + 2), instruction.NextInstruction,
+                    VerificationAssert.AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), instruction.NextInstruction,
                         "Ceres elevator compiled goto target");
                     break;
             }

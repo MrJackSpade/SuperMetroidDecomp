@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,7 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boyon speeds")]
     private static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBoyon", BindingFlags.NonPublic | BindingFlags.Instance)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
@@ -19,8 +19,8 @@ internal static partial class Program
                 actor.Parameter1 = (ushort)((height << 8) | multiplier);
                 initialize(actor);
                 BoyonEnemyState initialized = enemies.BoyonStates[0]!;
-                AssertEqual(Word(0xa286df + multiplier * 2), initialized.SpeedMultiplier, "Boyon real initialized multiplier without bus");
-                AssertEqual(Word(0xa286ef + height * 2), initialized.JumpHeight, "Boyon real initialized height without bus");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286df + multiplier * 2)), initialized.SpeedMultiplier, "Boyon real initialized multiplier without bus");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286ef + height * 2)), initialized.JumpHeight, "Boyon real initialized height without bus");
             }
         }
         actor.Parameter1 = 8;

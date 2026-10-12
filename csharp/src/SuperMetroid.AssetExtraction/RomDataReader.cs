@@ -54,8 +54,7 @@ public static class RomDataReader
         if (!address.IsUpperLoRomWindow || address.Offset == 0xffff)
             throw new ArgumentOutOfRangeException(nameof(address),
                 "A cartridge word must remain in the upper bank window.");
-        byte low = cartridge.ReadCartridgeByte((int)address);
-        return (ushort)(low | (cartridge.ReadCartridgeByte((int)address.AddWithinBank(1)) << 8));
+        return cartridge.ReadCartridgeWordFixedBank((int)address);
     }
 
     /// <summary>Reads one little-endian 24-bit cartridge pointer without carrying out of its data bank.</summary>
@@ -71,9 +70,7 @@ public static class RomDataReader
         if (!address.IsUpperLoRomWindow || address.Offset > 0xfffd)
             throw new ArgumentOutOfRangeException(nameof(address),
                 "A 24-bit cartridge pointer must remain in the upper bank window.");
-        return cartridge.ReadCartridgeByte((int)address) |
-               (cartridge.ReadCartridgeByte((int)address.AddWithinBank(1)) << 8) |
-               (cartridge.ReadCartridgeByte((int)address.AddWithinBank(2)) << 16);
+        return cartridge.ReadCartridgeLongFixedBank((int)address);
     }
 
     /// <summary>

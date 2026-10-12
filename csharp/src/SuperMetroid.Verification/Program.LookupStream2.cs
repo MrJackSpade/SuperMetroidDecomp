@@ -23,7 +23,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo foot geometry")]
     private static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         int[] nativeIdentities = [0xaae943, 0xaae9ae, 0xaaea1e, 0xaaea8e, 0xaaeafe, 0xaaeb69, 0xaaebd9, 0xaaec49];
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
@@ -39,11 +38,11 @@ internal static partial class Program
         foreach (var frame in selected)
         {
             int source = (frame.Bank << 16) | frame.Pointer;
-            document.Frames[frame.Name] = Enumerable.Range(0, Word(source)).Select(index =>
+            document.Frames[frame.Name] = Enumerable.Range(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(source)).Select(index =>
             {
                 int entry = source + 2 + index * 5;
-                var x = new SnesSpritemapXWord(Word(entry));
-                var attributes = new SnesObjAttributeWord(Word(entry + 3));
+                var x = new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry));
+                var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)));
                 return new SpriteVisualPart
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
@@ -622,7 +621,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for wireframe mirrors")]
     private static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         byte[] json = PauseWireframeExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseWireframeDocument>(json,
             MapPresentationFormat.JsonOptions)!;
@@ -630,10 +628,10 @@ internal static partial class Program
         int pieceCells = 0, stockOverrides = 0;
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            int pointer = Word(PauseWireframeDefinitions.Pointers + (int)kind * 2) | 0x820000;
+            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((PauseWireframeDefinitions.Pointers + (int)kind * 2)) | 0x820000;
             var native = new byte[PauseWireframeDefinitions.Cells * 2];
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
-                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), Word(pointer + cell * 2));
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
             Confirm(stock, kind, native, "Actual mirrored stock wireframe preserves every native tile word");
             const BindingFlags privateFields = BindingFlags.Instance | BindingFlags.NonPublic;
             object frame = ((Array)typeof(PauseWireframePresentation).GetField("frames", privateFields)!.GetValue(stock)!).GetValue((int)kind)!;
@@ -641,7 +639,7 @@ internal static partial class Program
             stockOverrides += edits.Count;
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
             {
-                ushort actualNative = Word(pointer + cell * 2);
+                ushort actualNative = CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2));
                 AssertEqual(actualNative, PauseWireframeDefinitions.StockWord(kind, cell), $"Complete native composition word {kind}/{cell}");
                 if (PauseWireframeDefinitions.TryStockTile(kind, cell, out int tile))
                 {
@@ -906,15 +904,14 @@ internal static partial class Program
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => ReadDeadTorizoRomWord(rom, address);
         WorkRamByteTable corpseTiles = new EnemyScratchMemory(rom).CorpseTiles;
         var expected = new byte[0x1000];
         for (int row = 0; row < 12; row++)
         {
             int cursor = 0xa9de18 + row * 14;
-            int source = Word(cursor + 2) - 0xa800;
-            int destination = Word(cursor + 5) - 0x2000;
-            int length = Word(cursor + 8) + 1;
+            int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 2) - 0xa800;
+            int destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 5) - 0x2000;
+            int length = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 8) + 1;
             AssertEqual(new DeadTorizoGraphicsCopy(source, destination, length),
                 DeadTorizoGeometryDefinitions.InitialCopy(row), "Dead Torizo native MVN descriptor");
             ReadDeadTorizoRomBytes(rom, 0xb7a800 + source, length).CopyTo(expected, destination);
@@ -922,14 +919,14 @@ internal static partial class Program
         // The crop is the tile union of the native stationary composition, not
         // an occupancy bounding box over the unrelated parts elsewhere in its atlas.
         var visibleTiles = new HashSet<int>();
-        int partCount = Word(0xa9d6e2);
+        int partCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9d6e2);
         AssertEqual(25, partCount, "Dead Torizo native stationary part count");
         for (int part = 0; part < partCount; part++)
         {
             int address = 0xa9d6e4 + part * 5;
-            int tile = (Word(address + 3) & 0x1ff) - 0x100;
-            int extent = (Word(address) & 0x8000) == 0 ? 1 : 2;
-            int nativeX = Word(address) & 0x1ff;
+            int tile = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 3) & 0x1ff) - 0x100;
+            int extent = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address) & 0x8000) == 0 ? 1 : 2;
+            int nativeX = CartridgeImportSource.Require(rom).ReadCartridgeWord(address) & 0x1ff;
             if (nativeX >= 256) nativeX -= 512;
             AssertEqual(new DeadTorizoStockPart(tile + 0x100, extent),
                 DeadTorizoStationaryCompositionDefinitions.Part(part),
@@ -943,8 +940,8 @@ internal static partial class Program
         for (int row = 0; row < 12; row++)
         {
             int cursor = 0xa9de18 + row * 14;
-            int first = (Word(cursor + 2) - 0xa800) / 32;
-            int count = (Word(cursor + 8) + 1) / 32;
+            int first = (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 2) - 0xa800) / 32;
+            int count = (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 8) + 1) / 32;
             for (int tile = first; tile < first + count; tile++) copiedTiles.Add(tile);
         }
         AssertEqual(97, visibleTiles.Count, "Dead Torizo native visible tile count");
@@ -952,10 +949,10 @@ internal static partial class Program
             "Dead Torizo twelve native MVNs copy exactly the 25-part stationary composition");
         int[] nativeColumns = [0xa9e280,0xa9e29f,0xa9e2be,0xa9e2d8,0xa9e2f2,
             0xa9e30c,0xa9e326,0xa9e340,0xa9e35a,0xa9e379];
-        int[] minimumY = [Word(0xa9e276),Word(0xa9e295),Word(0xa9e2b4),0,0,0,0,0,0,Word(0xa9e36f)];
+        int[] minimumY = [CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e276),CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e295),CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e2b4),0,0,0,0,0,0,CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e36f)];
         for (int column = 0; column < 10; column++)
         {
-            AssertEqual((Word(nativeColumns[column]) - 0x2000) / 2,
+            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(nativeColumns[column]) - 0x2000) / 2,
                 DeadTorizoGeometryDefinitions.ColumnWordOffset(column), "Dead Torizo native column word displacement");
             AssertEqual(minimumY[column], DeadTorizoGeometryDefinitions.ColumnMinimumY(column),
                 "Dead Torizo native clipping boundary");
@@ -1010,12 +1007,12 @@ internal static partial class Program
             for (int index = 0; index < expected.Length; index++)
                 expected[index] = (byte)(index * 73 ^ index >> 3);
             corpseTiles.CopyFrom(expected);
-            int source = Word(0xa9e226 + y / 8 * 2) + (y & 7) * 2;
+            int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e226 + y / 8 * 2) + (y & 7) * 2;
             int destination = source + ((y & 7) >= 6 ? 0x134 : 0) + 2;
             for (int column = 0; column < 10; column++)
             {
                 if (y < minimumY[column]) continue;
-                int nativeOffset = Word(nativeColumns[column]) - 0x2000;
+                int nativeOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord(nativeColumns[column]) - 0x2000;
                 foreach (int plane in new[] { 0, 16 })
                 {
                     for (int byteIndex = 0; byteIndex < 2; byteIndex++)
@@ -1042,10 +1039,6 @@ internal static partial class Program
         }
     }
 
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo MVN descriptors, stationary composition and column operands")]
-    private static ushort ReadDeadTorizoRomWord(ISnesAddressSpace rom, int address) =>
-        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
-
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo artwork bytes")]
     private static byte[] ReadDeadTorizoRomBytes(ISnesAddressSpace rom, int address, int count) =>
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
@@ -1053,7 +1046,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for crawler ramps")]
     private static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
         var reset = typeof(RoomEnemySystem).GetMethod("ResetCrawlerVelocitiesFromProperties", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>();
@@ -1063,8 +1055,8 @@ internal static partial class Program
         var yard = new YardEnemyState(slot);
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
-            ushort expected = Word(0xa3e5f0 + parameter * 2);
-            AssertEqual(expected, Word(0xa3cca2 + parameter * 2), "Native Yard/crawler magnitude agreement");
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
+            AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Native Yard/crawler magnitude agreement");
             AssertEqual(expected, CrawlerSpeedDefinitions.ForParameter(parameter), "Native calculated speed ramp");
             slot.Parameter1 = parameter;
             for (ushort property = 0; property < 4; property++)
@@ -1080,9 +1072,9 @@ internal static partial class Program
             {
                 setYard(slot, yard, direction);
                 int nativeDirection = 0xa3cd82 + direction * 8;
-                AssertEqual(unchecked((ushort)((expected ^ Word(nativeDirection)) + Word(nativeDirection + 2))),
+                AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(nativeDirection)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((nativeDirection + 2)))),
                     yard.CrawlingVelocity.X.RawValue, "Actual Yard reset X magnitude");
-                AssertEqual(unchecked((ushort)((expected ^ Word(nativeDirection + 4)) + Word(nativeDirection + 6))),
+                AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((nativeDirection + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((nativeDirection + 6)))),
                     yard.CrawlingVelocity.Y.RawValue, "Actual Yard reset Y magnitude");
             }
         }
@@ -1244,7 +1236,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid Lint initialization")]
     private static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
@@ -1260,7 +1251,7 @@ internal static partial class Program
         for (int slot = 2; slot <= 4; slot++)
         {
             var lint = enemies.Slots[slot];
-            ushort expected = Word(0xa7a916 + (slot - 2) * 2);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + (slot - 2) * 2));
             AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
             AssertEqual(expected, lint.VariableF, "Actual post-growth timer write");
             AssertEqual((ushort)0, lint.VariableB, "Actual lint growth resets extension");
@@ -1337,15 +1328,14 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Pipe Bug formation")]
     private static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeNorfairPipeBug", flags)!;
         MethodInfo wait = typeof(RoomEnemySystem).GetMethod("RunNorfairPipeBugSamusWait", flags)!;
         for (int member = 0; member < 5; member++)
         {
-            AssertEqual(Word(0xb38c65 + member * 7), PipeBugDefinitions.NorfairStaggerTarget(member),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugDefinitions.NorfairStaggerTarget(member),
                 "Native rank-derived formation release counter");
-            AssertEqual(Word(0xb38c88 + member * 6), (ushort)PipeBugDefinitions.NorfairPostRiseFunction(member),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), (ushort)PipeBugDefinitions.NorfairPostRiseFunction(member),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -1365,9 +1355,9 @@ internal static partial class Program
             for (int member = 0; member < 5; member++)
             {
                 var state = enemies.PipeBugStates[member]!;
-                AssertEqual(Word(0xb38c65 + member * 7), state.StaggerTarget,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), state.StaggerTarget,
                     "Actual formation writes native release counter");
-                AssertEqual(Word(0xb38c88 + member * 6), (ushort)state.NorfairPostRiseFunction,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), (ushort)state.NorfairPostRiseFunction,
                     "Actual formation writes native role function");
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
                 AssertEqual(samusX < 128 ? NorfairPipeBugInstructionProgramDefinitions.RisingLeft
@@ -1394,8 +1384,7 @@ internal static partial class Program
             InstructionMechanicsWord actual =
                 GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual((ushort)address, actual.Address, "Golden initial native instruction cursor");
-            ushort native = (ushort)(rom.ReadCartridgeByte(0xaa0000 | address) |
-                rom.ReadCartridgeByte(0xaa0000 | (address + 1)) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xaa0000 | address);
             AssertEqual(native, actual.Value, "Golden initial native control word");
             AssertTrue(GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(
                 actual.Address, out ushort selected) && selected == native,
@@ -1409,8 +1398,7 @@ internal static partial class Program
         ushort operand = GoldenTorizoInitialInstructionProgramDefinitions.InitialFrameOperand;
         AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xaa, operand, out ushort visual),
             "Golden initial installed sprite selector");
-        AssertEqual((ushort)(rom.ReadCartridgeByte(0xaa0000 | operand) |
-            rom.ReadCartridgeByte(0xaa0000 | (operand + 1)) << 8), visual,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xaa0000 | operand), visual,
             "Golden initial exact native sprite selection");
         AssertTrue(!GoldenTorizoInitialInstructionProgramDefinitions.TryReadMechanicsWord(operand, out _),
             "Golden initial visual operand excluded from mechanics");
@@ -2290,7 +2278,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo foot geometry")]
     private static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
         var document = new EnemyIdentityFixture().ExtendedDocument();
         var selected = new EnemyExtendedFrameDefinition[10];
@@ -2301,18 +2288,18 @@ internal static partial class Program
             AssertEqual(identity, GoldenTorizoStrideGeometryDefinitions.NativeFrameIdentity(phase), "Golden Torizo native extended-record geometry");
             var frame = definitions.Single(frame => ((frame.Bank << 16) | frame.Pointer) == identity);
             selected[phase] = frame;
-            AssertEqual((ushort)4, Word(identity), "Golden Torizo four native visual components");
+            AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWord(identity), "Golden Torizo four native visual components");
             var components = new EnemyExtendedVisualComponent[4];
             for (int component = 0; component < 4; component++)
             {
                 int record = identity + 2 + component * 8;
-                int source = 0xaa0000 | Word(record + 4);
-                if (component == 2) nativeBodyParts += Word(source);
-                var parts = Enumerable.Range(0, Word(source)).Select(index =>
+                int source = 0xaa0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4));
+                if (component == 2) nativeBodyParts += CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
+                var parts = Enumerable.Range(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(source)).Select(index =>
                 {
                     int entry = source + 2 + index * 5;
-                    var x = new SnesSpritemapXWord(Word(entry));
-                    var attributes = new SnesObjAttributeWord(Word(entry + 3));
+                    var x = new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry));
+                    var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)));
                     return new SpriteVisualPart
                     {
                         OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
@@ -2322,7 +2309,7 @@ internal static partial class Program
                     };
                 }).ToArray();
                 components[component] = new EnemyExtendedVisualComponent
-                { OffsetX = unchecked((short)Word(record)), OffsetY = unchecked((short)Word(record + 2)), Parts = parts };
+                { OffsetX = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), OffsetY = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), Parts = parts };
             }
             document.Frames[frame.Name] = components;
         }
@@ -2390,7 +2377,7 @@ internal static partial class Program
                 parts[index] = original with { OffsetX = original.OffsetX + 1 };
                 Check(Load());
                 for (ushort offset = 0; offset <= 38; offset++)
-                    AssertEqual(Word(0xaad59a + offset), GoldenTorizoWalkDefinitions.Velocity(offset), "Edited foot artwork does not change native walking words/windows");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalkDefinitions.Velocity(offset), "Edited foot artwork does not change native walking words/windows");
                 parts[index] = original;
                 edits++;
             }

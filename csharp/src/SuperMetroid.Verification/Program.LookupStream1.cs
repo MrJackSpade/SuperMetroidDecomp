@@ -1611,7 +1611,7 @@ internal static partial class Program
         for (int pose = 0xFD; pose <= 0xFF; pose++)
         {
             int source = SamusAnimationDelayDefinitions.DelayStreamsAddress + (pose - 0xFD) * 2;
-            ushort expectedPointer = (ushort)(bus.ReadCartridgeByte(source) | bus.ReadCartridgeByte(source + 1) << 8);
+            ushort expectedPointer = bus.ReadCartridgeWord(source);
             ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose);
             AssertEqual(expectedPointer, pointer, $"animation alias ${pose:X2} reads its running-delay source");
             for (int change = 0; change < 2; change++)

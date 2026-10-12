@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -12,7 +13,7 @@ internal static partial class Program
             EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation(kind);
             AssertEqual(index * 2, animation.TableOffset,
                 $"enemy pickup table offset {kind}");
-            AssertEqual(ReadEnemyPickupDefinitionWord(rom, 0x86ef04 + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
                 animation.InstructionList,
                 $"enemy pickup instruction {kind}");
         }
@@ -54,10 +55,4 @@ internal static partial class Program
         Console.WriteLine(
             "Enemy pickup definitions: six native selectors and all five live pickup initialization paths pass without the pointer table.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy pickup definition words")]
-    private static ushort ReadEnemyPickupDefinitionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

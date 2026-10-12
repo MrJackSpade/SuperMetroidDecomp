@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -96,7 +97,7 @@ internal static partial class Program
     private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, (short X, short Y)> select, string label)
     {
-        short Word(int address) => unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         for (ushort type = 0; type < 36; type++)
             AssertEqual((Word(source + type * stride), Word(source + type * stride + 2)),
                 select(RoomShakeDefinitions.ForType(type)), $"Original shake {label} vector {type}");

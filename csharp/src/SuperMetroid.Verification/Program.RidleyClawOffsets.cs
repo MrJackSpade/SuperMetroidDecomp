@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,7 +8,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley claw offsets")]
     private static void VerifyRidleyClawOffsets(SuperMetroidAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         short[] x = Enumerable.Range(0, 3).Select(i => Word(EnemyRomTablePointers.Ridley.ClawXOffsetWords + i * 2)).ToArray();
         short[] y = Enumerable.Range(0, 9).Select(i => Word(EnemyRomTablePointers.Ridley.ClawYOffsetWords + i * 2)).ToArray();
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())

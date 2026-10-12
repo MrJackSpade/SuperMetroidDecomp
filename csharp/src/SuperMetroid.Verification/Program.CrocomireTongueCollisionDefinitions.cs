@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -26,8 +27,7 @@ internal static partial class Program
         {
             ushort operand = CrocomireTongueInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            ushort native = (ushort)(rom.ReadCartridgeByte(0xa40000 | operand) |
-                rom.ReadCartridgeByte(0xa40000 | unchecked((ushort)(operand + 1))) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operand);
             ushort selected = (ushort)selector.Invoke(enemies, [slot, operand])!;
             AssertEqual(native, selected,
                 $"Crocomire tongue selector $A4:{operand:X4} matches native");
@@ -51,7 +51,7 @@ internal static partial class Program
         AssertEqual(9, CrocomireTongueCollisionDefinitions.FrameCount, "tongue frame count");
         for (int i = 0; i < operands.Length; i++)
         {
-            ushort expected = (ushort)(rom.ReadCartridgeByte(0xa40000 | operands[i]) | rom.ReadCartridgeByte(0xa40000 | (operands[i] + 1)) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operands[i]);
             AssertEqual(expected, CrocomireTongueCollisionDefinitions.FramePointer(i), "tongue native selected frame identity");
         }
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueCollisionDefinitions.FramePointer(-1), "negative tongue frame index");
@@ -62,15 +62,14 @@ internal static partial class Program
     private static void VerifyCrocomireTongueComponentCases(SuperMetroidAddressSpace rom)
     {
         ushort[] frames = [0xc65e, 0xc668, 0xc672, 0xc67c, 0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6];
-        ushort ReadWord(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         foreach (ushort frame in frames)
         {
             var component = CrocomireTongueCollisionDefinitions.ComponentAt(frame);
-            AssertEqual((ushort)1, ReadWord(0xa40000 | frame),
+            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame)),
                 $"Crocomire tongue $A4:{frame:X4} native one-component header");
-            AssertEqual(ReadWord(0xa40000 | frame + 8), (ushort)component.HitboxPointer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame + 8)), (ushort)component.HitboxPointer,
                 "Crocomire tongue native hitbox-list pointer");
-            AssertEqual((ushort)0, ReadWord(0xa40000 | (ushort)component.HitboxPointer), "tongue native empty hitboxes");
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | (ushort)component.HitboxPointer)), "tongue native empty hitboxes");
             AssertEqual(0, CrocomireTongueCollisionDefinitions.HitboxCountAt(component.HitboxPointer), "tongue empty hitbox case");
         }
         for (int frame = 0; frame <= ushort.MaxValue; frame++)
@@ -143,7 +142,7 @@ internal static partial class Program
             "Crocomire tongue selected frames refer to exactly two native hitbox lists");
         foreach (ushort list in seenLists)
         {
-            AssertEqual((ushort)0, ReadWord(0xa40000 | list),
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa40000 | list)),
                 $"Crocomire tongue $A4:{list:X4} native hitbox list is empty");
             AssertEqual(0, CrocomireTongueCollisionDefinitions.HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(list, "compiled Crocomire tongue hitbox list")),
                 "Crocomire tongue compiled hitbox list is empty");
@@ -158,9 +157,6 @@ internal static partial class Program
             "installed Crocomire tongue collision never reads ROM bytes");
         Console.WriteLine($"Crocomire tongue collision: nine frames, two empty lists, " +
             $"{probes} native-equivalent touch/shot probes; installed path reads no ROM.");
-
-        ushort ReadWord(int address) => (ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static CartridgeReadGuard NewCrocomireTongueNoReadBus() =>

@@ -19,8 +19,6 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort Word(int offset) => (ushort)(rom.ReadCartridgeByte(0x820000 | (ushort)offset) |
-            rom.ReadCartridgeByte(0x820000 | (ushort)(offset + 1)) << 8);
         var audio = new CartridgeAudioState();
         var menu = new GameOverMenuState(bus, audio, RetailPresentationFixture());
         const System.Reflection.BindingFlags flags =
@@ -45,7 +43,7 @@ internal static partial class Program
         var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", flags)!.GetValue(babyAudio)!;
         var writes = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", flags)!.GetValue(babyAudio)!;
         ushort pointer = GameOverRomData.BabyAnimation.FirstInstruction;
-        int timer = Word(pointer), cries = 0, records = 0, ticks = 0;
+        int timer = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)pointer), cries = 0, records = 0, ticks = 0;
         bool looped = false;
         while (!looped && ticks < 1000)
         {
@@ -53,7 +51,7 @@ internal static partial class Program
             {
                 records++;
                 int next = pointer + 6;
-                ushort command = Word(next);
+                ushort command = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)next);
                 if (command == ushort.MaxValue)
                 {
                     next = GameOverRomData.BabyAnimation.FirstInstruction;
@@ -66,7 +64,7 @@ internal static partial class Program
                         "game-over reference cry starts with LDA immediate");
                     StepBaby();
                     // Library-three slot zero holds index zero's CancelAll request.
-                    AssertEqual((byte)Word(command + 1), queues[2, cries + 1],
+                    AssertEqual((byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1)), queues[2, cries + 1],
                         "game-over cry queues the exact native library-three effect");
                     cries++;
                     next += 2;
@@ -74,13 +72,13 @@ internal static partial class Program
                 else StepBaby();
                 if (looped) StepBaby();
                 pointer = (ushort)next;
-                timer = Word(pointer);
+                timer = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)pointer);
             }
             else StepBaby();
             ticks++;
             AssertEqual(pointer, babyMenu.BabyInstructionPointer,
                 "game-over live pointer matches independent ROM stream each tick");
-            AssertEqual(Word(pointer + 2), babyMenu.BabySpritemap,
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 2)), babyMenu.BabySpritemap,
                 "game-over live spritemap matches independent ROM stream each tick");
             AssertEqual((byte)(cries + 1), writes[2], "game-over cry queue changes only at native handoffs");
         }

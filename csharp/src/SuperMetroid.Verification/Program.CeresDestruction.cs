@@ -7,11 +7,6 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
-/// <summary>Reads back a bank-$8B cinematic word the synthetic Ceres fixture cartridge was seeded with.</summary>
-[CpuBusBoundary("exact bus test: reads back bank-$8B cinematic words from the synthetic Ceres fixture cartridge")]
-static ushort ReadSyntheticCeresCinematicWord(ISnesAddressSpace fixture, ushort pointer) => (ushort)(
-    fixture.ReadCartridgeByte(0x8b0000 | pointer) |
-    fixture.ReadCartridgeByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8);
 
 [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
 static void VerifyCeresDestructionCinematic()
@@ -30,7 +25,7 @@ static void VerifyCeresDestructionCinematic()
     WriteRomWord(rom, 0x8bccdb, 0x7fff);
     WriteRomWord(rom, 0x8bccdd, 0);
     var fixtureBus = new CartridgeImportAddressSpace(rom);
-    ushort ReadFixtureWord(ushort pointer) => ReadSyntheticCeresCinematicWord(fixtureBus, pointer);
+    ushort ReadFixtureWord(ushort pointer) => CartridgeImportSource.Require(fixtureBus).ReadCartridgeWordFixedBank(0x8b0000 | pointer);
     // Ceres' five initial explosions share $CCDB but seed instruction timers 1/16/32/48/64.
     // Prove the reusable object keeps that timer distinct from GeneralTimer, which belongs
     // to the list's decrement-and-goto opcode and must remain untouched.

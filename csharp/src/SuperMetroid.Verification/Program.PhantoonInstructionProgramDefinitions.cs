@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -25,7 +26,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 PhantoonInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadPhantoonInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | definition.Address),
                 $"Phantoon mechanics word $A7:{definition.Address:X4}");
         }
 
@@ -162,9 +163,9 @@ internal static partial class Program
                 $"production execution selects Phantoon presentation $A7:{address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa7, address, out ushort selected),
                 "Every Phantoon visual operand has an installed selector");
-            AssertEqual(ReadPhantoonInstructionWord(rom, address), selected,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | address), selected,
                 "Exact native Phantoon visual operand");
-            AssertEqual(ReadPhantoonInstructionWord(rom, address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | address),
                 PhantoonInstructionProgramDefinitions.PresentationFrame(index),
                 "Named Phantoon role selection equals the native operand");
             AssertEqual(selected, PhantoonInstructionProgramDefinitions.FrameAt(address),
@@ -238,8 +239,7 @@ internal static partial class Program
                 enemies,
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             ushort record = unchecked((ushort)(slot.CurrentInstruction - 4));
-            ushort nativeWord = (ushort)(rom.ReadCartridgeByte(0xa70000 | record) |
-                rom.ReadCartridgeByte(0xa70000 | unchecked((ushort)(record + 1))) << 8);
+            ushort nativeWord = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | record);
             if ((nativeWord & 0x8000) == 0)
                 VerifyExecutedEnemySelector(rom, slot, executedOperands);
             else
@@ -261,14 +261,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon instruction words")]
-    private static ushort ReadPhantoonInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa70000 | address) |
-            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewPhantoonInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

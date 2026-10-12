@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -84,8 +85,7 @@ internal static partial class Program
         ushort distance)
     {
         int address = EnemyMathReferenceData.SignedSine + angle * 2;
-        short sine = unchecked((short)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+        short sine = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         return unchecked((short)(sine * unchecked((sbyte)distance) >> 8));
     }
 }

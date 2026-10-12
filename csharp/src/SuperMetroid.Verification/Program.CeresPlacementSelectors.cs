@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -67,6 +68,6 @@ internal static partial class Program
     {
         int address = 0x8b0000 | operand;
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(address - 1), "placement immediate LDA");
-        AssertEqual(coordinate, (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8), "native placement operand");
+        AssertEqual(coordinate, CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "native placement operand");
     }
 }

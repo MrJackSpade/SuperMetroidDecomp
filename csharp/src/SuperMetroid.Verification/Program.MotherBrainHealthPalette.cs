@@ -24,9 +24,9 @@ internal static partial class Program
             void VerifyCopy(int table, int destination)
             {
                 int pointer = table + index * 2;
-                int source = 0xad0000 | bus.ReadCartridgeByte(pointer) | bus.ReadCartridgeByte(pointer + 1) << 8;
+                int source = (0xad0000|bus.ReadCartridgeWord(pointer));
                 for (int color = 0; color < 15; color++)
-                    AssertEqual((ushort)(bus.ReadCartridgeByte(source + color * 2) | bus.ReadCartridgeByte(source + color * 2 + 1) << 8),
+                    AssertEqual(bus.ReadCartridgeWord(source + color * 2),
                         cgram.Colors[destination + color], $"health {health} palette {index} color {color}");
             }
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -57,11 +58,9 @@ internal static partial class Program
             if (transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerSprites)
                 break;
             int descriptor = 0xa60000 | transfer.Pointer;
-            ushort byteCount = ReadWord(descriptor);
-            int source = rom.ReadCartridgeByte(descriptor + 2) |
-                rom.ReadCartridgeByte(descriptor + 3) << 8 |
-                rom.ReadCartridgeByte(descriptor + 4) << 16;
-            ushort destination = ReadWord(descriptor + 5);
+            ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
+            int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
+            ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
             nativeQueue.Enqueue(byteCount, source, VramDmaDestination.FromNative(destination));
         }
         var nativeVram = new SnesVram();
@@ -130,9 +129,6 @@ internal static partial class Program
         Console.WriteLine(
             "Ceres escape overlays: five editable tilemaps match native bytes and guarded " +
             "VRAM; live edit, reload, and missing/corrupt resource rejection pass.");
-
-        ushort ReadWord(int address) => (ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         static void ExpectMissing(Action action, string context)
         {

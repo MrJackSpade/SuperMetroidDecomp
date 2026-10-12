@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Exact NTSC shared enemy quadratic-speed records, including their authored truncation.</summary>
@@ -29,7 +30,7 @@ public static class EnemyQuadraticSpeedDefinitions
     {
         if (byteOffset is < 0 or > (RecordCount * RecordSize - 2))
             throw new InvalidDataException($"Enemy quadratic-speed word offset ${byteOffset:X} is outside the authored NTSC records.");
-        return (ushort)(ReadByte(byteOffset) | ReadByte(byteOffset + 1) << 8);
+        return SnesLittleEndian.Word(ReadByte(byteOffset), ReadByte(byteOffset + 1));
     }
 
     /// <summary>Reads a fraction-first signed 16.16 displacement without rounding or aligned-index coercion.</summary>

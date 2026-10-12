@@ -12,8 +12,6 @@ internal static partial class Program
     private static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));
-        static ushort ReadNativeWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => list.Pointer).ToArray();
@@ -28,8 +26,7 @@ internal static partial class Program
         editedFrame.Blocks[0] = 0x0053;
         var edited = new RoomPlmBlueDoorVisualCatalog(entries);
         editedFrame.Blocks[0] = 0x0054;
-        ushort leftFirstDraw = ReadNativeWord(rom,
-            0x840000 | (RoomPlmInstructionLists.BlueDoorFacingLeftOpening + 5));
+        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (RoomPlmInstructionLists.BlueDoorFacingLeftOpening + 5)));
         AssertEqual((ushort)0x0053, edited.GetWord(leftFirstDraw, 0),
             "blue-door visual catalog copies author data");
         AssertEqual(originalVisual, stock.GetWord(leftFirstDraw, 0),
@@ -48,7 +45,7 @@ internal static partial class Program
                 ColoredDoorOrientation.Down => RoomPlmInstructionLists.BlueDoorFacingDownOpening,
                 _ => throw new InvalidDataException("Unknown blue-door orientation."),
             };
-            ushort firstDraw = ReadNativeWord(rom, 0x840000 | (openingList + 5));
+            ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (openingList + 5)));
             AssertTrue(BlueDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
                 $"{orientation} opening program selects a compiled draw");
 

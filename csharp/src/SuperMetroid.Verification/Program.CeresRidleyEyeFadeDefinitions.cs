@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -66,8 +67,7 @@ internal static partial class Program
             {
                 int source = EnemyRomTablePointers.Ceres.RidleyEyeFadePaletteRows +
                     expected.PaletteRow * 6 + color * 2;
-                ushort expectedColor = unchecked((ushort)(
-                    rom.ReadCartridgeByte(source) | rom.ReadCartridgeByte(source + 1) << 8));
+                ushort expectedColor = CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
                 AssertEqual(expectedColor, cgram.Colors[252 + color],
                     $"production Ceres eye-fade offset {offset} color {color}");
             }

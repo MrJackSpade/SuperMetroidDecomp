@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 RoomSpriteObjectInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
-                ReadRoomSpriteObjectWord(rom, 0xb40000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | definition.Address)),
                 definition.Value,
                 $"room sprite-object mechanics word $B4:{definition.Address:X4}");
         }
@@ -31,7 +32,7 @@ internal static partial class Program
         for (ushort objectNumber = 0; objectNumber <= 0x003d; objectNumber++)
         {
             var kind = (RoomSpriteObjectKind)objectNumber;
-            ushort expected = ReadRoomSpriteObjectWord(rom, 0xb4bda8 + objectNumber * 2);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + objectNumber * 2));
             AssertEqual(expected, RoomSpriteObjectDefinitions.InstructionPointer(kind),
                 $"room sprite object selector ${objectNumber:X2}");
 
@@ -119,7 +120,7 @@ internal static partial class Program
             if (!selected.IsActive || (selected.InstructionTimer & 0x8000) != 0)
                 return;
             ushort operand = unchecked((ushort)(selected.InstructionPointer + 2));
-            AssertEqual(ReadRoomSpriteObjectWord(rom, 0xb40000 | operand),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb40000 | operand)),
                 selected.SpritemapPointer,
                 $"executed room sprite-object selector $B4:{operand:X4}");
             executedOperands.Add(operand);
@@ -136,12 +137,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for room sprite object words")]
-    private static ushort ReadRoomSpriteObjectWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewRoomSpriteObjectDefinitionReadGuard(ISnesAddressSpace source)
     {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,11 +24,10 @@ public static class GameplayMessagePanelExtractor
         {
             int definition = GameplayMessageRomData.Assets.DefinitionTable +
                 ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
-            ushort setup = ReadWord(bus, definition);
-            ushort draw = ReadWord(bus, definition + 2);
-            ushort pointer = ReadWord(bus, definition + 4);
-            ushort next = ReadWord(bus,
-                definition + GameplayMessageRomData.Layout.DefinitionBytes + 4);
+            ushort setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
+            ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
+            ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + GameplayMessageRomData.Layout.DefinitionBytes + 4));
             ushort expectedSetup = GameplayMessagePanelDefinitions.ButtonBinding(id) switch
             {
                 GameplayMessagePanelButtonBinding.Shoot =>
@@ -49,7 +49,7 @@ public static class GameplayMessagePanelExtractor
                 GameplayMessagePanelDefinitions.ContentWords];
             int content = GameplayMessageRomData.Assets.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
-                template[word] = new() { Raw = ReadWord(bus, content + word * sizeof(ushort)) };
+                template[word] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))) };
 
             GameplayMessageTitleCell[] visible = template.AsSpan(
                 GameplayMessagePanelDefinitions.OuterLeftColumns,
@@ -75,8 +75,7 @@ public static class GameplayMessagePanelExtractor
 
         var border = new GameplayMessageTitleCell[GameplayMessageRomData.Layout.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = new() { Raw = ReadWord(bus,
-                GameplayMessageRomData.Assets.LargeBorder + column * sizeof(ushort)) };
+            border[column] = new() { Raw = CartridgeImportSource.Require(bus).ReadCartridgeWord((GameplayMessageRomData.Assets.LargeBorder + column * sizeof(ushort))) };
 
         using var output = new MemoryStream();
         GameplayMessagePanelPresentation.Write(output, new()
@@ -87,7 +86,4 @@ public static class GameplayMessagePanelExtractor
         });
         return output.ToArray();
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 }

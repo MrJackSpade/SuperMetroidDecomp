@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -123,8 +124,7 @@ internal static partial class Program
 
             void AssertDrawWord(ushort expected)
             {
-                AssertEqual((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
-                        rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
                     expected,
                     $"Spore Spawn draw ${draw.Pointer:X4} word +{cursor - draw.Pointer}");
                 cursor += 2;

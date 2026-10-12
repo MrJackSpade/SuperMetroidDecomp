@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -21,7 +22,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadCacatacProjectileInstructionWord(rom, 0x860000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | definition.Address)),
                 $"Cacatac spike instruction mechanics word $86:{definition.Address:X4}");
         }
 
@@ -106,11 +107,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac projectile instruction words")]
-    private static ushort ReadCacatacProjectileInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCacatacProjectileInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

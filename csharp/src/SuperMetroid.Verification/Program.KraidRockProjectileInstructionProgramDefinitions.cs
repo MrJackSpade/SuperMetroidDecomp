@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -196,7 +197,7 @@ internal static partial class Program
                 ushort operand = (ushort)(projectile.InstructionPointer - 2);
                 AssertEqual(operand, projectile.PresentationOperandAddress,
                     "Kraid rock selects the just-executed native frame operand");
-                AssertEqual(ReadKraidRockProjectileInstructionWord(rom, (ushort)(operand - 2)),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | ((ushort)(operand - 2))),
                     projectile.InstructionTimer, "Kraid rock frame retains the native duration");
                 selectedPresentationWords.Add(projectile.PresentationOperandAddress);
             }
@@ -215,16 +216,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock projectile instruction words")]
-    private static ushort ReadKraidRockProjectileInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewKraidRockProjectileInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

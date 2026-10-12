@@ -37,7 +37,7 @@ internal static partial class Program
     private static void BindSyntheticSamusRendering(TestAddressSpace bus, SamusState samus)
     {
         SamusBodyArtworkCatalog stock = renderingFixtureStock.Value;
-        ushort Word(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        ushort Word(int address) => SnesLittleEndian.Word(bus.ReadByte(address), bus.ReadByte(address + 1));
         ushort[] Words(int address, int count) => Enumerable.Range(0, count)
             .Select(index => Word(address + index * 2)).ToArray();
         ushort[] OverrideWords(int address, ushort[] original)

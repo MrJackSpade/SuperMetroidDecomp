@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -90,8 +91,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         int selector = 0xa90000 | DeadTorizoArtworkDefinitions.StationaryOperand;
-        ushort nativePointer = unchecked((ushort)(
-            rom.ReadCartridgeByte(selector) | rom.ReadCartridgeByte(selector + 1) << 8));
+        ushort nativePointer = rom.ReadCartridgeWord(selector);
         AssertEqual(DeadTorizoArtworkDefinitions.StationarySpritemap, nativePointer,
             "Dead Torizo stationary visual identity matches its native list");
         AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
@@ -135,18 +135,18 @@ internal static partial class Program
                 int address = 0xa90000 | unchecked((ushort)(table +
                     index * DeadTorizoVramTransferDefinitions.RecordByteCount));
                 DeadTorizoVramTransferDefinition record = records[index];
-                AssertEqual(record.SizeInBytes, ReadWord(address),
+                AssertEqual(record.SizeInBytes, rom.ReadCartridgeWord(address),
                     $"Dead Torizo phase {phase} transfer {index} size");
-                AssertEqual(record.SourceBankWord, ReadWord(address + 2),
+                AssertEqual(record.SourceBankWord, rom.ReadCartridgeWord((address + 2)),
                     $"Dead Torizo phase {phase} transfer {index} source bank");
-                AssertEqual(record.SourceOffset, ReadWord(address + 4),
+                AssertEqual(record.SourceOffset, rom.ReadCartridgeWord((address + 4)),
                     $"Dead Torizo phase {phase} transfer {index} source offset");
-                AssertEqual(record.EncodedVramDestination, ReadWord(address + 6),
+                AssertEqual(record.EncodedVramDestination, rom.ReadCartridgeWord((address + 6)),
                     $"Dead Torizo phase {phase} transfer {index} VRAM destination");
             }
-            AssertEqual((ushort)0, ReadWord(0xa90000 | unchecked((ushort)(
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa90000 | unchecked((ushort)(
                 table + records.Length *
-                DeadTorizoVramTransferDefinitions.RecordByteCount))),
+                DeadTorizoVramTransferDefinitions.RecordByteCount)))),
                 $"Dead Torizo phase {phase} native zero terminator");
         }
 
@@ -166,10 +166,10 @@ internal static partial class Program
             // $A9:D4CF increments the phase before selecting the raw descriptor table.
             int address = phase == 0 ? 0xa9d583 : 0xa9d549;
             for (int index = 0; index < 7; index++, address += 8)
-                nativeTransfers.Add(new VramWriteEntry(ReadWord(address),
-                    ((ReadWord(address + 2) & 0xff00) << 8) | ReadWord(address + 4),
-                    ReadWord(address + 6)));
-            AssertEqual((ushort)0, ReadWord(address), "native corpse queue terminates after seven entries");
+                nativeTransfers.Add(new VramWriteEntry(rom.ReadCartridgeWord(address),
+                    ((rom.ReadCartridgeWord((address + 2)) & 0xff00) << 8) | rom.ReadCartridgeWord((address + 4)),
+                    rom.ReadCartridgeWord((address + 6))));
+            AssertEqual((ushort)0, rom.ReadCartridgeWord(address), "native corpse queue terminates after seven entries");
             buildInstalled(installed.DeadTorizo!);
             AssertTrue(nativeTransfers.SequenceEqual(
                     installed.LastDeadTorizoVramTransfers),
@@ -178,9 +178,6 @@ internal static partial class Program
                 $"Dead Torizo phase {phase} emits every authored transfer in order");
         }
         Console.WriteLine("  Dead Torizo VRAM queues: fourteen native descriptors and both real frame builders match with installed ROM reads forbidden.");
-
-        ushort ReadWord(int address) => unchecked((ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
     }
 
     // Independent transcription of Torizo_CorpseRottingInitFunc ($A9:DE18)
@@ -220,10 +217,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Dead Torizo sand-line destination and source offset tables")]
     private static (int Destination, int Source) ReadNativeDeadTorizoSandLineOffsets(ISnesAddressSpace rom, ushort line)
     {
-        return (ReadWord(0xa9d67c + line * 2), ReadWord(0xa9d69c + line * 2));
-
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+        return (CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d67c + line * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9d69c + line * 2)));
     }
 
     private static RoomEnemySystem InitializeDeadTorizoArtwork(

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ internal static partial class Program
             var native = new ushort[count];
             for (int i = 0; i < native.Length; i++)
             {
-                native[i] = (ushort)(rom.ReadCartridgeByte(address + i * 2) | rom.ReadCartridgeByte(address + i * 2 + 1) << 8);
+                native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + i * 2);
                 AssertEqual(native[i], compiled(i), "Native Ridley target/divisor record");
             }
             return native;

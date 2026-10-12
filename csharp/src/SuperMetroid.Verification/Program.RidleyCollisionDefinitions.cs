@@ -50,11 +50,11 @@ internal static partial class Program
             {
                 RidleyCollisionComponent component = components[componentIndex];
                 int record = 0xa60000 | unchecked((ushort)(frame + 2 + componentIndex * 8));
-                AssertEqual(unchecked((short)ReadWord(record)), component.Offset.X,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), component.Offset.X,
                     "Ridley native component X");
-                AssertEqual(unchecked((short)ReadWord(record + 2)), component.Offset.Y,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), component.Offset.Y,
                     "Ridley native component Y");
-                AssertEqual(ReadWord(record + 6), component.HitboxPointer,
+                AssertEqual(rom.ReadCartridgeWord((record + 6)), component.HitboxPointer,
                     "Ridley native component hitbox list");
                 seenLists.Add(component.HitboxPointer);
                 componentsChecked++;
@@ -133,23 +133,23 @@ internal static partial class Program
         {
             ReadOnlySpan<RidleyCollisionHitbox> hitboxes =
                 RidleyCollisionDefinitions.HitboxesAt(list);
-            AssertEqual(ReadWord(0xa60000 | list), (ushort)hitboxes.Length,
+            AssertEqual(rom.ReadCartridgeWord((0xa60000 | list)), (ushort)hitboxes.Length,
                 $"Ridley $A6:{list:X4} native hitbox count");
             for (int index = 0; index < hitboxes.Length; index++)
             {
                 RidleyCollisionHitbox box = hitboxes[index];
                 int record = 0xa60000 | unchecked((ushort)(list + 2 + index * 12));
-                AssertEqual(unchecked((short)ReadWord(record)), box.Left,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), box.Left,
                     "Ridley native left bound");
-                AssertEqual(unchecked((short)ReadWord(record + 2)), box.Top,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top,
                     "Ridley native top bound");
-                AssertEqual(unchecked((short)ReadWord(record + 4)), box.Right,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right,
                     "Ridley native right bound");
-                AssertEqual(unchecked((short)ReadWord(record + 6)), box.Bottom,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom,
                     "Ridley native bottom bound");
-                AssertEqual(ReadWord(record + 8), box.TouchAi,
+                AssertEqual(rom.ReadCartridgeWord((record + 8)), box.TouchAi,
                     "Ridley native touch callback");
-                AssertEqual(ReadWord(record + 10), box.ShotAi,
+                AssertEqual(rom.ReadCartridgeWord((record + 10)), box.ShotAi,
                     "Ridley native shot callback");
                 boxesChecked++;
             }
@@ -166,9 +166,6 @@ internal static partial class Program
             $"components, 17 lists, {boxesChecked} boxes and {probes} touch/shot " +
             "boundary probes match native callbacks without ROM reads.");
 
-        ushort ReadWord(int address) => (ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
-
         // A0:9ADF..9B78 touch and 9C43..9D20 shot comparisons consume the original
         // component/list records in order; only this reference reads cartridge data.
         bool NativeCallback(ushort frame, Position16<RoomPixels> origin, Position16<RoomPixels> target,
@@ -183,24 +180,24 @@ internal static partial class Program
             for (int component = 0; component < count; component++)
             {
                 int record = 0xa60000 | unchecked((ushort)(frame + 2 + component * 8));
-                ushort componentX = unchecked((ushort)(origin.X + ReadWord(record)));
-                ushort componentY = unchecked((ushort)(origin.Y + ReadWord(record + 2)));
-                ushort list = ReadWord(record + 6);
-                int boxCount = ReadWord(0xa60000 | list);
+                ushort componentX = unchecked((ushort)(origin.X + rom.ReadCartridgeWord(record)));
+                ushort componentY = unchecked((ushort)(origin.Y + rom.ReadCartridgeWord((record + 2))));
+                ushort list = rom.ReadCartridgeWord((record + 6));
+                int boxCount = rom.ReadCartridgeWord((0xa60000 | list));
                 for (int index = 0; index < boxCount; index++)
                 {
                     int box = 0xa60000 | unchecked((ushort)(list + 2 + index * 12));
-                    ushort left = unchecked((ushort)(componentX + ReadWord(box)));
-                    ushort top = unchecked((ushort)(componentY + ReadWord(box + 2)));
-                    ushort right = unchecked((ushort)(componentX + ReadWord(box + 4)));
-                    ushort bottom = unchecked((ushort)(componentY + ReadWord(box + 6)));
+                    ushort left = unchecked((ushort)(componentX + rom.ReadCartridgeWord(box)));
+                    ushort top = unchecked((ushort)(componentY + rom.ReadCartridgeWord((box + 2))));
+                    ushort right = unchecked((ushort)(componentX + rom.ReadCartridgeWord((box + 4))));
+                    ushort bottom = unchecked((ushort)(componentY + rom.ReadCartridgeWord((box + 6))));
                     bool overlaps = shot
                         ? unchecked((short)(targetRight - left)) >= 0 && unchecked((short)(targetLeft - right)) < 0
                             && unchecked((short)(targetBottom - top)) >= 0 && unchecked((short)(targetTop - bottom)) < 0
                         : unchecked((short)(left - targetRight)) < 0 && unchecked((short)(right - targetLeft)) >= 0
                             && unchecked((short)(top - targetBottom)) < 0 && unchecked((short)(bottom - targetTop)) >= 0;
                     if (!overlaps) continue;
-                    callback = ReadWord(box + (shot ? 10 : 8));
+                    callback = rom.ReadCartridgeWord((box + (shot ? 10 : 8)));
                     return true;
                 }
             }
@@ -217,17 +214,17 @@ internal static partial class Program
             for (int component = 0; component < count; component++)
             {
                 int record = 0xa60000 | unchecked((ushort)(frame + 2 + component * 8));
-                int componentX = unchecked((ushort)(origin.X + ReadWord(record)));
-                int componentY = unchecked((ushort)(origin.Y + ReadWord(record + 2)));
-                ushort list = ReadWord(record + 6);
-                int boxCount = ReadWord(0xa60000 | list);
+                int componentX = unchecked((ushort)(origin.X + rom.ReadCartridgeWord(record)));
+                int componentY = unchecked((ushort)(origin.Y + rom.ReadCartridgeWord((record + 2))));
+                ushort list = rom.ReadCartridgeWord((record + 6));
+                int boxCount = rom.ReadCartridgeWord((0xa60000 | list));
                 for (int index = 0; index < boxCount; index++)
                 {
                     int box = 0xa60000 | unchecked((ushort)(list + 2 + index * 12));
-                    int left = unchecked((ushort)(componentX + ReadWord(box)));
-                    int top = unchecked((ushort)(componentY + ReadWord(box + 2)));
-                    int right = unchecked((ushort)(componentX + ReadWord(box + 4)));
-                    int bottom = unchecked((ushort)(componentY + ReadWord(box + 6)));
+                    int left = unchecked((ushort)(componentX + rom.ReadCartridgeWord(box)));
+                    int top = unchecked((ushort)(componentY + rom.ReadCartridgeWord((box + 2))));
+                    int right = unchecked((ushort)(componentX + rom.ReadCartridgeWord((box + 4))));
+                    int bottom = unchecked((ushort)(componentY + rom.ReadCartridgeWord((box + 6))));
                     if (unchecked((short)(left - subjectRight)) <= 0 &&
                         unchecked((short)(right - subjectLeft)) > 0 &&
                         unchecked((short)(top - subjectBottom)) <= 0 &&

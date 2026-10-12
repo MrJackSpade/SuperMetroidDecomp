@@ -1623,7 +1623,7 @@ internal static class RoomFxRecordDefinitionAccess
         {
             if ((uint)offset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
                 throw new ArgumentOutOfRangeException(nameof(offset));
-            return (ushort)(self.ReadByte(offset) | self.ReadByte(offset + 1) << 8);
+            return SnesLittleEndian.Word(self.ReadByte(offset), self.ReadByte(offset + 1));
         }
     }
 }

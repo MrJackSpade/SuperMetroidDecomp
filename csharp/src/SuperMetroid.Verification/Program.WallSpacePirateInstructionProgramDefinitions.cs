@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 WallSpacePirateInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadWallPirateWord(rom, 0xb20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | definition.Address)),
                 $"wall Pirate mechanics word $B2:{definition.Address:X4}");
         }
 
@@ -71,7 +72,7 @@ internal static partial class Program
             slot.InstructionTimer = 1;
             process.Invoke(enemies,
                 [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0]);
-            AssertEqual(ReadWallPirateWord(rom, 0xb20000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
                 slot.SpritemapPointer,
                 $"production execution selects wall Pirate frame $B2:{address:X4}");
         }
@@ -232,10 +233,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for wall Pirate words")]
-    private static ushort ReadWallPirateWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewWallSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

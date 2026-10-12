@@ -13,8 +13,7 @@ internal static partial class Program
              pointer < EndingCompletionTextInstructionDefinitions.End; pointer += sizeof(ushort))
         {
             int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = (ushort)(bus.ReadCartridgeByte(address) |
-                bus.ReadCartridgeByte(address + 1) << 8);
+            ushort nativeWord = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(nativeWord, EndingCompletionTextInstructionDefinitions.ReadWord((ushort)pointer),
                 $"ending completion text instruction $8B:{pointer:X4} matches cartridge");
         }
@@ -51,9 +50,9 @@ internal static partial class Program
         for (int letter = 0; letter < line.Letters; letter++)
         {
             int operand = 0x8b0000 | (line.Start + letter * 4 + 2);
-            int map = bus.ReadCartridgeByte(operand) | bus.ReadCartridgeByte(operand + 1) << 8;
+            int map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
             int address = 0x8c0000 | map;
-            int count = bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8;
+            int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(2 * (letter + 1), count, "original prefix sprite count");
             AssertEqual((ushort)map, catalog[catalogIndex].Pointer, "completion prefix catalog pointer");
             AssertEqual(count, catalog[catalogIndex].StockPartCount, "completion prefix catalog part count");
@@ -62,9 +61,9 @@ internal static partial class Program
         for (int glyph = 0; glyph < 11; glyph++, catalogIndex++)
         {
             int operand = 0x8bec83 + glyph * 8;
-            ushort map = (ushort)(bus.ReadCartridgeByte(operand) | bus.ReadCartridgeByte(operand + 1) << 8);
+            ushort map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
             int header = 0x8c0000 | map;
-            int parts = bus.ReadCartridgeByte(header) | bus.ReadCartridgeByte(header + 1) << 8;
+            int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
             AssertEqual(map, catalog[catalogIndex].Pointer, "completion glyph catalog pointer");
             AssertEqual(parts, catalog[catalogIndex].StockPartCount, "completion glyph catalog part count");
         }
@@ -92,8 +91,7 @@ internal static partial class Program
             {
                 // The scene owns private callbacks; here both actor interpreters
                 // advance across the same callback without duplicating its effects.
-                native.Step((EndingSpriteInstruction _, ushort cursor) => cursor, pointer => (ushort)(
-                    bus.ReadCartridgeByte(0x8b0000 | pointer) | bus.ReadCartridgeByte(0x8b0000 | (pointer + 1)) << 8));
+                native.Step((EndingSpriteInstruction _, ushort cursor) => cursor, pointer => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
                 installed.Step((EndingSpriteInstruction _, ushort cursor) => cursor,
                     EndingCompletionTextInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, installed.InstructionPointer,

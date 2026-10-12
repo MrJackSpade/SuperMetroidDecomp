@@ -21,11 +21,10 @@ internal static partial class Program
         object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>((ushort)8, (ushort)8), false, (ushort)0];
         AssertTrue(!(bool)walker.Invoke(enemies, arguments)!, "river corpse has native empty collision");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(0xa40000 | address) | rom.ReadCartridgeByte(0xa40000 | (address + 1)) << 8);
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
         {
             var components = CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer);
-            AssertEqual((int)Word(frame.Pointer), components.Length, "corpse native component count");
+            AssertEqual((int)rom.ReadCartridgeWordFixedBank(0xa40000 | frame.Pointer), components.Length, "corpse native component count");
             slot.SpritemapPointer = frame.Pointer;
             slot.Position = slot.Position.WithWhole(new(4096, 4096));
             bool anyHitbox = false;
@@ -33,18 +32,18 @@ internal static partial class Program
             {
                 var component = components[index];
                 int address = frame.Pointer + 2 + 8 * index;
-                AssertEqual(unchecked((short)Word(address)), component.Offset.X, "corpse native component X");
-                AssertEqual(unchecked((short)Word(address + 2)), component.Offset.Y, "corpse native component Y");
-                AssertEqual(Word(address + 6), component.HitboxPointer, "corpse native hitbox pointer");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xa40000 | address)), component.Offset.X, "corpse native component X");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 2))), component.Offset.Y, "corpse native component Y");
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 6)), component.HitboxPointer, "corpse native hitbox pointer");
                 var boxes = CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
-                AssertEqual((int)Word(component.HitboxPointer), boxes.Length, "corpse native hitbox count");
+                AssertEqual((int)rom.ReadCartridgeWordFixedBank(0xa40000 | component.HitboxPointer), boxes.Length, "corpse native hitbox count");
                 for (int boxIndex = 0; boxIndex < boxes.Length; boxIndex++)
                 {
                     var box = boxes[boxIndex];
                     int boxAddress = component.HitboxPointer + 2 + 12 * boxIndex;
                     ushort[] words = [unchecked((ushort)box.Left), unchecked((ushort)box.Top), unchecked((ushort)box.Right), unchecked((ushort)box.Bottom), box.TouchAi, box.ShotAi];
                     for (int word = 0; word < words.Length; word++)
-                        AssertEqual(Word(boxAddress + word * 2), words[word], "corpse native rectangle/callback");
+                        AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | (boxAddress + word * 2)), words[word], "corpse native rectangle/callback");
                 }
                 if (!anyHitbox && boxes.Length != 0)
                 {

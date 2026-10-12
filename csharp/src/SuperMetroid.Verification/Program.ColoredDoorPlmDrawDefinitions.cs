@@ -12,8 +12,6 @@ internal static partial class Program
     private static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             ColoredDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
@@ -86,8 +84,8 @@ internal static partial class Program
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident colored-door header ${(int)header:X4} loads");
-            ushort initial = ReadWord(rom, 0x840000 | ((ushort)header + 2));
-            ushort firstDraw = ReadWord(rom, 0x840000 | (initial + 14));
+            ushort initial = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | ((ushort)header + 2)));
+            ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (initial + 14)));
             AssertTrue(ColoredDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
                 $"resident colored-door header ${(int)header:X4} selects compiled art");
             plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });

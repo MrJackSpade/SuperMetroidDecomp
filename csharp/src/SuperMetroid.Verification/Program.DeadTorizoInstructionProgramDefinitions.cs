@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -20,7 +21,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 DeadTorizoInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadDeadTorizoInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | definition.Address),
                 $"Dead Torizo mechanics word $A9:{definition.Address:X4}");
         }
 
@@ -51,8 +52,7 @@ internal static partial class Program
         AssertEqual(DeadTorizoInstructionProgramDefinitions.SleepOpcode,
             corpse.CurrentInstruction,
             "Dead Torizo program reaches terminal sleep");
-        AssertEqual(ReadDeadTorizoInstructionWord(
-                rom, DeadTorizoInstructionProgramDefinitionsTooling.PresentationWord),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | DeadTorizoInstructionProgramDefinitionsTooling.PresentationWord),
             corpse.SpritemapPointer,
             "compiled Dead Torizo spritemap selector matches the cartridge");
         AssertTrue(!sawPresentationWord,
@@ -92,14 +92,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo instruction words")]
-    private static ushort ReadDeadTorizoInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa90000 | address) |
-            source.ReadCartridgeByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewDeadTorizoInstructionReadGuard(ISnesAddressSpace source,
         Action sawPresentationWord) =>

@@ -24,7 +24,7 @@ internal static partial class Program
         {
             ushort offset = equipment[selection].GetSuitPaletteTableOffset();
             int source = SamusPaletteRomData.FullBodyCycles.SpeedBoostPointers + offset;
-            ushort nativePointer = (ushort)(rom.ReadCartridgeByte(source) | rom.ReadCartridgeByte(source + 1) << 8);
+            ushort nativePointer = rom.ReadCartridgeWord(source);
             AssertEqual(expectedPointers[selection], nativePointer,
                 $"Speed Booster pointer selection {selection} matches retail ROM");
             AssertEqual(nativePointer,

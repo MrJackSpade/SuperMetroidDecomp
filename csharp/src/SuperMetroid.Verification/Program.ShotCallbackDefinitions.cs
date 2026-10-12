@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Game;
@@ -8,7 +9,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for shot callback definitions")]
     private static void VerifyShotCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var shotCallbacks = new HashSet<int>();
         var touchCallbacks = new HashSet<int>();
         int headers = 0, lists = 0, boxes = 0;
@@ -19,8 +19,8 @@ internal static partial class Program
             if (!match.Success) continue;
             int address = Convert.ToInt32(match.Groups[1].Value, 16);
             int bank = rom.ReadCartridgeByte(address + 12) << 16;
-            touchCallbacks.Add(bank | Word(address + 48));
-            shotCallbacks.Add(bank | Word(address + 50));
+            touchCallbacks.Add(bank | CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 48)));
+            shotCallbacks.Add(bank | CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 50)));
             headers++;
         }
         foreach (string file in Directory.EnumerateFiles(disassemblySource, "bank_*.asm"))
@@ -36,14 +36,14 @@ internal static partial class Program
                 if (!pending || !match.Success) continue;
                 pending = false;
                 int address = Convert.ToInt32(match.Groups[1].Value, 16);
-                int count = Word(address);
+                int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 AssertTrue(count < 100, "native hitbox inventory count sanity");
                 lists++;
                 for (int box = 0; box < count; box++)
                 {
                     int hitbox = address + 2 + box * 12;
-                    touchCallbacks.Add((address & 0xff0000) | Word(hitbox + 8));
-                    shotCallbacks.Add((address & 0xff0000) | Word(hitbox + 10));
+                    touchCallbacks.Add((address & 0xff0000) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 8)));
+                    shotCallbacks.Add((address & 0xff0000) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)));
                     boxes++;
                 }
             }

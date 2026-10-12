@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 OwtchInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadOwtchInstructionWord(rom, 0xa20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | definition.Address)),
                 $"Owtch instruction mechanics word $A2:{definition.Address:X4}");
         }
 
@@ -32,7 +33,7 @@ internal static partial class Program
              index++)
         {
             ushort address = OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(ReadOwtchInstructionWord(rom, 0xa20000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | address)),
                 OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Owtch, address),
                 $"compiled Owtch frame selector $A2:{address:X4}");
         }
@@ -138,11 +139,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch instruction words")]
-    private static ushort ReadOwtchInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewOwtchInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

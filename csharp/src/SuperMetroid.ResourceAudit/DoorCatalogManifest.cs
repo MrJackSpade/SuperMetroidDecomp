@@ -92,7 +92,7 @@ internal static class DoorCatalogManifest
                 if (address != start + entries.Count * 2)
                     throw new InvalidDataException($"Noncontiguous native list {label.Name}.");
                 ushort pointer = symbols[entry.Groups[1].Value];
-                if (Word(0x8f0000 | address) != pointer)
+                if (bus.ReadCartridgeWord((0x8f0000 | address)) != pointer)
                     throw new InvalidDataException($"Disassembly/cartridge disagreement in {label.Name}.");
                 entries.Add(pointer);
             }
@@ -110,7 +110,7 @@ internal static class DoorCatalogManifest
             ushort room = name.StartsWith("8F", StringComparison.Ordinal) ? Convert.ToUInt16(name[2..], 16) : Address(body, "8F");
             string listName = Regex.Match(body, @"%doorList\((\w+)\)").Groups[1].Value;
             var list = nativeLists[listName];
-            if (Word(0x8f0000 | (room + 9)) != list.Pointer)
+            if (bus.ReadCartridgeWord((0x8f0000 | (room + 9))) != list.Pointer)
                 throw new InvalidDataException($"Native room/list disagreement for {name}.");
             var states = new List<NativeDoorState>();
             foreach (Match state in Regex.Matches(body, @"^(?:UNUSED_)?RoomState_\w+:\s*;8F([0-9A-F]{4});", RegexOptions.Multiline))
@@ -139,8 +139,6 @@ internal static class DoorCatalogManifest
         File.WriteAllText(output, JsonSerializer.Serialize(manifest, Json) + "\n");
         Console.WriteLine($"Imported {rooms.Count} independently bounded door lists, {manifest.Headers.Length} headers and {rooms.Sum(r => r.States.Length)} state data summaries. No gameplay executed.");
         return 0;
-
-        ushort Word(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static string ReadPinned(string path, string hash)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,14 +15,12 @@ internal static partial class Program
         Suite(nameof(VerifyShaktoolCallbackSelection), () => VerifyShaktoolCallbackSelection(rom));
         Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        ushort Word(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var definitions = new ShaktoolSegmentDefinition[7];
         for (int index = 0; index < definitions.Length; index++)
         {
             ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(index);
             definitions[index] = definition;
-            AssertEqual((ushort)0, Word(0xaadef7 + index * 2),
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadef7 + index * 2)),
                 $"Shaktool segment {index} initialization subtrahend");
         }
 
@@ -121,7 +120,7 @@ internal static partial class Program
         for (int index = 0; index < 7; index++)
         {
             int address = nativeAddress + 2 * index;
-            ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, select(ShaktoolSegmentDefinitions.ForIndex(index)),
                 $"Shaktool {label} original word {index}");
         }

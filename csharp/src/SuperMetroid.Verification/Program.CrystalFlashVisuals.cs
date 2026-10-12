@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -58,10 +59,6 @@ internal static partial class Program
         }
         return (bodyVisible, windowVisible);
 
-        ushort Word(int address) => ReadNativeCrystalFlashPaletteWord(bus, address);
+        ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash palette timeline records and colors")]
-    private static ushort ReadNativeCrystalFlashPaletteWord(ISnesAddressSpace rom, int address) =>
-        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 }

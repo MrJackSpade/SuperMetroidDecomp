@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -83,7 +84,6 @@ internal static partial class Program
             0x93a12d, 0x93a135, 0x93a141, 0x93a149, 0x93a151, 0x93a15d, 0x93a165, 0x93a171, 0x93a179, 0x93a181, 0x93a189, 0x93a191,
             0x93a199,
         ];
-        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a + 1) << 8);
         var guard = NewProjectileRadiusReadGuard(rom, addresses);
         foreach (int address in addresses)
         {
@@ -121,13 +121,13 @@ internal static partial class Program
         foreach (int address in addresses)
         {
             ushort pointer = (ushort)(address - 4);
-            ushort duration = Word(0x930000 | pointer);
+            ushort duration = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x930000 | pointer));
             AssertTrue(duration < 0x8000, "Inventory entry is a timed frame, not executable data");
             int activeRecord = 0x930000 | pointer;
             foreach (bool replaceArt in new[] { false, true })
             {
                 projectiles.FrameBindings = bombs.FrameBindings = replaceArt ? edited : stock;
-                ushort nativeSprite = Word(activeRecord + 2);
+                ushort nativeSprite = CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2));
                 ushort expectedSprite = replaceArt
                     ? (nativeSprite == replacementSprites[0] ? replacementSprites[1] : replacementSprites[0])
                     : nativeSprite;
@@ -137,7 +137,7 @@ internal static partial class Program
                 AssertEqual(expectedSprite, slot.SpritemapPointer, "Artwork reference changes independently");
                 AssertEqual((ushort)rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");
                 AssertEqual((ushort)rom.ReadCartridgeByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
-                AssertEqual(Word(address + 2), slot.AnimationFrame, "Trail frame unchanged");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), slot.AnimationFrame, "Trail frame unchanged");
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
 
                 // The bomb owner deliberately rejects zero-duration records. Keep that

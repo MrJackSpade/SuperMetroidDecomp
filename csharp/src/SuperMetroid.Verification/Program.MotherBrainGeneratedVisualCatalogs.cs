@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -34,7 +35,7 @@ internal static partial class Program
         {
             var expected = OriginalMotherBrainFrames[i];
             AssertEqual(expected, MotherBrainBodyVisualDefinitions.Frame(i), "Mother Brain published OAM identity/name");
-            ushort count = (ushort)(rom.ReadCartridgeByte(0xa90000 | expected.Pointer) | rom.ReadCartridgeByte(0xa90000 | (expected.Pointer + 1)) << 8);
+            ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | expected.Pointer);
             int expectedCount = i is >= 1 and <= 3 ? 10 : i == 9 ? 7 : i == 12 ? 1 : 9;
             AssertEqual((ushort)expectedCount, count, "Mother Brain native frame stride geometry");
         }

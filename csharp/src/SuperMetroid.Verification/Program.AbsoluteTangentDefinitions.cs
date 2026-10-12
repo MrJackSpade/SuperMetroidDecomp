@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +9,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled absolute tangent")]
     private static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        int Native(int index) => rom.ReadCartridgeByte(0x91c9d4 + index * 2) | rom.ReadCartridgeByte(0x91c9d5 + index * 2) << 8;
         var guard = NewTangentReadGuard(rom);
         var eye = typeof(EyeBeamWindowBuilder).GetMethod("Tangent", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<int, int>>();
@@ -16,10 +16,10 @@ internal static partial class Program
             .CreateDelegate<Func<int, int>>();
         for (int index = 0; index <= 128; index++)
         {
-            AssertEqual((ushort)Native(index), AbsoluteTangentDefinitions.Sample(index), "All native tangent words including endpoint");
-            AssertEqual(Native(index), eye(index), "Eye actual tangent reader without ROM");
-            AssertEqual(Native(index), mother(index), "Mother Brain actual tangent reader without ROM");
-            AssertEqual(Native(index), mother(index - 256), "Mother Brain caller byte wrap");
+            AssertEqual((ushort)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), AbsoluteTangentDefinitions.Sample(index), "All native tangent words including endpoint");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), eye(index), "Eye actual tangent reader without ROM");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), mother(index), "Mother Brain actual tangent reader without ROM");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), mother(index - 256), "Mother Brain caller byte wrap");
         }
         if (definitionsOnly)
         {
@@ -35,7 +35,7 @@ internal static partial class Program
             if (wrapped is 64 or 192) { x = wrapped == 64 ? 256 : -256; y = 0; }
             else
             {
-                int tangent = Native(wrapped & 127);
+                int tangent = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + (wrapped & 127) * 2);
                 x = wrapped < 128 ? tangent : -tangent;
                 y = wrapped is < 64 or >= 192 ? -256 : 256;
             }

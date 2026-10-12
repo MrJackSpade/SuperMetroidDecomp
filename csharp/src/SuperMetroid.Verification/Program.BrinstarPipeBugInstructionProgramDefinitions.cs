@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -24,7 +25,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 BrinstarPipeBugInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadBrinstarPipeBugInstructionWord(rom, 0xb30000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | definition.Address)),
                 $"Brinstar Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
         }
 
@@ -70,7 +71,7 @@ internal static partial class Program
             EnemyDefinitionId definition = address < 0x8a00
                 ? EnemyDefinitionId.Zeb
                 : EnemyDefinitionId.Zebbo;
-            AssertEqual(ReadBrinstarPipeBugInstructionWord(rom, 0xb30000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | address)),
                 PipeBugVisualDefinitions.FrameAt(definition, address),
                 $"compiled Brinstar Pipe Bug frame $B3:{address:X4}");
         }
@@ -171,9 +172,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Brinstar pipe bug instruction words")]
-    private static ushort ReadBrinstarPipeBugInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

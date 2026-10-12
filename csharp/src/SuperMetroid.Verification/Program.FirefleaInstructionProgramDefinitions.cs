@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -28,7 +29,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 FirefleaInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadFirefleaInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | definition.Address),
                 $"Fireflea mechanics word $A3:{definition.Address:X4}");
         }
 
@@ -62,7 +63,7 @@ internal static partial class Program
             process.Invoke(enemies, arguments);
             ushort operand = FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(
                 call % FirefleaInstructionProgramDefinitions.FrameCount);
-            ushort native = ReadFirefleaInstructionWord(rom, operand);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | operand);
             AssertEqual(native, EnemySpritemapDefinitions.FirefleaFrameAt(operand),
                 $"compiled Fireflea visual selector $A3:{operand:X4}");
             AssertEqual(native, slot.SpritemapPointer,
@@ -112,12 +113,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Fireflea instruction words")]
-    private static ushort ReadFirefleaInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa30000 | address) |
-            source.ReadCartridgeByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 }

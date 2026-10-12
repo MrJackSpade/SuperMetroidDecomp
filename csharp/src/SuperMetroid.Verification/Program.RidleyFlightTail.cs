@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.AssetExtraction;
@@ -11,7 +12,7 @@ internal static partial class Program
     private static short ReadRetailSwoopSine(ISnesAddressSpace rom, int angle)
     {
         int address = 0xa0b443 + (angle & 255) * 2;
-        return unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+        return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
     }
 
     private static void VerifyRidleyFlightTail()

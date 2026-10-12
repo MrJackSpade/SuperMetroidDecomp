@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -17,8 +18,7 @@ internal static partial class Program
 
         for (ushort animationIndex = 0; animationIndex < 8; animationIndex++)
         {
-            ushort expected = ReadMaridiaLargeSnailInstructionWord(
-                rom, 0xa2cb77 + animationIndex * 2);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2cb77 + animationIndex * 2));
             AssertEqual(expected,
                 MaridiaLargeSnailInstructionDefinitions.InstructionPointer(animationIndex),
                 $"Maridia Large Snail instruction selector {animationIndex}");
@@ -52,8 +52,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 MaridiaLargeSnailInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadMaridiaLargeSnailInstructionWord(
-                    rom, 0xa20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | definition.Address)),
                 $"Maridia Large Snail mechanics word $A2:{definition.Address:X4}");
         }
 
@@ -209,12 +208,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia large snail instruction words")]
-    private static ushort ReadMaridiaLargeSnailInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMaridiaLargeSnailInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

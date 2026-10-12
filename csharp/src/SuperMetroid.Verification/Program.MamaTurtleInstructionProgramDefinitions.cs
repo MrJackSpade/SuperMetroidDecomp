@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -27,7 +28,7 @@ internal static partial class Program
             AssertTrue(index == 0 || definition.Address > previous,
                 $"Mama Turtle mechanics word {index} is strictly ordered");
             AssertEqual(definition.Value,
-                ReadMamaTurtleInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | definition.Address),
                 $"Mama Turtle mechanics word $A2:{definition.Address:X4}");
             AssertTrue(
                 MamaTurtleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
@@ -86,12 +87,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mama Turtle instruction words")]
-    private static ushort ReadMamaTurtleInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa20000 | address) |
-            source.ReadCartridgeByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 }

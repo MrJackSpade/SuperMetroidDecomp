@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -16,8 +17,7 @@ internal static partial class Program
         AssertTrue(RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
             RoomPlmSharedDeleteProgramDefinitions.Start, out ushort sharedDelete),
             "shared delete list is compiled");
-        AssertEqual(ReadChozoStatuePlmWord(rom,
-                0x840000 | RoomPlmSharedDeleteProgramDefinitions.Start),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | RoomPlmSharedDeleteProgramDefinitions.Start)),
             sharedDelete, "shared delete list matches cartridge");
         AssertTrue(!RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
             RoomPlmSharedDeleteProgramDefinitions.End, out _),
@@ -46,16 +46,14 @@ internal static partial class Program
             {
                 var selected = ChozoStatuePlmDefinitions.Resolve((PlmHeaderId)header);
                 AssertEqual(header, (ushort)selected.HeaderPointer, "Chozo dispatch header identity");
-                AssertEqual(ReadChozoStatuePlmWord(rom, 0x840000 | (header + 2)), selected.InstructionListPointer,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2))), selected.InstructionListPointer,
                     "Chozo dispatch original initial list");
                 AssertEqual(definitions.Single(d => (ushort)d.HeaderPointer == header), selected, "Chozo named/enumerated dispatch agreement");
             }
         }
         foreach (ChozoStatuePlmDefinition definition in definitions)
         {
-            ushort expected = ReadChozoStatuePlmWord(
-                rom,
-                0x840000 | unchecked((ushort)(definition.HeaderPointer + 2)));
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.HeaderPointer + 2))));
             AssertEqual(
                 expected,
                 definition.InstructionListPointer,
@@ -102,8 +100,4 @@ internal static partial class Program
             () => ChozoStatuePlmDefinitions.Resolve(PlmHeaderId.CollisionWreckedShipChozoHandCheck),
             "Chozo collision-trigger header cannot enter terrain-spawn domain");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo statue PLM words")]
-    private static ushort ReadChozoStatuePlmWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

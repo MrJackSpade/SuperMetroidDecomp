@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -22,7 +23,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 StokeProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadStokeProjectileInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Stoke-projectile mechanics word $86:{definition.Address:X4}");
         }
 
@@ -86,7 +87,7 @@ internal static partial class Program
                 $"StokeProjectile executes native presentation operand {address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
                 "StokeProjectile has a compiled visual selector");
-            AssertEqual(ReadStokeProjectileInstructionWord(rom, address), selector,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address), selector,
                 "StokeProjectile compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -140,16 +141,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Stoke projectile instruction words")]
-    private static ushort ReadStokeProjectileInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewStokeProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

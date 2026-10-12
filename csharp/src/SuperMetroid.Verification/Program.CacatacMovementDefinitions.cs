@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,7 +24,7 @@ internal static partial class Program
             for (byte distanceIndex = 0; distanceIndex < 6; distanceIndex++)
             {
                 int address = distanceTable + distanceIndex * 2;
-                ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
                 AssertEqual(native, CacatacMovementDefinitions.TravelDistance(distanceIndex),
                     $"compiled Cacatac travel distance {distanceIndex}");
 

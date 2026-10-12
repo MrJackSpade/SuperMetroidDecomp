@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
@@ -23,7 +24,7 @@ internal static partial class Program
         for (int command = 1; command <= count; command++)
         {
             int address = source + (command - 1) * sizeof(ushort);
-            ushort native = unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, SpcSoundEffectTables.StreamPointer(library, command), "original sound stream dispatch");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })

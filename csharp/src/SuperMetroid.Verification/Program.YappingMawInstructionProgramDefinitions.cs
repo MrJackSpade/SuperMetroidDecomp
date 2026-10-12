@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -25,7 +26,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 YappingMawInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadYappingMawInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | definition.Address),
                 $"Yapping Maw mechanics word $A8:{definition.Address:X4}");
         }
 
@@ -214,14 +215,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Yapping Maw instruction words")]
-    private static ushort ReadYappingMawInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa80000 | address) |
-            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewYappingMawInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

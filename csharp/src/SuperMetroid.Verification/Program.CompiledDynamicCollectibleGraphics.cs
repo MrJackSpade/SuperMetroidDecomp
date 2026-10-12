@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -39,9 +40,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for collectible graphics words")]
     private static ushort ReadCollectibleGraphicsWord(
-        ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadCartridgeByte(0x840000 | address) |
-        bus.ReadCartridgeByte(0x840000 | (address + 1)) << 8));
+        ISnesAddressSpace bus, int address) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | address);
 
     private static CartridgeReadGuard NewRetailCollectibleGraphicsReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

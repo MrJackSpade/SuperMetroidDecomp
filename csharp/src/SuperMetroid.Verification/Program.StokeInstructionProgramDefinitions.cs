@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 StokeInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadStokeInstructionWord(rom, 0xa20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | definition.Address)),
                 $"Stoke instruction mechanics word $A2:{definition.Address:X4}");
         }
 
@@ -32,7 +33,7 @@ internal static partial class Program
              index++)
         {
             ushort address = StokeInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(ReadStokeInstructionWord(rom, 0xa20000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | address)),
                 OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Stoke, address),
                 $"compiled Stoke frame selector $A2:{address:X4}");
         }
@@ -192,11 +193,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Stoke instruction words")]
-    private static ushort ReadStokeInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewStokeInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

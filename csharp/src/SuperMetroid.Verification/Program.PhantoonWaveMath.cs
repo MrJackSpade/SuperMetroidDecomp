@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -11,7 +12,7 @@ internal static partial class Program
         for (int offset = 0; offset < samples.Length; offset++)
         {
             int address = EnemyMathReferenceData.SignedSine + offset;
-            samples[offset] = unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+            samples[offset] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
 
         static int NativeDisplacement(short sample, ushort amplitude)

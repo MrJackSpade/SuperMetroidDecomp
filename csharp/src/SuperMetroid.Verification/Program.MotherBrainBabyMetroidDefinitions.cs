@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,9 +11,6 @@ internal static partial class Program
     {
         const int populationAddress = 0xa9be28;
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         RoomEnemyPopulationRecord population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
@@ -29,7 +27,7 @@ internal static partial class Program
         ];
         for (int word = 0; word < actual.Length; word++)
         {
-            AssertEqual(ReadWord(rom, populationAddress + word * 2), actual[word],
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((populationAddress + word * 2)), actual[word],
                 $"Mother Brain Baby population word {word}");
         }
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,

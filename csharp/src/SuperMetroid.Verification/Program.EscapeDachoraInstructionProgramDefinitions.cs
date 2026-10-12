@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -21,7 +22,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 EscapeDachoraInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadEscapeDachoraInstructionWord(rom, 0xb30000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | definition.Address)),
                 $"escape Dachora mechanics word $B3:{definition.Address:X4}");
         }
 
@@ -127,12 +128,6 @@ internal static partial class Program
             VerifyExecutedEnemySelector(rom, dachora, executedOperands);
         }
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for escape Dachora instruction words")]
-    private static ushort ReadEscapeDachoraInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static int ProbeEscapeDachoraInstructionMechanicsAllocation()
     {

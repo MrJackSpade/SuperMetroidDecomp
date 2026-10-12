@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -20,23 +21,20 @@ internal static partial class Program
         {
             IntroRinkaActorDefinition actual = actors[index].Actor;
             int address = IntroRinkaDefinitions.NativeBank | actors[index].NativePointer;
-            AssertEqual(ReadIntroRinkaWord(retail, address + 2), actual.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.PreInstruction,
                 $"intro Rinka actor {index} pre-instruction callback");
-            AssertEqual(ReadIntroRinkaWord(retail, address + 4), actual.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), actual.InstructionList,
                 $"intro Rinka actor {index} instruction list");
         }
 
         for (int parameter = 0; parameter < IntroRinkaDefinitions.RinkaCount; parameter++)
         {
             IntroRinkaPhysicalDefinition actual = IntroRinkaDefinitions.Rinka(parameter);
-            AssertEqual(ReadIntroRinkaWord(retail,
-                    IntroRinkaDefinitions.InitialXReferenceAddress + parameter * 2),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialXReferenceAddress + parameter * 2)),
                 actual.Position.X, $"intro Rinka {parameter} initial X");
-            AssertEqual(unchecked((ushort)(ReadIntroRinkaWord(retail,
-                    IntroRinkaDefinitions.InitialYReferenceAddress + parameter * 2) - 8)),
+            AssertEqual(unchecked((ushort)(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.InitialYReferenceAddress + parameter * 2)) - 8)),
                 actual.Position.Y, $"intro Rinka {parameter} biased initial Y");
-            AssertEqual(unchecked((short)ReadIntroRinkaWord(retail,
-                    IntroRinkaDefinitions.XWholeVelocityReferenceAddress + parameter * 2)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroRinkaDefinitions.XWholeVelocityReferenceAddress + parameter * 2))),
                 actual.XWholeVelocity, $"intro Rinka {parameter} signed X whole velocity");
         }
         AssertThrows<ArgumentOutOfRangeException>(
@@ -87,10 +85,6 @@ internal static partial class Program
         Console.WriteLine(
             "  Intro Rinka definitions: six actor, twelve physical and 48 instruction bytes match; both timed spawn waves, animation and cleanup are ROM-table independent.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Rinka words")]
-    private static ushort ReadIntroRinkaWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewIntroRinkaDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

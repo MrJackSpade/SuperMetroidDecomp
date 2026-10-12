@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,10 +10,9 @@ internal static partial class Program
     {
         for (int variant = 0; variant < 2; variant++)
         {
-            ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address + variant * 2) | rom.ReadCartridgeByte(address + variant * 2 + 1) << 8);
-            ushort[] native = [Word(EnemyRomTablePointersTorizo.WakeXPositions), Word(EnemyRomTablePointersTorizo.WakeYPositions),
-                Word(EnemyRomTablePointersTorizo.WakeInstructionLists), Word(EnemyRomTablePointersTorizo.WakePropertyMasks),
-                Word(EnemyRomTablePointersTorizo.WakeXRadii), Word(EnemyRomTablePointersTorizo.WakeYRadii)];
+            ushort[] native = [CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXPositions + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYPositions + variant * 2),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeInstructionLists + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakePropertyMasks + variant * 2),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeXRadii + variant * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.WakeYRadii + variant * 2)];
             var compiled = variant == 0 ? TorizoInitializationDefinitions.Bomb : TorizoInitializationDefinitions.Golden;
             ushort[] actual = [compiled.Position.X, compiled.Position.Y, compiled.Instruction, compiled.PropertyMask, compiled.Radius.X, compiled.Radius.Y];
             AssertTrue(native.AsSpan().SequenceEqual(actual), "Every Torizo initialization record word matches ROM");

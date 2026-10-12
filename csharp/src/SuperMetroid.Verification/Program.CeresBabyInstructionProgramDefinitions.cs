@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -28,7 +29,7 @@ internal static partial class Program
                 CeresBabyInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadCeresBabyProgramWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | definition.Address),
                 $"Ceres Baby mechanics word $A6:{definition.Address:X4}");
         }
         for (int index = 0;
@@ -37,7 +38,7 @@ internal static partial class Program
         {
             ushort address =
                 CeresBabyInstructionProgramDefinitions.SpritemapOperandAddress(index);
-            AssertEqual(ReadCeresBabyProgramWord(rom, address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | address),
                 CeresBabyInstructionProgramDefinitions.ReadSpritemapOperand(address),
                 $"compiled Ceres Baby spritemap operand $A6:{address:X4}");
         }
@@ -51,7 +52,7 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)(
                     CeresRidleyPaletteRomData.BabyColors + row *
                     CeresRidleyPaletteRomData.BabyColorCount * sizeof(ushort))),
-                ReadCeresBabyProgramWord(rom, address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | address),
                 $"compiled Ceres Baby palette operand $A6:{address:X4}");
         }
 
@@ -242,14 +243,6 @@ internal static partial class Program
             "twenty compiled spritemap selectors and thirteen compiled palette " +
             "selectors pass through the complete production loop.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Baby program words")]
-    private static ushort ReadCeresBabyProgramWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa60000 | address) |
-            source.ReadCartridgeByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewCeresBabyInstructionReadGuard(
         ISnesAddressSpace source, bool blockBabyFrames = false) =>

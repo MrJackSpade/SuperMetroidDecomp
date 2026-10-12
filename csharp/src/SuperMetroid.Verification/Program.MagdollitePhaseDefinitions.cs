@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -122,7 +123,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Magdollite words")]
     private static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewMagdollitePhaseGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8af8b - 0xa8af55,

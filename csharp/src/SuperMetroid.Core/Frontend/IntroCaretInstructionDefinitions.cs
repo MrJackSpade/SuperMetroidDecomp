@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
@@ -43,7 +44,7 @@ internal static class IntroCaretInstructionDefinitions
         }
         if (pointer == EndPointer - 1)
             throw new InvalidDataException("Opening caret script read crosses its compiled boundary.");
-        word = (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+        word = SnesLittleEndian.Word(ReadByte(pointer), ReadByte((ushort)(pointer + 1)));
         return true;
     }
 }

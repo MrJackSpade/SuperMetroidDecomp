@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -22,7 +23,7 @@ internal static partial class Program
                 FallingSparkInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadFallingSparkInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Falling Spark mechanics word $86:{definition.Address:X4}");
         }
 
@@ -144,14 +145,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for falling spark instruction words")]
-    private static ushort ReadFallingSparkInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 }

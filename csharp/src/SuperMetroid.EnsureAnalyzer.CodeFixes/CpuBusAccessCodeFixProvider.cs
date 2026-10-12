@@ -82,8 +82,8 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         ExpressionSyntax? receiver = (invocation.Expression as MemberAccessExpressionSyntax)?.Expression;
         switch (method.ContainingType.Name, method.Name, arguments.Count)
         {
-            case ("SnesWorkRam", "ReadWord", 2):
-                return Constant(arguments[0].Expression, arguments[1].Expression, 2, "WorkRam");
+            case (_, "ReadWorkRamWordFixedBank", 1) when receiver is not null:
+                return Constant(receiver, arguments[0].Expression, 2, "WorkRam");
             case (_, "ReadWorkRamByte", 1) when receiver is not null:
                 return Constant(receiver, arguments[0].Expression, 1, "WorkRam");
             case (_, "ReadSaveRamByte", 1) when receiver is not null:

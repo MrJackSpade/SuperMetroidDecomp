@@ -10,7 +10,7 @@ internal static partial class Program
         ISnesAddressSpace rom, byte bank, ushort pointer, bool newInstructionFrame)
     {
         byte ReadByte(int address) => rom.ReadCartridgeByte((bank << 16) | (address & 0xffff));
-        ushort ReadWord(int address) => (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
+        ushort ReadWord(int address) => SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
         var vram = new byte[0x10000];
         if (!newInstructionFrame)
             return vram;

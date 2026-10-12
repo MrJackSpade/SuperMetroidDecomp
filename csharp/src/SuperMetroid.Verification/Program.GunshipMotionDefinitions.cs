@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -15,9 +16,7 @@ internal static partial class Program
 
         for (ushort frame = 0; frame < 17; frame++)
         {
-            short expected = unchecked((short)ReadGunshipMotionWord(
-                rom,
-                0xa2a622 + frame * 2));
+            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2a622 + frame * 2)));
 
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -85,8 +84,7 @@ internal static partial class Program
     private static void VerifyGunshipBrakeAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort frame = 0; frame < 17; frame++)
-            AssertEqual(unchecked((short)ReadGunshipMotionWord(rom,
-                    GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((GunshipMotionDefinitions.BrakeReferenceAddress + 2 * frame))),
                 GunshipMotionDefinitions.LandingBrakeYDelta(frame), $"Original gunship brake {frame}");
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.LandingBrakeYDelta(17), "Brake upper bound");
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.LandingBrakeYDelta(ushort.MaxValue), "Brake invalid maximum");
@@ -115,10 +113,6 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship hover delta selection")]
     private static byte GunshipHoverDeltaSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship motion words")]
-    private static ushort ReadGunshipMotionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     /// <summary>
     /// The shared cartridge-read guard that also forwards enemy fixture lookups, so a sparse

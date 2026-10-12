@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -7,7 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus HUD definitions")]
     private static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         bool Transition(SamusPoseId pose, bool active) => pose >= SamusHudRomData.StandardTransitionStart ||
             (pose < SamusHudRomData.NonFiringTransitionStart &&
                 (rom.ReadCartridgeByte(SamusHudRomData.TransitionFlags + (int)pose -
@@ -32,7 +32,7 @@ internal static partial class Program
             .CreateDelegate<Action<SamusState, ushort>>();
         for (byte movement = 0; movement < 28; movement++)
         {
-            ushort handler = Word(0x90dd05 + movement * 2);
+            ushort handler = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90dd05 + movement * 2));
             AssertEqual(handler, (ushort)SamusHudDefinitions.MovementHandler((SamusMovementType)movement), "All 28 native HUD handler identities");
             for (int pose = 0; pose < 253; pose++)
             foreach (bool locked in new[] { false, true })
@@ -65,7 +65,7 @@ internal static partial class Program
             AssertEqual(10, shots.FlareCounter, "Fixture charge earned through real producer");
             metadataPose = samus.Pose = pose;
             setTurn(samus, turn);
-            ushort handler = Word(0x90dd05 + movement * 2);
+            ushort handler = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90dd05 + movement * 2));
             bool ball = pose is >= SamusPoseId.MorphBallGroundRightPose and <= SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.MorphBallFallingRightPose or SamusPoseId.MorphBallFallingLeftPose or SamusPoseId.MorphBallGroundLeftPose or >= SamusPoseId.SpringBallGroundRightPose and <= SamusPoseId.SpringBallJumpLeftPose;
             bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == 0xddb6 || handler == 0xdd74 && turn == 0 ||
                 handler == 0xdd8c && !Transition(pose, false);

@@ -50,7 +50,6 @@ internal readonly struct KraidLowBankAliasMemory(ISnesAddressSpace bus)
         ISnesMutableMemory memory = bus as ISnesMutableMemory ??
             throw new InvalidOperationException("Enemy staging requires live WRAM.");
         int address = (KraidBackgroundRomData.NativeBank | sourcePointer) + word * 2;
-        return (ushort)(memory.ReadWorkRamByte(address) |
-            memory.ReadWorkRamByte(SnesAddressMath.AddWithinBank(address, 1)) << 8);
+        return memory.ReadWorkRamWordFixedBank(address);
     }
 }

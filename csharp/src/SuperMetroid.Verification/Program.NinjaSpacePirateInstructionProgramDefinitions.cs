@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 NinjaSpacePirateInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadNinjaPirateWord(rom, 0xb20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | definition.Address)),
                 $"ninja Pirate mechanics word $B2:{definition.Address:X4}");
         }
 
@@ -32,7 +33,7 @@ internal static partial class Program
         var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
         for (int color = 0; color < colors.Length; color++)
         {
-            ushort word = ReadNinjaPirateWord(rom, NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2);
+            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2));
             colors[color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
         // This instruction-only fixture never renders character graphics, but the
@@ -109,7 +110,7 @@ internal static partial class Program
             slot.InstructionTimer = 1;
             process.Invoke(enemies,
                 [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
-            AssertEqual(ReadNinjaPirateWord(rom, 0xb20000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
                 slot.SpritemapPointer,
                 $"production execution selects ninja Pirate frame $B2:{address:X4}");
         }
@@ -204,10 +205,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ninja Pirate words")]
-    private static ushort ReadNinjaPirateWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewNinjaSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

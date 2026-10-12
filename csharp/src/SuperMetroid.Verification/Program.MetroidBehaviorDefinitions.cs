@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,15 +11,15 @@ internal static partial class Program
         {
             Offset16<RoomPixels> actual =
                 MetroidBehaviorDefinitions.EscapeDisplacement(frame);
-            AssertEqual(unchecked((short)ReadMetroidBehaviorWord(rom, 0xa3ea3f + frame * 2)), actual.X,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea3f + frame * 2))), actual.X,
                 $"Metroid escape X displacement {frame}");
-            AssertEqual(unchecked((short)ReadMetroidBehaviorWord(rom, 0xa3ea47 + frame * 2)), actual.Y,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea47 + frame * 2))), actual.Y,
                 $"Metroid escape Y displacement {frame}");
         }
 
         for (ushort index = 0; index < 8; index++)
         {
-            AssertEqual(ReadMetroidBehaviorWord(rom, 0xa3ead6 + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2)),
                 MetroidBehaviorDefinitions.RandomCrySoundEffect(index),
                 $"Metroid random cry {index}");
         }
@@ -107,7 +108,7 @@ internal static partial class Program
                 $"production Metroid random cry {random}");
             AssertEqual(16, slot.InstructionTimer,
                 $"production Metroid script timer {random}");
-            AssertEqual(ReadMetroidBehaviorWord(rom, 0xa3e9d1), slot.SpritemapPointer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), slot.SpritemapPointer,
                 $"production Metroid script spritemap {random}");
             AssertEqual(
                 unchecked((ushort)(MetroidInstructionProgramDefinitions.ChasingSamus + 4)),
@@ -115,10 +116,6 @@ internal static partial class Program
                 $"production Metroid script continuation {random}");
         }
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Metroid behavior words")]
-    private static ushort ReadMetroidBehaviorWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMetroidBehaviorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

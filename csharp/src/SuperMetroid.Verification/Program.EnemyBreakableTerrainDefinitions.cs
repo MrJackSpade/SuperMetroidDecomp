@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +11,7 @@ internal static partial class Program
     {
         for (int index = 0; index < 16; index++)
         {
-            ushort header = ReadEnemyTerrainWord(rom, 0xa0c2da + index * 2);
+            ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0c2da + index * 2));
             AssertEqual(index == 15 ? (ushort)PlmHeaderId.EnemyBreakableBlock : (ushort)0,
                 header,
                 $"enemy spike reaction header {index}");
@@ -61,10 +62,6 @@ internal static partial class Program
         Console.WriteLine(
             "Enemy terrain reactions: sixteen native headers, all 32 authored/high-bit selectors and real collision/PLM handoffs pass with the reaction table forbidden; 224 adjacent-code selectors fail explicitly.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy terrain words")]
-    private static ushort ReadEnemyTerrainWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewEnemyTerrainReactionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

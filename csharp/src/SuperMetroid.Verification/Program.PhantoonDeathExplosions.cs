@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -60,7 +61,7 @@ internal static partial class Program
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1d + current * 4))), explosion.Position.X.Whole, "Real death explosion wrapped world X");
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;
-                        AssertEqual((ushort)(rom.ReadCartridgeByte(listAddress) | rom.ReadCartridgeByte(listAddress + 1) << 8), explosion.InstructionPointer, "Real explosion animation selection");
+                        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), explosion.InstructionPointer, "Real explosion animation selection");
                     }
                 }
             }

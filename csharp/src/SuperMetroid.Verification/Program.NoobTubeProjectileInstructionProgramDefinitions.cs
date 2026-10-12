@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -24,10 +25,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 NoobTubeProjectileInstructionProgramDefinitions.MechanicsWord(index);
-            ushort native = unchecked((ushort)(
-                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"n00b-tube mechanics word $86:{definition.Address:X4}");
         }
@@ -187,8 +185,7 @@ internal static partial class Program
                 // Native reflected flicker selects the first or second operand by
                 // frame parity, then advances past both rather than one timed frame.
                 ushort commandAddress = unchecked((ushort)(projectile.InstructionPointer - 6));
-                ushort command = (ushort)(rom.ReadCartridgeByte(0x860000 | commandAddress) |
-                    rom.ReadCartridgeByte(0x860000 | unchecked((ushort)(commandAddress + 1))) << 8);
+                ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x860000 | commandAddress);
                 if (command == (ushort)EnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     bool oddFrame = ((byte)projectileFrame.GetValue(system)! & 1) != 0;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 CacatacInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadCacatacInstructionWord(rom, 0xa20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | definition.Address)),
                 $"Cacatac instruction mechanics word $A2:{definition.Address:X4}");
         }
 
@@ -56,7 +57,7 @@ internal static partial class Program
              index++)
         {
             ushort address = CacatacInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(ReadCacatacInstructionWord(rom, 0xa20000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | address)),
                 EnemySpritemapDefinitions.CacatacFrameAt(address),
                 $"compiled Cacatac visual selector $A2:{address:X4} matches cartridge");
         }
@@ -169,11 +170,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac instruction words")]
-    private static ushort ReadCacatacInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCacatacInstructionProgramReadGuard(ISnesAddressSpace source)
     {

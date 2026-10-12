@@ -15,8 +15,7 @@ internal static partial class Program
         for (int index = 0; index < MamaTurtleShellContourDefinitions.EntryCount; index++)
         {
             int address = MamaTurtleShellContourDefinitions.SourceAddress + index * 2;
-            short expected = unchecked((short)(
-                rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+            short expected = unchecked((short)rom.ReadCartridgeWord(address));
             AssertEqual(expected, MamaTurtleShellContourDefinitions.GetRawOffset(index),
                 $"Mama Turtle shell contour word {index}");
         }

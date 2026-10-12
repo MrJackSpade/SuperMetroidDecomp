@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -27,8 +28,7 @@ internal static partial class Program
                 projectile.Clear();
 
             ushort raw = (ushort)direction;
-            ushort native = (ushort)(rom.ReadCartridgeByte(instructionTable + raw) |
-                rom.ReadCartridgeByte(instructionTable + raw + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + raw);
             AssertEqual(native, CacatacProjectileDefinitions.InstructionList(direction),
                 $"compiled Cacatac spike instruction {direction}");
 

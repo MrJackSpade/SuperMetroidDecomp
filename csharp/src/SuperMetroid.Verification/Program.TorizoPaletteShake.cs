@@ -87,10 +87,10 @@ internal static partial class Program
         for (int i = 0; i < 32; i++)
         {
             int address = 0xaa8707 + i * 2;
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, cgram.Colors[144 + i], "Normal fade reaches pinned cartridge target");
             address = 0xaa8787 + i * 2;
-            native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            native = rom.ReadCartridgeWord(address);
             AssertEqual(native, TorizoPaletteDefinitions.Golden[i], "Shared Golden fade target matches cartridge");
             foreach ((int source, string name, Bgr555 catalog) in new[]
             {
@@ -100,7 +100,7 @@ internal static partial class Program
             })
             {
                 address = source + i * 2;
-                native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+                native = rom.ReadCartridgeWord(address);
                 AssertEqual(native, catalog, $"Torizo {name} color {i} matches cartridge");
             }
         }

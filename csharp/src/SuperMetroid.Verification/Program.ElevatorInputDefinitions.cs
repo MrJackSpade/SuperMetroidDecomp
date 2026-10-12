@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,8 +19,7 @@ internal static partial class Program
         for (ushort direction = 0; direction < 2; direction++)
         {
             ushort tableByteOffset = (ushort)(direction * 2);
-            ushort native = (ushort)(rom.ReadCartridgeByte(inputTable + tableByteOffset) |
-                rom.ReadCartridgeByte(inputTable + tableByteOffset + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -68,7 +68,7 @@ internal static partial class Program
         foreach (ushort offset in new ushort[] { 0, 2 })
         {
             int address = 0xa394e2 + offset;
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator named direction matches native mask");
         }
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })

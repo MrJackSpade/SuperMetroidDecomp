@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,7 +10,7 @@ internal static partial class Program
         for (int index = 0; index < 6; index++)
         {
             var selector = (DragonAnimationSelector)index;
-            AssertEqual(ReadDragonAnimationWord(rom, 0xa2e5ef + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
                 DragonAnimationDefinitions.InstructionList(selector),
                 $"Dragon animation selector {selector}");
             AssertEqual((DragonAnimationSelector)(index & ~1),
@@ -158,10 +159,6 @@ internal static partial class Program
             $"{context} instruction timer");
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dragon animation words")]
-    private static ushort ReadDragonAnimationWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewDragonAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

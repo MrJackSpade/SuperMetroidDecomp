@@ -20,7 +20,7 @@ internal static partial class Program
             int load = 0x8bd5af + 17 * index;
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load), "native fragment bank LDA");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load + 5), "native fragment address LDA");
-            int source = bus.ReadCartridgeByte(load + 2) << 16 | bus.ReadCartridgeByte(load + 6) | bus.ReadCartridgeByte(load + 7) << 8;
+            int source = (bus.ReadCartridgeByte(load + 2) << 16|CartridgeImportSource.Require(bus).ReadCartridgeWord(load + 6));
             AssertEqual(source, EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), "native fragment compressed source");
             AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
         }
@@ -38,8 +38,7 @@ internal static partial class Program
              pointer < EndingCloudInstructionDefinitions.End; pointer += sizeof(ushort))
         {
             int address = (int)new SnesAddress(0x8b, (ushort)pointer);
-            ushort nativeWord = (ushort)(bus.ReadCartridgeByte(address) |
-                bus.ReadCartridgeByte(address + 1) << 8);
+            ushort nativeWord = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(nativeWord, EndingCloudInstructionDefinitions.ReadWord((ushort)pointer),
                 $"ending cloud instruction $8B:{pointer:X4} matches cartridge");
         }
@@ -53,9 +52,9 @@ internal static partial class Program
         for (int index = 0; index < catalog.Count; index++)
         {
             int operand = 0x8becef + index * 8;
-            ushort map = (ushort)(bus.ReadCartridgeByte(operand) | bus.ReadCartridgeByte(operand + 1) << 8);
+            ushort map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
             int header = 0x8c0000 | map;
-            int count = bus.ReadCartridgeByte(header) | bus.ReadCartridgeByte(header + 1) << 8;
+            int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
             AssertEqual(map, catalog[index].Pointer, "cloud native pointer operand");
             AssertEqual(count, catalog[index].StockPartCount, "cloud native OAM count");
             AssertEqual(names[index], catalog[index].Name, "cloud published asset key");
@@ -98,8 +97,7 @@ internal static partial class Program
             var installedActor = new IntroDiscoverySprite(new(120, 72), 0x0800, list);
             for (int frame = 0; frame < 120; frame++)
             {
-                nativeActor.Step(instructionWord: pointer => (ushort)(
-                    bus.ReadCartridgeByte(0x8b0000 | pointer) | bus.ReadCartridgeByte(0x8b0000 | (pointer + 1)) << 8));
+                nativeActor.Step(instructionWord: pointer => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
                 installedActor.Step(instructionWord: EndingCloudInstructionDefinitions.ReadWord);
                 AssertEqual(nativeActor.InstructionPointer, installedActor.InstructionPointer,
                     $"ending cloud {index} list cursor at frame {frame}");

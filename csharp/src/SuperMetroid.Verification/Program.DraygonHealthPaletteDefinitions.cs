@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,18 +10,14 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon health palette definitions")]
     private static void VerifyDraygonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-            bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
         ushort[] thresholds = new ushort[8];
         for (int index = 0; index < thresholds.Length; index++)
         {
-            thresholds[index] = ReadWord(
-                rom,
-                DraygonHealthPaletteDefinitions.NativeThresholdAddress + index * 2);
+            thresholds[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthPaletteDefinitions.NativeThresholdAddress + index * 2));
         }
         AssertEqual((ushort)0xffff,
-            ReadWord(rom, DraygonHealthPaletteDefinitions.NativeThresholdAddress + 16),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord((DraygonHealthPaletteDefinitions.NativeThresholdAddress + 16)),
             "Draygon health threshold native terminator");
 
         for (ushort health = 0;

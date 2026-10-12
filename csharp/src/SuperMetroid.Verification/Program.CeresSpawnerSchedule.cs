@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -6,7 +7,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres spawner schedule")]
     private static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         // C33B loads the repeat countdown seed; C4A8 reloads the period after a spawn.
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x8bc33b), "native countdown seed opcode");
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x8bc4a8), "native countdown reload opcode");
@@ -21,7 +21,7 @@ internal static partial class Program
             {
                 if (frame == reseedFrame)
                 {
-                    countdown = Word(0x8bc33c);
+                    countdown = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8bc33c);
                     actualCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
                 }
                 CeresExplosionSpawnEvents expected = default;
@@ -34,7 +34,7 @@ internal static partial class Program
                         if ((short)countdown <= 0)
                         {
                             expected = expected with { Repeating = true };
-                            countdown = Word(0x8bc4a9);
+                            countdown = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8bc4a9);
                         }
                     }
                 }
@@ -47,7 +47,7 @@ internal static partial class Program
                         _ => throw new InvalidOperationException($"Undefined CeresSpawnerOpcode {opcode}."),
                     };
                     return cursor;
-                }, pointer => Word(0x8b0000 | pointer));
+                }, pointer => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0000 | pointer)));
                 AssertEqual(expected, CeresExplosionDefinitions.EventsAtFrame(frame, frame < departure, ref actualCountdown),
                     $"native spawner events at frame{frame}, reset{reseedFrame}, departure{departure}");
                 AssertEqual(countdown, actualCountdown, "native repeat countdown including late fade reset");

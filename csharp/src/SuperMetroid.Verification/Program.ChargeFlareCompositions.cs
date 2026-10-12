@@ -84,17 +84,15 @@ internal static partial class Program
     private static void DrawImportedFlareSpritemap(SuperMetroidAddressSpace bus, OamBuffer oam,
         ushort selector, Position16<OamPixels> origin)
     {
-        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) |
-            (bus.ReadCartridgeByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
         int table = 0x930000 | ((0xA1A1 + selector * 2) & 0xffff);
-        int record = 0x930000 | ReadWord(table);
-        ushort partCount = ReadWord(record);
+        int record = 0x930000 | CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(table);
+        ushort partCount = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(record);
         int partAddress = SnesAddressMath.AddWithinBank(record, 2);
         for (int part = 0; part < partCount; part++)
         {
-            oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(partAddress)),
                 bus.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
+                new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
                 origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -22,7 +23,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 KiHunterInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadKiHunterInstructionWord(rom, 0xa80000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa80000 | definition.Address)),
                 $"KiHunter instruction mechanics word $A8:{definition.Address:X4}");
         }
 
@@ -207,11 +208,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ki Hunter instruction words")]
-    private static ushort ReadKiHunterInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewKiHunterInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

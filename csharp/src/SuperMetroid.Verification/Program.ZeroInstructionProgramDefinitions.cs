@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -24,7 +25,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 ZeroInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadZeroInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | definition.Address),
                 $"Zero mechanics word $A3:{definition.Address:X4}");
         }
 
@@ -68,7 +69,7 @@ internal static partial class Program
             ushort address = ZeroInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa3, address, out ushort actual),
                 $"Zero presentation word $A3:{address:X4} has a compiled selector");
-            AssertEqual(ReadZeroInstructionWord(rom, address), actual,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | address), actual,
                 $"Zero compiled visual selector $A3:{address:X4} matches original operand");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -123,14 +124,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Zero instruction words")]
-    private static ushort ReadZeroInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa30000 | address) |
-            source.ReadCartridgeByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewZeroInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

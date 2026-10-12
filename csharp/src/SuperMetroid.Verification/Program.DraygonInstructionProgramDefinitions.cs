@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -21,7 +22,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 DraygonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
-                ReadDraygonWord(rom, 0xa50000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa50000 | definition.Address)),
                 definition.Value,
                 $"Draygon mechanics word $A5:{definition.Address:X4}");
         }
@@ -134,10 +135,6 @@ internal static partial class Program
             $"{DraygonInstructionProgramDefinitionsTooling.PresentationWordCount} live presentation " +
             "operands, four physical owners, atomic list handoff, and both HUD IRQ opcodes pass.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon words")]
-    private static ushort ReadDraygonWord(SuperMetroidAddressSpace source, int address) =>
-        unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
     private static int ProbeDraygonInstructionMechanicsAllocation()
     {

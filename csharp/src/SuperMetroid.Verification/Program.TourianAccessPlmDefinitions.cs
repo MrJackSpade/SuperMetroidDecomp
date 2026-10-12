@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
@@ -52,17 +53,13 @@ internal static partial class Program
         (bool Clear, int SpawnOperand)[] cases = [(false,0x88dc9f), (true,0x88db99)];
         foreach (var item in cases)
         {
-            ushort header = ReadTourianAccessWord(rom, item.SpawnOperand);
+            ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord(item.SpawnOperand);
             var actual = TourianAccessPlmDefinitions.ForState(item.Clear);
-            AssertEqual(instruction ? ReadTourianAccessWord(rom, 0x840000 | (header + 2)) : header,
+            AssertEqual(instruction ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2))) : header,
                 instruction ? actual.InstructionListPointer : (ushort)actual.HeaderPointer,
                 $"Tourian native spawn selection clear={item.Clear} instruction={instruction}");
             AssertEqual((byte)6, rom.ReadCartridgeByte(item.SpawnOperand - 2), "Tourian native spawn column");
             AssertEqual((byte)12, rom.ReadCartridgeByte(item.SpawnOperand - 1), "Tourian native spawn row");
         }
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access words")]
-    private static ushort ReadTourianAccessWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

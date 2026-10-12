@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -27,7 +28,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 DachoraInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadDachoraInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | definition.Address),
                 $"Dachora mechanics word $A7:{definition.Address:X4}");
         }
 
@@ -160,14 +161,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dachora instruction words")]
-    private static ushort ReadDachoraInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa70000 | address) |
-            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewDachoraInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

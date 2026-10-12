@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,7 +10,7 @@ internal static partial class Program
         for (int index = 0; index < 4; index++)
         {
             var selector = (WaverAnimationSelector)index;
-            AssertEqual(ReadWaverAnimationWord(rom, 0xa386db + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa386db + index * 2)),
                 WaverAnimationDefinitions.InstructionList(selector),
                 $"Waver animation selector {selector}");
         }
@@ -72,10 +73,6 @@ internal static partial class Program
         Console.WriteLine(
             "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths pass with the pointer table forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Waver animation words")]
-    private static ushort ReadWaverAnimationWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewWaverAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa386db and < 0xa386e3,

@@ -34,11 +34,10 @@ internal static partial class Program
             // room importer: it delegates selection to the production implementation.
             var native = new List<(ushort Code, byte Operand, ushort Target)>();
             int address = 0x8f0000 | (room + 11);
-            ushort Word(int at) => (ushort)(rom.ReadCartridgeByte(at) | rom.ReadCartridgeByte(at + 1) << 8);
-            while (Word(address) != 0xe5e6)
+            while (rom.ReadCartridgeWord(address) != 0xe5e6)
             {
                 AssertTrue(native.Count < 8, "Native selector has a bounded terminator");
-                ushort code = Word(address);
+                ushort code = rom.ReadCartridgeWord(address);
                 address += 2;
                 byte operand = code switch
                 {
@@ -47,7 +46,7 @@ internal static partial class Program
                     0xe652 or 0xe669 => 0,
                     _ => throw new InvalidDataException($"Unexpected native selector {code:X4}"),
                 };
-                native.Add((code, operand, Word(address)));
+                native.Add((code, operand, rom.ReadCartridgeWord(address)));
                 address += 2;
             }
             ushort fallback = (ushort)(address + 2);

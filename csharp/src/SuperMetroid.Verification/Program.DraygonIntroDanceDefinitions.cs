@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,8 +24,7 @@ internal static partial class Program
         for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
         {
             int address = source + (slotIndex - 28) * 2;
-            short expected = unchecked((short)(
-                rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
             AssertEqual(expected,
                 DraygonIntroDanceDefinitions.MovementLatencyForSlot(slotIndex),
                 $"Draygon intro Evir slot {slotIndex} latency");

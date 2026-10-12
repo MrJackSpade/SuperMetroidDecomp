@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -15,8 +16,7 @@ internal static partial class Program
         for (int index = 0; index < RidleySupplementalVisualDefinitions.WingPointerCount;
              index++)
         {
-            ushort native = ReadRidleySupplementWord(rom,
-                EnemyRomTablePointers.Ceres.WingSpritemapPointers + index * 2);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ceres.WingSpritemapPointers + index * 2));
             AssertEqual(native, RidleySupplementalVisualDefinitions.WingFrameAt(index),
                 $"Ridley wing animation table entry {index} matches the pinned ROM");
 
@@ -34,8 +34,7 @@ internal static partial class Program
              direction < RidleySupplementalVisualDefinitions.TailTipPointerCount;
              direction++)
         {
-            ushort nativeTip = ReadRidleySupplementWord(rom,
-                EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + direction * 2);
+            ushort nativeTip = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + direction * 2));
             AssertEqual(nativeTip, RidleySupplementalVisualDefinitions.TailTipFrameAt(direction),
                 $"Ridley tail-tip direction {direction} matches the pinned ROM");
             OamBuffer actual = DrawInstalledRidleySupplement(
@@ -95,10 +94,6 @@ internal static partial class Program
         OamBuffer expected, OamBuffer actual, string description) =>
         AssertTrue(expected.ImageEquals(actual) &&
                    expected.NextByteOffset == actual.NextByteOffset, description);
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley supplemental artwork words")]
-    private static ushort ReadRidleySupplementWord(ISnesAddressSpace rom, int address) =>
-        unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewRidleySupplementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6db02 and < 0xa6db2a or

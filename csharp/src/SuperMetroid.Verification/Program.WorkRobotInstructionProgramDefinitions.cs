@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -49,7 +50,7 @@ internal static partial class Program
                     0xa80000 | address))
             {
                 mechanics++;
-                AssertEqual(ReadWorkRobotInstructionWord(rom, unchecked((ushort)address)),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | (unchecked((ushort)address))),
                     WorkRobotInstructionProgramDefinitions.ReadMechanicsWord(
                         unchecked((ushort)address)),
                     $"Work Robot mechanics word $A8:{address:X4}");
@@ -162,14 +163,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot instruction words")]
-    private static ushort ReadWorkRobotInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa80000 | address) |
-            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewWorkRobotInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {

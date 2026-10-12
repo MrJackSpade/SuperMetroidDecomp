@@ -313,8 +313,7 @@ internal static partial class Program
             else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x100e, artwork);
             for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i],
                 vram.ReadByte(0xc600 + i), "SpaceTime native tile bytes");
-            for (int i = 0; i < 16; i++) AssertEqual((bus.ReadWorkRamByte(0x7e19ff + i * 2) |
-                bus.ReadWorkRamByte(0x7e1a00 + i * 2) << 8) & 0x7fff, cgram.Colors[0xe0 + i],
+            for (int i = 0; i < 16; i++) AssertEqual(bus.ReadWorkRamWord(0x7e19ff + i * 2) & 0x7fff, cgram.Colors[0xe0 + i],
                 "SpaceTime colors retain current mutable memory rather than a frozen palette");
         }
     }
@@ -324,10 +323,10 @@ internal static partial class Program
     private static byte[] ReadRetailSpacetimeGraphicsOracle(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
-            bus.ReadCartridgeByte(0x90c3cd) | bus.ReadCartridgeByte(0x90c3ce) << 8,
+            bus.ReadCartridgeWord(0x90c3cd),
             "SpaceTime tile pointer comes from adjacent native palette table");
         AssertEqual(SpacetimeBeamGraphicsDefinitions.PalettePointer,
-            bus.ReadCartridgeByte(0x90c3e5) | bus.ReadCartridgeByte(0x90c3e6) << 8,
+            bus.ReadCartridgeWord(0x90c3e5),
             "SpaceTime palette pointer comes from the native color word");
         var tiles = new byte[256];
         for (int i = 0; i < tiles.Length; i++)

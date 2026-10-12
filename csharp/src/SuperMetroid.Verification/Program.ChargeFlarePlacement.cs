@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -47,7 +48,7 @@ internal static partial class Program
             var native = new OamBuffer(); var actual = new OamBuffer();
             int xTable = running ? SamusProjectileRomData.Origins.FlareRunningX : SamusProjectileRomData.Origins.FlareDefaultX;
             int yTable = running ? SamusProjectileRomData.Origins.FlareRunningY : SamusProjectileRomData.Origins.FlareDefaultY;
-            short Word(int address) => unchecked((short)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
+            short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
             var world = new Position16<RoomPixels>(coordinate, coordinate);
             var point = transform is { } selectedTransform ? selectedTransform.Transform(world) : world;
             ushort x = unchecked((ushort)(point.X + Word(xTable + direction * 2)));

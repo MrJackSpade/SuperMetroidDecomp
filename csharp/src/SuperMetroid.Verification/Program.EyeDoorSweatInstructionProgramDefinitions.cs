@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,7 +24,7 @@ internal static partial class Program
                 EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadEyeDoorSweatInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Eye Door sweat mechanics word $86:{definition.Address:X4}");
         }
 
@@ -144,7 +145,7 @@ internal static partial class Program
             ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
             AssertEqual(operand, projectile.PresentationOperandAddress,
                 "timed projectile frame retains its installed visual operand");
-            AssertEqual(ReadEyeDoorSweatInstructionWord(rom, unchecked((ushort)(operand - 2))),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | (unchecked((ushort)(operand - 2)))),
                 projectile.InstructionTimer, "projectile frame duration matches cartridge data");
             observedOperands.Add(projectile.PresentationOperandAddress);
         }
@@ -171,14 +172,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for eye door sweat instruction words")]
-    private static ushort ReadEyeDoorSweatInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 }

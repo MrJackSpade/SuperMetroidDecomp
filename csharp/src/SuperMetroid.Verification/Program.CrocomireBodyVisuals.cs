@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -14,7 +15,7 @@ internal static partial class Program
         for (int index = 0; index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
             int operand = CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort frame = (ushort)(rom.ReadCartridgeByte(0xa40000 | operand) | rom.ReadCartridgeByte(0xa40000 | (operand + 1)) << 8);
+            ushort frame = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operand);
             if (frame < 0xe1fe) original.Add(frame);
         }
         AssertEqual(50, original.Count, "native body frame selection count");
@@ -24,7 +25,7 @@ internal static partial class Program
         {
             AssertEqual(expected[index], CrocomireBodyVisualDefinitions.FramePointer(index), "body native frame address order");
             AssertEqual(expected[index], CrocomireBodyVisualDefinitions.Frames[index], "body indexed sequence");
-            ushort count = (ushort)(rom.ReadCartridgeByte(0xa40000 | expected[index]) | rom.ReadCartridgeByte(0xa40000 | (expected[index] + 1)) << 8);
+            ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | expected[index]);
             AssertEqual((ushort)(index >= 42 ? 1 : index is < 12 or >= 18 and < 24 ? 6 : 7), count,
                 "native component count supporting each frame stride");
         }
@@ -46,7 +47,7 @@ internal static partial class Program
         for (int i = 0; i < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; i++)
         {
             int operand = CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(i);
-            ushort pointer = (ushort)(rom.ReadCartridgeByte(0xa40000 | operand) | rom.ReadCartridgeByte(0xa40000 | (operand + 1)) << 8);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operand);
             if (pointer < 0xca7e) pointers.Add(pointer);
         }
         EnemyBg2FrameDefinition[] expected = pointers.Select(pointer =>
@@ -89,7 +90,7 @@ internal static partial class Program
         {
             ushort operand = CrocomireInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            ushort native = ReadWord(0xa40000 | operand);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | operand));
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(
                     CrocomireBodyVisualDefinitions.Bank, operand, out ushort compiled),
                 $"Crocomire selector $A4:{operand:X4} is compiled");
@@ -127,13 +128,13 @@ internal static partial class Program
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"Crocomire BG2 half $A4:{frame.Pointer:X4} is installed");
             var native = new List<(ushort DestinationWord, ushort[] Tiles)>();
-            int componentCount = ReadWord(0xa40000 | frame.Pointer);
+            int componentCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | frame.Pointer));
             for (int component = 0; component < componentCount; component++)
             {
                 int record = 0xa40000 | unchecked((ushort)(
                     frame.Pointer + 2 + component * 8));
-                ushort stream = ReadWord(record + 4);
-                if (ReadWord(0xa40000 | stream) != EnemyBg2FrameLayout.StreamMarker)
+                ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((record + 4));
+                if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | stream)) != EnemyBg2FrameLayout.StreamMarker)
                     continue;
                 ushort cursor = unchecked((ushort)(stream + 2));
                 bool terminated = false;
@@ -141,18 +142,18 @@ internal static partial class Program
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
                      command++)
                 {
-                    ushort destination = ReadWord(0xa40000 | cursor);
+                    ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | cursor));
                     if (destination == 0xffff)
                     {
                         terminated = true;
                         break;
                     }
-                    ushort count = ReadWord(0xa40000 |
-                        unchecked((ushort)(cursor + 2)));
+                    ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 |
+                        unchecked((ushort)(cursor + 2))));
                     var tiles = new ushort[count];
                     for (int tile = 0; tile < tiles.Length; tile++)
-                        tiles[tile] = ReadWord(0xa40000 |
-                            unchecked((ushort)(cursor + 4 + tile * 2)));
+                        tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 |
+                            unchecked((ushort)(cursor + 4 + tile * 2))));
                     native.Add((unchecked((ushort)((destination -
                         EnemyBg2FrameLayout.WorkingRamBase) >> 1)), tiles));
                     cursor = unchecked((ushort)(cursor + 4 + count * 2));
@@ -203,9 +204,6 @@ internal static partial class Program
             "Crocomire BG2 edit still obeys the native new-frame gate");
         Console.WriteLine(
             "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied; BG2 edits obey the new-frame gate.");
-
-        ushort ReadWord(int address) => unchecked((ushort)(rom.ReadCartridgeByte(address) |
-            rom.ReadCartridgeByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8));
 
         (OamBuffer Oam, byte[] Vram) DrawNative(ushort pointer, bool newFrame) =>
             (DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080)),

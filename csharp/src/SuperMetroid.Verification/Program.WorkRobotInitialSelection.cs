@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +11,7 @@ internal static partial class Program
         ushort NativeWord(int selector)
         {
             int address = EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + 2 * selector;
-            return (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
         }
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeWorkRobotNoPower", BindingFlags.Instance | BindingFlags.NonPublic)!;

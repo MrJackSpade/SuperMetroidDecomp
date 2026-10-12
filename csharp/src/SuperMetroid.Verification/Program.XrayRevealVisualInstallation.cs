@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
@@ -7,10 +8,6 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
-    /// <summary>A little-endian word of the native X-ray item and room overlay tables.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the X-ray item and room overlay records")]
-    private static ushort ReadRetailXrayOverlayWord(ISnesAddressSpace rom, int address) =>
-        unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
     /// <summary>
     /// Checks every installed visual rule against the compiled cartridge dispatcher,
@@ -34,7 +31,7 @@ internal static partial class Program
         XrayOverlayVisualCatalog overlays = stock.Overlays ??
             throw new InvalidDataException("Installed X-ray visuals omit item and room overlays.");
         var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(File.ReadAllBytes(installed.RomPath));
-        ushort NativeWord(int address) => ReadRetailXrayOverlayWord(nativeBus, address);
+        ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
         for (int slot = 0; slot < XrayOverlayRomData.DynamicGraphicsSlots * 2; slot++)
         {
             ushort pointer = NativeWord(XrayOverlayRomData.ItemDrawPointers + slot * 2);

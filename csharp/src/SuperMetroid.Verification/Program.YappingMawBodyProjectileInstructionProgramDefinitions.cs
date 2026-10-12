@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -22,7 +23,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 YappingMawBodyProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadYappingMawBodyProjectileInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Yapping Maw body-projectile mechanics word $86:{definition.Address:X4}");
         }
 
@@ -114,7 +115,7 @@ internal static partial class Program
                 $"YappingMawBodyProjectile executes native presentation operand {address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
                 "YappingMawBodyProjectile has a compiled visual selector");
-            AssertEqual(ReadYappingMawBodyProjectileInstructionWord(rom, address), selector,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address), selector,
                 "YappingMawBodyProjectile compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -154,16 +155,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Yapping Maw body projectile instruction words")]
-    private static ushort ReadYappingMawBodyProjectileInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewYappingMawBodyProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

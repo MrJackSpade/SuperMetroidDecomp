@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -46,23 +47,21 @@ public static class SamusDeathPaletteArtworkFiles
             suited[suit] = new ushort[SamusPaletteRomData.Death.PaletteCount][];
             for (int palette = 0; palette < suited[suit].Length; palette++)
             {
-                ushort pointer = ReadWord(bus, SamusPaletteRomData.Death.SuitPointers +
+                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusPaletteRomData.Death.SuitPointers +
                     suit * SamusPaletteRomData.Death.PaletteCount * sizeof(ushort) +
-                    palette * sizeof(ushort));
+                    palette * sizeof(ushort)));
                 suited[suit][palette] = ReadPalette(bus, pointer);
             }
         }
         var suitless = new ushort[SamusPaletteRomData.Death.PaletteCount][];
         for (int palette = 0; palette < suitless.Length; palette++)
         {
-            ushort pointer = ReadWord(bus,
-                SamusPaletteRomData.Death.SuitlessPointers + palette * sizeof(ushort));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusPaletteRomData.Death.SuitlessPointers + palette * sizeof(ushort)));
             suitless[palette] = ReadPalette(bus, pointer);
         }
         var whiteout = new ushort[SamusPaletteRomData.Death.WhiteoutShadeCount];
         for (int shade = 0; shade < whiteout.Length; shade++)
-            whiteout[shade] = ReadWord(bus,
-                SamusPaletteRomData.Death.WhiteoutShades + shade * sizeof(ushort));
+            whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusPaletteRomData.Death.WhiteoutShades + shade * sizeof(ushort)));
         var selectors = new ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
         for (int frame = 0; frame < selectors.Length; frame++)
             selectors[frame] = bus.ReadCartridgeByte(
@@ -122,13 +121,10 @@ public static class SamusDeathPaletteArtworkFiles
     {
         var colors = new ushort[SamusDeathPaletteArtworkCatalog.ColorCount];
         for (int color = 0; color < colors.Length; color++)
-            colors[color] = ReadWord(bus, SamusPaletteRomData.Banks.Palette |
-                unchecked((ushort)(pointer + color * sizeof(ushort))));
+            colors[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusPaletteRomData.Banks.Palette |
+                unchecked((ushort)(pointer + color * sizeof(ushort)))));
         return colors;
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private sealed record ArtworkDocument(int Version, ushort[][][] Suited,
         ushort[][] Suitless, ushort[] Whiteout, ushort[] ExplosionPaletteIndices);

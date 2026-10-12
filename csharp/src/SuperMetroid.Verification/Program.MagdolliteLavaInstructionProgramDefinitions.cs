@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,7 +24,7 @@ internal static partial class Program
                 MagdolliteLavaInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadMagdolliteLavaInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Magdollite-lava mechanics word $86:{definition.Address:X4}");
         }
 
@@ -35,7 +36,7 @@ internal static partial class Program
                 CommonEnemyProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadMagdolliteLavaInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"shared projectile mechanics word $86:{definition.Address:X4}");
         }
 
@@ -153,7 +154,7 @@ internal static partial class Program
             ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));
             AssertEqual(operand, projectile.PresentationOperandAddress,
                 "timed projectile frame retains its installed visual operand");
-            AssertEqual(ReadMagdolliteLavaInstructionWord(rom, unchecked((ushort)(operand - 2))),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | (unchecked((ushort)(operand - 2)))),
                 projectile.InstructionTimer, "projectile frame duration matches cartridge data");
             observedOperands.Add(projectile.PresentationOperandAddress);
         }
@@ -191,16 +192,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Magdollite Lava instruction words")]
-    private static ushort ReadMagdolliteLavaInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewMagdolliteLavaInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -15,9 +16,9 @@ internal static partial class Program
         for (int index = 0; index < operands.Length; index++)
         {
             int operand = 0x8b0000 | operands[index];
-            ushort pointer = (ushort)(rom.ReadCartridgeByte(operand) | rom.ReadCartridgeByte(operand + 1) << 8);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
             int record = 0x8c0000 | pointer;
-            int count = rom.ReadCartridgeByte(record) | rom.ReadCartridgeByte(record + 1) << 8;
+            int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(record);
             AssertEqual(pointer, frames[index].Pointer, "native flight frame selection");
             AssertEqual(count, frames[index].StockPartCount, "native flight OAM count");
             AssertEqual(names[index], frames[index].Name, "published flight frame key");

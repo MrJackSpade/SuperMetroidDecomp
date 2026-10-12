@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -31,7 +32,7 @@ internal static partial class Program
                 continue;
             int address = Convert.ToInt32(match.Groups[1].Value, 16);
             byte bank = rom.ReadCartridgeByte(address + 12);
-            ushort callback = (ushort)(rom.ReadCartridgeByte(address + 40) | rom.ReadCartridgeByte(address + 41) << 8);
+            ushort callback = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 40);
             bool expected = callback != 0 && rom.ReadCartridgeByte((bank << 16) | callback) == 0x6b;
             AssertEqual(expected, EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(bank, callback),
                 $"header {address:X6} native Power Bomb classification");

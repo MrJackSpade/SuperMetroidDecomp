@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -22,7 +23,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 PowampSpikeInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadPowampSpikeInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Powamp-spike mechanics word $86:{definition.Address:X4}");
         }
 
@@ -122,7 +123,7 @@ internal static partial class Program
                     ushort operand = (ushort)(projectile.InstructionPointer - 2);
                     AssertEqual(operand, projectile.PresentationOperandAddress,
                         "Powamp spike selects the just-executed native frame operand");
-                    AssertEqual(ReadPowampSpikeInstructionWord(rom, (ushort)(operand - 2)),
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | ((ushort)(operand - 2))),
                         projectile.InstructionTimer, "Powamp spike retains the native frame duration");
                     selectedPresentationWords.Add(projectile.PresentationOperandAddress);
                 }
@@ -142,16 +143,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Powamp spike instruction words")]
-    private static ushort ReadPowampSpikeInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewPowampSpikeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -170,7 +171,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for the power beam launch speed words")]
     private static int ReadPowerBeamLaunchSpeedSum(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
-        return Word(0x90c2d1) + Word(0x90c357);
+        return CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c2d1) + CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c357);
     }
 }

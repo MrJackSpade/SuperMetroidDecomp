@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,26 +8,25 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Puyo hops")]
     private static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var calculate = typeof(RoomEnemySystem).GetMethod("CalculateInitialPuyoHopSpeed", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<PuyoEnemyState>>();
         var state = new PuyoEnemyState(new RoomEnemySystem().Slots[0]);
         for (ushort index = 0; index < 56; index += 8)
         {
             var hop = PuyoHopDefinitions.FromByteIndex(index);
-            AssertEqual(Word(0xa29a07 + index), hop.Height, "Puyo native hop height");
-            AssertEqual(Word(0xa29a09 + index), hop.XSpeed, "Puyo native horizontal speed");
-            AssertEqual(Word(0xa29a0b + index), hop.YIndexDelta, "Puyo native gravity/drop delta");
-            AssertEqual(Word(0xa29a0d + index), (ushort)hop.Function, "Puyo native airborne callback");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index)), hop.Height, "Puyo native hop height");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index)), hop.XSpeed, "Puyo native horizontal speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0b + index)), hop.YIndexDelta, "Puyo native gravity/drop delta");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a0d + index)), (ushort)hop.Function, "Puyo native airborne callback");
             if (hop.Function == PuyoAirborneFunction.Dropping)
                 continue; // Dropping bypasses hop initialization and uses constant speed.
             ushort time = 0, distance = 0;
-            ushort height = Word(0xa29a07 + index);
+            ushort height = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index));
             ushort target = unchecked((ushort)((height << 8) | (height >> 8)));
             do
             {
-                time = unchecked((ushort)(time + Word(0xa29a09 + index)));
-                distance = unchecked((ushort)(distance + Word(0xa08390 + (time >> 8) * 8)));
+                time = unchecked((ushort)(time + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index))));
+                distance = unchecked((ushort)(distance + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08390 + (time >> 8) * 8))));
             } while (unchecked((short)(target - distance)) >= 0);
             state.HopTableIndex = index;
             calculate(state);

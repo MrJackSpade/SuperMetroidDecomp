@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,36 +9,34 @@ internal static partial class Program
     private static void VerifySamusAtmosphericAnimationDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        static ushort Word(ISnesAddressSpace bus, int address) =>
-            unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
-        AssertEqual(0, Word(rom, 0x908b93), "inactive atmospheric timer pointer");
-        AssertEqual(0, Word(rom, 0x908ba3), "trailing atmospheric timer pointer");
-        AssertEqual(0, Word(rom, 0x908bef), "inactive atmospheric frame count");
+        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x908b93), "inactive atmospheric timer pointer");
+        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x908ba3), "trailing atmospheric timer pointer");
+        AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x908bef), "inactive atmospheric frame count");
 
         for (byte type = 1; type <= 7; type++)
         {
-            ushort pointer = Word(rom, 0x908b93 + type * 2);
-            byte frameCount = checked((byte)Word(rom, 0x908bef + type * 2));
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x908b93 + type * 2));
+            byte frameCount = checked((byte)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x908bef + type * 2)));
             AssertEqual(frameCount,
                 SamusAtmosphericAnimationDefinitions.FrameCount(type),
                 $"atmospheric type {type} frame count");
 
             for (byte frame = 0; frame < frameCount; frame++)
             {
-                AssertEqual(Word(rom, 0x900000 | (pointer + frame * 2)),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x900000 | (pointer + frame * 2))),
                     SamusAtmosphericAnimationDefinitions.FrameTimer(type, frame),
                     $"atmospheric type {type} frame {frame} timer");
             }
         }
 
-        AssertEqual(Word(rom, 0x909e8b), SamusLiquidDamageDefinitions.Lava.SubDamage,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8b), SamusLiquidDamageDefinitions.Lava.SubDamage,
             "lava fractional damage rate");
-        AssertEqual(Word(rom, 0x909e8d), SamusLiquidDamageDefinitions.Lava.WholeDamage,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8d), SamusLiquidDamageDefinitions.Lava.WholeDamage,
             "lava whole damage rate");
-        AssertEqual(Word(rom, 0x909e8f), SamusLiquidDamageDefinitions.Acid.SubDamage,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e8f), SamusLiquidDamageDefinitions.Acid.SubDamage,
             "acid fractional damage rate");
-        AssertEqual(Word(rom, 0x909e91), SamusLiquidDamageDefinitions.Acid.WholeDamage,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x909e91), SamusLiquidDamageDefinitions.Acid.WholeDamage,
             "acid whole damage rate");
 
         var guarded = NewSamusAtmosphericAnimationReadGuard(rom);

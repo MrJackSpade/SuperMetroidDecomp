@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -98,7 +99,7 @@ internal static partial class Program
         int wordOffset)
     {
         int address = table + wordOffset;
-        return unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+        return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
     }
 
     private static CartridgeReadGuard NewBombTorizoDroolSineReadGuard(ISnesAddressSpace source) =>

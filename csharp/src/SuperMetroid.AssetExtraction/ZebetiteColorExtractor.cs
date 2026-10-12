@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -25,7 +26,7 @@ public static class ZebetiteColorExtractor
             {
                 int address = ZebetiteDefinitions.PaletteSource +
                     (frame * ZebetiteColorFormat.ColorsPerFrame + color) * sizeof(ushort);
-                ushort word = (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                 frames[frame][color] = new PaletteRgb5
                 {
                     Red = word & 31,

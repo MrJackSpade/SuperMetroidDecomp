@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -82,16 +83,14 @@ internal static partial class Program
     private static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
         OamBuffer oam, ushort pointer, Position16<OamPixels> origin)
     {
-        ushort ReadWord(int address) => (ushort)(source.ReadCartridgeByte(address) |
-            (source.ReadCartridgeByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
         int record = 0x930000 | pointer;
-        ushort partCount = ReadWord(record);
+        ushort partCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(record);
         int partAddress = SnesAddressMath.AddWithinBank(record, 2);
         for (int part = 0; part < partCount; part++)
         {
-            oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(partAddress)),
                 source.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
+                new SnesObjAttributeWord(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
                 origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }

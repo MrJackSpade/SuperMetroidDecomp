@@ -18,7 +18,7 @@ internal static partial class Program
             IntroNarrationNativePage source = narrationSources[page];
             AssertEqual((IntroNarrationPageId)(page + 1), source.Id, "narration native registry order");
             int address = 0x8c0000 | source.InstructionPointer;
-            AssertEqual(source.BeginOpcode, (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8), "narration native begin callback");
+            AssertEqual(source.BeginOpcode, rom.ReadCartridgeWord(address), "narration native begin callback");
             AssertTrue(narration.Compile(source.Id).Length > 0, "native narration extracts and compiles every page through finish callback");
         }
     }
@@ -30,8 +30,8 @@ internal static partial class Program
         foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfff8, 0xfff9, 0xfffa, 0xfffb, 0xfffc, 0xfffd, 0xfffe, 0xffff })
         {
             int offset = timer & 6;
-            short x = unchecked((short)(rom.ReadCartridgeByte(0xa3a76d + offset) | rom.ReadCartridgeByte(0xa3a76e + offset) << 8));
-            short y = unchecked((short)(rom.ReadCartridgeByte(0xa3a775 + offset) | rom.ReadCartridgeByte(0xa3a776 + offset) << 8));
+            short x = unchecked((short)rom.ReadCartridgeWord(0xa3a76d + offset));
+            short y = unchecked((short)rom.ReadCartridgeWord(0xa3a775 + offset));
             AssertEqual(((int)x, (int)y), MochtroidShakeDefinitions.Offset(timer), "Native cardinal shake and timer-bit mask");
         }
     }
@@ -39,10 +39,10 @@ internal static partial class Program
     /// <summary>Compares the registered intro caret's part count with its native $8C:8D68 spritemap.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the intro caret spritemap part count")]
     private static void VerifyIntroCaretNativePartCount(CartridgeImportAddressSpace rom) =>
-        AssertEqual((int)(rom.ReadCartridgeByte(0x8c8d68) | rom.ReadCartridgeByte(0x8c8d69) << 8), IntroCaretSpriteDefinitions.Visible.StockPartCount, "Native caret part count");
+        AssertEqual((int)rom.ReadCartridgeWord(0x8c8d68), IntroCaretSpriteDefinitions.Visible.StockPartCount, "Native caret part count");
 
     /// <summary>Reads one little-endian retail word for the phase-algorithm lookups.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle words for the combo power-bomb cost and origin-angle algorithms")]
     private static ushort ReadPhaseAlgorithmWord(CartridgeImportAddressSpace rom, int address) =>
-        (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+        rom.ReadCartridgeWord(address);
 }

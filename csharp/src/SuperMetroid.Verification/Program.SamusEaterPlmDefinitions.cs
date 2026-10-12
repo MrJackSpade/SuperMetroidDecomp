@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -157,5 +158,5 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater PLM words")]
     private static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 }

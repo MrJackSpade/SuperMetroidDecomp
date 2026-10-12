@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -21,9 +22,6 @@ internal static partial class Program
         ];
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
         var guarded = NewTorizoRandomizedProjectileReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeTorizoRandomizedProjectile",
@@ -31,15 +29,15 @@ internal static partial class Program
         foreach ((int address, TorizoRandomizedProjectileDefinition definition, string name)
             in definitions)
         {
-            AssertEqual(ReadWord(rom, address), definition.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), definition.InstructionList,
                 $"{name} instruction");
-            AssertEqual(unchecked((short)ReadWord(rom, address + 2)), definition.Offset.X,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Offset.X,
                 $"{name} X offset");
-            AssertEqual(unchecked((short)ReadWord(rom, address + 4)), definition.BaseVelocity.X.SignedRawValue,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), definition.BaseVelocity.X.SignedRawValue,
                 $"{name} base X velocity");
-            AssertEqual(unchecked((short)ReadWord(rom, address + 6)), definition.Offset.Y,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), definition.Offset.Y,
                 $"{name} Y offset");
-            AssertEqual(unchecked((short)ReadWord(rom, address + 8)), definition.BaseVelocity.Y.SignedRawValue,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8))), definition.BaseVelocity.Y.SignedRawValue,
                 $"{name} base Y velocity");
 
             var enemies = new RoomEnemySystem();

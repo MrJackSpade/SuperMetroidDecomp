@@ -37,11 +37,11 @@ internal static partial class Program
                     frame.Components[componentIndex];
                 ushort record = unchecked((ushort)(frame.Pointer + 2 +
                     componentIndex * 8));
-                AssertEqual(unchecked((short)ReadWord(record)), component.Offset.X,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | record)), component.Offset.X,
                     "Space Pirate native collision-component X");
-                AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(record + 2)))),
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(record + 2))))),
                     component.Offset.Y, "Space Pirate native collision-component Y");
-                AssertEqual(ReadWord(unchecked((ushort)(record + 6))),
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(record + 6)))),
                     component.HitboxPointer,
                     "Space Pirate native component hitbox identity");
                 componentCount++;
@@ -98,7 +98,7 @@ internal static partial class Program
         {
             SpacePirateCollisionList list =
                 SpacePirateCollisionDefinitions.List(index);
-            AssertEqual(ReadWord(list.Pointer), list.Rectangles.Length,
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | list.Pointer), list.Rectangles.Length,
                 $"Space Pirate hitbox $B2:{list.Pointer:X4} rectangle count");
             Block(list.Pointer, 2 + list.Rectangles.Length * 12);
             for (int rectangle = 0; rectangle < list.Rectangles.Length; rectangle++)
@@ -106,17 +106,17 @@ internal static partial class Program
                 SpacePirateCollisionHitbox expected = list.Rectangles[rectangle];
                 ushort address = unchecked((ushort)(list.Pointer + 2 +
                     rectangle * 12));
-                AssertEqual(unchecked((short)ReadWord(address)), expected.Left,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | address)), expected.Left,
                     "Space Pirate native hitbox left");
-                AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(address + 2)))),
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 2))))),
                     expected.Top, "Space Pirate native hitbox top");
-                AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(address + 4)))),
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 4))))),
                     expected.Right, "Space Pirate native hitbox right");
-                AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(address + 6)))),
+                AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 6))))),
                     expected.Bottom, "Space Pirate native hitbox bottom");
-                AssertEqual(ReadWord(unchecked((ushort)(address + 8))),
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 8)))),
                     expected.TouchAi, "Space Pirate native touch callback");
-                AssertEqual(ReadWord(unchecked((ushort)(address + 10))),
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 10)))),
                     expected.ShotAi, "Space Pirate native shot callback");
                 rectangleCount++;
             }
@@ -223,10 +223,6 @@ internal static partial class Program
         Console.WriteLine($"Space Pirate collision: 132 frames, 229 components, " +
             $"147 lists, 155 rectangles and {probes} native/compiled touch-shot " +
             "boundary probes pass with authored ROM bytes blocked.");
-
-        ushort ReadWord(ushort address) => (ushort)(
-            rom.ReadCartridgeByte(0xb20000 | address) |
-            rom.ReadCartridgeByte(0xb20000 | unchecked((ushort)(address + 1))) << 8);
 
         void Block(ushort pointer, int length)
         {

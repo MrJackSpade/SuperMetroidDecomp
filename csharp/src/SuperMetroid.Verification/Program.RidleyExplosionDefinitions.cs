@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,8 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion definitions")]
     private static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort Word(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
         ReadOnlySpan<ushort> spawnPointerOperands =
         [
@@ -21,8 +20,8 @@ internal static partial class Program
             "Ridley breakup spawn count");
         for (int index = 0; index < spawnPointerOperands.Length; index++)
         {
-            ushort populationPointer = Word(rom, 0xa60000 | spawnPointerOperands[index]);
-            ushort parameter = Word(rom, 0xa60000 | unchecked((ushort)(populationPointer + 12)));
+            ushort populationPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | spawnPointerOperands[index]));
+            ushort parameter = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | unchecked((ushort)(populationPointer + 12))));
             AssertEqual(parameter, spawnOrder[index],
                 $"Ridley breakup native spawn order {index}");
         }
@@ -31,7 +30,7 @@ internal static partial class Program
         {
             RidleyExplosionPartDefinition definition =
                 RidleyExplosionDefinitions.GetPart(parameter);
-            AssertEqual(Word(rom, 0xa6c6ce + parameter), definition.Lifetime,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), definition.Lifetime,
                 $"Ridley breakup lifetime ${parameter:X2}");
         }
 
@@ -40,14 +39,14 @@ internal static partial class Program
         {
             ushort parameter = unchecked((ushort)(tailIndex * 2));
             AssertEqual(
-                Word(rom, fixedTailOperands[tailIndex]),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(fixedTailOperands[tailIndex]),
                 RidleyExplosionDefinitions.SelectTailInstructionList((RidleyExplosionPart)parameter, 0),
                 $"Ridley tail fragment instruction ${parameter:X2}");
         }
         for (int orientation = 0; orientation < 16; orientation++)
         {
             AssertEqual(
-                Word(rom, 0xa6c7ba + orientation * 2),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2)),
                 RidleyExplosionDefinitions.SelectTailInstructionList(
                     RidleyExplosionPart.TailTip,
                     orientation),
@@ -73,15 +72,15 @@ internal static partial class Program
                     bodyParameters[partIndex],
                     facingRight: facingIndex != 0);
             AssertEqual(
-                unchecked((short)Word(rom, xTables[partIndex] + facingIndex * 2)),
+                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((xTables[partIndex] + facingIndex * 2))),
                 definition.Offset.X,
                 $"Ridley body fragment {partIndex} facing {facingIndex} X offset");
             AssertEqual(
-                unchecked((short)Word(rom, yOperands[partIndex])),
+                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(yOperands[partIndex])),
                 definition.Offset.Y,
                 $"Ridley body fragment {partIndex} Y offset");
             AssertEqual(
-                Word(rom, instructionTables[partIndex] + facingIndex * 2),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTables[partIndex] + facingIndex * 2)),
                 definition.InstructionList,
                 $"Ridley body fragment {partIndex} facing {facingIndex} instruction");
         }
@@ -91,17 +90,17 @@ internal static partial class Program
             Offset16<RoomPixels> placement =
                 RidleyExplosionDefinitions.DeathExplosionPlacement(index);
             AssertEqual(
-                unchecked((short)Word(rom, 0xa6c66e + index * 4)),
+                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + index * 4))),
                 placement.X,
                 $"Ridley death explosion {index} X offset");
             AssertEqual(
-                unchecked((short)Word(rom, 0xa6c670 + index * 4)),
+                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + index * 4))),
                 placement.Y,
                 $"Ridley death explosion {index} Y offset");
             // The Baby Metroid death stores the identical scatter at $A9:CDFC.
-            AssertEqual(Word(rom, 0xa6c66e + index * 4), Word(rom, 0xa9cdfc + index * 4),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + index * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9cdfc + index * 4)),
                 $"Baby Metroid death explosion {index} X matches the shared scatter");
-            AssertEqual(Word(rom, 0xa6c670 + index * 4), Word(rom, 0xa9cdfe + index * 4),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + index * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9cdfe + index * 4)),
                 $"Baby Metroid death explosion {index} Y matches the shared scatter");
         }
         AssertThrows<ArgumentOutOfRangeException>(
@@ -145,12 +144,8 @@ internal static partial class Program
             spawn(body, state);
 
             RoomEnemyProjectileSlot effect = enemies.EnemyProjectiles.Single(p => p.IsActive);
-            short xOffset = unchecked((short)ReadRidleyExplosionWord(
-                rom,
-                0xa6c66e + selectedIndex * 4));
-            short yOffset = unchecked((short)ReadRidleyExplosionWord(
-                rom,
-                0xa6c670 + selectedIndex * 4));
+            short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + selectedIndex * 4)));
+            short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + selectedIndex * 4)));
             AssertEqual((ushort)selectedIndex, state.DeathExplosionCount,
                 $"Ridley death explosion {selectedIndex} cyclic index");
             AssertEqual((ushort)4, state.DeathExplosionTimer,
@@ -215,7 +210,7 @@ internal static partial class Program
                 AssertEqual(EnemyPaletteBits.Palette7, fragment.PaletteIndex,
                     "Ridley breakup production palette");
                 AssertEqual(
-                    ReadRidleyExplosionWord(rom, 0xa6c6ce + parameter),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)),
                     fragment.VariableF,
                     $"Ridley breakup production lifetime ${parameter:X2}");
                 AssertEqual(unchecked((ushort)-0x0130), fragment.VariableB,
@@ -229,10 +224,8 @@ internal static partial class Program
                     AssertEqual(state.TailSegments[tailIndex].Position.Y, fragment.Position.Y.Whole,
                         $"Ridley breakup production tail Y ${parameter:X2}");
                     ushort expectedInstruction = parameter == (ushort)RidleyExplosionPart.TailTip
-                        ? ReadRidleyExplosionWord(rom, 0xa6c7ba + orientation * 2)
-                        : ReadRidleyExplosionWord(
-                            rom,
-                            new[] { 0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788 }
+                        ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2))
+                        : CartridgeImportSource.Require(rom).ReadCartridgeWord(new[] { 0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788 }
                                 [tailIndex]);
                     AssertEqual(expectedInstruction, fragment.CurrentInstruction,
                         $"Ridley breakup production tail instruction ${parameter:X2}/{orientation}");
@@ -243,20 +236,14 @@ internal static partial class Program
                     int[] xTables = [0xa6c804, 0xa6c836, 0xa6c868, 0xa6c89a, 0xa6c8cc];
                     int[] yOperands = [0xa6c7f4, 0xa6c826, 0xa6c858, 0xa6c88a, 0xa6c8bc];
                     int[] instructionTables = [0xa6c808, 0xa6c83a, 0xa6c86c, 0xa6c89e, 0xa6c8d0];
-                    short xOffset = unchecked((short)ReadRidleyExplosionWord(
-                        rom,
-                        xTables[bodyIndex] + facingIndex * 2));
-                    short yOffset = unchecked((short)ReadRidleyExplosionWord(
-                        rom,
-                        yOperands[bodyIndex]));
+                    short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((xTables[bodyIndex] + facingIndex * 2)));
+                    short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(yOperands[bodyIndex]));
                     AssertEqual(unchecked((ushort)(body.Position.X.Whole + xOffset)), fragment.Position.X.Whole,
                         $"Ridley breakup production body X ${parameter:X2}/{facingIndex}");
                     AssertEqual(unchecked((ushort)(body.Position.Y.Whole + yOffset)), fragment.Position.Y.Whole,
                         $"Ridley breakup production body Y ${parameter:X2}/{facingIndex}");
                     AssertEqual(
-                        ReadRidleyExplosionWord(
-                            rom,
-                            instructionTables[bodyIndex] + facingIndex * 2),
+                        CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTables[bodyIndex] + facingIndex * 2)),
                         fragment.CurrentInstruction,
                         $"Ridley breakup production body instruction ${parameter:X2}/{facingIndex}");
                 }
@@ -265,10 +252,6 @@ internal static partial class Program
         }
         AssertEqual(32, cases, "Ridley breakup production initializer case count");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion words")]
-    private static ushort ReadRidleyExplosionWord(SuperMetroidAddressSpace source, int address) =>
-        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewRidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is

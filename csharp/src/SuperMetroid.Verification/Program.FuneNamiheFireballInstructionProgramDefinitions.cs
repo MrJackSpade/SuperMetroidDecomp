@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -106,7 +107,7 @@ internal static partial class Program
         ushort[] operands = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
         foreach (ushort operand in operands)
         {
-            ushort native = ReadFuneNamiheFireballInstructionWord(rom, operand);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | operand);
             AssertEqual(native, EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operand),
                 "Fune/Namihe fireball native visual pointer");
             AssertEqual((byte)1, FuneNamiheFireballVisualSelectorsRomByte(rom, 0x8d0000 | native), "fireball native single-sprite map count");
@@ -146,7 +147,7 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            ushort expected = ReadFuneNamiheFireballInstructionWord(rom, address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
             var definition = FuneNamiheFireballInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, definition.Address, "FuneNamihe-fireball native word position");
             AssertEqual(expected, definition.Value, "FuneNamihe-fireball native enumerated word");
@@ -204,14 +205,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe fireball instruction words")]
-    private static ushort ReadFuneNamiheFireballInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 }

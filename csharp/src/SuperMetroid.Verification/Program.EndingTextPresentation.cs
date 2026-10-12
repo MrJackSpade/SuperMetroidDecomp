@@ -113,8 +113,7 @@ internal static partial class Program
         var result = new ushort[count];
         int address = (int)new SnesAddress(EndingTextDefinitions.Native.Bank, pointer);
         for (int index = 0; index < count; index++)
-            result[index] = unchecked((ushort)(bus.ReadCartridgeByte(address + index * 2) |
-                bus.ReadCartridgeByte(address + index * 2 + 1) << 8));
+            result[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord(address + index * 2);
         return result;
     }
 

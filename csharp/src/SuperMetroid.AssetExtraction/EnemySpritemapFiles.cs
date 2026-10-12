@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -41,7 +42,7 @@ internal static class EnemySpritemapFiles
     internal static SpriteVisualPart[] ExtractParts(
         ISnesAddressSpace bus, byte bank, ushort pointer)
     {
-        int count = ReadWord(bus, bank, pointer);
+        int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | pointer);
         if (count > EnemySpritemapDefinitions.MaximumParts)
             throw new InvalidDataException(
                 $"Enemy spritemap ${bank:X2}:{pointer:X4} has {count} parts.");
@@ -49,11 +50,10 @@ internal static class EnemySpritemapFiles
         for (int index = 0; index < count; index++)
         {
             ushort address = unchecked((ushort)(pointer + 2 + index * 5));
-            var x = new SnesSpritemapXWord(ReadWord(bus, bank, address));
+            var x = new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | address));
             byte y = bus.ReadCartridgeByte((bank << 16) |
                 unchecked((ushort)(address + 2)));
-            var attributes = new SnesObjAttributeWord(ReadWord(bus,
-                bank, unchecked((ushort)(address + 3))));
+            var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 3)))));
             parts[index] = new SpriteVisualPart
             {
                 OffsetX = x.SignedOffset,
@@ -69,8 +69,4 @@ internal static class EnemySpritemapFiles
         }
         return parts;
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, byte bank, ushort address) =>
-        (ushort)(bus.ReadCartridgeByte((bank << 16) | address) |
-            bus.ReadCartridgeByte((bank << 16) | unchecked((ushort)(address + 1))) << 8);
 }

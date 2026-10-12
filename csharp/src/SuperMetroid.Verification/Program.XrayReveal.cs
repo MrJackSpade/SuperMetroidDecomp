@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -81,8 +82,6 @@ internal static partial class Program
         if (pointer is < 0x8000 or >= ushort.MaxValue)
             throw new InvalidDataException(
                 $"Native X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return unchecked((ushort)(
-            bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | pointer) |
-            bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));
+        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealCodePointers.Bank | pointer);
     }
 }

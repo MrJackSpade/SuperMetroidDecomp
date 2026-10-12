@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -40,7 +41,7 @@ internal static partial class Program
         {
             ushort address = addresses[i];
             var definition = CrocomireTongueInstructionProgramDefinitionsTooling.MechanicsWord(i);
-            ushort expected = ReadCrocomireTongueInstructionWord(rom, 0xa40000 | address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | address));
             AssertEqual(address, definition.Address, "tongue independent mechanics address");
             AssertEqual(expected, definition.Value, "tongue enumerated native control value");
             AssertEqual(expected, CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(address), "tongue native dispatch value");
@@ -68,8 +69,8 @@ internal static partial class Program
         {
             ushort actual = CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordAddress(i);
             AssertEqual(addresses[i], actual, "tongue independent presentation address");
-            AssertEqual(ReadCrocomireTongueInstructionWord(rom, 0xa40000 | addresses[i]),
-                ReadCrocomireTongueInstructionWord(rom, 0xa40000 | actual), "tongue original presentation operand");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | addresses[i])),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | actual)), "tongue original presentation operand");
             AssertThrows<InvalidDataException>(() => CrocomireTongueInstructionProgramDefinitions.ReadMechanicsWord(actual), "tongue presentation is not mechanics");
         }
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordAddress(-1), "tongue negative presentation index");
@@ -85,10 +86,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue instruction words")]
-    private static ushort ReadCrocomireTongueInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

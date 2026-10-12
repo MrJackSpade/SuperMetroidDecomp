@@ -21,7 +21,7 @@ internal static partial class Program
             "[AttributeUsage(AttributeTargets.All)] sealed class CpuBusBoundaryAttribute(string reason) : Attribute { } " +
             "[AttributeUsage(AttributeTargets.Property)] sealed class CpuBusViewOfAttribute(Type catalog, string cell) : Attribute { } " +
             "[CpuBusAccess] interface ISnesMemoryBus { byte ReadWorkRamByte(int address); byte ReadSaveRamByte(int address); } " +
-            "[CpuBusAccess] static class SnesWorkRam { public static ushort ReadWord(ISnesMemoryBus bus, int address) => 0; } " +
+            "[CpuBusAccess] static class SnesWordReads { public static ushort ReadWorkRamWordFixedBank(this ISnesMemoryBus bus, int address) => 0; } " +
             "[CpuBusAccess] sealed record CpuBusCell(int Address) { " +
             "public static CpuBusCell WramWord(string name, int address, string encoding = \"\") => new(address); " +
             "public static CpuBusCell WramByte(string name, int address, string encoding = \"\") => new(address); } " +
@@ -35,15 +35,15 @@ internal static partial class Program
             "public ushort Pose => new WramWord(bus, SamusWorkRam.Pose).Read(); } ";
 
         // A constant-address word read and a primitive read over a named cell map to the declared member.
-        ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus) => SnesWorkRam.ReadWord(bus, 0x7e09c2); }",
+        ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus) => bus.ReadWorkRamWordFixedBank(0x7e09c2); }",
             "class Game { ushort M(ISnesMemoryBus bus) => new SamusMemory(bus).Health; }");
         ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus) => new WramWord(bus, SamusWorkRam.Health).Read(); }",
             "class Game { ushort M(ISnesMemoryBus bus) => new SamusMemory(bus).Health; }");
         // No declared raw-equivalent member, a width mismatch, a non-constant address, or an unknown address: no fix.
-        ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus) => SnesWorkRam.ReadWord(bus, 0x7e0a1c); }", null);
+        ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus) => bus.ReadWorkRamWordFixedBank(0x7e0a1c); }", null);
         ExpectFix(api + "class Game { byte M(ISnesMemoryBus bus) => bus.ReadWorkRamByte(0x7e09c2); }", null);
-        ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus, int address) => SnesWorkRam.ReadWord(bus, address); }", null);
-        ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus) => SnesWorkRam.ReadWord(bus, 0x7e0000); }", null);
+        ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus, int address) => bus.ReadWorkRamWordFixedBank(address); }", null);
+        ExpectFix(api + "class Game { ushort M(ISnesMemoryBus bus) => bus.ReadWorkRamWordFixedBank(0x7e0000); }", null);
     }
 
     /// <summary>Applies the single offered fix for the first SME6290 in <paramref name="source"/> and requires

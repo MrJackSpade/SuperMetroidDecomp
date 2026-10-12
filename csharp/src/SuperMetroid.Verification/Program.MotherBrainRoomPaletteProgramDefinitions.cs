@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -17,7 +18,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 MotherBrainRoomPaletteProgramDefinitions.MechanicsWord(index);
             AssertEqual(
-                ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | definition.Address)),
                 definition.Value,
                 $"Mother Brain room-palette mechanics $A9:{definition.Address:X4}");
         }
@@ -46,21 +47,21 @@ internal static partial class Program
         var nativeOperands = new HashSet<ushort>();
         for (int frame = 0; frame < 48; frame++)
         {
-            ushort duration = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | nativePointer);
+            ushort duration = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | nativePointer));
             if (nativeTimer == duration)
             {
                 nativePointer += 4;
                 nativeTimer = 0;
-                if (ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | nativePointer) == 0x9b0f)
-                    nativePointer = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (nativePointer + 2));
+                if (CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | nativePointer)) == 0x9b0f)
+                    nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | (nativePointer + 2)));
             }
             nativeTimer++;
             nativeOperands.Add((ushort)(nativePointer + 2));
-            ushort palette = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (nativePointer + 2));
+            ushort palette = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | (nativePointer + 2)));
             for (int color = 0; color < 12; color++)
             {
-                expected.SetColor(0x34 + color, Bgr555.FromWord(checked((ushort)(ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (palette + color * 2))))));
-                ushort second = ReadMotherBrainRoomPaletteWord(rom, 0xa90000 | (palette + (12 + color) * 2));
+                expected.SetColor(0x34 + color, Bgr555.FromWord(checked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | (palette + color * 2)))))));
+                ushort second = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | (palette + (12 + color) * 2)));
                 expected.SetColor(0x53 + color, Bgr555.FromWord(checked((ushort)(second))));
                 expected.SetColor(0x73 + color, Bgr555.FromWord(checked((ushort)(second))));
             }
@@ -101,12 +102,6 @@ internal static partial class Program
             "installed palettes, native CGRAM/pointer/timer loop, zero presentation reads, strict rejection, " +
             "and allocation-free lookup pass.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain room palette words")]
-    private static ushort ReadMotherBrainRoomPaletteWord(
-        SuperMetroidAddressSpace source,
-        int address) =>
-        unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
     private static int ProbeMotherBrainRoomPaletteAllocation()
     {

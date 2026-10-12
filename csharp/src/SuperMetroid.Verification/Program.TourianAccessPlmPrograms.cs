@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -128,8 +129,7 @@ internal static partial class Program
 
             void AssertTourianDrawWord(ushort expected)
             {
-                AssertEqual((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
-                        rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
                     expected, $"Tourian draw ${draw.Pointer:X4} word at +{cursor - draw.Pointer} matches ROM");
                 cursor += 2;
             }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -27,18 +28,18 @@ internal static partial class Program
             int componentCount = rom.ReadCartridgeByte(root);
             for (int component = 0; component < componentCount; component++)
             {
-                ushort stream = ReadWord(root + 2 + component * 8 + 4);
+                ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2 + component * 8 + 4));
                 int cursor = (PhantoonBg2FrameDefinitions.Bank << 16) |
                     unchecked((ushort)(stream + 2));
                 for (int command = 0; command < 128; command++)
                 {
-                    ushort destination = ReadWord(cursor);
+                    ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
                     if (destination == 0xffff)
                         break;
-                    int count = ReadWord(cursor + 2);
+                    int count = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
                     var tiles = new ushort[count];
                     for (int tile = 0; tile < count; tile++)
-                        tiles[tile] = ReadWord(cursor + 4 + tile * 2);
+                        tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4 + tile * 2));
                     native.Add((destination, tiles));
                     cursor += 4 + count * 2;
                 }
@@ -130,9 +131,6 @@ internal static partial class Program
             () => PhantoonBg2FrameCatalog.Load(invalid),
             "Phantoon BG2 frame outside tilemap fails loudly");
         Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve native writes and engine-owned hitboxes; live VRAM edit, collision ROM guard, reload and invalid-data checks passed.");
-
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon collision definitions")]
@@ -140,8 +138,6 @@ internal static partial class Program
         SuperMetroidAddressSpace rom, ISnesAddressSpace guardedBus,
         EnemyTileArtworkCatalog stock, EnemyTileArtworkCatalog edited)
     {
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var checkedLists = new HashSet<ushort>();
         foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
@@ -154,11 +150,11 @@ internal static partial class Program
             {
                 int record = root + 2 + index * 8;
                 PhantoonCollisionComponent component = components[index];
-                AssertEqual(unchecked((short)ReadWord(record)), component.Offset.X,
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), component.Offset.X,
                     $"Phantoon {frame.Name} component X");
-                AssertEqual(unchecked((short)ReadWord(record + 2)), component.Offset.Y,
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), component.Offset.Y,
                     $"Phantoon {frame.Name} component Y");
-                AssertEqual(ReadWord(record + 6), component.HitboxPointer,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), component.HitboxPointer,
                     $"Phantoon {frame.Name} engine hitbox list");
                 if (!checkedLists.Add(component.HitboxPointer))
                     continue;
@@ -166,23 +162,23 @@ internal static partial class Program
                     component.HitboxPointer;
                 PhantoonCollisionDefinitions.HitboxSequence hitboxes =
                     PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
-                AssertEqual(ReadWord(listAddress), (ushort)hitboxes.Length,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), (ushort)hitboxes.Length,
                     $"Phantoon ${component.HitboxPointer:X4} rectangle count");
                 for (int hitboxIndex = 0; hitboxIndex < hitboxes.Length; hitboxIndex++)
                 {
                     int address = listAddress + 2 + hitboxIndex * 12;
                     PhantoonCollisionHitbox hitbox = hitboxes[hitboxIndex];
-                    AssertEqual(unchecked((short)ReadWord(address)), hitbox.Left,
+                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), hitbox.Left,
                         "Phantoon compiled left bound");
-                    AssertEqual(unchecked((short)ReadWord(address + 2)), hitbox.Top,
+                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), hitbox.Top,
                         "Phantoon compiled top bound");
-                    AssertEqual(unchecked((short)ReadWord(address + 4)), hitbox.Right,
+                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), hitbox.Right,
                         "Phantoon compiled right bound");
-                    AssertEqual(unchecked((short)ReadWord(address + 6)), hitbox.Bottom,
+                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), hitbox.Bottom,
                         "Phantoon compiled bottom bound");
-                    AssertEqual(ReadWord(address + 8), hitbox.TouchAi,
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)), hitbox.TouchAi,
                         "Phantoon compiled touch callback");
-                    AssertEqual(ReadWord(address + 10), hitbox.ShotAi,
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)), hitbox.ShotAi,
                         "Phantoon compiled shot callback");
                 }
             }

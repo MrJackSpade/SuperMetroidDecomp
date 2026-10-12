@@ -18,14 +18,14 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 18972,
+    "RawHexLiteral": 18958,
     "PointerDispatch": 860,
     "OpaqueWordArray": 139,
-    "CatalogHexLiteral": 82970,
+    "CatalogHexLiteral": 82968,
     "JustifiedHexLiteral": 61,
-    "class:NumericQuantity": 45813,
-    "class:DomainIdentity": 6365,
-    "class:ComposableBits": 1476,
+    "class:NumericQuantity": 45809,
+    "class:DomainIdentity": 6363,
+    "class:ComposableBits": 1466,
     "class:StructuredInstruction": 30251,
     "class:CartridgeAddress": 18589,
     "class:Unknown": 508,
@@ -1590,8 +1590,8 @@
         "RawHexLiteral": 202,
         "CatalogHexLiteral": 772,
         "JustifiedHexLiteral": 45,
-        "class:NumericQuantity": 383,
-        "class:DomainIdentity": 572,
+        "class:NumericQuantity": 384,
+        "class:DomainIdentity": 571,
         "class:ComposableBits": 32,
         "class:CartridgeAddress": 30,
         "class:Unknown": 2,
@@ -1637,8 +1637,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 22,
-            "class:NumericQuantity": 14,
-            "class:DomainIdentity": 1,
+            "class:NumericQuantity": 15,
             "class:ComposableBits": 7,
             "storageWidthMembers": 26
           }
@@ -9430,8 +9429,8 @@
         "PointerDispatch": 87,
         "OpaqueWordArray": 3,
         "CatalogHexLiteral": 1159,
-        "class:NumericQuantity": 897,
-        "class:DomainIdentity": 113,
+        "class:NumericQuantity": 898,
+        "class:DomainIdentity": 112,
         "class:ComposableBits": 24,
         "class:StructuredInstruction": 43,
         "class:CartridgeAddress": 433,
@@ -10415,7 +10414,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "RawHexLiteral": 2,
-            "class:DomainIdentity": 1,
+            "class:NumericQuantity": 1,
             "class:CartridgeAddress": 1,
             "storageWidthMembers": 1
           }
@@ -11348,12 +11347,12 @@
     {
       "name": "Rendering and hardware",
       "totals": {
-        "RawHexLiteral": 137,
+        "RawHexLiteral": 123,
         "PointerDispatch": 1,
         "CatalogHexLiteral": 73,
-        "class:NumericQuantity": 122,
+        "class:NumericQuantity": 118,
         "class:DomainIdentity": 7,
-        "class:ComposableBits": 63,
+        "class:ComposableBits": 53,
         "class:CartridgeAddress": 8,
         "class:Unknown": 11,
         "storageWidthMembers": 31
@@ -11655,20 +11654,12 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Rendering/SnesBgTilemapRenderer.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 20,
-            "class:NumericQuantity": 6,
-            "class:ComposableBits": 14
+            "RawHexLiteral": 7,
+            "class:NumericQuantity": 3,
+            "class:ComposableBits": 4
           }
         },
         {
@@ -11713,8 +11704,8 @@
       "totals": {
         "RawHexLiteral": 24,
         "PointerDispatch": 38,
-        "CatalogHexLiteral": 4509,
-        "class:NumericQuantity": 4007,
+        "CatalogHexLiteral": 4507,
+        "class:NumericQuantity": 4005,
         "class:DomainIdentity": 424,
         "class:ComposableBits": 15,
         "class:CartridgeAddress": 117,
@@ -11990,8 +11981,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 80,
-            "class:NumericQuantity": 39,
+            "CatalogHexLiteral": 78,
+            "class:NumericQuantity": 37,
             "class:DomainIdentity": 26,
             "class:CartridgeAddress": 14,
             "class:Unknown": 1

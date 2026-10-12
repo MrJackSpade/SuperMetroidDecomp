@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -20,9 +21,7 @@ internal static partial class Program
                 MotherBrainBabyInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadMotherBrainBabyInstructionWord(
-                    rom,
-                    0xa90000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | definition.Address)),
                 $"Mother Brain Baby instruction mechanics word $A9:{definition.Address:X4}");
         }
 
@@ -74,10 +73,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain Baby instruction words")]
-    private static ushort ReadMotherBrainBabyInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

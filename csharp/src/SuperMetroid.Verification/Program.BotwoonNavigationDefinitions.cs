@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -113,8 +114,6 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
-        ushort Word(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         var holes = new BotwoonHoleDefinition[4];
         for (ushort byteOffset = 0; byteOffset <= 24; byteOffset += 8)
@@ -123,8 +122,8 @@ internal static partial class Program
             BotwoonHoleDefinition hole =
                 BotwoonNavigationDefinitions.HoleForByteOffset(byteOffset);
             holes[byteOffset >> 3] = hole;
-            AssertEqual(Word(address), hole.TopLeft.X, $"Botwoon hole {byteOffset:X2} left");
-            AssertEqual(Word(address + 4), hole.TopLeft.Y, $"Botwoon hole {byteOffset:X2} top");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), hole.TopLeft.X, $"Botwoon hole {byteOffset:X2} left");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), hole.TopLeft.Y, $"Botwoon hole {byteOffset:X2} top");
         }
 
         var runMovement = typeof(RoomEnemySystem).GetMethod("RunBotwoonMovement", flags)!
@@ -134,13 +133,13 @@ internal static partial class Program
             int address = 0xb3e150 + byteOffset;
             BotwoonPathDescriptorDefinition descriptor =
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset(byteOffset);
-            AssertEqual(Word(address), descriptor.PathPointer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), descriptor.PathPointer,
                 $"Botwoon path {byteOffset:X2} pointer");
-            AssertEqual(unchecked((short)Word(address + 2)), descriptor.Direction,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), descriptor.Direction,
                 $"Botwoon path {byteOffset:X2} direction");
-            AssertEqual(Word(address + 4), descriptor.TargetHoleByteOffset,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), descriptor.TargetHoleByteOffset,
                 $"Botwoon path {byteOffset:X2} target hole");
-            AssertEqual((ushort)0, Word(address + 6),
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)),
                 $"Botwoon path {byteOffset:X2} alignment word");
 
             var enemies = new RoomEnemySystem();

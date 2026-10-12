@@ -47,17 +47,17 @@ internal static partial class Program
                 $"Crocomire body $A4:{frame:X4} has compiled collision");
             ReadOnlySpan<CrocomireBodyCollisionComponent> components =
                 CrocomireBodyCollisionDefinitions.ComponentsAt(frame);
-            AssertEqual((byte)ReadWord(0xa40000 | frame), (byte)components.Length,
+            AssertEqual((byte)rom.ReadCartridgeWord((0xa40000 | frame)), (byte)components.Length,
                 $"Crocomire body $A4:{frame:X4} component count");
             for (int index = 0; index < components.Length; index++)
             {
                 int address = 0xa40000 | unchecked((ushort)(frame + 2 + index * 8));
                 CrocomireBodyCollisionComponent component = components[index];
-                AssertEqual(unchecked((short)ReadWord(address)), component.Offset.X,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), component.Offset.X,
                     $"Crocomire $A4:{frame:X4} component {index} X");
-                AssertEqual(unchecked((short)ReadWord(address + 2)), component.Offset.Y,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), component.Offset.Y,
                     $"Crocomire $A4:{frame:X4} component {index} Y");
-                AssertEqual(ReadWord(address + 6), component.HitboxPointer,
+                AssertEqual(rom.ReadCartridgeWord((address + 6)), component.HitboxPointer,
                     $"Crocomire $A4:{frame:X4} component {index} hitbox list");
                 seenLists.Add(component.HitboxPointer);
             }
@@ -90,23 +90,23 @@ internal static partial class Program
         {
             ReadOnlySpan<CrocomireBodyCollisionHitbox> hitboxes =
                 CrocomireBodyCollisionDefinitions.HitboxesAt(list);
-            AssertEqual(ReadWord(0xa40000 | list), (ushort)hitboxes.Length,
+            AssertEqual(rom.ReadCartridgeWord((0xa40000 | list)), (ushort)hitboxes.Length,
                 $"Crocomire $A4:{list:X4} hitbox count");
             for (int index = 0; index < hitboxes.Length; index++)
             {
                 int address = 0xa40000 | unchecked((ushort)(list + 2 + index * 12));
                 CrocomireBodyCollisionHitbox hitbox = hitboxes[index];
-                AssertEqual(unchecked((short)ReadWord(address)), hitbox.Left,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), hitbox.Left,
                     $"Crocomire $A4:{list:X4} hitbox {index} left");
-                AssertEqual(unchecked((short)ReadWord(address + 2)), hitbox.Top,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), hitbox.Top,
                     $"Crocomire $A4:{list:X4} hitbox {index} top");
-                AssertEqual(unchecked((short)ReadWord(address + 4)), hitbox.Right,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 4))), hitbox.Right,
                     $"Crocomire $A4:{list:X4} hitbox {index} right");
-                AssertEqual(unchecked((short)ReadWord(address + 6)), hitbox.Bottom,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), hitbox.Bottom,
                     $"Crocomire $A4:{list:X4} hitbox {index} bottom");
-                AssertEqual(ReadWord(address + 8), hitbox.TouchAi,
+                AssertEqual(rom.ReadCartridgeWord((address + 8)), hitbox.TouchAi,
                     $"Crocomire $A4:{list:X4} hitbox {index} touch callback");
-                AssertEqual(ReadWord(address + 10), hitbox.ShotAi,
+                AssertEqual(rom.ReadCartridgeWord((address + 10)), hitbox.ShotAi,
                     $"Crocomire $A4:{list:X4} hitbox {index} shot callback");
             }
         }
@@ -121,8 +121,5 @@ internal static partial class Program
         Console.WriteLine($"Crocomire body collision: {frames.Length} frames, " +
             $"{seenLists.Count} hitbox lists, {probes} native-equivalent probes; " +
             "installed path reads no ROM.");
-
-        ushort ReadWord(int address) => (ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 }

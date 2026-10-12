@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -13,24 +14,21 @@ internal static partial class Program
         const int spriteSlotCount = 32;
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
         for (int entry = 0; entry < 6; entry++)
         {
             DraygonBurialEvirDefinition definition =
                 DraygonBurialEvirDefinitions.ForEntry(entry);
-            AssertEqual(ReadWord(rom, subspeedTable + entry * 4), definition.SubspeedMagnitude.X.Fraction,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4)), definition.SubspeedMagnitude.X.Fraction,
                 $"Draygon burial Evir {entry} X subspeed");
-            AssertEqual(ReadWord(rom, subspeedTable + entry * 4 + 2), definition.SubspeedMagnitude.Y.Fraction,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((subspeedTable + entry * 4 + 2)), definition.SubspeedMagnitude.Y.Fraction,
                 $"Draygon burial Evir {entry} Y subspeed");
-            AssertEqual(ReadWord(rom, positionTable + entry * 4), definition.Initial.X,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4)), definition.Initial.X,
                 $"Draygon burial Evir {entry} initial X");
-            AssertEqual(ReadWord(rom, positionTable + entry * 4 + 2), definition.Initial.Y,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((positionTable + entry * 4 + 2)), definition.Initial.Y,
                 $"Draygon burial Evir {entry} initial Y");
-            AssertEqual(ReadWord(rom, angleTable + entry * 4), definition.Angle,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4)), definition.Angle,
                 $"Draygon burial Evir {entry} angle");
-            AssertEqual(0, ReadWord(rom, angleTable + entry * 4 + 2),
+            AssertEqual(0, CartridgeImportSource.Require(rom).ReadCartridgeWord((angleTable + entry * 4 + 2)),
                 $"Draygon burial Evir {entry} angle padding");
         }
 

@@ -693,9 +693,8 @@ csharp/src/SuperMetroid.Core/Input/WindowsGamepadIdentifiers.cs	SME6340	12
 csharp/src/SuperMetroid.Core/Rendering/GameplayDisplayCapture.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rendering/Mode7ObjRenderSnapshot.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rendering/SamusSuitPickupRenderer.cs	SME6340	2
-csharp/src/SuperMetroid.Core/Rendering/SnesBgTilemapRenderer.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.XrayCapture.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs	SME6340	20
+csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs	SME6340	7
 csharp/src/SuperMetroid.Core/Rendering/SnesMode7Renderer.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Rendering/SnesObjRenderer.cs	SME6340	10
 csharp/src/SuperMetroid.Core/Rendering/SuperMetroidRuntimeFrameRenderer.cs	SME6340	2

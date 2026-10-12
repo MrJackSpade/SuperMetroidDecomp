@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -11,13 +12,13 @@ internal static partial class Program
             int byteOffset = parameter * 4;
             MotherBrainDoorFragmentDefinition definition =
                 MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
-            AssertEqual(unchecked((short)ReadMotherBrainFragmentWord(rom, 0x86c992 + byteOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c992 + byteOffset))),
                 definition.Offset.X, $"Mother Brain door fragment X offset {parameter}");
-            AssertEqual(unchecked((short)ReadMotherBrainFragmentWord(rom, 0x86c994 + byteOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c994 + byteOffset))),
                 definition.Offset.Y, $"Mother Brain door fragment Y offset {parameter}");
-            AssertEqual(unchecked((short)ReadMotherBrainFragmentWord(rom, 0x86c9b2 + byteOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c9b2 + byteOffset))),
                 definition.Velocity.X.SignedRawValue, $"Mother Brain door fragment X velocity {parameter}");
-            AssertEqual(unchecked((short)ReadMotherBrainFragmentWord(rom, 0x86c9b4 + byteOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c9b4 + byteOffset))),
                 definition.Velocity.Y.SignedRawValue, $"Mother Brain door fragment Y velocity {parameter}");
         }
 
@@ -57,10 +58,6 @@ internal static partial class Program
         Console.WriteLine(
             "Mother Brain door fragments: 32 native physical words and all eight real spawns pass with offset/velocity tables forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain fragment words")]
-    private static ushort ReadMotherBrainFragmentWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMotherBrainDoorFragmentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -1275,7 +1275,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < cells.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            ushort raw = (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+            ushort raw = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             var word = new SnesBgTilemapWord(raw);
             cells[index] = new CrocomireMeltingTilemapCell
             {
@@ -1287,7 +1287,7 @@ public static class EnemyTileArtworkFiles
             };
         }
         int terminator = sourceAddress + cells.Length * 2;
-        if ((ushort)(bus.ReadCartridgeByte(terminator) | bus.ReadCartridgeByte(terminator + 1) << 8) != 0xffff)
+        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(terminator) != 0xffff)
             throw new InvalidDataException(
                 $"Crocomire melt tilemap ${sourceAddress:X6} lacks its native terminator.");
         using var json = new MemoryStream();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,27 +15,22 @@ internal static partial class Program
         const int speedTable = 0xb3e730;
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
         for (int role = 0; role < 3; role++)
         {
             ushort parameter = unchecked((ushort)(role * 2));
             EscapeEtecoonInitialization initialization =
                 EscapeEtecoonDefinitions.Initialization(parameter);
-            AssertEqual(ReadWord(rom, xTable + parameter), initialization.Position.X,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + parameter)), initialization.Position.X,
                 $"escape Etecoon role {role} X");
-            AssertEqual(ReadWord(rom, yTable + parameter), initialization.Position.Y,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
                 $"escape Etecoon role {role} Y");
-            AssertEqual((EscapeEtecoonPreInstruction)ReadWord(
-                    rom,
-                    preInstructionTable + parameter),
+            AssertEqual((EscapeEtecoonPreInstruction)CartridgeImportSource.Require(rom).ReadCartridgeWord((preInstructionTable + parameter)),
                 initialization.PreInstruction,
                 $"escape Etecoon role {role} pre-instruction");
-            AssertEqual(ReadWord(rom, instructionTable + parameter),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + parameter)),
                 initialization.InstructionList,
                 $"escape Etecoon role {role} instruction");
-            AssertEqual(ReadWord(rom, speedTable + parameter),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
                 initialization.HorizontalSpeed,
                 $"escape Etecoon role {role} speed");
         }
@@ -100,7 +96,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 EscapeEtecoonInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadEscapeEtecoonInstructionWord(rom, 0xb30000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | definition.Address)),
                 $"escape Etecoon mechanics word $B3:{definition.Address:X4}");
         }
 
@@ -202,17 +198,11 @@ internal static partial class Program
             etecoon.InstructionTimer = 1;
             process.Invoke(enemies, arguments);
             ushort operand = unchecked((ushort)(etecoon.CurrentInstruction - 2));
-            AssertEqual(ReadEscapeEtecoonInstructionWord(rom, 0xb30000 | operand),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | operand)),
                 etecoon.SpritemapPointer, "escape-Etecoon actual installed native visual selector");
             selectedPresentation.Add(operand);
         }
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for escape Etecoon instruction words")]
-    private static ushort ReadEscapeEtecoonInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static int ProbeEscapeEtecoonInstructionMechanicsAllocation()
     {

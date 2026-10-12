@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -23,7 +24,7 @@ internal static partial class Program
         for (int index = 0; index < SamusVisorColorFormat.ColorCount; index++)
         {
             int address = SamusVisorColorFormat.SourceAddress + index * sizeof(ushort);
-            ushort native = unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, catalog.Resolve(index), $"native visor color {index}");
         }
 
@@ -46,7 +47,7 @@ internal static partial class Program
         for (int index = 0; index < colors.Length; index++)
         {
             int address = SamusVisorColorFormat.SourceAddress + index * sizeof(ushort);
-            ushort word = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             colors[index] = new PaletteRgb5
             {
                 Red = word & 31,
@@ -79,7 +80,7 @@ internal static partial class Program
             bool expectedWrite = native.Timer == SamusPaletteRomData.Visor.FrameDelay;
             bool actualWrite = installed.Timer == SamusPaletteRomData.Visor.FrameDelay;
             if (expectedWrite)
-                AssertEqual(ReadVisorFixtureColor(rom, sourceOffset), installedCgram.Colors[196],
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
             AssertEqual(native.PackedTimerIndex, installed.PackedTimerIndex,
@@ -110,7 +111,7 @@ internal static partial class Program
             bool expected = native.Xray.UpdatePalette(rom, nativeCgram, native.EquippedItems);
             bool actual = installed.Xray.UpdatePalette(guarded, installedCgram, installed.EquippedItems);
             if (expected)
-                AssertEqual(ReadVisorFixtureColor(rom, sourceOffset), installedCgram.Colors[196],
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
                     $"X-ray visor call {call} matches native color word");
             AssertEqual(expected, actual, $"X-ray visor call {call} write");
             AssertEqual(native.Xray.SpecialPaletteFrame, installed.Xray.SpecialPaletteFrame,
@@ -130,11 +131,6 @@ internal static partial class Program
         for (int call = 11; call < 31; call++) Compare(call); // Full-beam colors 6, 8, 10.
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed X-ray cycle does not read visor ROM table");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Samus visor color words")]
-    private static ushort ReadVisorFixtureColor(ISnesAddressSpace rom, int offset) =>
-        (ushort)(rom.ReadCartridgeByte(SamusVisorColorFormat.SourceAddress + offset) |
-            rom.ReadCartridgeByte(SamusVisorColorFormat.SourceAddress + offset + 1) << 8);
     private static SamusState CreateXraySamus(ISnesAddressSpace rom)
     {
         var samus = new SamusState

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -20,7 +21,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 PowampInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadPowampInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | definition.Address),
                 $"Powamp mechanics word $A8:{definition.Address:X4}");
         }
 
@@ -137,14 +138,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Powamp instruction words")]
-    private static ushort ReadPowampInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa80000 | address) |
-            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewPowampInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

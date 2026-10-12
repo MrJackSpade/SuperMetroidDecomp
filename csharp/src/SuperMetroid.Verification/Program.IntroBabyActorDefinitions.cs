@@ -60,19 +60,19 @@ internal static partial class Program
         {
             IntroBabyActorDefinition actual = actors[index].Actor;
             int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
-            AssertEqual(ReadIntroBabyActorWord(retail, definitionAddress + 2), actual.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), actual.PreInstruction,
                 $"intro baby actor {index} pre-instruction callback");
-            AssertEqual(ReadIntroBabyActorWord(retail, definitionAddress + 4), actual.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), actual.InstructionList,
                 $"intro baby actor {index} instruction list");
 
             // The definition's initialization callback supplies the compiled placement.
             int initializer = IntroBabyActorDefinitions.NativeBank |
-                ReadIntroBabyActorWord(retail, definitionAddress);
-            AssertEqual(ReadIntroBabyActorWord(retail, initializer + 1), actual.Position.X,
+                CartridgeImportSource.Require(retail).ReadCartridgeWord(definitionAddress);
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 1)), actual.Position.X,
                 $"intro baby actor {index} initializer X immediate");
-            AssertEqual(ReadIntroBabyActorWord(retail, initializer + 7), actual.Position.Y,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 7)), actual.Position.Y,
                 $"intro baby actor {index} initializer Y immediate");
-            AssertEqual(ReadIntroBabyActorWord(retail, initializer + 13), actual.PaletteBits,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), actual.PaletteBits,
                 $"intro baby actor {index} initializer palette immediate");
         }
 
@@ -157,8 +157,7 @@ internal static partial class Program
         AssertEqual(reference.Samus.InputLocked, discovery.Samus.InputLocked,
             "SR388 end-demo Samus input lock matches ROM-backed controller");
 
-        ushort RomScientistWord(ushort pointer) => ReadIntroBabyActorWord(referenceBus,
-            IntroBabyActorDefinitions.NativeBank | pointer);
+        ushort RomScientistWord(ushort pointer) => CartridgeImportSource.Require(referenceBus).ReadCartridgeWord((IntroBabyActorDefinitions.NativeBank | pointer));
         IntroScientistCutsceneState delivery = IntroScientistCutsceneState.CreateDelivery();
         IntroScientistCutsceneState examination = IntroScientistCutsceneState.CreateExamination();
         IntroScientistCutsceneState nativeDelivery =
@@ -220,10 +219,6 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby actor definitions")]
     private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby actor words")]
-    private static ushort ReadIntroBabyActorWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewIntroBabyActorDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

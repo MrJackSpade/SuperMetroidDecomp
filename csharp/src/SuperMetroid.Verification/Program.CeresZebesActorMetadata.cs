@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -15,41 +16,41 @@ internal static partial class Program
                 CeresDestructionActorDefinitions.ZebesActor(index);
             int spawnOperand = 0x8bc811 + 6 * index;
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperand - 1), "native spawn LDY");
-            ushort pointer = ReadWord(retail, spawnOperand);
-            AssertEqual(ReadWord(retail, (0x8b0000 | pointer) + 2), actor.ActivePreInstruction,
+            ushort pointer = CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperand);
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 2)), actor.ActivePreInstruction,
                 "native reveal callback, which the initializer leaves unchanged");
-            AssertEqual(ReadWord(retail, (0x8b0000 | pointer) + 4), actor.InstructionList, "native reveal program");
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(((0x8b0000 | pointer) + 4)), actor.InstructionList, "native reveal program");
             AssertEqual(0, actor.HorizontalDelta, "reveal actor has no horizontal motion");
             AssertEqual(false, actor.WrapX, "reveal actor has no horizontal wrap");
             AssertEqual(index == 4, actor.CompletesScene, "only native star5 callback at C8F2 loads game");
-            AssertEqual(ReadWord(retail, xAddresses[index]), actor.Position.X,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(xAddresses[index]), actor.Position.X,
                 $"Zebes reveal actor {index} X");
-            AssertEqual(ReadWord(retail, yAddresses[index]), actor.Position.Y,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(yAddresses[index]), actor.Position.Y,
                 $"Zebes reveal actor {index} Y");
-            AssertEqual(ReadWord(retail, attributeAddresses[index]), actor.Attributes,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(attributeAddresses[index]), actor.Attributes,
                 $"Zebes reveal actor {index} attributes");
         }
 
         CeresDestructionActorDefinition planet =
             CeresDestructionActorDefinitions.ZebesActor(0);
-        AssertEqual(ReadWord(retail, 0x8bc857), planet.SlidePreInstruction,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc857), planet.SlidePreInstruction,
             "Zebes planet slide callback");
-        AssertEqual(ReadWord(retail, 0x8bc862), planet.SlideAcceleration,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc862), planet.SlideAcceleration,
             "Zebes planet slide acceleration");
         for (int index = 1; index <= 3; index++)
         {
             CeresDestructionActorDefinition star =
                 CeresDestructionActorDefinitions.ZebesActor(index);
-            AssertEqual(ReadWord(retail, 0x8bc902), star.SlidePreInstruction,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc902), star.SlidePreInstruction,
                 $"Zebes star {index + 1} slide callback");
-            AssertEqual(ReadWord(retail, 0x8bc90d), star.SlideAcceleration,
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc90d), star.SlideAcceleration,
                 $"Zebes star {index + 1} slide acceleration");
         }
         CeresDestructionActorDefinition completionStar =
             CeresDestructionActorDefinitions.ZebesActor(4);
-        AssertEqual(ReadWord(retail, 0x8bc8b3), completionStar.SlidePreInstruction,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8b3), completionStar.SlidePreInstruction,
             "Zebes completion star slide callback");
-        AssertEqual(ReadWord(retail, 0x8bc8be), completionStar.SlideAcceleration,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8be), completionStar.SlideAcceleration,
             "Zebes completion star slide acceleration");
         AssertTrue(completionStar.CompletesScene,
             "Zebes stars 5 retains scene-completion ownership");
@@ -66,11 +67,8 @@ internal static partial class Program
 
         // Native lower-right slide callback alone installs the load-game function.
         AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc8f2), "completion load immediate opcode");
-        AssertEqual((ushort)0xcadf, ReadWord(retail, 0x8bc8f3), "completion load-game function");
+        AssertEqual((ushort)0xcadf, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8f3), "completion load-game function");
         AssertEqual((byte)0x8d, retail.ReadCartridgeByte(0x8bc8f5), "completion function store opcode");
-        AssertEqual((ushort)0x1f51, ReadWord(retail, 0x8bc8f6), "completion cinematic function destination");
-
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
+        AssertEqual((ushort)0x1f51, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc8f6), "completion cinematic function destination");
     }
 }

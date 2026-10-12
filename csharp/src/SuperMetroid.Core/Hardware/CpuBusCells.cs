@@ -57,7 +57,7 @@ public readonly struct WramWord
 
     /// <summary>Reads the word: low byte first, then the bank-wrapped high byte.</summary>
     public ushort Read() =>
-        (ushort)(bus.ReadWorkRamByte(address) | bus.ReadWorkRamByte(SnesAddressMath.AddWithinBank(address, 1)) << 8);
+        bus.ReadWorkRamWordFixedBank(address);
 
     /// <summary>Writes the word: low byte first, then the bank-wrapped high byte.</summary>
     public void Write(ushort value)

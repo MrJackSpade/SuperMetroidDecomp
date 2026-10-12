@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -22,7 +23,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 KagoBugProjectileInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadKagoBugProjectileInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Kago-bug projectile mechanics word $86:{definition.Address:X4}");
         }
 
@@ -155,16 +156,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kago bug projectile instruction words")]
-    private static ushort ReadKagoBugProjectileInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewKagoBugProjectileInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

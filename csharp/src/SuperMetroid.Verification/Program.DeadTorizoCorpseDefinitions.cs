@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +17,7 @@ internal static partial class Program
         {
             if (word == 5)
                 continue;
-            expected[index++] = ReadDeadTorizoCorpseWord(rom, address + word * 2);
+            expected[index++] = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + word * 2));
         }
 
         ushort[] actual =
@@ -32,9 +33,7 @@ internal static partial class Program
         AssertTrue(actual.AsSpan().SequenceEqual(expected),
             "dead Torizo corpse configuration");
 
-        ushort secondRotationOffset = ReadDeadTorizoCorpseWord(
-            rom,
-            0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2)));
+        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             "dead Torizo corpse wrap offset");
 
@@ -74,12 +73,6 @@ internal static partial class Program
         Console.WriteLine(
             "Dead Torizo corpse definitions: all eight native configuration words, the derived wrap offset, and the real initializer pass with migrated metadata reads forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo corpse words")]
-    private static ushort ReadDeadTorizoCorpseWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewDeadTorizoCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

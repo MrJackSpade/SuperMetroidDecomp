@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,16 +10,15 @@ internal static partial class Program
     private static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads(rom));
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var reference = new (ushort X, ushort Y, ushort Up, ushort Down)[4, 6];
         for (int pattern = 0; pattern < 4; pattern++)
         for (int stage = 0; stage < 6; stage++)
         {
-            int xTable = 0xa60000 | Word(EnemyRomTablePointers.Ridley.PogoHorizontalPathPointers + pattern * 2);
-            int yTable = 0xa60000 | Word(EnemyRomTablePointers.Ridley.PogoVerticalPathPointers + pattern * 2);
-            var native = (Word(xTable + stage * 2), Word(yTable + stage * 2),
-                Word(EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + stage * 2),
-                Word(EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + stage * 2));
+            int xTable = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoHorizontalPathPointers + pattern * 2));
+            int yTable = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoVerticalPathPointers + pattern * 2));
+            var native = (CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + stage * 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + stage * 2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + stage * 2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + stage * 2)));
             reference[pattern, stage] = native;
             AssertTrue(native == RidleyPogoDefinitions.Read(pattern, stage), "All indirect native pogo records and accelerations");
         }

@@ -170,9 +170,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for collectible visual words")]
     private static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
-        ushort pointer) => unchecked((ushort)(
-        bus.ReadCartridgeByte(0x840000 | pointer) |
-        bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
+        ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
 
     private static CartridgeReadGuard NewCollectibleDrawReadGuard(ISnesAddressSpace source)
     {

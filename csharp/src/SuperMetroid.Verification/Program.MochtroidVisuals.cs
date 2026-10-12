@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -17,8 +18,7 @@ internal static partial class Program
             ushort operand = MochtroidInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             int selectorAddress = (MochtroidVisualDefinitions.Bank << 16) | operand;
-            ushort nativePointer = unchecked((ushort)(
-                rom.ReadCartridgeByte(selectorAddress) | rom.ReadCartridgeByte(selectorAddress + 1) << 8));
+            ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer, MochtroidVisualDefinitions.FrameAt(operand),
                 $"Mochtroid visual selector {index} matches pinned cartridge");
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(

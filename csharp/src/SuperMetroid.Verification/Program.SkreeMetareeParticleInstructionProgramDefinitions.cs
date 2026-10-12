@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -22,7 +23,7 @@ internal static partial class Program
                 SkreeMetareeParticleInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadSkreeMetareeParticleInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Skree/Metaree particle mechanics word $86:{definition.Address:X4}");
         }
 
@@ -105,7 +106,7 @@ internal static partial class Program
         {
             ushort address = SkreeMetareeParticleInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            AssertTrue(selectedCompositions.Contains(ReadSkreeMetareeParticleInstructionWord(rom, address)),
+            AssertTrue(selectedCompositions.Contains(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address)),
                 $"production execution selects native particle composition from $86:{address:X4}");
         }
 
@@ -142,9 +143,9 @@ internal static partial class Program
                 {
                     RunForcedTick(projectile);
                     ushort operand = (ushort)(expectedInitial + 2);
-                    AssertEqual(ReadSkreeMetareeParticleInstructionWord(rom, operand), projectile.SpritemapPointer,
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | operand), projectile.SpritemapPointer,
                         "particle loop selects the exact native installed composition");
-                    AssertEqual(ReadSkreeMetareeParticleInstructionWord(rom, expectedInitial),
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | expectedInitial),
                         projectile.InstructionTimer, "particle frame retains native duration");
                     selectedCompositions.Add(projectile.SpritemapPointer);
                 }
@@ -182,16 +183,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Skree Metaree particle instruction words")]
-    private static ushort ReadSkreeMetareeParticleInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewSkreeMetareeParticleInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -216,7 +217,7 @@ internal static partial class Program
     private static ushort ReadFakeKraidInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     private static bool IsFakeKraidSelectorByte(int address)
     {

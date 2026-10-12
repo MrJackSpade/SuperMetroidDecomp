@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -56,7 +57,7 @@ internal static partial class Program
         for (byte index = 0; index < 8; index++)
         {
             int address = OwtchMovementDefinitions.DistanceReferenceAddress + index * 2;
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, OwtchMovementDefinitions.TravelDistance(index),
                 $"compiled Owtch travel distance {index}");
         }
@@ -70,7 +71,7 @@ internal static partial class Program
         for (byte index = 0; index < 6; index++)
         {
             int address = OwtchMovementDefinitions.TimerReferenceAddress + index * 2;
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, OwtchMovementDefinitions.UndergroundTimer(index),
                 $"compiled Owtch underground timer {index}");
         }

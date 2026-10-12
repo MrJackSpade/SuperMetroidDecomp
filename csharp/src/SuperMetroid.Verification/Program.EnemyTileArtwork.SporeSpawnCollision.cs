@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -16,7 +17,7 @@ internal static partial class Program
         {
             ushort address = SporeSpawnInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            selected.Add(ReadWord((DraygonBg2FrameDefinitions.Bank << 16) | address));
+            selected.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord(((DraygonBg2FrameDefinitions.Bank << 16) | address)));
         }
 
         var installed = new RoomEnemySystem();
@@ -58,11 +59,11 @@ internal static partial class Program
             {
                 int record = root + 2 + component * 8;
                 SporeSpawnCollisionComponent compiled = components[component];
-                AssertEqual(ReadWord(record), unchecked((ushort)compiled.Offset.X),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)compiled.Offset.X),
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} X");
-                AssertEqual(ReadWord(record + 2), unchecked((ushort)compiled.Offset.Y),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)compiled.Offset.Y),
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} Y");
-                AssertEqual(ReadWord(record + 6), compiled.HitboxPointer,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), compiled.HitboxPointer,
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} list");
                 seenLists.Add(compiled.HitboxPointer);
             }
@@ -95,23 +96,23 @@ internal static partial class Program
             int list = (DraygonBg2FrameDefinitions.Bank << 16) | pointer;
             ReadOnlySpan<SporeSpawnCollisionHitbox> hitboxes =
                 SporeSpawnCollisionDefinitions.HitboxesAt(pointer);
-            AssertEqual((int)ReadWord(list), hitboxes.Length,
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Length,
                 $"Spore Spawn list {pointer:X4} native hitbox count");
             for (int index = 0; index < hitboxes.Length; index++)
             {
                 int record = list + 2 + index * 12;
                 SporeSpawnCollisionHitbox box = hitboxes[index];
-                AssertEqual(ReadWord(record), unchecked((ushort)box.Left),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)box.Left),
                     $"Spore Spawn list {pointer:X4} box {index} left");
-                AssertEqual(ReadWord(record + 2), unchecked((ushort)box.Top),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),
                     $"Spore Spawn list {pointer:X4} box {index} top");
-                AssertEqual(ReadWord(record + 4), unchecked((ushort)box.Right),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), unchecked((ushort)box.Right),
                     $"Spore Spawn list {pointer:X4} box {index} right");
-                AssertEqual(ReadWord(record + 6), unchecked((ushort)box.Bottom),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
                     $"Spore Spawn list {pointer:X4} box {index} bottom");
-                AssertEqual(ReadWord(record + 8), box.TouchAi,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), box.TouchAi,
                     $"Spore Spawn list {pointer:X4} box {index} touch callback");
-                AssertEqual(ReadWord(record + 10), box.ShotAi,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), box.ShotAi,
                     $"Spore Spawn list {pointer:X4} box {index} shot callback");
             }
         }
@@ -145,31 +146,28 @@ internal static partial class Program
             for (int component = 0; component < count; component++)
             {
                 int record = root + 2 + 8 * component;
-                ushort centerX = unchecked((ushort)(0x100 + ReadWord(record)));
-                ushort centerY = unchecked((ushort)(0x100 + ReadWord(record + 2)));
-                int list = 0xa50000 | ReadWord(record + 6);
-                int rectangles = ReadWord(list);
+                ushort centerX = unchecked((ushort)(0x100 + CartridgeImportSource.Require(rom).ReadCartridgeWord(record)));
+                ushort centerY = unchecked((ushort)(0x100 + CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))));
+                int list = 0xa50000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                int rectangles = CartridgeImportSource.Require(rom).ReadCartridgeWord(list);
                 for (int rectangle = 0; rectangle < rectangles; rectangle++)
                 {
                     int box = list + 2 + 12 * rectangle;
-                    ushort left = unchecked((ushort)(centerX + ReadWord(box)));
-                    ushort top = unchecked((ushort)(centerY + ReadWord(box + 2)));
-                    ushort right = unchecked((ushort)(centerX + ReadWord(box + 4)));
-                    ushort bottom = unchecked((ushort)(centerY + ReadWord(box + 6)));
+                    ushort left = unchecked((ushort)(centerX + CartridgeImportSource.Require(rom).ReadCartridgeWord(box)));
+                    ushort top = unchecked((ushort)(centerY + CartridgeImportSource.Require(rom).ReadCartridgeWord((box + 2))));
+                    ushort right = unchecked((ushort)(centerX + CartridgeImportSource.Require(rom).ReadCartridgeWord((box + 4))));
+                    ushort bottom = unchecked((ushort)(centerY + CartridgeImportSource.Require(rom).ReadCartridgeWord((box + 6))));
                     bool overlaps = shot
                         ? unchecked((short)(targetRight - left)) >= 0 && unchecked((short)(targetLeft - right)) < 0 &&
                           unchecked((short)(targetBottom - top)) >= 0 && unchecked((short)(targetTop - bottom)) < 0
                         : unchecked((short)(left - targetRight)) < 0 && unchecked((short)(right - targetLeft)) >= 0 &&
                           unchecked((short)(top - targetBottom)) < 0 && unchecked((short)(bottom - targetTop)) >= 0;
                     if (!overlaps) continue;
-                    callback = ReadWord(box + (shot ? 10 : 8));
+                    callback = CartridgeImportSource.Require(rom).ReadCartridgeWord((box + (shot ? 10 : 8)));
                     return true;
                 }
             }
             return false;
         }
-
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -13,7 +14,7 @@ internal static partial class Program
             int[] spawnOperands = [0x8bc27d, 0x8bc283, 0x8bc28e];
             AssertEqual((byte)0xa0, retail.ReadCartridgeByte(spawnOperands[index] - 1), "native destruction spawn LDY");
             // The spawn operand names the native definition this compiled actor must match.
-            VerifyActor(retail, ReadWord(retail, spawnOperands[index]), actor,
+            VerifyActor(retail, CartridgeImportSource.Require(retail).ReadCartridgeWord(spawnOperands[index]), actor,
                 preservesDefinitionCallback: index != 2, $"initial destruction actor {index}");
             AssertEqual((ushort)0, actor.SlideAcceleration, "destruction actor has no slide acceleration");
             AssertEqual((ushort)0, actor.SlidePreInstruction, "destruction actor has no slide callback");
@@ -23,15 +24,15 @@ internal static partial class Program
         Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(1), new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "destruction small asteroids"));
         CeresDestructionActorDefinition vortex =
             CeresDestructionActorDefinitions.InitialActor(2);
-        AssertEqual(ReadWord(retail, 0x8bbfa6), vortex.Position.X, "destruction vortex X");
-        AssertEqual(ReadWord(retail, 0x8bbfba), vortex.Position.Y, "destruction vortex Y");
-        AssertEqual(ReadWord(retail, 0x8bbfc0), vortex.Attributes,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfa6), vortex.Position.X, "destruction vortex X");
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfba), vortex.Position.Y, "destruction vortex Y");
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfc0), vortex.Attributes,
             "destruction vortex attributes");
-        AssertEqual(ReadWord(retail, 0x8bbfac), vortex.ActivePreInstruction,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbfac), vortex.ActivePreInstruction,
             "destruction vortex no-op callback override");
 
         AssertEqual((byte)0xa9, retail.ReadCartridgeByte(0x8bc292), "stationary vortex parameter opcode");
-        AssertEqual((ushort)0, ReadWord(retail, 0x8bc293), "stationary vortex parameter zero");
+        AssertEqual((ushort)0, CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bc293), "stationary vortex parameter zero");
         AssertEqual((byte)0x60, retail.ReadCartridgeByte(0x8b0000 | vortex.ActivePreInstruction), "stationary vortex RTS");
         AssertEqual(0, vortex.HorizontalDelta, "stationary vortex has no displacement");
         AssertEqual(false, vortex.WrapX, "stationary vortex has no wrap operation");
@@ -50,9 +51,9 @@ internal static partial class Program
             // The asteroid initializers keep the definition's pre-instruction; only the
             // vortex's parameter-zero initializer replaces it with the no-op override.
             if (preservesDefinitionCallback)
-                AssertEqual(ReadWord(source, address + 2), actor.ActivePreInstruction,
+                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), actor.ActivePreInstruction,
                     $"{name} initializer preserves definition pre-instruction");
-            AssertEqual(ReadWord(source, address + 4), actor.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), actor.InstructionList,
                 $"{name} instruction list");
         }
 
@@ -62,18 +63,15 @@ internal static partial class Program
             WrappedActorRomFields fields,
             string name)
         {
-            AssertEqual(ReadWord(source, fields.XWord), actor.Position.X, $"{name} X");
-            AssertEqual(ReadWord(source, fields.YWord), actor.Position.Y, $"{name} Y");
-            AssertEqual(ReadWord(source, fields.AttributeWord), actor.Attributes,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.XWord), actor.Position.X, $"{name} X");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.YWord), actor.Position.Y, $"{name} Y");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.AttributeWord), actor.Attributes,
                 $"{name} attributes");
-            AssertEqual(ReadWord(source, fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord(fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
                 $"{name} speed");
-            AssertEqual((ushort)0x01ff, ReadWord(source, fields.MaskWord), $"{name} wrap mask");
+            AssertEqual((ushort)0x01ff, CartridgeImportSource.Require(source).ReadCartridgeWord(fields.MaskWord), $"{name} wrap mask");
             AssertTrue(actor.WrapX, $"{name} uses 512-pixel wrapping motion");
         }
-
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 
 }

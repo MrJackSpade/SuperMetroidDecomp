@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,14 +10,12 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
-        ushort Word(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (ushort index = 0; index < 4; index++)
         {
-            AssertEqual(Word(0x86dcb9 + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)),
                 SporeSpawnProjectileDefinitions.StalkYOffset(index),
                 $"Spore Spawn stalk Y {index}");
-            AssertEqual(Word(0x86dce6 + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)),
                 SporeSpawnProjectileDefinitions.SpawnerX(index),
                 $"Spore Spawn emitter X {index}");
         }
@@ -49,14 +48,14 @@ internal static partial class Program
             spawnStalk(body, index);
             RoomEnemyProjectileSlot stalk = enemies.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(body.Position.X.Whole, stalk.Position.X.Whole, $"Spore Spawn production stalk X {index}");
-            AssertEqual(unchecked((ushort)(body.Position.Y.Whole + Word(0x86dcb9 + index * 2))),
+            AssertEqual(unchecked((ushort)(body.Position.Y.Whole + CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)))),
                 stalk.Position.Y.Whole, $"Spore Spawn production stalk Y {index}");
 
             foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
                 projectile.Clear();
             spawnSpawner(body, index);
             RoomEnemyProjectileSlot spawner = enemies.EnemyProjectiles.Single(p => p.IsActive);
-            AssertEqual(Word(0x86dce6 + index * 2), spawner.Position.X.Whole,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)), spawner.Position.X.Whole,
                 $"Spore Spawn production emitter X {index}");
             AssertEqual((ushort)520, spawner.Position.Y.Whole,
                 $"Spore Spawn production emitter Y {index}");

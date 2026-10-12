@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,14 +8,12 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled quadratic enemy speeds")]
     private static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int offset) => (ushort)(rom.ReadCartridgeByte(0xa0838f + offset) | rom.ReadCartridgeByte(0xa08390 + offset) << 8);
-        ushort ProjectileWord(int offset) => (ushort)(rom.ReadCartridgeByte(0xa0cbc7 + offset) | rom.ReadCartridgeByte(0xa0cbc8 + offset) << 8);
         for (int offset = 0; offset <= 758; offset++)
-            AssertEqual(ProjectileWord(offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic projectile table mirror");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic projectile table mirror");
         for (int offset = 0; offset <= 758; offset++)
-            AssertEqual(Word(offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic native word window");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic native word window");
         for (int offset = 0; offset <= 756; offset++)
-            AssertEqual((unchecked((short)Word(offset + 2)) << 16) | Word(offset),
+            AssertEqual((unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2))) << 16) | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset),
                 EnemyQuadraticSpeedDefinitions.ReadDisplacement(offset), "quadratic native displacement window");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(-1), "quadratic negative offset");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(759), "quadratic partial word");
@@ -30,19 +29,19 @@ internal static partial class Program
         foreach (bool negative in new[] { false, true })
         {
             int offset = index * 8 + (negative ? 4 : 0);
-            uint expected = unchecked(origin + ((uint)ProjectileWord(offset + 2) << 16 | ProjectileWord(offset)));
+            uint expected = unchecked(origin + ((uint)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)) << 16 | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset)));
             rock.Position = rock.Position.WithY(new((ushort)(origin >> 16), unchecked((ushort)origin)));
             rock.Variable1 = 0xdead;
             addRock(rock, index, negative);
             AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
-            AssertEqual(ProjectileWord(offset + 2), rock.Variable1, "Polyp final native scratch whole word");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), rock.Variable1, "Polyp final native scratch whole word");
         }
         AssertThrows<InvalidDataException>(() => addRock(rock, 95, false), "Polyp invalid speed remains loud");
         for (ushort index = 0; index < 95; index++)
         foreach (bool negative in new[] { false, true })
         {
             int offset = index * 8 + (negative ? 4 : 0);
-            AssertEqual((unchecked((short)Word(offset + 2)) << 16) | Word(offset), shared(index, negative),
+            AssertEqual((unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2))) << 16) | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset), shared(index, negative),
                 "quadratic shared production reader");
         }
         var beetom = Method<Func<ushort, ushort, ushort>>("CalculateInitialBeetomYSpeedIndex");
@@ -54,7 +53,7 @@ internal static partial class Program
             ushort accumulated = 0;
             for (int index = delta; index < 95; index += delta)
             {
-                accumulated = unchecked((ushort)(accumulated + Word(index * 8 + 1)));
+                accumulated = unchecked((ushort)(accumulated + CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (index * 8 + 1))));
                 if (unchecked((short)(accumulated - height)) < 0)
                     continue;
                 AssertEqual(index, beetom((ushort)height, delta), "Beetom native odd-word hop integration");
@@ -71,7 +70,7 @@ internal static partial class Program
         for (int index = 0; index < 95; index++)
         for (int low = 0; low < 256; low++)
         foreach (bool negative in new[] { false, true })
-            AssertEqual(Word(index * 8 + (negative ? 5 : 1)), wings((ushort)(index * 256 + low), negative),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (index * 8 + (negative ? 5 : 1))), wings((ushort)(index * 256 + low), negative),
                 "KiHunter high-byte index and odd-word angle delta");
 
         var addMaw = Method<Action<YappingMawEnemyState>>("AddYappingMawQuadraticSpeed");
@@ -82,7 +81,7 @@ internal static partial class Program
             maw.ExtensionWhole = (ushort)(start >> 16);
             maw.ExtensionFraction = unchecked((ushort)start);
             maw.QuadraticSpeedByteOffset = (ushort)offset;
-            uint expected = unchecked(start + ((uint)Word(offset + 2) << 16 | Word(offset)));
+            uint expected = unchecked(start + ((uint)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)) << 16 | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset)));
             addMaw(maw);
             AssertEqual(expected, ((uint)maw.ExtensionWhole << 16) | maw.ExtensionFraction, "Yapping Maw real split-word integration");
             AssertEqual(offset + 8, maw.QuadraticSpeedByteOffset, "Yapping Maw byte offset advance");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -6,18 +7,17 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley getaway")]
     private static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (ushort offset = 0; offset <= 224; offset += 2)
         {
             var frame = CeresRidleyGetawayDefinitions.FromByteIndex(offset);
-            AssertEqual(Word(0xa6ae4d + offset), frame.Zoom, "Ceres getaway exact native zoom");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6ae4d + offset)), frame.Zoom, "Ceres getaway exact native zoom");
             if (offset == 224)
             {
                 AssertEqual(CeresRidleyGetawayDefinitions.Finished, frame.Zoom, "Ceres getaway terminator");
                 continue;
             }
-            AssertEqual(unchecked((short)Word(0xa6af2f + offset)), frame.Velocity.Y, "Ceres getaway exact native Y increment");
-            AssertEqual(unchecked((short)Word(0xa6b00f + offset)), frame.Velocity.X, "Ceres getaway exact native X subtraction");
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), frame.Velocity.Y, "Ceres getaway exact native Y increment");
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), frame.Velocity.X, "Ceres getaway exact native X subtraction");
         }
         foreach (ushort invalid in new ushort[] { 1, 223, 225, 226, 65535 })
             AssertThrows<InvalidDataException>(() => CeresRidleyGetawayDefinitions.FromByteIndex(invalid), "Ceres invalid curve index");
@@ -43,11 +43,9 @@ internal static partial class Program
             {
                 AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor),
                     "Ceres Mode 7 native transfer control");
-                int source = rom.ReadCartridgeByte(cursor + 1) |
-                    rom.ReadCartridgeByte(cursor + 2) << 8 |
-                    rom.ReadCartridgeByte(cursor + 3) << 16;
-                ushort size = (ushort)(rom.ReadCartridgeByte(cursor + 4) | rom.ReadCartridgeByte(cursor + 5) << 8);
-                ushort destination = (ushort)(rom.ReadCartridgeByte(cursor + 6) | rom.ReadCartridgeByte(cursor + 7) << 8);
+                int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(cursor + 1));
+                ushort size = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4);
+                ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 6);
                 AssertEqual((byte)0, rom.ReadCartridgeByte(cursor + 8),
                     "Ceres Mode 7 native VRAM increment mode");
                 AssertEqual(size, transfer.TileNumbers.Length,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -13,17 +14,14 @@ internal static partial class Program
         const int explosionYAddress = 0x86a865;
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
         for (ushort index = 0; index < 11; index++)
         {
             Offset16<RoomPixels> definition =
                 BombTorizoAttackDefinitions.Swipe(unchecked((ushort)(index * 2)));
-            AssertEqual(unchecked((short)ReadWord(rom, swipeXAddress + index * 2)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((swipeXAddress + index * 2))),
                 definition.X,
                 $"Bomb Torizo swipe {index} X offset");
-            AssertEqual(unchecked((short)ReadWord(rom, swipeYAddress + index * 2)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((swipeYAddress + index * 2))),
                 definition.Y,
                 $"Bomb Torizo swipe {index} Y offset");
             AssertEqual(definition,
@@ -35,10 +33,10 @@ internal static partial class Program
         {
             Offset16<RoomPixels> definition =
                 BombTorizoAttackDefinitions.RawExplosionRow(index);
-            AssertEqual(unchecked((short)ReadWord(rom, explosionXAddress + index * 2)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionXAddress + index * 2))),
                 definition.X,
                 $"Bomb Torizo explosion {index} X offset");
-            AssertEqual(unchecked((short)ReadWord(rom, explosionYAddress + index * 2)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionYAddress + index * 2))),
                 definition.Y,
                 $"Bomb Torizo explosion {index} Y offset");
         }

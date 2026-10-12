@@ -16,7 +16,7 @@ internal static partial class Program
     private static ushort ReadRetailHudDigitTile(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int digit)
     {
         int address = 0x809dbf + digit * 2;
-        return (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+        return bus.ReadCartridgeWord(address);
     }
 
     /// <summary>The native empty AUTO reserve-indicator tilemap word at byte <paramref name="offset"/> from $80:9997.</summary>
@@ -24,7 +24,7 @@ internal static partial class Program
     private static ushort ReadRetailEmptyAutoReserveTile(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int offset)
     {
         int address = 0x809997 + offset;
-        return (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+        return bus.ReadCartridgeWord(address);
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]

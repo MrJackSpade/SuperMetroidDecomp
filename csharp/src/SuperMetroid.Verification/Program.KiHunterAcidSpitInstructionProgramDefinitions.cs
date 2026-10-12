@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -25,7 +26,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 KiHunterAcidSpitInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadKiHunterAcidSpitInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"KiHunter acid-spit mechanics word $86:{definition.Address:X4}");
         }
 
@@ -98,7 +99,7 @@ internal static partial class Program
                 .PresentationWordAddress(index);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
                 $"KiHunter acid presentation $86:{address:X4} has an installed selector");
-            AssertEqual(ReadKiHunterAcidSpitInstructionWord(rom, address), selector,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address), selector,
                 $"installed KiHunter acid selector $86:{address:X4} matches the cartridge");
         }
 
@@ -160,7 +161,7 @@ internal static partial class Program
                     expected.BeginFrame();
                     actual.BeginFrame();
                     DrawImportedEnemyProjectileSpritemap(rom, expected,
-                        ReadKiHunterAcidSpitInstructionWord(rom, operand), new(128, 112), 0, true);
+                        CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | operand), new(128, 112), 0, true);
                     actual.AddEnemySpritemap(spriteArtwork.GetProgramFrame(operand).Span,
                         new Position16<OamPixels>(128, 112), 0, 0, clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
@@ -184,16 +185,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ki Hunter acid spit instruction words")]
-    private static ushort ReadKiHunterAcidSpitInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewKiHunterAcidSpitInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -28,8 +28,7 @@ internal static partial class Program
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
             {
                 int wordAddress = address + index * sizeof(ushort);
-                ushort native = unchecked((ushort)(rom.ReadCartridgeByte(wordAddress) |
-                    rom.ReadCartridgeByte(wordAddress + 1) << 8));
+                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(wordAddress);
                 AssertEqual(native, catalog.Resolve(variant, index),
                     $"native {variant} color {index}");
             }

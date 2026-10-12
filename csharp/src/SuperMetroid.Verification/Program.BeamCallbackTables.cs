@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -17,7 +18,7 @@ internal static partial class Program
             for (int combination = 0; combination < Enum.GetValues<SamusBeamCombination>().Length; combination++)
             {
                 AssertEqual(
-                    ReadBeamCallbackWord(retail, table + combination * sizeof(ushort)),
+                    CartridgeImportSource.Require(retail).ReadCartridgeWord((table + combination * sizeof(ushort))),
                     SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(combination)).NativePointer,
                     $"charged={charged} callback {combination:X1} matches cartridge");
 
@@ -77,8 +78,4 @@ internal static partial class Program
         Console.WriteLine(
             "Beam callback definitions: all 32 low-nibble words and 24 production firing paths pass with both source ranges forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for beam callback table words")]
-    private static ushort ReadBeamCallbackWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

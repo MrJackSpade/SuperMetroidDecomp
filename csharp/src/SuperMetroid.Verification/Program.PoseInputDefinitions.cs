@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -7,7 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose input definitions")]
     private static void VerifyPoseInputDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
         var forbidden = NewSlopeHeightNoReadBus();
         int comparisons = 0;
         var unique = new HashSet<ushort>();
@@ -15,12 +15,12 @@ internal static partial class Program
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         {
             SamusPoseId pose = (SamusPoseId)poseIndex;
-            ushort pointer = Word(SamusMovementRomData.Poses.TransitionListPointers + (int)pose * 2);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementRomData.Poses.TransitionListPointers + (int)pose * 2));
             var native = new List<(ushort New, ushort Held, ushort Target)>();
-            for (int address = 0x910000 | pointer; Word(address) != ushort.MaxValue; address += 6)
+            for (int address = 0x910000 | pointer; CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
             {
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
-                native.Add((Word(address), Word(address + 2), Word(address + 4)));
+                native.Add((CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
             }
             AssertTrue(SamusPoseInputDefinitions.TryGetPointer(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
             AssertEqual(pointer, (ushort)actualPointer, "Native transition-list diagnostic identity");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,26 +15,23 @@ internal static partial class Program
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
         for (ushort direction = 0; direction < 8; direction++)
         {
             YardDirectionDefinition definition =
                 YardDirectionDefinitions.ForDirection(direction);
             int record = directionAddress + direction * 8;
-            AssertEqual(ReadWord(rom, record), definition.CrawlingInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), definition.CrawlingInstructionList,
                 $"Yard direction {direction} crawling list");
-            AssertEqual(ReadWord(rom, record + 2), definition.PropertyBits,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), definition.PropertyBits,
                 $"Yard direction {direction} property bits");
-            AssertEqual(ReadWord(rom, record + 4), definition.HidingInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), definition.HidingInstructionList,
                 $"Yard direction {direction} hiding list");
-            AssertEqual(ReadWord(rom, record + 6), definition.AirborneFacingDirection,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection,
                 $"Yard direction {direction} airborne facing");
-            AssertEqual(ReadWord(rom, oppositeAddress + direction * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((oppositeAddress + direction * 2)),
                 definition.OppositeDirection,
                 $"Yard direction {direction} opposite");
-            AssertEqual(ReadWord(rom, movementAddress + direction * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((movementAddress + direction * 2)),
                 (ushort)definition.MovementFunction,
                 $"Yard direction {direction} movement function");
         }
@@ -43,10 +41,10 @@ internal static partial class Program
         {
             YardAirborneInstructionDefinition definition =
                 YardDirectionDefinitions.ForAirborneFacing(facing);
-            AssertEqual(ReadWord(rom, source + facing * 4),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + facing * 4)),
                 definition.VisibleInstructionList,
                 $"Yard airborne ${source:X6} facing {facing} visible list");
-            AssertEqual(ReadWord(rom, source + facing * 4 + 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + facing * 4 + 2)),
                 definition.HidingInstructionList,
                 $"Yard airborne ${source:X6} facing {facing} hiding list");
         }

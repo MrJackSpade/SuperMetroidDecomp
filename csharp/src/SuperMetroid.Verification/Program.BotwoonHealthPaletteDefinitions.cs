@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,16 +10,12 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palette definitions")]
     private static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-            bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
         for (ushort phase = 0;
              phase < BotwoonHealthPaletteDefinitions.CompletePhaseByteOffset;
              phase += 2)
         {
-            ushort threshold = ReadWord(
-                rom,
-                BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase);
+            ushort threshold = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase));
             for (int health = 0; health <= ushort.MaxValue; health++)
             {
                 bool expected = unchecked((short)((ushort)health - threshold)) < 0;
@@ -58,9 +55,7 @@ internal static partial class Program
              phase < BotwoonHealthPaletteDefinitions.CompletePhaseByteOffset;
              phase += 2)
         {
-            ushort threshold = ReadWord(
-                rom,
-                BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase);
+            ushort threshold = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase));
             state.PalettePhaseByteOffset = phase;
             head.Health = threshold;
             update(head, state);

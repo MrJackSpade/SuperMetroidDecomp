@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -73,7 +74,7 @@ internal static partial class Program
     private static void VerifyFirefleaFlashingAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort i = 0; i < 12; i++)
-            AssertEqual(ReadFirefleaWord(rom, FirefleaFxDefinitions.FlashReferenceAddress + 2 * i),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i)),
                 FirefleaFxDefinitions.FlashingShade(i), $"Original Fireflea flash {i}");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(12), "Flash upper bound");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
@@ -82,16 +83,12 @@ internal static partial class Program
     private static void VerifyFirefleaDarknessAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 12; offset += 2)
-            AssertEqual(ReadFirefleaWord(rom, FirefleaFxDefinitions.DarknessReferenceAddress + offset),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + offset)),
                 FirefleaFxDefinitions.DarknessShade(offset), $"Original Fireflea darkness including opcode alias {offset}");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(1), "Darkness odd offset");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(14), "Darkness upper bound");
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Fireflea words")]
-    private static ushort ReadFirefleaWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static void VerifyFirefleaXrayCapture()
     {

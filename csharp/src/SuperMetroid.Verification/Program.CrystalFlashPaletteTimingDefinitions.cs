@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -13,8 +14,7 @@ internal static partial class Program
         {
             int address = CrystalFlashPaletteTimingDefinitions.NativeFirstTimerAddress +
                 record * CrystalFlashPaletteTimingDefinitions.RecordByteCount;
-            ushort nativeDuration = unchecked((ushort)(
-                rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+            ushort nativeDuration = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             ushort byteOffset = unchecked((ushort)(
                 record * CrystalFlashPaletteTimingDefinitions.RecordByteCount));
             AssertEqual(nativeDuration,

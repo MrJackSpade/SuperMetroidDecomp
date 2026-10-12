@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -11,7 +12,7 @@ internal static partial class Program
         for (int index = 0; index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
             int operand = 0xa40000 | CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            ushort pointer = (ushort)(rom.ReadCartridgeByte(operand) | rom.ReadCartridgeByte(operand + 1) << 8);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
             if (pointer >= 0xe1fe) selected.Add(pointer);
         }
         var expected = selected.Select(pointer => new EnemyExtendedFrameDefinition(0xa4, pointer,
@@ -24,7 +25,7 @@ internal static partial class Program
             AssertEqual(expected[index], CrocomireSkeletonVisualDefinitions.Frame(index), "native skeleton identity and name");
             AssertEqual(expected[index], CrocomireSkeletonVisualDefinitions.Frames[index], "skeleton indexed sequence");
             int address = 0xa40000 | expected[index].Pointer;
-            int count = rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8;
+            int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(index < 13 ? 5 : index < 21 ? collapseCounts[index - 13] : 1,
                 count, "native skeleton component count");
             if (index + 1 < expected.Length)

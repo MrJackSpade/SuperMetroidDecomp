@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -20,7 +21,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 PolypInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadPolypInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | definition.Address),
                 $"Polyp mechanics word $A2:{definition.Address:X4}");
         }
 
@@ -46,15 +47,14 @@ internal static partial class Program
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         slot.InstructionTimer = 1;
         process.Invoke(enemies, processArguments);
-        AssertEqual(ReadPolypInstructionWord(rom,
-                PolypInstructionProgramDefinitions.PresentationWord), slot.SpritemapPointer,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | PolypInstructionProgramDefinitions.PresentationWord), slot.SpritemapPointer,
             "Polyp selects its exact native frame without cartridge reads");
         slot.InstructionTimer = 1;
         process.Invoke(enemies, processArguments);
         AssertEqual(unchecked((ushort)(PolypInstructionProgramDefinitions.Stationary + 4)),
             slot.CurrentInstruction,
             "Polyp program reaches terminal sleep");
-        AssertEqual(ReadPolypInstructionWord(rom, PolypInstructionProgramDefinitions.PresentationWord),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | PolypInstructionProgramDefinitions.PresentationWord),
             slot.SpritemapPointer, "Actual Polyp stationary sprite matches the native operand");
         AssertEqual(slot.SpritemapPointer,
             PolypInstructionProgramDefinitions.FrameAt(PolypInstructionProgramDefinitions.PresentationWord),
@@ -93,14 +93,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp instruction words")]
-    private static ushort ReadPolypInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa20000 | address) |
-            source.ReadCartridgeByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewPolypInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

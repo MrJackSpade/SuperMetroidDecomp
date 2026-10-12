@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,7 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Bull movement")]
     private static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBull", BindingFlags.Instance | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
@@ -19,10 +19,10 @@ internal static partial class Program
             slot.Parameter2 = speed;
             initialize(slot); // No loaded cartridge bus; exercises the real initializer.
             var state = enemies.BullStates[0]!;
-            AssertEqual(Word(0xa8d895 + interval * 4), state.AccelerationIntervalTimerReset, "Bull compiled acceleration");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d895 + interval * 4)), state.AccelerationIntervalTimerReset, "Bull compiled acceleration");
             AssertEqual(state.AccelerationIntervalTimerReset, state.AccelerationIntervalTimer, "Bull live timer initialization");
-            AssertEqual(Word(0xa8d897 + interval * 4), state.DecelerationIntervalTimerReset, "Bull compiled deceleration");
-            AssertEqual(Word(0xa8d885 + speed * 2), state.MaxSpeed, "Bull compiled speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d897 + interval * 4)), state.DecelerationIntervalTimerReset, "Bull compiled deceleration");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8d885 + speed * 2)), state.MaxSpeed, "Bull compiled speed");
             AssertEqual(BullEnemyFunction.MovementDelay, state.Function, "Bull initial function");
             AssertEqual(16, state.ActivationTimer, "Bull native activation delay");
             AssertEqual(1, slot.InstructionTimer, "Bull instruction timer");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Frontend;
@@ -78,7 +79,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is >= ListStart and < (ListEnd - 1) or >= HeaderStart and < (HeaderEnd - 1))
-            return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+            return SnesLittleEndian.Word(ReadByte(pointer), ReadByte((ushort)(pointer + 1)));
         throw new InvalidDataException(
             $"SR388 discovery demo word $91:{pointer:X4} leaves its compiled program.");
     }

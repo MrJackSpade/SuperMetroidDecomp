@@ -58,7 +58,7 @@ internal static partial class Program
             {
                 int offset = index is >= 49 and <= 62 ? index - 49 : 14 + index - 81;
                 ushort expected = IsBlackoutColor(index)
-                    ? (ushort)(bus.ReadCartridgeByte(0xadf3d3 - frame * 0x38 + offset * 2) | bus.ReadCartridgeByte(0xadf3d3 - frame * 0x38 + offset * 2 + 1) << 8)
+                    ? bus.ReadCartridgeWord(0xadf3d3 - frame * 0x38 + offset * 2)
                     : (ushort)(index + 1);
                 AssertEqual(expected, cgram.Colors[index], $"Recovery row {frame} restores exact cartridge colors and preserves other palettes: {index}");
             }

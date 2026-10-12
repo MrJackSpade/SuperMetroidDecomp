@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -27,13 +28,12 @@ internal static class MotherBrainHealthPaletteExtractor
             for (int state = 0; state < states.Length; state++)
             {
                 int pointer = table + state * sizeof(ushort);
-                int source = MotherBrainRainbowPaletteRomData.SourceBank |
-                    bus.ReadCartridgeByte(pointer) | bus.ReadCartridgeByte(pointer + 1) << 8;
+                int source = (MotherBrainRainbowPaletteRomData.SourceBank|CartridgeImportSource.Require(bus).ReadCartridgeWord(pointer));
                 states[state] = new PaletteRgb5[MotherBrainRainbowPaletteRomData.ColorCount];
                 for (int color = 0; color < states[state].Length; color++)
                 {
                     int address = source + color * sizeof(ushort);
-                    ushort word = (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+                    ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                     states[state][color] = new PaletteRgb5
                     {
                         Red = word & 31,

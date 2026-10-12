@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -37,9 +38,7 @@ internal static partial class Program
             for (int index = 0; index < 4; index++)
             {
                 var selector = (PipeBugAnimationSelector)index;
-                ushort expected = ReadPipeBugAnimationWord(
-                    rom,
-                    (strong ? strongTable : normalTable) + index * 2);
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
                 AssertEqual(expected,
                     PipeBugDefinitions.BrinstarInstructionList(strong, selector),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
@@ -81,12 +80,6 @@ internal static partial class Program
         Console.WriteLine(
             "Pipe Bug animation definitions: eight native selectors and all eight production handoffs pass with both pointer tables forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Pipe Bug animation words")]
-    private static ushort ReadPipeBugAnimationWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewPipeBugAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xb3882b and < 0xb3883b,

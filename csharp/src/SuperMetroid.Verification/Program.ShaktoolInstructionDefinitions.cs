@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,18 +9,16 @@ internal static partial class Program
     private static void VerifyShaktoolInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        ushort Word(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
-            AssertEqual(Word(0xaadd15 + (bucket >> 5) * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadd15 + (bucket >> 5) * 2)),
                 ShaktoolInstructionDefinitions.ForOrientationBucket(bucket),
                 $"Shaktool orientation list {bucket:X2}");
         }
         for (int index = 0; index < 7; index++)
         {
-            AssertEqual(Word(0xaadf13 + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadf13 + index * 2)),
                 ShaktoolInstructionDefinitions.CollisionForSegment(index),
                 $"Shaktool collision list {index}");
         }
@@ -94,7 +93,7 @@ internal static partial class Program
                 ShaktoolInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadShaktoolInstructionWord(rom, 0xaa0000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaa0000 | definition.Address)),
                 $"Shaktool instruction mechanics word $AA:{definition.Address:X4}");
         }
 
@@ -195,12 +194,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool instruction words")]
-    private static ushort ReadShaktoolInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static RoomEnemySystem CreateCompiledShaktoolGroup(
         ISnesAddressSpace rom,

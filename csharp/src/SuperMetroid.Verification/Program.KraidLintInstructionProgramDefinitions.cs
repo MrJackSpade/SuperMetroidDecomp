@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -53,7 +54,7 @@ internal static partial class Program
                     $"Kraid lint ${(int)definition:X4}/${program:X4} installs native duration");
                 AssertEqual(unchecked((ushort)(program + 4)), lint.CurrentInstruction,
                     $"Kraid lint ${(int)definition:X4}/${program:X4} advances to sleep");
-                AssertEqual(ReadKraidLintInstructionWord(rom, 0xa70000 | program + 2),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | program + 2)),
                     lint.SpritemapPointer,
                     $"Kraid lint ${(int)definition:X4}/${program:X4} keeps native spritemap");
             }
@@ -105,12 +106,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid lint instruction words")]
-    private static ushort ReadKraidLintInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewKraidLintInstructionGuard(ISnesAddressSpace source)
     {

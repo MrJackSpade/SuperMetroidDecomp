@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -24,11 +25,11 @@ internal static partial class Program
                 DeadTourianCorpseDefinition definition =
                     DeadTourianCorpseDefinitions.For(family.Species, variantIndex);
                 AssertEqual(
-                    ReadDeadTourianCorpseWord(rom, family.InstructionTable + variantIndex * 2),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((family.InstructionTable + variantIndex * 2)),
                     definition.InitialInstructionPointer,
                     $"dead {family.Species} variant {variantIndex} instruction selector");
                 AssertEqual(
-                    ReadDeadTourianCorpseWord(rom, family.ConfigurationTable + variantIndex * 2),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((family.ConfigurationTable + variantIndex * 2)),
                     definition.ConfigurationPointer,
                     $"dead {family.Species} variant {variantIndex} configuration selector");
                 VerifyDeadTourianCorpseConfiguration(
@@ -58,7 +59,7 @@ internal static partial class Program
         int address = 0xa90000 | definition.ConfigurationPointer;
         ushort[] expected = new ushort[8];
         for (int index = 0; index < expected.Length; index++)
-            expected[index] = ReadDeadTourianCorpseWord(rom, address + index * 2);
+            expected[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + index * 2));
         // Word five is the graphics-initialization routine, which production never calls.
         expected = [.. expected[..5], .. expected[6..]];
         ushort[] actual =
@@ -74,9 +75,7 @@ internal static partial class Program
         AssertTrue(actual.AsSpan().SequenceEqual(expected),
             $"dead {species} variant {variantIndex} configuration words");
 
-        ushort secondRotationOffset = ReadDeadTourianCorpseWord(
-            rom,
-            0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2)));
+        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             $"dead {species} variant {variantIndex} wrap offset");
     }
@@ -131,12 +130,6 @@ internal static partial class Program
         AssertEqual(expected.WrapOffset, state.WrapOffset,
             $"dead {species} variant {variantIndex} wrap offset");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Tourian corpse words")]
-    private static ushort ReadDeadTourianCorpseWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewDeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,7 +10,7 @@ internal static partial class Program
         for (int index = 0; index < 4; index++)
         {
             var selector = (ZoaAnimationSelector)index;
-            AssertEqual(ReadZoaAnimationWord(rom, ZoaAnimationDefinitions.ReferenceAddress + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitions.ReferenceAddress + index * 2)),
                 ZoaAnimationDefinitions.InstructionList(selector),
                 $"Zoa animation selector {selector}");
         }
@@ -119,10 +120,6 @@ internal static partial class Program
         AssertEqual(1, slot.InstructionTimer, $"{context} instruction timer");
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Zoa animation words")]
-    private static ushort ReadZoaAnimationWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewZoaAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3b40d and < 0xa3b415,

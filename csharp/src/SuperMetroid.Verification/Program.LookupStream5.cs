@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -861,9 +862,9 @@ internal static partial class Program
             {
                 int source = 0x8c0000 | definition.Pointer + 2 + index * 5;
                 CompiledSpritePart actual = calculated.Part(index);
-                AssertEqual(Word(source), actual.X.Raw, "Native star X/size");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), actual.X.Raw, "Native star X/size");
                 AssertEqual(rom.ReadCartridgeByte(source + 2), actual.Y, "Native star Y");
-                AssertEqual((ushort)(Word(source + 3) & ~0x0e00), actual.Attributes.Raw,
+                AssertEqual((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 3)) & ~0x0e00), actual.Attributes.Raw,
                     "Native star attributes excluding replaced source palette");
                 for (int field = 0; field < 9; field++)
                 {
@@ -891,7 +892,6 @@ internal static partial class Program
         }
         AssertEqual(29, total, "All four native star sheets checked");
         Console.WriteLine("Zebes stars:29 native parts,261 independent field edits, actual ordered OAM and full content identity pass; only decorative position/glyph triples are retained.");
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         static CeresDestructionSpritePresentation Load(CeresDestructionSpriteDocument value)
         {
             using var json = new MemoryStream();
@@ -1141,7 +1141,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Yapping Maw offsets")]
     private static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
         var begin = typeof(RoomEnemySystem).GetMethod("BeginYappingMawExtension", flags)!
             .CreateDelegate<Action<RoomEnemySlot,YappingMawEnemyState>>();
@@ -1152,8 +1151,8 @@ internal static partial class Program
         for (int direction = 0; direction < 8; direction++)
         {
             var offset = YappingMawRomData.HeldSamusOffset(direction);
-            AssertEqual(Word(0xa8a0a7 + direction * 4), unchecked((ushort)offset.X), "Native held X");
-            AssertEqual(Word(0xa8a0a9 + direction * 4), unchecked((ushort)offset.Y), "Native held Y");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)offset.X), "Native held X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)offset.Y), "Native held Y");
             set(state, direction);
             Check(direction, "Actual held-offset callback");
         }
@@ -1172,8 +1171,8 @@ internal static partial class Program
 
         void Check(int direction, string context)
         {
-            AssertEqual(Word(0xa8a0a7 + direction * 4), unchecked((ushort)state.HeldSamusOffset.X), context);
-            AssertEqual(Word(0xa8a0a9 + direction * 4), unchecked((ushort)state.HeldSamusOffset.Y), context);
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a7 + direction * 4)), unchecked((ushort)state.HeldSamusOffset.X), context);
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa8a0a9 + direction * 4)), unchecked((ushort)state.HeldSamusOffset.Y), context);
         }
     }
 
@@ -1399,14 +1398,13 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon rain")]
     private static void VerifyLookupStream5PhantoonRain(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int i = 0; i < 8; i++)
         {
             var placement = PhantoonPatternDefinitions.RainPlacement(i);
-            AssertEqual(Word(0xa7cdad + i * 8), placement.Cursor, "Native rain figure-eight cursor");
-            AssertEqual(Word(0xa7cdaf + i * 8), placement.X, "Native rain body X");
-            AssertEqual(Word(0xa7cdb1 + i * 8), placement.Y, "Native rain body Y");
-            AssertEqual((ushort)0, Word(0xa7cdb3 + i * 8), "Native unused rain record word");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.Cursor, "Native rain figure-eight cursor");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.X, "Native rain body X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.Y, "Native rain body Y");
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -1427,9 +1425,9 @@ internal static partial class Program
             body.VariableE = 1;
             eye.VariableC = 123;
             rainMethod.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(enemies)(body, state);
-            AssertEqual(Word(0xa7cdad + pattern * 8), body.VariableA, "Real rain cursor handoff");
-            AssertEqual(Word(0xa7cdaf + pattern * 8), body.Position.X.Whole, "Real rain body placement X");
-            AssertEqual(Word(0xa7cdb1 + pattern * 8), body.Position.Y.Whole, "Real rain body placement Y");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), body.VariableA, "Real rain cursor handoff");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual((ushort)0, eye.VariableC, "Real rain direction reset");
             AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain, body.VariableF, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
@@ -1452,7 +1450,7 @@ internal static partial class Program
         ];
         for (ushort direction = 0; direction < 9; direction++)
         {
-            AssertEqual(Word(0xa7d40d + direction * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7d40d + direction * 2)),
                 PhantoonPatternDefinitions.EyeInstruction(direction),
                 $"native Phantoon eye direction {direction}");
         }
@@ -1824,7 +1822,7 @@ internal static partial class Program
             door.Position = door.Position.WithWholeX(x); enemies.EarthquakeTimer = phase;
             var actual = new OamBuffer(); actual.BeginFrame();
             enemies.DrawCeresRidleyImmediateBabyAndDoor(actual, new(camera, 0)); actual.FinalizeFrame();
-            ushort native = (ushort)(rom.ReadCartridgeByte(0xa6a321 + phase) | rom.ReadCartridgeByte(0xa6a322 + phase) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase);
             AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");
             var expected = new OamBuffer(); expected.BeginFrame();

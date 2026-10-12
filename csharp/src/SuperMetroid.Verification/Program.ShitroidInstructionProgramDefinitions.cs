@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -21,7 +22,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 ShitroidInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadShitroidInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | definition.Address),
                 $"Shitroid mechanics word $A9:{definition.Address:X4}");
         }
 
@@ -30,7 +31,7 @@ internal static partial class Program
             ushort address = ShitroidInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(ShitroidVisualDefinitions.Bank, address, out ushort selector),
                 "Shitroid presentation operand has an installed visual identity");
-            AssertEqual(ReadShitroidInstructionWord(rom, address), selector,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | address), selector,
                 $"Shitroid native visual operand $A9:{address:X4}");
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -128,7 +129,7 @@ internal static partial class Program
             {
                 ushort operand = unchecked((ushort)(shitroid.CurrentInstruction - 2));
                 executedOperands.Add(operand);
-                AssertEqual(ReadShitroidInstructionWord(rom, operand), shitroid.SpritemapPointer,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | operand), shitroid.SpritemapPointer,
                     $"Shitroid executed visual operand $A9:{operand:X4} matches the cartridge");
             }
         }
@@ -146,14 +147,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Shitroid instruction words")]
-    private static ushort ReadShitroidInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa90000 | address) |
-            source.ReadCartridgeByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewShitroidInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

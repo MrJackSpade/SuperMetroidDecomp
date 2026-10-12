@@ -65,11 +65,13 @@ public static class RoomFxRomData
         /// </summary>
         public const ushort FullScreenAtmosphereTilemapBaseWord = 0x5c00;
 
-        /// <summary>Vertical coordinate mask for the liquid 32-by-64 BG3 tilemap.</summary>
-        public const int LiquidVerticalCoordinateMask = 0x01ff;
+        /// <summary>The liquid BG3 tilemap: one screen wide, two screens tall (32 by 64 characters).</summary>
+        public static Extent16<TilemapCells> LiquidTilemapSize =>
+            new(SnesPpuLayout.TilemapPageWidthInTiles, 2 * SnesPpuLayout.TilemapPageWidthInTiles);
 
-        /// <summary>Vertical coordinate mask for rain/fog's 32-by-32 BG3 tilemap.</summary>
-        public const int FullScreenAtmosphereVerticalCoordinateMask = 0x00ff;
+        /// <summary>Rain and fog's BG3 tilemap: one 32-by-32 screen.</summary>
+        public static Extent16<TilemapCells> FullScreenAtmosphereTilemapSize =>
+            new(SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles);
 
         /// <summary>
         /// First word cleared by <c>Clear_FX_Tilemap</c> at $82:E566 and

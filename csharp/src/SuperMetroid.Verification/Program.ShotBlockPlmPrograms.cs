@@ -75,9 +75,7 @@ internal static partial class Program
         {
             AssertTrue(RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out ushort value),
                 $"shot-block control word ${address:X4} is compiled");
-            ushort sourceWord = unchecked((ushort)(
-                rom.ReadCartridgeByte(0x840000 | address) |
-                (rom.ReadCartridgeByte(0x840000 | (address + 1)) << 8)));
+            ushort sourceWord = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
             AssertEqual(sourceWord, value,
                 $"shot-block control word ${address:X4} matches pinned cartridge");
             forbidden.Add(0x840000 | address);
@@ -115,8 +113,7 @@ internal static partial class Program
                 AssertEqual((run.DirectionAndCount & 0x8000) != 0, calculated.Vertical, "shot-block calculated direction");
                 int blockIndex = 0;
                 AssertEqual(run.DirectionAndCount,
-                    unchecked((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
-                        (rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
                     $"shot-block draw list ${list.Pointer:X4} direction/count");
                 forbidden.Add(0x840000 | cursor++);
                 forbidden.Add(0x840000 | cursor++);
@@ -124,8 +121,7 @@ internal static partial class Program
                 {
                     AssertEqual(word, calculated.WordAt(runIndex, blockIndex++), "shot-block direct and exported word agree");
                     AssertEqual(word,
-                        unchecked((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
-                            (rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8))),
+                        CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
                         $"shot-block draw list ${list.Pointer:X4} level word at ${cursor:X4}");
                     forbidden.Add(0x840000 | cursor++);
                     forbidden.Add(0x840000 | cursor++);

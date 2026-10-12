@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
@@ -108,7 +109,7 @@ internal static class IntroBabyDiscoveryInstructionDefinitions
     {
         if (pointer is DeletePointer or >= EggStart and < (EggEnd - 1)
             or >= BabyStart and < (BabyEnd - 1))
-            return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+            return SnesLittleEndian.Word(ReadByte(pointer), ReadByte((ushort)(pointer + 1)));
         throw new InvalidDataException(
             $"Intro baby-discovery instruction read $8B:{pointer:X4} leaves its compiled lists.");
     }

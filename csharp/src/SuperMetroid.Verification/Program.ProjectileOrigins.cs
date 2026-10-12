@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,7 +8,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile origins")]
     private static void VerifyProjectileOrigins(SuperMetroidAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         var bus = new ProjectileOriginReadGuard(rom);
         var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePosition", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusProjectileSlot>>();

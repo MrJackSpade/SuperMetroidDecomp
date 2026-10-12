@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -25,9 +26,7 @@ public static class EnemyProjectileSpritemapFiles
         foreach (EnemyProjectilePresentationFrameDefinition frame in
                  EnemyProjectilePresentationFrameDefinitions.All)
         {
-            ushort pointer = unchecked((ushort)(
-                bus.ReadCartridgeByte(CartridgeBankWindow.At(EnemyCartridgeTables.ProjectileInstructionBank, frame.OperandAddress)) |
-                bus.ReadCartridgeByte(CartridgeBankWindow.At(EnemyCartridgeTables.ProjectileInstructionBank, unchecked((ushort)(frame.OperandAddress + 1)))) << 8));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(EnemyCartridgeTables.ProjectileInstructionBank, frame.OperandAddress));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
         }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument

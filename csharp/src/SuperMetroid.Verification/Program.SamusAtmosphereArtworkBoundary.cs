@@ -5,9 +5,6 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric attribute words")]
-    private static ushort ReadRetailAtmosphericAttribute(CartridgeImportAddressSpace importBus, int source) =>
-        (ushort)(importBus.ReadCartridgeByte(source) | importBus.ReadCartridgeByte(source + 1) << 8);
 
     /// <summary>Seeds the WRAM bytes a null bank-$90 atmospheric pointer reads through its system-bank mirror.</summary>
     [CpuBusBoundary("exact bus test: seeds low WRAM that a null bank-$90 atmospheric pointer reads through the $90:0000 mirror")]
@@ -36,7 +33,7 @@ internal static partial class Program
                     ? SamusMovementRomData.Environment.TypeOneAtmosphericAttributes
                     : SamusMovementRomData.Environment.SharedAtmosphericAttributes;
                 int source = SamusMovementRomData.Banks.Movement | (list + frame * sizeof(ushort));
-                ushort expected = ReadRetailAtmosphericAttribute(importBus, source);
+                ushort expected = importBus.ReadCartridgeWord(source);
                 var effects = new SamusAtmosphericEffectsState();
                 effects.SetSlot(0, type, frame, 2, new(128, 128));
                 var oam = new OamBuffer();

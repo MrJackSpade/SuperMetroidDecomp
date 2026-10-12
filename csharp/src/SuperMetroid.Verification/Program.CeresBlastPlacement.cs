@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -15,7 +16,7 @@ internal static partial class Program
         for (int index = 0; index < count; index++)
         {
             int word = address + index * 2;
-            ushort expected = (ushort)(rom.ReadCartridgeByte(word) | rom.ReadCartridgeByte(word + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(word);
             AssertEqual(expected, actual(index), "original Ceres explosion field");
         }
         foreach (int invalid in new[] { int.MinValue, -1, count, 256, int.MaxValue })

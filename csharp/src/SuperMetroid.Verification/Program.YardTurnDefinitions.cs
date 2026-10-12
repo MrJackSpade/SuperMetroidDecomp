@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -25,20 +26,17 @@ internal static partial class Program
             (YardMovementFunction.CrawlingUpsideDownMovingLeft, true, 0xa3cd3a),
         ];
 
-        static ushort Word(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
-
         foreach ((YardMovementFunction movement, bool disabled, int address) in records)
         {
             YardTurnDefinition definition =
                 YardTurnDefinitions.ForMovement(movement, disabled);
-            AssertEqual(unchecked((short)Word(rom, address)), definition.Lookahead.X,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{disabled} lookahead X");
-            AssertEqual(unchecked((short)Word(rom, address + 2)), definition.Lookahead.Y,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
                 $"Yard turn {movement}/{disabled} lookahead Y");
-            AssertEqual(Word(rom, address + 4), definition.OutsideTurnInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), definition.OutsideTurnInstructionList,
                 $"Yard turn {movement}/{disabled} outside list");
-            AssertEqual(Word(rom, address + 6), definition.InsideTurnInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), definition.InsideTurnInstructionList,
                 $"Yard turn {movement}/{disabled} inside list");
         }
 

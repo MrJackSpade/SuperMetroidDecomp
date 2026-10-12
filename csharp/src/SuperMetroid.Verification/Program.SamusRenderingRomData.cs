@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -59,10 +60,8 @@ internal static partial class Program
         // checks the indirection used by live rendering, not only the pointer table itself.
         for (int pose = 0; pose < poseCount; pose++)
         {
-            ushort pointer = ReadRenderingWord(
-                bus,
-                SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers +
-                    pose * sizeof(ushort));
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers +
+                    pose * sizeof(ushort)));
             AssertTrue(pointer >= 0x8000,
                 $"pose ${pose:X2} graphics selector remains in bank $92 ROM");
             TouchRange(
@@ -85,8 +84,4 @@ internal static partial class Program
             $"  Samus rendering ROM data: {poseCount} pose records, three suit palettes, " +
             "body DMA definitions, and all arm-cannon directions are in range.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus rendering data words")]
-    private static ushort ReadRenderingWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

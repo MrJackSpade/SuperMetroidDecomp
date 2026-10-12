@@ -15,7 +15,7 @@ public static class TitleGradientDecoder
     {
         int pointer = TitleGradientRomData.FixedColorPointers + ((zoom & 0xf0) >> 3);
         int table = TitleGradientRomData.FixedColorBank |
-            (cartridge.ReadCartridgeByte(pointer) | cartridge.ReadCartridgeByte(pointer + 1) << 8);
+            cartridge.ReadCartridgeWord(pointer);
         byte[] fixedWrites = Expand(cartridge, table);
         byte[] control = Expand(cartridge, TitleGradientRomData.ControlTable);
         var result = new TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];

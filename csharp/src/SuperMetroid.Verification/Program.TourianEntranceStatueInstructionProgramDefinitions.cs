@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -26,7 +27,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 TourianEntranceStatueInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadTourianEntranceStatueInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xaa0000 | definition.Address),
                 $"Tourian entrance-statue mechanics word $AA:{definition.Address:X4}");
         }
 
@@ -93,14 +94,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian entrance statue instruction words")]
-    private static ushort ReadTourianEntranceStatueInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xaa0000 | address) |
-            source.ReadCartridgeByte(0xaa0000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewTourianEntranceStatueInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(TourianEntranceStatueInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,

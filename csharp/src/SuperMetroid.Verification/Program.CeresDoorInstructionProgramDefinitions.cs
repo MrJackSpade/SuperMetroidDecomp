@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -24,7 +25,7 @@ internal static partial class Program
                 CeresDoorInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadCeresDoorInstructionWord(rom, 0xa60000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | definition.Address)),
                 $"Ceres door instruction mechanics word $A6:{definition.Address:X4}");
         }
         for (int index = 0;
@@ -34,7 +35,7 @@ internal static partial class Program
             ushort address =
                 CeresDoorInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(CeresDoorInstructionProgramDefinitions.PresentationWordFrame(index),
-                ReadCeresDoorInstructionWord(rom, 0xa60000 | address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | address)),
                 $"Ceres door visual selector $A6:{address:X4}");
             AssertEqual(CeresDoorInstructionProgramDefinitions.PresentationWordFrame(index),
                 CeresDoorInstructionProgramDefinitions.ReadPresentationFrame(address),
@@ -221,12 +222,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door instruction words")]
-    private static ushort ReadCeresDoorInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCeresDoorInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

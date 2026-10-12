@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -127,7 +128,7 @@ internal static partial class Program
             {
                 int address = 0xa6fd87 + counter * 4 + color * 2;
                 cgram.SetColor(0xac + color,
-                    Bgr555.FromWord((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8)));
+                    Bgr555.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
             }
         }
 

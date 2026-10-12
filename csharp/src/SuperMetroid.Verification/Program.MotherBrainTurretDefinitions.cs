@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -23,14 +24,14 @@ internal static partial class Program
             MotherBrainTurretDefinition definition =
                 MotherBrainTurretDefinitions.ForTurret(parameter);
             int wordOffset = parameter * 2;
-            AssertEqual(ReadMotherBrainTurretWord(rom, 0x86be89 + wordOffset), definition.Position.X,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86be89 + wordOffset)), definition.Position.X,
                 $"Mother Brain turret X {parameter}");
-            AssertEqual(ReadMotherBrainTurretWord(rom, 0x86bea1 + wordOffset), definition.Position.Y,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bea1 + wordOffset)), definition.Position.Y,
                 $"Mother Brain turret Y {parameter}");
-            AssertEqual(ReadMotherBrainTurretWord(rom, 0x86bec9 + wordOffset),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bec9 + wordOffset)),
                 definition.AllowedRotationPointer,
                 $"Mother Brain turret rotation pointer {parameter}");
-            AssertEqual(ReadMotherBrainTurretWord(rom, 0x86bee1 + wordOffset),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bee1 + wordOffset)),
                 (ushort)definition.InitialDirection,
                 $"Mother Brain turret initial direction {parameter}");
 
@@ -99,22 +100,22 @@ internal static partial class Program
             MotherBrainTurretDirectionDefinition definition =
                 MotherBrainTurretDefinitions.ForDirection(typedDirection);
             int wordOffset = direction * 2;
-            AssertEqual(ReadMotherBrainTurretWord(rom, 0x86beb9 + wordOffset),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86beb9 + wordOffset)),
                 definition.InstructionPointer,
                 $"Mother Brain turret initial instruction {direction}");
-            AssertEqual(ReadMotherBrainTurretWord(rom, 0x86c040 + wordOffset),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c040 + wordOffset)),
                 definition.InstructionPointer,
                 $"Mother Brain turret runtime instruction {direction}");
-            AssertEqual(unchecked((short)ReadMotherBrainTurretWord(rom, 0x86bf9f + wordOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bf9f + wordOffset))),
                 definition.BulletOffset.X,
                 $"Mother Brain turret bullet X offset {direction}");
-            AssertEqual(unchecked((short)ReadMotherBrainTurretWord(rom, 0x86bfaf + wordOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfaf + wordOffset))),
                 definition.BulletOffset.Y,
                 $"Mother Brain turret bullet Y offset {direction}");
-            AssertEqual(unchecked((short)ReadMotherBrainTurretWord(rom, 0x86bfbf + wordOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfbf + wordOffset))),
                 definition.BulletVelocity.X.SignedRawValue,
                 $"Mother Brain turret bullet X velocity {direction}");
-            AssertEqual(unchecked((short)ReadMotherBrainTurretWord(rom, 0x86bfcf + wordOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86bfcf + wordOffset))),
                 definition.BulletVelocity.Y.SignedRawValue,
                 $"Mother Brain turret bullet Y velocity {direction}");
 
@@ -154,10 +155,6 @@ internal static partial class Program
         Console.WriteLine(
             "Mother Brain turret definitions: 12 placements, 96 rotation bytes, 16 instruction selectors, 32 bullet words, 384 rotations and all 20 real spawns pass with source tables forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret words")]
-    private static ushort ReadMotherBrainTurretWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMotherBrainTurretReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

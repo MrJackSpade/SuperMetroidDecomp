@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -798,15 +799,13 @@ internal static partial class Program
             for (int component = 0; component < components; component++)
             {
                 int record = root + 2 + component * 8;
-                ushort stream = (ushort)(catalogueSource.ReadCartridgeByte(record + 4) |
-                    catalogueSource.ReadCartridgeByte(record + 5) << 8);
+                ushort stream = CartridgeImportSource.Require(catalogueSource).ReadCartridgeWord(record + 4);
                 ushort cursor = stream;
                 for (int command = 0;
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                 {
                     int address = (bank << 16) | cursor;
-                    ushort first = (ushort)(catalogueSource.ReadCartridgeByte(address) |
-                        catalogueSource.ReadCartridgeByte(address + 1) << 8);
+                    ushort first = CartridgeImportSource.Require(catalogueSource).ReadCartridgeWord(address);
                     if (command == 0)
                     {
                         AssertEqual(EnemyBg2FrameLayout.StreamMarker, first,
@@ -820,8 +819,7 @@ internal static partial class Program
                     blockedPresentationBytes.Add(address + 1);
                     if (first == 0xffff)
                         break;
-                    int count = catalogueSource.ReadCartridgeByte(address + 2) |
-                        catalogueSource.ReadCartridgeByte(address + 3) << 8;
+                    int count = CartridgeImportSource.Require(catalogueSource).ReadCartridgeWord(address + 2);
                     for (int offset = 2; offset < 4 + count * 2; offset++)
                         blockedPresentationBytes.Add(address + offset);
                     cursor = unchecked((ushort)(cursor + 4 + count * 2));

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
@@ -265,14 +266,14 @@ private static void VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace memor
     memory.WriteByte(0x7effff, 0x34);
     memory.WriteByte(0x7e0000, 0x12);
     memory.WriteByte(0x7f0000, 0xee);
-    AssertEqual((ushort)0x1234, SnesWorkRam.ReadWord(memory, 0x7effff),
+    AssertEqual((ushort)0x1234, memory.ReadWorkRamWordFixedBank(0x7effff),
         "enemy WRAM word wraps inside its bank, not into the next bank");
     memory.WriteByte(0x800100, 0x78);
     memory.WriteByte(0x800101, 0x56);
-    AssertEqual((ushort)0x5678, SnesWorkRam.ReadWord(memory, 0x800100),
+    AssertEqual((ushort)0x5678, memory.ReadWorkRamWordFixedBank(0x800100),
         "enemy low-window WRAM alias reads physical live RAM");
     foreach (int address in new[] { 0xa08000, 0x702000, 0x804000 })
-        AssertThrows<ArgumentOutOfRangeException>(() => SnesWorkRam.ReadWord(memory, address),
+        AssertThrows<ArgumentOutOfRangeException>(() => memory.ReadWorkRamWordFixedBank(address),
             "typed enemy WRAM reader rejects ROM, SRAM and hardware windows");
 }
 
@@ -752,25 +753,18 @@ static void VerifyCeresDoorBossBranch()
     Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
 }
 
-/// <summary>The native spritemap word Ceres Ridley's left-facing initial instruction list selects at $A6:E53E.</summary>
-[CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's initial spritemap operand")]
-static ushort ReadRetailCeresRidleyInitialSpritemap(ISnesAddressSpace rom) =>
-    (ushort)(rom.ReadCartridgeByte(0xa6e53e) | rom.ReadCartridgeByte(0xa6e53f) << 8);
-
 /// <summary>Reads a native seven-byte Ceres escape VRAM transfer list (size, 24-bit source, destination) up to its zero terminator.</summary>
 [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres escape VRAM transfer lists in bank $A6")]
 static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom, int pointer)
 {
-    ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) |
-        rom.ReadCartridgeByte(address + 1) << 8);
     var records = new List<VramWriteEntry>();
     for (int record = 0; record < 32; record++, pointer += 7)
     {
-        ushort size = Word(pointer);
+        ushort size = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointer);
         if (size == 0) return records;
         records.Add(new VramWriteEntry(size,
-            Word(pointer + 2) | rom.ReadCartridgeByte(pointer + 4) << 16,
-            Word(pointer + 5)));
+            CartridgeImportSource.Require(rom).ReadCartridgeLong((pointer + 2)),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 5))));
     }
     throw new InvalidDataException("Native Ceres transfer fixture lacks a terminator.");
 }
@@ -900,7 +894,7 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
     var nativeRidleyRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
-    ushort initialRidleyMap = ReadRetailCeresRidleyInitialSpritemap(nativeRidleyRom);
+    ushort initialRidleyMap = CartridgeImportSource.Require(nativeRidleyRom).ReadCartridgeWord(0xa6e53e);
     AssertEqual(initialRidleyMap, ridley.SpritemapPointer, "Ceres Ridley left-facing initial map");
     AssertEqual(0xe540, ridley.CurrentInstruction, "Ceres Ridley initial list sleeps");
 

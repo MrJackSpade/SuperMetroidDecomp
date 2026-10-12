@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -126,9 +127,7 @@ internal static partial class Program
     private static ushort ReadSciserInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa30000 | address) |
-            source.ReadCartridgeByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
+        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
 
     private static CartridgeReadGuard NewSciserInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

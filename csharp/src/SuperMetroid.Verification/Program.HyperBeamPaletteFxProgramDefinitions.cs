@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -7,12 +8,10 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         AssertEqual(SamusPaletteRomData.HyperBeamFx.SetColorIndex,
-            ReadHyperBeamControlWord(
-                rom, HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord(HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress),
             "Hyper Beam palette-FX entry command");
         AssertEqual(SamusPaletteRomData.HyperBeamFx.DestinationByteIndex,
-            ReadHyperBeamControlWord(rom,
-                HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress + 2),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord((HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress + 2)),
             "Hyper Beam palette-FX destination");
 
         for (int index = 0;
@@ -23,11 +22,11 @@ internal static partial class Program
                 HyperBeamPaletteFxProgramDefinitions.NativeFirstFrameTimerAddress +
                 index * HyperBeamPaletteFxProgramDefinitions.FrameByteCount;
             AssertEqual(HyperBeamPaletteFxProgramDefinitions.FrameDuration,
-                ReadHyperBeamControlWord(rom, timerAddress),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(timerAddress),
                 $"Hyper Beam palette-FX frame {index} duration");
             AssertEqual(SamusPaletteRomData.HyperBeamFx.Done,
-                ReadHyperBeamControlWord(rom, timerAddress +
-                    HyperBeamPaletteFxProgramDefinitions.FrameByteCount - sizeof(ushort)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((timerAddress +
+                    HyperBeamPaletteFxProgramDefinitions.FrameByteCount - sizeof(ushort))),
                 $"Hyper Beam palette-FX frame {index} terminator");
 
             ushort pointer = unchecked((ushort)(
@@ -42,12 +41,10 @@ internal static partial class Program
         }
 
         AssertEqual(SamusPaletteRomData.HyperBeamFx.Goto,
-            ReadHyperBeamControlWord(
-                rom, HyperBeamPaletteFxProgramDefinitions.NativeLoopControlAddress),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord(HyperBeamPaletteFxProgramDefinitions.NativeLoopControlAddress),
             "Hyper Beam palette-FX loop command");
         AssertEqual(HyperBeamPaletteFxProgramDefinitions.FirstFramePointer,
-            ReadHyperBeamControlWord(
-                rom, HyperBeamPaletteFxProgramDefinitions.NativeLoopControlAddress + 2),
+            CartridgeImportSource.Require(rom).ReadCartridgeWord((HyperBeamPaletteFxProgramDefinitions.NativeLoopControlAddress + 2)),
             "Hyper Beam palette-FX loop target");
 
         HyperBeamPaletteFxFrame entry =
@@ -73,12 +70,6 @@ internal static partial class Program
             "Hyper Beam palette-FX control: entry, ten timers/terminators, loop, and " +
             "restored-pointer domain match the cartridge.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for hyper beam control words")]
-    private static ushort ReadHyperBeamControlWord(
-        SuperMetroidAddressSpace rom,
-        int address) =>
-        unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewHyperBeamPaletteFxControlGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(IsHyperBeamPaletteFxControlByte,

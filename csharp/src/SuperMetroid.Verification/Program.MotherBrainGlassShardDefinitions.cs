@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -110,7 +111,7 @@ internal static partial class Program
     private static ushort ReadMotherBrainGlassShardWord(
         SuperMetroidAddressSpace bus,
         int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewMotherBrainGlassShardReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

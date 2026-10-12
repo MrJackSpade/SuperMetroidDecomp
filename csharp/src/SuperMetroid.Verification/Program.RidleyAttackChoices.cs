@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -22,7 +23,7 @@ internal static partial class Program
         for (int choice = 0; choice < 8; choice++)
         {
             int address = 0xa6b38c + row * 16 + choice * 2;
-            native[row, choice] = (RidleyAiFunction)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            native[row, choice] = (RidleyAiFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using System.IO.Compression;
@@ -844,12 +845,12 @@ internal static partial class Program
     private static ushort[] ReadRetailBeamPalette(ISnesAddressSpace bus, ushort equippedBeams)
     {
         int pointerAddress = NativeSnapshotMemory.BeamPalettePointers + (equippedBeams & 0x0fff) * 2;
-        ushort palettePointer = (ushort)(bus.ReadCartridgeByte(pointerAddress) | bus.ReadCartridgeByte(pointerAddress + 1) << 8);
+        ushort palettePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
         var colors = new ushort[16];
         for (int color = 0; color < colors.Length; color++)
         {
             int address = NativeSnapshotMemory.CannonDefinitionBank | (palettePointer + color * 2);
-            colors[color] = (ushort)((bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8) & 0x7fff);
+            colors[color] = (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord(address) & 0x7fff);
         }
         return colors;
     }
@@ -857,7 +858,7 @@ internal static partial class Program
     /// <summary>A native little-endian PLM program word at a bank-$84 CPU address.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
     private static ushort ReadRetailPlmProgramWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     private static void VerifyRidleyFullMovie(string directory)

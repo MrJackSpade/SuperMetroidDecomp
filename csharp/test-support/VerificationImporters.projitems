@@ -1,5 +1,6 @@
 <Project>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Importers/CartridgeLongReads.cs" Link="TestSupport/Importers/CartridgeLongReads.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Importers/AttractDemoSceneImporter.cs" Link="TestSupport/Importers/AttractDemoSceneImporter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Importers/LibraryBackgroundProgramImporter.cs" Link="TestSupport/Importers/LibraryBackgroundProgramImporter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Importers/LibraryBackgroundSourceInventory.cs" Link="TestSupport/Importers/LibraryBackgroundSourceInventory.cs" />

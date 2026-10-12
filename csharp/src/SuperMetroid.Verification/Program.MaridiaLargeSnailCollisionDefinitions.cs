@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -26,8 +27,7 @@ internal static partial class Program
         {
             ushort operand = MaridiaLargeSnailInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            ushort native = (ushort)(rom.ReadCartridgeByte(0xa20000 | operand) |
-                rom.ReadCartridgeByte(0xa20000 | unchecked((ushort)(operand + 1))) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | operand);
             ushort selected = (ushort)selector.Invoke(enemies, [slot, operand])!;
             AssertEqual(native, selected,
                 $"Oum visual selector $A2:{operand:X4} matches native");
@@ -72,30 +72,30 @@ internal static partial class Program
         int probes = 0;
         foreach (ushort frame in MaridiaLargeSnailCollisionDefinitions.FramePointers)
         {
-            AssertEqual((ushort)1, ReadWord(0xa20000 | frame),
+            AssertEqual((ushort)1, rom.ReadCartridgeWord((0xa20000 | frame)),
                 $"Oum $A2:{frame:X4} native one-component header");
-            AssertEqual((ushort)0, ReadWord(0xa20000 | frame + 2),
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa20000 | frame + 2)),
                 "Oum native component X is zero");
-            AssertEqual((ushort)0, ReadWord(0xa20000 | frame + 4),
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xa20000 | frame + 4)),
                 "Oum native component Y is zero");
             ushort list = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(frame);
-            AssertEqual(ReadWord(0xa20000 | frame + 8), list,
+            AssertEqual(rom.ReadCartridgeWord((0xa20000 | frame + 8)), list,
                 "Oum native frame hitbox-list pointer");
             seenLists.Add(list);
             ReadOnlySpan<MaridiaLargeSnailCollisionHitbox> boxes =
                 MaridiaLargeSnailCollisionDefinitions.HitboxesAt(list);
-            AssertEqual(ReadWord(0xa20000 | list), (ushort)boxes.Length,
+            AssertEqual(rom.ReadCartridgeWord((0xa20000 | list)), (ushort)boxes.Length,
                 $"Oum $A2:{list:X4} native hitbox count");
             for (int index = 0; index < boxes.Length; index++)
             {
                 MaridiaLargeSnailCollisionHitbox box = boxes[index];
                 int record = 0xa20000 | unchecked((ushort)(list + 2 + index * 12));
-                AssertEqual(unchecked((short)ReadWord(record)), box.Left, "Oum left");
-                AssertEqual(unchecked((short)ReadWord(record + 2)), box.Top, "Oum top");
-                AssertEqual(unchecked((short)ReadWord(record + 4)), box.Right, "Oum right");
-                AssertEqual(unchecked((short)ReadWord(record + 6)), box.Bottom, "Oum bottom");
-                AssertEqual(ReadWord(record + 8), box.TouchAi, "Oum touch callback");
-                AssertEqual(ReadWord(record + 10), box.ShotAi, "Oum shot callback");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), box.Left, "Oum left");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "Oum top");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "Oum right");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "Oum bottom");
+                AssertEqual(rom.ReadCartridgeWord((record + 8)), box.TouchAi, "Oum touch callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 10)), box.ShotAi, "Oum shot callback");
                 boxesChecked++;
             }
 
@@ -147,9 +147,6 @@ internal static partial class Program
             "installed Oum touch and shot walkers never read ROM bytes");
         Console.WriteLine($"Oum collision: 30 frames, 66 rectangles, {probes} " +
             "native-equivalent touch/shot boundary probes with no ROM reads.");
-
-        ushort ReadWord(int address) => (ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         static ushort[] BoundaryPoints(ushort origin, short low, short high) =>
         [

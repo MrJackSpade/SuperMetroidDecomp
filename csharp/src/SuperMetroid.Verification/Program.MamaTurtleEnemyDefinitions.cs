@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -59,14 +60,10 @@ internal static partial class Program
         ushort pointer)
     {
         int address = RoomEnemyRomLayout.DefinitionBank | pointer;
-        ushort Word(int offset) => unchecked((ushort)(
-            bus.ReadCartridgeByte(address + offset) | bus.ReadCartridgeByte(address + offset + 1) << 8));
         int Long(int offset) =>
-            bus.ReadCartridgeByte(address + offset) |
-            bus.ReadCartridgeByte(address + offset + 1) << 8 |
-            bus.ReadCartridgeByte(address + offset + 2) << 16;
+            (CartridgeImportSource.Require(bus).ReadCartridgeLong(address + offset));
 
-        return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), bus.ReadCartridgeByte(address + 12), bus.ReadCartridgeByte(address + 13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Long(54), bus.ReadCartridgeByte(address + 57), Word(58), Word(60), Word(62));
+        return new RoomEnemyDefinition(CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 0), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 2), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 4), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 6), new(CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 8), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 10)), bus.ReadCartridgeByte(address + 12), bus.ReadCartridgeByte(address + 13), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 14), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 16), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 18), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 20), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 22), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 24), ClosedNativeWords.Decode<GrappleAiRoutine>(CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 26), "grapple AI routine"), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 28), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 30), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 32), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 34), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 36), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 38), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 40), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 42), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 44), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 46), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 48), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 50), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 52), Long(54), bus.ReadCartridgeByte(address + 57), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 58), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 60), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 62));
     }
 
     private static CartridgeReadGuard NewMamaTurtleDefinitionGuard(ISnesAddressSpace source) =>

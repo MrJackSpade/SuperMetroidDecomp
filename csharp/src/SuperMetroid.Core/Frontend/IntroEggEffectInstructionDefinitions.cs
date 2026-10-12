@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
@@ -53,6 +54,6 @@ internal static class IntroEggEffectInstructionDefinitions
         if (pointer is < StartPointer or >= (EndPointer - 1))
             throw new InvalidDataException(
                 $"Intro egg effect read $8B:{pointer:X4} leaves its compiled lists.");
-        return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+        return SnesLittleEndian.Word(ReadByte(pointer), ReadByte((ushort)(pointer + 1)));
     }
 }

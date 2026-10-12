@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -21,7 +22,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 WorkRobotLaserInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadWorkRobotLaserInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address),
                 $"Work Robot laser mechanics word $86:{definition.Address:X4}");
         }
 
@@ -123,8 +124,8 @@ internal static partial class Program
             {
                 ushort nativeCursor = projectile.InstructionPointer;
                 // The final native Goto operand returns to the fourth frame, after the prefix.
-                if (ReadWorkRobotLaserInstructionWord(rom, nativeCursor) == (ushort)EnemyProjectileInstruction.GotoY)
-                    nativeCursor = ReadWorkRobotLaserInstructionWord(rom, (ushort)(nativeCursor + 2));
+                if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | nativeCursor) == (ushort)EnemyProjectileInstruction.GotoY)
+                    nativeCursor = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | ((ushort)(nativeCursor + 2)));
                 projectile.InstructionTimer = 1;
                 process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
                 if (projectile.IsActive)
@@ -134,7 +135,7 @@ internal static partial class Program
                         "Work Robot laser selects native presentation operand after instruction control flow");
                     AssertTrue(EnemyProjectilePresentationFrameDefinitions.Contains(expectedOperand),
                         "Work Robot laser selected operand belongs to installed artwork");
-                    AssertEqual(ReadWorkRobotLaserInstructionWord(rom, nativeCursor), projectile.InstructionTimer,
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | nativeCursor), projectile.InstructionTimer,
                         "Work Robot laser native duration survives calculated mechanics");
                     observedInstalledOperands.Add(projectile.PresentationOperandAddress);
                 }
@@ -154,16 +155,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot laser instruction words")]
-    private static ushort ReadWorkRobotLaserInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewWorkRobotLaserInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

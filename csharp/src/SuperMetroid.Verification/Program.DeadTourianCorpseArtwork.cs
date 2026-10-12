@@ -103,8 +103,7 @@ internal static partial class Program
             ushort operand = DeadTourianCorpseInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
-            ushort nativePointer = unchecked((ushort)(
-                rom.ReadCartridgeByte(selectorAddress) | rom.ReadCartridgeByte(selectorAddress + 1) << 8));
+            ushort nativePointer = rom.ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer,
                 DeadTourianCorpseVisualDefinitions.FrameAt(operand),
                 $"dead Tourian corpse selector {index} matches cartridge");
@@ -136,8 +135,7 @@ internal static partial class Program
             ushort operand = DeadSidehopperInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
-            ushort nativePointer = unchecked((ushort)(
-                rom.ReadCartridgeByte(selectorAddress) | rom.ReadCartridgeByte(selectorAddress + 1) << 8));
+            ushort nativePointer = rom.ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer,
                 DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operand),
                 $"dead Sidehopper selector {index} matches cartridge");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,11 +19,10 @@ internal static partial class Program
             var variant = (CeresSteamVariant)index;
             CeresSteamInitialization definition =
                 CeresSteamDefinitions.Initialization(variant);
-            AssertEqual(ReadCeresSteamWord(rom, instructionTable + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
                 definition.InstructionList,
                 $"Ceres steam {variant} instruction list");
-            AssertEqual((CeresSteamFunction)ReadCeresSteamWord(
-                    rom, functionTable + index * 2),
+            AssertEqual((CeresSteamFunction)CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + index * 2)),
                 definition.Function,
                 $"Ceres steam {variant} function");
 
@@ -47,10 +47,6 @@ internal static partial class Program
         Console.WriteLine(
             "Ceres steam definitions: twelve native words and all six production initialization paths pass with both selector tables forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres steam words")]
-    private static ushort ReadCeresSteamWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCeresSteamDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

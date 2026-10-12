@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -38,8 +39,8 @@ public static class EscapeTypewriterExtractor
         EscapeTypewriterProgramId id)
     {
         int cursor = EscapeTypewriterDefinitions.SourceAddress(id);
-        if (ReadWord(bus, cursor) != EscapeTypewriterRomData.Delay ||
-            ReadWord(bus, cursor + 2) != EscapeTypewriterDefinitions.CharacterDelayFrames)
+        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) != EscapeTypewriterRomData.Delay ||
+            CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 2)) != EscapeTypewriterDefinitions.CharacterDelayFrames)
         {
             throw new InvalidDataException($"Escape typewriter program {id} has an unexpected delay header.");
         }
@@ -47,16 +48,16 @@ public static class EscapeTypewriterExtractor
         var lines = new List<EscapeTypewriterLineDocument>();
         for (int lineIndex = 0; lineIndex < 16; lineIndex++)
         {
-            ushort command = ReadWord(bus, cursor);
+            ushort command = CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor);
             if (command == EscapeTypewriterRomData.End) return lines.ToArray();
             if (command != EscapeTypewriterRomData.Destination)
                 throw new InvalidDataException($"Escape typewriter program {id} expected a destination at ${cursor:X6}.");
-            int destination = ReadWord(bus, cursor + 2);
+            int destination = CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 2));
             cursor += 4;
             var characters = new List<char>();
             while (true)
             {
-                command = ReadWord(bus, cursor);
+                command = CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor);
                 if (command is EscapeTypewriterRomData.End or EscapeTypewriterRomData.Destination) break;
                 char character = (char)bus.ReadCartridgeByte(cursor++);
                 if (character is not (' ' or '!' or >= 'A' and <= 'Z'))
@@ -68,7 +69,4 @@ public static class EscapeTypewriterExtractor
         }
         throw new InvalidDataException($"Escape typewriter program {id} exceeded sixteen lines.");
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 }

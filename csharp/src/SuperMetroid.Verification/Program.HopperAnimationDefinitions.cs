@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -200,7 +201,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Hopper animation words")]
     private static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
-        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
+        CartridgeImportSource.Require(source).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewHopperAnimationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

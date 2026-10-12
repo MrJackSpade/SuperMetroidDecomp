@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -61,7 +62,7 @@ internal static partial class Program
              index++)
         {
             ushort address = ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(ReadZoaInstructionWord(rom, 0xa30000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address)),
                 EnemySpritemapDefinitions.ZoaFrameAt(address),
                 $"compiled Zoa frame selection $A3:{address:X4}");
         }
@@ -132,7 +133,7 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            ushort original = ReadZoaInstructionWord(rom, 0xa30000 | address);
+            ushort original = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address));
             AssertEqual(original, ZoaInstructionProgramDefinitions.ReadMechanicsWord(address), "Zoa original control word");
             AssertEqual(new InstructionMechanicsWord(address, original),
                 ZoaInstructionProgramDefinitionsTooling.MechanicsWord(index), "Zoa ordered control enumeration");
@@ -162,8 +163,8 @@ internal static partial class Program
         {
             ushort address = ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             AssertEqual(addresses[index], address, "Zoa native presentation position");
-            AssertEqual(ReadZoaInstructionWord(rom, 0xa30000 | addresses[index]),
-                ReadZoaInstructionWord(rom, 0xa30000 | address), "Zoa original presentation word at position");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | addresses[index])),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address)), "Zoa original presentation word at position");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress(invalid),
@@ -179,10 +180,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Zoa instruction words")]
-    private static ushort ReadZoaInstructionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewZoaInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

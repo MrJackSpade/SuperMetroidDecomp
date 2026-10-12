@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -17,7 +18,7 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            ushort expected = ReadBoyonInstructionWord(rom, 0xa20000 | address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | address));
             var actual = BoyonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Boyon native word position");
             AssertEqual(expected, actual.Value, "Boyon native enumerated word");
@@ -61,7 +62,7 @@ internal static partial class Program
         ushort[] addresses = BoyonPresentationOracle();
         foreach (ushort address in addresses)
         {
-            ushort expected = ReadBoyonInstructionWord(rom, 0xa20000 | address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | address));
             AssertEqual(expected, EnemySpritemapDefinitions.BoyonFrameAt(address), "Boyon native visual value");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa2, address, out ushort shared), "Boyon shared visual selection");
             AssertEqual(expected, shared, "Boyon shared native visual value");
@@ -178,10 +179,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Boyon instruction words")]
-    private static ushort ReadBoyonInstructionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewBoyonInstructionProgramReadGuard(ISnesAddressSpace source)
     {

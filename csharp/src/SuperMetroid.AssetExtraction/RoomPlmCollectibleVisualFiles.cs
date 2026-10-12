@@ -100,7 +100,7 @@ public static class RoomPlmCollectibleVisualFiles
             ushort table = animation == 0
                 ? RoomPlmCollectibleDrawDefinitions.DynamicFrame0Table
                 : RoomPlmCollectibleDrawDefinitions.DynamicFrame1Table;
-            ushort native = ReadWord(bus, checked((ushort)(table + slot * 2)));
+            ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(table + slot * 2)))));
             ushort compiled = RoomPlmCollectibleDrawDefinitions.VisibleFrame(
                 InWorldCollectibleKind.Bombs, animation, slot);
             if (native != compiled)
@@ -111,9 +111,9 @@ public static class RoomPlmCollectibleVisualFiles
         var entries = new List<RoomPlmCollectibleVisualEntry>();
         foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
         {
-            if (ReadWord(bus, frame.Pointer) != 1 ||
-                ReadWord(bus, checked((ushort)(frame.Pointer + 2))) != frame.LevelWord ||
-                ReadWord(bus, checked((ushort)(frame.Pointer + 4))) != 0)
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, frame.Pointer)) != 1 ||
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(frame.Pointer + 2))))) != frame.LevelWord ||
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(frame.Pointer + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw list $84:{frame.Pointer:X4} differs from compiled geometry or level word.");
             entries.Add(new RoomPlmCollectibleVisualEntry(frame.Id,
@@ -160,10 +160,6 @@ public static class RoomPlmCollectibleVisualFiles
             throw new InvalidDataException($"Invalid collectible JSON {path}.", error);
         }
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
-            bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 1)))) << 8));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

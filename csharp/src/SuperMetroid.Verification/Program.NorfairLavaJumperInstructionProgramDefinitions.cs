@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -21,7 +22,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 NorfairLavaJumperInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadNorfairLavaJumperInstructionWord(rom, 0xa20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | definition.Address)),
                 $"Norfair lava-jumper mechanics word $A2:{definition.Address:X4}");
         }
 
@@ -148,11 +149,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Lava jumper instruction words")]
-    private static ushort ReadNorfairLavaJumperInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewNorfairLavaJumperInstructionReadGuard(ISnesAddressSpace source)
     {

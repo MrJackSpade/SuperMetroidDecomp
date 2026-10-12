@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
@@ -76,7 +77,7 @@ internal static class IntroEyeAnimationDefinitions
         }
         if (pointer == EndPointer - 1)
             throw new InvalidDataException("Opening eye script read crosses its compiled program boundary.");
-        word = (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+        word = SnesLittleEndian.Word(ReadByte(pointer), ReadByte((ushort)(pointer + 1)));
         return true;
     }
 

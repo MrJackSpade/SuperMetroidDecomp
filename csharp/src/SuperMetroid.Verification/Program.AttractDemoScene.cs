@@ -118,9 +118,9 @@ internal static partial class Program
                 StockAttractInputPrograms.ObjectDefinition definition =
                     StockAttractInputPrograms.GetObject(scene.InputObject);
                 int objectAddress = DemoInputRomData.BankBase | scene.InputObject;
-                AssertEqual(ReadWord(retail, objectAddress), definition.Initializer, "native attract initializer");
-                AssertEqual(ReadWord(retail, objectAddress + 2), definition.PreInstruction, "native attract callback");
-                AssertEqual(ReadWord(retail, objectAddress + 4), definition.Start, "native attract initial command");
+                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord(objectAddress), definition.Initializer, "native attract initializer");
+                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((objectAddress + 2)), definition.PreInstruction, "native attract callback");
+                AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((objectAddress + 4)), definition.Start, "native attract initial command");
                 commandRoots.Add(definition.Start);
             }
         }
@@ -134,16 +134,16 @@ internal static partial class Program
             {
                 StockAttractInputPrograms.Command command = StockAttractInputPrograms.GetCommand(cursor);
                 int address = DemoInputRomData.BankBase | cursor;
-                ushort nativeOperation = ReadWord(retail, address);
+                ushort nativeOperation = CartridgeImportSource.Require(retail).ReadCartridgeWord(address);
                 if (command.Kind == StockAttractInputPrograms.Operation.Input)
                 {
                     inputCount++;
                     AssertTrue(nativeOperation < DemoInputRomData.Instructions.OpcodeBit,
                         $"native attract input ${cursor:X4}");
                     AssertEqual(nativeOperation, command.Duration, $"native attract duration ${cursor:X4}");
-                    AssertEqual(ReadWord(retail, address + 2), (ushort)command.Held,
+                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), (ushort)command.Held,
                         $"native attract held ${cursor:X4}");
-                    AssertEqual(ReadWord(retail, address + 4), (ushort)command.NewlyPressed,
+                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), (ushort)command.NewlyPressed,
                         $"native attract edge ${cursor:X4}");
                     AssertEqual((ushort)(cursor + DemoInputRomData.Instructions.InputRecordBytes), command.Next,
                         $"calculated attract successor ${cursor:X4}");
@@ -160,7 +160,7 @@ internal static partial class Program
                     gotoCount++;
                     AssertEqual((ushort)DemoInputInstruction.Goto, nativeOperation,
                         $"native attract jump ${cursor:X4}");
-                    AssertEqual(ReadWord(retail, address + 2), command.Next,
+                    AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), command.Next,
                         $"native attract jump destination ${cursor:X4}");
                 }
                 if (command.Kind == StockAttractInputPrograms.Operation.Delete)
@@ -187,8 +187,6 @@ internal static partial class Program
                         frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing);
             }
         }
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadCartridgeByte(address) | (source.ReadCartridgeByte(address + 1) << 8)));
     }
 
     private static void VerifyCompiledAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)

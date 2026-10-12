@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -27,7 +28,7 @@ internal static partial class Program
         {
             int address = 0xb28727 + color * 2;
             nativeColors.SetColor(240 + color,
-                Bgr555.FromWord((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8)));
+                Bgr555.FromWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address)));
         }
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.

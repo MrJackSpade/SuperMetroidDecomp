@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -20,10 +21,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 TorizoExplosiveSwipeInstructionProgramDefinitions.MechanicsWord(index);
-            ushort native = unchecked((ushort)(
-                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Torizo explosive-swipe mechanics word $86:{definition.Address:X4}");
         }

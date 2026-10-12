@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -33,8 +34,8 @@ internal static class EnemyBg2FrameFiles
             for (int component = 0; component < componentCount; component++)
             {
                 int record = root + 2 + component * 8;
-                ushort stream = ReadWord(bus, record + 4);
-                if (ReadWord(bus, (bank << 16) | stream) !=
+                ushort stream = CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 4));
+                if (CartridgeImportSource.Require(bus).ReadCartridgeWord(((bank << 16) | stream)) !=
                     EnemyBg2FrameLayout.StreamMarker)
                 {
                     if (allowMixedOam)
@@ -45,7 +46,7 @@ internal static class EnemyBg2FrameFiles
                 // Mixed body roots store OAM-style offsets even on BG2
                 // components. ProcessExtendedTilemap ignores both fields.
                 if (!allowMixedOam &&
-                    (ReadWord(bus, record) != 0 || ReadWord(bus, record + 2) != 0))
+                    (CartridgeImportSource.Require(bus).ReadCartridgeWord(record) != 0 || CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 2)) != 0))
                     throw new InvalidDataException(
                         $"{family} frame ${bank:X2}:{frame.Pointer:X4} uses an unexpected BG2 component offset.");
                 ushort cursor = unchecked((ushort)(stream + 2));
@@ -54,13 +55,13 @@ internal static class EnemyBg2FrameFiles
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                 {
                     int address = (bank << 16) | cursor;
-                    ushort destination = ReadWord(bus, address);
+                    ushort destination = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                     if (destination == 0xffff)
                     {
                         terminated = true;
                         break;
                     }
-                    int count = ReadWord(bus, address + 2);
+                    int count = CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2));
                     int relative = destination - EnemyBg2FrameLayout.WorkingRamBase;
                     if (relative < 0 || (relative & 1) != 0 ||
                         count is < 1 or > EnemyBg2FrameLayout.TilemapWidth)
@@ -75,7 +76,7 @@ internal static class EnemyBg2FrameFiles
                             $"{family} BG2 stream ${bank:X2}:{stream:X4} crosses its tilemap row.");
                     var tiles = new int[count];
                     for (int tile = 0; tile < count; tile++)
-                        tiles[tile] = ReadWord(bus, address + 4 + tile * 2);
+                        tiles[tile] = CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4 + tile * 2));
                     writes.Add(new EnemyBg2WriteDocument
                     {
                         X = x,
@@ -104,7 +105,4 @@ internal static class EnemyBg2FrameFiles
             definitions, version, family);
         return json;
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

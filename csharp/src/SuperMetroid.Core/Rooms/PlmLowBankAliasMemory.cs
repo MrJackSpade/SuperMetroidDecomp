@@ -11,7 +11,7 @@ internal readonly struct PlmLowBankAliasMemory(ISnesMutableMemory memory)
 {
     /// <summary>The word at bank-$84 <paramref name="offset"/>: low byte first, the high byte wrapping within the bank.</summary>
     internal ushort Word(ushort offset) =>
-        SnesWorkRam.ReadWord(memory, (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, offset));
+        memory.ReadWorkRamWordFixedBank((int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, offset));
 
     /// <summary>The byte at bank-$84 <paramref name="offset"/>.</summary>
     internal byte Byte(ushort offset) =>

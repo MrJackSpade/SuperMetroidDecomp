@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,9 +11,7 @@ internal static partial class Program
         const int sourceAddress = 0xa49156;
         for (ushort byteOffset = 0; byteOffset < 22; byteOffset += 2)
         {
-            ushort expected = (ushort)(
-                rom.ReadCartridgeByte(sourceAddress + byteOffset) |
-                rom.ReadCartridgeByte(sourceAddress + byteOffset + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + byteOffset);
             AssertEqual(expected, CrocomireBridgeFragmentDefinitions.XPosition(byteOffset),
                 $"Crocomire bridge fragment offset ${byteOffset:X2}");
         }

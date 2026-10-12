@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
@@ -50,7 +51,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for door definition words")]
     private static ushort ReadVerificationWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewDoorNoReadAddressSpace() =>
         CartridgeReadGuard.Unbacked()

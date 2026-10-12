@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -15,7 +16,7 @@ internal static partial class Program
         {
             int emptyOam = (bank << 16) |
                 CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
-            AssertEqual((ushort)0, ReadWord(emptyOam),
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(emptyOam),
                 $"bank ${bank:X2} shared ordinary empty OAM part count");
             // Exercise the ordinary draw entry point too: unlike the extended
             // $804F root below, enemies can select $804D directly during their
@@ -41,23 +42,23 @@ internal static partial class Program
                 AssertEqual((byte)0, rom.ReadCartridgeByte(root + offset),
                     $"bank ${bank:X2} shared empty component offset byte {offset}");
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap,
-                ReadWord(root + 6),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6)),
                 $"bank ${bank:X2} shared empty OAM pointer");
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.PointHitboxList,
-                ReadWord(root + 8),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 8)),
                 $"bank ${bank:X2} shared empty hitbox pointer");
             int hitbox = (bank << 16) |
                 CommonEnemyEmptyExtendedFrameDefinitions.PointHitboxList;
-            AssertEqual((ushort)1, ReadWord(hitbox),
+            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord(hitbox),
                 $"bank ${bank:X2} shared point-hitbox count");
             for (int offset = 2; offset < 10; offset += 2)
-                AssertEqual((ushort)0, ReadWord(hitbox + offset),
+                AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + offset)),
                     $"bank ${bank:X2} shared point bound {offset}");
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.Callback(false),
-                ReadWord(hitbox + 10),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)),
                 $"bank ${bank:X2} shared touch callback");
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.Callback(true),
-                ReadWord(hitbox + 12),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 12)),
                 $"bank ${bank:X2} shared shot callback");
 
             var visualGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> visualGuardBlockFrame);
@@ -81,9 +82,6 @@ internal static partial class Program
                 0xb4, CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap),
             "non-enemy bank does not inherit the shared empty OAM definition");
         Console.WriteLine("  Shared empty frames: 12 bank-local ordinary and extended records match the ROM; ordinary draw and extended draw/collision forbid cartridge reads.");
-
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static ushort FindSharedEmptyCallback(

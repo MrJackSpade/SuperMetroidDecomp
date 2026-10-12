@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -6,14 +7,13 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid body contour left-edge records")]
     private static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int record = 0; record < 7; record++)
         {
             int address = 0xa7b161 + 4 * record;
             // Native CMP/BPL uses the sign of wrapped subtraction, not ordered signed comparison.
-            if (unchecked((short)(relativeY - Word(address))) >= 0 ||
-                unchecked((short)(relativeY - Word(address + 4))) >= 0)
-                return unchecked((short)Word(address + 2));
+            if (unchecked((short)(relativeY - CartridgeImportSource.Require(rom).ReadCartridgeWord(address))) >= 0 ||
+                unchecked((short)(relativeY - CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)))) >= 0)
+                return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)));
         }
         throw new InvalidOperationException("Native Kraid body contour did not terminate within its records.");
     }
@@ -47,17 +47,16 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth head-resume immediates")]
     private static KraidHeadResumeDefinition NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         // Decode the native LDY/CMP immediates rather than using compiled selector constants.
-        ushort offset = Word(0xa7c042);
+        ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c042);
         for (int selector = 0; selector < 3; selector++)
         {
             int instruction = 0xa7c029 + 8 * selector;
-            if (tilemap != Word(instruction + 4)) continue;
-            offset = Word(instruction + 1);
+            if (tilemap != CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 4))) continue;
+            offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 1));
             break;
         }
-        return new((ushort)(Word(0xa7c047) + offset), Word(0xa70000 | (Word(0xa7c04d) + offset)));
+        return new((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
     }
 
     private static void VerifyKraidGrowthResumeCases(SuperMetroidAddressSpace rom)

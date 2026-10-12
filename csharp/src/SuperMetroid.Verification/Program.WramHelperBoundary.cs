@@ -36,12 +36,12 @@ internal static partial class Program
         memory.WriteByte(0x7effff, 0x12);
         memory.WriteByte(0x7e0000, 0x34);
         memory.WriteByte(0x7f0000, 0x56);
-        AssertEqual((ushort)0x3412, SnesWorkRam.ReadWord(memory, 0x7effff),
+        AssertEqual((ushort)0x3412, memory.ReadWorkRamWordFixedBank(0x7effff),
             "WRAM word wraps its offset inside the same bank");
-        AssertEqual((ushort)0x0034, SnesWorkRam.ReadWord(memory, 0x800000),
+        AssertEqual((ushort)0x0034, memory.ReadWorkRamWordFixedBank(0x800000),
             "WRAM word accepts native system-bank mirrors");
         foreach (int address in new[] { 0x908000, 0x700000, 0x002140 })
-            AssertThrows<ArgumentOutOfRangeException>(() => SnesWorkRam.ReadWord(memory, address),
+            AssertThrows<ArgumentOutOfRangeException>(() => memory.ReadWorkRamWordFixedBank(address),
                 "WRAM helper rejects cartridge, SRAM and peripheral sources");
     }
 

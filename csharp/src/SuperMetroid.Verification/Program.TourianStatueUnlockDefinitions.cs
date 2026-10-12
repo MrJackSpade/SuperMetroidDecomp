@@ -14,9 +14,9 @@ internal static partial class Program
         {
             Position16<RoomPixels> position =
                 TourianStatueUnlockDefinitions.EyePosition(parameter);
-            AssertEqual(ReadTourianEyeWord(rom, 0x86b90e + parameter), position.X,
+            AssertEqual(rom.ReadCartridgeWord((0x86b90e + parameter)), position.X,
                 $"Tourian statue eye X parameter {parameter}");
-            AssertEqual(ReadTourianEyeWord(rom, 0x86b916 + parameter), position.Y,
+            AssertEqual(rom.ReadCartridgeWord((0x86b916 + parameter)), position.Y,
                 $"Tourian statue eye Y parameter {parameter}");
         }
 
@@ -176,10 +176,6 @@ internal static partial class Program
         runtime.System.HasEventRaw(0x0007) &&
         runtime.System.HasEventRaw(0x0008) &&
         runtime.System.HasEventRaw(0x0009);
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian eye words")]
-    private static ushort ReadTourianEyeWord(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewTourianStatueEyeReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x86b90e and < 0x86b91e,

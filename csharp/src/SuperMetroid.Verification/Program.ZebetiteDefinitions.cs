@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -15,9 +16,6 @@ internal static partial class Program
         const int linkedSpawn = 0xa6fcf9;
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
         for (ushort generation = 0; generation < 4; generation++)
         {
             ZebetiteGenerationDefinition definition =
@@ -33,7 +31,7 @@ internal static partial class Program
             ];
             for (int field = 0; field < actual.Length; field++)
             {
-                AssertEqual(ReadWord(rom, generationTables[field] + generation * 2),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((generationTables[field] + generation * 2)),
                     actual[field],
                     $"Zebetite generation {generation} field {field}");
             }
@@ -52,7 +50,7 @@ internal static partial class Program
                 health < 600 ? 2 :
                 health < 800 ? 1 : 0;
             int table = linkedPair ? linkedHealthTable : bigHealthTable;
-            AssertEqual(ReadWord(rom, table + tier * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((table + tier * 2)),
                 ZebetiteDefinitions.HealthInstruction(linkedPair, health),
                 $"Zebetite {(linkedPair ? "linked" : "big")} health {health}");
         }
@@ -75,7 +73,7 @@ internal static partial class Program
             int record = linkedHalf ? linkedSpawn : primarySpawn;
             for (int word = 0; word < actual.Length; word++)
             {
-                AssertEqual(ReadWord(rom, record + word * 2), actual[word],
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + word * 2)), actual[word],
                     $"Zebetite {(linkedHalf ? "linked" : "primary")} spawn word {word}");
             }
         }

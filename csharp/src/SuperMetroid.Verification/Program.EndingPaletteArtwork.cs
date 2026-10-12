@@ -15,22 +15,21 @@ internal static partial class Program
     {
         var original = new byte[512 * 2];
         var colors = new PaletteRgb5[512];
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         // The original pointer list and reverse-copy operand order are the oracle.
         // Neither the production source selector nor the proposed arithmetic supplies it.
         for (int step = 0; step < 16; step++)
         for (int palette = 0; palette < 2; palette++)
         for (int color = 0; color < 16; color++)
         {
-            int last = Word(0x8be5e7 + (step * 2 + palette) * 2);
-            ushort word = Word(0x8c0000 | (last - (15 - color) * 2));
+            int last = rom.ReadCartridgeWord((0x8be5e7 + (step * 2 + palette) * 2));
+            ushort word = rom.ReadCartridgeWord((0x8c0000 | (last - (15 - color) * 2)));
             int index = step * 32 + palette * 16 + color;
             original[index * 2] = (byte)word;
             original[index * 2 + 1] = (byte)(word >> 8);
             colors[index] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
         var background = new ushort[16];
-        for (int color = 0; color < 16; color++) background[color] = Word(0x8cf1e9 + color * 2);
+        for (int color = 0; color < 16; color++) background[color] = rom.ReadCartridgeWord((0x8cf1e9 + color * 2));
         EndingLogoBackgroundPalette gradient = EndingLogoBackgroundPalette.TryCreate(ToColors(background))
             ?? throw new InvalidOperationException("Original logo background must use a computed grey gradient.");
         for (int color = 0; color < 16; color++)
@@ -126,8 +125,7 @@ internal static partial class Program
         foreach (var load in loads)
         {
             AssertEqual(load.Long ? 0xbf : 0xbd, (int)rom.ReadCartridgeByte(load.Load), "native palette indexed load opcode");
-            int address = rom.ReadCartridgeByte(load.Load + 1) | rom.ReadCartridgeByte(load.Load + 2) << 8 |
-                (load.Long ? rom.ReadCartridgeByte(load.Load + 3) << 16 : load.Load & 0xff0000);
+            int address = ((load.Long ? rom.ReadCartridgeByte(load.Load + 3) << 16 : load.Load & 0xff0000)|rom.ReadCartridgeWord(load.Load + 1));
             AssertEqual(address, EndingPaletteDefinitions.SourceAddress(load.Role), "native palette source role");
         }
         // Allocation boundaries in pinned bank8C, independent of partial runtime transfers.
@@ -143,7 +141,7 @@ internal static partial class Program
         foreach (var single in new[] { (EndingPaletteId.FinalGunship, 0x8bde34), (EndingPaletteId.LogoInitial, 0x8be57a) })
         {
             AssertEqual(0xa2, (int)rom.ReadCartridgeByte(single.Item2), "native reverse palette LDX opcode");
-            int lastOffset = rom.ReadCartridgeByte(single.Item2 + 1) | rom.ReadCartridgeByte(single.Item2 + 2) << 8;
+            int lastOffset = rom.ReadCartridgeWord(single.Item2 + 1);
             AssertEqual(lastOffset / 2 + 1, EndingPaletteDefinitions.ColorCount(single.Item1), "single palette reverse-copy size");
         }
         AssertEqual((0x8be627 - 0x8be5e7) / 2 * 16,
@@ -473,8 +471,7 @@ internal static partial class Program
             "installed initial logo palette matches cartridge CGRAM");
         for (int frame = 0; frame < 300 && !nativeLogo.Completed; frame++)
         {
-            nativeLogo.Step(nativeCgram, pointer => (ushort)(nativeBus.ReadCartridgeByte(0x8b0000 | pointer) |
-                nativeBus.ReadCartridgeByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8));
+            nativeLogo.Step(nativeCgram, pointer => CartridgeImportSource.Require(nativeBus).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
             if (nativeLogo.PaletteStep > 0)
             {
                 byte[] nativeColors = EndingPaletteArtworkFiles.ReadNativePalette(nativeBus,

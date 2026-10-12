@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -21,7 +22,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 KzanInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadKzanInstructionWord(rom, 0xa60000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | definition.Address)),
                 $"Kzan instruction mechanics word $A6:{definition.Address:X4}");
         }
 
@@ -42,8 +43,8 @@ internal static partial class Program
         object?[] arguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         process.Invoke(enemies, arguments);
-        AssertEqual(ReadKzanInstructionWord(rom, 0xa60000 |
-                KzanInstructionProgramDefinitionsTooling.PresentationWord), slot.SpritemapPointer,
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 |
+                KzanInstructionProgramDefinitionsTooling.PresentationWord)), slot.SpritemapPointer,
             "Kzan selects its exact native frame without cartridge reads");
         process.Invoke(enemies, arguments);
         AssertEqual(unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4)),
@@ -82,11 +83,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kzan instruction words")]
-    private static ushort ReadKzanInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewKzanInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

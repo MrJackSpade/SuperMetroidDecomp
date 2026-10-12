@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -75,7 +76,7 @@ internal static partial class Program
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
-            ushort native = ReadElevatorInstructionWord(rom, addresses[index]);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | addresses[index]);
             var word = ElevatorInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(addresses[index], word.Address, "elevator native word position");
             AssertEqual(native, word.Value, "elevator enumerated native word");
@@ -110,9 +111,9 @@ internal static partial class Program
     {
         foreach (ushort operand in new ushort[] { 0x94d8, 0x94dc })
         {
-            ushort native = ReadElevatorInstructionWord(rom, operand);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | operand);
             AssertEqual(native, EnemySpritemapDefinitions.ElevatorFrameAt(operand), "elevator native visual pointer");
-            AssertEqual((ushort)4, ReadElevatorInstructionWord(rom, native), "elevator native four-entry map");
+            AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | native), "elevator native four-entry map");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa3, operand, out ushort shared), "elevator shared selector exists");
             AssertEqual(native, shared, "elevator shared selector value");
             AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa30000 | operand), "elevator excluded from literal regeneration");
@@ -135,14 +136,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for elevator instruction words")]
-    private static ushort ReadElevatorInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa30000 | address) |
-            source.ReadCartridgeByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewElevatorInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

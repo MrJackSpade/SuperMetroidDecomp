@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
@@ -13,18 +14,13 @@ using SuperMetroid.Core.Spatial;
 internal static partial class Program
 {
 
-/// <summary>A little-endian word of the native projectile ROM oracle.</summary>
-[CpuBusBoundary("exact bus test: retail ROM oracle for bank-$93 projectile definition words")]
-static ushort ReadRetailProjectileWord(ISnesAddressSpace rom, int address) =>
-    (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
-
 /// <summary>
 /// Byte <paramref name="offset"/> of the bank-$93 power-beam projectile record that the native
 /// direction table at $93:8433 selects for <paramref name="direction"/>.
 /// </summary>
 [CpuBusBoundary("exact bus test: retail ROM oracle for power-beam projectile radius bytes")]
 static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, int offset) =>
-    rom.ReadCartridgeByte(0x930000 | (ReadRetailProjectileWord(rom, 0x938433 + direction * 2) + offset));
+    rom.ReadCartridgeByte(0x930000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x938433 + direction * 2)) + offset));
 
 /// <summary>Samus beam and missile projectile verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
@@ -72,7 +68,7 @@ static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
     SamusProjectileSystem CreateSyntheticProjectiles() => new() { FrameBindings = fixtureFrames };
     SamusBombProjectileSystem CreateSyntheticBombs() => new() { FrameBindings = fixtureFrames };
-    ushort NativeWord(int a) => ReadRetailProjectileWord(nativeProjectileRom, a);
+    ushort NativeWord(int a) => CartridgeImportSource.Require(nativeProjectileRom).ReadCartridgeWord(a);
     ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
     RoomLevelData air = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
 

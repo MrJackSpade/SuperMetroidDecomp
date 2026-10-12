@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 MagdolliteInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadMagdolliteInstructionWord(rom, 0xa80000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa80000 | definition.Address)),
                 $"Magdollite instruction mechanics word $A8:{definition.Address:X4}");
         }
 
@@ -61,7 +62,7 @@ internal static partial class Program
         {
             ushort address =
                 MagdolliteInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(ReadMagdolliteInstructionWord(rom, 0xa80000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa80000 | address)),
                 EnemySpritemapDefinitions.MagdolliteFrameAt(address),
                 $"compiled Magdollite presentation $A8:{address:X4}");
         }
@@ -210,11 +211,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Magdollite instruction words")]
-    private static ushort ReadMagdolliteInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMagdolliteInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

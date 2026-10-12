@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -49,7 +50,7 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
             foreach (ushort address in presentation)
             {
                 int source = (banks[0] << 16) | address;
-                ushort pointer = ReadWord(rom, source);
+                ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(source);
                 if (keyed.TryGetValue(source, out ushort previous) &&
                     previous != pointer)
                     throw new InvalidDataException(
@@ -70,12 +71,12 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
             int source = (CeresBabyInstructionProgramDefinitions.Bank << 16) | address;
             ushort pointer = CeresBabyInstructionProgramDefinitions
                 .ReadSpritemapOperand(address);
-            if (ReadWord(rom, source) != pointer)
+            if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(source) != pointer)
                 throw new InvalidDataException(
                     $"Ceres Baby sprite selector ${source:X6} does not match its typed owner.");
             int frameAddress =
                 (CeresBabyInstructionProgramDefinitions.Bank << 16) | pointer;
-            ushort partCount = ReadWord(rom, frameAddress);
+            ushort partCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(frameAddress);
             if (partCount is not (> 0 and <= 128) || pointer + 2 + partCount * 5 > 0x10000)
                 throw new InvalidDataException(
                     $"Ceres Baby selector ${source:X6} does not target an ordinary OAM frame.");
@@ -85,10 +86,4 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
         }
         return new(keyed, unresolved);
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle words for the enemy visual-selector inventory")]
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) |
-            bus.ReadCartridgeByte((address & 0xff0000) |
-                unchecked((ushort)(address + 1))) << 8);
 }

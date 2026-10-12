@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -123,11 +124,7 @@ internal static partial class Program
     private static ushort ReadPolypRockInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
+        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
 
     private static CartridgeReadGuard NewPolypRockInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -22,55 +22,36 @@ public static class SnesBgTilemapRenderer
         if (width == 0 || height == 0)
             throw new ArgumentOutOfRangeException(nameof(viewport.Size));
         Ensure.LengthEqual(output, width * height);
-        // Gameplay-style BGSC defaults to two horizontal 32x32 screens.
-        Extent16<TilemapCells> tilemap = viewport.TilemapSize ?? new Extent16<TilemapCells>(64, 32);
-        int tilemapWidthInTiles = tilemap.X;
-        int tilemapHeightInTiles = tilemap.Y;
-        if (tilemapWidthInTiles is not (32 or 64))
-            throw new ArgumentOutOfRangeException(nameof(viewport.TilemapSize));
-        if (tilemapHeightInTiles is not (32 or 64))
-            throw new ArgumentOutOfRangeException(nameof(viewport.TilemapSize));
+        // Gameplay-style BGSC defaults to two horizontal screens.
+        var geometry = new BgTilemapGeometry(viewport.TilemapSize ?? new Extent16<TilemapCells>(
+            2 * SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles));
         if (viewport.HorizontalScrollByLine is not null && viewport.HorizontalScrollByLine.Count != height)
             throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(viewport.HorizontalScrollByLine));
+        BgCharacterFormat format = BgCharacterFormat.FourBitsPerPixel;
+        ReadOnlySpan<byte> vramBytes = vram.Bytes;
 
-        // A tile row shares its map entry, four bitplanes and palette. Decode those
-        // once for the visible run, including partial tiles at either viewport edge.
-        // Palette colors are local to this call so live palette animation stays visible.
-        Span<Rgba32> colors = stackalloc Rgba32[128];
+        // A character row shares its map entry, bit planes and palette. Decode those once for
+        // the visible run, including partial characters at either viewport edge. Palette
+        // colors are local to this call so live palette animation stays visible.
+        Span<Rgba32> colors = stackalloc Rgba32[BgCharacterFormat.PaletteCount * format.ColorsPerPalette];
         for (int color = 0; color < colors.Length; color++) colors[color] = cgram.GetRgba(color);
         for (int screenY = 0; screenY < height; screenY++)
         {
-            // BGSC bits 0-1 select one, two horizontal, two vertical, or four 32x32-tile
-            // screen blocks. Masking by the declared pixel height reproduces PPU wrapping
-            // while retaining bit eight for a vertically paired map such as BG2SC=$4A.
-            int yMask = tilemapHeightInTiles * 8 - 1;
-            int scrolledY = unchecked(viewport.Scroll.Y + screenY) & yMask;
-            int tileY = scrolledY >> 3;
-            int pixelY = scrolledY & 7;
+            int scrolledY = geometry.WrapY(viewport.Scroll.Y + screenY);
+            int characterY = BgCharacterGrid.CharacterOf(scrolledY);
+            int pixelY = BgCharacterGrid.PixelWithinCharacter(scrolledY);
             ushort lineHorizontalScroll = viewport.HorizontalScrollByLine is null
                 ? viewport.Scroll.X
                 : viewport.HorizontalScrollByLine[screenY];
 
             for (int screenX = 0; screenX < width;)
             {
-                // Each BGSC screen is a contiguous $400-word 32x32 tilemap. Screen blocks
-                // are laid out top-left, top-right, bottom-left, bottom-right. Therefore a
-                // 32x64 map's bottom half is base+$400, while a 64x64 map's is base+$800.
-                int xMask = tilemapWidthInTiles * 8 - 1;
-                int scrolledX = unchecked(lineHorizontalScroll + screenX) & xMask;
-                int tileX = scrolledX >> 3;
-                int pixelX = scrolledX & 7;
-                int runLength = Math.Min(8 - pixelX, width - screenX);
-                int screenColumn = tileX >> 5;
-                int screenRow = tileY >> 5;
-                int screensPerRow = tilemapWidthInTiles >> 5;
-                int screenWordOffset = (screenRow * screensPerRow + screenColumn) * 0x0400;
-                int mapWord = (
-                    addresses.TilemapBaseWord +
-                    screenWordOffset +
-                    (tileY & 31) * 32 +
-                    (tileX & 31)) & (SnesPpuLayout.VramWordCount - 1);
-                SnesBgTilemapWord entry = vram.ReadWord(mapWord);
+                int scrolledX = geometry.WrapX(lineHorizontalScroll + screenX);
+                int characterX = BgCharacterGrid.CharacterOf(scrolledX);
+                int pixelX = BgCharacterGrid.PixelWithinCharacter(scrolledX);
+                int runLength = Math.Min(SnesPpuLayout.BackgroundTileSizePixels - pixelX, width - screenX);
+                SnesBgTilemapWord entry = vram.ReadWord(geometry.EntryWordAddress(addresses.TilemapBaseWord,
+                    new Position16<TilemapCells>((ushort)characterX, (ushort)characterY)));
 
                 // A null filter decodes the complete layer for legacy single-layer users.
                 // Multi-layer PPU composition requests one priority plane at a time.
@@ -80,23 +61,14 @@ public static class SnesBgTilemapRenderer
                     continue;
                 }
 
-                int character = entry.CharacterIndex;
-                int palette = entry.PaletteIndex;
-                int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
-                int characterByteAddress = ((addresses.CharacterBaseWord + character * 16) & (SnesPpuLayout.VramWordCount - 1)) * 2;
-                int rowAddress = characterByteAddress + sourceY * 2;
-                byte plane0 = vram.ReadByte(rowAddress), plane1 = vram.ReadByte(rowAddress + 1);
-                byte plane2 = vram.ReadByte(rowAddress + 16), plane3 = vram.ReadByte(rowAddress + 17);
+                int row = format.RowByteOffset(addresses.CharacterBaseWord, entry.CharacterIndex,
+                    BgCharacterGrid.SourcePixel(pixelY, entry.FlipVertically));
                 for (int offset = 0; offset < runLength; offset++)
                 {
-                    int sourceX = entry.FlipHorizontally ? 7 - pixelX - offset : pixelX + offset;
-                    int mask = 1 << (7 - sourceX);
-                    int color = ((plane0 & mask) != 0 ? 1 : 0)
-                              | ((plane1 & mask) != 0 ? 2 : 0)
-                              | ((plane2 & mask) != 0 ? 4 : 0)
-                              | ((plane3 & mask) != 0 ? 8 : 0);
-                    if (color != 0)
-                        output[screenY * width + screenX + offset] = colors[palette * 16 + color];
+                    int colorIndex = format.ColorIndexAt(vramBytes, row,
+                        BgCharacterGrid.SourcePixel(pixelX + offset, entry.FlipHorizontally));
+                    if (colorIndex != BgCharacterFormat.TransparentColorIndex)
+                        output[screenY * width + screenX + offset] = colors[format.CgramColor(entry.PaletteIndex, colorIndex)];
                 }
                 screenX += runLength;
             }
@@ -114,49 +86,42 @@ public static class SnesBgTilemapRenderer
         if (rowCount is <= 0 or > 32)
             throw new ArgumentOutOfRangeException(nameof(rowCount));
 
-        const int width = 32 * 8;
-        int height = rowCount * 8;
+        BgCharacterFormat format = BgCharacterFormat.TwoBitsPerPixel;
+        var geometry = new BgTilemapGeometry(new Extent16<TilemapCells>(
+            SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles));
+        const int width = SnesPpuLayout.TilemapPageWidthInTiles * SnesPpuLayout.BackgroundTileSizePixels;
+        int height = rowCount * SnesPpuLayout.BackgroundTileSizePixels;
         Ensure.LengthEqual(output, checked(width * height));
+        ReadOnlySpan<byte> vramBytes = vram.Bytes;
 
-        for (int tileY = 0; tileY < rowCount; tileY++)
+        for (int characterY = 0; characterY < rowCount; characterY++)
         {
-            for (int tileX = 0; tileX < 32; tileX++)
+            for (int characterX = 0; characterX < SnesPpuLayout.TilemapPageWidthInTiles; characterX++)
             {
-                int mapByteAddress = ((addresses.TilemapBaseWord + tileY * 32 + tileX) & (SnesPpuLayout.VramWordCount - 1)) * 2;
-                SnesBgTilemapWord entry = (ushort)(
-                    vram.ReadByte(mapByteAddress) |
-                    (vram.ReadByte(mapByteAddress + 1) << 8));
+                SnesBgTilemapWord entry = vram.ReadWord(geometry.EntryWordAddress(addresses.TilemapBaseWord,
+                    new Position16<TilemapCells>((ushort)characterX, (ushort)characterY)));
                 if (priority.HasValue && entry.HasPriority != priority.Value)
                     continue;
-                int character = entry.CharacterIndex;
-                int palette = entry.PaletteIndex;
-
-                // BG3 is 2-bpp in mode 1. Each 8x8 character consumes 16 bytes / 8 VRAM
-                // words. Address wrapping mirrors the physical 15-bit VMADD bus.
-                int characterByteAddress = ((addresses.CharacterBaseWord + character * 8) & (SnesPpuLayout.VramWordCount - 1)) * 2;
-                for (int y = 0; y < 8; y++)
+                for (int y = 0; y < SnesPpuLayout.BackgroundTileSizePixels; y++)
                 {
-                    int sourceY = entry.FlipVertically ? 7 - y : y;
-                    for (int x = 0; x < 8; x++)
+                    int row = format.RowByteOffset(addresses.CharacterBaseWord, entry.CharacterIndex,
+                        BgCharacterGrid.SourcePixel(y, entry.FlipVertically));
+                    for (int x = 0; x < SnesPpuLayout.BackgroundTileSizePixels; x++)
                     {
-                        int sourceX = entry.FlipHorizontally ? 7 - x : x;
-                        int mask = 1 << (7 - sourceX);
-                        int planes = characterByteAddress + sourceY * 2;
-                        int color = ((vram.ReadByte(planes) & mask) != 0 ? 1 : 0)
-                                  | ((vram.ReadByte(planes + 1) & mask) != 0 ? 2 : 0);
+                        int colorIndex = format.ColorIndexAt(vramBytes, row, BgCharacterGrid.SourcePixel(x, entry.FlipHorizontally));
 
-                        // Every SNES BG treats pixel value zero as transparent when another
+                        // Every SNES BG treats color index zero as transparent when another
                         // layer is being composed below it. Existing single-layer callers
                         // retain the historical opaque behavior by leaving the option false;
                         // cinematic BG3 enables it so the portrait on BG2 remains visible.
-                        output[(tileY * 8 + y) * width + tileX * 8 + x] =
-                            transparentColorZero && color == 0
+                        output[(characterY * SnesPpuLayout.BackgroundTileSizePixels + y) * width +
+                               characterX * SnesPpuLayout.BackgroundTileSizePixels + x] =
+                            transparentColorZero && colorIndex == BgCharacterFormat.TransparentColorIndex
                                 ? default
-                                : cgram.GetRgba(palette * 4 + color);
+                                : cgram.GetRgba(format.CgramColor(entry.PaletteIndex, colorIndex));
                     }
                 }
             }
         }
-
     }
 }

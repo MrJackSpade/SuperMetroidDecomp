@@ -61,9 +61,7 @@ internal static partial class Program
             AssertTrue(entry.Address > previousAddress,
                 "generated visual selectors are distinct and sorted");
             previousAddress = entry.Address;
-            ushort native = (ushort)(rom.ReadCartridgeByte(entry.Address) |
-                rom.ReadCartridgeByte((entry.Address & 0xff0000) |
-                    unchecked((ushort)(entry.Address + 1))) << 8);
+            ushort native = rom.ReadCartridgeWordFixedBank(entry.Address);
             AssertEqual(native, entry.Pointer,
                 $"compiled visual selector ${entry.Address:X6}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(

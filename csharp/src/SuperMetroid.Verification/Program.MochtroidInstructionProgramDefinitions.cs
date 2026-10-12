@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -20,7 +21,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 MochtroidInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadMochtroidInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | definition.Address),
                 $"Mochtroid mechanics word $A3:{definition.Address:X4}");
         }
 
@@ -120,14 +121,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid instruction words")]
-    private static ushort ReadMochtroidInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa30000 | address) |
-            source.ReadCartridgeByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewMochtroidInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

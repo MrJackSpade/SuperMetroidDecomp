@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -208,9 +209,7 @@ internal static partial class Program
     private static ushort ReadKraidFootInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa70000 | address) |
-            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
+        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
 
     private static CartridgeReadGuard NewKraidFootInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

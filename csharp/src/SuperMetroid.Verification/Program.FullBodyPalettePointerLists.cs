@@ -37,14 +37,14 @@ internal static partial class Program
             {
                 ushort suitOffset = (ushort)(suit * 2);
                 ushort expectedList = (ushort)(family.FirstList + suit * family.Phases * 2);
-                AssertEqual(expectedList, ReadPalettePointerWord(rom, family.Top + suitOffset),
+                AssertEqual(expectedList, CartridgeImportSource.Require(rom).ReadCartridgeWord((family.Top + suitOffset)),
                     $"{family.Name} top-level list for suit {suit}");
                 for (int phase = 0; phase < family.Phases; phase++)
                 {
                     int shade = family.PingPong ? Math.Min(phase, 6 - phase) : phase;
                     ushort expectedPalette = (ushort)(family.FirstPalette + suit * 0x200 + shade * 0x20);
                     AssertEqual(expectedPalette,
-                        ReadPalettePointerWord(rom, SamusPaletteRomData.Banks.Movement | (expectedList + phase * 2)),
+                        CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusPaletteRomData.Banks.Movement | (expectedList + phase * 2))),
                         $"{family.Name} nested pointer for suit {suit}, phase {phase}");
                 }
             }
@@ -167,17 +167,12 @@ internal static partial class Program
                 int listStart = firstList + suitOffset / 2 * phases * sizeof(ushort);
                 for (int phaseOffset = 0; listStart + phaseOffset + 1 < firstList + totalBytes;
                      phaseOffset++)
-                    AssertEqual(ReadPalettePointerWord(rom,
-                            SamusPaletteRomData.Banks.Movement | (listStart + phaseOffset)),
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusPaletteRomData.Banks.Movement | (listStart + phaseOffset))),
                         readCompiled(suitOffset, (ushort)phaseOffset),
                         $"{family} suit offset {suitOffset}, byte offset {phaseOffset}");
             }
         }
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for palette pointer words")]
-    private static ushort ReadPalettePointerWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for full-body cycle palette colors")]

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -6,26 +7,25 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending text regions")]
     private static void VerifyEndingTextRegions(ISnesAddressSpace bus)
     {
-        ushort Read(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
         void Panel(EndingTextRegionDefinition actual, int source, string expectedText, int startColumn)
         {
             AssertEqual(0, actual.Row, "ending panel row");
             AssertEqual(startColumn, actual.Column, "ending panel first native text column");
             AssertEqual(expectedText.Length, actual.Width, "ending panel text width");
             string text = new(Enumerable.Range(0, actual.Width).Select(i =>
-                EndingTextDefinitions.DecodeGlyph(Read(source + 2 * (startColumn + i)), actual.Style)).ToArray());
+                EndingTextDefinitions.DecodeGlyph(CartridgeImportSource.Require(bus).ReadCartridgeWord((source + 2 * (startColumn + i))), actual.Style)).ToArray());
             AssertEqual(expectedText, text, "ending native panel label");
         }
         // Row0 of the two original tilemaps; the blank-run boundaries locate text independently.
-        int producerStart = Enumerable.Range(0, 32).First(i => Read(0x8cdc9b + i * 2) != 0x004f);
-        int producerEnd = Enumerable.Range(0, 32).Last(i => Read(0x8cdc9b + i * 2) != 0x004f);
+        int producerStart = Enumerable.Range(0, 32).First(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdc9b + i * 2)) != 0x004f);
+        int producerEnd = Enumerable.Range(0, 32).Last(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdc9b + i * 2)) != 0x004f);
         Panel(EndingTextDefinitions.ResultProducedBy, 0x8cdc9b, "PRODUCED BY", producerStart);
         AssertEqual(producerEnd - producerStart + 1, EndingTextDefinitions.ResultProducedBy.Width, "producer native span");
-        int yearStart = Enumerable.Range(0, 32).First(i => Read(0x8cdedb + i * 2) != 0x007f);
+        int yearStart = Enumerable.Range(0, 32).First(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdedb + i * 2)) != 0x007f);
         int yearEnd = yearStart;
-        while (Read(0x8cdedb + yearEnd * 2) != 0x007f) yearEnd++;
+        while (CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdedb + yearEnd * 2)) != 0x007f) yearEnd++;
         int companyStart = yearEnd;
-        while (Read(0x8cdedb + companyStart * 2) == 0x007f) companyStart++;
+        while (CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdedb + companyStart * 2)) == 0x007f) companyStart++;
         Panel(EndingTextDefinitions.CopyrightYear, 0x8cdedb, "1994", yearStart);
         Panel(EndingTextDefinitions.CopyrightCompany, 0x8cdedb, "NINTENDO", companyStart);
         AssertEqual(EndingTextStyle.ResultSmall, EndingTextDefinitions.ResultProducedBy.Style, "producer style");
@@ -39,11 +39,11 @@ internal static partial class Program
             AssertEqual((int)bus.ReadCartridgeByte(start + 2), actual.Column, "native first typewriter column");
             AssertEqual(style, actual.Style, "typewriter style");
             var text = new System.Text.StringBuilder();
-            while (count < 32 && Read(cursor) < 0x8000 && bus.ReadCartridgeByte(cursor + 3) == nativeRow)
+            while (count < 32 && CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) < 0x8000 && bus.ReadCartridgeByte(cursor + 3) == nativeRow)
             {
                 AssertEqual(actual.Column + count, (int)bus.ReadCartridgeByte(cursor + 2), "native consecutive typewriter column");
-                int glyph = 0x8c0000 | Read(cursor + 4);
-                text.Append(EndingTextDefinitions.DecodeGlyph(Read(glyph + 4), style));
+                int glyph = 0x8c0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 4));
+                text.Append(EndingTextDefinitions.DecodeGlyph(CartridgeImportSource.Require(bus).ReadCartridgeWord((glyph + 4)), style));
                 count++;
                 cursor += 6;
             }
@@ -68,7 +68,6 @@ internal static partial class Program
             0x3d,0x3e,0x3f,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59];
         ushort[] digitsTop = [0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67,0x68,0x69];
         ushort[] digitsBottom = [0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77,0x78,0x79];
-        ushort Read(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
         (char Glyph, int Address)[] largeRecords = [
             (' ', 0x8ce135),
             ('S', 0x8ce13d),
@@ -84,8 +83,8 @@ internal static partial class Program
         ];
         foreach (var record in largeRecords)
         {
-            AssertEqual(Read(record.Address), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge), "native named glyph record");
-            AssertEqual(Read(record.Address + 2), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge, bottom: true), "native named lower glyph record");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge), "native named glyph record");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((record.Address + 2)), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge, bottom: true), "native named lower glyph record");
         }
         (char Glyph, int Address)[] smallRecords = [
             ('A', 0x8ce18d),
@@ -107,24 +106,24 @@ internal static partial class Program
         ];
         foreach (var record in smallRecords)
         {
-            AssertEqual(Read(record.Address), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.PercentageSmall), "native named glyph record");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextDefinitions.CompileGlyph(record.Glyph, EndingTextStyle.PercentageSmall), "native named glyph record");
         }
         // Original indirect text records and producer/copyright panels establish attributes/blanks.
-        ushort percentageAttributes = (ushort)(Read(0x8ce18d) & 0xfc00);
-        ushort finalAttributes = (ushort)(Read(0x8ce13d) & 0xfc00);
+        ushort percentageAttributes = (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord(0x8ce18d) & 0xfc00);
+        ushort finalAttributes = (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord(0x8ce13d) & 0xfc00);
         foreach (EndingTextStyle style in Enum.GetValues<EndingTextStyle>())
         foreach (bool bottom in new[] { false, true })
         {
             bool large = style is EndingTextStyle.CopyrightLarge or EndingTextStyle.FinalLarge;
             ushort attributes = style == EndingTextStyle.PercentageSmall ? percentageAttributes :
                 style == EndingTextStyle.FinalLarge ? finalAttributes : (ushort)0;
-            ushort blank = Read(style switch
+            ushort blank = CartridgeImportSource.Require(bus).ReadCartridgeWord((style switch
             {
                 EndingTextStyle.ResultSmall => 0x8cdc9b,
                 EndingTextStyle.CopyrightLarge => 0x8cdedb,
                 EndingTextStyle.PercentageSmall => 0x8ce1e7,
                 _ => bottom ? 0x8ce137 : 0x8ce135,
-            });
+            }));
             var expected = new Dictionary<ushort, char> { [blank] = ' ' };
             for (int letter = 0; letter < 26; letter++)
                 expected.Add((ushort)(attributes | (large ? (bottom ? lower[letter] : top[letter]) : small[letter])), (char)('A' + letter));

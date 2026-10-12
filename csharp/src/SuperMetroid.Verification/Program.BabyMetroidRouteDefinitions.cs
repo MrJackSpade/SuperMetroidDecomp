@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -50,7 +51,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle words for cartridge definition comparisons")]
     private static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
+        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewBabyRouteReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(BabyMetroidRouteDefinitionsConstants.SourceAddress,

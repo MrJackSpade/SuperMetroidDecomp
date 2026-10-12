@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -31,9 +32,9 @@ internal static partial class Program
         for (int frameIndex = 0; frameIndex < 22; frameIndex++)
         {
             HibashiActivityDefinition frame = HibashiDefinitions.ActivityFrame(frameIndex);
-            AssertEqual(ReadHibashiWord(rom, yOffsetTable + frameIndex * 2), frame.YOffset,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yOffsetTable + frameIndex * 2)), frame.YOffset,
                 $"Hibashi Y offset {frameIndex}");
-            AssertEqual(ReadHibashiWord(rom, yRadiusTable + frameIndex * 2), frame.YRadius,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yRadiusTable + frameIndex * 2)), frame.YRadius,
                 $"Hibashi Y radius {frameIndex}");
 
             hitbox.Radius = hitbox.Radius.WithX(0);
@@ -63,7 +64,7 @@ internal static partial class Program
                 HibashiInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadHibashiWord(rom, 0xa60000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | definition.Address)),
                 $"Hibashi instruction mechanics word $A6:{definition.Address:X4}");
         }
 
@@ -179,10 +180,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Hibashi words")]
-    private static ushort ReadHibashiWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewHibashiDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0xa68dbb, 0xa68e13 - 0xa68dbb,

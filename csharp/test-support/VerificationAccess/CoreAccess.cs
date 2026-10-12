@@ -70,8 +70,7 @@ internal static partial class CoreAccess
         internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell)
         {
             var vram = PrivateState.Field<SnesVram>(pause, "vram");
-            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(cell)) * 2;
-            return new MapTileWord(unchecked((ushort)(vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8))));
+            return new MapTileWord(vram.ReadWord(PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(cell)));
         }
     }
 

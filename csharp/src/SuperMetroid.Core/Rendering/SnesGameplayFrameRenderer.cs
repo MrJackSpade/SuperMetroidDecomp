@@ -129,9 +129,8 @@ public static partial class SnesGameplayFrameRenderer
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
 
-        int bg2XMask = bg2TilemapSize.X * 8 - 1;
-        int bg2YMask = bg2TilemapSize.Y * 8 - 1;
-        int bg2ScreensPerRow = bg2TilemapSize.X >> 5;
+        var bg1Geometry = new BgTilemapGeometry(GameplayVramLayout.RoomTilemapSize);
+        var bg2Geometry = new BgTilemapGeometry(bg2TilemapSize);
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
@@ -143,18 +142,18 @@ public static partial class SnesGameplayFrameRenderer
             // Output rows are zero-based, while Mode-1 BG sampling starts on
             // physical scanline one. OBJ's preceding-line evaluation is separate.
             int physicalBackgroundY = screenY + SnesPpuLayout.FirstVisibleBackgroundScanline;
-            int bg1ScrolledY = unchecked(bg1Scroll.Y + physicalBackgroundY) & 0xff;
+            int bg1ScrolledY = bg1Geometry.WrapY(bg1Scroll.Y + physicalBackgroundY);
             ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine.IsEmpty
                 ? bg2Scroll.X
                 : bg2HorizontalScrollByLine[screenY - HudHeight];
             ushort activeBg2VerticalScroll = bg2VerticalScrollByLine.IsEmpty
                 ? bg2Scroll.Y
                 : bg2VerticalScrollByLine[screenY - HudHeight];
-            int bg2ScrolledY = bg2Mosaic.SourceY(screenY, activeBg2VerticalScroll) & bg2YMask;
-            int bg1TileY = bg1ScrolledY >> 3;
-            int bg2TileY = bg2ScrolledY >> 3;
-            int bg1PixelY = bg1ScrolledY & 7;
-            int bg2PixelY = bg2ScrolledY & 7;
+            int bg2ScrolledY = bg2Geometry.WrapY(bg2Mosaic.SourceY(screenY, activeBg2VerticalScroll));
+            int bg1TileY = BgCharacterGrid.CharacterOf(bg1ScrolledY);
+            int bg2TileY = BgCharacterGrid.CharacterOf(bg2ScrolledY);
+            int bg1PixelY = BgCharacterGrid.PixelWithinCharacter(bg1ScrolledY);
+            int bg2PixelY = BgCharacterGrid.PixelWithinCharacter(bg2ScrolledY);
             int previousBg1TileX = -1;
             int previousBg2TileX = -1;
             SnesBgTilemapWord bg1Entry = default;
@@ -170,8 +169,8 @@ public static partial class SnesGameplayFrameRenderer
                 // output pixels. Cache each BGSC word across that run; rereading the same
                 // two VRAM bytes for every pixel was pure interpreter overhead, especially
                 // in Debug builds where these tiny accessors are not reliably inlined.
-                int bg2ScrolledX = bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll) & bg2XMask;
-                int bg2TileX = bg2ScrolledX >> 3;
+                int bg2ScrolledX = bg2Geometry.WrapX(bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll));
+                int bg2TileX = BgCharacterGrid.CharacterOf(bg2ScrolledX);
                 if (bg2Enabled && bg2TileX != previousBg2TileX)
                 {
                     // BGSC's two size bits select either two horizontal 32x32 screens
@@ -179,17 +178,8 @@ public static partial class SnesGameplayFrameRenderer
                     // Both contain 2,048 words, but putting the screen index on the wrong
                     // axis makes the sky go black and then decode unrelated VRAM as the
                     // camera crosses the first 256-pixel boundary.
-                    int bg2ScreenColumn = bg2TileX >> 5;
-                    int bg2ScreenRow = bg2TileY >> 5;
-                    int bg2MapWord = (
-                        bg2TilemapBaseWord +
-                        (bg2ScreenRow * bg2ScreensPerRow + bg2ScreenColumn) * SnesPpuLayout.TilemapPageWordCount +
-                        (bg2TileY & 31) * 32 +
-                        (bg2TileX & 31)) & 0x7fff;
-                    int bg2MapByte = bg2MapWord * 2;
-                    bg2Entry = (ushort)(
-                        vramBytes[bg2MapByte] |
-                        (vramBytes[bg2MapByte + 1] << 8));
+                    bg2Entry = SnesVramAddressing.ReadWord(vramBytes, bg2Geometry.EntryWordAddress(
+                        bg2TilemapBaseWord, new Position16<TilemapCells>((ushort)bg2TileX, (ushort)bg2TileY)));
                     previousBg2TileX = bg2TileX;
                 }
 
@@ -199,7 +189,7 @@ public static partial class SnesGameplayFrameRenderer
                         palette,
                         bg2Entry,
                         bg2CharacterBaseWord,
-                        new Position16<CharacterPixels>((ushort)(bg2ScrolledX & 7), (ushort)bg2PixelY),
+                        new Position16<CharacterPixels>((ushort)BgCharacterGrid.PixelWithinCharacter(bg2ScrolledX), (ushort)bg2PixelY),
                         out Rgba32 bg2Color,
                         out bool bg2High))
                 {
@@ -207,19 +197,12 @@ public static partial class SnesGameplayFrameRenderer
                     winnerRank = bg2High ? 6 : 3;
                 }
 
-                int bg1ScrolledX = unchecked(bg1Scroll.X + screenX) & 0x01ff;
-                int bg1TileX = bg1ScrolledX >> 3;
+                int bg1ScrolledX = bg1Geometry.WrapX(bg1Scroll.X + screenX);
+                int bg1TileX = BgCharacterGrid.CharacterOf(bg1ScrolledX);
                 if (bg1Enabled && bg1TileX != previousBg1TileX)
                 {
-                    int bg1MapWord = (
-                        GameplayVramLayout.Bg1TilemapWord +
-                        (bg1TileX >> 5) * SnesPpuLayout.TilemapPageWordCount +
-                        bg1TileY * 32 +
-                        (bg1TileX & 31)) & 0x7fff;
-                    int bg1MapByte = bg1MapWord * 2;
-                    bg1Entry = (ushort)(
-                        vramBytes[bg1MapByte] |
-                        (vramBytes[bg1MapByte + 1] << 8));
+                    bg1Entry = SnesVramAddressing.ReadWord(vramBytes, bg1Geometry.EntryWordAddress(
+                        GameplayVramLayout.Bg1TilemapWord, new Position16<TilemapCells>((ushort)bg1TileX, (ushort)bg1TileY)));
                     previousBg1TileX = bg1TileX;
                 }
 
@@ -229,7 +212,7 @@ public static partial class SnesGameplayFrameRenderer
                         palette,
                         bg1Entry,
                         bg1CharacterBaseWord,
-                        new Position16<CharacterPixels>((ushort)(bg1ScrolledX & 7), (ushort)bg1PixelY),
+                        new Position16<CharacterPixels>((ushort)BgCharacterGrid.PixelWithinCharacter(bg1ScrolledX), (ushort)bg1PixelY),
                         out Rgba32 bg1Color,
                         out bool bg1High))
                 {
@@ -280,27 +263,17 @@ public static partial class SnesGameplayFrameRenderer
     {
         highPriority = entry.HasPriority;
 
-        int sourceX = entry.FlipHorizontally
-            ? 7 - pixel.X
-            : pixel.X;
-        int sourceY = entry.FlipVertically
-            ? 7 - pixel.Y
-            : pixel.Y;
-        int characterByteAddress =
-            ((characterBaseWord + entry.CharacterIndex * 16) & 0x7fff) * 2;
-        int mask = 1 << (7 - sourceX);
-        int rowAddress = characterByteAddress + sourceY * 2;
-        int colorIndex = ((vram[rowAddress] & mask) != 0 ? 1 : 0)
-                       | ((vram[rowAddress + 1] & mask) != 0 ? 2 : 0)
-                       | ((vram[rowAddress + 16] & mask) != 0 ? 4 : 0)
-                       | ((vram[rowAddress + 17] & mask) != 0 ? 8 : 0);
-        if (colorIndex == 0)
+        BgCharacterFormat format = BgCharacterFormat.FourBitsPerPixel;
+        int row = format.RowByteOffset(characterBaseWord, entry.CharacterIndex,
+            BgCharacterGrid.SourcePixel(pixel.Y, entry.FlipVertically));
+        int colorIndex = format.ColorIndexAt(vram, row, BgCharacterGrid.SourcePixel(pixel.X, entry.FlipHorizontally));
+        if (colorIndex == BgCharacterFormat.TransparentColorIndex)
         {
             color = default;
             return false;
         }
 
-        color = palette[entry.PaletteIndex * 16 + colorIndex];
+        color = palette[format.CgramColor(entry.PaletteIndex, colorIndex)];
         return true;
     }
 
@@ -395,11 +368,12 @@ public static partial class SnesGameplayFrameRenderer
         ReadOnlySpan<byte> vramBytes = vram.Bytes;
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
+        var floorGeometry = new BgTilemapGeometry(GameplayVramLayout.RoomTilemapSize);
         for (int screenY = floorFirstScanline; screenY < Height; screenY++)
         {
-            int scrolledY = unchecked(floor.Bg2Scroll.Y + screenY) & 0xff;
-            int tileY = scrolledY >> 3;
-            int pixelY = scrolledY & 7;
+            int scrolledY = floorGeometry.WrapY(floor.Bg2Scroll.Y + screenY);
+            int tileY = BgCharacterGrid.CharacterOf(scrolledY);
+            int pixelY = BgCharacterGrid.PixelWithinCharacter(scrolledY);
             int previousTileX = -1;
             SnesBgTilemapWord bg2Entry = default;
 
@@ -408,17 +382,12 @@ public static partial class SnesGameplayFrameRenderer
                 int destination = screenY * Width + screenX;
                 Rgba32 winner = output[destination];
                 int winnerRank = 0;
-                int scrolledX = unchecked(floor.Bg2Scroll.X + screenX) & 0x01ff;
-                int tileX = scrolledX >> 3;
+                int scrolledX = floorGeometry.WrapX(floor.Bg2Scroll.X + screenX);
+                int tileX = BgCharacterGrid.CharacterOf(scrolledX);
                 if (tileX != previousTileX)
                 {
-                    int mapWord = (
-                        0x4800 +
-                        (tileX >> 5) * 0x0400 +
-                        tileY * 32 +
-                        (tileX & 31)) & 0x7fff;
-                    int mapByte = mapWord * 2;
-                    bg2Entry = (ushort)(vramBytes[mapByte] | (vramBytes[mapByte + 1] << 8));
+                    bg2Entry = SnesVramAddressing.ReadWord(vramBytes, floorGeometry.EntryWordAddress(
+                        GameplayVramLayout.Bg2TilemapWord, new Position16<TilemapCells>((ushort)tileX, (ushort)tileY)));
                     previousTileX = tileX;
                 }
 
@@ -427,7 +396,7 @@ public static partial class SnesGameplayFrameRenderer
                         palette,
                         bg2Entry,
                         floor.Bg2CharacterBaseWord,
-                        new Position16<CharacterPixels>((ushort)(scrolledX & 7), (ushort)pixelY),
+                        new Position16<CharacterPixels>((ushort)BgCharacterGrid.PixelWithinCharacter(scrolledX), (ushort)pixelY),
                         out Rgba32 bg2Color,
                         out bool bg2High))
                 {
@@ -613,9 +582,11 @@ public static partial class SnesGameplayFrameRenderer
         ushort tilemapBaseWord = fullScreenAtmosphere
             ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord
             : RoomFxRomData.Layer3.LiquidTilemapBaseWord;
-        int verticalCoordinateMask = fullScreenAtmosphere
-            ? RoomFxRomData.Layer3.FullScreenAtmosphereVerticalCoordinateMask
-            : RoomFxRomData.Layer3.LiquidVerticalCoordinateMask;
+        var geometry = new BgTilemapGeometry(fullScreenAtmosphere
+            ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapSize
+            : RoomFxRomData.Layer3.LiquidTilemapSize);
+        BgCharacterFormat format = BgCharacterFormat.TwoBitsPerPixel;
+        ReadOnlySpan<byte> fxVram = vram.Bytes;
         int firstLiquidScrollLine = fx.WaterSurfaceScreenY -
             (SnesPpuLayout.BackgroundTileSizePixels - 1);
         for (int screenY = HudHeight; screenY < Height; screenY++)
@@ -627,9 +598,9 @@ public static partial class SnesGameplayFrameRenderer
             ushort verticalScroll = liquid && screenY < firstLiquidScrollLine
                 ? (ushort)0
                 : fx.Scroll.Y;
-            int scrolledY = unchecked(verticalScroll + screenY) & verticalCoordinateMask;
-            int tileY = scrolledY >> 3;
-            int pixelY = scrolledY & 7;
+            int scrolledY = geometry.WrapY(verticalScroll + screenY);
+            int tileY = BgCharacterGrid.CharacterOf(scrolledY);
+            int pixelY = BgCharacterGrid.PixelWithinCharacter(scrolledY);
             int waveDisplacement = RoomFxTypes.UsesWater(fx.Type) &&
                 screenY > fx.WaterSurfaceScreenY
                 ? RoomFxRomData.Water.WaveDisplacement(
@@ -639,24 +610,17 @@ public static partial class SnesGameplayFrameRenderer
                 : 0;
             for (int screenX = 0; screenX < Width; screenX++)
             {
-                int scrolledX = unchecked(
-                    fx.Scroll.X + waveDisplacement + screenX) & 0xff;
-                int tileX = scrolledX >> 3;
-                int pixelX = scrolledX & 7;
-                SnesBgTilemapWord entry = vram.ReadWord(
-                    tilemapBaseWord +
-                    tileY * SnesPpuLayout.TilemapPageWidthInTiles + tileX);
-                int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
-                int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
-                int characterByte = ((0x4000 + entry.CharacterIndex * 8) & 0x7fff) * 2;
-                int planes = characterByte + sourceY * 2;
-                int mask = 1 << (7 - sourceX);
-                int color = ((vram.ReadByte(planes) & mask) != 0 ? 1 : 0) |
-                    ((vram.ReadByte(planes + 1) & mask) != 0 ? 2 : 0);
-                if (color == 0)
+                int scrolledX = geometry.WrapX(fx.Scroll.X + waveDisplacement + screenX);
+                SnesBgTilemapWord entry = vram.ReadWord(geometry.EntryWordAddress(tilemapBaseWord,
+                    new Position16<TilemapCells>((ushort)BgCharacterGrid.CharacterOf(scrolledX), (ushort)tileY)));
+                int row = format.RowByteOffset(GameplayVramLayout.HudCharacterWord, entry.CharacterIndex,
+                    BgCharacterGrid.SourcePixel(pixelY, entry.FlipVertically));
+                int color = format.ColorIndexAt(fxVram, row,
+                    BgCharacterGrid.SourcePixel(BgCharacterGrid.PixelWithinCharacter(scrolledX), entry.FlipHorizontally));
+                if (color == BgCharacterFormat.TransparentColorIndex)
                     continue;
 
-                Rgba32 overlay = cgram.GetRgba(entry.PaletteIndex * 4 + color);
+                Rgba32 overlay = cgram.GetRgba(format.CgramColor(entry.PaletteIndex, color));
                 int destination = screenY * Width + screenX;
                 Rgba32 source = frame[destination];
                 bool subtract = RoomFxTypes.UsesWater(fx.Type) &&

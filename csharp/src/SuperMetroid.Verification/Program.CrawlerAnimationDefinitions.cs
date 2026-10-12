@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -27,7 +28,7 @@ internal static partial class Program
         foreach ((CrawlerAnimationFamily family, int address, _) in initialTables)
         for (int orientation = 0; orientation < 4; orientation++)
         {
-            AssertEqual(ReadCrawlerAnimationWord(rom, address + orientation * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2)),
                 CrawlerAnimationDefinitions.InitialInstruction(
                     family, orientations[orientation]),
                 $"crawler initial selector {family}/{orientation}");
@@ -37,8 +38,7 @@ internal static partial class Program
         for (ushort speciesOffset = 0; speciesOffset <= 10; speciesOffset += 2)
         for (int orientation = 0; orientation < 4; orientation++)
         {
-            AssertEqual(ReadCrawlerAnimationWord(
-                    rom, surfaceTables[orientation] + speciesOffset),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + speciesOffset)),
                 CrawlerAnimationDefinitions.SurfaceInstruction(
                     speciesOffset, orientations[orientation]),
                 $"crawler surface selector {speciesOffset}/{orientation}");
@@ -130,12 +130,6 @@ internal static partial class Program
         Console.WriteLine(
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 24 real surface handoffs pass with source tables forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for crawler animation words")]
-    private static ushort ReadCrawlerAnimationWord(
-        SuperMetroidAddressSpace source,
-        int address) =>
-        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCrawlerAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

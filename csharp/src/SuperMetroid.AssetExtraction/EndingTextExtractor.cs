@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -153,6 +154,6 @@ public static class EndingTextExtractor
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadCartridgeByte((int)new SnesAddress(EndingTextDefinitions.Native.Bank, pointer));
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(ReadByte(bus, pointer) | ReadByte(bus, Add(pointer, 1)) << 8));
+        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(EndingTextDefinitions.Native.Bank, pointer));
     private static ushort Add(ushort pointer, int bytes) => unchecked((ushort)(pointer + bytes));
 }

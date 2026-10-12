@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -213,9 +214,7 @@ internal static partial class Program
     private static ushort ReadLowerNorfairRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa20000 | address) |
-            source.ReadCartridgeByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
+        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
 
     private static CartridgeReadGuard NewLowerNorfairRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,7 +24,7 @@ internal static partial class Program
                 GunshipInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadGunshipWord(rom, 0xa20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | definition.Address)),
                 $"gunship mechanics word $A2:{definition.Address:X4}");
         }
 
@@ -181,10 +182,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship words")]
-    private static ushort ReadGunshipWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewGunshipInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

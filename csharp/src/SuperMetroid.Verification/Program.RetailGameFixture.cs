@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -20,8 +21,7 @@ internal static partial class Program
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending instruction-program words")]
     private static Func<ushort, ushort> EndingCartridgeInstructionWord(ISnesAddressSpace bus) =>
-        pointer => (ushort)(bus.ReadCartridgeByte(0x8b0000 | pointer) |
-            bus.ReadCartridgeByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8);
+        pointer => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer);
 
     private static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
         CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,

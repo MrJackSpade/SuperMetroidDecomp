@@ -30,9 +30,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 EnemyProjectileInstructionMechanicsDefinitionsTooling.MechanicsWord(index);
-            ushort native = ReadEnemyProjectileMechanicsWord(
-                rom,
-                0x860000 | definition.Address);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | definition.Address));
             AssertEqual(definition.Value, native,
                 $"bank-$86 projectile mechanics word ${definition.Address:X4}");
 
@@ -44,9 +42,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord definition =
                 MotherBrainHandBeamInstructionProgramDefinitionsTooling.NativeWord(index);
-            ushort native = ReadEnemyProjectileMechanicsWord(
-                rom,
-                EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyProjectileCodePointers.BankBase | definition.Address));
             AssertEqual(definition.Value, native,
                 $"Mother Brain hand-beam mechanics word ${definition.Address:X4}");
         }
@@ -58,9 +54,7 @@ internal static partial class Program
                 MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index);
             int operandAddress = EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(instruction + 2));
-            int native = rom.ReadCartridgeByte(operandAddress) |
-                rom.ReadCartridgeByte(operandAddress + 1) << 8 |
-                rom.ReadCartridgeByte(operandAddress + 2) << 16;
+            int native = (CartridgeImportSource.Require(rom).ReadCartridgeLong(operandAddress));
             AssertEqual(MotherBrainHandBeamInstructionProgramDefinitions.SpawnNextCallback,
                 native,
                 $"Mother Brain hand-beam callback at ${instruction:X4}");
@@ -323,13 +317,13 @@ internal static partial class Program
         {
             if (--referenceTimer == 0)
             {
-                ushort word = ReadEnemyProjectileMechanicsWord(nativeReference, 0x860000 | referenceCursor);
+                ushort word = CartridgeImportSource.Require(nativeReference).ReadCartridgeWord((0x860000 | referenceCursor));
                 if (word >= 0x8000)
                 {
                     AssertEqual((ushort)EnemyProjectileInstruction.CallExternalFunctionInY,
                         word, "hand-beam native stage transition calls the child-spawn callback");
                     referenceCursor += 5;
-                    word = ReadEnemyProjectileMechanicsWord(nativeReference, 0x860000 | referenceCursor);
+                    word = CartridgeImportSource.Require(nativeReference).ReadCartridgeWord((0x860000 | referenceCursor));
                 }
                 referenceTimer = word;
                 referenceOperand = (ushort)(referenceCursor + 2);
@@ -520,12 +514,6 @@ internal static partial class Program
                 $"{expectedKind} splash deletes on the frame after its 40-frame lifetime");
         }
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile mechanics words")]
-    private static ushort ReadEnemyProjectileMechanicsWord(
-        SuperMetroidAddressSpace source,
-        int address) =>
-        unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewEnemyProjectileMechanicsReadGuard(ISnesAddressSpace source,
         HashSet<int> presentationReadBytes) =>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -30,15 +31,15 @@ internal static partial class Program
                 $"installed Torizo extended frame {frame:X4}");
             OamBuffer actual = DrawExtendedForBank(artwork, memory, TorizoInstructionProgramDefinitions.Bank, frame, new(x, y));
             var expected = new OamBuffer();
-            int count = NativeWord(source, 0xaa0000 | frame);
+            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame));
             for (int index = 0; index < count; index++)
             {
                 int component = 0xaa0000 | (frame + 2 + index * 8);
-                ushort cx = unchecked((ushort)(x + (short)NativeWord(source, component)));
-                ushort cy = unchecked((ushort)(y + (short)NativeWord(source, component + 2)));
+                ushort cx = unchecked((ushort)(x + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(component)));
+                ushort cy = unchecked((ushort)(y + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 2))));
                 if (((cx + 128) & 0xfe00) != 0 || ((cy + 128) & 0xfe00) != 0)
                     continue;
-                DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = TorizoInstructionProgramDefinitions.Bank, Pointer = NativeWord(source, component + 4), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (cy >> 8) == 0 });
+                DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = TorizoInstructionProgramDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (cy >> 8) == 0 });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
             AssertTrue(expected.ImageEquals(actual), "Torizo composed OAM bytes and origin arithmetic");
@@ -63,7 +64,7 @@ internal static partial class Program
             InstructionMechanicsWord word = TorizoInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertTrue(word.Address > previous, "Torizo mechanics are ordered and unique");
             previous = word.Address;
-            AssertEqual(NativeWord(source, 0xaa0000 | word.Address), word.Value, $"Torizo word {word.Address:X4}");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | word.Address)), word.Value, $"Torizo word {word.Address:X4}");
             foreach (EnemyDefinitionId pointer in new[] { EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo })
             {
                 RoomEnemySlot slot = enemies.Slots[0];
@@ -79,25 +80,25 @@ internal static partial class Program
                 "Torizo visual operands cannot be read as mechanics");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(TorizoInstructionProgramDefinitions.Bank, operand, out ushort pointer),
                 "every Torizo sprite selector is compiled");
-            AssertEqual(NativeWord(source, 0xaa0000 | operand), pointer, "Torizo selector matches pinned source");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | operand)), pointer, "Torizo selector matches pinned source");
         }
         AssertEqual(106, TorizoCollisionDefinitions.FrameCount, "complete Torizo physical frame count");
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         {
             TorizoCollisionComponents components = TorizoCollisionDefinitions.ComponentsAt(frame);
-            AssertEqual(NativeWord(source, 0xaa0000 | frame), components.Length, "Torizo component count");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame)), components.Length, "Torizo component count");
             for (int i = 0; i < components.Length; i++)
             {
                 int address = 0xaa0000 | (frame + 2 + i * 8);
-                AssertEqual(unchecked((short)NativeWord(source, address)), components[i].Offset.X, "Torizo physical X");
-                AssertEqual(unchecked((short)NativeWord(source, address + 2)), components[i].Offset.Y, "Torizo physical Y");
-                AssertEqual(NativeWord(source, address + 6), components[i].HitboxList, "Torizo hitbox identity");
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(address)), components[i].Offset.X, "Torizo physical X");
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((address + 2))), components[i].Offset.Y, "Torizo physical Y");
+                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((address + 6)), components[i].HitboxList, "Torizo hitbox identity");
             }
         }
         foreach (ushort pointer in TorizoCollisionDefinitions.HitboxPointers)
         {
             ReadOnlySpan<GoldenTorizoCollisionHitbox> boxes = TorizoCollisionDefinitions.HitboxesAt(pointer);
-            AssertEqual(NativeWord(source, 0xaa0000 | pointer), boxes.Length, "Torizo rectangle count");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | pointer)), boxes.Length, "Torizo rectangle count");
             for (int i = 0; i < boxes.Length; i++)
             {
                 int address = 0xaa0000 | (pointer + 2 + i * 12);
@@ -105,7 +106,7 @@ internal static partial class Program
                 ushort[] words = [unchecked((ushort)box.Left), unchecked((ushort)box.Top),
                     unchecked((ushort)box.Right), unchecked((ushort)box.Bottom), box.TouchAi, box.ShotAi];
                 for (int w = 0; w < words.Length; w++)
-                    AssertEqual(NativeWord(source, address + w * 2), words[w], "Torizo rectangle/callback word");
+                    AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((address + w * 2)), words[w], "Torizo rectangle/callback word");
             }
         }
     }
@@ -115,7 +116,7 @@ internal static partial class Program
         foreach ((ushort pointer, int count) in new (ushort, int)[]
             { (0xe226, 13), (0xe240, 6), (0xe24c, 3), (0xe252, 3), (0xe258, 5) })
             for (int i = 0; i < count; i++)
-                AssertEqual(NativeWord(source, 0xa90000 | (pointer + i * 2)),
+                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 2))),
                     DeadMonsterRottingDefinitions.RotationOffset(pointer, (ushort)(i * 8)), "corpse rotation offset");
         foreach (ushort pointer in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
         {
@@ -125,22 +126,22 @@ internal static partial class Program
                 var record = records[i];
                 ushort[] words = [record.SizeInBytes, record.SourceBankWord, record.SourceOffset, record.EncodedVramDestination];
                 for (int w = 0; w < words.Length; w++)
-                    AssertEqual(NativeWord(source, 0xa90000 | (pointer + i * 8 + w * 2)), words[w], "corpse transfer descriptor");
+                    AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + i * 8 + w * 2))), words[w], "corpse transfer descriptor");
             }
-            AssertEqual((ushort)0, NativeWord(source, 0xa90000 | (pointer + records.Length * 8)), "corpse descriptor terminator");
+            AssertEqual((ushort)0, CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa90000 | (pointer + records.Length * 8))), "corpse descriptor terminator");
         }
         var boxes = DeadMonsterRottingDefinitions.TorizoTouchHitboxes;
-        AssertEqual(NativeWord(source, 0xa9d77c), boxes.Length, "dead Torizo asymmetric rectangle count");
+        AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa9d77c), boxes.Length, "dead Torizo asymmetric rectangle count");
         for (int i = 0; i < boxes.Length; i++)
         {
             ushort[] words = [boxes[i].Left, boxes[i].Top, boxes[i].Right, boxes[i].Bottom];
             for (int w = 0; w < words.Length; w++)
-                AssertEqual(NativeWord(source, 0xa9d77e + i * 8 + w * 2), words[w], "dead Torizo asymmetric word");
+                AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d77e + i * 8 + w * 2)), words[w], "dead Torizo asymmetric word");
         }
         for (ushort i = 0; i < 16; i++)
         {
-            AssertEqual(NativeWord(source, 0xa9d67c + i * 2), DeadMonsterRottingDefinitions.SandDestination(i), "corpse sand destination");
-            AssertEqual(NativeWord(source, 0xa9d69c + i * 2), DeadMonsterRottingDefinitions.SandSource(i), "corpse sand source");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d67c + i * 2)), DeadMonsterRottingDefinitions.SandDestination(i), "corpse sand destination");
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d69c + i * 2)), DeadMonsterRottingDefinitions.SandSource(i), "corpse sand source");
         }
     }
 
@@ -150,10 +151,10 @@ internal static partial class Program
         foreach (ushort frame in CrocomireBodyVisualDefinitions.Frames)
         {
             ushort expected = CrocomireInstructionProgramDefinitions.PowerBombReactionMouthNotOpen;
-            int count = NativeWord(source, 0xa40000 | frame);
+            int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | frame));
             for (int i = 0; i < count; i++)
             {
-                ushort sprite = NativeWord(source, 0xa40000 | (frame + 6 + i * 8));
+                ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa40000 | (frame + 6 + i * 8)));
                 if (sprite == 0xd600) { expected = CrocomireInstructionProgramDefinitions.PowerBombReactionMouthFullyOpen; break; }
                 if (sprite == 0xd51c) { expected = CrocomireInstructionProgramDefinitions.PowerBombReactionMouthPartiallyOpen; break; }
             }
@@ -170,8 +171,8 @@ internal static partial class Program
         foreach (var definition in EnemyAuxiliaryColorDefinitions.All)
             for (int frame = 0; frame < definition.FrameCount; frame++)
                 for (int color = 0; color < definition.ColorCount; color++)
-                    AssertEqual((ushort)(NativeWord(source, definition.SourceAddress +
-                        (frame * definition.NativeFrameStrideColors + color) * 2) & 0x7fff),
+                    AssertEqual((ushort)(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((definition.SourceAddress +
+                        (frame * definition.NativeFrameStrideColors + color) * 2)) & 0x7fff),
                         catalog.Resolve(definition.Id, frame, color), "editable auxiliary RGB5 color");
         var document = JsonSerializer.Deserialize<EnemyAuxiliaryColorDocument>(json,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -188,9 +189,4 @@ internal static partial class Program
             "duplicate palette JSON property rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(EnemyAuxiliaryPalette.FaceBlock, 8, 0), "palette frame bounded");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy definition boundary words")]
-    private static ushort NativeWord(ISnesAddressSpace source, int address) =>
-        (ushort)(source.ReadCartridgeByte(address) |
-            source.ReadCartridgeByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
 }

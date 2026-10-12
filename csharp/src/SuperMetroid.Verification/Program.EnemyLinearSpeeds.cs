@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,7 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled linear enemy speeds")]
     private static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var shared = typeof(RoomEnemySystem).GetMethod("ReadLinearEnemySpeed",
             BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ushort, (short Whole, ushort Fraction)>>();
@@ -15,11 +15,11 @@ internal static partial class Program
         // crossing record boundaries, matches independent cartridge bytes.
         for (int offset = 0; offset <= 516; offset++)
         {
-            var expected = (unchecked((short)Word(0xa08187 + offset)), Word(0xa08189 + offset));
+            var expected = (unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + offset))), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + offset)));
             AssertEqual(expected, shared((ushort)offset), "compiled linear native byte window");
             AssertEqual(expected, EnemyLinearSpeedDefinitions.Read(offset), "linear catalog window");
-            AssertEqual(Word(0xa08187 + offset), Word(0xa28187 + offset), "Ripper bank mirror whole");
-            AssertEqual(Word(0xa08189 + offset), Word(0xa28189 + offset), "Ripper bank mirror fraction");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + offset)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa28187 + offset)), "Ripper bank mirror whole");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + offset)), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa28189 + offset)), "Ripper bank mirror fraction");
         }
         AssertThrows<InvalidDataException>(() => EnemyLinearSpeedDefinitions.Read(-1), "negative linear offset");
         AssertThrows<InvalidDataException>(() => EnemyLinearSpeedDefinitions.Read(517), "partial linear pair");
@@ -43,8 +43,8 @@ internal static partial class Program
         var slot = enemies.Slots[0];
         for (int index = 0; index < 65; index++)
         {
-            ushort right = Word(0xa08187 + index * 8), rightFraction = Word(0xa08189 + index * 8);
-            ushort left = Word(0xa0818b + index * 8), leftFraction = Word(0xa0818d + index * 8);
+            ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + index * 8)), rightFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + index * 8));
+            ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818b + index * 8)), leftFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818d + index * 8));
             var expected = (right, rightFraction, left, leftFraction);
             slot.Parameter1 = 0;
             slot.Parameter2 = (ushort)(index << 8);

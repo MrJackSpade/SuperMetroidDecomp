@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,8 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for room palette FX definitions")]
     private static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => unchecked((ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
         ushort[] pointers =
         [
@@ -64,7 +63,7 @@ internal static partial class Program
             int pointerAddress = RoomFxRomData.Tables.AreaPaletteFxObjectListPointers + area * 2;
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
-            ushort nativeList = Word(pointerAddress);
+            ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(pointerAddress);
             for (int bit = 0; bit < RoomPaletteFxDefinitions.DefinitionsPerArea; bit++)
             {
                 int entryAddress = RoomFxRomDataBanksTooling.RoomDefinitions |

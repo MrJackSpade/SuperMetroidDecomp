@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,14 +8,13 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon patterns")]
     private static void VerifyCompiledPhantoonPatterns(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int i = 0; i < 8; i++)
         {
             var placement = PhantoonPatternDefinitions.RainPlacement(i);
-            AssertEqual(Word(0xa7cdad + i * 8), placement.Cursor, "Native rain figure-eight cursor");
-            AssertEqual(Word(0xa7cdaf + i * 8), placement.X, "Native rain body X");
-            AssertEqual(Word(0xa7cdb1 + i * 8), placement.Y, "Native rain body Y");
-            AssertEqual((ushort)0, Word(0xa7cdb3 + i * 8), "Native unused rain record word");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.Cursor, "Native rain figure-eight cursor");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.X, "Native rain body X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.Y, "Native rain body Y");
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
             AssertEqual(rom.ReadCartridgeByte(0xa7cda5 + i), PhantoonPatternDefinitions.ShotEyeMarkers[i], "Native shot eye marker");
         }
@@ -36,9 +36,9 @@ internal static partial class Program
             body.VariableE = 1;
             eye.VariableC = 123;
             rainMethod.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(enemies)(body, state);
-            AssertEqual(Word(0xa7cdad + pattern * 8), body.VariableA, "Real rain cursor handoff");
-            AssertEqual(Word(0xa7cdaf + pattern * 8), body.Position.X.Whole, "Real rain body placement X");
-            AssertEqual(Word(0xa7cdb1 + pattern * 8), body.Position.Y.Whole, "Real rain body placement Y");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), body.VariableA, "Real rain cursor handoff");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual((ushort)0, eye.VariableC, "Real rain direction reset");
             AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain, body.VariableF, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
@@ -60,7 +60,7 @@ internal static partial class Program
         ];
         for (ushort direction = 0; direction < 9; direction++)
         {
-            AssertEqual(Word(0xa7d40d + direction * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7d40d + direction * 2)),
                 PhantoonPatternDefinitions.EyeInstruction(direction),
                 $"native Phantoon eye direction {direction}");
         }

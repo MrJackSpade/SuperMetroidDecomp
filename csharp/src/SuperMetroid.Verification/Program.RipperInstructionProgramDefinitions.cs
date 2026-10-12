@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -24,7 +25,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 RipperInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadRipperInstructionWord(rom, 0xa20000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | definition.Address)),
                 $"Ripper-family instruction mechanics word $A2:{definition.Address:X4}");
         }
 
@@ -38,7 +39,7 @@ internal static partial class Program
                 : address >= RipperInstructionProgramDefinitions.Ripper2MovingRight
                     ? EnemyDefinitionId.Ripper2
                     : EnemyDefinitionId.GRipper;
-            AssertEqual(ReadRipperInstructionWord(rom, 0xa20000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | address)),
                 RipperVisualDefinitions.FrameAt(definition, address),
                 $"compiled Ripper-family frame selector $A2:{address:X4}");
         }
@@ -52,9 +53,9 @@ internal static partial class Program
                          EnemyDefinitionId.Ripper),
                  })
         {
-            AssertEqual(definition, EnemyDefinitionIds.FromHeaderPointer(ReadRipperInstructionWord(rom, record)),
+            AssertEqual(definition, EnemyDefinitionIds.FromHeaderPointer(CartridgeImportSource.Require(rom).ReadCartridgeWord(record)),
                 $"retail Ripper population ${record:X6} definition");
-            ushort extra = ReadRipperInstructionWord(rom, record + 10);
+            ushort extra = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10));
             AssertTrue(!extra.HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
                 $"retail Ripper population ${record:X6} uses ordinary OAM");
         }
@@ -225,11 +226,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ripper instruction words")]
-    private static ushort ReadRipperInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewRipperInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

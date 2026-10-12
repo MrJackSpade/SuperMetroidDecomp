@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -8,8 +9,7 @@ internal static partial class Program
     {
         SpeedTableEntry Read(int a)
         {
-            ushort Word(int offset) => (ushort)(rom.ReadCartridgeByte(a + offset) | rom.ReadCartridgeByte(a + offset + 1) << 8);
-            return new(Word(0), Word(2), Word(4), Word(6), Word(8), Word(10));
+            return new(CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 0), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 4), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 6), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 8), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 10));
         }
         var speed = new SamusHorizontalSpeedState();
         // Unaligned/non-catalog spans can overlap known words, so classify each

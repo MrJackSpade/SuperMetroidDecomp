@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -19,8 +20,7 @@ internal static class CeresEscapeOverlayTilemapFiles
             for (int index = 0; index < source.Length; index++)
             {
                 int address = page.SourceAddress + index * sizeof(ushort);
-                source[index] = (ushort)(bus.ReadCartridgeByte(address) |
-                    bus.ReadCartridgeByte(address + 1) << 8);
+                source[index] = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             }
             words.Add(page.Name, source);
         }

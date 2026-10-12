@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -54,19 +55,15 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for door closing PLM definitions")]
     private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
     {
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
         Suite(nameof(VerifyFallbackDoorHeaders), () => VerifyFallbackDoorHeaders(rom));
         Suite(nameof(VerifyFallbackDoorLists), () => VerifyFallbackDoorLists(rom));
         for (byte direction = 0; direction < DoorClosingTableEntries; direction++)
         {
-            ushort expectedHeader = ReadWord(
-                rom,
-                DoorClosingPlmRomData.HeaderTableAddress + direction * sizeof(ushort));
+            ushort expectedHeader = CartridgeImportSource.Require(rom).ReadCartridgeWord((DoorClosingPlmRomData.HeaderTableAddress + direction * sizeof(ushort)));
             ushort expectedList = expectedHeader == 0
                 ? (ushort)0
-                : ReadWord(rom, 0x840000 | unchecked((ushort)(expectedHeader + 2)));
+                : CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(expectedHeader + 2))));
             var plms = new RoomPlmSystem();
             RoomLevelData level = CreateRoom(new(4, 4),
                 new ushort[16],
@@ -113,8 +110,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for resident door closing definitions")]
     private static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
     {
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
         AssertEqual(ResidentDoorClosingDefinitions.Count,
             ResidentDoorClosingDefinitions.All.Count(),
@@ -133,9 +128,7 @@ internal static partial class Program
         foreach (ResidentDoorClosingDefinition definition in
                  ResidentDoorClosingDefinitions.All)
         {
-            ushort expected = ReadWord(
-                rom,
-                0x840000 | unchecked((ushort)(definition.Header + 4)));
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 4))));
             AssertEqual(expected, definition.ClosingInstructionList,
                 $"resident door $84:{(int)definition.Header:X4} closing list matches cartridge");
             AssertEqual(expected,
@@ -155,8 +148,8 @@ internal static partial class Program
                 // so they are absent from the 70-header population catalog. Decode
                 // their setup/first-list metadata here, in the import-side oracle.
                 new RoomPlmPlacement(new RoomPlmHeaderDefinition((PlmHeaderId)definition.Header,
-                    ReadWord(rom, 0x840000 | (ushort)definition.Header),
-                    ReadWord(rom, 0x840000 | unchecked((ushort)(definition.Header + 2)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (ushort)definition.Header)),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 2))))),
                     new(blockX, blockY), 0x8000), // Negative argument always closes.
             ]);
 

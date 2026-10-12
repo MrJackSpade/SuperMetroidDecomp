@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Immutable cartridge data and fixed hardware layout shared by Samus palettes.</summary>
@@ -231,7 +232,7 @@ public static class SamusPaletteRomData
                 throw new InvalidDataException(
                     $"Full-body palette pointer read ${readAddress:X4} is outside the compiled list allocation.");
 
-            return (ushort)(ReadByte(byteOffset) | ReadByte(byteOffset + 1) << 8);
+            return SnesLittleEndian.Word(ReadByte(byteOffset), ReadByte(byteOffset + 1));
 
             byte ReadByte(int index)
             {

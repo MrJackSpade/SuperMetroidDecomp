@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -81,18 +82,16 @@ internal static partial class Program
     private static void VerifyCompiledEnemyInstructionSelectors(
         SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => unchecked((ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
-        AssertEqual(Word(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(false),
             "Golden Torizo left reflected-Super list");
-        AssertEqual(Word(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
             GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(true),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
-            AssertEqual(Word(EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter)),
                 TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(parameter),
                 $"Tourian entrance statue initial selector {parameter}");
         AssertThrows<ArgumentOutOfRangeException>(

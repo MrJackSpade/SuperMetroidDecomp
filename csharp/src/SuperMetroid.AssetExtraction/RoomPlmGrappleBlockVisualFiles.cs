@@ -111,9 +111,9 @@ public static class RoomPlmGrappleBlockVisualFiles
                  RoomPlmGrappleBlockDrawDefinitions.All.OrderBy(item => item.Pointer))
         {
             ushort pointer = draw.Pointer;
-            if (ReadWord(bus, pointer) !=
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount ||
-                ReadWord(bus, unchecked((ushort)(pointer + 2))) != draw.LevelWord ||
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (unchecked((ushort)(pointer + 2))))) != draw.LevelWord ||
                 bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 4)))) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX ||
                 bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 5)))) !=
@@ -155,10 +155,6 @@ public static class RoomPlmGrappleBlockVisualFiles
             throw new InvalidDataException($"Invalid Grapple-block JSON {path}.", error);
         }
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
-            bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 1)))) << 8));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

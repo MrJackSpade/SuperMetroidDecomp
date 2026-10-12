@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
@@ -53,7 +54,7 @@ internal static partial class Program
             for (int frame = 0; frame < count; frame++, ordinal += 2)
             {
                 ushort address = (ushort)(lists[listIndex] + frame * 4 + (draw ? 2 : 0));
-                ushort expected = ReadStationRomWord(rom, address);
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
                 var actual = StationAnimationProgramDefinitions.Resolve(list, frame);
                 AssertEqual(expected, draw ? actual.DrawPointer : actual.Duration, "Station original animation field");
                 var enumerated = words[ordinal + (draw ? 1 : 0)];
@@ -62,9 +63,4 @@ internal static partial class Program
             }
         }
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for station animation program words")]
-    private static ushort ReadStationRomWord(SuperMetroidAddressSpace rom, int address) =>
-        unchecked((ushort)(rom.ReadCartridgeByte(0x840000 | address) |
-            rom.ReadCartridgeByte(0x840000 | (address + 1)) << 8));
 }

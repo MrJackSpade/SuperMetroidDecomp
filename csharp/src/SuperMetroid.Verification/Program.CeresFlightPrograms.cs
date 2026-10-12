@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -25,7 +26,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight program")]
     private static void VerifyCeresFlightProgram(ISnesAddressSpace rom, ushort start, ushort end, bool crossesIntoNext, bool destructionAlias)
     {
-        ushort OriginalWord(ushort p) => (ushort)(rom.ReadCartridgeByte(0x8b0000 | p) | rom.ReadCartridgeByte(0x8b0000 | (p + 1)) << 8);
+        ushort OriginalWord(ushort p) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8b0000 | p);
         for (int p = start; p < end; p++)
         {
             byte expected = rom.ReadCartridgeByte(0x8b0000 | p);

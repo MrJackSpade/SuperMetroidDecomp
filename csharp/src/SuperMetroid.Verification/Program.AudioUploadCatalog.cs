@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 internal static partial class Program
@@ -17,7 +18,7 @@ internal static partial class Program
                 continue;
             }
             int address = 0x8fe7e1 + index;
-            int pointer = rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8 | rom.ReadCartridgeByte(address + 2) << 16;
+            int pointer = (CartridgeImportSource.Require(rom).ReadCartridgeLong(address));
             var actual = AudioAssetCatalogData.ResolveDataIndex((byte)index);
             AssertEqual(pointer, actual.SnesAddress, "original upload pointer");
             AssertEqual((byte)index, actual.DataIndex, "native byte offset identity");

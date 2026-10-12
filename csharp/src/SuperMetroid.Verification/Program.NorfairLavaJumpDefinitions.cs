@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,13 +9,11 @@ internal static partial class Program
     private static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        ushort Word(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         for (ushort selector = 0; selector < 4; selector++)
         {
             ushort random = unchecked((ushort)(selector << 9));
-            AssertEqual(Word(0xa2be86 + selector * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + selector * 2)),
                 NorfairLavaJumpDefinitions.InitialVerticalVelocity(random),
                 $"Norfair lava jumper velocity {selector}");
         }
@@ -44,7 +43,7 @@ internal static partial class Program
             slot.Properties = 0;
             runMain(slot, state);
 
-            AssertEqual(Word(0xa2be86 + ((random >> 8) & 6)), state.YVelocity,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((random >> 8) & 6))), state.YVelocity,
                 $"Norfair lava jumper production velocity {random:X4}");
             AssertEqual(NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch,
                 state.Function, $"Norfair lava jumper production handoff {random:X4}");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,9 +11,7 @@ internal static partial class Program
         const int sourceAddress = 0xa7cded;
         for (ushort index = 0; index < 3; index++)
         {
-            ushort expected = (ushort)(
-                rom.ReadCartridgeByte(sourceAddress + index * 2) |
-                rom.ReadCartridgeByte(sourceAddress + index * 2 + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2);
             AssertEqual(expected, PhantoonSoundDefinitions.MaterializationSound(index),
                 $"Phantoon materialization sound {index}");
         }

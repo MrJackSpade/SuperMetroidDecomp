@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -66,11 +67,9 @@ internal static partial class Program
             if (transfer.Pointer < CeresEscapeVramTransferDefinitions.TimerSprites)
                 continue;
             int descriptor = 0xa60000 | transfer.Pointer;
-            ushort byteCount = ReadWord(descriptor);
-            int source = rom.ReadCartridgeByte(descriptor + 2) |
-                rom.ReadCartridgeByte(descriptor + 3) << 8 |
-                rom.ReadCartridgeByte(descriptor + 4) << 16;
-            ushort destination = ReadWord(descriptor + 5);
+            ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
+            int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
+            ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
             nativeQueue.Enqueue(byteCount, source, VramDmaDestination.FromNative(destination));
         }
         var nativeVram = new SnesVram();
@@ -171,9 +170,6 @@ internal static partial class Program
         Console.WriteLine(
             "Ceres escape tiles: both indexed PNGs match native bytes; all 15 live " +
             "transfers match VRAM without ROM art reads; edit, reload, and rejection pass.");
-
-        ushort ReadWord(int address) => (ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private sealed class CeresEscapeArtworkProvider(

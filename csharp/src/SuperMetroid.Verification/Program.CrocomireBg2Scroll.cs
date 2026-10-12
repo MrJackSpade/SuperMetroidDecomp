@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -9,18 +10,13 @@ internal static partial class Program
         Suite(nameof(VerifyCrocomireBg2PoseCorrections), () => VerifyCrocomireBg2PoseCorrections(rom));
     }
 
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire BG2 native words")]
-    private static ushort CrocomireBg2NativeWord(SuperMetroidAddressSpace rom, int address) =>
-        (ushort)(rom.ReadCartridgeByte(address) |
-            rom.ReadCartridgeByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8);
-
     private static void VerifyCrocomireBg2FramePositions(SuperMetroidAddressSpace rom)
     {
         AssertEqual(17, CrocomireBg2ScrollDefinitions.EntryCount, "all native BG2 frame pointers");
         var seen = new HashSet<ushort>();
         for (int index = 0; index < 17; index++)
         {
-            ushort expected = CrocomireBg2NativeWord(rom, 0xa48b79 + 2 * index);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa48b79 + 2 * index));
             ushort actual = CrocomireBg2ScrollDefinitions.Entry(index).SpritemapPointer;
             AssertEqual(expected, actual, "Crocomire BG2 native pointer order");
             AssertTrue(seen.Add(actual), "Crocomire BG2 pointers are unique");
@@ -34,8 +30,8 @@ internal static partial class Program
         var originalOffsets = new Dictionary<ushort, ushort>();
         for (int index = 0; index < 17; index++)
         {
-            ushort pointer = CrocomireBg2NativeWord(rom, 0xa48b79 + 2 * index);
-            ushort offset = CrocomireBg2NativeWord(rom, 0xa40000 | unchecked((ushort)(pointer + 0x1c)));
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa48b79 + 2 * index));
+            ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | unchecked((ushort)(pointer + 0x1c))));
             originalOffsets[pointer] = offset;
             AssertEqual(offset, CrocomireBg2ScrollDefinitions.Entry(index).Offset, "Crocomire BG2 native pose correction");
             foreach (ushort bodyY in new ushort[] { 0, 0x43, 0x90, 0xfffc })

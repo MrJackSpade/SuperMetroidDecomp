@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
@@ -10,8 +11,7 @@ internal static partial class Program
     private static ushort ReadImportedPlmWord(SuperMetroidAddressSpace source, ushort offset)
     {
         int bank = RoomPlmMemoryLayout.ProgramBank << 16;
-        return (ushort)(source.ReadCartridgeByte(bank | offset) |
-            source.ReadCartridgeByte(bank | unchecked((ushort)(offset + sizeof(byte)))) << 8);
+        return CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(bank | offset);
     }
 
     /// <summary>

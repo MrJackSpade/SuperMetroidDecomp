@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -24,20 +25,20 @@ internal static partial class Program
             int address = MotherBrainContactHitboxDefinitions.GetSourceAddress(part);
             MotherBrainContactHitboxes hitboxes =
                 MotherBrainContactHitboxDefinitions.Get(part);
-            AssertEqual(hitboxes.Count, ReadMotherBrainHitboxWord(rom, address),
+            AssertEqual(hitboxes.Count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 $"Mother Brain {part} hitbox count");
 
             for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = address + 2 + index * 8;
                 MotherBrainContactHitbox hitbox = hitboxes[index];
-                AssertEqual(unchecked((short)ReadMotherBrainHitboxWord(rom, record)), hitbox.Left,
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), hitbox.Left,
                     $"Mother Brain {part} hitbox {index} left");
-                AssertEqual(unchecked((short)ReadMotherBrainHitboxWord(rom, record + 2)), hitbox.Top,
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), hitbox.Top,
                     $"Mother Brain {part} hitbox {index} top");
-                AssertEqual(unchecked((short)ReadMotherBrainHitboxWord(rom, record + 4)), hitbox.Right,
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4))), hitbox.Right,
                     $"Mother Brain {part} hitbox {index} right");
-                AssertEqual(unchecked((short)ReadMotherBrainHitboxWord(rom, record + 6)), hitbox.Bottom,
+                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6))), hitbox.Bottom,
                     $"Mother Brain {part} hitbox {index} bottom");
                 comparedWords += 4;
             }
@@ -109,9 +110,5 @@ internal static partial class Program
 
         return (false, 0);
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain hitbox words")]
-    private static ushort ReadMotherBrainHitboxWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
 }

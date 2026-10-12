@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -41,17 +42,15 @@ internal static partial class Program
             previousInstruction = transfer.Instruction;
             authoredOpcodes.Add(transfer.Instruction);
             AssertEqual((ushort)CommonEnemyInstruction.CopyToVram,
-                ReadWord(0xaa0000 | transfer.Instruction),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaa0000 | transfer.Instruction)),
                 $"Torizo transfer $AA:{transfer.Instruction:X4} opcode");
             int descriptor = 0xaa0000 | unchecked((ushort)(transfer.Instruction + 2));
-            AssertEqual(transfer.ByteCount, ReadWord(descriptor),
+            AssertEqual(transfer.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor),
                 $"Torizo transfer $AA:{transfer.Instruction:X4} byte count");
-            int nativeSource = rom.ReadCartridgeByte(descriptor + 2) |
-                rom.ReadCartridgeByte(descriptor + 3) << 8 |
-                rom.ReadCartridgeByte(descriptor + 4) << 16;
+            int nativeSource = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
             AssertEqual(transfer.SourceAddress, nativeSource,
                 $"Torizo transfer $AA:{transfer.Instruction:X4} source");
-            AssertEqual(transfer.DestinationWord, ReadWord(descriptor + 5),
+            AssertEqual(transfer.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{transfer.Instruction:X4} VRAM destination");
             AssertTrue(TorizoInstructionVramTransferDefinitions.TryGet(
                     transfer.Instruction, out TorizoInstructionVramTransferDefinition selected) &&
@@ -78,14 +77,12 @@ internal static partial class Program
         for (int address = 0xb000; address < 0xd369; address++)
         {
             int opcode = 0xaa0000 | address;
-            if (ReadWord(opcode) != (ushort)CommonEnemyInstruction.CopyToVram)
+            if (CartridgeImportSource.Require(rom).ReadCartridgeWord(opcode) != (ushort)CommonEnemyInstruction.CopyToVram)
                 continue;
             int descriptor = opcode + 2;
-            ushort byteCount = ReadWord(descriptor);
-            int source = rom.ReadCartridgeByte(descriptor + 2) |
-                rom.ReadCartridgeByte(descriptor + 3) << 8 |
-                rom.ReadCartridgeByte(descriptor + 4) << 16;
-            ushort destination = ReadWord(descriptor + 5);
+            ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
+            int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
+            ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
             if (byteCount is 0 or > 0x2000 ||
                 (source >> 16) < 0x80 || destination > 0x7fff)
                 continue;
@@ -153,9 +150,6 @@ internal static partial class Program
         Console.WriteLine(
             "Torizo instruction VRAM: 52 native descriptors, eight installed tile PNGs, " +
             "byte parity, live edit, reload, and invalid-asset rejection pass.");
-
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static CartridgeReadGuard NewForbiddenTorizoRomBus() =>

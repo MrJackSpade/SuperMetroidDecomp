@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -22,7 +23,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 RidleyInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
-                ReadRidleyWord(rom, 0xa60000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | definition.Address)),
                 definition.Value,
                 $"Ridley mechanics word $A6:{definition.Address:X4}");
         }
@@ -72,7 +73,7 @@ internal static partial class Program
                 $"production execution selects Ridley presentation $A6:{address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort selector),
                 "Ridley presentation has a compiled selector");
-            AssertEqual(ReadRidleyWord(rom, 0xa60000 | address), selector,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | address)), selector,
                 "Ridley compiled selector matches the cartridge");
         }
 
@@ -138,7 +139,7 @@ internal static partial class Program
             {
                 ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
                 executedOperands.Add(operand);
-                AssertEqual(ReadRidleyWord(rom, 0xa60000 | operand), slot.SpritemapPointer,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | operand)), slot.SpritemapPointer,
                     $"executed Ridley frame $A6:{operand:X4} matches the native extended sprite selector");
             }
             if (slot.InstructionTimer == 0 &&
@@ -163,10 +164,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley instruction-program words")]
-    private static ushort ReadRidleyWord(SuperMetroidAddressSpace source, int address) =>
-        unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewRidleyInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

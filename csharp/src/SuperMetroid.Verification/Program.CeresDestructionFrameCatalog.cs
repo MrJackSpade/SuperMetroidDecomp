@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -17,9 +18,9 @@ internal static partial class Program
             int frame = index < 7 ? index : index < 13 ? index - 7 : index < 17 ? index - 13 : index - 17;
             int operand = index < 7 ? backdropOperands[index] : (index < 13 ? 0xccdd : index < 17 ? 0xcd21 : 0xce1d) + 4 * frame;
             operand |= 0x8b0000;
-            ushort pointer = (ushort)(rom.ReadCartridgeByte(operand) | rom.ReadCartridgeByte(operand + 1) << 8);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
             int record = 0x8c0000 | pointer;
-            int count = rom.ReadCartridgeByte(record) | rom.ReadCartridgeByte(record + 1) << 8;
+            int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(record);
             string name = index < 7 ? backdropNames[index] : $"{(index < 13 ? "small" : index < 17 ? "large" : "station")}-blast-{frame}";
             AssertEqual(pointer, frames[index].Pointer, "native destruction frame operand");
             AssertEqual(count, frames[index].StockPartCount, "native destruction part count");

@@ -81,3 +81,6 @@ dotnet_diagnostic.IDE0330.severity = error
 # #620/#677: reusable argument guards use Ensure; Ensure calls let it capture the value expression.
 dotnet_diagnostic.SME6201.severity = error
 dotnet_diagnostic.SME6202.severity = error
+
+# #223: 16-bit and 24-bit values are read through the canonical word reads, not rebuilt from bytes.
+dotnet_diagnostic.SME6350.severity = error

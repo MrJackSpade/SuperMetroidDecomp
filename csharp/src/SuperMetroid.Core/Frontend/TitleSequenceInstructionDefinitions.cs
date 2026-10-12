@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Bank-$8B title-card timing, scene triggers and calculated progressive text selectors.</summary>
@@ -32,7 +33,7 @@ internal static class TitleSequenceInstructionDefinitions
     {
         if (address is < StartAddress or >= (EndAddress - 1))
             throw new InvalidDataException($"Title-card word ${address:X6} leaves its compiled program.");
-        return (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
+        return SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
     }
 
     // Initial/reveal/final/logo holds 60/8/45/120/32 are the title card's authored timing (see residualScalarInputsReview).

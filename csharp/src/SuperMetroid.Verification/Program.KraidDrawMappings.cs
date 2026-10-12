@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -15,7 +16,7 @@ internal static partial class Program
             (0xb7bb, 0xabdd), (0xb7bf, 0xaba9),
         ];
         foreach (var owner in owners)
-            AssertEqual(owner.Program, KraidDrawRomWord(rom, owner.Header + 2),
+            AssertEqual(owner.Program, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (owner.Header + 2)),
                 "Kraid draw owner native program identity");
         var headers = owners.Select(owner => owner.Header).ToHashSet();
         for (int header = 0; header <= ushort.MaxValue; header++)
@@ -62,14 +63,14 @@ internal static partial class Program
         foreach (var expected in KraidDrawOracle())
         {
             AssertTrue(KraidRoomPlmDrawDefinitions.TryGet(expected.Pointer, out var draw), "Kraid draw exists");
-            ushort directionCount = KraidDrawRomWord(rom, expected.Pointer);
+            ushort directionCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | expected.Pointer);
             AssertEqual((ushort)expected.Count, directionCount, "Kraid native horizontal run count");
             AssertEqual(expected.Count, draw.BlockCount, "Kraid calculated block count");
             AssertEqual(1, exported[expected.Pointer].Runs.Length, "Kraid export has one run");
             var run = exported[expected.Pointer].Runs.Span[0];
             AssertEqual(directionCount, run.DirectionAndCount, "Kraid export direction/count");
             AssertEqual(expected.Count, run.LevelWords.Length, "Kraid export word extent");
-            ushort tail = KraidDrawRomWord(rom, expected.Pointer + 2 + expected.Count * 2);
+            ushort tail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + expected.Count * 2));
             AssertEqual((ushort)0, tail, "Kraid native terminator has zero displacement");
             AssertEqual((sbyte)0, run.Next.X, "Kraid export terminal X");
             AssertEqual((sbyte)0, run.Next.Y, "Kraid export terminal Y");
@@ -101,7 +102,7 @@ internal static partial class Program
             AssertTrue(KraidRoomPlmDrawDefinitions.TryGet(expected.Pointer, out var draw), "Kraid word owner exists");
             for (int block = 0; block < expected.Count; block++)
             {
-                ushort word = KraidDrawRomWord(rom, expected.Pointer + 2 + block * 2);
+                ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2));
                 AssertEqual(word, draw.WordAt(block), "Kraid calculated original physical/visual word");
                 AssertEqual(word, exported[expected.Pointer].Runs.Span[0].LevelWords.Span[block],
                     "Kraid materialized export word");
@@ -134,8 +135,4 @@ internal static partial class Program
                 AssertThrows<InvalidDataException>(() => KraidRoomPlmDrawDefinitions.VisualId((ushort)pointer),
                     "Kraid unknown pointer has no visual ID");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid draw ROM words")]
-    private static ushort KraidDrawRomWord(SuperMetroidAddressSpace rom, int address) =>
-        (ushort)(rom.ReadCartridgeByte(0x840000 | address) | rom.ReadCartridgeByte(0x840000 | (address + 1)) << 8);
 }

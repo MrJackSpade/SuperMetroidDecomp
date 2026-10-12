@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -45,13 +46,13 @@ internal static class MotherBrainRainbowPaletteExtractor
             for (int frame = 0; frame < frames; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
-                ushort pointer = ReadWord(pointerAddress);
+                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain palette table ${table:X6} ends before frame {frame}.");
                 values[frame] = ReadFrame(MotherBrainRainbowPaletteRomData.SourceBank | pointer,
                     bodyCount, legCount, trailing);
             }
-            if (ReadWord(table + frames * sizeof(ushort)) != 0)
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((table + frames * sizeof(ushort))) != 0)
                 throw new InvalidDataException($"Mother Brain palette table ${table:X6} lacks its native terminator.");
             return values;
         }
@@ -63,14 +64,14 @@ internal static class MotherBrainRainbowPaletteExtractor
             {
                 int address = MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable +
                     frame * sizeof(ushort);
-                ushort pointer = ReadWord(address);
+                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain fake-death fade ends before frame {frame}.");
                 frames[frame] = ReadColors(MotherBrainRainbowPaletteRomData.SourceBank | pointer,
                     MotherBrainFakeDeathPaletteRomData.ColorCount);
             }
-            if (ReadWord(MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable +
-                frames.Length * sizeof(ushort)) != 0)
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable +
+                frames.Length * sizeof(ushort))) != 0)
                 throw new InvalidDataException("Mother Brain fake-death fade lacks its native terminator.");
             return frames;
         }
@@ -93,7 +94,7 @@ internal static class MotherBrainRainbowPaletteExtractor
 
         PaletteRgb5 ReadColor(int address)
         {
-            ushort word = ReadWord(address);
+            ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             return ToColor(word);
         }
 
@@ -102,14 +103,14 @@ internal static class MotherBrainRainbowPaletteExtractor
             var colors = new PaletteRgb5[MotherBrainRainbowPaletteFormat.BeamCycleColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
-                ushort word = ReadWord(MotherBrainBeamRomData.ColorTable +
-                    index * MotherBrainBeamRomData.ColorStride);
+                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainBeamRomData.ColorTable +
+                    index * MotherBrainBeamRomData.ColorStride));
                 if ((word & 0x8000) != 0)
                     throw new InvalidDataException($"Mother Brain beam cycle ends before color {index}.");
                 colors[index] = ToColor(word);
             }
-            if (ReadWord(MotherBrainBeamRomData.ColorTable +
-                colors.Length * MotherBrainBeamRomData.ColorStride) != ushort.MaxValue)
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainBeamRomData.ColorTable +
+                colors.Length * MotherBrainBeamRomData.ColorStride)) != ushort.MaxValue)
                 throw new InvalidDataException("Mother Brain beam cycle lacks its native signed terminator.");
             return colors;
         }
@@ -120,7 +121,5 @@ internal static class MotherBrainRainbowPaletteExtractor
             Green = word >> 5 & 31,
             Blue = word >> 10 & 31,
         };
-
-        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
     }
 }

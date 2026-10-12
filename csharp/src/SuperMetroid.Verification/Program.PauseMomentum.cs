@@ -8,7 +8,7 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int counterAddress = SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes;
-        ushort initialCounter = (ushort)(bus.ReadCartridgeByte(counterAddress) | bus.ReadCartridgeByte(counterAddress + 1) << 8);
+        ushort initialCounter = bus.ReadCartridgeWord(counterAddress);
         foreach (bool equipped in new[] { false, true })
         foreach (bool momentum in new[] { false, true })
         foreach (ushort counter in new ushort[] { 0, 0x0402 })

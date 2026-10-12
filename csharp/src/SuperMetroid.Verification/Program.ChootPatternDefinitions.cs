@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -15,11 +16,11 @@ internal static partial class Program
         for (ushort patternIndex = 0; patternIndex < 5; patternIndex++)
         {
             ChootPatternDefinition definition = ChootPatternDefinitions.ForIndex(patternIndex);
-            ushort nativePointer = ReadChootPatternWord(rom, 0xa2df5e + patternIndex * 2);
-            ushort distancePointer = ReadChootPatternWord(rom, 0xa2df6a + patternIndex * 2);
+            ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + patternIndex * 2));
+            ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + patternIndex * 2));
             AssertEqual(nativePointer, (ushort)definition.FallingPatternPointer,
                 $"Choot pattern pointer {patternIndex}");
-            AssertEqual(ReadChootPatternWord(rom, 0xa20000 | distancePointer),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer)),
                 definition.FallingPatternYDistance,
                 $"Choot pattern distance {patternIndex}");
 
@@ -29,10 +30,10 @@ internal static partial class Program
                 ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
                     definition.FallingPatternPointer,
                     frameIndex);
-                AssertEqual(ReadChootPatternWord(rom, pathAddress + frameIndex * 4),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
                     unchecked((ushort)point.Offset.X),
                     $"Choot path X {patternIndex}/{frameIndex}");
-                AssertEqual(ReadChootPatternWord(rom, pathAddress + frameIndex * 4 + 2),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4 + 2)),
                     unchecked((ushort)point.Offset.Y),
                     $"Choot path Y {patternIndex}/{frameIndex}");
             }
@@ -132,10 +133,6 @@ internal static partial class Program
         Console.WriteLine(
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Choot pattern words")]
-    private static ushort ReadChootPatternWord(SuperMetroidAddressSpace source, int address) =>
-        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewChootPatternReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

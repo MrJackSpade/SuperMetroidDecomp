@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -21,8 +22,7 @@ internal static partial class Program
         {
             ushort operand = DraygonInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            ushort pointer = (ushort)(rom.ReadCartridgeByte(0xa50000 | operand) |
-                rom.ReadCartridgeByte(0xa50000 | unchecked((ushort)(operand + 1))) << 8);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa50000 | operand);
             if (draygonOamPointers.Contains(pointer))
                 continue;
             draygonBg2Pointers.Add(pointer);
@@ -30,10 +30,8 @@ internal static partial class Program
             AssertTrue(Enumerable.Range(0, count).Any(component =>
             {
                 ushort record = unchecked((ushort)(pointer + 2 + component * 8 + 4));
-                ushort sprite = (ushort)(rom.ReadCartridgeByte(0xa50000 | record) |
-                    rom.ReadCartridgeByte(0xa50000 | unchecked((ushort)(record + 1))) << 8);
-                return (rom.ReadCartridgeByte(0xa50000 | sprite) |
-                    rom.ReadCartridgeByte(0xa50000 | unchecked((ushort)(sprite + 1))) << 8)
+                ushort sprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa50000 | record);
+                return CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa50000 | sprite)
                     == 0xfffe;
             }), $"unextracted Draygon frame $A5:{pointer:X4} is a BG2 command");
         }
@@ -1389,7 +1387,7 @@ internal static partial class Program
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin)
     {
         byte ReadByte(int address) => bus.ReadCartridgeByte((bank << 16) | (address & 0xffff));
-        ushort ReadWord(int address) => (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
+        ushort ReadWord(int address) => SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
         var oam = new OamBuffer();
         int count = ReadByte(pointer); // The high header byte is draw metadata.
         for (int index = 0; index < count; index++)
@@ -1514,10 +1512,8 @@ internal static partial class Program
         for (int index = 0; index < count; index++)
         {
             ushort component = unchecked((ushort)(pointer + 2 + index * 8));
-            ushort sprite = (ushort)(source.ReadCartridgeByte((bank << 16) |
-                    unchecked((ushort)(component + 4))) |
-                source.ReadCartridgeByte((bank << 16) |
-                    unchecked((ushort)(component + 5))) << 8);
+            ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((bank << 16) |
+                    unchecked((ushort)(component + 4)));
             int spriteAddress = (bank << 16) | sprite;
             int parts = source.ReadCartridgeByte(spriteAddress) |
                 source.ReadCartridgeByte((bank << 16) |
@@ -1531,14 +1527,14 @@ internal static partial class Program
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
                      command++)
                 {
-                    ushort destination = ReadSourceWord(cursor);
+                    ushort destination = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((bank << 16) | cursor);
                     if (destination == 0xffff)
                     {
                         Block(bank, cursor, 2);
                         terminated = true;
                         break;
                     }
-                    ushort wordCount = ReadSourceWord(unchecked((ushort)(cursor + 2)));
+                    ushort wordCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(cursor + 2))));
                     int length = 4 + wordCount * 2;
                     Block(bank, cursor, length);
                     cursor = unchecked((ushort)(cursor + length));
@@ -1550,10 +1546,6 @@ internal static partial class Program
             }
             Block(bank, sprite, 2 + parts * 5);
         }
-
-        ushort ReadSourceWord(ushort address) => unchecked((ushort)(
-            source.ReadCartridgeByte((bank << 16) | address) |
-            source.ReadCartridgeByte((bank << 16) | unchecked((ushort)(address + 1))) << 8));
 
         void Block(byte blockBank, ushort blockPointer, int length)
         {

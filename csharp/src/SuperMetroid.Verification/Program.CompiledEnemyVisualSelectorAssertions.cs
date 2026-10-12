@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -21,8 +22,7 @@ internal static partial class Program
                 enemyDefinition, operandAddress, out ushort selector),
             $"{context}: compiled visual selector exists");
         int address = (bank << 16) | operandAddress;
-        ushort native = (ushort)(rom.ReadCartridgeByte(address) |
-            rom.ReadCartridgeByte((bank << 16) | unchecked((ushort)(operandAddress + 1))) << 8);
+        ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         AssertEqual(native, selector, $"{context}: compiled visual selector matches cartridge");
     }
 
@@ -38,8 +38,7 @@ internal static partial class Program
                 out ushort selector),
             $"{context}: compiled visual selector exists");
         int address = (bank << 16) | operandAddress;
-        ushort native = (ushort)(rom.ReadCartridgeByte(address) |
-            rom.ReadCartridgeByte((bank << 16) | unchecked((ushort)(operandAddress + 1))) << 8);
+        ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         AssertEqual(native, selector, $"{context}: compiled visual selector matches cartridge");
     }
 }

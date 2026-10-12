@@ -194,8 +194,9 @@ internal static class RoomPlmDoorVisualFileCodec
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        (ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
-            bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, checked((ushort)(pointer + 1)))) << 8);
+        pointer == ushort.MaxValue
+            ? throw new InvalidDataException("A PLM visual word cannot start at the PLM bank's last byte.")
+            : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

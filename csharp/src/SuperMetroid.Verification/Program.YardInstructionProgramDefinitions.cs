@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -62,7 +63,7 @@ internal static partial class Program
             if (YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa30000 | address))
             {
                 mechanics++;
-                AssertEqual(ReadYardInstructionWord(rom, unchecked((ushort)address)),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (unchecked((ushort)address))),
                     YardInstructionProgramDefinitions.ReadMechanicsWord(
                         unchecked((ushort)address)),
                     $"Yard mechanics word $A3:{address:X4}");
@@ -158,14 +159,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Yard instruction words")]
-    private static ushort ReadYardInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa30000 | address) |
-            source.ReadCartridgeByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewYardInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {

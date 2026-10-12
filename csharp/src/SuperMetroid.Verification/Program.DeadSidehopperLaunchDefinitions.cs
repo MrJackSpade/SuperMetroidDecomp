@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +9,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Sidehopper launch definitions")]
     private static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
@@ -18,8 +18,8 @@ internal static partial class Program
         var state = new DeadSidehopperEnemyState(slot, 0, 0, new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         for (ushort phase = 0; phase < 4; phase++)
         {
-            ushort vx = Word(EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2);
-            ushort vy = Word(EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2);
+            ushort vx = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
+            ushort vy = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2));
             AssertEqual(vx, DeadSidehopperLaunchDefinitions.Velocity(phase).X.RawValue, "Native corpse X launch");
             AssertEqual(vy, DeadSidehopperLaunchDefinitions.Velocity(phase).Y.RawValue, "Native corpse Y launch");
             foreach (ushort paletteStage in new ushort[] { 0, 1 })

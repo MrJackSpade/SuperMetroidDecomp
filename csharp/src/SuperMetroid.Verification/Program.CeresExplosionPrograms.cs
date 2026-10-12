@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -16,7 +17,7 @@ internal static partial class Program
             AssertEqual(rom.ReadCartridgeByte(0x8b0000 | pointer), CeresDestructionSpriteInstructionDefinitions.ReadByte((ushort)pointer), "original explosion program byte");
             if (pointer + 1 < end)
             {
-                ushort expected = (ushort)(rom.ReadCartridgeByte(0x8b0000 | pointer) | rom.ReadCartridgeByte(0x8b0000 | (pointer + 1)) << 8);
+                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8b0000 | pointer);
                 AssertEqual(expected, CeresDestructionSpriteInstructionDefinitions.ReadWord((ushort)pointer), "original aligned or unaligned explosion word");
             }
         }
@@ -35,8 +36,7 @@ internal static partial class Program
             for (int frame = 0; frame < 256; frame++)
             {
                 native.Step(instructionWord: pointer =>
-                    (ushort)(rom.ReadCartridgeByte(0x8b0000 | pointer) |
-                    rom.ReadCartridgeByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8));
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8b0000 | pointer));
                 compiled.Step(instructionWord: CeresDestructionSpriteInstructionDefinitions.ReadWord);
                 AssertEqual(native.InstructionPointer, compiled.InstructionPointer, "explosion instruction cursor");
                 AssertEqual(native.SpriteMapPointer, compiled.SpriteMapPointer, "explosion frame and blank interval");

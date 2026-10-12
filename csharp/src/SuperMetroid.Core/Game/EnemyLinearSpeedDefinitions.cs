@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Compiled NTSC fixed-point speeds shared by enemy families.</summary>
@@ -30,7 +31,7 @@ public static class EnemyLinearSpeedDefinitions
         return (unchecked((short)ReadWord(byteOffset)), ReadWord(byteOffset + 2));
     }
 
-    private static ushort ReadWord(int offset) => (ushort)(ReadByte(offset) | ReadByte(offset + 1) << 8);
+    private static ushort ReadWord(int offset) => SnesLittleEndian.Word(ReadByte(offset), ReadByte(offset + 1));
 
     private static byte ReadByte(int offset)
     {

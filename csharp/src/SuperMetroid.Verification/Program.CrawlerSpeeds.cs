@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,7 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled crawler speeds")]
     private static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<T>();
         var reset = Method<Action<RoomEnemySlot>>("ResetCrawlerVelocitiesFromProperties");
@@ -16,8 +16,8 @@ internal static partial class Program
         var yard = new YardEnemyState(slot);
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
-            ushort expected = Word(0xa3e5f0 + parameter * 2);
-            AssertEqual(expected, Word(0xa3cca2 + parameter * 2), "Yard/crawler native speed mirror");
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
+            AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Yard/crawler native speed mirror");
             AssertEqual(expected, CrawlerSpeedDefinitions.ForParameter(parameter), "Compiled crawling speed");
             slot.Parameter1 = parameter;
             for (ushort property = 0; property < 4; property++)
@@ -33,8 +33,8 @@ internal static partial class Program
             {
                 setYard(slot, yard, direction);
                 int address = 0xa3cd82 + direction * 8;
-                AssertEqual(unchecked((ushort)((expected ^ Word(address)) + Word(address + 2))), yard.CrawlingVelocity.X.RawValue, "Real Yard X reset without bus");
-                AssertEqual(unchecked((ushort)((expected ^ Word(address + 4)) + Word(address + 6))), yard.CrawlingVelocity.Y.RawValue, "Real Yard Y reset without bus");
+                AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(address)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)))), yard.CrawlingVelocity.X.RawValue, "Real Yard X reset without bus");
+                AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)))), yard.CrawlingVelocity.Y.RawValue, "Real Yard Y reset without bus");
             }
         }
         // The preserve sentinel skips the table, not the subsequent native sign application.
@@ -54,8 +54,8 @@ internal static partial class Program
             {
                 int address = 0xa3cd82 + direction * 8;
                 var actual = YardVelocityDefinitions.Apply((ushort)magnitude, direction);
-                AssertEqual(unchecked((ushort)((magnitude ^ Word(address)) + Word(address + 2))), actual.X.RawValue, "Yard exhaustive native X sign");
-                AssertEqual(unchecked((ushort)((magnitude ^ Word(address + 4)) + Word(address + 6))), actual.Y.RawValue, "Yard exhaustive native Y sign");
+                AssertEqual(unchecked((ushort)((magnitude ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(address)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)))), actual.X.RawValue, "Yard exhaustive native X sign");
+                AssertEqual(unchecked((ushort)((magnitude ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)))), actual.Y.RawValue, "Yard exhaustive native Y sign");
             }
         }
         AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler invalid speed");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +9,7 @@ internal static partial class Program
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
-            AssertEqual(ReadMotherBrainExplosionWord(rom, 0x86c929 + parameter * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + parameter * 2)),
                 MotherBrainDeathExplosionDefinitions.InstructionList(parameter),
                 $"Mother Brain death explosion instruction {parameter}");
         }
@@ -56,10 +57,6 @@ internal static partial class Program
         Console.WriteLine(
             "Mother Brain death explosions: three native program selectors and all three real body-relative spawns pass with the selector table forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain explosion words")]
-    private static ushort ReadMotherBrainExplosionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMotherBrainDeathExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

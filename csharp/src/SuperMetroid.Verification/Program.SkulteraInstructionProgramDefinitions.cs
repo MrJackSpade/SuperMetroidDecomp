@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -24,7 +25,7 @@ internal static partial class Program
                 SkulteraInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadSkulteraInstructionWord(rom, 0xa30000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | definition.Address)),
                 $"Skultera instruction mechanics word $A3:{definition.Address:X4}");
         }
 
@@ -82,7 +83,7 @@ internal static partial class Program
             slot.InstructionTimer = 1;
             process.Invoke(enemies,
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
-            AssertEqual(ReadSkulteraInstructionWord(rom, 0xa30000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address)),
                 slot.SpritemapPointer,
                 $"production execution selects Skultera frame $A3:{address:X4}");
         }
@@ -152,12 +153,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Skultera instruction words")]
-    private static ushort ReadSkulteraInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewSkulteraInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

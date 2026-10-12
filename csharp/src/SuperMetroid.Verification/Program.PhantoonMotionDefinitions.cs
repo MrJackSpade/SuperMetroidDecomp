@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ internal static partial class Program
         for (int i = 0; i < native.Length; i++)
         {
             int address = 0xa7cd73 + i * 2;
-            native[i] = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native[i], definitions[i], "Phantoon compiled motion native word");
         }
         var forward = typeof(RoomEnemySystem).GetMethod("AdjustPhantoonForwardFigureEightSpeed", BindingFlags.Static | BindingFlags.NonPublic)!

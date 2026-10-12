@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -8,10 +9,6 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
-    /// <summary>The native bank-$A6 word at <paramref name="address"/>, as the breakup oracle reads it.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley breakup program words in bank $A6")]
-    private static ushort ReadRetailRidleyBankWord(ISnesAddressSpace rom, ushort address) =>
-        (ushort)(rom.ReadCartridgeByte(0xa60000 | address) | rom.ReadCartridgeByte(0xa60000 | (address + 1)) << 8);
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRidleyBreakupPrograms()
@@ -70,11 +67,11 @@ internal static partial class Program
         {
             ushort operand = RidleyExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort start = (ushort)(operand - 2);
-            ushort expectedPointer = ReadRetailRidleyBankWord(rom, operand);
+            ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | operand);
             foreach (int offset in new[] { 0, 4 })
             {
                 ushort address = (ushort)(start + offset);
-                ushort native = ReadRetailRidleyBankWord(rom, address);
+                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | address);
                 AssertEqual(native, RidleyExplosionInstructionProgramDefinitions.ReadMechanicsWord(address), "breakup native mechanics");
             }
             var fragment = fragments[0];

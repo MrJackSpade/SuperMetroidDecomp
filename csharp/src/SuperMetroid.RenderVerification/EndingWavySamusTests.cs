@@ -109,5 +109,5 @@ internal static class EndingWavySamusTests
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending wave sine table at $A0:B443")]
     private static short NativeWaveSample(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int offset) =>
-        unchecked((short)(rom.ReadCartridgeByte(0xa0b443 + offset) | rom.ReadCartridgeByte(0xa0b444 + offset) << 8));
+        unchecked((short)rom.ReadCartridgeWord(0xa0b443 + offset));
 }

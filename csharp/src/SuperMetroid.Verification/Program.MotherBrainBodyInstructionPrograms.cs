@@ -18,14 +18,14 @@ internal static partial class Program
             MotherBrainBodyInstructionProgramDefinitionsTooling.AllWords)
         {
             AssertEqual(
-                ReadRetailWord(rom, 0xa90000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | definition.Address)),
                 definition.Word,
                 $"Mother Brain body compiled mechanics word $A9:{definition.Address:X4}");
 
             if ((definition.Word & 0x8000) == 0)
             {
                 ushort visualOperand = unchecked((ushort)(definition.Address + 2));
-                AssertEqual(ReadRetailWord(rom, 0xa90000 | visualOperand),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | visualOperand)),
                     MotherBrainBodyInstructionProgramDefinitions.ReadVisualSelector(visualOperand),
                     $"Mother Brain body visual selector $A9:{visualOperand:X4}");
                 AssertTrue(
@@ -36,8 +36,8 @@ internal static partial class Program
             }
         }
 
-        AssertEqual(ReadRetailWord(rom, 0xa90000 |
-                MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 |
+                MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand)),
             MotherBrainBodyInstructionProgramDefinitions.ReadInitialDummyVisualSelector(
                 MotherBrainBodyInstructionProgramDefinitions.InitialDummyVisualOperand),
             "Mother Brain initial dummy selector matches the cartridge");
@@ -49,8 +49,5 @@ internal static partial class Program
         Console.WriteLine(
             $"  Mother Brain: {MotherBrainBodyInstructionProgramDefinitionsTooling.AllWords.Count} " +
             "body command/duration words and visual selectors match the cartridge.");
-
-        static ushort ReadRetailWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +9,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile damage")]
     private static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
+        ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
         int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(new[]
         {

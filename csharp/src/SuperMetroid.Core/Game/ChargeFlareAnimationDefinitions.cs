@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>NTSC cartridge charge-flare cadence and loop commands, independent of sprite composition.</summary>
@@ -48,7 +49,7 @@ internal static class ChargeFlareAnimationDefinitions
     }
 
     internal static ushort ReadWord(int address) =>
-        (ushort)(ReadByte(address) | ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
+        SnesLittleEndian.Word(ReadByte(address), ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)));
 }
 
 /// <summary>Command bytes in a charge-flare delay stream; every other byte is a delay.</summary>

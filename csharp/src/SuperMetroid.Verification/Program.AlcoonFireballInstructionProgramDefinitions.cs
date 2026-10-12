@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -21,7 +22,7 @@ internal static partial class Program
         ushort[] operands = [0x9ea0, 0x9ea4, 0x9ea8, 0x9eac];
         foreach (ushort operand in operands)
         {
-            ushort native = ReadAlcoonFireballInstructionWord(rom, operand);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | operand);
             AssertEqual(native, EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operand),
                 "Alcoon fireball native visual pointer");
             AssertEqual((byte)1, rom.ReadCartridgeByte(0x8d0000 | native), "fireball native single-sprite map count");
@@ -58,7 +59,7 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            ushort expected = ReadAlcoonFireballInstructionWord(rom, address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
             var definition = AlcoonFireballInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, definition.Address, "Alcoon-fireball native word position");
             AssertEqual(expected, definition.Value, "Alcoon-fireball native enumerated word");
@@ -227,16 +228,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Alcoon fireball instruction words")]
-    private static ushort ReadAlcoonFireballInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewAlcoonFireballInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>

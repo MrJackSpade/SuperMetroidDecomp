@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -157,7 +158,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for growing shutter instruction words")]
     private static ushort ReadGrowingShutterInstructionWord(
         SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
+        int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewGrowingShutterInstructionProgramGuard(ISnesAddressSpace source)
     {

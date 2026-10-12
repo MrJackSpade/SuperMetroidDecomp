@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -22,8 +23,7 @@ internal static partial class Program
             AssertTrue(BotwoonWallPlmProgramDefinitions.TryReadMechanicsWord(
                     address, out ushort compiled),
                 $"Botwoon wall word $84:{address:X4} is compiled");
-            AssertEqual((ushort)(rom.ReadCartridgeByte(0x840000 | address) |
-                    rom.ReadCartridgeByte(0x840000 | (address + 1)) << 8),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address),
                 compiled,
                 $"Botwoon wall word $84:{address:X4} matches ROM");
         }
@@ -68,8 +68,7 @@ internal static partial class Program
         foreach (ushort word in draw.Runs.Span[0].LevelWords.Span)
             AssertWord(word);
         for (int index = 0; index < 9; index++)
-            AssertEqual((ushort)(rom.ReadCartridgeByte(0x849311 + index * 2) |
-                rom.ReadCartridgeByte(0x849312 + index * 2) << 8),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2),
                 BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon calculated clear word matches native");
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BotwoonWallPlmDrawDefinitions.LevelWordAt(index), "Botwoon fill rejects invalid block index");
@@ -89,8 +88,7 @@ internal static partial class Program
 
         void AssertWord(ushort expected)
         {
-            AssertEqual((ushort)(rom.ReadCartridgeByte(0x840000 | cursor) |
-                    rom.ReadCartridgeByte(0x840000 | (cursor + 1)) << 8),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
                 expected, $"Botwoon draw word +{cursor - draw.Pointer}");
             cursor += 2;
         }

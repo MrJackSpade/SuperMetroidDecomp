@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -7,11 +8,10 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb spread launch definitions")]
     private static void VerifyBombSpreadLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a+1)<<8);
         var reference = Enumerable.Range(0,SamusBombSpreadRomData.SlotCount).Select(i =>
-            new BombSpreadLaunchDefinition(Word(SamusBombSpreadRomData.FuseTimers+i*2),
-                Word(SamusBombSpreadRomData.XVelocities+i*2), Word(SamusBombSpreadRomData.YSpeeds+i*2),
-                Word(SamusBombSpreadRomData.YSubspeeds+i*2))).ToArray();
+            new BombSpreadLaunchDefinition(CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.FuseTimers+i*2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.XVelocities+i*2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSpeeds+i*2)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusBombSpreadRomData.YSubspeeds+i*2)))).ToArray();
         for(int i=0;i<reference.Length;i++)
             AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.ForSlot(i),"All native Bomb Spread launch words");
         var spawn=typeof(SamusBombProjectileSystem).GetMethod("SpawnBombSpread",BindingFlags.Instance|BindingFlags.NonPublic)!

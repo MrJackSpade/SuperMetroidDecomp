@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -140,7 +141,7 @@ internal static partial class Program
         var bytes = new HashSet<int>();
         for (int index = 0; index < addresses.Length; index++)
         {
-            ushort native = ReadPlatformInstructionWord(rom, addresses[index]);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | addresses[index]);
             var word = PlatformInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(addresses[index], word.Address, "platform native mechanics address");
             AssertEqual(native, word.Value, "platform enumerated native word");
@@ -180,18 +181,18 @@ internal static partial class Program
             0x9c43, 0x9c47, 0x9c4b, 0x9c4f, 0x9c59, 0x9c5d, 0x9c61, 0x9c65];
         foreach (ushort operand in operands)
         {
-            ushort native = ReadPlatformInstructionWord(rom, operand);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | operand);
             AssertEqual(native, TripperKamerVisualDefinitions.FrameAt(operand), "platform native visual pointer");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa3, operand, out ushort shared), "platform shared selector exists");
             AssertEqual(native, shared, "platform shared selector matches native word");
             AssertTrue(CompiledEnemyVisualSelectors.IsCalculatedSelector(0xa30000 | operand), "platform excluded from literal regeneration");
         }
         foreach (ushort pointer in new ushort[] { 0xa021, 0xa02d, 0xa039, 0xa045 })
-            AssertEqual((ushort)2, ReadPlatformInstructionWord(rom, pointer), "Kamer native two-entry map");
+            AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Kamer native two-entry map");
         foreach (ushort pointer in new ushort[] { 0x9f29, 0x9f3a, 0x9f4b, 0x9f5c, 0x9f6d, 0x9f7e, 0x9fa5, 0x9fe2 })
-            AssertEqual((ushort)3, ReadPlatformInstructionWord(rom, pointer), "Tripper native three-entry map");
+            AssertEqual((ushort)3, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native three-entry map");
         foreach (ushort pointer in new ushort[] { 0x9f8f, 0x9fb6, 0x9fcc, 0x9ff3 })
-            AssertEqual((ushort)4, ReadPlatformInstructionWord(rom, pointer), "Tripper native four-entry map");
+            AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native four-entry map");
         var known = operands.ToHashSet();
         for (int address = 0x9bb9; address <= 0x9c6d; address++)
             if (!known.Contains((ushort)address))
@@ -225,7 +226,7 @@ internal static partial class Program
             AssertEqual((byte)0xa3, actual[i].Bank, "platform export bank");
             AssertEqual(expected[i].Pointer, actual[i].Pointer, "platform export native map pointer and order");
             AssertEqual(expected[i].Name, actual[i].Name, "platform export stable asset identity");
-            int nativeSize = 2 + 5 * ReadPlatformInstructionWord(rom, expected[i].Pointer);
+            int nativeSize = 2 + 5 * CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | expected[i].Pointer);
             ushort next = i + 1 < expected.Length ? expected[i + 1].Pointer : (ushort)0xa051;
             AssertEqual((int)next, actual[i].Pointer + nativeSize, "platform export consecutive native record boundary");
         }
@@ -235,8 +236,8 @@ internal static partial class Program
         // LDY immediate operands in the two native initializers.
         foreach (bool isKamer in new[] { false, true })
         {
-            ushort left = ReadPlatformInstructionWord(rom, isKamer ? (ushort)0x9caa : (ushort)0x9cbe);
-            ushort right = ReadPlatformInstructionWord(rom, isKamer ? (ushort)0x9cb6 : (ushort)0x9cca);
+            ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9caa : (ushort)0x9cbe));
+            ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9cb6 : (ushort)0x9cca));
             for (int direction = 0; direction <= ushort.MaxValue; direction++)
                 AssertEqual(direction == 0 ? left : right,
                     PlatformInstructionProgramDefinitions.SelectProgram(isKamer, false, (PlatformHorizontalMovement)direction),
@@ -256,8 +257,8 @@ internal static partial class Program
             ushort rightOperand = moving
                 ? (isKamer ? (ushort)0x9e71 : (ushort)0x9e68)
                 : (isKamer ? (ushort)0x9eab : (ushort)0x9ea2);
-            ushort left = ReadPlatformInstructionWord(rom, leftOperand);
-            ushort right = ReadPlatformInstructionWord(rom, rightOperand);
+            ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | leftOperand);
+            ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | rightOperand);
             for (int direction = 0; direction <= ushort.MaxValue; direction++)
                 AssertEqual(direction == 0 ? left : right,
                     PlatformInstructionProgramDefinitions.SelectProgram(isKamer, moving, (PlatformHorizontalMovement)direction),
@@ -267,16 +268,16 @@ internal static partial class Program
     private static void VerifyTripperFrozenFrameSelection(SuperMetroidAddressSpace rom)
     {
         // Immediate operands of the native zero/nonzero branches, not an inferred pointer table.
-        ushort left = ReadPlatformInstructionWord(rom, 0x9f23);
-        ushort right = ReadPlatformInstructionWord(rom, 0x9f1b);
+        ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | 0x9f23);
+        ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | 0x9f1b);
         AssertEqual(left, TripperKamerVisualDefinitions.FrozenMovingLeft, "native frozen-left sprite identity");
         AssertEqual(right, TripperKamerVisualDefinitions.FrozenMovingRight, "native frozen-right sprite identity");
         for (int direction = 0; direction <= ushort.MaxValue; direction++)
             AssertEqual(direction == 0 ? left : right,
                 TripperKamerVisualDefinitions.FrozenFrame((PlatformHorizontalMovement)direction),
                 "Tripper frozen selection preserves complete native zero/nonzero domain");
-        AssertEqual((ushort)2, ReadPlatformInstructionWord(rom, left), "Tripper frozen-left two-piece map");
-        AssertEqual((ushort)2, ReadPlatformInstructionWord(rom, right), "Tripper frozen-right two-piece map");
+        AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | left), "Tripper frozen-left two-piece map");
+        AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | right), "Tripper frozen-right two-piece map");
     }
     private static int ProbePlatformInstructionMechanicsAllocation()
     {
@@ -290,14 +291,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for platform instruction words")]
-    private static ushort ReadPlatformInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa30000 | address) |
-            source.ReadCartridgeByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
     private readonly record struct PlatformProgramCase(
         bool IsKamer,

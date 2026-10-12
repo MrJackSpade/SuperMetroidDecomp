@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -343,7 +344,7 @@ internal static partial class Program
         {
             bytes[i] = rom.ReadCartridgeByte(EnemyMathReferenceData.ByteSine + i);
             int address = EnemyMathReferenceData.UnsignedSine + i * 2;
-            words[i] = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            words[i] = rom.ReadCartridgeWord(address);
         }
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
@@ -408,7 +409,7 @@ internal static partial class Program
         short Reference(int index)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
-            return unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+            return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
         var cinematicReaders = new[] { typeof(CeresDestructionCinematicState), typeof(EndingCreditsState), typeof(IntroCeresFlightState) }
             .Select(type => type.GetMethod("ReadSine", BindingFlags.NonPublic | BindingFlags.Static)!

@@ -197,26 +197,24 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo definitions")]
     private static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
     {
-        static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
-            source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
         for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
         {
             EndingLogoActorDefinition actual = EndingLogoDefinitions.Actor(index);
             int spawn = 0x8be554 + index * 6;
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
-            ushort nativePointer = ReadWord(bus, spawn + 1);
+            ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
-            AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction,
                 $"logo actor {index} pre-instruction callback");
-            AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), actual.InstructionList,
                 $"logo actor {index} initial instruction list");
-            int initialize = 0x8b0000 | ReadWord(bus, address);
+            int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize + 6), "native LDA Y origin");
             var origin = EndingLogoDefinitions.Origin(index);
-            AssertEqual(ReadWord(bus, initialize + 1), origin.X, "native actor X origin");
-            AssertEqual(ReadWord(bus, initialize + 7), origin.Y, "native actor Y origin");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)), origin.X, "native actor X origin");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)), origin.Y, "native actor Y origin");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
         {

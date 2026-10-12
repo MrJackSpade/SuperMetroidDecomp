@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -12,7 +13,7 @@ internal static partial class Program
 
         for (ushort index = 0; index < 30; index++)
         {
-            ushort native = ReadMiscDustWord(rom, instructionTable + index * 2);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2));
             AssertEqual(native, MiscDustProjectileDefinitions.InstructionList(index),
                 $"misc-dust instruction selector {index}");
 
@@ -31,13 +32,13 @@ internal static partial class Program
             int address = placementTable + index * 8;
             MiscDustPlacementDefinition definition =
                 MiscDustProjectileDefinitions.SmokePlacement(index);
-            AssertEqual(ReadMiscDustWord(rom, address), definition.RandomMask.X,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), definition.RandomMask.X,
                 $"misc-dust placement X mask {index}");
-            AssertEqual(ReadMiscDustWord(rom, address + 2), definition.RandomMask.Y,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), definition.RandomMask.Y,
                 $"misc-dust placement Y mask {index}");
-            AssertEqual(unchecked((short)ReadMiscDustWord(rom, address + 4)), definition.Base.X,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))), definition.Base.X,
                 $"misc-dust placement X base {index}");
-            AssertEqual(unchecked((short)ReadMiscDustWord(rom, address + 6)), definition.Base.Y,
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), definition.Base.Y,
                 $"misc-dust placement Y base {index}");
 
             const ushort random = 0x5aad;
@@ -93,10 +94,6 @@ internal static partial class Program
             .SetValue(enemies, NewMiscDustDefinitionReadGuard(source));
         return enemies;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for misc dust words")]
-    private static ushort ReadMiscDustWord(SuperMetroidAddressSpace source, int address) =>
-        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewMiscDustDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

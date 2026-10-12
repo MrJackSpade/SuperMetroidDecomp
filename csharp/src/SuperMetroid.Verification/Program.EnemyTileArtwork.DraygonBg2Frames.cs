@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -24,13 +25,13 @@ internal static partial class Program
             int root = (DraygonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
             AssertEqual((byte)1, rom.ReadCartridgeByte(root),
                 $"Draygon {frame.Name} has one BG2 component");
-            AssertEqual((ushort)0, ReadWord(root + 2),
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2)),
                 $"Draygon {frame.Name} BG2 component X offset");
-            AssertEqual((ushort)0, ReadWord(root + 4),
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 4)),
                 $"Draygon {frame.Name} BG2 component Y offset");
-            ushort stream = ReadWord(root + 6);
+            ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6));
             AssertEqual(EnemyBg2FrameLayout.StreamMarker,
-                ReadWord((DraygonBg2FrameDefinitions.Bank << 16) | stream),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(((DraygonBg2FrameDefinitions.Bank << 16) | stream)),
                 $"Draygon {frame.Name} selects a BG2 command stream");
             int cursor = (DraygonBg2FrameDefinitions.Bank << 16) |
                 unchecked((ushort)(stream + 2));
@@ -38,13 +39,13 @@ internal static partial class Program
             for (int command = 0;
                  command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
             {
-                ushort destination = ReadWord(cursor);
+                ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
                 if (destination == 0xffff)
                     break;
-                int count = ReadWord(cursor + 2);
+                int count = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
                 var tiles = new ushort[count];
                 for (int tile = 0; tile < count; tile++)
-                    tiles[tile] = ReadWord(cursor + 4 + tile * 2);
+                    tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4 + tile * 2));
                 native.Add((destination, tiles));
                 cursor += 4 + count * 2;
             }
@@ -123,9 +124,6 @@ internal static partial class Program
             () => DraygonBg2FrameCatalog.Load(invalid),
             "Draygon BG2 write outside its tilemap fails loudly");
         Console.WriteLine("  Draygon BG2 frames: 34 selected frames and 102 native writes match installed VRAM; live edit, producer gate, ROM guard, reload, hash and strict validation pass.");
-
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon BG2 collision")]
@@ -144,11 +142,11 @@ internal static partial class Program
             {
                 int record = root + 2 + index * 8;
                 DraygonCollisionComponent component = components[index];
-                AssertEqual(ReadWord(record), unchecked((ushort)component.Offset.X),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)component.Offset.X),
                     $"Draygon {frame.Name} collision X offset");
-                AssertEqual(ReadWord(record + 2), unchecked((ushort)component.Offset.Y),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)component.Offset.Y),
                     $"Draygon {frame.Name} collision Y offset");
-                AssertEqual(ReadWord(record + 6), (ushort)component.HitboxPointer,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), (ushort)component.HitboxPointer,
                     $"Draygon {frame.Name} hitbox list identity");
                 nativeLists.Add((ushort)component.HitboxPointer);
             }
@@ -161,23 +159,23 @@ internal static partial class Program
             ReadOnlySpan<DraygonCollisionHitbox> hitboxes =
                 DraygonCollisionDefinitions.HitboxesAt(
                 ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"));
-            AssertEqual((int)ReadWord(list), hitboxes.Length,
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Length,
                 $"Draygon hitbox list {pointer:X4} rectangle count");
             for (int index = 0; index < hitboxes.Length; index++)
             {
                 int record = list + 2 + index * 12;
                 DraygonCollisionHitbox box = hitboxes[index];
-                AssertEqual(ReadWord(record), unchecked((ushort)box.Left),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)box.Left),
                     $"Draygon list {pointer:X4} box {index} left");
-                AssertEqual(ReadWord(record + 2), unchecked((ushort)box.Top),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),
                     $"Draygon list {pointer:X4} box {index} top");
-                AssertEqual(ReadWord(record + 4), unchecked((ushort)box.Right),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), unchecked((ushort)box.Right),
                     $"Draygon list {pointer:X4} box {index} right");
-                AssertEqual(ReadWord(record + 6), unchecked((ushort)box.Bottom),
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
                     $"Draygon list {pointer:X4} box {index} bottom");
-                AssertEqual(ReadWord(record + 8), box.TouchAi,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), box.TouchAi,
                     $"Draygon list {pointer:X4} box {index} touch callback");
-                AssertEqual(ReadWord(record + 10), box.ShotAi,
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), box.ShotAi,
                     $"Draygon list {pointer:X4} box {index} shot callback");
             }
         }
@@ -215,9 +213,6 @@ internal static partial class Program
             () => DraygonCollisionDefinitions.ComponentsAt(0x8000),
             "uncatalogued Draygon BG2 collision frame fails loudly");
         Console.WriteLine("  Draygon BG2 collision: 34 native frame roots, three hitbox lists, and the guarded live callback walker match the cartridge.");
-
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]

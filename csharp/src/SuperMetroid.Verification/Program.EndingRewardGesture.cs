@@ -122,8 +122,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward actor definitions")]
     private static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
     {
-        static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
-            source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
 
         // Original LDY operands independently identify all ten records.
         (ushort Pointer, int Load)[] spawns = [.. RewardActorPointers.Zip(RewardActorSpawnLoads)];
@@ -131,24 +129,24 @@ internal static partial class Program
         foreach (var spawn in spawns)
         {
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn.Load), "reward native spawn uses LDY immediate");
-            ushort pointer = ReadWord(bus, spawn.Load + 1);
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn.Load + 1));
             AssertEqual(spawn.Pointer, pointer, "named reward record matches native spawn operand");
             EndingRewardActorDefinition actual = EndingRewardActorDefinitions.Get(
                 ClosedNativeWords.Decode<EndingRewardActor>(pointer, "reward actor definition"));
             int address = 0x8b0000 | pointer;
-            ushort initializer = ReadWord(bus, address);
+            ushort initializer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             AssertEqual(initializer, (ushort)actual.Initialization, $"reward actor ${pointer:X4} initialization callback");
-            AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction, $"reward actor ${pointer:X4} pre-instruction callback");
-            AssertEqual(ReadWord(bus, address + 4), actual.InstructionList, $"reward actor ${pointer:X4} instruction list");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), actual.PreInstruction, $"reward actor ${pointer:X4} pre-instruction callback");
+            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), actual.InstructionList, $"reward actor ${pointer:X4} instruction list");
             if (!initializers.Add(initializer)) continue;
             int code = 0x8b0000 | initializer;
             for (int offset = 0; offset <= 12; offset += 6)
                 AssertEqual((byte)0xa9, bus.ReadCartridgeByte(code + offset), "reward initializer uses LDA immediate");
             var origin = EndingRewardActorDefinitions.GetInitialization(
                 ClosedNativeWords.Decode<EndingRewardInitialization>(initializer, "reward initialization"));
-            AssertEqual((int)ReadWord(bus, code + 1), origin.X, "reward native initial X");
-            AssertEqual((int)ReadWord(bus, code + 7), origin.Y, "reward native initial Y");
-            AssertEqual((int)ReadWord(bus, code + 13), origin.Palette, "reward native initial palette");
+            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 1)), origin.X, "reward native initial X");
+            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 7)), origin.Y, "reward native initial Y");
+            AssertEqual((int)CartridgeImportSource.Require(bus).ReadCartridgeWord((code + 13)), origin.Palette, "reward native initial palette");
         }
         AssertEqual(4, initializers.Count, "reward initializer domain");
         AssertEqual(RewardActorPointers.Length, Enum.GetValues<EndingRewardActor>().Length, "reward record domain");

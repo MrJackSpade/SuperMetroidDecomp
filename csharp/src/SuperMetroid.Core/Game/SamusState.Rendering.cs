@@ -358,9 +358,7 @@ public sealed partial class SamusState
                 // according to BOTH halves of Y speed. `$37/$38` test Spring Ball bit $0002
                 // and use this command to finish ordinary morph entry without guessing
                 // whether the transition walked off a ledge.
-                ushort itemMask = unchecked((ushort)(
-                    ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 1))) |
-                    (ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 2))) << 8)));
+                ushort itemMask = SnesLittleEndian.Word(ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 1))), ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 2))));
                 bool itemEquipped = (EquippedItems & itemMask) != 0;
                 bool movingVertically = Kinematics.YSpeed != 0 || Kinematics.YSubspeed != 0;
                 ushort targetOffset = itemEquipped
@@ -400,9 +398,7 @@ public sealed partial class SamusState
                 // mask is followed by unequipped/equipped pose bytes. Poses `$3F/$40` are
                 // the only retail users (Spring Ball-aware Morph Ball selection), but the
                 // command still publishes through the ordinary transitional-pose seam.
-                ushort fcItemMask = unchecked((ushort)(
-                    ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 1))) |
-                    (ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 2))) << 8)));
+                ushort fcItemMask = SnesLittleEndian.Word(ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 1))), ReadAnimationByte(bus, unchecked((ushort)(AnimationFrame + 2))));
                 bool fcItemEquipped = (EquippedItems & fcItemMask) != 0;
                 PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
                     bus,

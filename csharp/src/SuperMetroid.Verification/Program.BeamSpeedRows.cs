@@ -42,10 +42,9 @@ internal static partial class Program
         var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePowerBeamVelocity",
             System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
-        ushort Word(int address) => (ushort)(retail.ReadCartridgeByte(address) | retail.ReadCartridgeByte(address + 1) << 8);
         var guarded = new BeamSpeedRowAddressSpace(retail);
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
-            AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address),
+            AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address),
                 "All 85 compiled motion words match the pinned ROM without authored reads");
         foreach (int address in new[] { 0x908000, 0x90c2d0, 0x90c2d2, 0x90c37b, 0x90ffff })
             AssertThrows<InvalidDataException>(
@@ -56,8 +55,8 @@ internal static partial class Program
         {
             var slot = new SamusProjectileSlot(0) { Type = combination, Direction = direction };
             initialize(guarded, slot);
-            int speed = unchecked((short)Word(0x90c2d1 + combination * 4 +
-                (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
+            int speed = unchecked((short)retail.ReadCartridgeWord((0x90c2d1 + combination * 4 +
+                (direction is 1 or 3 or 6 or 8 ? 2 : 0))));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)),
                 slot.Velocity.X.SignedRawValue, "Actual initializer retains combination-dependent adjacent-table overreads X");
             AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)),
@@ -89,10 +88,10 @@ internal static partial class Program
                 else
                 {
                     int table = weapon == 1 ? 0x90c303 : 0x90c32b;
-                    vx = unchecked((short)(vx + (short)Word(table + direction * 4) +
-                        (weapon == 1 ? (short)Word(0x90c353 + direction * 2) : 0)));
-                    vy = unchecked((short)(vy + (short)Word(table + direction * 4 + 2) +
-                        (weapon == 1 ? (short)Word(0x90c367 + direction * 2) : 0)));
+                    vx = unchecked((short)(vx + (short)retail.ReadCartridgeWord((table + direction * 4)) +
+                        (weapon == 1 ? (short)retail.ReadCartridgeWord((0x90c353 + direction * 2)) : 0)));
+                    vy = unchecked((short)(vy + (short)retail.ReadCartridgeWord((table + direction * 4 + 2)) +
+                        (weapon == 1 ? (short)retail.ReadCartridgeWord((0x90c367 + direction * 2)) : 0)));
                 }
                 x = unchecked(x + (uint)(vx << 8));
                 y = unchecked(y + (uint)(vy << 8));

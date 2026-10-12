@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
@@ -152,6 +153,6 @@ internal static class CeresDestructionSpriteInstructionDefinitions
             throw new InvalidDataException(
                 $"Ceres destruction word $8B:{pointer:X4} crosses a compiled-list boundary.");
         }
-        return (ushort)(ReadByte(pointer) | ReadByte(next) << 8);
+        return SnesLittleEndian.Word(ReadByte(pointer), ReadByte(next));
     }
 }

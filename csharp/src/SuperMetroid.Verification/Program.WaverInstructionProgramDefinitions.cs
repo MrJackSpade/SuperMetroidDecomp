@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -25,7 +26,7 @@ internal static partial class Program
                 WaverInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadWaverInstructionWord(rom, 0xa30000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | definition.Address)),
                 $"Waver instruction mechanics word $A3:{definition.Address:X4}");
         }
 
@@ -60,7 +61,7 @@ internal static partial class Program
              index++)
         {
             ushort address = WaverInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(ReadWaverInstructionWord(rom, 0xa30000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address)),
                 EnemySpritemapDefinitions.WaverFrameAt(address),
                 $"compiled Waver frame selection $A3:{address:X4}");
         }
@@ -136,10 +137,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Waver instruction words")]
-    private static ushort ReadWaverInstructionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewWaverInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

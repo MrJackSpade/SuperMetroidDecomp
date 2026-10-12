@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -12,8 +13,7 @@ internal static partial class Program
 
         for (ushort animation = 0; animation < 5; animation++)
         {
-            ushort expected = ReadEnemyDeathExplosionWord(
-                rom, 0x86efd5 + animation * 2);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + animation * 2));
             AssertEqual(expected,
                 EnemyDeathExplosionDefinitions.InstructionPointer(animation),
                 $"enemy death explosion instruction {animation}");
@@ -53,12 +53,6 @@ internal static partial class Program
         Console.WriteLine(
             "Enemy death explosion definitions: five native selectors, five real variants and the generic clamp path pass with the pointer table forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy death explosion words")]
-    private static ushort ReadEnemyDeathExplosionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewEnemyDeathExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

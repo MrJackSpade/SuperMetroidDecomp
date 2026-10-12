@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
@@ -50,6 +51,6 @@ internal static class IntroMotherBrainInstructionDefinitions
         if (pointer is < StartPointer or >= (EndPointer - 1))
             throw new InvalidDataException(
                 $"Intro Mother Brain instruction read $8B:{pointer:X4} leaves its compiled program.");
-        return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+        return SnesLittleEndian.Word(ReadByte(pointer), ReadByte((ushort)(pointer + 1)));
     }
 }

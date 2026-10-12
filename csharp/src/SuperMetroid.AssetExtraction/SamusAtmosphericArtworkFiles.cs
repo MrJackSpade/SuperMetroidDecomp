@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -97,20 +98,17 @@ public static class SamusAtmosphericArtworkFiles
     {
         var words = new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount];
         for (int frame = 0; frame < words.Length; frame++)
-            words[frame] = ReadWord(bus, SamusMovementRomData.Banks.Movement | pointer + frame * 2);
+            words[frame] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementRomData.Banks.Movement | pointer + frame * 2));
         return words;
     }
 
     private static void AssertPointer(ISnesAddressSpace bus, int table, int type, ushort expected)
     {
-        ushort actual = ReadWord(bus, table + type * 2);
+        ushort actual = CartridgeImportSource.Require(bus).ReadCartridgeWord((table + type * 2));
         if (actual != expected)
             throw new InvalidDataException(
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private sealed record ArtworkDocument(int Version, ushort[] TypeOne, ushort[] SharedTypeFour);
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);

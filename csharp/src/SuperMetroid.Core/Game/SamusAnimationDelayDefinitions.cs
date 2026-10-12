@@ -407,7 +407,7 @@ internal static class SamusAnimationDelayDefinitions
         if ((int)pose >= RealPoseCount)
         {
             int offset = DelayStreamsAddress + ((int)pose - RealPoseCount) * sizeof(ushort);
-            return (ushort)(ReadCompiledByte(offset) | ReadCompiledByte(offset + 1) << 8);
+            return SnesLittleEndian.Word(ReadCompiledByte(offset), ReadCompiledByte(offset + 1));
         }
         return (SamusPoseId)pose switch
         {

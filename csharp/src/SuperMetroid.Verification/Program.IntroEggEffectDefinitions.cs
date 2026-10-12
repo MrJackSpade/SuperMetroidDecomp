@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
@@ -72,15 +73,11 @@ internal static partial class Program
     {
         // The six-byte header's first word (initialization callback) has no compiled owner.
         int address = IntroEggEffectDefinitions.NativeDefinitionBank | definitionPointer;
-        AssertEqual(ReadIntroEggEffectWord(retail, address + 2), actual.PreInstruction,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 2)), actual.PreInstruction,
             $"{name} pre-instruction callback");
-        AssertEqual(ReadIntroEggEffectWord(retail, address + 4), actual.InstructionList,
+        AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), actual.InstructionList,
             $"{name} instruction list");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for intro egg effect words")]
-    private static ushort ReadIntroEggEffectWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewIntroEggEffectDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

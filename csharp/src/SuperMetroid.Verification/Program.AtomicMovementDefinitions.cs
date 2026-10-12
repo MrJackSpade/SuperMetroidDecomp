@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -8,7 +9,7 @@ internal static partial class Program
     private static void VerifyAtomicInitialProgramSelection(SuperMetroidAddressSpace rom)
     {
         for (ushort selector = 0; selector < 4; selector++)
-            AssertEqual(ReadAtomicProgramWord(rom, (ushort)(0xe380 + 2 * selector)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | ((ushort)(0xe380 + 2 * selector))),
                 AtomicMovementDefinitions.InitialInstructionList(selector), "Atomic native direction program");
         foreach (ushort selector in new ushort[] { 4, 5, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => AtomicMovementDefinitions.InitialInstructionList(selector),
@@ -30,7 +31,7 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            ushort expected = ReadAtomicProgramWord(rom, address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | address);
             var actual = AtomicInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Atomic native word enumeration");
             AssertEqual(expected, actual.Value, "Atomic enumerated native value");
@@ -93,12 +94,12 @@ internal static partial class Program
         ushort[] addresses = AtomicPresentationAddressOracle();
         foreach (ushort address in addresses)
         {
-            AssertEqual(ReadAtomicProgramWord(rom, address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | address),
                 EnemySpritemapDefinitions.AtomicFrameAt(address),
                 "Atomic native visual operand value");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort shared),
                 "Atomic shared calculated visual selection");
-            AssertEqual(ReadAtomicProgramWord(rom, address), shared, "Atomic shared native visual value");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | address), shared, "Atomic shared native visual value");
         }
         var valid = addresses.ToHashSet();
         for (int address = 0xe30e; address <= 0xe382; address++)
@@ -136,7 +137,7 @@ internal static partial class Program
         for (ushort selector = 0; selector < 4; selector++)
         {
             int address = instructionTable + selector * 2;
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
 
             slot.Parameter1 = selector;
             slot.Parameter2 = (ushort)(selector * 7);
@@ -211,14 +212,6 @@ internal static partial class Program
             "32 compiled instruction words, and four complete loops pass with mechanics " +
             "and 24 visual-selector source reads forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for atomic program words")]
-    private static ushort ReadAtomicProgramWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa80000 | address) |
-            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewAtomicInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e380 and < 0xa8e388,

@@ -161,8 +161,7 @@ public static class IntroCinematicArtworkFiles
             for (int index = 0; index < native.Length; index++)
             {
                 int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
-                var word = new SnesBgTilemapWord((ushort)(bus.ReadCartridgeByte(source) |
-                    bus.ReadCartridgeByte(source + 1) << 8));
+                var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source));
                 native[index] = word.Raw;
                 cells[index] = new RoomBackgroundTilemapCell
                 {
@@ -199,7 +198,7 @@ public static class IntroCinematicArtworkFiles
                 ushort pointer = (ushort)(IntroEyeAnimationDefinitions.FrameStartPointer +
                     frame * IntroEyeAnimationDefinitions.FrameStride);
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
-                ushort function = (ushort)(bus.ReadCartridgeByte(source) | bus.ReadCartridgeByte(source + 1) << 8);
+                ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
                 if (function != CinematicCodePointers.IndirectInstruction_DrawToPortraitTilemap ||
                     bus.ReadCartridgeByte(source + 2) != IntroEyeTilemapFormat.Columns ||
                     bus.ReadCartridgeByte(source + 3) != IntroEyeTilemapFormat.Rows)
@@ -209,8 +208,7 @@ public static class IntroCinematicArtworkFiles
                 for (int cellIndex = 0; cellIndex < cells.Length; cellIndex++)
                 {
                     int wordSource = source + 4 + cellIndex * sizeof(ushort);
-                    var word = new SnesBgTilemapWord((ushort)(bus.ReadCartridgeByte(wordSource) |
-                        bus.ReadCartridgeByte(wordSource + 1) << 8));
+                    var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(wordSource));
                     native[frame][cellIndex] = word.Raw;
                     cells[cellIndex] = new RoomBackgroundTilemapCell
                     {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -20,7 +21,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 EtecoonInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadEtecoonInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | definition.Address),
                 $"Etecoon mechanics word $A7:{definition.Address:X4}");
         }
 
@@ -163,12 +164,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Etecoon instruction words")]
-    private static ushort ReadEtecoonInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa70000 | address) |
-            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 }

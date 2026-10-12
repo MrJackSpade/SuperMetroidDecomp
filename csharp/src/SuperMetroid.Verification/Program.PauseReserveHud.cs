@@ -51,16 +51,16 @@ internal static partial class Program
         AssertEqual(oldDigit, displayed.ReadWord(HudState.VramDestination + 71), "health DMA is not presented early");
         Step();
         AssertEqual(22, samus.Health, "second transfer completes");
-        AssertEqual(ReadWord(0x809dc1), displayed.ReadWord(HudState.VramDestination + 71), "first transfer digit visible next NMI");
+        AssertEqual(bus.ReadCartridgeWord(0x809dc1), displayed.ReadWord(HudState.VramDestination + 71), "first transfer digit visible next NMI");
         Step();
-        AssertEqual(ReadWord(0x809dc3), displayed.ReadWord(HudState.VramDestination + 71), "completion digit visible next NMI");
+        AssertEqual(bus.ReadCartridgeWord(0x809dc3), displayed.ReadWord(HudState.VramDestination + 71), "completion digit visible next NMI");
         var afterRefill = pause.Render();
         AssertTrue(Enumerable.Range(24, 8).Any(y => Enumerable.Range(48, 16).Any(x =>
             beforeRefill[y * 256 + x] != afterRefill[y * 256 + x])), "actual rendered health digits change during refill");
         Step(SnesButton.A); Step();
         AssertTrue(!samus.HealthWarning.IsActive, "paused input does not invoke ordinary low-health beta check");
         foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })
-            AssertEqual(ReadWord(0x809997 + offset), displayed.ReadWord(HudState.VramDestination + index), "empty AUTO uses native table");
+            AssertEqual(bus.ReadCartridgeWord((0x809997 + offset)), displayed.ReadWord(HudState.VramDestination + index), "empty AUTO uses native table");
         foreach (int index in Enumerable.Range(0, HudState.MutableTileCount).Except(new[] { 8, 9, 40, 41, 70, 71, 72, 73 }))
             AssertEqual((ushort)(initialHud[index * 2] | initialHud[index * 2 + 1] << 8),
                 displayed.ReadWord(HudState.VramDestination + index), "reserve updates preserve other HUD cells");
@@ -71,10 +71,9 @@ internal static partial class Program
             Step(SnesButton.Start);
         }
         AssertEqual(SuperMetroidGameState.UnpausingA, game.GameState, "Start begins fade after queueing HUD");
-        AssertEqual(ReadWord(0x809dbf + (samus.Health - 1) % 10 * 2), displayed.ReadWord(HudState.VramDestination + 71), "last paused HUD write remains queued");
+        AssertEqual(bus.ReadCartridgeWord((0x809dbf + (samus.Health - 1) % 10 * 2)), displayed.ReadWord(HudState.VramDestination + 71), "last paused HUD write remains queued");
         Step();
-        AssertEqual(ReadWord(0x809dbf + samus.Health % 10 * 2), displayed.ReadWord(HudState.VramDestination + 71), "first fade frame accepts final paused HUD write");
+        AssertEqual(bus.ReadCartridgeWord((0x809dbf + samus.Health % 10 * 2)), displayed.ReadWord(HudState.VramDestination + 71), "first fade frame accepts final paused HUD write");
         Console.WriteLine("Pause reserve HUD: real frontend input, six AUTO cells and per-frame health DMA pass.");
-        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
     }
 }

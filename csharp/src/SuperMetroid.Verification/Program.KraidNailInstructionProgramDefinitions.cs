@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -18,7 +19,7 @@ internal static partial class Program
             "Kraid fingernail compiled mechanics word count");
         AssertEqual(8, KraidNailInstructionProgramDefinitions.PresentationWordCount,
             "Kraid fingernail compiled visual operand count");
-        AssertEqual(ReadKraidNailInstructionWord(rom, 0x8b0c),
+        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | 0x8b0c),
             KraidVisualDefinitions.InitialNailFrame,
             "compiled Kraid fingernail initial frame matches its cartridge selector");
         foreach ((int slotIndex, EnemyDefinitionId expectedDefinition) in new[]
@@ -151,14 +152,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail instruction words")]
-    private static ushort ReadKraidNailInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa70000 | address) |
-            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewKraidNailInstructionGuard(ISnesAddressSpace source, Action presentationRead) =>
         new CartridgeReadGuard(source)

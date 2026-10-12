@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -20,7 +21,7 @@ internal static partial class Program
                 ChozoStatueInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadChozoStatueInstructionWord(rom, 0xaa0000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaa0000 | definition.Address)),
                 $"Chozo statue instruction mechanics word $AA:{definition.Address:X4}");
         }
 
@@ -61,10 +62,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo statue instruction words")]
-    private static ushort ReadChozoStatueInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

@@ -81,14 +81,14 @@ internal static partial class Program
                 CeresSteamCollisionDefinitions.ComponentsAt(frame);
             AssertEqual(1, components.Length,
                 $"Ceres steam $A6:{frame:X4} has one physical component");
-            AssertEqual((ushort)0x1001, ReadWord(0xa60000 | frame),
+            AssertEqual((ushort)0x1001, rom.ReadCartridgeWord((0xa60000 | frame)),
                 $"Ceres steam $A6:{frame:X4} preserves the native $1001 header");
             CeresSteamCollisionComponent component = components[0];
-            AssertEqual(unchecked((short)ReadWord(0xa60000 | frame + 2)), component.Offset.X,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa60000 | frame + 2))), component.Offset.X,
                 "Ceres steam native component X");
-            AssertEqual(unchecked((short)ReadWord(0xa60000 | frame + 4)), component.Offset.Y,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa60000 | frame + 4))), component.Offset.Y,
                 "Ceres steam native component Y");
-            AssertEqual(ReadWord(0xa60000 | frame + 8), component.HitboxPointer,
+            AssertEqual(rom.ReadCartridgeWord((0xa60000 | frame + 8)), component.HitboxPointer,
                 "Ceres steam native hitbox-list pointer");
             seenLists.Add(component.HitboxPointer);
 
@@ -133,18 +133,18 @@ internal static partial class Program
         {
             ReadOnlySpan<CeresSteamCollisionHitbox> boxes =
                 CeresSteamCollisionDefinitions.HitboxesAt(list);
-            AssertEqual(ReadWord(0xa60000 | list), (ushort)boxes.Length,
+            AssertEqual(rom.ReadCartridgeWord((0xa60000 | list)), (ushort)boxes.Length,
                 $"Ceres steam $A6:{list:X4} native hitbox count");
             for (int index = 0; index < boxes.Length; index++)
             {
                 CeresSteamCollisionHitbox box = boxes[index];
                 int record = 0xa60000 | unchecked((ushort)(list + 2 + index * 12));
-                AssertEqual(unchecked((short)ReadWord(record)), box.Left, "steam left");
-                AssertEqual(unchecked((short)ReadWord(record + 2)), box.Top, "steam top");
-                AssertEqual(unchecked((short)ReadWord(record + 4)), box.Right, "steam right");
-                AssertEqual(unchecked((short)ReadWord(record + 6)), box.Bottom, "steam bottom");
-                AssertEqual(ReadWord(record + 8), box.TouchAi, "steam touch callback");
-                AssertEqual(ReadWord(record + 10), box.ShotAi, "steam shot callback");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), box.Left, "steam left");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "steam top");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "steam right");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "steam bottom");
+                AssertEqual(rom.ReadCartridgeWord((record + 8)), box.TouchAi, "steam touch callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 10)), box.ShotAi, "steam shot callback");
             }
         }
         AssertThrows<InvalidDataException>(
@@ -158,25 +158,22 @@ internal static partial class Program
         Console.WriteLine($"Ceres steam collision: 28 frames, 21 lists, {probes} " +
             "native-equivalent touch/shot boundary probes; installed path forbids ROM reads.");
 
-        ushort ReadWord(int address) => (ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
-
         // Decode the original cartridge independently: the production ROM fallback no longer exists.
         bool NativeHit(ushort frame, ushort originX, ushort originY, ushort x, ushort y,
             bool shot, out ushort callback)
         {
             callback = 0;
             int component = 0xa60000 | frame + 2;
-            ushort componentX = unchecked((ushort)(originX + (short)ReadWord(component)));
-            ushort componentY = unchecked((ushort)(originY + (short)ReadWord(component + 2)));
-            int list = 0xa60000 | ReadWord(component + 6);
-            for (int index = 0; index < ReadWord(list); index++)
+            ushort componentX = unchecked((ushort)(originX + (short)rom.ReadCartridgeWord(component)));
+            ushort componentY = unchecked((ushort)(originY + (short)rom.ReadCartridgeWord((component + 2))));
+            int list = 0xa60000 | rom.ReadCartridgeWord((component + 6));
+            for (int index = 0; index < rom.ReadCartridgeWord(list); index++)
             {
                 int record = list + 2 + 12 * index;
-                ushort left = unchecked((ushort)(componentX + (short)ReadWord(record)));
-                ushort top = unchecked((ushort)(componentY + (short)ReadWord(record + 2)));
-                ushort right = unchecked((ushort)(componentX + (short)ReadWord(record + 4)));
-                ushort bottom = unchecked((ushort)(componentY + (short)ReadWord(record + 6)));
+                ushort left = unchecked((ushort)(componentX + (short)rom.ReadCartridgeWord(record)));
+                ushort top = unchecked((ushort)(componentY + (short)rom.ReadCartridgeWord((record + 2))));
+                ushort right = unchecked((ushort)(componentX + (short)rom.ReadCartridgeWord((record + 4))));
+                ushort bottom = unchecked((ushort)(componentY + (short)rom.ReadCartridgeWord((record + 6))));
                 bool hit = shot
                     ? unchecked((short)(x - left)) >= 0 && unchecked((short)(x - right)) < 0 &&
                       unchecked((short)(y - top)) >= 0 && unchecked((short)(y - bottom)) < 0
@@ -184,7 +181,7 @@ internal static partial class Program
                       unchecked((short)(top - y)) < 0 && unchecked((short)(bottom - y)) >= 0;
                 if (!hit)
                     continue;
-                callback = ReadWord(record + (shot ? 10 : 8));
+                callback = rom.ReadCartridgeWord((record + (shot ? 10 : 8)));
                 return true;
             }
             return false;

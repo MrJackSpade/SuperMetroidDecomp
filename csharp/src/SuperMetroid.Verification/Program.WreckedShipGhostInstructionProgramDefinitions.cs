@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -21,7 +22,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 WreckedShipGhostInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadWreckedShipGhostInstructionWord(rom, definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | definition.Address),
                 $"Wrecked Ship ghost mechanics word $A8:{definition.Address:X4}");
         }
 
@@ -62,7 +63,7 @@ internal static partial class Program
             ushort address = WreckedShipGhostInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa8, address, out ushort selector),
                 $"ghost visual selector $A8:{address:X4} is compiled");
-            AssertEqual(ReadWreckedShipGhostInstructionWord(rom, address), selector,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | address), selector,
                 $"ghost visual selector $A8:{address:X4} preserves its native operand");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -102,14 +103,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Wrecked Ship ghost instruction words")]
-    private static ushort ReadWreckedShipGhostInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa80000 | address) |
-            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewWreckedShipGhostInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

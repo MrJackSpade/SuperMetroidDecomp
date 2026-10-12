@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -11,8 +12,7 @@ internal static partial class Program
         for (int pose = 0; pose < 256; pose++)
         {
             int source = SamusAnimationDelayDefinitions.PointerTableAddress + pose * 2;
-            ushort nativePointer = (ushort)(bus.ReadCartridgeByte(source) |
-                bus.ReadCartridgeByte(source + 1) << 8);
+            ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
             AssertEqual(nativePointer,
                 SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose),
                 $"compiled Samus animation pointer for pose ${pose:X2}");

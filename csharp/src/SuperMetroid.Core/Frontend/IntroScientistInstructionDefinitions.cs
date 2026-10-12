@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
@@ -81,6 +82,6 @@ internal static class IntroScientistInstructionDefinitions
         if (pointer is not (>= DeliveryStart and < (DeliveryEnd - 1)) and
             not (>= ExaminationStart and < (ExaminationEnd - 1)))
             throw new InvalidDataException($"Intro scientist actor word $8B:{pointer:X4} leaves its compiled lists.");
-        return (ushort)(ReadByte(pointer) | ReadByte((ushort)(pointer + 1)) << 8);
+        return SnesLittleEndian.Word(ReadByte(pointer), ReadByte((ushort)(pointer + 1)));
     }
 }

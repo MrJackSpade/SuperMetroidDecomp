@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -127,7 +128,7 @@ internal static partial class Program
         foreach (ushort operand in operands)
         {
             int address = 0x860000 | operand;
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operand), "statue native sprite selector");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86,operand,out ushort shared), "statue shared selector found");
             AssertEqual(native, shared, "statue shared native pointer");
@@ -135,7 +136,7 @@ internal static partial class Program
         }
         foreach (ushort pointer in new ushort[] {0x8dfb,0x8e02,0x8e09,0x8e10,0x8e17,0x8e1e,0x8e25,0x8e2c,
             0x8e33,0x8e3a,0x8e41,0x8e48,0x8e4f,0x8e56,0x8e5d,0x8e64})
-            AssertEqual((ushort)1, (ushort)(rom.ReadCartridgeByte(0x8d0000 | pointer) | rom.ReadCartridgeByte(0x8d0000 | (pointer + 1)) << 8), "statue native one-entry sprite record");
+            AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x8d0000 | pointer), "statue native one-entry sprite record");
         var known = operands.ToHashSet();
         for (int address = 0xa4c1; address <= 0xa5d4; address++)
             if (!known.Contains((ushort)address))
@@ -164,7 +165,7 @@ internal static partial class Program
         {
             ushort address = (ushort)(start + offset);
             var actual = BombTorizoStatueInstructionProgramDefinitionsTooling.MechanicsWord(index++);
-            ushort native = (ushort)(rom.ReadCartridgeByte(0x860000 | address) | rom.ReadCartridgeByte(0x860000 | (address + 1)) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x860000 | address);
             AssertEqual(address, actual.Address, "statue native control layout order");
             AssertEqual(native, actual.Value, "statue enumerated native control word");
             AssertEqual(native, BombTorizoStatueInstructionProgramDefinitions.ReadMechanicsWord(address), "statue direct native control word");
@@ -207,7 +208,7 @@ internal static partial class Program
         for (int i = 0; i < starts.Length; i++)
         {
             int address = 0x860000 | starts[i];
-            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(starts[i], BombTorizoStatueInstructionProgramDefinitions.Program(i), "statue native start position");
             var enumerated = BombTorizoStatueInstructionProgramDefinitionsTooling.MechanicsWord(i * 6);
             AssertEqual(starts[i], enumerated.Address, "statue delay word position");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -9,10 +10,10 @@ internal static partial class Program
         for (int index = 0; index < 4; index++)
         {
             var phase = (SkreeMetareeAnimationPhase)index;
-            AssertEqual(ReadSkreeMetareeAnimationWord(rom, 0xa3894e + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3894e + index * 2)),
                 SkreeMetareeAnimationDefinitions.MetareeInstructionList(phase),
                 $"Metaree animation phase {phase}");
-            AssertEqual(ReadSkreeMetareeAnimationWord(rom, 0xa3c69c + index * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3c69c + index * 2)),
                 SkreeMetareeAnimationDefinitions.SkreeInstructionList(phase),
                 $"Skree animation phase {phase}");
         }
@@ -184,12 +185,6 @@ internal static partial class Program
         AssertEqual(1, slot.InstructionTimer, $"{context} instruction timer");
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Skree Metaree animation words")]
-    private static ushort ReadSkreeMetareeAnimationWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewSkreeMetareeAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3894e and < 0xa38956 or >= 0xa3c69c and < 0xa3c6a4,

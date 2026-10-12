@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -23,7 +24,7 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 NorfairPipeBugInstructionProgramDefinitions.MechanicsWord(index);
             AssertEqual(definition.Value,
-                ReadNorfairPipeBugInstructionWord(rom, 0xb30000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | definition.Address)),
                 $"Norfair Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
         }
 
@@ -61,7 +62,7 @@ internal static partial class Program
         {
             ushort address =
                 NorfairPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(ReadNorfairPipeBugInstructionWord(rom, 0xb30000 | address),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | address)),
                 PipeBugVisualDefinitions.FrameAt(
                     EnemyDefinitionId.Gamet, address),
                 $"compiled Norfair Pipe Bug frame $B3:{address:X4}");
@@ -128,9 +129,4 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Pipe Bug instruction words")]
-    private static ushort ReadNorfairPipeBugInstructionWord(
-        SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 }

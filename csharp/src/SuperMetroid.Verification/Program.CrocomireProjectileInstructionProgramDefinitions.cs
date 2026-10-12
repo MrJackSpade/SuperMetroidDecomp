@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -117,7 +118,7 @@ internal static partial class Program
                 $"CrocomireProjectile executes native presentation operand {address:X4}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, address, out ushort selector),
                 "CrocomireProjectile has a compiled visual selector");
-            AssertEqual(ReadCrocomireProjectileInstructionWord(rom, address), selector,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address), selector,
                 "CrocomireProjectile compiled selector matches the cartridge");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -180,7 +181,7 @@ internal static partial class Program
         {
             ushort address = addresses[i];
             var definition = CrocomireProjectileInstructionProgramDefinitionsTooling.MechanicsWord(i);
-            ushort expected = ReadCrocomireProjectileInstructionWord(rom, address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
             AssertEqual(address, definition.Address, "Crocomire projectile independent mechanics address");
             AssertEqual(expected, definition.Value, "Crocomire projectile enumerated native word");
             AssertEqual(expected, CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address), "Crocomire projectile native control dispatch");
@@ -212,7 +213,7 @@ internal static partial class Program
         {
             ushort actual = CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(i);
             AssertEqual(addresses[i], actual, "Crocomire projectile independent sprite operand address");
-            AssertEqual(ReadCrocomireProjectileInstructionWord(rom, addresses[i]), ReadCrocomireProjectileInstructionWord(rom, actual), "Crocomire projectile original presentation operand");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | addresses[i]), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | actual), "Crocomire projectile original presentation operand");
             AssertThrows<InvalidDataException>(() => CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(actual), "Crocomire projectile presentation excluded from mechanics");
         }
         AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(-1), "negative Crocomire projectile presentation index");
@@ -230,16 +231,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire projectile instruction words")]
-    private static ushort ReadCrocomireProjectileInstructionWord(
-        SuperMetroidAddressSpace source,
-        ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadCartridgeByte(
-                EnemyProjectileCodePointers.BankBase |
-                unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewCrocomireProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -42,12 +43,8 @@ internal static partial class Program
         // than merely proving that the pointer-table bytes themselves happen to be mapped.
         for (int pose = 0; pose < poseCount; pose++)
         {
-            ushort animationPointer = ReadMovementWord(
-                bus,
-                SamusMovementRomData.Poses.AnimationDelayListPointers + pose * sizeof(ushort));
-            ushort transitionPointer = ReadMovementWord(
-                bus,
-                SamusMovementRomData.Poses.TransitionListPointers + pose * sizeof(ushort));
+            ushort animationPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementRomData.Poses.AnimationDelayListPointers + pose * sizeof(ushort)));
+            ushort transitionPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusMovementRomData.Poses.TransitionListPointers + pose * sizeof(ushort)));
             AssertTrue(animationPointer >= 0x8000,
                 $"pose ${pose:X2} animation list remains in bank $91 ROM");
             AssertTrue(transitionPointer >= 0x8000,
@@ -129,8 +126,4 @@ internal static partial class Program
         bus.ReadCartridgeByte(address);
         bus.ReadCartridgeByte(finalAddress);
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus movement data words")]
-    private static ushort ReadMovementWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

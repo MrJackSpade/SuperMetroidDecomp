@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -7,7 +8,6 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus impulse definitions")]
     private static void VerifySamusImpulseDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte(a + 1) << 8);
         var noReads = NewSlopeHeightNoReadBus();
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
@@ -32,8 +32,8 @@ internal static partial class Program
             bomb.Kinematics.YSubacceleration = 123;
             SamusBombJumpMovement.Start(noReads, bomb);
             int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
-            AssertEqual(Word(0x909ef5 + medium * 2), bomb.Kinematics.YSpeed, "Bomb native whole launch");
-            AssertEqual(Word(0x909efb + medium * 2), bomb.Kinematics.YSubspeed, "Bomb native fractional launch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ef5 + medium * 2)), bomb.Kinematics.YSpeed, "Bomb native whole launch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909efb + medium * 2)), bomb.Kinematics.YSubspeed, "Bomb native fractional launch");
             AssertEqual(SamusVerticalDirection.Up, bomb.Kinematics.YDirection, "Bomb upward launch");
             AssertEqual((ushort)7, bomb.Kinematics.YAcceleration, "Bomb launch retains live whole gravity");
             AssertEqual((ushort)123, bomb.Kinematics.YSubacceleration, "Bomb launch retains live fractional gravity");
@@ -68,9 +68,9 @@ internal static partial class Program
             hurt.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
             AssertTrue(SamusKnockbackMovement.Start(poseOnly, hurt, input, new KnockbackLaunch { KnockbackXDirection = side, KnockbackTimer = 11 }), "Native hurt branch admitted");
             int medium = (equipment & 4) != 0 || environment == 3 ? 0 : environment;
-            AssertEqual(Word(0x909ee9 + medium * 2), hurt.Kinematics.YSpeed, "Hurt native whole launch");
-            AssertEqual(Word(0x909eef + medium * 2), hurt.Kinematics.YSubspeed, "Hurt native fractional launch");
-            AssertEqual(Word(0x909ea1 + medium * 2), hurt.Kinematics.YSubacceleration, "Hurt refreshes native gravity");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ee9 + medium * 2)), hurt.Kinematics.YSpeed, "Hurt native whole launch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909eef + medium * 2)), hurt.Kinematics.YSubspeed, "Hurt native fractional launch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), hurt.Kinematics.YSubacceleration, "Hurt refreshes native gravity");
             AssertEqual((ushort)11, hurt.KnockbackTimer, "Hurt retains producer timer");
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
             AssertEqual((ushort)0, hurt.BombJumpDirection, "Hurt clears bomb direction");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -21,8 +22,7 @@ internal static partial class Program
             ushort operand = WorkRobotInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             int selectorAddress = (WorkRobotVisualDefinitions.Bank << 16) | operand;
-            ushort nativePointer = unchecked((ushort)(
-                rom.ReadCartridgeByte(selectorAddress) | rom.ReadCartridgeByte(selectorAddress + 1) << 8));
+            ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer, WorkRobotVisualDefinitions.FrameAt(operand),
                 $"Work Robot visual selector {index} matches pinned cartridge");
             EnemyDefinitionId definition = operand < WorkRobotInstructionProgramDefinitions.Initial

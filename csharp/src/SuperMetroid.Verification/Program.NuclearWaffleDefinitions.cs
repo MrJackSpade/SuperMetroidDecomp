@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -15,20 +16,20 @@ internal static partial class Program
         {
             int offset = direction * 4;
             NuclearWaffleSweepDefinition definition = NuclearWaffleDefinitions.Sweep(direction);
-            AssertEqual(ReadNuclearWaffleWord(rom, endpointTable + offset), definition.StartAngle,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset)), definition.StartAngle,
                 $"Nuclear Waffle start angle {direction}");
-            AssertEqual(ReadNuclearWaffleWord(rom, endpointTable + offset + 2), definition.EndAngle,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((endpointTable + offset + 2)), definition.EndAngle,
                 $"Nuclear Waffle end angle {direction}");
-            AssertEqual(unchecked((short)ReadNuclearWaffleWord(rom, spacingTable + offset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((spacingTable + offset))),
                 definition.SegmentSpacing,
                 $"Nuclear Waffle segment spacing {direction}");
-            AssertEqual(unchecked((short)ReadNuclearWaffleWord(rom, spacingTable + offset + 2)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((spacingTable + offset + 2))),
                 definition.InterleavedSegmentOffset,
                 $"Nuclear Waffle interleaved offset {direction}");
-            AssertEqual(ReadNuclearWaffleWord(rom, thresholdTable + offset),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset)),
                 definition.SecondTurnThreshold,
                 $"Nuclear Waffle second turn threshold {direction}");
-            AssertEqual(ReadNuclearWaffleWord(rom, thresholdTable + offset + 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((thresholdTable + offset + 2)),
                 definition.FirstTurnThreshold,
                 $"Nuclear Waffle first turn threshold {direction}");
 
@@ -80,7 +81,7 @@ internal static partial class Program
                 NuclearWaffleInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(
                 definition.Value,
-                ReadNuclearWaffleWord(rom, 0xa60000 | definition.Address),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | definition.Address)),
                 $"Nuclear Waffle mechanics word $A6:{definition.Address:X4}");
         }
 
@@ -107,7 +108,7 @@ internal static partial class Program
             process.Invoke(programSystem, arguments);
             VerifyExecutedEnemySelector(rom, programSlot, executedOperands);
             ushort operand = unchecked((ushort)(programSlot.CurrentInstruction - 2));
-            AssertEqual(ReadNuclearWaffleWord(rom, 0xa60000 | operand), programSlot.SpritemapPointer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | operand)), programSlot.SpritemapPointer,
                 "actual installed Nuclear Waffle native visual selector");
             installed.Add(operand);
         }
@@ -161,10 +162,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Nuclear Waffle words")]
-    private static ushort ReadNuclearWaffleWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewNuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

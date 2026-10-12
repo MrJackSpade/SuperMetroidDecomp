@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -13,7 +14,7 @@ internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : 
     public bool TryReadColor(ushort pointer, out Bgr555 color)
     {
         int address = RoomFxRomData.Banks.PaletteFx | pointer;
-        color = Bgr555.FromWord(unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8)));
+        color = Bgr555.FromWord(CartridgeImportSource.Require(source).ReadCartridgeWord(address));
         return true;
     }
 }

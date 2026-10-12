@@ -88,8 +88,7 @@ sealed class TestAddressSpace : ISnesMemoryBus,
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer)
     {
         int address = MotherBrainFallingTubePopulationDefinitions.NativeBank | pointer;
-        ushort Word(int offset) => (ushort)(ReadByte(address + offset) |
-            ReadByte(address + offset + 1) << 8);
+        ushort Word(int offset) => SnesLittleEndian.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
         return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), Word(8), Word(10), Word(12), Word(14));
     }
 
@@ -132,7 +131,7 @@ sealed class TestAddressSpace : ISnesMemoryBus,
     }
 
     private ushort ReadFixtureWord(int address) =>
-        unchecked((ushort)(ReadByte(address) | ReadByte(address + 1) << 8));
+        SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
 }
 
 /// <summary>

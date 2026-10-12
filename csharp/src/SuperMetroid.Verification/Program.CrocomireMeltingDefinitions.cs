@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -42,9 +43,6 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(49), "Mask upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => CrocomireMeltingDefinitions.SelectMask(int.MaxValue), "Mask invalid maximum");
     }
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melt native words")]
-    private static ushort CrocomireMeltNativeWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static void VerifyCrocomireMeltingTransferCatalog(SuperMetroidAddressSpace rom)
     {
@@ -65,11 +63,11 @@ internal static partial class Program
             AssertEqual(pass, CrocomireMeltingTransferDefinitions.Passes[index++], "melt pass enumeration");
             int header = CrocomireMeltingTransferDefinitions.NativeSourceAddress +
                 pass.HeaderOffset;
-            AssertEqual(pass.MaximumAdjustedDestinationY, CrocomireMeltNativeWord(rom, header),
+            AssertEqual(pass.MaximumAdjustedDestinationY, CartridgeImportSource.Require(rom).ReadCartridgeWord(header),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} maximum Y");
-            AssertEqual(pass.DistortionEndY, CrocomireMeltNativeWord(rom, header + 2),
+            AssertEqual(pass.DistortionEndY, CartridgeImportSource.Require(rom).ReadCartridgeWord((header + 2)),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} distortion end Y");
-            AssertEqual(pass.WordsToCopy, CrocomireMeltNativeWord(rom, header + 4),
+            AssertEqual(pass.WordsToCopy, CartridgeImportSource.Require(rom).ReadCartridgeWord((header + 4)),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} copy word count");
             AssertEqual(pass.SourceBank, rom.ReadCartridgeByte(header + 6),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} source bank");
@@ -93,13 +91,13 @@ internal static partial class Program
             {
                 int source = header + 8 + index * 4;
                 CrocomireMeltingCopy copy = pass.Copies[index];
-                AssertEqual(copy.SourceWord, CrocomireMeltNativeWord(rom, source),
+                AssertEqual(copy.SourceWord, CartridgeImportSource.Require(rom).ReadCartridgeWord(source),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} copy {index} source");
-                AssertEqual(copy.DestinationWord, CrocomireMeltNativeWord(rom, source + 2),
+                AssertEqual(copy.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 2)),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} copy {index} destination");
             }
             int copyEnd = header + 8 + pass.Copies.Length * 4;
-            AssertEqual((ushort)0xffff, CrocomireMeltNativeWord(rom, copyEnd),
+            AssertEqual((ushort)0xffff, CartridgeImportSource.Require(rom).ReadCartridgeWord(copyEnd),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} copy terminator");
             AssertEqual(pass.TransferStartOffset,
                 (ushort)(copyEnd + 2 - CrocomireMeltingTransferDefinitions.NativeSourceAddress),
@@ -126,13 +124,13 @@ internal static partial class Program
                 int offset = pass.TransferStartOffset + index * 8;
                 int source = CrocomireMeltingTransferDefinitions.NativeSourceAddress + offset;
                 CrocomireMeltingUpload upload = pass.Uploads[index];
-                AssertEqual(upload.ByteCount, CrocomireMeltNativeWord(rom, source),
+                AssertEqual(upload.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(source),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} size");
-                AssertEqual(upload.DestinationWord, CrocomireMeltNativeWord(rom, source + 2),
+                AssertEqual(upload.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 2)),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} destination");
                 AssertEqual(upload.SourceBank, rom.ReadCartridgeByte(source + 4),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} bank");
-                AssertEqual(upload.SourceWord, CrocomireMeltNativeWord(rom, source + 6),
+                AssertEqual(upload.SourceWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 6)),
                     $"Crocomire melt pass ${pass.HeaderOffset:X4} upload {index} source");
                 AssertTrue(CrocomireMeltingTransferDefinitions.TryUpload(offset,
                     out CrocomireMeltingUpload selected) && selected == upload,
@@ -141,8 +139,7 @@ internal static partial class Program
             AssertEqual(pass.TransferEndOffset,
                 (ushort)(pass.TransferStartOffset + pass.Uploads.Length * 8),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} transfer end");
-            AssertEqual((ushort)0xffff, CrocomireMeltNativeWord(rom,
-                CrocomireMeltingTransferDefinitions.NativeSourceAddress + pass.TransferEndOffset),
+            AssertEqual((ushort)0xffff, CartridgeImportSource.Require(rom).ReadCartridgeWord((CrocomireMeltingTransferDefinitions.NativeSourceAddress + pass.TransferEndOffset)),
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} transfer terminator");
             AssertTrue(!CrocomireMeltingTransferDefinitions.TryUpload(
                 pass.TransferEndOffset, out _),
@@ -374,8 +371,7 @@ internal static partial class Program
         for (int index = 0; index < result.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            ushort expected = (ushort)(rom.ReadCartridgeByte(address) |
-                rom.ReadCartridgeByte(address + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             if (compareRom)
                 AssertEqual(expected, result[index],
                     $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");

@@ -38,8 +38,7 @@ internal static partial class Program
         var programs = new Dictionary<string, SpriteVisualPart[]>();
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
         {
-            ushort pointer = (ushort)(bus.ReadCartridgeByte(0x860000 | frame.OperandAddress) |
-                bus.ReadCartridgeByte(0x860000 | (ushort)(frame.OperandAddress + 1)) << 8);
+            ushort pointer = bus.ReadCartridgeWordFixedBank(0x860000 | frame.OperandAddress);
             // An unwritten fixture operand has no art. Do not turn a zero selector into
             // an import from WRAM, or silently substitute stock sprites into a fixture.
             programs.Add(frame.Name, pointer == 0 ? [] : EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));

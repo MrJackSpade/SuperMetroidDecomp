@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -119,8 +120,6 @@ internal static partial class Program
     private static HashSet<int> VerifyEnemyProjectileDefinitionRecords(
         SuperMetroidAddressSpace rom, RoomEnemyProjectileKind[] kinds)
     {
-        ushort Word(int address) => unchecked((ushort)(
-            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
         var forbidden = new HashSet<int>();
         foreach (RoomEnemyProjectileKind kind in kinds)
@@ -130,17 +129,17 @@ internal static partial class Program
                 forbidden.Add(address + index);
 
             EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
-            AssertEqual(Word(address + 2), definition.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), definition.PreInstruction,
                 $"{kind} pre-instruction");
-            AssertEqual(Word(address + 4), definition.InitialInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), definition.InitialInstructionList,
                 $"{kind} initial list");
-            AssertEqual(Word(address + 6), definition.RadiusWord,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), definition.RadiusWord,
                 $"{kind} radius word");
-            AssertEqual(Word(address + 8), definition.Properties,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)), definition.Properties,
                 $"{kind} properties");
-            AssertEqual(Word(address + 10), definition.TouchInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)), definition.TouchInstructionList,
                 $"{kind} touch list");
-            AssertEqual(Word(address + 12), definition.ShotInstructionList,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 12)), definition.ShotInstructionList,
                 $"{kind} shot list");
         }
         return forbidden;

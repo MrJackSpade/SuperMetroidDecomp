@@ -53,8 +53,7 @@ internal static partial class Program
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
         foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (255, 252), (0, ushort.MaxValue) })
         {
-            ushort pointer = (ushort)(source.ReadCartridgeByte(0x860000 | frame.OperandAddress) |
-                source.ReadCartridgeByte(0x860000 | (ushort)(frame.OperandAddress + 1)) << 8);
+            ushort pointer = source.ReadCartridgeWordFixedBank(0x860000 | frame.OperandAddress);
             roomSlot.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
             roomSlot.DrawPriority = EnemyProjectileDrawPriority.High;
             roomSlot.PresentationOperandAddress = frame.OperandAddress;

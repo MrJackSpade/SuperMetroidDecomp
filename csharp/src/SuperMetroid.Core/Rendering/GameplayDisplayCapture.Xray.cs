@@ -59,7 +59,7 @@ public static partial class GameplayDisplayCapture
             sub = new Bg2BppColorMathRenderLayer(
                 RoomFxRomData.Layer3.LiquidTilemapBaseWord,
                 runtime.GameplayHudCharacterBaseWord,
-                (RoomFxRomData.Layer3.LiquidVerticalCoordinateMask + 1) / SnesPpuLayout.BackgroundTileSizePixels,
+                RoomFxRomData.Layer3.LiquidTilemapSize.Y,
                 SnesPpuLayout.GameplayHudHeightPixels,
                 ExpandedColorMathOperation.Add,
                 new Position16<BgPlanePixels>[SnesPpuLayout.ScreenHeightPixels]);

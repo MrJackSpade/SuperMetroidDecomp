@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,25 +17,22 @@ internal static partial class Program
         const int normalWalkAddress = 0xaac4bd;
         const int facelessWalkAddress = 0xaac532;
 
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
-
         for (ushort tableOffset = 0; tableOffset < 32; tableOffset += 2)
         {
             Offset16<RoomPixels> displacement =
                 BombTorizoMovementDefinitions.Posture(tableOffset);
             int wrappedYOffset = tableOffset & 0x000f;
 
-            AssertEqual(unchecked((short)ReadWord(rom, standingXAddress + tableOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((standingXAddress + tableOffset))),
                 displacement.X,
                 $"Bomb Torizo standing X offset ${tableOffset:X2}");
-            AssertEqual(unchecked((short)ReadWord(rom, standingYAddress + wrappedYOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((standingYAddress + wrappedYOffset))),
                 displacement.Y,
                 $"Bomb Torizo standing Y offset ${tableOffset:X2}");
-            AssertEqual(unchecked((short)ReadWord(rom, sittingXAddress + tableOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((sittingXAddress + tableOffset))),
                 displacement.X,
                 $"Bomb Torizo sitting X offset ${tableOffset:X2}");
-            AssertEqual(unchecked((short)ReadWord(rom, sittingYAddress + wrappedYOffset)),
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((sittingYAddress + wrappedYOffset))),
                 displacement.Y,
                 $"Bomb Torizo sitting Y offset ${tableOffset:X2}");
         }
@@ -42,9 +40,9 @@ internal static partial class Program
         for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)
         {
             ushort velocity = BombTorizoMovementDefinitions.WalkVelocity(tableOffset);
-            AssertEqual(ReadWord(rom, normalWalkAddress + tableOffset), velocity,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((normalWalkAddress + tableOffset)), velocity,
                 $"Bomb Torizo normal walk velocity ${tableOffset:X2}");
-            AssertEqual(ReadWord(rom, facelessWalkAddress + tableOffset), velocity,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((facelessWalkAddress + tableOffset)), velocity,
                 $"Bomb Torizo faceless walk velocity ${tableOffset:X2}");
         }
 

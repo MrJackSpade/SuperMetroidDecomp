@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -344,9 +345,7 @@ internal static partial class Program
     private static ushort ReadBeetomInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
-        unchecked((ushort)(
-            source.ReadCartridgeByte(0xa80000 | address) |
-            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
+        CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
 
     private static CartridgeReadGuard NewBeetomInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)

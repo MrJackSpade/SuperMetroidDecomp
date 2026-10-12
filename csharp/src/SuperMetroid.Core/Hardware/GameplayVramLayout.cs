@@ -16,6 +16,10 @@ public static class GameplayVramLayout
     [PpuLayoutAccess]
     public const ushort Bg2TilemapWord = 0x4800;
 
+    /// <summary>BG1SC/BG2SC size bit 0 for rooms: two 32-by-32 screens side by side.</summary>
+    public static Extent16<TilemapCells> RoomTilemapSize =>
+        new(2 * SnesPpuLayout.TilemapPageWidthInTiles, SnesPpuLayout.TilemapPageWidthInTiles);
+
     /// <summary>VMADD of <see cref="HudTilemap"/>, for render packets and the PPU backend.</summary>
     [PpuLayoutAccess]
     public const ushort HudTilemapWord = 0x5800;

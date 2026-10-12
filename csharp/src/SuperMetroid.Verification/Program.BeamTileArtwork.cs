@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -83,9 +84,8 @@ internal static partial class Program
     private static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
     {
-        ushort Word(int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
         int tileSource = SamusProjectileRomData.Banks.CharacterData |
-            Word(SamusProjectileRomData.Beams.TilePointers + selection * 2);
+            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusProjectileRomData.Beams.TilePointers + selection * 2));
         if (vram is not null)
         {
             var bytes = new byte[BeamTileAtlasDefinitions.ByteCount];
@@ -94,9 +94,9 @@ internal static partial class Program
         }
         queue?.Enqueue(BeamTileAtlasDefinitions.ByteCount, tileSource, VramDmaDestination.FromNative(BeamTileAtlasDefinitions.DestinationWord));
         int colors = SamusProjectileRomData.Banks.Movement |
-            Word(SamusProjectileRomData.Beams.PalettePointers + selection * 2);
+            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusProjectileRomData.Beams.PalettePointers + selection * 2));
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked((ushort)(Word(colors + i * 2)))));
+            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked((ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2))))));
     }
     private static MutableCartridgeReadGuard NewBeamArtworkReadGuard(ISnesAddressSpace source)
     {

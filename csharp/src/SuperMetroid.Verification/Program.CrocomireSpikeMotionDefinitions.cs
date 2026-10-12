@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -9,7 +10,7 @@ internal static partial class Program
         for (int slot = 0; slot < 18; slot++)
         {
             int address = 0x8691c3 + 2 * slot;
-            ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, CrocomireSpikeMotionDefinitions.AccelerationDelta(slot),
                 $"Crocomire spike acceleration increment, physical slot {slot}");
         }
@@ -23,7 +24,7 @@ internal static partial class Program
         for (int slot = 0; slot < 18; slot++)
         {
             int address = 0x8691e7 + 2 * slot;
-            ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, CrocomireSpikeMotionDefinitions.MaximumAcceleration(slot),
                 $"Crocomire spike acceleration limit, physical slot {slot}");
         }

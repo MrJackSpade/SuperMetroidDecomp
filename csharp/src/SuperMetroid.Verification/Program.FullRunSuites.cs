@@ -46,6 +46,7 @@ internal static partial class Program
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
         new(nameof(VerifyCpuOperandOpenBus), () => VerifyCpuOperandOpenBus()),
         new(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary()),
+        new(nameof(VerifyCanonicalWordReads), () => VerifyCanonicalWordReads()),
         new(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary()),
         new(nameof(VerifyDspRegisterBoundary), () => VerifyDspRegisterBoundary()),
         new(nameof(VerifySpcMemoryBoundary), () => VerifySpcMemoryBoundary()),

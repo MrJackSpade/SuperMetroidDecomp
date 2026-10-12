@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -19,8 +20,7 @@ internal static partial class Program
         {
             ushort address = SporeSpawnInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            sporePointers.Add(ReadWord(
-                (DraygonBg2FrameDefinitions.Bank << 16) | address));
+            sporePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord(((DraygonBg2FrameDefinitions.Bank << 16) | address)));
         }
 
         var enemies = new RoomEnemySystem();
@@ -73,13 +73,13 @@ internal static partial class Program
                 $"Draygon OAM frame {frame.Name} has bounded components");
             for (int component = 0; component < componentCount; component++)
             {
-                ushort listPointer = ReadWord(root + 2 + component * 8 + 6);
+                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2 + component * 8 + 6));
                 AssertTrue((DraygonHitboxList)listPointer is
                     DraygonHitboxList.Empty or
                     DraygonHitboxList.OtherEmpty,
                     $"Draygon OAM frame {frame.Name} component {component} has a native empty list");
                 AssertEqual((ushort)0,
-                    ReadWord((frame.Bank << 16) | listPointer),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord(((frame.Bank << 16) | listPointer)),
                     $"Draygon OAM frame {frame.Name} component {component} native hitbox count");
                 componentsChecked++;
             }
@@ -109,8 +109,5 @@ internal static partial class Program
             () => DraygonCollisionDefinitions.ComponentsAt(0xee65),
             "Spore Spawn frame cannot enter Draygon collision data");
         Console.WriteLine($"  Draygon OAM collision: {draygonFrames} frames and {componentsChecked} native zero-hitbox components return no shot/touch callback without ROM reads; 12 Spore Spawn frames excluded.");
-
-        ushort ReadWord(int address) =>
-            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 }

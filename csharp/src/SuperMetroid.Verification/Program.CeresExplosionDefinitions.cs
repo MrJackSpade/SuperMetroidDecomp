@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
@@ -56,14 +57,11 @@ internal static partial class Program
         {
             // The six-byte header's first word (initialization callback) has no compiled owner.
             int address = CeresExplosionDefinitions.NativeBank | definitionPointer;
-            AssertEqual(ReadWord(source, address + 2), definition.PreInstruction,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 2)), definition.PreInstruction,
                 $"{name} pre-instruction callback");
-            AssertEqual(ReadWord(source, address + 4), definition.InstructionList,
+            AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWord((address + 4)), definition.InstructionList,
                 $"{name} instruction list");
         }
-
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres burst layout")]
@@ -72,9 +70,9 @@ internal static partial class Program
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingExplosionCount; index++)
         {
             CeresExplosionPlacement placement = CeresExplosionDefinitions.RepeatingExplosion(index);
-            AssertEqual(ReadWord(retail, 0x8bc4eb + index * 4), unchecked((ushort)placement.Offset.X),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4eb + index * 4)), unchecked((ushort)placement.Offset.X),
                 $"repeating explosion {index} X offset");
-            AssertEqual(ReadWord(retail, 0x8bc4ed + index * 4), unchecked((ushort)placement.Offset.Y),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4ed + index * 4)), unchecked((ushort)placement.Offset.Y),
                 $"repeating explosion {index} Y offset");
             AssertEqual((ushort)1, placement.DelayFrames,
                 $"repeating explosion {index} initial instruction delay");
@@ -83,7 +81,7 @@ internal static partial class Program
         for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
         {
             CeresExplosionPlacement placement = CeresExplosionDefinitions.FinalExplosion(index);
-            AssertEqual(ReadWord(retail, 0x8bc57a + index * 2), unchecked((ushort)placement.Offset.Y),
+            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc57a + index * 2)), unchecked((ushort)placement.Offset.Y),
                 $"final explosion {index} Y offset");
         }
 
@@ -93,9 +91,6 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(
                 () => CeresExplosionDefinitions.FinalExplosion(invalid), "final layout bounds");
-
-        static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8));
     }
 
     private static CartridgeReadGuard NewCeresExplosionDefinitionReadGuard(ISnesAddressSpace source) =>

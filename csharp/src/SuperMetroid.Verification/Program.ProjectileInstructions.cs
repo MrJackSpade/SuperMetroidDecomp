@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -86,11 +87,10 @@ internal static partial class Program
             0xa103, 0xa10b, 0xa113, 0xa119, 0xa121, 0xa129, 0xa131, 0xa139, 0xa13d, 0xa145, 0xa14d, 0xa155,
             0xa159, 0xa161, 0xa169, 0xa16d, 0xa175, 0xa17d, 0xa185, 0xa18d, 0xa195, 0xa19d,
         ];
-        ushort Word(int a) => (ushort)(rom.ReadCartridgeByte(a) | rom.ReadCartridgeByte((a & 0xff0000) | ((a + 1) & 0xffff)) << 8);
         var words = new HashSet<int>();
         foreach (ushort entry in entries)
         {
-            int a = 0x930000 | entry; ushort value = Word(a);
+            int a = 0x930000 | entry; ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(a);
             words.Add(a);
             if (value == 0x8239) words.Add(a + 2);
             else if (value < 0x8000) words.Add(a + 6);
@@ -107,13 +107,13 @@ internal static partial class Program
             {
                 trailSlot.InstructionTimer = timer;
                 trailSlot.AnimationFrame = 0xbeef;
-                AssertEqual(Word(address), trailFrame(trailSlot), "Trail owner consumes compiled previous-record word regardless of timer or cached frame");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), trailFrame(trailSlot), "Trail owner consumes compiled previous-record word regardless of timer or cached frame");
                 AssertEqual(timer, trailSlot.InstructionTimer, "Trail frame lookup leaves timer unchanged");
                 AssertEqual((ushort)0xbeef, trailSlot.AnimationFrame, "Trail lookup must not substitute or alter the cached frame");
             }
         }
         foreach (int a in words)
-            AssertEqual(Word(a), SamusProjectileInstructionDefinitions.ReadWord(a), "Compiled instruction word matches cartridge");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(a), SamusProjectileInstructionDefinitions.ReadWord(a), "Compiled instruction word matches cartridge");
         foreach (int address in new[] { 0x938000, 0x9386dc, 0x9386dd, 0x93ffff })
         {
             AssertThrows<InvalidDataException>(
@@ -144,12 +144,12 @@ internal static partial class Program
                     while (true)
                     {
                         AssertTrue(++operations < 16, "Reference stream reaches a frame or delete");
-                        int a = 0x930000 | pointer; ushort command = Word(a);
+                        int a = 0x930000 | pointer; ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(a);
                         if (command == 0x822f) { deleted = true; break; }
-                        if (command == 0x8239) { pointer = Word(a + 2); continue; }
+                        if (command == 0x8239) { pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2)); continue; }
                         AssertTrue(command is > 0 and < 0x8000, "Reference timed record valid");
-                        timer = command; sprite = Word(a + 2); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
-                        trail = Word(a + 6); pointer = unchecked((ushort)(pointer + 8)); break;
+                        timer = command; sprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2)); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
+                        trail = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 6)); pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
                 AssertEqual(deleted, system.RunProjectileInstructionHandler(slot), "Native delete/timed outcome");

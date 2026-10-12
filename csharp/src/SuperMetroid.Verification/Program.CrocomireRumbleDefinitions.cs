@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -11,9 +12,6 @@ internal static partial class Program
     private static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa498ca;
-
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         var expectedWords = new ushort[32];
         var assigned = new bool[32];
@@ -43,7 +41,7 @@ internal static partial class Program
         for (int index = 0; index < expectedWords.Length; index++)
         {
             AssertTrue(assigned[index], $"Crocomire rumble source word {index} ownership");
-            AssertEqual(ReadWord(rom, sourceAddress + index * 2), expectedWords[index],
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index * 2)), expectedWords[index],
                 $"Crocomire rumble source word {index}");
         }
 
@@ -139,10 +137,8 @@ internal static partial class Program
         ref ushort deathIndex)
     {
         const int sourceAddress = 0xa498ca;
-        static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
-        ushort target = ReadWord(rom, sourceAddress + index);
+        ushort target = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
         if (target == 0x8080)
         {
             yOffset = 0x8080;
@@ -163,9 +159,9 @@ internal static partial class Program
                 }
 
                 index += 2;
-                cooldown = ReadWord(rom, sourceAddress + index);
+                cooldown = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
                 index += 2;
-                delta = ReadWord(rom, sourceAddress + index);
+                delta = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
             }
 
             index += 2;

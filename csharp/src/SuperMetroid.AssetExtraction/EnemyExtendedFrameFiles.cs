@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -72,12 +73,10 @@ internal static class EnemyExtendedFrameFiles
         for (int index = 0; index < count; index++)
         {
             ushort record = unchecked((ushort)(pointer + 2 + index * 8));
-            short x = unchecked((short)ReadWord(bus, bank, record));
-            short y = unchecked((short)ReadWord(bus, bank,
-                unchecked((ushort)(record + 2))));
-            ushort spritePointer = ReadWord(bus, bank,
-                unchecked((ushort)(record + 4)));
-            if (ReadWord(bus, bank, spritePointer) ==
+            short x = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | record));
+            short y = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(record + 2)))));
+            ushort spritePointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(record + 4))));
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | spritePointer) ==
                 EnemyBg2FrameLayout.StreamMarker)
             {
                 // Multipart bodies combine ordinary OAM with BG2 streams
@@ -104,8 +103,4 @@ internal static class EnemyExtendedFrameFiles
             throw new InvalidDataException($"Extended enemy frame {definition.Name} has no OAM.");
         return components.ToArray();
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, byte bank, ushort address) =>
-        (ushort)(bus.ReadCartridgeByte((bank << 16) | address) |
-            bus.ReadCartridgeByte((bank << 16) | unchecked((ushort)(address + 1))) << 8);
 }

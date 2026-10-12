@@ -26,7 +26,7 @@ internal static partial class Program
     {
         for (int item = 0; item < count; item++)
         {
-            ushort expected = (ushort)(rom.ReadCartridgeByte(address + item * 2) | rom.ReadCartridgeByte(address + item * 2 + 1) << 8);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + item * 2);
             AssertEqual(expected, PauseEquipmentRules.Mask(category, item), "original native upgrade flag case");
         }
         foreach (int item in new[] { int.MinValue, -1, count, 256, int.MaxValue }) CheckRejected(category, item, "item");
@@ -50,14 +50,12 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause wireframe selection")]
     private static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
     {
-        static ushort Word(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
         AssertEqual((byte)0x29, rom.ReadCartridgeByte(0x82b212), "native AND immediate opcode");
         AssertEqual((byte)0xdd, rom.ReadCartridgeByte(0x82b218), "native CMP absolute-X opcode");
-        AssertEqual((ushort)0xb257, Word(rom, 0x82b219), "native comparison table operand");
-        ushort nativeMask = Word(rom, 0x82b213);
+        AssertEqual((ushort)0xb257, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82b219), "native comparison table operand");
+        ushort nativeMask = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82b213);
         ushort[] original = new ushort[4];
-        for (int index = 0; index < original.Length; index++) original[index] = Word(rom, 0x82b257 + index * 2);
+        for (int index = 0; index < original.Length; index++) original[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82b257 + index * 2));
         for (int word = 0; word <= ushort.MaxValue; word++)
         {
             int expected = Array.IndexOf(original, (ushort)(word & nativeMask));

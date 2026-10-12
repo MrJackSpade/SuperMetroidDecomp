@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +20,7 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            ushort expected = ReadBoulderInstructionWord(rom, 0xa60000 | address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | address));
             var actual = BoulderInstructionProgramDefinitionsTooling.MechanicsWord(index);
             AssertEqual(address, actual.Address, "Boulder native word position");
             AssertEqual(expected, actual.Value, "Boulder native enumerated word");
@@ -71,7 +72,7 @@ internal static partial class Program
         ushort[] addresses = BoulderPresentationOracle();
         foreach (ushort address in addresses)
         {
-            ushort expected = ReadBoulderInstructionWord(rom, 0xa60000 | address);
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | address));
             AssertEqual(expected, EnemySpritemapDefinitions.BoulderFrameAt(address), "Boulder native visual value");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0xa6, address, out ushort shared), "Boulder shared visual selection");
             AssertEqual(expected, shared, "Boulder shared native visual value");
@@ -177,10 +178,6 @@ internal static partial class Program
         }
         return checksum;
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Boulder instruction words")]
-    private static ushort ReadBoulderInstructionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewBoulderInstructionProgramReadGuard(ISnesAddressSpace source)
     {

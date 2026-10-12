@@ -105,14 +105,14 @@ public static class RoomPlmDownwardGateVisualFiles
             var visuals = new List<ushort[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
-                if (ReadWord(bus, cursor) != run.DirectionAndCount)
+                if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor)) != run.DirectionAndCount)
                     throw new InvalidDataException(
                         $"Downward gate draw list ${list.Pointer:X4} differs in source cartridge shape.");
                 cursor = unchecked((ushort)(cursor + 2));
                 var visualWords = new ushort[run.LevelWords.Length];
                 for (int index = 0; index < visualWords.Length; index++)
                 {
-                    ushort source = ReadWord(bus, cursor);
+                    ushort source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor));
                     if (source != run.LevelWords.Span[index])
                         throw new InvalidDataException(
                             $"Downward gate draw list ${list.Pointer:X4} differs at ${cursor:X4}.");
@@ -179,10 +179,6 @@ public static class RoomPlmDownwardGateVisualFiles
             throw new InvalidDataException($"Invalid downward gate JSON {path}.", error);
         }
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
-            bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 1)))) << 8));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

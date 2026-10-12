@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -21,10 +22,10 @@ internal static partial class Program
         {
             CeresDoorInitializationDefinition definition =
                 CeresDoorInitializationDefinitions.For(variant);
-            AssertEqual(ReadCeresDoorInitializationWord(rom, functionTable + variant * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + variant * 2)),
                 (ushort)definition.MainFunction,
                 $"Ceres door function selector {variant}");
-            AssertEqual(ReadCeresDoorInitializationWord(rom, instructionTable + variant * 2),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + variant * 2)),
                 definition.InstructionList,
                 $"Ceres door instruction selector {variant}");
 
@@ -53,12 +54,6 @@ internal static partial class Program
         Console.WriteLine(
             "Ceres door initialization definitions: all fourteen native selector words and seven production initializers pass with both source tables forbidden.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door initialization words")]
-    private static ushort ReadCeresDoorInitializationWord(
-        SuperMetroidAddressSpace bus,
-        int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewCeresDoorInitializationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

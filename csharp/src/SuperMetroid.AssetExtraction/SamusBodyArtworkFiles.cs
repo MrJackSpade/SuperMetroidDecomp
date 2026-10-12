@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -178,10 +179,10 @@ public static class SamusBodyArtworkFiles
             for (int position = 0; position < count; position++)
             {
                 int definitionAddress = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, start + position * 7);
-                ushort sourceOffset = ReadWord(bus, definitionAddress);
+                ushort sourceOffset = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress);
                 byte sourceBank = bus.ReadCartridgeByte(definitionAddress + 2);
-                ushort firstSize = ReadWord(bus, definitionAddress + 3);
-                ushort secondSize = ReadWord(bus, definitionAddress + 5);
+                ushort firstSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 3));
+                ushort secondSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 5));
                 int byteCount = firstSize + secondSize;
                 if (sourceOffset < 0x8000 || firstSize == 0 || byteCount >
                     SamusBodyArtworkCatalog.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
@@ -293,26 +294,23 @@ public static class SamusBodyArtworkFiles
     }
 
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
-        Enumerable.Range(0, count).Select(i => ReadWord(bus, start + i * 2)).ToArray();
+        Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((start + i * 2))).ToArray();
 
     private static SamusSpritemapDefinition ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
     {
         int address = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, pointer);
-        ushort count = ReadWord(bus, address);
+        ushort count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
         if (pointer < 0x90ED || count > 128 || pointer + 2 + count * 5 > 0x10000)
             throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");
         var parts = new SamusSpritePart[count];
         for (int i = 0; i < count; i++)
         {
             int part = address + 2 + i * 5;
-            parts[i] = new SamusSpritePart(ReadWord(bus, part), bus.ReadCartridgeByte(part + 2),
-                ReadWord(bus, part + 3));
+            parts[i] = new SamusSpritePart(CartridgeImportSource.Require(bus).ReadCartridgeWord(part), bus.ReadCartridgeByte(part + 2),
+                CartridgeImportSource.Require(bus).ReadCartridgeWord((part + 3)));
         }
         return new SamusSpritemapDefinition(pointer, parts);
     }
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static string FileName(bool upperHalf, int set) =>
         $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";

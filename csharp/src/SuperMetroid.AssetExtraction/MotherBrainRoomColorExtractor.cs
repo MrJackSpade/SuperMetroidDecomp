@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -17,7 +18,7 @@ internal static class MotherBrainRoomColorExtractor
         {
             int pointerAddress = MotherBrainRoomColorRomData.SourceBank |
                 MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(index);
-            ushort pointer = ReadWord(pointerAddress);
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
             if (pointer == 0)
                 throw new InvalidDataException($"Mother Brain room-flash row {index} has no palette pointer.");
             flash[index] = ReadColors(MotherBrainRoomColorRomData.SourceBank | pointer,
@@ -51,7 +52,7 @@ internal static class MotherBrainRoomColorExtractor
             var colors = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
             {
-                ushort word = ReadWord(source + index * sizeof(ushort));
+                ushort word = CartridgeImportSource.Require(bus).ReadCartridgeWord((source + index * sizeof(ushort)));
                 colors[index] = new PaletteRgb5
                 {
                     Red = word & 31,
@@ -61,8 +62,5 @@ internal static class MotherBrainRoomColorExtractor
             }
             return colors;
         }
-
-        ushort ReadWord(int address) => (ushort)(bus.ReadCartridgeByte(address) |
-            bus.ReadCartridgeByte(address + 1) << 8);
     }
 }

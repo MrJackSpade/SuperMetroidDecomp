@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rom;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -65,8 +66,4 @@ internal static partial class Program
         Console.WriteLine(
             "  Botwoon visuals: 16 typed head frames draw the cartridge OAM, and legacy override migration passes.");
     }
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon's native head visual selectors")]
-    private static ushort ReadNativeBotwoonSelector(ISnesAddressSpace rom, int address) =>
-        unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 }

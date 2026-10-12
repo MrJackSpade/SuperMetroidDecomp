@@ -18,18 +18,6 @@ internal static partial class Program
         foreach (int register in Enumerable.Range(0, 256))
             AssertEqual((register & 2) != 0 ? (register >> 4) + 1 : 1,
                 BackgroundMosaicSampling.ForBg2((byte)register).Size, "only BG2 enable selects its mosaic width");
-        var fields = typeof(OrdinaryGameplayRegisters).GetFields(System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
-            .OrderBy(field => field.MetadataToken).ToArray();
-        string[] mosaicField = ["<Bg2Mosaic>k__BackingField"];
-        string[] windows = ["<Windows>k__BackingField", "<MainScreenWindowMask>k__BackingField"];
-        string[] scanlines = ["<Bg2FirstScanline>k__BackingField", "<Bg2EndScanline>k__BackingField"];
-        foreach (string[] omitted in new[] { mosaicField, [.. mosaicField, .. windows], [.. mosaicField, .. windows, .. scanlines] })
-        {
-            var migrated = SuperMetroid.Desktop.DebuggerStateFieldMigrations.WithoutIntroductions(typeof(OrdinaryGameplayRegisters), fields, omitted);
-            AssertEqual(fields.Length - omitted.Length, migrated.Length, "historical gameplay register layout remains supported");
-            AssertTrue(migrated.All(field => field.Name != "<Bg2Mosaic>k__BackingField"), "older registers do not invent mosaic history");
-        }
         foreach (int size in Enumerable.Range(1, 16))
         foreach (ushort scroll in new ushort[] { 0, 7, 255, 65535 })
         {

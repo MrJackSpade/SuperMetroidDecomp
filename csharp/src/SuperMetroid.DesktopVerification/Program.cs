@@ -61,71 +61,6 @@ internal static partial class Program
                     VerifyAudioQueueBackpressure();
                     return;
                 }
-                if (args is ["--space-jump-audio-audit"])
-                {
-                    VerifySpaceJumpAudio();
-                    return;
-                }
-                if (args is ["--statue-entry-audit"])
-                {
-                    VerifyStatueEntry();
-                    return;
-                }
-                if (args is ["--metal-pirates-audit"])
-                {
-                    VerifyMetalPirates();
-                    return;
-                }
-                if (args is ["--enemy-knockback-reentry-audit"])
-                {
-                    VerifyEnemyKnockbackReentry();
-                    return;
-                }
-                if (args is ["--draygon-grapple-audit"])
-                {
-                    VerifyDraygonGrapple();
-                    return;
-                }
-                if (args is ["--draygon-position-audit"])
-                {
-                    VerifyDraygonPosition();
-                    return;
-                }
-                if (args is ["--grapple-auto-retract-audit"])
-                {
-                    VerifyGrappleAutomaticRetraction();
-                    return;
-                }
-                if (args is ["--grapple-retry-audit"])
-                {
-                    VerifyGrappleRetry();
-                    return;
-                }
-                if (args is ["--stuck-grapple-audit"])
-                {
-                    VerifyStuckGrapple();
-                    return;
-                }
-                if (args is ["--anchored-grapple-audit"])
-                {
-                    VerifyAnchoredGrapple();
-                    return;
-                }
-                if (args is ["--shinespark-shaft-audit"])
-                {
-                    VerifyShinesparkShaft();
-                    return;
-                }
-                if (args is ["--grapple-release-state-audit"])
-                {
-                    VerifyGrappleReleaseState();
-                    return;
-                }
-                if (args is ["--chozo-state-audit"])
-                {
-                    VerifyChozoStatueState();
-                    return;
-                }
                 if (args is ["--soak-desktop-hidden"])
                 {
                     await RunDesktopTimerSoak(SoakDefinitions.SecondsPerScene);
@@ -147,7 +82,6 @@ internal static partial class Program
                     return;
                 }
                 if (args.Length != 0) throw new ArgumentException("Usage: DesktopVerification [--audio-queue]");
-                DebuggerRetiredFieldTests.Run();
                 await Verify(RendererSelection.Software);
                 await Verify(RendererSelection.Direct3D11);
                 await Verify(RendererSelection.Auto);

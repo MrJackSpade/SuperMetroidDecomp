@@ -51,14 +51,7 @@ internal static partial class Program
                 samus.Xray.StepBeam(bus, samus, 0);
         }
 
-        // Debugger-state boundary: an older byte payload decodes, an undefined value is rejected.
-        FieldInfo field = typeof(SamusXrayState).GetField("<SetupStage>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        AssertEqual(XraySetupStage.BuildRevealReadBg2FirstScreen, DebuggerEnumValues.AdaptToField(field, (byte)4),
-            "legacy byte setup stage restores as its enum member");
-        AssertThrows<InvalidDataException>(() => DebuggerEnumValues.AdaptToField(field, (byte)9),
-            "undefined saved setup stage is rejected at the boundary");
-        AssertThrows<InvalidDataException>(() => DebuggerEnumValues.AdaptToField(field, (ushort)4),
-            "a saved value of another width is rejected");
+        // Debugger-state boundary: undefined saved enum values are rejected.
         AssertThrows<InvalidDataException>(() => DebuggerEnumValues.Decode(typeof(XraySuspendedSubsystems), (byte)0x80),
             "undefined flags bits are rejected at the boundary");
         Console.WriteLine("X-ray setup stage domain: bounded transitions, display rule, production order and debugger boundary agree.");

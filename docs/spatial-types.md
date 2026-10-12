@@ -118,7 +118,6 @@ the wrapped value (collision and PLM grid probes).
   extra-WRAM arrays) expose one typed property whose getter and setter compose and split those
   native words; the words themselves stay native storage. Per-slot extra-WRAM arrays that hold
   both axes store the typed value (one array, shared by the enemy system and the family view).
-- Debugger/save-state compatibility is preserved by the debugger state field migrations, never by
-  keeping primitive pairs in owned logic. Every field rebuilt from stored components is registered
-  once in `DebuggerSpatialFieldMigrations` (legacy component names, their payload types and the
-  exact rebuild); `VerifyDebuggerSpatialFieldMerges` round-trips every entry.
+- Debugger states restore only the current build's layout (#1270): changing a field to a spatial
+  type makes older states unloadable rather than converting them, so never keep primitive pairs in
+  owned logic for state compatibility.

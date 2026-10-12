@@ -96,17 +96,6 @@ internal static partial class Program
         encoded.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SamusHorizontalSpeedState>(encoded);
         AssertEqual((ushort)1, restored.EchoSoundFlag, "serialized flag survives even after boost has stopped");
-        var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
-            BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [typeof(SamusHorizontalSpeedState)])!;
-        AssertTrue(LegacyLayout(typeof(SamusHorizontalSpeedState), fields, fields.Where(field => field.Name != "<EchoSoundFlag>k__BackingField"))
-            .SequenceEqual(fields.Where(field => field.Name != "<EchoSoundFlag>k__BackingField")),
-            "legacy speed layout omits only its unavailable echo flag");
-        restored.SpeedBoostCounter = 0x0401;
-        RestoreLegacy(restored, "<EchoSoundFlag>k__BackingField");
-        AssertEqual((ushort)1, restored.EchoSoundFlag, "legacy active boost arms future cancellation");
-        restored.SpeedBoostCounter = 0;
-        RestoreLegacy(restored, "<EchoSoundFlag>k__BackingField");
-        AssertEqual((ushort)0, restored.EchoSoundFlag, "legacy inactive boost does not invent a pending stop");
 
         samus.Position = samus.Position.WithWhole(new(24, 24));
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);

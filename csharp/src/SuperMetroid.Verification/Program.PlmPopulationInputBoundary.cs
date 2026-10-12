@@ -59,18 +59,6 @@ internal static partial class Program
             count += RoomPlmPopulationDefinition.FromCompiled(pointer).Placements.Length;
         AssertEqual(RoomPlmPopulationDefinitions.RetailRecordCount, count,
             "every compiled population converts to the typed contract before gameplay");
-        Type scrollType = typeof(RoomPlmSystem).GetNestedType("ScrollPlmState", BindingFlags.NonPublic)!;
-        FieldInfo[] fields = scrollType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-            .OrderBy(field => field.MetadataToken).ToArray();
-        string[] historicalFields = ["<Triggered>k__BackingField", "<UseCompiledRetailProgram>k__BackingField", "<Program>k__BackingField"];
-        foreach (int legacyCount in new[] { 1, 2, 3 })
-        {
-            FieldInfo[] legacy = DebuggerStateFieldMigrations.WithoutIntroductions(scrollType, fields,
-                fields.Select(field => field.Name).Where(name => !historicalFields.Take(legacyCount).Contains(name)).ToArray());
-            AssertEqual(legacyCount, legacy.Length, "historical scroll state schema remains readable");
-            AssertTrue(legacy.Select(field => field.Name).SequenceEqual(historicalFields.Take(legacyCount)),
-                "historical scroll fields retain their serialized order and decoded pairs when present");
-        }
-        Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, bounded validation and all three legacy scroll schemas pass.");
+        Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
     }
 }

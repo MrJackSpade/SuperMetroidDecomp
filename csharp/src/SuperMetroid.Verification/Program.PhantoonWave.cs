@@ -44,15 +44,9 @@ internal static partial class Program
         AssertTrue(!wave.Active && retained.AsSpan().SequenceEqual(wave.ScrollCycle), "native deletion retains data");
         wave.LatchDisplay();
         AssertTrue(wave.DisplayedScrolls is null, "deleted wave stops on next display latch");
-        var fields = typeof(PhantoonEnemyState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-            .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonEnemyState), fields, "<Wave>k__BackingField", "<Blending>k__BackingField");
-        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name is not ("<Wave>k__BackingField" or "<Blending>k__BackingField"))), "legacy migration preserves every prior field identity/order");
-        var waveEra = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonEnemyState), fields, "<Blending>k__BackingField");
-        AssertTrue(waveEra.SequenceEqual(fields.Where(field => field.Name != "<Blending>k__BackingField")), "wave-era migration preserves recorded wave history");
         Suite(nameof(VerifyPhantoonBlendingLifecycle), () => VerifyPhantoonBlendingLifecycle(boss));
         Suite(nameof(VerifyPhantoonFadeColors), () => VerifyPhantoonFadeColors());
-        Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch, debugger round-trip and explicit legacy migration agree.");
+        Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch and debugger round-trip agree.");
     }
 
     private static void VerifyPhantoonFadeColors()
@@ -106,9 +100,5 @@ internal static partial class Program
         restored.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(blend.Configuration, restored.Configuration, "deleted blend owner survives debugger roundtrip");
         AssertEqual(0x42, restored.DisplayedMosaic, "display mosaic survives debugger roundtrip");
-        var fields = typeof(PhantoonBlendingState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-            .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PhantoonBlendingState), fields, "<DisplayedMosaic>k__BackingField");
-        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "<DisplayedMosaic>k__BackingField")), "legacy blend preserves all prior field identities");
     }
 }

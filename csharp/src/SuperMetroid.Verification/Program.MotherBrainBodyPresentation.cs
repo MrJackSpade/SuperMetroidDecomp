@@ -72,17 +72,13 @@ internal static partial class Program
         var missing = new MotherBrainPresentationFixture(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameCatalog.Load(author.Json(stockOam)) }));
         missing.SetFrame(mixed[0].Pointer, fresh: true);
         AssertThrows<InvalidDataException>(() => missing.Draw(), "missing mixed-frame BG2 art fails explicitly");
-        var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
-            BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [typeof(EnemyTileArtworkCatalog)])!;
-        FieldInfo[] legacy = fields.Where(field => field.Name != "<MotherBrainBodyBg2Frames>k__BackingField").ToArray();
-        AssertTrue(LegacyLayout(typeof(EnemyTileArtworkCatalog), fields, legacy).SequenceEqual(legacy), "historical enemy catalogs omit only the new visual owner");
         using var state = new MemoryStream();
         EnemyTileArtworkCatalog bundle = Build(stockOam, stockBg2);
         DebuggerObjectGraphSerializer.Serialize(state, bundle); state.Position = 0;
         AssertEqual(bundle.ContentIdentity, DebuggerObjectGraphSerializer.Deserialize<EnemyTileArtworkCatalog>(state).ContentIdentity,
             "new Mother Brain visual owner round-trips in debugger states");
         Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, mixed remaps, new-frame gating, " +
-            $"{steps} production instruction steps with unchanged movement/timing/scroll/physics, missing-art rejection and state compatibility. RAM-only.");
+            $"{steps} production instruction steps with unchanged movement/timing/scroll/physics, missing-art rejection and state round-trip. RAM-only.");
 
         EnemyTileArtworkCatalog Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2) => author.Build(
             extendedFrames: EnemyExtendedFrameCatalog.Load(author.Json(oam)),

@@ -180,10 +180,6 @@ internal static partial class Program
         AssertEqual(BotwoonProjectileCodePointers.BodyLandedInstruction, body.InstructionPointer,
             "a landed body runs the shared big-explosion list");
         Pass(body);
-        body.Velocity = body.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.LegacyLanded));
-        runBody(body, 0);
-        AssertEqual((ushort)BotwoonBodyFunction.LegacyLanded, body.Velocity.X.RawValue,
-            "an older debugger-state landed sentinel remains restorable");
 
         Console.WriteLine("  Botwoon projectile animations: 32 segment selectors and the spit match their native lists; landing hands off to the shared explosion.");
     }

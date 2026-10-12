@@ -50,22 +50,6 @@ internal static partial class Program
         stream.Position = 0;
         AssertEqual(7, DebuggerObjectGraphSerializer.Deserialize<SamusGrappleState>(stream).PoseChangeAutoFireTimer,
             "debugger preserves remaining refire window");
-        var fields = typeof(SamusGrappleState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-            .OrderBy(field => field.MetadataToken).ToArray();
-        string[] quarters = ["<QuarterVelocity>k__BackingField"];
-        var preQuarter = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields, quarters);
-        AssertTrue(preQuarter.SequenceEqual(fields.Where(field => !quarters.Contains(field.Name))),
-            "pre-quarter-velocity grapple layout omits only the quarter velocity");
-        var preSlowScroll = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields,
-            [.. quarters, "<SlowScrolling>k__BackingField"]);
-        AssertTrue(preSlowScroll.SequenceEqual(fields.Where(field =>
-                !quarters.Contains(field.Name) && field.Name != "<SlowScrolling>k__BackingField")),
-            "pre-slow-scroll grapple layout omits only the slow-scrolling flag and quarter words");
-        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields,
-            [.. quarters, "<SlowScrolling>k__BackingField", "<PoseChangeAutoFireTimer>k__BackingField"]);
-        AssertTrue(legacy.SequenceEqual(fields.Where(field => !quarters.Contains(field.Name) &&
-                field.Name is not ("<PoseChangeAutoFireTimer>k__BackingField" or "<SlowScrolling>k__BackingField"))),
-            "legacy grapple migration retains old field identities");
         Console.WriteLine("Grapple pose refire: mirrored frame-1..9 restarts, frame-10 cancellation, endpoint trajectory and timer serialization pass.");
     }
 }

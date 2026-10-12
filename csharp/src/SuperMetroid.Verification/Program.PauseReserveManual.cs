@@ -46,13 +46,6 @@ internal static partial class Program
         pause.Step(0, (ushort)SnesButton.A);
         AssertEqual(1, samus.ReserveTankMode, "A restores AUTO");
         Suite(nameof(VerifyManualReserveSoundAndClamp), () => VerifyManualReserveSoundAndClamp(bus));
-        var fields = typeof(PauseMenuState).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false))
-            .OrderBy(field => field.MetadataToken).ToArray();
-        var oldFields = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(PauseMenuState), fields,
-            "reserveTransferSoundDelay", "pauseNmiFrameCounter8", "mapArrows", "mapLabelsBeforeIcons");
-        AssertTrue(oldFields.SequenceEqual(fields.Where(field => field.Name is not "reserveTransferSoundDelay" and not "pauseNmiFrameCounter8" and not "mapArrows" and not "mapLabelsBeforeIcons")),
-            "legacy pre-reserve layout omits reserve transfer/flicker and subsequently added map presentation state");
         Console.WriteLine("Manual reserves: mode, selection, transfer ordering, suspended/resumed refill and visible supply pass.");
     }
 

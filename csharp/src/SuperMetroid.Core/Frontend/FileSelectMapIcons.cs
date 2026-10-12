@@ -13,8 +13,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
     internal void BindStations(SuperMetroid.Core.Assets.MapStationLayout? layout) => stations = layout;
     [NonSerialized] private SuperMetroid.Core.Assets.MapLandmarkLayout? landmarks;
     internal void BindLandmarks(SuperMetroid.Core.Assets.MapLandmarkLayout? layout) => landmarks = layout;
-    // Reuse the saved exploration owner already retained by these icons. Adding
-    // another serialized owner to the menu would invalidate older debugger graphs.
+    // The exploration owner these icons already retain; the menu reads it rather than holding a second copy.
     internal Bank80SystemState MapSystem => system;
     internal AreaId MapArea => area;
 

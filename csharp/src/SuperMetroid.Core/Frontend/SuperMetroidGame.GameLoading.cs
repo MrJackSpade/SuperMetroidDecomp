@@ -58,10 +58,6 @@ public sealed partial class SuperMetroidGame
 }
 
 /// <summary>Dispatcher state selected when a native loading dispatch finishes its waits.</summary>
-/// <remarks>
-/// <see cref="GameplayFadeIn"/> is zero: legacy debugger states lacking this field could only
-/// be inside the post-Ceres load, which always ends in the ordinary gameplay fade-in.
-/// </remarks>
 internal enum GameLoadingCompletion
 {
     GameplayFadeIn,

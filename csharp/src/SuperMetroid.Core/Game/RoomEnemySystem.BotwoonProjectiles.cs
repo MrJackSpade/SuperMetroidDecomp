@@ -86,7 +86,6 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case BotwoonBodyFunction.Landed:
-            case BotwoonBodyFunction.LegacyLanded:
                 return;
 
             default:

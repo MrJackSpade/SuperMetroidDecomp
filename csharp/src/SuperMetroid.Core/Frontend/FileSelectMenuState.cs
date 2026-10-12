@@ -462,7 +462,6 @@ public enum FileSelectPhase
     FadeOutToOptions,
     /// <summary>$81:94D5, native index $21: fade to forced blank after Exit/B, then request the host's reset path corresponding to native SoftReset.</summary>
     FadeOutToTitle,
-    // Appended to keep legacy debugger snapshot ordinals stable.
     /// <summary>$81:944E, native index $00: finish entry fade-out and establish forced blank before the dispatch's internal NMI wait.</summary>
     EnterBlankScreen,
     /// <summary>Continuation of native index $00 after its internal NMI wait; the next update advances to background loading without another main-loop RNG call.</summary>

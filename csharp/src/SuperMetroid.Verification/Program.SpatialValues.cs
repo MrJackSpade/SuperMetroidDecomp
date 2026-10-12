@@ -13,8 +13,7 @@ internal static partial class Program
     {
         VerifyExtraDisplacementArithmetic();
         VerifyFixedPositionOperations();
-        VerifyKinematicsLegacyGraph();
-        Console.WriteLine("  Samus spatial values: displacement words, carry/wrap, half-word updates and legacy restoration agree.");
+        Console.WriteLine("  Samus spatial values: displacement words, carry/wrap, half-word updates agree.");
     }
 
     private static void VerifyExtraDisplacementArithmetic()
@@ -78,88 +77,5 @@ internal static partial class Program
         var halves = position.WithFractionX(0).WithWholeY(7);
         AssertEqual(new FixedPosition<RoomPixels>(new SnesFixedPosition(0x0100, 0), new SnesFixedPosition(7, 0x0001)), halves,
             "half-word replacement touches only the named word");
-    }
-
-    /// <summary>
-    /// Rebuilds a capture in the pre-#628 layout (ten component auto-properties) and confirms
-    /// restoration reconstructs the three spatial values exactly, including the word order.
-    /// </summary>
-    private static void VerifyKinematicsLegacyGraph()
-    {
-        var body = new SamusKinematicsState
-        {
-            Position = new(new(0x1234, 0x5678), new(0x9abc, 0xdef0)),
-            ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0xfffc, 0x8001, 0x0002, 0x4003),
-            Radius = new(5, 0x13),
-        };
-        // An ownerless body's unsampled pose ($FF) is not a serializable pose; sample one.
-        typeof(SamusKinematicsState).GetProperty(nameof(SamusKinematicsState.CollisionPose))!
-            .SetValue(body, SamusPoseId.FacingRightNormalPose);
-        using var current = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(current, body);
-        byte[] bytes = current.ToArray();
-        bytes = ReplaceSerializedField(bytes, typeof(SamusKinematicsState), "Position", body.Position,
-            [("XPosition", (ushort)0x1234), ("XSubposition", (ushort)0x5678), ("YPosition", (ushort)0x9abc), ("YSubposition", (ushort)0xdef0)]);
-        bytes = ReplaceSerializedField(bytes, typeof(SamusKinematicsState), "ExtraDisplacement", body.ExtraDisplacement,
-            [("ExtraXDisplacement", (ushort)0xfffc), ("ExtraXSubdisplacement", (ushort)0x8001),
-             ("ExtraYDisplacement", (ushort)0x0002), ("ExtraYSubdisplacement", (ushort)0x4003)]);
-        bytes = ReplaceSerializedField(bytes, typeof(SamusKinematicsState), "Radius", body.Radius,
-            [("XRadius", (ushort)5), ("YRadius", (ushort)0x13)]);
-
-        using var legacy = new MemoryStream(bytes);
-        var restored = DebuggerObjectGraphSerializer.Deserialize<SamusKinematicsState>(legacy);
-        AssertEqual(body.Position, restored.Position, "legacy position words rebuild the 16.16 position");
-        AssertEqual(body.ExtraDisplacement, restored.ExtraDisplacement, "legacy four displacement words rebuild the vector");
-        AssertEqual(body.Radius, restored.Radius, "legacy radius words rebuild the extent");
-
-        using var roundTrip = new MemoryStream();
-        DebuggerObjectGraphSerializer.Serialize(roundTrip, restored);
-        roundTrip.Position = 0;
-        var again = DebuggerObjectGraphSerializer.Deserialize<SamusKinematicsState>(roundTrip);
-        AssertEqual(body.ExtraDisplacement, again.ExtraDisplacement, "current format round-trips the displacement");
-        AssertEqual(body.Position, again.Position, "current format round-trips the position");
-
-        byte[] partial = ReplaceSerializedField(current.ToArray(), typeof(SamusKinematicsState), "Radius", body.Radius,
-            [("XRadius", (ushort)5)]);
-        bool rejected = false;
-        try { DebuggerObjectGraphSerializer.Deserialize<SamusKinematicsState>(new MemoryStream(partial)); }
-        catch (InvalidDataException) { rejected = true; }
-        AssertTrue(rejected, "a legacy capture missing one component word is rejected");
-    }
-
-    /// <summary>
-    /// Replaces one serialized root field with the given retired primitive fields and fixes the
-    /// root field count. Primitive values use reference ID zero, so graph identities stay exact.
-    /// </summary>
-    private static byte[] ReplaceSerializedField(
-        byte[] bytes, Type owner, string property, object currentValue, (string Name, object Value)[] legacy)
-    {
-        byte[] current = EncodeField(owner, $"<{property}>k__BackingField", currentValue);
-        int start = bytes.AsSpan().IndexOf(current);
-        AssertTrue(start >= 0, $"current {property} field exists in the serialized graph");
-        using var replacement = new MemoryStream();
-        foreach ((string name, object value) in legacy)
-            replacement.Write(EncodeField(owner, $"<{name}>k__BackingField", value));
-        byte[] result = [.. bytes.AsSpan(0, start), .. replacement.ToArray(), .. bytes.AsSpan(start + current.Length)];
-
-        using var header = new MemoryStream(result);
-        using var reader = new BinaryReader(header);
-        reader.ReadByte(); reader.ReadInt32(); reader.ReadString(); reader.ReadByte();
-        int countOffset = checked((int)header.Position);
-        int count = reader.ReadInt32();
-        BitConverter.TryWriteBytes(result.AsSpan(countOffset, 4), count - 1 + legacy.Length);
-        return result;
-
-        static byte[] EncodeField(Type owner, string name, object value)
-        {
-            using var encoded = new MemoryStream();
-            using (var writer = new BinaryWriter(encoded, System.Text.Encoding.UTF8, leaveOpen: true))
-            {
-                writer.Write(owner.AssemblyQualifiedName!);
-                writer.Write(name);
-            }
-            DebuggerObjectGraphSerializer.Serialize(encoded, value);
-            return encoded.ToArray();
-        }
     }
 }

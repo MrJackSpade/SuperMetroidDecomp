@@ -41,19 +41,6 @@ internal static partial class Program
         }
         AssertThrows<ArgumentOutOfRangeException>(() => DoorListEntry.ElevatorPseudoDoor((ElevatorPseudoDoorPointer)0x88fe), "a physical pointer is not a pseudo-door");
 
-        // Debugger boundary: older primitive payloads decode through the domain's validation.
-        FieldInfo orientationField = typeof(CartridgeDoorHeader).GetField("<Orientation>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        AssertTrue(DebuggerRetypedFieldDefinitions.TryConvert(orientationField, (byte)0x09, out object converted), "legacy orientation byte converts");
-        AssertEqual(new CartridgeDoorOrientation(DoorDirection.Left, DoorClosingBehavior.EscapeGateCloses), converted, "legacy orientation $09 decodes");
-        AssertThrows<InvalidDataException>(() => DebuggerRetypedFieldDefinitions.TryConvert(orientationField, (byte)0x91, out _),
-            "legacy out-of-domain orientation is rejected");
-        Type scrollType = typeof(DoorDirection).Assembly.GetType("SuperMetroid.Core.Runtime.DoorOpeningScrollState", throwOnError: true)!;
-        FieldInfo directionField = scrollType.GetField("<Direction>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        AssertTrue(DebuggerRetypedFieldDefinitions.TryConvert(directionField, 3, out converted), "legacy int direction converts");
-        AssertEqual(DoorDirection.Up, converted, "legacy direction 3 decodes as up");
-        AssertThrows<InvalidDataException>(() => DebuggerRetypedFieldDefinitions.TryConvert(directionField, 4, out _),
-            "legacy undefined direction is rejected");
-        AssertTrue(!DebuggerRetypedFieldDefinitions.TryConvert(directionField, (ushort)3, out _), "unregistered payload types are not coerced");
-        Console.WriteLine("Door orientation domain: decode/encode, rejection, pseudo-door entries and debugger boundary agree.");
+        Console.WriteLine("Door orientation domain: decode/encode, rejection and pseudo-door entries agree.");
     }
 }

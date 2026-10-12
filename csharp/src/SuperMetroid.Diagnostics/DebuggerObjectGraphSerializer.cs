@@ -19,11 +19,14 @@ internal static class DebuggerObjectGraphSerializer
         new GraphWriter(writer).Write(root);
     }
 
-    public static T Deserialize<T>(Stream source, bool legacyDelegateTokens = false) where T : class
+    /// <summary>The message prefix of every rejection of a state this build cannot restore exactly.</summary>
+    internal const string UnsupportedVersion = "Unsupported debugger state version";
+
+    public static T Deserialize<T>(Stream source) where T : class
     {
         ArgumentNullException.ThrowIfNull(source);
         using var reader = new BinaryReader(source, System.Text.Encoding.UTF8, leaveOpen: true);
-        object? root = new GraphReader(reader, legacyDelegateTokens).Read();
+        object? root = new GraphReader(reader).Read();
         return root as T ?? throw new InvalidDataException(
             $"Debugger state root is {root?.GetType().FullName ?? "null"}, expected {typeof(T).FullName}.");
     }
@@ -178,13 +181,11 @@ internal static class DebuggerObjectGraphSerializer
         }
     }
 
-    private sealed class GraphReader(BinaryReader reader, bool legacyDelegateTokens)
+    private sealed class GraphReader(BinaryReader reader)
     {
         private readonly Dictionary<int, object> references = [];
         // Nesting depth inside struct elements of array storage (see ReadArray).
         private int structElementDepth;
-        // One restore reports each legacy omission once, not once per restored instance.
-        private readonly HashSet<string> reportedWarnings = [];
         // Every object repeats its type and field names; decode each distinct name once.
         private readonly Dictionary<string, string> names = new(StringComparer.Ordinal);
 
@@ -234,8 +235,6 @@ internal static class DebuggerObjectGraphSerializer
             if (marker == ObjectMarker.Reference)
             {
                 int id = reader.ReadInt32();
-                if (references.TryGetValue(id, out object? retired) && retired is RetiredCartridgePayload)
-                    throw new InvalidDataException("Debugger state attempts to reuse its retired cartridge payload.");
                 return references.TryGetValue(id, out object? existing)
                     ? existing
                     : throw new InvalidDataException(
@@ -354,16 +353,7 @@ internal static class DebuggerObjectGraphSerializer
             for (int index = 0; index < count; index++)
             {
                 Type declaringType = ResolveAllowedType(ReadName());
-                MethodInfo method;
-                if (legacyDelegateTokens)
-                {
-                    int token = reader.ReadInt32();
-                    method = declaringType.Module.ResolveMethod(token) as MethodInfo
-                        ?? throw new InvalidDataException($"Legacy debugger method token 0x{token:X8} is unavailable.");
-                    if (method.DeclaringType != declaringType)
-                        throw new InvalidDataException($"Legacy debugger method token 0x{token:X8} now belongs to a different type.");
-                }
-                else method = DebuggerDelegateIdentity.Read(reader, declaringType, ResolveAllowedType);
+                MethodInfo method = DebuggerDelegateIdentity.Read(reader, declaringType, ResolveAllowedType);
                 object? target = Read();
                 Delegate call = method.CreateDelegate(type, target);
                 combined = combined is null ? call : Delegate.Combine(combined, call);
@@ -378,151 +368,44 @@ internal static class DebuggerObjectGraphSerializer
                 Register(referenceId, instance);
             FieldInfo[] currentFields = GetSerializableFields(type);
             int count = ReadNonnegativeLength("field");
-            if (type == typeof(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace) &&
-                currentFields.Length == 2 && count == 3)
-                return ReadLegacyAddressSpace(instance, currentFields, count);
-            if (instance is SuperMetroid.Core.Game.SamusShinesparkState legacySpark && count == 19 && currentFields.Length == 20)
+            if (count != currentFields.Length)
             {
-                var preSuppressionFields = DebuggerStateFieldMigrations.WithoutIntroductions(type, currentFields,
-                    "<StoredShineWarningSoundSuppressed>k__BackingField", "<LaunchSoundSuppressed>k__BackingField",
-                    "<CrashSoundSuppressed>k__BackingField");
-                DebuggerLegacyShinesparkReader.Restore(legacySpark, preSuppressionFields, reader, ResolveAllowedType, Read);
-                return instance;
+                throw new InvalidDataException(
+                    $"{UnsupportedVersion}: the saved {type.FullName} has {count} fields; this build has {currentFields.Length}.");
             }
-            bool hasRetiredIdentity = count == currentFields.Length + 1 &&
-                DebuggerPresentationIdentityFieldDefinitions.Contains(type);
-            var remaining = currentFields.ToDictionary(
-                field => (field.DeclaringType!, field.Name),
-                field => field);
-            var restored = new HashSet<FieldInfo>();
-            bool discardedIdentity = false;
-            for (int index = 0; index < count; index++)
+            // Fields are written in a fixed order, so the saved layout matches field for field.
+            foreach (FieldInfo field in currentFields)
             {
                 string declaringName = ReadName();
                 string fieldName = ReadName();
-                Type declaringType = ResolveAllowedType(declaringName);
-                if (hasRetiredIdentity && declaringType == type &&
-                    fieldName == DebuggerPresentationIdentityFieldDefinitions.RetiredFieldName)
+                if (ResolveAllowedType(declaringName) != field.DeclaringType || fieldName != field.Name)
                 {
-                    // Pre-fingerprint layouts already match current fields. Only the brief
-                    // cached-hash layout needs this exact extra member drained. Never trust
-                    // its value: the restored catalog recomputes identity from selected data.
-                    if (discardedIdentity || Read() is not string digest ||
-                        digest.Length != DebuggerPresentationIdentityFieldDefinitions.DigestHexLength ||
-                        digest.Any(character => !char.IsAsciiHexDigit(character)))
-                        throw new InvalidDataException(
-                            $"Legacy {type.FullName} presentation identity is duplicated or is not SHA-256.");
-                    discardedIdentity = true;
-                    continue;
-                }
-                // A generalized field keeps its value under its current name.
-                if (DebuggerFieldRenameDefinitions.TryGetCurrentName(declaringType, fieldName, out string currentName))
-                    fieldName = currentName;
-                if (!remaining.Remove((declaringType, fieldName), out FieldInfo? field))
-                {
-                    // A field a later build retired: drain its saved value into its migration.
-                    if (DebuggerRetiredFieldDefinitions.TryGetMigration(declaringType, fieldName, out RetiredFieldMigration migrate))
-                    {
-                        migrate(instance, fieldName, Read());
-                        continue;
-                    }
                     throw new InvalidDataException(
-                        $"Serialized field {declaringName}.{fieldName} is unknown or duplicated " +
-                        $"in the supported {type.FullName} layout.");
+                        $"{UnsupportedVersion}: the saved {type.FullName} has field {declaringName}.{fieldName} " +
+                        $"where this build has {field.DeclaringType!.FullName}.{field.Name}.");
                 }
                 object? restoredValue;
                 try
                 {
                     restoredValue = Read();
-                    // A field retyped from a primitive decodes its older payload explicitly.
-                    if (restoredValue is not null && restoredValue.GetType() != field.FieldType &&
-                        DebuggerRetypedFieldDefinitions.TryConvert(field, restoredValue, out object converted))
-                        restoredValue = converted;
-                    restoredValue = DebuggerEnumValues.AdaptToField(field, restoredValue, structElementDepth > 0);
                 }
                 catch (InvalidDataException exception)
                 {
                     // Name the field path so an invalid nested value is diagnosable.
                     throw new InvalidDataException($"{declaringName}.{fieldName}: {exception.Message}", exception);
                 }
+                if (restoredValue is not null && !field.FieldType.IsInstanceOfType(restoredValue))
+                {
+                    throw new InvalidDataException(
+                        $"{UnsupportedVersion}: the saved {type.FullName}.{field.Name} holds {restoredValue.GetType().FullName}; " +
+                        $"this build stores {field.FieldType.FullName}.");
+                }
                 field.SetValue(instance, restoredValue);
-                restored.Add(field);
             }
-            if (hasRetiredIdentity && (!discardedIdentity || restored.Count != currentFields.Length))
-                throw new InvalidDataException(
-                    $"Legacy {type.FullName} presentation-identity layout does not contain every current field.");
-            // Each omission must be an entire registered introduction; initializers run only
-            // after every saved field is restored, since several derive from saved values.
-            DebuggerFieldIntroduction[] omitted = DebuggerStateFieldMigrations.ResolveOmissions(type,
-                currentFields.Where(field => !restored.Contains(field)).Select(field => field.Name).ToArray());
-            foreach (DebuggerFieldIntroduction introduction in omitted)
-                if (introduction.Warning is { } warning && reportedWarnings.Add(warning))
-                    Console.Error.WriteLine($"WARNING: {warning}");
-            DebuggerStateFieldMigrations.InitializeOmitted(instance, omitted);
             if (instance is SuperMetroid.AssetExtraction.IRestoredSharedContent shared)
                 shared.ReattachSharedContent();
             return instance;
         }
-
-        /// <summary>
-        /// Restore only the two physical mutable-memory fields. The removed _rom field is
-        /// recognized by exact declaring type/name, drained by import tooling, and replaced
-        /// by a reference tombstone so it cannot leak back through another graph alias.
-        /// </summary>
-        private object ReadLegacyAddressSpace(object instance, FieldInfo[] currentFields, int count)
-        {
-            var remaining = currentFields.ToDictionary(field => field.Name, StringComparer.Ordinal);
-            bool discardedRom = false;
-            for (int index = 0; index < count; index++)
-            {
-                Type declaringType = ResolveAllowedType(ReadName());
-                string name = ReadName();
-                if (declaringType != instance.GetType())
-                    throw new InvalidDataException("Legacy address-space field has the wrong declaring type.");
-                if (name == "_rom" && !discardedRom)
-                {
-                    DiscardLegacyCartridgeArray();
-                    discardedRom = true;
-                }
-                else if (remaining.Remove(name, out FieldInfo? field))
-                {
-                    object? data = Read();
-                    int expectedLength = name == "_workRam"
-                        ? SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.WorkRamByteCount
-                        : SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.SaveRamByteCount;
-                    if (data is not byte[] bytes || bytes.Length != expectedLength)
-                        throw new InvalidDataException($"Legacy address-space {name} has the wrong memory size.");
-                    field.SetValue(instance, bytes);
-                }
-                else
-                    throw new InvalidDataException($"Legacy address-space field {name} is unknown or duplicated.");
-            }
-            if (!discardedRom || remaining.Count != 0)
-                throw new InvalidDataException("Legacy address space did not restore both physical memory arrays.");
-            Console.Error.WriteLine("WARNING: Legacy debugger state's cartridge copy was discarded; " +
-                "restored WRAM/SRAM only. Installed catalogs must be rebound by the host.");
-            return instance;
-        }
-
-        private void DiscardLegacyCartridgeArray()
-        {
-            if ((ObjectMarker)reader.ReadByte() != ObjectMarker.New)
-                throw new InvalidDataException("Legacy cartridge field is not an owned byte-array payload.");
-            int id = reader.ReadInt32();
-            if (ResolveAllowedType(ReadName()) != typeof(byte[]) ||
-                (PayloadKind)reader.ReadByte() != PayloadKind.PrimitiveArray)
-                throw new InvalidDataException("Legacy cartridge field is not a primitive byte array.");
-            int rank = reader.ReadInt32();
-            int length = reader.ReadInt32();
-            int lowerBound = reader.ReadInt32();
-            int byteLength = reader.ReadInt32();
-            if (rank != 1 || lowerBound != 0 || byteLength != length)
-                throw new InvalidDataException("Legacy cartridge array has inconsistent dimensions.");
-            Register(id, new RetiredCartridgePayload());
-            SuperMetroid.AssetExtraction.LegacyCartridgeStateImport.DiscardPayload(reader.BaseStream, byteLength);
-        }
-
-        private sealed class RetiredCartridgePayload;
 
         private int ReadNonnegativeLength(string label)
         {
@@ -613,7 +496,7 @@ internal static class DebuggerObjectGraphSerializer
     {
         Type type = DebuggerStateTypeIdentity.Resolve(assemblyQualifiedName)
             ?? throw new InvalidDataException(
-                $"Debugger state names unavailable type '{assemblyQualifiedName}'.");
+                $"{UnsupportedVersion}: the state names type '{assemblyQualifiedName}', which this build does not have.");
         string assembly = type.Assembly.GetName().Name ?? string.Empty;
         if (assembly.StartsWith("SuperMetroid.", StringComparison.Ordinal) ||
             assembly is "System.Private.CoreLib" or "System.Collections" or

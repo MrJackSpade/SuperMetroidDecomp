@@ -584,7 +584,6 @@ public enum GameOptionsPhase
     FadeOutToIntro,
     /// <summary>Fade to forced blank before returning to file select.</summary>
     FadeOutToFileSelect,
-    // Appended to keep legacy debugger snapshot ordinals stable.
     /// <summary>Publish the opening-sequence request after the preceding fade completes.</summary>
     StartGame,
     /// <summary>Native index zero: finish the previous menu's fade-out at forced blank.</summary>

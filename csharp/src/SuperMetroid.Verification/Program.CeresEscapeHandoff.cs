@@ -16,7 +16,6 @@ internal static partial class Program
     static void VerifyCeresEscapeHandoff()
     {
         Suite(nameof(VerifyCeresRidleyEjectionHandler), () => VerifyCeresRidleyEjectionHandler());
-        Suite(nameof(VerifyLegacyCeresRidleyEjectionSnapshots), () => VerifyLegacyCeresRidleyEjectionSnapshots());
         Suite(nameof(VerifyCeresElevatorShaftRoomMain), () => VerifyCeresElevatorShaftRoomMain());
         Suite(nameof(VerifyCeresDepartureDispatcherTiming), () => VerifyCeresDepartureDispatcherTiming());
         Console.WriteLine("  Ceres escape handoff: ejection, shaft rotation, trigger, hold, and blackout agree.");
@@ -26,48 +25,6 @@ internal static partial class Program
     /// Snapshots from before the getaway moved to room main carry a retired pending flag.
     /// An idle request restores; one captured mid-deferral has no current equivalent.
     /// </summary>
-    private static void VerifyLegacyCeresRidleyEjectionSnapshots()
-    {
-        var idle = new SamusCeresRidleyEjectionState();
-        var restored = RestoreLegacyEjection(idle, pending: false);
-        AssertTrue(!restored.IsActive && !restored.InitializationPending,
-            "idle legacy ejection snapshot restores without the retired pending flag");
-        AssertThrows<InvalidDataException>(() => RestoreLegacyEjection(idle, pending: true),
-            "legacy snapshot captured mid-deferral fails loudly");
-
-        static SamusCeresRidleyEjectionState RestoreLegacyEjection(SamusCeresRidleyEjectionState state, bool pending)
-        {
-            // The prior field envelope: every current field plus `<IsPending>k__BackingField`,
-            // with primitive values written by the production codec.
-            const byte newObjectMarker = 2, fieldPayloadKind = 5;
-            Type type = typeof(SamusCeresRidleyEjectionState);
-            var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                .Where(field => !field.IsDefined(typeof(NonSerializedAttribute))).ToArray();
-            using var data = new MemoryStream();
-            using (var writer = new BinaryWriter(data, Encoding.UTF8, leaveOpen: true))
-            {
-                writer.Write(newObjectMarker);
-                writer.Write(1);
-                writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(type));
-                writer.Write(fieldPayloadKind);
-                writer.Write(fields.Length + 1);
-                writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(type));
-                writer.Write("<IsPending>k__BackingField");
-                writer.Flush();
-                SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(data, pending);
-                foreach (FieldInfo field in fields)
-                {
-                    writer.Write(SuperMetroid.Desktop.DebuggerStateTypeIdentity.GetSerializedName(field.DeclaringType!));
-                    writer.Write(field.Name);
-                    writer.Flush();
-                    SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(data, field.GetValue(state)!);
-                }
-            }
-            data.Position = 0;
-            return SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SamusCeresRidleyEjectionState>(data);
-        }
-    }
-
     private static void VerifyCeresRidleyEjectionHandler()
     {
         TestAddressSpace bus = CreateCeresRidleyEjectionCartridge();

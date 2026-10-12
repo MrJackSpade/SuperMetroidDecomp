@@ -38,7 +38,7 @@ internal sealed class IntroCinematicObjectSystem
         CinematicCodePointers.Lists.IntroTextCaret;
     private ushort spriteInstructionTimer = 1;
     private bool typewriterSoundToggle;
-    // Nullable for older debugger snapshots that predate text-glow state.
+    // Created when the first character glows.
     private CinematicTextGlowSystem? textGlow;
     private readonly IntroJapaneseSubtitles subtitles;
 

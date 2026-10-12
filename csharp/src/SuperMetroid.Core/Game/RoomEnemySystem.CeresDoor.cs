@@ -108,8 +108,8 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>
     /// Most recent library-two sound queued by Ceres-door destruction during this enemy frame.
-    /// The compatibility view keeps its exact cadence observable to older debugger and
-    /// ROM-backed audits; active playback consumes the lossless <see cref="SoundRequests"/> list.
+    /// The view keeps its exact cadence observable to ROM-backed audits; active playback
+    /// consumes the lossless <see cref="SoundRequests"/> list.
     /// </summary>
     public ushort? LastCeresDoorSoundEffectLibrary2 { get; private set; }
 

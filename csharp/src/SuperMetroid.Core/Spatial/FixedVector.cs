@@ -73,11 +73,6 @@ public readonly record struct FixedPosition<TSpace>(SnesFixedPosition X, SnesFix
     /// <summary>The whole-pixel position, discarding the subpixel words.</summary>
     public Position16<TSpace> Whole => new(X.Whole, Y.Whole);
 
-    /// <summary>Assembles both axes from the native whole and subpixel words.</summary>
-    [SpatialComponents("Native codec: the four WRAM words of one 16.16 position.")]
-    public static FixedPosition<TSpace> FromWords(ushort xWhole, ushort xFraction, ushort yWhole, ushort yFraction) =>
-        new(new SnesFixedPosition(xWhole, xFraction), new SnesFixedPosition(yWhole, yFraction));
-
     /// <summary>A whole-pixel position with both subpixel words zero.</summary>
     public static FixedPosition<TSpace> FromWhole(Position16<TSpace> whole) =>
         new(new SnesFixedPosition(whole.X, 0), new SnesFixedPosition(whole.Y, 0));

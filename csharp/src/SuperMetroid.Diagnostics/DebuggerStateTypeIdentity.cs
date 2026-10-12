@@ -1,57 +1,13 @@
 namespace SuperMetroid.Desktop;
 
 /// <summary>
-/// Versioned identities and narrow migrations for supported debugger graph types.
-/// Game/APU objects remain in Core. Never load a Windows host assembly on Android merely
-/// to resolve this envelope, and do not broadly alias arbitrary desktop object types.
+/// Assembly-qualified identities of debugger graph types. A state resolves only the types this
+/// build has (#1270): there are no aliases for renamed or retired types. Game/APU objects remain
+/// in Core; never load a Windows host assembly on Android merely to resolve this envelope.
 /// </summary>
 internal static class DebuggerStateTypeIdentity
 {
-    private const string LegacyRootName = "SuperMetroid.Desktop.DebuggerSaveStateStore+DebuggerSaveStateRoot";
-    private const string LegacyAssemblyName = "SuperMetroid.Desktop";
-    private const string RetiredBackgroundLineScroll = "SuperMetroid.Core.Rendering.BackgroundLineScroll";
-    private const string RetiredBackgroundLineScrollArray = RetiredBackgroundLineScroll + "[]";
-    private const string RetiredMotherBrainNeckPoint = "SuperMetroid.Core.Game.MotherBrainNeckPoint";
-
-    public static Type? Resolve(string name)
-    {
-        string[] identity = name.Split(',', 3, StringSplitOptions.TrimEntries);
-        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" &&
-            identity[0] == "SuperMetroid.Core.Rendering.XrayGameplayRenderLayer")
-        {
-            // This source-only rename leaves every field and the portable layer-16
-            // envelope unchanged. Resolve both the object and its declaring-field
-            // identity so historical graphs retain exact composition data.
-            return typeof(SuperMetroid.Core.Rendering.GameplayColorMathRenderLayer);
-        }
-        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" &&
-            identity[0] == LegacySamusCameraPoint.RetiredTypeName)
-        {
-            // #628 replaced this four-word checkpoint with a typed 16.16 position. Its saved
-            // fields restore into the codec layout and convert at the owning field.
-            return typeof(LegacySamusCameraPoint);
-        }
-        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" &&
-            identity[0] is RetiredBackgroundLineScroll or RetiredBackgroundLineScrollArray)
-        {
-            // #628 replaced this per-line register pair with the typed BG-plane position. Both
-            // are a record struct of the same two ushort fields, X then Y, so the saved fields
-            // restore unchanged into the typed value and its arrays.
-            return identity[0] == RetiredBackgroundLineScroll
-                ? typeof(SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.BgPlanePixels>)
-                : typeof(SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.BgPlanePixels>[]);
-        }
-        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" && identity[0] == RetiredMotherBrainNeckPoint)
-        {
-            // #628 replaced Mother Brain's neck-joint pair with the typed room position. Both
-            // are a record struct of the same two ushort fields, X then Y, so the saved joints
-            // restore unchanged into the typed value.
-            return typeof(SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.RoomPixels>);
-        }
-        if (identity.Length >= 2 && identity[0] == LegacyRootName && identity[1] == LegacyAssemblyName)
-            return typeof(DebuggerSaveStateStore).Assembly.GetType(LegacyRootName, throwOnError: true);
-        return Type.GetType(name, throwOnError: false);
-    }
+    public static Type? Resolve(string name) => Type.GetType(name, throwOnError: false);
 
     // A type's serialized name is fixed for the process; the writer asks for it for every
     // object and field, and building AssemblyQualifiedName allocates a new string each time.

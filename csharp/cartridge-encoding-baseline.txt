@@ -29,7 +29,6 @@ csharp/src/SuperMetroid.AssetExtraction/GameplayMessageTitleExtractor.cs	SME6341
 csharp/src/SuperMetroid.AssetExtraction/HyperBeamFxColorExtractor.cs	SME6341	1
 csharp/src/SuperMetroid.AssetExtraction/IntroCinematicArtworkFiles.cs	SME6340	1
 csharp/src/SuperMetroid.AssetExtraction/IntroCinematicArtworkFiles.cs	SME6341	1
-csharp/src/SuperMetroid.AssetExtraction/LegacyCartridgeStateImport.cs	SME6340	2
 csharp/src/SuperMetroid.AssetExtraction/MagdollitePaletteCycleExtractor.cs	SME6340	1
 csharp/src/SuperMetroid.AssetExtraction/MotherBrainDeathColorExtractor.cs	SME6340	1
 csharp/src/SuperMetroid.AssetExtraction/MotherBrainRainbowPaletteExtractor.cs	SME6340	1

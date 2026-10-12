@@ -11,15 +11,15 @@ internal static class DebuggerStateFormat
     public const int DigestBytes = 32;
 }
 
-/// <summary>The on-disk debugger-state schema versions this build reads, stored as a 32-bit header word.</summary>
+/// <summary>
+/// The on-disk debugger-state schema, stored as a 32-bit header word. A build reads only its own
+/// version and object layout (#1270): older states are rejected, never converted.
+/// </summary>
 internal enum DebuggerStateVersion
 {
-    /// <summary>Version two stores CLR metadata tokens for delegate methods.</summary>
-    LegacyToken = 2,
-    /// <summary>Version three stores named delegate signatures without changing object fields.</summary>
-    NamedDelegate = 3,
-    /// <summary>Version four adds selected installed-content identity to the state header.</summary>
-    Identified = 4,
-    /// <summary>Version five adds the bounded named-presentation-catalog identity table.</summary>
+    /// <summary>
+    /// Named delegate signatures, the installed-content identity with its named component table,
+    /// and the build's exact object-graph layout.
+    /// </summary>
     Current = 5,
 }

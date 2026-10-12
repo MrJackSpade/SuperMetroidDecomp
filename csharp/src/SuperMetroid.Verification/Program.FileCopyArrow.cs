@@ -21,15 +21,6 @@ internal static partial class Program
         for (int slot = 0; slot < 3; slot++)
             saves.SaveSlot(slot, new SuperMetroidSaveSnapshot { Health = 99, MaxHealth = 99 });
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
-            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(FileSelectMenuState)])!;
-        foreach (int missing in new[] { 1, 2 })
-        {
-            FieldInfo[] legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(FileSelectMenuState), fields,
-                missing == 1 ? ["copyArrowPaletteTimer"] : ["copyArrowPaletteTimer", "currentPresentationPage"]);
-            AssertTrue(!legacy.Any(field => field.Name == "copyArrowPaletteTimer"), "legacy state omits new arrow timer");
-            AssertEqual(missing == 1, legacy.Any(field => field.Name == "currentPresentationPage"), "older presentation migration remains compatible");
-        }
         foreach (var pair in new[] { (0, 2), (0, 1), (1, 2), (2, 0), (1, 0), (2, 1) }.Select((slots, row) => (slots, row)))
         {
             saves.SelectSlot(0);
@@ -104,10 +95,6 @@ internal static partial class Program
             Press(SnesButton.A);
             AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");
-            typeof(FileSelectMenuState).GetField("copyArrowPaletteTimer", flags)!.SetValue(menu, 0);
-            RestoreLegacy(menu, "copyArrowPaletteTimer");
-            AssertEqual(8, (int)typeof(FileSelectMenuState).GetField("copyArrowPaletteTimer", flags)!.GetValue(menu)!,
-                "old debugger states initialize the arrow timer");
         }
         Console.WriteLine("Copy arrow: all six native slot pairs match OAM; confirmation-only visibility and palette timing pass.");
     }

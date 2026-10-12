@@ -144,11 +144,6 @@ internal static partial class Program
             AssertEqual(ReadRetailEmptyAutoReserveTile(bus, offset), runtime.Vram.ReadWord(HudState.VramDestination + index),
                 "completed automatic refill publishes the native empty AUTO indicator");
         }
-        var fields = typeof(SamusState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Where(f => !f.IsDefined(typeof(NonSerializedAttribute), false)).OrderBy(f => f.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusState), fields,
-            "<HealthWarning>k__BackingField", "<StationaryScriptControlLocked>k__BackingField", "<PreviousHealthForHurtCheck>k__BackingField");
-        AssertTrue(legacy.SequenceEqual(fields.Where(f => f.Name is not "<HealthWarning>k__BackingField" and not "<StationaryScriptControlLocked>k__BackingField" and not "<PreviousHealthForHurtCheck>k__BackingField")),
-            "pre-warning Samus layout omits warning, later stationary-command ownership and draw-time health history");
         samus.HealthWarning.Update(30, audio);
         using var saved = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(saved, samus); saved.Position = 0;

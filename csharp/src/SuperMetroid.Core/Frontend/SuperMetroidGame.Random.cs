@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Frontend;
 public sealed partial class SuperMetroidGame
 {
     // Before a room exists, the frontend still owns the cartridge's live RNG word.
-    // Lazy initialization also supports older debugger snapshots without this field.
     private Bank80SystemState? menuRandom;
 
     private Bank80SystemState FrontendRandomOwner =>

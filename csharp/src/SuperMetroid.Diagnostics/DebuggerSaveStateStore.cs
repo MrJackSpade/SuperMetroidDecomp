@@ -14,14 +14,15 @@ internal sealed class DebuggerSaveStateStore
     private readonly string directory;
     private readonly byte[] romDigest;
     private readonly SuperMetroidGameOptions? hostOptions;
-    private readonly GameContentIdentity? contentIdentity;
+    private readonly GameContentIdentity contentIdentity;
 
     internal DebuggerSaveStateStore(
         string directory,
         byte[] romDigest,
         SuperMetroidGameOptions? hostOptions,
-        GameContentIdentity? contentIdentity)
+        GameContentIdentity contentIdentity)
     {
+        ArgumentNullException.ThrowIfNull(contentIdentity);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         if (romDigest.Length != SHA256.HashSizeInBytes)
             throw new ArgumentException("Debugger state source digest must contain 32 bytes.", nameof(romDigest));
@@ -107,14 +108,11 @@ internal sealed class DebuggerSaveStateStore
             using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
             {
                 writer.Write(DebuggerStateFormat.Magic);
-                writer.Write((int)(contentIdentity is null
-                    ? DebuggerStateVersion.NamedDelegate
-                    : DebuggerStateVersion.Current));
+                writer.Write((int)DebuggerStateVersion.Current);
                 writer.Write(typeof(SuperMetroidGame).Module.ModuleVersionId.ToByteArray());
                 writer.Write(typeof(DebuggerSaveStateStore).Module.ModuleVersionId.ToByteArray());
                 writer.Write(romDigest);
-                if (contentIdentity is not null)
-                    WriteContentIdentity(writer, contentIdentity.ToSnapshot());
+                WriteContentIdentity(writer, contentIdentity.ToSnapshot());
                 writer.Write(metadata.SavedUtc.UtcTicks);
                 writer.Write(metadata.FrameNumber);
                 writer.Write((ushort)metadata.GameState);
@@ -160,17 +158,15 @@ internal sealed class DebuggerSaveStateStore
         if (!magic.AsSpan().SequenceEqual(DebuggerStateFormat.Magic))
             throw new InvalidDataException($"'{path}' is not a Super Metroid debugger state.");
         int storedVersion = reader.ReadInt32();
-        if (!Enum.IsDefined((DebuggerStateVersion)storedVersion))
+        if (storedVersion != (int)DebuggerStateVersion.Current)
         {
             throw new InvalidDataException(
-                $"Debugger state schema {storedVersion} is incompatible with schema {(int)DebuggerStateVersion.Current}.");
+                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: '{path}' has schema {storedVersion}; " +
+                $"this build reads only schema {(int)DebuggerStateVersion.Current}.");
         }
-        var version = (DebuggerStateVersion)storedVersion;
         var warnings = new List<string>();
         ReadBuildIdentity(reader, typeof(SuperMetroidGame).Module.ModuleVersionId, "core build", warnings);
         ReadBuildIdentity(reader, typeof(DebuggerSaveStateStore).Module.ModuleVersionId, "desktop build", warnings);
-        if (warnings.Count != 0 && version == DebuggerStateVersion.LegacyToken)
-            warnings.Add("Legacy debugger state uses compiler method tokens; cross-build delegate compatibility cannot be guaranteed.");
         byte[] storedDigest = reader.ReadBytes(SHA256.HashSizeInBytes);
         if (storedDigest.Length != SHA256.HashSizeInBytes ||
             !CryptographicOperations.FixedTimeEquals(storedDigest, romDigest))
@@ -179,21 +175,8 @@ internal sealed class DebuggerSaveStateStore
                 $"Debugger state slot {slot} was captured from a different ROM (SHA-256 mismatch).");
         }
 
-        GameContentIdentitySnapshot? storedContentIdentity = version >= DebuggerStateVersion.Identified
-            ? ReadContentIdentity(reader, version == DebuggerStateVersion.Current)
-            : null;
-        if (contentIdentity is not null)
-        {
-            warnings.AddRange(contentIdentity.GetCompatibilityWarnings(
-                storedContentIdentity,
-                "debugger state"));
-        }
-        else if (storedContentIdentity is not null)
-        {
-            warnings.Add(
-                "This host has no installed-content identity; only the debugger state's " +
-                "source ROM and assembly builds could be verified.");
-        }
+        GameContentIdentitySnapshot storedContentIdentity = ReadContentIdentity(reader);
+        warnings.AddRange(contentIdentity.GetCompatibilityWarnings(storedContentIdentity, "debugger state"));
         foreach (string warning in warnings)
             Console.Error.WriteLine($"WARNING: {warning}");
 
@@ -203,8 +186,19 @@ internal sealed class DebuggerSaveStateStore
         ushort? room = ReadNullableWord(reader);
         ushort? roomState = ReadNullableWord(reader);
         using var compressed = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: true);
-        DebuggerSaveStateRoot root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(
-            compressed, legacyDelegateTokens: version == DebuggerStateVersion.LegacyToken);
+        DebuggerSaveStateRoot root;
+        try
+        {
+            root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(compressed);
+        }
+        catch (InvalidDataException exception) when (
+            exception.Message.Contains(DebuggerObjectGraphSerializer.UnsupportedVersion, StringComparison.Ordinal))
+        {
+            // Older builds' layouts are not converted (#1270): name the file before the nested field path.
+            throw new InvalidDataException(
+                $"{DebuggerObjectGraphSerializer.UnsupportedVersion}: '{path}' was saved by a build with a different state layout. " +
+                exception.Message, exception);
+        }
         EnsureRomMatches(root.AddressSpace);
         if (root.Game.FrameNumber != frame || root.Game.GameState != gameState ||
             root.Game.GameplayActiveRoomPointer != room ||
@@ -247,9 +241,7 @@ internal sealed class DebuggerSaveStateStore
         ArgumentNullException.ThrowIfNull(addressSpace);
         // The live address space contains only mutable memory. Source revision is
         // validated when assets are installed and recorded in the content receipt.
-        if (contentIdentity is null ||
-            !CryptographicOperations.FixedTimeEquals(
-                SupportedCartridge.CreateSha256Digest(), romDigest))
+        if (!CryptographicOperations.FixedTimeEquals(SupportedCartridge.CreateSha256Digest(), romDigest))
             throw new InvalidDataException(
                 "Debugger states require an installed, revision-verified content identity.");
     }
@@ -277,7 +269,7 @@ internal sealed class DebuggerSaveStateStore
         GameContentComponentFormat.Write(writer.BaseStream, identity.AdditionalContentSha256);
     }
 
-    private static GameContentIdentitySnapshot ReadContentIdentity(BinaryReader reader, bool hasComponents)
+    private static GameContentIdentitySnapshot ReadContentIdentity(BinaryReader reader)
     {
         int formatVersion = reader.ReadInt32();
         if (formatVersion <= 0)
@@ -291,9 +283,7 @@ internal sealed class DebuggerSaveStateStore
             MapContentSha256 = ReadExact(reader, DebuggerStateFormat.DigestBytes, "map content digest"),
             ProjectileContentSha256 = ReadExact(reader, DebuggerStateFormat.DigestBytes, "projectile content digest"),
             CompositeSha256 = ReadExact(reader, DebuggerStateFormat.DigestBytes, "composite content digest"),
-            AdditionalContentSha256 = hasComponents
-                ? GameContentComponentFormat.Read(reader.BaseStream)
-                : new Dictionary<string, byte[]>(StringComparer.Ordinal),
+            AdditionalContentSha256 = GameContentComponentFormat.Read(reader.BaseStream),
         };
     }
 

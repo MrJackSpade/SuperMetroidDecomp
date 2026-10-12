@@ -461,21 +461,8 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Ceiling and falling-sand character animation selected by the current room FX record.</summary>
     public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
 
-    /// <summary>FX-selected horizontal spikes; older debugger states restart the absent owner at frame zero.</summary>
-    public RoomSpikeAnimatedTilesState RoomSpikes
-    {
-        get
-        {
-            if (field is null)
-            {
-                field = new();
-                if (ActiveRoom is { } room)
-                    field.LoadRoom(_addressSpace, room.State.FxPointer,
-                        ActiveDoor?.Pointer ?? 0, room.AreaIndex);
-            }
-            return field;
-        }
-    }
+    /// <summary>FX-selected horizontal spikes.</summary>
+    public RoomSpikeAnimatedTilesState RoomSpikes { get; } = new();
 
     /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
     public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();

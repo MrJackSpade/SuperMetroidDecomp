@@ -64,11 +64,6 @@ internal static partial class Program
         int tail = full.TailInBytes;
         AssertThrows<InvalidOperationException>(() => full.EnqueueAsset(VramAssetId.StandardHudTiles, 1, VramDmaDestination.FromNative(0)), "asset enqueue respects original queue capacity");
         AssertEqual(tail, full.TailInBytes, "rejected asset leaves queue tail intact");
-        FieldInfo[] fields = typeof(VramWriteEntry).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-            .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(VramWriteEntry), fields, "<AssetId>k__BackingField");
-        AssertEqual(3, legacy.Length, "legacy queue record keeps its original three fields");
-        AssertTrue(legacy.All(field => field.Name != "<AssetId>k__BackingField"), "legacy bus record receives default None, not an invented asset");
         Console.WriteLine("VRAM assets: native port/stride/wrap parity, mixed ordering, capacity, late-bound state restore and strict errors pass.");
     }
 

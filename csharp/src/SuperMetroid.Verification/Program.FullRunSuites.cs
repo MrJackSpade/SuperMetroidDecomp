@@ -43,7 +43,7 @@ internal static partial class Program
     private static RegisteredSuite[] FullRunSuites() =>
     [
         new(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi()),
-        new(nameof(VerifyDebuggerVersionCompatibility), () => VerifyDebuggerVersionCompatibility()),
+        new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
         new(nameof(VerifyCpuOperandOpenBus), () => VerifyCpuOperandOpenBus()),
         new(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary()),
         new(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary()),

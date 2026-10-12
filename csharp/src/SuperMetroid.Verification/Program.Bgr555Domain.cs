@@ -69,25 +69,6 @@ internal static partial class Program
         for (int step = 0; step < 16 && !fade.Step(cgram); step++) { }
         AssertTrue(cgram.Colors.IndexOfAnyExcept(Bgr555.White) < 0, "typed palette fade installs its exact target");
 
-        // Debugger boundary: older color-word payloads restore through their typed shape.
-        FieldInfo colors = typeof(SnesCgram).GetField("_colors", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        ushort[] savedWords = new ushort[SnesCgram.ColorCount];
-        savedWords[5] = 0x1234;
-        AssertTrue(DebuggerRetypedFieldDefinitions.TryConvert(colors, savedWords, out object restored), "saved CGRAM words convert");
-        AssertEqual(Bgr555.FromWord(0x1234), ((Bgr555[])restored)[5], "saved CGRAM word restores as its color");
-        savedWords[6] = 0x8000;
-        AssertThrows<ArgumentOutOfRangeException>(() => DebuggerRetypedFieldDefinitions.TryConvert(colors, savedWords, out _),
-            "a saved word with bit 15 is rejected");
-        AssertTrue(DebuggerColorWordShapes.Applies(typeof(Dictionary<ushort, Bgr555>), typeof(Dictionary<ushort, ushort>)),
-            "pointer-keyed color dictionaries have a word shape");
-        var dictionary = (Dictionary<ushort, Bgr555>)DebuggerColorWordShapes.Convert(
-            new Dictionary<ushort, ushort> { [0xe55c] = 0x001f }, typeof(Dictionary<ushort, Bgr555>));
-        AssertEqual(new Bgr555(31, 0, 0), dictionary[0xe55c], "dictionary keys stay words, values become colors");
-        AssertEqual(Bgr555.FromWord(0x03ff), (Bgr555?)DebuggerColorWordShapes.Convert((ushort)0x03ff, typeof(Bgr555?)), "nullable color");
-        var pair = ((Bgr555, Bgr555))DebuggerColorWordShapes.Convert(((ushort)1, (ushort)2), typeof((Bgr555, Bgr555)));
-        AssertEqual((new Bgr555(1, 0, 0), new Bgr555(2, 0, 0)), pair, "tuple of colors");
-        AssertTrue(!DebuggerColorWordShapes.Applies(typeof(int[]), typeof(ushort[])), "non-color retypes are not converted");
-        AssertTrue(!DebuggerColorWordShapes.Applies(typeof(ushort[]), typeof(ushort[])), "unchanged fields are not converted");
-        Console.WriteLine("Bgr555 domain: all 32768 words, port masking, channel bounds, RGBA expansion, operations, CGRAM and debugger shapes agree.");
+        Console.WriteLine("Bgr555 domain: all 32768 words, port masking, channel bounds, RGBA expansion, operations, and CGRAM agree.");
     }
 }

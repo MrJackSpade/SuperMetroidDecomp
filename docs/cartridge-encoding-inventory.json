@@ -18,16 +18,16 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 18974,
+    "RawHexLiteral": 18972,
     "PointerDispatch": 860,
     "OpaqueWordArray": 139,
-    "CatalogHexLiteral": 82971,
+    "CatalogHexLiteral": 82970,
     "JustifiedHexLiteral": 61,
-    "class:NumericQuantity": 45814,
+    "class:NumericQuantity": 45813,
     "class:DomainIdentity": 6365,
     "class:ComposableBits": 1476,
     "class:StructuredInstruction": 30251,
-    "class:CartridgeAddress": 18591,
+    "class:CartridgeAddress": 18589,
     "class:Unknown": 508,
     "storageWidthMembers": 1652
   },
@@ -1127,13 +1127,13 @@
     {
       "name": "Asset extraction (encoded boundary)",
       "totals": {
-        "RawHexLiteral": 107,
+        "RawHexLiteral": 105,
         "PointerDispatch": 9,
         "CatalogHexLiteral": 16,
-        "class:NumericQuantity": 32,
+        "class:NumericQuantity": 31,
         "class:DomainIdentity": 12,
         "class:ComposableBits": 47,
-        "class:CartridgeAddress": 39,
+        "class:CartridgeAddress": 38,
         "class:Unknown": 2,
         "storageWidthMembers": 1
       },
@@ -1402,15 +1402,6 @@
             "RawHexLiteral": 1,
             "PointerDispatch": 1,
             "class:ComposableBits": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/LegacyCartridgeStateImport.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 1,
             "class:CartridgeAddress": 1
           }
         },
@@ -1781,11 +1772,11 @@
       "totals": {
         "RawHexLiteral": 42,
         "PointerDispatch": 4,
-        "CatalogHexLiteral": 38,
+        "CatalogHexLiteral": 37,
         "class:NumericQuantity": 22,
         "class:DomainIdentity": 17,
         "class:ComposableBits": 17,
-        "class:CartridgeAddress": 28,
+        "class:CartridgeAddress": 27,
         "storageWidthMembers": 25
       },
       "addressInterpretingTypes": [
@@ -1830,8 +1821,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/BotwoonProjectileCodePointers.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 6,
-            "class:CartridgeAddress": 6
+            "CatalogHexLiteral": 5,
+            "class:CartridgeAddress": 5
           }
         },
         {

@@ -4,8 +4,7 @@ namespace SuperMetroid.Desktop;
 
 /// <summary>
 /// The debugger-state boundary for closed domains (#627): saved enum values are validated
-/// when they re-enter owned code, and a field migrated from a primitive to an enum of the
-/// same underlying type accepts the older primitive payload.
+/// when they re-enter owned code.
 /// </summary>
 internal static class DebuggerEnumValues
 {
@@ -42,19 +41,4 @@ internal static class DebuggerEnumValues
             unchecked((ulong)Convert.ToInt64(enumValue, System.Globalization.CultureInfo.InvariantCulture)),
         _ => Convert.ToUInt64(enumValue, System.Globalization.CultureInfo.InvariantCulture),
     };
-
-    /// <summary>
-    /// Adapts a restored value to its field: a primitive saved before the field became an enum of
-    /// the same underlying type is decoded (and validated) as that enum.
-    /// </summary>
-    public static object? AdaptToField(FieldInfo field, object? value, bool zeroStorageSlot = false)
-    {
-        Type fieldType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
-        if (value is null || !fieldType.IsEnum || value.GetType() == fieldType)
-            return value;
-        if (value.GetType() != Enum.GetUnderlyingType(fieldType))
-            throw new InvalidDataException(
-                $"Saved {value.GetType().FullName} cannot restore {field.DeclaringType!.FullName}.{field.Name} ({fieldType.FullName}).");
-        return Decode(fieldType, value, zeroStorageSlot);
-    }
 }

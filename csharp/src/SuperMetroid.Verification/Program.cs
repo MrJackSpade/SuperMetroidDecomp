@@ -4999,9 +4999,9 @@ if (args is ["--enemy-animation-stock-parity"])
     Suite(nameof(VerifyEnemyAnimationStockParity), () => VerifyEnemyAnimationStockParity());
     return 0;
 }
-if (args is ["--catalog-identity-state-compatibility"])
+if (args is ["--debugger-state-layout"])
 {
-    Suite(nameof(VerifyCatalogIdentityStateCompatibility), () => VerifyCatalogIdentityStateCompatibility());
+    Suite(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts());
     return 0;
 }
 if (args is ["--plm-content-identity"])

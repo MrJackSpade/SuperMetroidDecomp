@@ -97,7 +97,7 @@ internal sealed partial class CeresDestructionCinematicState
     /// <summary>
     /// Reattaches installed palette colors without restarting the cinematic's
     /// engine-flicker program. The provider is host-owned, just like room FX;
-    /// retain it for lazy owner creation and older debugger-state reconstruction.
+    /// retain it for lazy owner creation.
     /// </summary>
     internal void BindPaletteFxColors(IPaletteFxColorSource? colors)
     {
@@ -357,8 +357,7 @@ internal sealed partial class CeresDestructionCinematicState
             StepCeresActors();
 
         // GameState_37 runs PaletteFxHandler after cinematic objects, including the
-        // frame which spawns the program. Older debugger states lack this owner;
-        // resume their visible effect rather than leaving the engines permanently lit.
+        // frame which spawns the program.
         if (Phase > CeresDestructionPhase.FlyToZebesInitial)
         {
             if (paletteFx is null)

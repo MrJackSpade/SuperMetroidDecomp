@@ -52,7 +52,9 @@ internal static class AndroidBundleReplay
             }
             else
             {
-                var store = DebuggerSaveStateStoreTooling.ForCartridge(romPath, importBus.Rom, temporary);
+                GameInstallation installation = RepositoryInstallation.Installation;
+                var identity = GameContentIdentity.Create(installation.LoadAudio(), installation.LoadMaps(), installation.LoadProjectiles());
+                var store = DebuggerSaveStateStoreTooling.ForCartridge(romPath, importBus.Rom, identity, temporary);
                 using (var output = File.Create(store.GetSlotPath(0)))
                 using (var input = Required(bundle, "input-recordings/" + seed).Open()) input.CopyTo(output);
                 var loaded = store.Load(0);

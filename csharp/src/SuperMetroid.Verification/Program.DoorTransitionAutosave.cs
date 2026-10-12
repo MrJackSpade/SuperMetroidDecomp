@@ -22,13 +22,6 @@ internal static partial class Program
             "explicit disable is honored");
         AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nDoorTransitionAutosave=maybe"), "invalid autosave value");
         AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nDoorTransitionAutosave=true\nDoorTransitionAutosave=false"), "duplicate autosave key");
-        var fields = typeof(SuperMetroidGameOptions).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-            .OrderBy(field => field.Name, StringComparer.Ordinal).ToArray();
-        var oldFields = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SuperMetroidGameOptions), fields, "<DoorTransitionAutosave>k__BackingField");
-        AssertTrue(!oldFields.Any(field => field.Name.Contains("DoorTransitionAutosave", StringComparison.Ordinal)), "legacy field order excludes new policy");
-        var legacyOptions = (SuperMetroidGameOptions)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(SuperMetroidGameOptions));
-        RestoreLegacy(legacyOptions, "<DoorTransitionAutosave>k__BackingField");
-        AssertTrue(legacyOptions.DoorTransitionAutosave, "legacy graphs get default enabled policy");
 
         string parent = Path.GetFullPath("csharp/test-temp");
         Directory.CreateDirectory(parent);

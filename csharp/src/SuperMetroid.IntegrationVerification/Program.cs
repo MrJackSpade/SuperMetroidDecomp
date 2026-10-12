@@ -30,18 +30,6 @@ internal static partial class Program
                 return AssetImportVerification.Run(Path.GetFullPath("Super Metroid.smc"));
             if (args is ["--override-installation-lifecycle"])
                 return InstallationOverrideLifecycleVerification.Run(Path.GetFullPath("Super Metroid.smc"));
-            if (args is ["--spin-jump-missing-audio"])
-                return SpinJumpMissingAudioAudit.Run();
-            if (args is ["--maridia-pipe-entry"])
-                return MaridiaPipeEntryAudit.Run();
-            if (args is ["--maridia-pipe-from-north"])
-                return MaridiaPipeEntryAudit.Run(fromNorth: true);
-            if (args is ["--maridia-pipe-fresh-origin"])
-                return MaridiaPipeEntryAudit.Run(fromNorth: true, freshOrigin: true);
-            if (args is ["--maridia-pipe-incoming-door"])
-                return MaridiaPipeEntryAudit.Run(fromNorth: true, freshOrigin: true, incomingDoor: true);
-            if (args is ["--legacy-options-migration"])
-                return LegacyOptionsMigrationVerification.Run();
             if (args is ["--rom-decompression"])
                 return RomDecompressionVerification.Run();
             AndroidSessionCommandVerification.Run();

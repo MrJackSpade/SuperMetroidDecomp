@@ -238,16 +238,6 @@ internal static partial class Program
             restored.Step(bus, runtime.Vram, actual);
             AssertTrue(expected.Entries.SequenceEqual(actual.Entries), "Current debugger graph retains exact spike cadence");
         }
-        var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
-            BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [typeof(SuperMetroidRuntime)])!;
-        // Runtime fields published after the spike owner are absent from that layout too.
-        string[] laterRuntimeFields = ["<RoomMainScratch>k__BackingField", "_pendingLoaderSamusPlacement", "_suspendedFrameTail"];
-        FieldInfo[] preSpikeFields = fields
-            .Where(field => !laterRuntimeFields.Contains(field.Name))
-            .ToArray();
-        AssertTrue(LegacyLayout(typeof(SuperMetroidRuntime), fields, preSpikeFields.Where(field => field.Name != "<RoomSpikes>k__BackingField"))
-            .SequenceEqual(preSpikeFields.Where(field => field.Name != "<RoomSpikes>k__BackingField")),
-            "Legacy runtime layout omits only the new spike owner");
         typeof(SuperMetroidRuntime).GetField("<RoomSpikes>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(runtime, null);
         var restarted = new VramWriteQueue();

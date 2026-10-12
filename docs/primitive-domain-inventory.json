@@ -184,7 +184,7 @@
    "type": "enum AnimatedTileObject : ushort (None plus 19 retail headers)",
    "closedProof": "every producer selects a named header (area-bit table, FX type, statue spawn order, treadmill direction); no header is read from cartridge data at runtime",
    "transitions": "LoadDefinition/StartDefinition assign a member; Reset assigns None",
-   "boundary": "the type is the boundary: producers are enum members, and the legacy debugger-state migration unboxes the typed field",
+   "boundary": "the type is the boundary: producers are enum members, and debugger states restore the typed field",
    "invalidValues": "resolver switches name every member and throw InvalidOperationException for an undefined value",
    "consumers": "RoomFx/TourianStatue/WreckedShipTreadmill mechanics and artwork definitions, room spike/sand/treadmill selection, RoomFxAnimatedTileAtlas",
    "tests": "VerifySimpleAnimationObjectDomain, VerifyTourianStatueObjectDomain and the treadmill header domain sweep every member and assert undefined words throw; VerifyConstructedAnimatedTileStreams rejects a non-treadmill header before interpreting its program",

@@ -14,9 +14,9 @@ internal static class DebuggerSaveStateStoreTooling
     internal static DebuggerSaveStateStore ForCartridge(
         string romPath,
         ReadOnlySpan<byte> cartridgeRom,
+        GameContentIdentity contentIdentity,
         string? directoryOverride = null,
-        SuperMetroidGameOptions? hostOptions = null,
-        GameContentIdentity? contentIdentity = null)
+        SuperMetroidGameOptions? hostOptions = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
         return new DebuggerSaveStateStore(

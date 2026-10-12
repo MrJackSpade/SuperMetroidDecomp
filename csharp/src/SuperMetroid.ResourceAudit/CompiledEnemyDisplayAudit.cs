@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Accounts for production-owned, zero-part frames, not missing editable artwork.</summary>
 internal static class CompiledEnemyDisplayAudit
 {
+    /// <summary>Credits the renderer-owned empty OAM frames in the resource audit after checking the renderer still recognizes them; direct OAM catalog lookups still need installed entries.</summary>
     internal static void Install(string root, ResourceIndex exports, AuditReport report)
     {
         const string path = "csharp/src/SuperMetroid.Core/Game/EnemyPresentation.cs";
@@ -17,17 +18,14 @@ internal static class CompiledEnemyDisplayAudit
             if (!CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer))
                 throw new InvalidDataException("The compiled empty-frame bank list disagrees with its production predicate.");
             string key = ResourceIndex.Address(bank, pointer);
-            // This satisfies the *renderer* contract only. A direct TryGet on the
-            // installed OAM catalog still requires an actual catalog entry.
             exports.Add(ResourceDomains.EnemyDisplay, key);
             report.CompiledDefinitions.Add(new(ResourceDomains.EnemyDisplay, key));
         }
     }
 
+    /// <summary>Requires the reviewed no-op branch in DrawEnemySpritemap before treating compiled empty frames as renderer-owned resources.</summary>
     private static void SyntaxTreeGuard(string root, string path)
     {
-        // Do not turn a reviewed renderer convention into an unchecked allowlist.
-        // If its no-op ownership changes, require a fresh audit adapter instead.
         var tree = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, path)));
         MethodDeclarationSyntax method = tree.GetRoot().DescendantNodes()
             .OfType<MethodDeclarationSyntax>().Single(item => item.Identifier.ValueText == "DrawEnemySpritemap");
@@ -35,6 +33,7 @@ internal static class CompiledEnemyDisplayAudit
             throw new InvalidDataException("The compiled empty-OAM renderer contract changed; review the resource audit adapter.");
     }
 
+    /// <summary>Recognizes only the bare return guarded by HasEmptySpritemap(draw.Bank, draw.Pointer), so a changed renderer contract fails the audit.</summary>
     internal static bool HasNoOpBranch(MethodDeclarationSyntax method) =>
         method.DescendantNodes().OfType<IfStatementSyntax>().Any(branch =>
             branch.Else is null && branch.Statement is ReturnStatementSyntax { Expression: null } &&

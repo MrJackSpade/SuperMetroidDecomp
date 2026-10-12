@@ -21,6 +21,7 @@ public static class ProjectileSpriteExtractor
         return json;
     }
 
+    /// <summary>Decodes selected bank-$93 spritemaps into named OAM parts; the standard projectile mode uses catalog pointers, while callers can supply a bounded pointer span.</summary>
     internal static byte[] ExtractFrames(ISnesAddressSpace bus, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();

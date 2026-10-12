@@ -10,10 +10,12 @@ internal static class ZebetiteVisualDefinitions
     /// <summary>Ten barrier health-tier compositions at $A6:FE08..FEB0.</summary>
     internal const int FrameCount = 10;
 
+    /// <summary>Collects the compiled operands selecting Zebetite's health-tier spritemaps.</summary>
     internal static ushort[] Operands() => Enumerable.Range(0,
         ZebetiteInstructionProgramDefinitions.PresentationWordCount)
         .Select(ZebetiteInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>Builds frame definitions from the bank-$A6 operands while retaining the ten-frame bound.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "zebetite");
 }

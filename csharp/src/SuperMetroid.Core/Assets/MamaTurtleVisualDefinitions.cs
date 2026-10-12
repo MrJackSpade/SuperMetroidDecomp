@@ -13,6 +13,7 @@ internal static class MamaTurtleVisualDefinitions
     /// <summary>Twenty-nine selected Spritemap_BabyTurtle/MamaTurtle records at $A2:94D9..983F.</summary>
     internal const int FrameCount = 29;
 
+    /// <summary>Exports each distinct selected Tatori OAM composition once, preserving program reuse and requiring all 29 native frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);
@@ -31,6 +32,7 @@ internal static class MamaTurtleVisualDefinitions
         return [.. frames];
     }
 
+    /// <summary>Resolves a compiled Mama/Baby Turtle visual operand to its bank-$A2 OAM pointer and rejects unowned addresses.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
         for (int index = 0; index < MamaTurtleInstructionProgramDefinitions.PresentationWordCount; index++)

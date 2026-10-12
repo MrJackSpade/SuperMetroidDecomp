@@ -6,6 +6,11 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Creates a private, portable cinematic seed without changing any player's saves.</summary>
 internal static class CeresDescentStateFixture
 {
+    /// <summary>
+    /// Creates a new private fixture directory, seeds the post-escape game state, then
+    /// advances the real frontend, cinematic dispatcher, and audio until the planet
+    /// approach before saving slot nine. Existing destinations are rejected.
+    /// </summary>
     public static int Export(string destination)
     {
         string root = Path.GetFullPath(destination);
@@ -18,8 +23,6 @@ internal static class CeresDescentStateFixture
         var setup = typeof(SuperMetroidGame).GetMethod("SetupSelectedGame", fields)
             ?? throw new MissingMethodException("Game setup");
         setup.Invoke(data.Game, null);
-        // Seed the documented post-escape state, then let the actual frontend,
-        // cinematic dispatcher and managed audio advance to the planet approach.
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
             .SetValue(data.Game, SuperMetroidGameState.CeresGoesBoom);
         var sceneField = typeof(SuperMetroidGame).GetField("ceresDestruction", fields)!;

@@ -1,17 +1,16 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks Ridley's Power Bomb tail reaction and the fields it must leave untouched.</summary>
 internal static class RidleyNeutralTailVerification
 {
+    /// <summary>Confirms an armed Power Bomb resets tail function and angle delta, preserves animated foot displacement, and leaves inactive or death modes unchanged.</summary>
     internal static void VerifyRidleyPowerBombNeutralTail()
     {
         Action<RidleyEnemyState, SamusBombProjectileSystem> prepare = RidleyBehavior.PrepareNorfairRidleyCombatFrame;
-        // $A6:BD2C reads $0CEE, which laying a power bomb arms at once.
         var armed = new SamusBombProjectileSystem();
         armed.PowerBombExplosion.Arm();
         var unarmed = new SamusBombProjectileSystem();
-        // Native $A6:BD2C calls $B84D: write one to tail function and angle delta,
-        // not to the independently animated grabbed-Samus foot displacement.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             var state = new RidleyEnemyState
@@ -26,7 +25,6 @@ internal static class RidleyNeutralTailVerification
             AssertEqual((ushort)(ushort.MaxValue - raw), state.FeetDistanceIndex, "Power Bomb preserves animated foot displacement");
             AssertEqual(RidleyAiFunction.NorfairGrabApproach, state.Function, "Power Bomb lunge handoff");
         }
-        // $FFFF is the death mode: BMI rejects it before the flag is read.
         foreach (RidleyFightMode fight in Enum.GetValues<RidleyFightMode>())
         foreach (ushort grab in new ushort[] { 0, 1 })
         foreach (bool flag in new[] { false, true })

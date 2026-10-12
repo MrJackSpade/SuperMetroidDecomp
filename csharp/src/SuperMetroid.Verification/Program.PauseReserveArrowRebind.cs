@@ -4,6 +4,10 @@ using SuperMetroid.Desktop;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>
+/// Protects the reserve-page arrow palette that pause setup latched across presentation
+/// rebinding and debugger-state restoration.
+/// </summary>
 internal static class PauseReserveArrowRebindVerification
 {
     /// <summary>

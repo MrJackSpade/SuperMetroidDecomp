@@ -12,8 +12,10 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayTimeFreeze
 {
+    /// <summary>Player-frame owner whose X-ray state contributes to the effective freeze without changing the shared gameplay freeze word.</summary>
     private readonly SamusFrameState _player;
 
+    /// <summary>Binds the player-frame owner consulted for X-ray's translated freeze state.</summary>
     internal GameplayTimeFreeze(SamusFrameState player)
     {
         _player = player;

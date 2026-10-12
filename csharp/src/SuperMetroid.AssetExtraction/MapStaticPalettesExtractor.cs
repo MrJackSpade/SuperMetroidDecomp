@@ -10,6 +10,10 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM map palette-copy programs and colors → map world-selection palettes")]
 internal static class MapStaticPalettesExtractor
 {
+    /// <summary>
+    /// Imports pause and file-select palettes, executes each selected area's bounded native
+    /// world-map copy program, and emits validated RGB5 JSON for all six selections.
+    /// </summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var pause = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(pause, bus, MapStaticPalettesRomData.PausePalette);
@@ -42,5 +46,6 @@ internal static class MapStaticPalettesExtractor
         MapStaticPalettes.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });
         return json.ToArray();
     }
+    /// <summary>Converts all CGRAM words to RGB5 values for the installed palette document.</summary>
     private static PaletteRgb5[] ToRgb(SnesCgram palette) => new CgramPalettes(palette).Image.ToArray().Select(PaletteRgb5.From).ToArray();
 }

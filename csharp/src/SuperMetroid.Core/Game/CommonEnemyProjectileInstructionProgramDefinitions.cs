@@ -9,6 +9,7 @@ internal abstract class CommonEnemyProjectileInstructionProgramDefinitions
 {
     /// <summary><c>InstList_EnemyProjectile_Delete</c> at $86:84FC.</summary>
     internal const ushort Delete = 0x84fc;
+    /// <summary>Recognizes the shared delete opcode before dispatching to a projectile family's private program catalog.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == Delete)

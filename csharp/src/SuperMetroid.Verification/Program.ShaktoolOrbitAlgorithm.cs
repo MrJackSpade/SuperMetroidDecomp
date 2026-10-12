@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares generated Shaktool orbit math with its retail table and signed 8.8 displacement pairs.</summary>
 internal static class ShaktoolOrbitAlgorithmVerification
 {
+    /// <summary>Checks 320 table words, quantization bounds, 256 displacement pairs, and invalid indexes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool orbit algorithm")]
     internal static void VerifyShaktoolOrbitAlgorithm(SuperMetroidAddressSpace rom)
     {

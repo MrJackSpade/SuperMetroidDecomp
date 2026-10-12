@@ -23,7 +23,9 @@ internal abstract class OwtchInstructionProgramDefinitions
     /// only hold8, not instruction-reset1, motion, radii, sprite selection or pixel art.</remarks>
     internal const ushort CyclicVisualHold = 8;
 
+    /// <summary>Each facing direction has one 18-byte callback, three-frame, and goto program.</summary>
     internal const int ProgramBytes = 18;
+    /// <summary>Reads direction callbacks, chosen eight-tick holds, and the loop-closing goto pair.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - MovingLeft;

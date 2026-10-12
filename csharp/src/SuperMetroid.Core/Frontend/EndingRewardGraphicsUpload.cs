@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Executes the sixteen queued transfers issued by the reward landing actor.</summary>
 internal sealed class EndingRewardGraphicsUpload
 {
+    /// <summary>Installed interleaved Mode-7 map and character bytes for the reward icon.</summary>
     private byte[] graphics;
+    /// <summary>Number of queued chunks to replay when artwork is rebound after a restore.</summary>
     private int completedChunks;
 
+    /// <summary>Captures the installed reward-icon transfer and verifies it fills the native upload range.</summary>
     public EndingRewardGraphicsUpload(ISnesAddressSpace bus,
         EndingRewardIconArtwork? artwork = null)
     {
@@ -19,6 +22,7 @@ internal sealed class EndingRewardGraphicsUpload
             throw new InvalidDataException("Post-credits icon graphics do not fill the native WRAM upload range.");
     }
 
+    /// <summary>Transfers one indexed reward-icon chunk to VRAM and records upload progress.</summary>
     public void Upload(SnesVram vram, int index)
     {
         if ((uint)index >= EndingRewardJumpDefinitions.UploadCount)
@@ -35,6 +39,7 @@ internal sealed class EndingRewardGraphicsUpload
             UploadChunk(vram, index);
     }
 
+    /// <summary>Copies the selected native chunk from the interleaved source bytes to its VMADD destination.</summary>
     [PpuLayoutBoundary("codec: reward-icon chunk records' VMADD destinations")]
     private void UploadChunk(SnesVram vram, int index)
     {

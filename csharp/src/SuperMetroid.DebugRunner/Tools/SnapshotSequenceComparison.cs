@@ -36,10 +36,9 @@ internal static class SnapshotSequenceComparison
         }
     }
 
+    /// <summary>Compares zero-padded captures in sequence while keeping one renderer alive to expose stale GPU state.</summary>
     public static void Run(string directory)
     {
-        // Lexically ordered, zero-padded capture names preserve the original frame
-        // order. Keep one renderer alive: recreating it per frame hides stale state.
         string[] files = Directory.GetFiles(directory, "frame-*.smframe");
         Array.Sort(files, StringComparer.Ordinal);
         if (files.Length == 0) throw new InvalidDataException("No frame-*.smframe captures found.");

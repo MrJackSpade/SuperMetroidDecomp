@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 internal static partial class RoomPlmScrollProgramDefinitions
 {
 
+    /// <summary>Applies the retail trigger's ordered scroll writes and rejects an unknown bank-$8F pointer.</summary>
     internal static void Apply(ushort pointer, Action<int, RoomScrollState> write)
     {
         Ensure.NotNull(write);

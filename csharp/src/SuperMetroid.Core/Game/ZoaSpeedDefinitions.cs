@@ -26,9 +26,8 @@ public static class ZoaSpeedDefinitions
         return unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(byteOffset), Word(byteOffset + 2))));
     }
 
-    // NTSC stage selection; initialization and the trailing record are stationary.
-    // Compose the native whole-word/fraction-word byte layout before taking a
-    // byte, so odd offsets and windows crossing record boundaries remain exact.
+    /// <summary>Reads the NTSC speed table in native whole/fraction word order, including odd bytes and windows crossing records.</summary>
+    /// <remarks>Initialization and the trailing record are stationary; the middle records are the shooting stages.</remarks>
     private static byte Byte(int offset)
     {
         uint speed = RecordSpeeds[offset / 4];

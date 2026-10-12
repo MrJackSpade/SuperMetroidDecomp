@@ -10,9 +10,12 @@ using SuperMetroid.Core.Hardware;
 [CpuBusBoundary("domain view: projectile-inheritance WRAM block as native bytes and overlapping words for verification")]
 internal readonly struct ProjectileInheritanceRecordsAccess(ISnesMemoryBus bus)
 {
+    /// <summary>Distance records begin after the camera Y subspeed word.</summary>
     private const int FirstRecordOffset = 2;
+    /// <summary>Each directional signed-distance record occupies four native bytes.</summary>
     private const int RecordByteCount = 4;
 
+    /// <summary>Byte-table view over the projectile-inheritance WRAM block.</summary>
     private WorkRamByteTable Records => new(bus, ProjectileInheritanceWorkRam.Records);
 
     /// <summary><c>CameraYSubSpeed</c>, the block's first word.</summary>
@@ -42,6 +45,7 @@ internal readonly struct ProjectileInheritanceRecordsAccess(ISnesMemoryBus bus)
     /// <summary>The four directional distance records' bytes, in address order, without the camera subspeed.</summary>
     internal byte[] CaptureDistanceRecords() => Capture()[FirstRecordOffset..];
 
+    /// <summary>Locates the left, right, up, or down distance record after camera subspeed.</summary>
     private static int RecordOffset(SamusCollisionDirection direction) => direction switch
     {
         SamusCollisionDirection.Left => FirstRecordOffset,

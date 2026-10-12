@@ -15,18 +15,36 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
     private const int BodyTileSide = 3;
     /// <summary>$82:CB2B-CBCA: selected visor overlay top lies two pixels above the shared helmet anchor.</summary>
     private const int VisorTop = -2;
-    private const int TileSide = 8, LargeSide = 16;
-    private enum Corner { TopLeft, TopRight, BottomLeft, BottomRight }
+    /// <summary>One character tile spans eight pixels in the menu atlas.</summary>
+    private const int TileSide = 8;
+    /// <summary>Large OAM parts cover sixteen pixels and overlap in the 24-pixel helmet.</summary>
+    private const int LargeSide = 16;
+    /// <summary>Four overlapping OAM placements compose each helmet body pose.</summary>
+    private enum Corner
+    {
+        /// <summary>Upper-left overlapping body part.</summary>
+        TopLeft,
+        /// <summary>Upper-right overlapping body part.</summary>
+        TopRight,
+        /// <summary>Lower-left overlapping body part.</summary>
+        BottomLeft,
+        /// <summary>Lower-right overlapping body part.</summary>
+        BottomRight
+    }
+    /// <summary>Replaces matching Helmet.0 through Helmet.7 compositions with reviewed part geometry.</summary>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied) =>
         name.Length == 8 && name.StartsWith("Helmet.", StringComparison.Ordinal) && name[7] is >= '0' and <= '7'
             ? supplied.CalculateIfMatching(new FileSelectHelmetParts(name[7] - '0')) : supplied;
+    /// <summary>Turning poses use four body parts; visor poses add two small glint parts.</summary>
     public int Count => frame < 3 ? 4 : 6;
+    /// <summary>Reorders overlapping body corners for each of the three turning poses.</summary>
     private Corner BodyCorner(int part) => frame switch
     {
         0 => part switch { 0 => Corner.TopRight, 1 => Corner.BottomRight, 2 => Corner.BottomLeft, _ => Corner.TopLeft },
         1 => part switch { 0 => Corner.BottomLeft, 1 => Corner.TopLeft, 2 => Corner.TopRight, _ => Corner.BottomRight },
         _ => part switch { 0 => Corner.TopRight, 1 => Corner.TopLeft, 2 => Corner.BottomLeft, _ => Corner.BottomRight },
     };
+    /// <summary>Places one visor glint or overlapping helmet body part at its reviewed tile and offset.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -50,9 +68,11 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
                 SnesObjAttributeWord.Create(bodyTile, 0, 3, default), true);
         }
     }
+    /// <summary>Yields visor overlays before body parts where the native composition does.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same ordered parts to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

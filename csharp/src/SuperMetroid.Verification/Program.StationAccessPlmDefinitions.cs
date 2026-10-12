@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rooms;
 using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks station-access PLM headers, draw phases, and runtime use of compiled operands.</summary>
 internal static class StationAccessPlmDefinitionsVerification
 {
+    /// <summary>Runs native field checks and a sparse-bus production fixture for map and missile stations.</summary>
     internal static void VerifyStationAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyStationAccessHeaders), () => VerifyStationAccessHeaders(rom));
@@ -20,11 +22,16 @@ internal static class StationAccessPlmDefinitionsVerification
             "Station access PLMs: all six native access draw operands and real access animations pass without runtime header reads.");
     }
 
+    /// <summary>Checks the six access behavior identities through the shared native-field fixture.</summary>
     private static void VerifyStationAccessHeaders(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 0);
+    /// <summary>Checks access behavior enumeration while reading the six initial native lists.</summary>
     private static void VerifyStationAccessInitialLists(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 1);
+    /// <summary>Checks retracted-phase draw pointers for all six access behaviors.</summary>
     internal static void VerifyStationAccessRetractedDraws(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 2);
+    /// <summary>Checks extended-phase draw pointers for all six access behaviors.</summary>
     internal static void VerifyStationAccessExtendedDraws(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 3);
 
+    /// <summary>Checks the full BTS selector domain and compares chosen native operands with compiled definitions.</summary>
     private static void VerifyStationAccessField(SuperMetroidAddressSpace rom, int field)
     {
         var entries = StationAccessPlmDefinitions.All.ToArray();

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares compiled enemy visual selectors with pinned cartridge operands in exact-bus verifications.</summary>
 internal static class CompiledEnemyVisualSelectorAssertionsVerification
 {
     /// <summary>

@@ -28,25 +28,27 @@ public enum SparkEnemyFunction : ushort
 /// </summary>
 public sealed class SparkEnemyState
 {
+    /// <summary>Physical enemy slot carrying Spark's function and countdown words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects Spark's three private words from its occupied enemy slot.</summary>
     internal SparkEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Gets or sets variable B, the literal bank-$A8 indirect main-function address.</summary>
+    /// <summary>Variable B holds the literal bank-$A8 indirect main-function address.</summary>
     public SparkEnemyFunction Function
     {
         get => (SparkEnemyFunction)_slot.VariableB;
         internal set => _slot.VariableB = (ushort)value;
     }
 
-    /// <summary>Gets or sets variable E, the population-supplied base delay or negative random-delay request.</summary>
+    /// <summary>Variable E supplies a base delay or a negative request for a randomized delay.</summary>
     public ushort BaseFunctionTime
     {
         get => _slot.VariableE;
         internal set => _slot.VariableE = value;
     }
 
-    /// <summary>Gets or sets variable F, the live wrapping countdown decremented with native <c>DEC; BEQ</c> semantics.</summary>
+    /// <summary>Variable F is the wrapping countdown decremented with native <c>DEC; BEQ</c> semantics.</summary>
     public ushort FunctionTimer
     {
         get => _slot.VariableF;

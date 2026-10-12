@@ -17,6 +17,7 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
     /// <summary>$A9:B27B: fourteen copied opaque colors, excluding transparent3800 and final black.</summary>
     internal const int ColorCount = 14;
 
+    /// <summary>Admits a supplied fourteen-color opaque door ramp only when every word matches the reviewed paint calculation.</summary>
     internal static bool Matches(ReadOnlySpan<Bgr555> colors)
     {
         for (int color = 0; color < ColorCount; color++)
@@ -24,6 +25,7 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
         return true;
     }
 
+    /// <summary>Builds the violet gamma ramp, yellow ramp, neutral metal shades, and terminal white door ink by native color index.</summary>
     internal static Bgr555 Color(int color)
     {
         if ((uint)color >= ColorCount) throw new ArgumentOutOfRangeException(nameof(color));
@@ -45,6 +47,8 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
         return Pack(neutral, neutral, neutral);
     }
 
+    /// <summary>Interpolates a channel across the four authored shade positions using integer truncation.</summary>
     private static int Interpolate(int first, int last, int shade) => (first * (ShadeIntervals - shade) + last * shade) / ShadeIntervals;
+    /// <summary>Combines calculated RGB5 channels into the door's opaque CGRAM color word.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

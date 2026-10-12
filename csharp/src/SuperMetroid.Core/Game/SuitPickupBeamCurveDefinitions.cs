@@ -42,8 +42,8 @@ internal static class SuitPickupBeamCurveDefinitions
         int fixedWidth = (int)(24 * 64 * Sine(lower * step) + .5m);
         return (byte)((fixedWidth + 32) / 64);
     }
-    // Arguments stay in [0,pi/2]. Thirteen alternating Taylor terms bound the
-    // omitted term below 2e-23; decimal rounding is far below pixel boundaries.
+    /// <summary>Computes sine on the bounded first-quadrant interval using thirteen alternating decimal Taylor terms.</summary>
+    /// <remarks>The omitted term is below 2e-23, far from the rounded pixel-width boundaries used by the native contour.</remarks>
     private static decimal Sine(decimal angle)
     {
         decimal squared = angle * angle;

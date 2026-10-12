@@ -5,6 +5,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Shared checked compilation for compositions on the indexed menu OBJ sheet.</summary>
 internal static class MenuSpriteCompiler
 {
+    /// <summary>
+    /// Validates each part against the indexed menu OBJ sheet and SNES OAM limits, then
+    /// packs tile, palette, priority, flip, size, and signed offsets into a composition.
+    /// </summary>
     public static SpriteComposition Compile(SpriteVisualPart[] parts, string name)
     {
         if (parts.Length > MapSpriteFormat.MaximumParts)

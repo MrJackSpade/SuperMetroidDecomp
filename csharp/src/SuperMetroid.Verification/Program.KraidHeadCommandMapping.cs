@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the compiled Kraid head command stream against independently decoded native records.</summary>
 internal static class KraidHeadCommandMappingVerification
 {
+    /// <summary>Checks all 28 command records, exact address resolution, growth reads, and rejection of operand addresses.</summary>
     internal static void VerifyKraidHeadCommandMapping(SuperMetroidAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(KraidHeadCommandMappingRomByte(rom, 0xa70000 | pointer), KraidHeadCommandMappingRomByte(rom, 0xa70000 | (pointer + 1))));
@@ -53,6 +55,7 @@ internal static class KraidHeadCommandMappingVerification
         AssertThrows<InvalidDataException>(() => KraidHeadInstructionDefinitions.Resolve(0xffff), "Head upper command rejection");
     }
 
+    /// <summary>Reads one native bank-$A7 byte solely for the head-command oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid head command mapping")]
     private static byte KraidHeadCommandMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

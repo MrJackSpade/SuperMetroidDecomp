@@ -31,6 +31,10 @@ public sealed class RoomPlmDownwardGateVisualCatalog
         }
     });
 
+    /// <summary>
+    /// Deep-copied visual overrides keyed by bank-$84 draw pointer; null means every
+    /// gate frame still takes its visual bits from the compiled physical words.
+    /// </summary>
     private readonly Dictionary<ushort, ushort[][]>? customWords;
 
     /// <summary>Validates complete downward-gate and shot-trigger coverage and copies visual differences without changing collision, shot filtering, or animation mechanics.</summary>

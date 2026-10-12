@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Quicksand reaction PLMs and the allocation-full check their spawns depend on.</summary>
 internal sealed class QuicksandPlms
 {
+    /// <summary>Shared forty-slot PLM pool; occupied slots can prevent a quicksand reaction from spawning.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Binds quicksand reactions to the room's shared PLM allocation table.</summary>
     internal QuicksandPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;

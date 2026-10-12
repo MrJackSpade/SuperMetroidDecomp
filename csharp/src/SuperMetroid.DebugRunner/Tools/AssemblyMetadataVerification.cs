@@ -8,6 +8,7 @@ using System.Reflection.PortableExecutable;
 /// </summary>
 internal static class AssemblyMetadataVerification
 {
+    /// <summary>Reports declarations removed by linking and fails when reflection-visible metadata is missing.</summary>
     public static int Run(string original, string linked)
     {
         var before = Read(original);
@@ -20,6 +21,7 @@ internal static class AssemblyMetadataVerification
         return 0;
     }
 
+    /// <summary>Inventories type and member declarations by identity and overload count without loading the assembly.</summary>
     private static HashSet<string> Read(string path)
     {
         using var stream = File.OpenRead(path);

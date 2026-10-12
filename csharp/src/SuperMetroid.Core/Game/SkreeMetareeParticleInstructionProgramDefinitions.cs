@@ -13,6 +13,7 @@ internal abstract class SkreeMetareeParticleInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_MetareeParticle</c> at $86:8AC5.</summary>
     internal const ushort Metaree = 0x8ac5;
+    /// <summary>Recognizes the four direction variants of each particle family.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.SkreeParticleDownRight or
         RoomEnemyProjectileKind.SkreeParticleUpRight or
@@ -23,6 +24,7 @@ internal abstract class SkreeMetareeParticleInstructionProgramDefinitions
         RoomEnemyProjectileKind.MetareeParticleDownLeft or
         RoomEnemyProjectileKind.MetareeParticleUpLeft;
 
+    /// <summary>Reads a sixteen-tick hold or loop control in either bank-$86 particle list.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Skree;

@@ -9,27 +9,37 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal sealed class PlmRoomBindings
 {
+    /// <summary>Current room's bank-$80 shared system state, cleared with its resident PLMs.</summary>
     internal Bank80SystemState? System { get; private set; }
 
+    /// <summary>Area identity used by room PLMs; reset to Crateria when no room is bound.</summary>
     internal AreaId Area { get; private set; } = AreaId.Crateria;
 
+    /// <summary>Progress reader for Tourian statue PLMs in the current room.</summary>
     internal ITourianStatueProgress? TourianStatue { get; private set; }
 
+    /// <summary>Current room's Samus access used by PLM contact and scripted movement.</summary>
     internal IRoomSamusAccess? Samus { get; private set; }
 
+    /// <summary>Area boss flags consulted by room PLM conditions.</summary>
     internal IAreaBossFlagReader? Bosses { get; private set; }
 
+    /// <summary>Global event flags consulted by room PLM conditions.</summary>
     internal IGlobalEventFlags? Events { get; private set; }
 
+    /// <summary>Layer-3 FX state modified by room-specific PLM effects.</summary>
     internal RoomLayer3FxState? RoomFx { get; private set; }
 
+    /// <summary>Room earthquake sink for PLM instructions that trigger shaking.</summary>
     internal IRoomEarthquakeWriter? Earthquake { get; private set; }
 
+    /// <summary>Enemy-side effects requested by PLM instructions in the bound room.</summary>
     internal IRoomPlmEnemyEffects? Enemies { get; private set; }
 
     /// <summary>The room width in blocks, as the downward gate's collision search uses it.</summary>
     internal int RoomWidth { get; private set; }
 
+    /// <summary>Captures one loaded room's service owners and width for every PLM in its population.</summary>
     internal void Install(PlmRoom room, RoomPlmServices services)
     {
         System = room.System;
@@ -44,6 +54,7 @@ internal sealed class PlmRoomBindings
         RoomWidth = room.Level.Size.X;
     }
 
+    /// <summary>Releases all prior-room owners and width before PLM slots are reused for another population.</summary>
     internal void Clear()
     {
         System = null;

@@ -6,8 +6,14 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal sealed class AudioFrameRecovery
 {
+    /// <summary>Fingerprints already logged audio and reporting failures to avoid repeating console diagnostics.</summary>
     private readonly HashSet<string> logged = [];
 
+    /// <summary>
+    /// Runs audio submission without losing a completed game frame on a recoverable
+    /// failure. Logs each fingerprint once and attempts an optional report; failure
+    /// of that diagnostic transport is logged locally instead of becoming fatal.
+    /// </summary>
     internal void Run(Action renderAndSubmit, Action<Exception>? report)
     {
         try
@@ -29,8 +35,6 @@ internal sealed class AudioFrameRecovery
             }
             catch (Exception reportingException) when (reportingException is not OutOfMemoryException)
             {
-                // A broken diagnostic transport must not turn an audio-only error into
-                // a fatal game error. Preserve both diagnostics locally and say so.
                 if (logged.Add("report:" + identity))
                 {
                     Console.Error.WriteLine("Audio error could not be queued to GitHub:");

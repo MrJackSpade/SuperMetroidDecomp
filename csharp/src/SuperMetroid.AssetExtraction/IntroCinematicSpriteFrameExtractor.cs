@@ -9,6 +9,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM opening-scene OAM spritemap frames → intro sprite frames")]
 internal static class IntroCinematicSpriteFrameExtractor
 {
+    /// <summary>Decodes a bank-$8C opening spritemap and checks its authored OAM part count before importing editable visual attributes.</summary>
     internal static SpriteVisualPart[] Extract(ISnesAddressSpace bus,
         ushort pointer, int expectedParts, string name)
     {

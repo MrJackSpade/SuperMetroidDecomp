@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmBreakAnimationDefinitions
 {
+    /// <summary>Maps a seven-step breakup to shape-specific draw pointers, rising through frame three then reversing.</summary>
     internal static ushort DrawForShape(int shape, int frame)
     {
         (ushort first, int stride) = shape switch

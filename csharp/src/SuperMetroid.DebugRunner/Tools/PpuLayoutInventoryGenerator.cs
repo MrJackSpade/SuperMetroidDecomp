@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Debug-runner command that publishes the validated production PPU-layout inventory.</summary>
 internal static class PpuLayoutInventoryGenerator
 {
     /// <summary>

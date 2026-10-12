@@ -6,6 +6,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>
+/// Checks that a cartridge-backed Golden Torizo can enter its native walking combat
+/// after the compiled awakening sequence when installed artwork is present.
+/// </summary>
 internal static class GoldenTorizoCartridgeFallbackVerification
 {
     /// <summary>

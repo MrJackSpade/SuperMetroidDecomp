@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BoyonInstructionProgramDefinitions))]
 internal abstract class BoyonInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Boyon's idle and bouncing lists contribute 18 setup, timing, and loop words.</summary>
     public static int MechanicsWordCount => 18;
+    /// <summary>The idle list selects four frames and the bouncing list selects six.</summary>
     public static int PresentationWordCount => 10;
+    /// <summary>Reads a Boyon control word from the idle or bouncing list, skipping visual operands.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -20,11 +23,13 @@ internal abstract class BoyonInstructionProgramDefinitionsTooling : IInstruction
         ushort address = (ushort)((bouncing ? BoyonInstructionProgramDefinitions.Bouncing : BoyonInstructionProgramDefinitions.Idle) + offset);
         return new(address, BoyonInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Locates one of four idle or six bouncing frame selectors after the list setup words.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 4 ? BoyonInstructionProgramDefinitions.Idle + 6 + 4 * index : BoyonInstructionProgramDefinitions.Bouncing + 6 + 4 * (index - 4));
     }
+    /// <summary>Recognizes bank-$A2 Boyon setup, duration, and loop bytes without claiming frame operands.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;

@@ -6,6 +6,11 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Correlates known enemy DMA sources/definition IDs with their required native lengths.</summary>
 internal static class EnemyArtworkDomainAudit
 {
+    /// <summary>
+    /// Diagnoses a known enemy DMA source paired with the wrong byte count. Unowned sources
+    /// remain valid false queries; owned ordinary sheets, Ceres/Torizo slices, and overlay
+    /// pages must match their separately reviewed length contracts.
+    /// </summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(EnemyTileArtworkCatalog).FullName) return null;

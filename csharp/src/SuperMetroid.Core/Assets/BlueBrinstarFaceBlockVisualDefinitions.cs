@@ -12,6 +12,7 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
     /// <summary>Native bank of the face-block enemy and its OAM maps.</summary>
     internal const byte Bank = 0xa8;
 
+    /// <summary>Publishes the neutral pose and two distinct turning poses for each approach direction.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, MapPointer(0), "face_block_neutral"),
@@ -21,7 +22,7 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
         new(Bank, MapPointer(4), "face_block_samus_right_2"),
     ];
 
-    /// <summary>Only the seven visual operands in the three native programs.</summary>
+    /// <summary>Maps only the seven native visual operands to the five distinct OAM poses.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
         if (BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord(operandAddress))
@@ -35,5 +36,6 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
             $"Face-block visual operand $A8:{operandAddress:X4} is not compiled.");
     }
     // Two-byte count plus four five-byte OAM records per map.
+    /// <summary>Calculates one four-part OAM record address from the 22-byte native stride.</summary>
     private static ushort MapPointer(int pose) => (ushort)(0xe92c + 22 * pose);
 }

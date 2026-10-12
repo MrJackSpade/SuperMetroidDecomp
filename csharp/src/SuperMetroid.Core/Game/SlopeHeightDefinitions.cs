@@ -41,5 +41,6 @@ public static class SlopeHeightDefinitions
         return (byte)height;
     }
 
+    /// <summary>Preserves the cartridge's encoded twenty-height overhang above a full block while clipping negative steep-slope heights to zero.</summary>
     private static int EncodeSteepHeight(int height) => height > 16 ? 20 : Math.Max(0, height);
 }

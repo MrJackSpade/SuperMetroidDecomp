@@ -14,9 +14,12 @@ internal abstract class SaveStationElectricityInstructionProgramDefinitions
 
     /// <summary>Eight one-frame drawing records between timer setup and loop/delete commands.</summary>
     private const int FrameCount = 8;
+    /// <summary>Timer setup, eight frame durations, loop control, and deletion words.</summary>
     public static int MechanicsWordCount => FrameCount + 5;
+    /// <summary>One separately installed spritemap operand for each frame duration.</summary>
     public static int PresentationWordCount => FrameCount;
 
+    /// <summary>Enumerates compiled timer, frame-duration, loop, and delete control words in native order.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -34,11 +37,13 @@ internal abstract class SaveStationElectricityInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Locates a separately installed sprite operand for a bounded frame index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Loop + 2 + 4 * index);
     }
+    /// <summary>Looks up a compiled electricity control word while rejecting presentation operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

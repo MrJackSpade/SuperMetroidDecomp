@@ -10,8 +10,10 @@ internal static class ViolaVisualDefinitions
 {
     /// <summary>Native Viola spritemap bank.</summary>
     internal const byte Bank = 0xa3;
+    /// <summary>Fourteen instruction frames reuse eight distinct Viola spin spritemaps.</summary>
     internal const int FrameCount = 8;
 
+    /// <summary>Collects each distinct compiled Viola frame once and rejects changes to the expected eight-frame artwork set.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();

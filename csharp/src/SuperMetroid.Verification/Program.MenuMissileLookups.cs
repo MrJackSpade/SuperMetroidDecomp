@@ -2,8 +2,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks the file-menu missile animation's compiled spritemap selectors and frame duration against retail data.</summary>
 internal static class MenuMissileLookupsVerification
 {
+    /// <summary>Compares the four spritemap IDs and native wrap mask, including rejection of invalid frame indices.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu missile spritemap ids")]
     internal static void VerifyMenuMissileSpritemapIds(ISnesAddressSpace rom)
     {
@@ -19,6 +21,7 @@ internal static class MenuMissileLookupsVerification
                 $"menu missile invalid frame {frame}");
     }
 
+    /// <summary>Compares the compiled duration used for each of the four menu missile frames with bank-$82 words.</summary>
     internal static void VerifyMenuMissileDurations(ISnesAddressSpace rom)
     {
         for (int frame = 0; frame < 4; frame++)

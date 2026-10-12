@@ -9,10 +9,12 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmLinkedRestoreDrawDefinitions
 {
+    /// <summary>Combines the three bomb-block and three contact-crumble restoration layouts for shared visual export.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         RoomPlmBombBlockRestoreDrawDefinitions.All.Concat(
             RoomPlmContactCrumbleRestoreDrawDefinitions.All);
 
+    /// <summary>Maps a compiled restore draw pointer to a bomb or crumble artwork key and rejects unknown identities.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (Enum.IsDefined((BombBlockRestoreDraw)pointer))
@@ -34,6 +36,7 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
         };
     }
 
+    /// <summary>Finds the compiled restoration draw whose stable visual key equals the supplied identifier.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

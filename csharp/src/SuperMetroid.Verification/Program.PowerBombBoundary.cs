@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks Power Bomb boundary traversal in an inert room, including clipping and repeated corner visits.</summary>
 internal static class PowerBombBoundaryVerification
 {
+    /// <summary>Confirms ordinary and Chainsaw caller words visit the same expected room-block edges at two origins and zero radius.</summary>
     internal static void VerifyPowerBombBoundary()
     {
         var level = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(new ushort[25], new byte[25], new ushort[25]), new byte[8]);

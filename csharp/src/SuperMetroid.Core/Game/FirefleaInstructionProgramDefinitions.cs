@@ -8,6 +8,7 @@ internal abstract class FirefleaInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Fireflea</c> at $A3:8C2F.</summary>
     internal const ushort Loop = 0x8c2f;
+    /// <summary>Number of timed poses before the trailing goto returns to the first frame.</summary>
     internal const int FrameCount = 52;
 
     /// <summary>Whether an address is one of the 52 visual operands.</summary>
@@ -16,6 +17,7 @@ internal abstract class FirefleaInstructionProgramDefinitions
         address <= Loop + (FrameCount - 1) * 4 + 2 &&
         (address - Loop - 2) % 4 == 0;
 
+    /// <summary>Reads alternating two- and one-tick holds, then the goto opcode and loop target; rejects other addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Loop;

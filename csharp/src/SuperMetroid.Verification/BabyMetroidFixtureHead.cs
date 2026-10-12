@@ -1,5 +1,9 @@
 using SuperMetroid.Core.Game;
 
+/// <summary>
+/// Substitutes the articulated brain position for Baby Metroid fixture sequences
+/// that do not include a separate head enemy slot.
+/// </summary>
 internal static class BabyMetroidFixtureHeadVerification
 {
     /// <summary>

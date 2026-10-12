@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks horizontal lava/acid wave samples and their renderer phase arithmetic.</summary>
 internal static class LookupHorizontalHeatWaveVerification
 {
+    /// <summary>Compares 16 retail offsets, bounds rejection, camera-phase addition, and 16-bit scroll wrap.</summary>
     internal static void VerifyHorizontalHeatWave(SuperMetroidAddressSpace rom)
     {
         short Original(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b589 + 2 * index));

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks seven calculated egg-remnant poses against native OAM and independent artwork edits.</summary>
 internal static class IntroEggRemnantPartsVerification
 {
+    /// <summary>Checks stock fields and visible/wrapped drawing while leaving any edited field or part count supplied.</summary>
     internal static void VerifyIntroEggRemnantParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggRemnant", value.AppendIdentity);

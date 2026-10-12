@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks calculated Ceres star geometry against retail OAM and independent supplied edits.</summary>
 internal static class CeresStarPointPartsVerification
 {
+    /// <summary>Checks both reflected layouts, priority edits, translated points, and invalid indexes.</summary>
     internal static void VerifyCeresStarPointParts(ISnesAddressSpace rom)
     {
         foreach (bool reflected in new[] { false, true })

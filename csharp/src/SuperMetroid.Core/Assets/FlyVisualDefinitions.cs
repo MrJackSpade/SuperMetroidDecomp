@@ -14,6 +14,7 @@ internal static class FlyVisualDefinitions
     /// <summary><c>Spritemap_Mellow_Mella_Menu_0</c> at $A2:B1E8; four one-object, seven-byte OAM frames.</summary>
     private const ushort FirstFrame = 0xb1e8;
 
+    /// <summary>Builds the four contiguous seven-byte compositions shared by the fly family's flight loop.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new EnemySpritemapDefinition[4];

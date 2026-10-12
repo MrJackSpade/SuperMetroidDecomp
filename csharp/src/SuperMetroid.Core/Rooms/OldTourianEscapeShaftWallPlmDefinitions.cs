@@ -24,6 +24,7 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
     internal const ushort WakeTargetX = 0x00f0;
     internal const ushort WakeTargetY = 0x0820;
 
+    /// <summary>Returns only the compiled install, sleep, clear, draw, and delete words of the bank-$84 fake-wall program.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch

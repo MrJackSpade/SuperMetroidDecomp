@@ -12,24 +12,33 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorEscapePaintDefinitions
 {
+    /// <summary>Five-bit maximum used by the escape accent's saturated green channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
+    /// <summary>Six warm target colors reused from the normal Ceres door paint.</summary>
     private readonly CeresDoorWarmTargetPaintDefinitions warm;
+    /// <summary>Eight grey-blue surface colors composing the escape door face.</summary>
     private readonly CeresDoorEscapeSurfacePaintDefinitions surface;
+    /// <summary>Blue component of the terminal cyan target-paint slot.</summary>
     private readonly int accentBlue;
+    /// <summary>Extracted colors that differ from the derived surface and warm-target paint.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Uses the normal door's warm targets when compiling the escape paint.</summary>
     internal CeresDoorEscapePaintDefinitions(ReadOnlySpan<Bgr555> colors, CeresDoorNormalPaintDefinitions normal)
         : this(colors, (Ensure.NotNull(normal)).WarmTargets) { }
 
+    /// <summary>Derives warm targets from the supplied escape palette when no normal palette is provided.</summary>
     internal CeresDoorEscapePaintDefinitions(ReadOnlySpan<Bgr555> colors)
         : this(colors, WarmFrom(colors)) { }
 
+    /// <summary>Selects six warm entries from a complete fifteen-color escape palette.</summary>
     private static CeresDoorWarmTargetPaintDefinitions WarmFrom(ReadOnlySpan<Bgr555> colors)
     {
         if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
         return new(colors.Slice(8, 6));
     }
 
+    /// <summary>Captures the derived material paint and retains every differing supplied ink as an edit.</summary>
     private CeresDoorEscapePaintDefinitions(ReadOnlySpan<Bgr555> colors, CeresDoorWarmTargetPaintDefinitions warm)
     {
         if (colors.Length != 15) throw new ArgumentException("Escape door paint requires fifteen colors.", nameof(colors));
@@ -40,12 +49,14 @@ internal sealed class CeresDoorEscapePaintDefinitions
             if (Calculate(index) != colors[index]) edits.Add(index, colors[index]);
     }
 
+    /// <summary>Selects an extracted edit when present, otherwise resolves the derived surface or target color.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 15) throw new IndexOutOfRangeException();
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 
+    /// <summary>Combines surface inks, shared warm targets, and the saturated cyan terminal slot.</summary>
     private Bgr555 Calculate(int index)
     {
         if (index is >= 8 and < 14) return warm.ColorAt(index - 8);

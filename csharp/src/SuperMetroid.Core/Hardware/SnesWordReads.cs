@@ -21,6 +21,10 @@ namespace SuperMetroid.Core.Hardware;
 [SnesEncodingOwner]
 public static class SnesWordReads
 {
+    /// <summary>
+    /// Adds WRAM word reads to the mutable CPU memory boundary while preserving the
+    /// linear-versus-fixed-bank address progression described above.
+    /// </summary>
     extension(ISnesMutableMemory memory)
     {
         /// <summary>Reads the little-endian WRAM word at <paramref name="cpuAddress"/> on the linear 24-bit bus.</summary>

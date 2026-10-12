@@ -5,6 +5,7 @@ internal readonly record struct DeadTorizoVramTransferDefinition(
     ushort SizeInBytes, ushort SourceBankWord, ushort SourceOffset,
     ushort EncodedVramDestination)
 {
+    /// <summary>Combines the descriptor's encoded bank byte and source offset into the WRAM DMA address.</summary>
     internal int SourceAddress => ((SourceBankWord & 0xff00) << 8) | SourceOffset;
 }
 
@@ -18,17 +19,22 @@ internal static class DeadTorizoVramTransferDefinitions
 
     /// <summary>Twelve ten-tile body rows start at $7E:2000 and VRAM word$7060.</summary>
     private const ushort BodySource = 0x2000;
+    /// <summary>First destination word for the clipped body rows in VRAM.</summary>
     private const ushort BodyDestination = 0x7060;
     /// <summary>Sand strips at $7E:9500/$9620 upload alternately to VRAM$7000/$7100.</summary>
     private const ushort SandSource = 0x9500;
+    /// <summary>First VRAM destination word for the alternating sand-strip upload.</summary>
     private const ushort SandDestination = 0x7000;
 
+    /// <summary>Selects the even or odd corpse-transfer half without copying the mutable WRAM source pixels.</summary>
     internal static PhaseRows ForPhase(ushort phase) => new((phase & 1) != 0);
 
     /// <summary>Six body rows and one sand strip; body bounds clip unused tiles on each scanline.</summary>
     internal readonly struct PhaseRows(bool odd) : IReadOnlyList<DeadTorizoVramTransferDefinition>
     {
+        /// <summary>Six clipped body-row transfers followed by one sand-strip transfer.</summary>
         public int Count => 7;
+        /// <summary>Calculates the phase's row-specific source, destination, and byte count, including the alternating sand strip.</summary>
         public DeadTorizoVramTransferDefinition this[int index]
         {
             get
@@ -46,10 +52,12 @@ internal static class DeadTorizoVramTransferDefinitions
                     (ushort)(BodyDestination + row * 256 + firstTile * 16));
             }
         }
+        /// <summary>Yields body rows in increasing row order, then the phase's sand strip.</summary>
         public IEnumerator<DeadTorizoVramTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Preserves DMA descriptor order for non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

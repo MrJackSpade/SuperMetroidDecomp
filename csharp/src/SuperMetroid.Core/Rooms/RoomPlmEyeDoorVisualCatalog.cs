@@ -27,6 +27,10 @@ public sealed class RoomPlmEyeDoorVisualCatalog
         }
     });
 
+    /// <summary>
+    /// Copied visual overrides keyed by the eye-door frame's shared source pointer;
+    /// null keeps the compiled appearance for every component and clearing frame.
+    /// </summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all twenty-three editable eye-door frames and copies visual differences without changing collision, attacks, hit counters, timing, or persistence.</summary>

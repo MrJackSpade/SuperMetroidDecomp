@@ -7,5 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal interface IRoomEnemyFallingTubeFixtureSource
 {
+    /// <summary>Supplies the predecoded population record selected by a native tube-list pointer.</summary>
     RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer);
 }

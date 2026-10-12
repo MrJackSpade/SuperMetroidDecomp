@@ -26,6 +26,7 @@ public static class PowerBombFixedColorExtractor
         });
     }
 
+    /// <summary>Decodes one fixed-color sequence from native three-byte RGB triplets into five-bit channels.</summary>
     private static PaletteRgb5[] Read(ISnesAddressSpace bus, PowerBombFixedColorSequence sequence)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Frontend;
 
+/// <summary>Checks each ending cloud's activation threshold and subsequent native motion.</summary>
 internal static class EndingCloudMotionVerification
 {
+    /// <summary>Checks eight directions, threshold crossing without early movement, and twelve movement steps.</summary>
     internal static void VerifyEndingCloudMotion()
     {
         foreach (EndingSpriteRole role in new[] { EndingSpriteRole.CloudRightA, EndingSpriteRole.CloudRightB,

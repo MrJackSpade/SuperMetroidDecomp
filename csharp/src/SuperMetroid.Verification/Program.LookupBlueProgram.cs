@@ -2,13 +2,19 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks the four blue-door PLM program fields against native byte and overlapping-word views.</summary>
 internal static class LookupBlueProgramVerification
 {
+    /// <summary>Checks the blue program's compiled control bytes.</summary>
     internal static void VerifyBlueProgramControls(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 0);
+    /// <summary>Checks native draw-pointer operands in all four blue-door lists.</summary>
     internal static void VerifyBlueProgramDraws(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 1);
+    /// <summary>Checks native sound operands in all four blue-door lists.</summary>
     internal static void VerifyBlueProgramSounds(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 2);
+    /// <summary>Checks native BTS operands in all four blue-door lists.</summary>
     internal static void VerifyBlueProgramBts(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 3);
 
+    /// <summary>Exhausts the address domain while comparing selected field bytes and overlapping words with the native lists.</summary>
     private static void VerifyBlueProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.
@@ -50,6 +56,7 @@ internal static class LookupBlueProgramVerification
             "Blue program independent field byte count");
     }
 
+    /// <summary>Reads a native program byte solely as the blue-door verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for blue program field")]
     private static byte BlueProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

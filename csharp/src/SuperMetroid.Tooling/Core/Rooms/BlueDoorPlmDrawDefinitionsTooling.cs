@@ -3,6 +3,7 @@
 /// <summary>Development-tool members of <see cref="BlueDoorPlmDrawDefinitions"/>; never linked by player hosts.</summary>
 internal static class BlueDoorPlmDrawDefinitionsTooling
 {
+    /// <summary>Enumerates editable door frames, then the draw list immediately before each orientation's first frame.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get

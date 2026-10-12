@@ -31,6 +31,7 @@ public sealed class RoomPlmChozoStatueVisualCatalog
         }
     });
 
+    /// <summary>Visual-only overrides keyed by bank-$84 draw pointer; absent when every selected block uses its compiled visual word.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates complete Chozo-layout coverage and copies authored visual differences without replacing physical level words or calculated run geometry.</summary>

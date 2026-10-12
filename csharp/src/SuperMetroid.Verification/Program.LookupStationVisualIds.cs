@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks the exact published names and native draw pointers of the twenty station frames.</summary>
 internal static class LookupStationVisualIdsVerification
 {
+    /// <summary>Verifies ordered exports, reverse lookup, ordinal casing, and rejection of every other pointer.</summary>
     internal static void VerifyStationVisualIds()
     {
         // Original exported identity contract, independent of the replacement naming code.

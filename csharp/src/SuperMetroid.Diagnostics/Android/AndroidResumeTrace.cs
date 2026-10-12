@@ -9,8 +9,11 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidResumeTrace(int capacity = 300)
 {
+    /// <summary>Serializes worker updates and flushes without exposing a partially recorded trace.</summary>
     private readonly Lock gate = new();
+    /// <summary>Bounded timestamped entries held in memory until lifecycle shutdown.</summary>
     private readonly List<string> events = new();
+    /// <summary>Appends one monotonic-clock event unless the configured capacity has been reached.</summary>
     public void Record(string kind, string fields)
     {
         lock (gate)
@@ -20,8 +23,10 @@ internal sealed class AndroidResumeTrace(int capacity = 300)
         }
     }
 
+    /// <summary>Reports whether additional worker events would be discarded.</summary>
     public bool Full { get { lock (gate) return events.Count >= capacity; } }
 
+    /// <summary>Writes a UTC and clock-frequency header with all events, then clears the trace after a successful write.</summary>
     public void Flush(Action<string> write)
     {
         lock (gate)

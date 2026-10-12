@@ -12,7 +12,9 @@ internal abstract class EyeDoorSweatInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_EyeDoorSweat_Impact</c> at $86:B61D.</summary>
     internal const ushort Impact = 0xb61d;
 
+    /// <summary>The falling loop and floor impact contribute eight timing, branch, and terminal control words.</summary>
     public static int MechanicsWordCount => 8;
+    /// <summary>The falling pose and three impact poses each select a spritemap.</summary>
     public static int PresentationWordCount => 4;
 
     /// <summary>Falling draws once and loops; impact clears movement, draws three frames and deletes.</summary>
@@ -30,11 +32,13 @@ internal abstract class EyeDoorSweatInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Locates the falling spritemap operand or one of three consecutive impact-frame operands.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index == 0 ? Initial + 2 : Impact + 4 + 4 * (index - 1));
     }
+    /// <summary>Reads only the compiled $86:B615-B62B control addresses, rejecting spritemap operands and unknown words.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

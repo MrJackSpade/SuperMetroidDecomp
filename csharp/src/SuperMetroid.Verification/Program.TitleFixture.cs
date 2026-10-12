@@ -4,10 +4,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Builds title-state fixtures from the supplied cartridge source and its matching extracted artwork.</summary>
 internal static class TitleFixtureVerification
 {
-    // Extract from the fixture's own source, including constructed/patched ROMs.
-    // Supplying retail artwork here would erase the synthetic visual assertions.
+    /// <summary>Extracts graphics, palette, and optional gradient from the fixture's own source so patched-ROM visual assertions remain observable.</summary>
     internal static TitleSequenceState CreateTitleFixture(ISnesAddressSpace source,
         CartridgeAudioState? audio = null, TitleGradientPresentation? titleGradientPresentation = null)
     {

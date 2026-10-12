@@ -1,3 +1,4 @@
+/// <summary>Gives verifier suites the repository's pinned retail cartridge input.</summary>
 internal static class RepositoryInputsVerification
 {
     /// <summary>

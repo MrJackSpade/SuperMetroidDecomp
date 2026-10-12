@@ -6,10 +6,14 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("codec: restores a render snapshot into software PPU memory")]
 internal sealed class SoftwarePpuSnapshotMemory
 {
+    /// <summary>Writable 64 KiB VRAM copy loaded from the current render snapshot.</summary>
     internal SnesVram Vram { get; } = new();
+    /// <summary>Palette copy populated color by color from the current snapshot.</summary>
     internal SnesCgram Cgram { get; } = new();
+    /// <summary>Sprite tables and modeled sprite count restored from the upload payload.</summary>
     internal OamBuffer Oam { get; } = new();
 
+    /// <summary>Creates scratch PPU memory already populated from one render snapshot.</summary>
     internal SoftwarePpuSnapshotMemory(PpuMemorySnapshot snapshot) => Load(snapshot);
 
     /// <summary>Replaces every modeled byte, so a pooled reader carries nothing between frames.</summary>

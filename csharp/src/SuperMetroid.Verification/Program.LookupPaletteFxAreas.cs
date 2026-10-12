@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks native bank-$83 palette-FX list pointers and each area's eight bit-selected definitions.</summary>
 internal static class LookupPaletteFxAreasVerification
 {
+    /// <summary>Compares all eight native list identities and preserves indexed bounds on their lookup.</summary>
     internal static void VerifyPaletteFxAreaListPointers(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 8; area++)
@@ -14,6 +16,7 @@ internal static class LookupPaletteFxAreasVerification
                 "Area-list identity preserves indexed-span bounds");
     }
 
+    /// <summary>Checks the full area/bit dispatch domain and gives area validation precedence on invalid pairs.</summary>
     internal static void VerifyPaletteFxAreaSelections(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 256; area++)

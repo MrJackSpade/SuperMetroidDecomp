@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using static HZoomerInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks installed HZoomer visual selectors and their compiled instruction-frame mapping.</summary>
 internal static class HZoomerArtworkVerification
 {
+    /// <summary>Compares each visual operand with the retail selector and rejects adjacent callback code as artwork.</summary>
     internal static void VerifyInstalledHZoomerInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

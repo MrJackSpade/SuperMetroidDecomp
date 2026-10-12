@@ -5,7 +5,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable compiled map characters from an indexed PNG, independent of any cartridge bus.</summary>
 public sealed class MapTileAtlas
 {
+    /// <summary>Owned SNES 4-bpp character bytes compiled from indexed PNG pixels.</summary>
     private readonly byte[] planar;
+    /// <summary>Retains an already compiled planar atlas for later VRAM transfers.</summary>
     private MapTileAtlas(byte[] planar) => this.planar = planar;
 
     /// <summary>Compiles a 256-by-64 noninterlaced indexed PNG into 256 row-major 8-by-8 SNES 4-bpp characters, requiring pixel indices 0..15; PNG palette RGB values do not determine the runtime display palette.</summary>

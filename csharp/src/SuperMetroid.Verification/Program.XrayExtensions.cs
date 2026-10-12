@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks X-ray reveal traversal through signed extension blocks and terminal block types.</summary>
 internal static class XrayExtensionsVerification
 {
+    /// <summary>Checks axis routing, byte arithmetic, blank exits, unsupported reveal types, and cycle detection.</summary>
     internal static void VerifyXrayExtensions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

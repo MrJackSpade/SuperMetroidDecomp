@@ -10,10 +10,14 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class RipperVariantEnemyState
 {
+    /// <summary>Native enemy variables C, D, and E for the current Ripper slot.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Per-slot exclusive left patrol thresholds used by GRipper.</summary>
     private readonly ushort[] _minimumXPositions;
+    /// <summary>Per-slot inclusive right patrol thresholds used by GRipper.</summary>
     private readonly ushort[] _maximumXPositions;
 
+    /// <summary>Binds a Ripper slot and the GRipper patrol-bound storage shared by the enemy system.</summary>
     internal RipperVariantEnemyState(
         RoomEnemySlot slot,
         ushort[] minimumXPositions,

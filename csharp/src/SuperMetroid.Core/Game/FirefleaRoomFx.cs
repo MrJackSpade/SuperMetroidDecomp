@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed-color producer for the Fireflea room's otherwise inert HDMA object.</summary>
 internal static class FirefleaRoomFx
 {
+    /// <summary>Seeds WRAM with the initial flash duration, first shade index, and undarkened room state.</summary>
     public static void Initialize(ISnesMemoryBus bus)
     {
         var fx = new FirefleaFxMemory(bus);
@@ -13,10 +14,9 @@ internal static class FirefleaRoomFx
         fx.Darkness = 0;
     }
 
+    /// <summary>Samples enemy-owned darkness, advances the WRAM flash clock unless frozen, and writes fixed color using native 16-bit shade addition, including the seventh offset value.</summary>
     public static void Step(ISnesMemoryBus bus, bool frozen, ushort darkness)
     {
-        // The enemy system owns deaths; the effect only samples that counter. WRAM
-        // owns the flashing phase so exact-state saves retain it without a second clock.
         var fx = new FirefleaFxMemory(bus);
         fx.Darkness = darkness;
         if (frozen) return;
@@ -35,10 +35,6 @@ internal static class FirefleaRoomFx
         }
         fx.Timer = timer;
 
-        // The cartridge permits darkness offset twelve, where it observes the adjacent
-        // opcode word rather than clamping to the six authored shade records. That exact
-        // seventh value is part of the compiled domain. Preserve the 16-bit addition
-        // before taking its high byte.
         ushort combined = unchecked((ushort)(
             FirefleaFxDefinitions.FlashingShade(index) +
             FirefleaFxDefinitions.DarknessShade(darkness)));

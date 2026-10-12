@@ -50,6 +50,7 @@ internal readonly record struct StationAccessPlmDefinition(
     ushort RetractedDrawPointer,
     ushort ExtendedDrawPointer)
 {
+    /// <summary>Selects the retracted or extended bank-$84 draw operand for this station side.</summary>
     internal ushort DrawPointer(bool extended) =>
         extended ? ExtendedDrawPointer : RetractedDrawPointer;
 }

@@ -2,16 +2,24 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks grey-door PLM control and presentation operands against native byte and overlapping-word views.</summary>
 internal static class LookupGreyProgramVerification
 {
+    /// <summary>Checks compiled control bytes across the four grey-door lists.</summary>
     internal static void VerifyGreyProgramControls(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 0);
+    /// <summary>Checks the four lists' native draw-pointer operands.</summary>
     internal static void VerifyGreyProgramDraws(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 1);
+    /// <summary>Checks native branch target operands in the grey-door lists.</summary>
     internal static void VerifyGreyProgramTargets(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 2);
+    /// <summary>Checks native sound operands in the grey-door lists.</summary>
     internal static void VerifyGreyProgramSounds(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 3);
+    /// <summary>Checks native hit-count operands in the grey-door lists.</summary>
     internal static void VerifyGreyProgramHitCount(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 4);
 
+    /// <summary>Checks native callback operands in the grey-door lists.</summary>
     internal static void VerifyGreyProgramCallback(SuperMetroidAddressSpace rom) => VerifyGreyProgramField(rom, 5);
 
+    /// <summary>Exhausts the address domain and compares selected fields in compiled and composed readers.</summary>
     private static void VerifyGreyProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.
@@ -57,6 +65,7 @@ internal static class LookupGreyProgramVerification
             "Grey program independent field byte count");
     }
 
+    /// <summary>Reads one native program byte solely as the grey-door verification oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grey program field")]
     private static byte GreyProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -43,6 +43,7 @@ public static class MotherBrainFallingTubeInstructionDefinitions
         return MotherBrainVisualDefinitions.TubeFrame(index).Pointer;
     }
 
+    /// <summary>Maps an even bank-$A9 word address to one of five six-byte tube lists and its duration, selector, or sleep field.</summary>
     private static (int Index, int Field) Locate(ushort address)
     {
         int offset = address - FirstList;

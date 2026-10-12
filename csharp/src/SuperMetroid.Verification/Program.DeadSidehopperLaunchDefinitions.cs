@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks dead Sidehopper launch words and post-landing timer transitions against native behavior.</summary>
 internal static class DeadSidehopperLaunchDefinitionsVerification
 {
+    /// <summary>Checks every phase and timer with the migrated velocity tables forbidden to production reads.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Sidehopper launch definitions")]
     internal static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {

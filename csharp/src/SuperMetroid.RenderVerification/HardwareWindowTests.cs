@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Compares native PPU window geometry and admission masks across software and GPU rendering.</summary>
 internal static class HardwareWindowTests
 {
+    /// <summary>Checks seeded window configurations after packet serialization against hardware-size frame readback.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

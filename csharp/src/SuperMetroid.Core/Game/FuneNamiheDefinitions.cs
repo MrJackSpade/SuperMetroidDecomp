@@ -10,7 +10,9 @@ internal static class FuneNamiheDefinitions
     /// <summary>$A8:96DF, Namihe idle-left selector cursor.</summary>
     internal const ushort NamiheIdleLeftCursor = 0x96df;
 
+    /// <summary>Native cursor distance from an active instruction selector to the idle selector of the same species and facing.</summary>
     internal const ushort ActiveCursorDelta = 4;
+    /// <summary>Native cursor distance between left- and right-facing selectors of one species and activity.</summary>
     internal const ushort FacingRightCursorDelta = 2;
 
     /// <summary>Sound effect $1F in library two, queued when either actor spits.</summary>

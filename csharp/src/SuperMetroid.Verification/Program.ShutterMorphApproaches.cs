@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using static RetailRuntimeFixtureVerification;
+/// <summary>Compares the reported morph-only bomb approach to a native-checked shutter trajectory.</summary>
 internal static class ShutterMorphApproachesVerification
 {
     /// <summary>
@@ -36,6 +37,7 @@ internal static class ShutterMorphApproachesVerification
         Console.WriteLine("143 native-checked shutter trajectory frames agree, including cartridge-permitted ceiling overlap.");
     }
 
+    /// <summary>Runs issue #347's 143-frame shutter approach reproduction from the verification command line.</summary>
     [VerificationCommand("--shutter-morph-repro")]
     internal static int ShutterMorphReproCommand()
     {

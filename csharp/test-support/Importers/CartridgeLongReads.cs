@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Hardware;
 [SnesEncodingOwner]
 internal static class CartridgeLongReads
 {
+    /// <summary>Adds a linear 24-bit pointer read to imported cartridge sources for verification oracles.</summary>
     extension(IImportCartridgeSource cartridge)
     {
         /// <summary>Reads the little-endian 24-bit cartridge value (a long pointer) at <paramref name="cpuAddress"/> on the linear bus.</summary>

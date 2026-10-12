@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// Selected glyph identities and cap arrangement specify the exact pictured Baby/container. Only that display design is retained; geometry derives, while pixels, palettes and timing remain separate.</summary>
 internal sealed class GameOverSpriteParts(string name) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces matching supplied Baby or container-cap geometry with the reviewed composition.</summary>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
     {
         bool shell = name == GameOverPresentationDefinitions.EggFrame;
@@ -21,7 +22,9 @@ internal sealed class GameOverSpriteParts(string name) : IReadOnlyList<CompiledS
     private const int OpenBabyTile = 0x9b;
     /// <summary>$82:CFE0: selected eight-pixel container-cap tile9A, reflected to form all four caps.</summary>
     private const int ContainerCapTile = 0x9a;
+    /// <summary>Selects the four-cap container arrangement instead of a single Baby pose.</summary>
     private bool Shell => name == GameOverPresentationDefinitions.EggFrame;
+    /// <summary>Selects the authored tile identity for the requested Baby pose or shared cap.</summary>
     private int Tile => name switch
     {
         "Baby.Closed" => ClosedBabyTile,
@@ -29,7 +32,9 @@ internal sealed class GameOverSpriteParts(string name) : IReadOnlyList<CompiledS
         "Baby.Open" => OpenBabyTile,
         _ => ContainerCapTile,
     };
+    /// <summary>The container has four reflected caps; each Baby pose has one large part.</summary>
     public int Count => Shell ? 4 : 1;
+    /// <summary>Places one reviewed Baby or reflected cap part at its native offset.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -47,9 +52,11 @@ internal sealed class GameOverSpriteParts(string name) : IReadOnlyList<CompiledS
                 SnesObjAttributeWord.Create(Tile, 0, 3, flips), true);
         }
     }
+    /// <summary>Yields the composition's parts in their authored OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same authored OAM parts to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

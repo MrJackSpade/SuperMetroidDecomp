@@ -28,6 +28,7 @@ internal static class NuclearWaffleDefinitions
     private const int TurnRadius = 0x40;
     /// <summary>$A6:95FE separates same-kind links by 24 angle units, with interleaved links halfway between.</summary>
     private const int SegmentPitch = 24;
+    /// <summary>Derives one of the two mirrored sweeps, including endpoints, link spacing, and turn thresholds.</summary>
     internal static NuclearWaffleSweepDefinition Sweep(byte direction)
     {
         if (direction >= 2)

@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Observational expanded-byte color addition over immutable scanline windows.</summary>
 internal static class SoftwareScanlineColorRenderer
 {
+    /// <summary>Adds each scanline window's RGB offsets with byte saturation while preserving pixel alpha outside and inside the windows.</summary>
     internal static void Composite(Span<Rgba32> pixels, ScanlineColorAddRenderLayer layer)
     {
         Ensure.LengthEqual(pixels, SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Builds sparse cartridge inputs for exact signed-sine table checks.</summary>
 internal static class SignedSineFixtureVerification
 {
     /// <summary>

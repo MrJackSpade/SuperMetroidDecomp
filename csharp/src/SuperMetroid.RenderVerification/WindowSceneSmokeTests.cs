@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Compares D3D11 and software windowed-scene rendering across native PPU geometry and brightness cases.</summary>
 internal static class WindowSceneSmokeTests
 {
+    /// <summary>Checks parent/child window pixels and exact upload counts, including clipped empty windows and a child reused twice.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -34,8 +36,6 @@ internal static class WindowSceneSmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");
             var after = renderer.UploadStatistics;
-            // Parent: memory + eight dispatch constants. Each nonempty window:
-            // child memory + five dispatch constants. The child is reused twice.
             int children = edges.Item1 == edges.Item3 || edges.Item2 == edges.Item4 ? 0 : 2;
             long expectedBytes = (1 + children) * D3D11ShaderLayout.PpuMemoryWords * sizeof(uint)
                 + (8 + children * 5) * D3D11ShaderLayout.SolidConstantWords * sizeof(uint);

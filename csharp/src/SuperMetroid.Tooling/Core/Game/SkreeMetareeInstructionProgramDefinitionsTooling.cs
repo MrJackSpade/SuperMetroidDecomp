@@ -8,9 +8,11 @@ internal abstract class SkreeMetareeInstructionProgramDefinitionsTooling : IDecl
 {
     /// <summary>Bank $A3, which holds both species' instruction programs.</summary>
     static int IDeclaredProgramBank.Bank => 0xa3;
-    // Idle 10, preparation 16/8, dive 2 and stop 1 holds are authored animation cadence (reviewed under #1165).
+    /// <summary>Twenty control words retain the authored holds: idle 10, preparation 16/8, dive 2, and stop 1.</summary>
     internal static int MechanicsWordCount() => 20;
+    /// <summary>Eleven visual operands cover idle, attack preparation, dive, and stopped poses.</summary>
     internal static int PresentationWordCount() => 11;
+    /// <summary>Maps one of eleven artwork slots to Skree or Metaree's corresponding native instruction address.</summary>
     internal static ushort PresentationWordAddress(bool metaree, int index)
     {
         if ((uint)index >= 11) throw new IndexOutOfRangeException();

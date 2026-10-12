@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the compiled intro Mother Brain input stream against its two bank-$91 source spans.</summary>
 internal static class IntroMotherBrainInputSourceVerification
 {
+    /// <summary>Compares every native byte and overlapping word and verifies both stream boundaries reject out-of-range reads.</summary>
     internal static void VerifyIntroMotherBrainInputSource(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0x8694, 0x86fe), (0x8784, 0x878a) })
@@ -23,6 +25,7 @@ internal static class IntroMotherBrainInputSourceVerification
         }
     }
 
+    /// <summary>Reads a native Mother Brain input byte only for the cartridge-oracle comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain input source")]
     private static byte IntroMotherBrainInputSourceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks a touching solid enemy during a zero-distance jump and the next hurt-pose radius update.</summary>
 internal static class ZeroDistanceJumpContactVerification
 {
+    /// <summary>Confirms tangency clears Y subposition without fabricating movement, then checks crouch-to-hurt radius timing.</summary>
     internal static void VerifyZeroDistanceJumpContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

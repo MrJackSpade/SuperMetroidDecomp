@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog
 {
+    /// <summary>Maps the respawn placeholder, cutscene actors, Torizo orbs, and Spore Spawn stalk to pinned bank-$A0 headers.</summary>
     private static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks Crocomire skeleton root identities, OAM record geometry, and exact bank-$A4 membership.</summary>
 internal static class CrocomireSkeletonFrameGeometryVerification
 {
+    /// <summary>Derives 33 selected skeleton roots from native instruction operands and checks component counts, strides, ordering, and rejected gaps.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton frame geometry")]
     internal static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {

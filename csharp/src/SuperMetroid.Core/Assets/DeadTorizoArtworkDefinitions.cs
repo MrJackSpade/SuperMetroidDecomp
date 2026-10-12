@@ -9,6 +9,7 @@ internal static class DeadTorizoArtworkDefinitions
     /// <summary>$A9:D761, the fixed corpse map drawn by the $A9:D39A hook.</summary>
     internal const ushort HookSpritemap = 0xd761;
 
+    /// <summary>Publishes the fixed hook corpse composition independently of the stationary instruction list.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         [new(SpritemapBank, HookSpritemap, "dead_torizo_corpse_a9_d761")];
 
@@ -20,9 +21,11 @@ internal static class DeadTorizoArtworkDefinitions
 
     // Appended separately from Frames() so version-53 visual overrides retain
     // the exact 1,008-frame prefix they originally authored.
+    /// <summary>Appends the stationary corpse after the original frame prefix to preserve older visual overrides.</summary>
     internal static EnemySpritemapDefinition[] StationaryFrames() =>
         [new(SpritemapBank, StationarySpritemap, "dead_torizo_stationary_a9_d6e2")];
 
+    /// <summary>Accepts the sole stationary-corpse visual operand and rejects other bank-$A9 words.</summary>
     internal static ushort StationaryFrameAt(ushort operandAddress) =>
         operandAddress == StationaryOperand
             ? StationarySpritemap

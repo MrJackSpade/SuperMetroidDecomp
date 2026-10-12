@@ -10,6 +10,7 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Retail room headers shared by slow-consumer audio and pause-capture checks.</summary>
 internal static class SlowConsumerFixture
 {
     /// <summary>Retail $8F:A3AE room header: room-local gameplay/pause fixture, matching portable capture tests.</summary>

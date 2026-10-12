@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the compiled intro caret program against its retail bank-$8B instruction slice.</summary>
 internal static class IntroCaretInstructionsVerification
 {
+    /// <summary>Compares bytes and overlapping words in $CBFB-$CC0E and rejects boundary-crossing words.</summary>
     internal static void VerifyIntroCaretInstructions(ISnesAddressSpace rom)
     {
         for (int pointer = 0xcbfb; pointer < 0xcc0f; pointer++)
@@ -24,6 +26,7 @@ internal static class IntroCaretInstructionsVerification
             "caret terminal byte cannot begin a word");
     }
 
+    /// <summary>Reads one cartridge byte only for the caret-program oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro caret instructions")]
     private static byte IntroCaretInstructionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

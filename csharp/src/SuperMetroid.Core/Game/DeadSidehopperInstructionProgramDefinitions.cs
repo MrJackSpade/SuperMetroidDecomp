@@ -29,6 +29,7 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions
     /// <summary>Native program bank $A9.</summary>
     internal const byte Bank = 0xa9;
 
+    /// <summary>Timed hop poses, end-hop and sleep opcodes, then the three static idle/corpse list entries.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecac),
         Entry(AliveHopping),
@@ -55,6 +56,7 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions
         Frame(1),
         Op((ushort)CommonEnemyInstruction.Sleep));
 
+    /// <summary>Returns a compiled bank-$A9 timing or control word while rejecting visual operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

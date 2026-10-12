@@ -33,6 +33,10 @@ internal static class RetailDoorHeaderCatalog
             yield return pointer;
     }
 
+    /// <summary>
+    /// Walks an inclusive bank-$83 door-header block using the native header size,
+    /// so intervening non-door records are never treated as headers.
+    /// </summary>
     private static IEnumerable<ushort> EnumerateRange(ushort start, ushort end)
     {
         for (int pointer = start; pointer <= end; pointer += CartridgeDoorHeader.SizeInBytes)

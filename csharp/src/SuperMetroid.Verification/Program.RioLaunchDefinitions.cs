@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Compares compiled Rio launch words and Norfair's random selector with the retail cartridge.</summary>
 internal static class RioLaunchDefinitionsVerification
 {
+    /// <summary>Checks five fixed velocities and all 65,536 random inputs for Norfair's two Y-launch words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Rio launches")]
     internal static void VerifyCompiledRioLaunches(SuperMetroidAddressSpace rom)
     {

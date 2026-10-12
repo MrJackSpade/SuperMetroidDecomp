@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// then continues down its first column. Shared OAM fields are calculated.</summary>
 internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses the calculated egg fragment or slime part only when it exactly matches the supplied OAM composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 11; frame++)
@@ -15,7 +16,9 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
                 return supplied.CalculateIfMatching(new IntroEggEffectParts(frame));
         return supplied;
     }
+    /// <summary>Each egg fragment or slime frame contains one centered eight-pixel OBJ part.</summary>
     public int Count => 1;
+    /// <summary>Selects a shell-fragment or slime tile by frame and centers its sprite four pixels about the origin.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -32,10 +35,13 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Yields the sole centered effect part.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
+    /// <summary>Shares the one-part sequence with non-generic OAM consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Tile origins of the native shell-fragment patch and slime row in the intro egg effects sheet.</summary>
 internal static class IntroEggEffectAtlas
 {
     /// <summary>Tile$105, upper-left of the two-column shell-fragment patch.</summary>

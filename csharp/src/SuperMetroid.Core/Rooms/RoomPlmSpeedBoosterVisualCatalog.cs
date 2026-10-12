@@ -17,6 +17,10 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmSpeedBoosterVisualCatalog),
         content => content.Append("visual word", visualWord));
 
+    /// <summary>
+    /// Captured bomb-reveal metatile and flip bits; collision type and PLM timing
+    /// continue to come from the compiled Speed Booster definition.
+    /// </summary>
     private readonly ushort visualWord;
 
     /// <summary>Validates and captures the single bomb-reveal appearance while preserving compiled Speed Booster collision and timing.</summary>

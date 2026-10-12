@@ -7,7 +7,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal interface IRoomEnemyFixtureSource
 {
+    /// <summary>Reads a constructed enemy definition instead of consulting the pinned retail catalog.</summary>
     RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer);
+    /// <summary>Reads the constructed room's population by its fixture pointer.</summary>
     RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer);
+    /// <summary>Reads the constructed room's graphics set by its fixture pointer.</summary>
     RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer);
 }

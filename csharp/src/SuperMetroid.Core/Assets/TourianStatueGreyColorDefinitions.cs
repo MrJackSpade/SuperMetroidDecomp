@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class TourianStatueGreyColorDefinitions
 {
+    /// <summary>Maps an aligned interior palette FX operand to its grey-out frame and color index.</summary>
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         frame = color = 0;
@@ -45,6 +46,7 @@ internal static class TourianStatueGreyColorDefinitions
         return true;
     }
 
+    /// <summary>Interpolates one RGB5 channel toward the supplied final shade with nearest-seventh rounding.</summary>
     private static int Channel(int first, int last, int frame)
     {
         int delta = last - first;

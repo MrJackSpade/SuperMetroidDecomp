@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CompiledDynamicCollectibleGraphicsVerification;
 
+/// <summary>Checks every collectible's generated palette offsets against native upload programs.</summary>
 internal static class LookupDynamicCollectiblePalettesVerification
 {
+    /// <summary>Checks 17 kinds, three header families, eight tiles each, and invalid kind or tile indexes.</summary>
     internal static void VerifyDynamicCollectiblePaletteSelectors(SuperMetroidAddressSpace rom)
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();
@@ -36,6 +38,7 @@ internal static class LookupDynamicCollectiblePalettesVerification
         }
     }
 
+    /// <summary>Reads a bank-$84 palette byte from the retail collectible upload program.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible palette selectors")]
     private static byte DynamicCollectiblePaletteSelectorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

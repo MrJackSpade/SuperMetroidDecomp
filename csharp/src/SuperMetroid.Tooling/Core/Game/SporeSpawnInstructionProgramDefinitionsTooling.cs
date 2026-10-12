@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(SporeSpawnInstructionProgramDefinitions))]
 internal abstract class SporeSpawnInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
+    /// <summary>Directs the audit to bank $A5, where Spore Spawn's five native programs reside.</summary>
     static int IDeclaredProgramBank.Bank => SporeSpawnInstructionProgramDefinitions.Bank;
+    /// <summary>Counts compiled control words across the five programs, excluding live spritemap operands.</summary>
     public static int MechanicsWordCount => SporeSpawnInstructionProgramDefinitions.Layout.MechanicsWordCount;
     /// <summary>Number of interleaved presentation words, compiled separately for installed play.</summary>
     public static int PresentationWordCount => SporeSpawnInstructionProgramDefinitions.Layout.PresentationSlotCount;

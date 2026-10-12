@@ -3,6 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>
+/// Writes terminated enemy-population and graphics-set records into synthetic cartridge
+/// memory so production parsers can be verified against native record layouts.
+/// </summary>
 internal static class SyntheticEnemyCartridgeFixturesVerification
 {
     /// <summary>

@@ -27,6 +27,8 @@ internal sealed class BeamChargeState
     /// </summary>
     public ushort SamusChargePaletteIndex { get; internal set; }
 
+    /// <summary>Current animation frame for each of the three flare components.</summary>
     internal readonly ushort[] _flareFrames = new ushort[3];
+    /// <summary>Countdown to each flare component's next authored frame.</summary>
     internal readonly ushort[] _flareTimers = new ushort[3];
 }

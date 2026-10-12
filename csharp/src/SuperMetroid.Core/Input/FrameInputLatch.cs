@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Input;
 /// </summary>
 public sealed class FrameInputLatch
 {
+    /// <summary>Guards producer contributions and the simulation sample as one atomic state change.</summary>
     private readonly Lock gate = new();
+    /// <summary>Independent physical key or axis contributions keyed by producer identity.</summary>
     private readonly Dictionary<int, SnesButton> sources = [];
+    /// <summary>Combined buttons currently held by at least one producer.</summary>
     private SnesButton held;
+    /// <summary>Edges accumulated since the previous simulation sample, including completed taps.</summary>
     private SnesButton pressed;
 
     /// <summary>Each physical key/axis producer owns an independent contribution.</summary>

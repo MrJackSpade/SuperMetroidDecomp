@@ -50,6 +50,7 @@ internal static class SamusVerticalMotionDefinitions
         _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
     });
 
+    /// <summary>Splits a native 8.8 launch magnitude into the separate whole and 16.16 fractional words Samus stores.</summary>
     private static (ushort Whole, ushort Fraction) SplitSpeed(int speed) =>
         ((ushort)SnesEightEight.WholeOf(speed), (ushort)SnesSixteenSixteen.FractionOf(SnesSixteenSixteen.FromEightEight(speed)));
 }

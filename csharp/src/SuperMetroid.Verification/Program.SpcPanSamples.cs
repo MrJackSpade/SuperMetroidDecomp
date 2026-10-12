@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the SPC pan interpolation table's boundary against the adjacent FIR preset.</summary>
 internal static class SpcPanSamplesVerification
 {
+    /// <summary>Compares native bytes, verifies the 21-sample bound, and rejects out-of-range pan indexes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan samples")]
     internal static void VerifySpcPanSamples(ISnesAddressSpace rom)
     {

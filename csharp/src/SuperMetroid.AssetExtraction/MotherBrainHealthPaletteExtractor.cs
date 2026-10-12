@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$AD damage palette pointer pairs → Mother Brain health palettes")]
 internal static class MotherBrainHealthPaletteExtractor
 {
+    /// <summary>Follows body and back-leg state pointers, decodes each BGR555 color, and writes the installed JSON document.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

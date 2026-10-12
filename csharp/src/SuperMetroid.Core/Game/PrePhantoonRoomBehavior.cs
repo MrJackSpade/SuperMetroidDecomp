@@ -3,9 +3,12 @@
 /// <summary>The pre-Phantoon room species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PrePhantoonRoomBehavior
 {
+    /// <summary>Checks that the room is loaded before setup allocates its projectile.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Shared pool that owns the room effect projectile and its pre-instruction.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Connects the room effect to its loaded-room guard and projectile pool.</summary>
     internal PrePhantoonRoomBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -16,6 +19,7 @@ internal sealed class PrePhantoonRoomBehavior
     [NonSerialized]
     internal BackgroundScrollState? _enemyProjectileBackgroundScroll;
 
+    /// <summary>Requires the current projectile pass's background scroll state before the pre-instruction writes BG2.</summary>
     internal BackgroundScrollState RequireEnemyProjectileBackgroundScroll() =>
         _enemyProjectileBackgroundScroll ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile requires the runtime's background scroll words.");
@@ -34,6 +38,7 @@ internal sealed class PrePhantoonRoomBehavior
         backgroundScroll.Bg2Offset = backgroundScroll.Bg2Offset.WithY(0);
     }
 
+    /// <summary>Registers the projectile pre-instruction that pins the runtime BG2 Y offset to zero.</summary>
     internal void RegisterPrePhantoonRoomProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>

@@ -3,11 +3,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks the six ordinary layer-3 FX pages and Tourian statue source against retail pointer tables.</summary>
 internal static class LookupFxTilemapSourcesVerification
 {
+    /// <summary>Native page order before the separately selected Tourian entrance statue tilemap.</summary>
     internal static readonly RoomFxType[] OriginalFxTilemapTypes =
         [RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Spores, RoomFxType.Rain, RoomFxType.Fog];
 
+    /// <summary>Checks the six-page iteration order and rejects indexes outside the typed view.</summary>
     internal static void VerifyFxTilemapTypeEnumeration()
     {
         AssertEqual(OriginalFxTilemapTypes.Length, RoomFxLayer3TilemapFormat.Types.Count, "Original page type count");
@@ -19,6 +22,7 @@ internal static class LookupFxTilemapSourcesVerification
                 "Original read-only type list bounds");
     }
 
+    /// <summary>Compares the seven admitted bank-$8A source addresses and rejects all other 16-bit FX identities.</summary>
     internal static void VerifyFxTilemapSourceAddresses(ISnesAddressSpace rom)
     {
         var original = OriginalFxTilemapTypes.ToDictionary(type => type,

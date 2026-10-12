@@ -15,6 +15,7 @@ internal static class IntroRinkaInstructionDefinitions
     /// <summary>$8B:CE1B, exclusive end after the spawner's delete opcode.</summary>
     internal const ushort EndPointer = 0xce1b;
 
+    /// <summary>Reconstructs the three expanding poses, movement pulse, loop, and invisible two-pair spawner control words.</summary>
     private static ushort ProgramWord(int word)
     {
         if (word < 6)
@@ -40,6 +41,7 @@ internal static class IntroRinkaInstructionDefinitions
         };
     }
 
+    /// <summary>Reads either byte of an authored bank-$8B instruction word, including overlapping native byte windows.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -48,6 +50,7 @@ internal static class IntroRinkaInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>Reads an aligned or overlapping little-endian instruction word without crossing the compiled program's end.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is < StartPointer or >= (EndPointer - 1))

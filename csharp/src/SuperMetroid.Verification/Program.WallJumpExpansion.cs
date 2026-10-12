@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks wall-jump collision expansion against ceiling contact and preserved spin radius.</summary>
 internal static class WallJumpExpansionVerification
 {
+    /// <summary>Exercises both facings with and without a ceiling, including center correction and fractional Y.</summary>
     internal static void VerifyWallJumpExpansion(ISnesAddressSpace bus)
     {
         foreach (bool ceiling in new[] { false, true })

@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the native source addresses and extents used by Kraid's installed palettes.</summary>
 internal static class KraidPaletteDefinitionsVerification
 {
+    /// <summary>Reads five indexed-load operands from bank $A7 and confirms each compiled Kraid palette source address and invalid-identity rejection.</summary>
     internal static void VerifyKraidPaletteSourceAddresses(SuperMetroidAddressSpace rom)
     {
         (KraidPaletteSource Source, int Instruction)[] nativeLoads =
@@ -25,13 +27,13 @@ internal static class KraidPaletteDefinitionsVerification
                 "Unknown palette address source rejected");
     }
 
+    /// <summary>Reads a byte of retail bank-$A7 code solely for the source-address oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid palette source addresses")]
     private static byte KraidPaletteSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Uses adjacent bank-$A7 symbol boundaries to check complete backdrop, target, health, secondary, and death-arm palette lengths.</summary>
     internal static void VerifyKraidPaletteSourceLengths()
     {
-        // Independent bank_A7 symbol extents: next definition starts immediately
-        // after each complete source. Health sources include flash plus eight bands.
         (KraidPaletteSource Source, int Start, int End)[] extents =
         [
             (KraidPaletteSource.RoomBackdrop, 0x86c7, 0x86e7),

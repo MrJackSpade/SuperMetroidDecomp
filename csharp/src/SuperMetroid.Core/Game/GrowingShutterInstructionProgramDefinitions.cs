@@ -18,12 +18,14 @@ internal abstract class GrowingShutterInstructionProgramDefinitions
     /// <summary><c>InstructionList_ShutterGrowing_40px</c> at $A2:E9AA.</summary>
     internal const ushort FortyPixels = 0xe9aa;
 
+    /// <summary>Recognizes the spritemap operand two bytes into each six-byte height program.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (TenPixels + 2);
         return (uint)offset < 24 && offset % 6 == 0;
     }
 
+    /// <summary>Reads each height's one-tick hold and terminal sleep, rejecting visual operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - TenPixels;

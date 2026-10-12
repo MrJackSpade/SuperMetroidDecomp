@@ -5,6 +5,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>F455–F4E0 cloud pre-instructions, including the one-call activation handoff.</summary>
 internal static class EndingCloudMotion
 {
+    /// <summary>
+    /// Activates side clouds above the zoom threshold and top/bottom clouds below the scene-B
+    /// limit. Movement begins on the next call; active side clouds move diagonally while
+    /// top and bottom clouds move vertically without retesting zoom.
+    /// </summary>
     public static void Step(EndingSprite wrapper, ushort scale)
     {
         bool side = wrapper.Role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB

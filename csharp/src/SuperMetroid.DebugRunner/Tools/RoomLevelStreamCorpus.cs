@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Writes the pinned cartridge's decoded room-level streams as immutable engine baseline data.</summary>
 internal static class RoomLevelStreamCorpus
 {
     /// <summary>

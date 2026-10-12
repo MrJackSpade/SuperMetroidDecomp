@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// Stock glyph identities and native part order specify the selected missile drawings. Only this display design is retained; atlas/centering relationships calculate and supplied edits remain independent. Pixels, colors and timing are excluded.</summary>
 internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses the native two-part missile geometry only for the four stock cursor identities; other or edited compositions retain their supplied layout.</summary>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
     {
         if (name is not ("Cursor.0" or "Cursor.1" or "Cursor.2" or "Cursor.3") || supplied.PartCount != 2)
@@ -30,7 +31,9 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
     private const int ThirdRightTile = 0xcc;
     /// <summary>$82:CBEF: final missile pose left tileC8; native part order is left then right.</summary>
     private const int FinalLeftTile = 0xc8;
+    /// <summary>Each selection missile pose uses two eight-pixel OBJ parts.</summary>
     public int Count => 2;
+    /// <summary>Calculates the left or right tile and centered offset for one native missile pose, honoring its frame-specific part order.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -43,9 +46,11 @@ internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpriteP
                 SnesObjAttributeWord.Create(left ? leftTile : rightTile, 0, 3, SnesTileFlipFlags.None), true);
         }
     }
+    /// <summary>Yields both missile parts in the native order for the selected pose.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same two native parts through the non-generic collection interface.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

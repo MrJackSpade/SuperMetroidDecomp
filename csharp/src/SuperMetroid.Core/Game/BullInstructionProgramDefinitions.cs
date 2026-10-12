@@ -13,6 +13,7 @@ internal abstract class BullInstructionProgramDefinitions
     /// <summary><c>InstList_Bull_Shot_1</c> at $A8:D859.</summary>
     internal const ushort ShotLoop = 0xd859;
 
+    /// <summary>Normal and shot programs contribute sixteen duration, timer, and branch words.</summary>
     public static int MechanicsWordCount => 16;
 
     /// <summary>Normal loops four ten-frame drawings; shot loops four three-frame drawings five times and returns to normal.</summary>
@@ -34,11 +35,13 @@ internal abstract class BullInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Recognizes the interleaved frame operands in the normal and shot loops.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (address < ShotLoop ? Normal + 2 : ShotLoop + 2);
         return (uint)offset < 16 && offset % 4 == 0;
     }
+    /// <summary>Reads only compiled Bull control words and rejects other bank-$A8 addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

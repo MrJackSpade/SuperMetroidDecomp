@@ -2,14 +2,18 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 
+/// <summary>Checks complete ownership and cartridge values of Crocomire arena PLM program words.</summary>
 internal static class LookupCrocomireProgramsVerification
 {
+    /// <summary>Compares ten native control addresses with the compiled Crocomire PLM reader.</summary>
     internal static void VerifyCrocomireProgramControls(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, false));
 
+    /// <summary>Compares five native draw operands with the compiled Crocomire PLM reader.</summary>
     internal static void VerifyCrocomireProgramDraws(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, true));
 
+    /// <summary>Checks owned and unowned bank-$84 addresses, then compares the selected field kind with retail bytes.</summary>
     private static void VerifyCrocomireProgramField(ISnesAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xafca, 0xafce, 0xafd0, 0xafd4, 0xafd6, 0xafda, 0xafdc, 0xafe0, 0xafe2, 0xafe6];
@@ -33,6 +37,7 @@ internal static class LookupCrocomireProgramsVerification
         }
     }
 
+    /// <summary>Reads one retail bank-$84 byte for the exact Crocomire program oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire program field")]
     private static byte CrocomireProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

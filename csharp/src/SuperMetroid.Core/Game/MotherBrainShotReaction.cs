@@ -9,6 +9,7 @@ internal readonly record struct MotherBrainShotReactionResult(ushort WalkCounter
 /// </summary>
 internal static class MotherBrainShotReaction
 {
+    /// <summary>Updates phase-two/three walk credit after a shot and signals recoil only on form-four Hyper Beam underflow.</summary>
     public static MotherBrainShotReactionResult Resolve(
         ushort form,
         MotherBrainProjectileType projectileType,

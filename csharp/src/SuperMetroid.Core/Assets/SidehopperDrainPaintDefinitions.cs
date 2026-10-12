@@ -18,6 +18,7 @@ internal static class SidehopperDrainPaintDefinitions
     /// <summary>$A9:EC8C is the seventh separately selected corpse-prefix image.</summary>
     private const int CorpseFrame = 6;
 
+    /// <summary>Checks all seven 15-color drain images against the reviewed interpolation and corpse prefix.</summary>
     internal static bool Matches(Bgr555[][] frames)
     {
         for (int frame = 0; frame <= CorpseFrame; frame++)
@@ -26,6 +27,7 @@ internal static class SidehopperDrainPaintDefinitions
         return true;
     }
 
+    /// <summary>Interpolates one of six alive images toward its selected endpoint, then uses corpse paint for frame six.</summary>
     internal static Bgr555 Color(int frame, int color)
     {
         if ((uint)frame > CorpseFrame || (uint)color >= 15) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -34,6 +36,7 @@ internal static class SidehopperDrainPaintDefinitions
         return start.Zip(end, (_, a, b) => ((a * (DrainIntervals - frame) + b * frame + DrainIntervals / 2) / DrainIntervals));
     }
 
+    /// <summary>Selects the unchanged clear slot, shifted drain shades, or mapped corpse colors for a channel endpoint.</summary>
     private static Bgr555 Endpoint(int color) => color switch
     {
         0 => SidehopperInitialPaintDefinitions.Color(0),

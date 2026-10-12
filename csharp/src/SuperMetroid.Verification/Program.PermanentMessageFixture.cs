@@ -3,8 +3,10 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
+/// <summary>Builds a persistent message fixture with altered title, panel, and notice artwork.</summary>
 internal static class PermanentMessageFixtureVerification
 {
+    /// <summary>Loads installed message documents, changes their border and sample content, and binds all three presentations.</summary>
     internal static GameplayMessageBoxState CreatePermanentMessageFixture()
     {
         string directory = RepositoryInstallation.Installation.MapDirectory;

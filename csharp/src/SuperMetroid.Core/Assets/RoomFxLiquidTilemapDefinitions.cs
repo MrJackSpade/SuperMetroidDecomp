@@ -53,6 +53,7 @@ public static class RoomFxLiquidTilemapDefinitions
         return true;
     }
 
+    /// <summary>Restricts calculated BG3 page layouts to lava, acid, and water effects.</summary>
     private static void ValidateType(RoomFxType type)
     {
         if (type is not (RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water))

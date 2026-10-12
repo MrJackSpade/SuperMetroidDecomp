@@ -17,8 +17,10 @@ using static KraidInstalledPresentationResourcesVerification;
 using static KraidInstalledPresentationTailVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks that extracted Kraid artwork supports the installed room background, head, and HUD presentation paths.</summary>
 internal static class KraidInstalledPresentationVerification
 {
+    /// <summary>Validates the working map, stock artwork, background, control oracle, live head aliases, and required files as one Kraid presentation suite.</summary>
     internal static void VerifyKraidInstalledPresentation()
     {
         Suite(nameof(VerifyKraidWorkingMapTail), () => VerifyKraidWorkingMapTail());
@@ -36,6 +38,7 @@ internal static class KraidInstalledPresentationVerification
         Console.WriteLine("PASS installed Kraid maps, head frames, room characters and HUD restoration.");
     }
 
+    /// <summary>Runs the installed Kraid presentation suite from the verification command line.</summary>
     [VerificationCommand("--kraid-installed-presentation")]
     internal static int KraidInstalledPresentationCommand()
     {

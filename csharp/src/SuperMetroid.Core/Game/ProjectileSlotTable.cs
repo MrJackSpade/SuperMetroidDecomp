@@ -14,8 +14,10 @@ internal sealed class ProjectileSlotTable
     // tables as eight-byte animation records: the first bogus "spritemap" was the real
     // list pointer, producing unrelated OBJ fragments, and no delete opcode was reached.
 
+    /// <summary>Five indexed slots for live Samus shots; their occupancy does not replace the cartridge projectile counter.</summary>
     internal readonly SamusProjectileSlot[] _slots =
         Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(index => new SamusProjectileSlot(index)).ToArray();
+    /// <summary>Eighteen independently indexed slots for the trails emitted by ordinary projectiles.</summary>
     internal readonly SamusProjectileTrailSlot[] _trailSlots =
         Enumerable.Range(0, SamusProjectileSystem.TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 

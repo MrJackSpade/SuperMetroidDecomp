@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 
+/// <summary>Derives the compiled visual identities selected by Golden Torizo's right-orb instruction program.</summary>
 internal static class GoldenTorizoRightOrbFramesVerification
 {
     /// <summary>

@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Bank-$8B/$8C definitions for the rescued animals' escape pod ($EF21).</summary>
 internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePresentation
 {
+    /// <summary>Shared presenter for the rescue pod's four bank-$8C spritemaps.</summary>
     internal static readonly EndingAnimalEscapeDefinitions Presentation = new();
     /// <summary>$8B:DD98 tests event $0F, then $DDA7 forces native byte slot $04.</summary>
     internal const int NativeSlot = 2;
@@ -26,14 +27,19 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     internal const ushort InstructionStart = 0xecd9;
     /// <summary>$8C:BC41-BC56 defines four single-small-OBJ frames, centered at (-4,-4).</summary>
     private const ushort FrameStart = 0xbc41;
+    /// <summary>Each native pod spritemap record occupies a count word and one five-byte OAM part.</summary>
     private const ushort FrameStride = 7;
+    /// <summary>The escape pod cycles through four one-frame OAM compositions.</summary>
     private const int FrameCount = 4;
+    /// <summary>Centers the eight-pixel pod sprite four pixels left and above its actor origin.</summary>
     private const ushort SpriteOffset = 4;
     /// <summary>$8C:BC43 starts the priority-three, palette-seven pod tiles $1E0-$1E3.</summary>
     private const ushort FirstAttributes = 0x3fe0;
+    /// <summary>Four one-frame poses followed by an unconditional jump to the first pose.</summary>
     private static ReadOnlySpan<ushort> Program =>
         [1, 0xbc41, 1, 0xbc48, 1, 0xbc4f, 1, 0xbc56, 0x94bc, InstructionStart];
 
+    /// <summary>Reads an aligned word from the compiled escape-pod instruction loop.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         int offset = pointer - InstructionStart;
@@ -42,6 +48,7 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
         return Program[offset / 2];
     }
 
+    /// <summary>Draws the selected one-part pod frame centered on the actor using its authored attributes.</summary>
     public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
     {
         int offset = pointer - FrameStart;

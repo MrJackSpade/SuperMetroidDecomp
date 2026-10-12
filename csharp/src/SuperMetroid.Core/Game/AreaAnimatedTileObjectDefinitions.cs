@@ -31,6 +31,7 @@ internal static class AreaAnimatedTileObjectDefinitions
             : AnimatedTileObject.Empty,
     };
 
+    /// <summary>Maps the area-specific FX bits after the shared horizontal and vertical spike selectors.</summary>
     private static AnimatedTileObject SelectAreaObject(AreaId area, int bit) => (area, bit) switch
     {
         (AreaId.Crateria, 2) => AnimatedTileObject.CrateriaLake,

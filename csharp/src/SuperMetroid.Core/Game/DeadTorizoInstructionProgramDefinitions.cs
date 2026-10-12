@@ -17,6 +17,7 @@ internal abstract class DeadTorizoInstructionProgramDefinitions
     /// <summary>Native program bank $A9.</summary>
     internal const byte Bank = 0xa9;
 
+    /// <summary>The corpse's one-tick stationary hold followed by the common sleep instruction.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd6dc),
         Entry(Stationary),
@@ -25,6 +26,7 @@ internal abstract class DeadTorizoInstructionProgramDefinitions
         Entry(SleepOpcode),
         Op((ushort)CommonEnemyInstruction.Sleep));
 
+    /// <summary>Reads one compiled corpse control word and rejects addresses outside the stationary layout.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

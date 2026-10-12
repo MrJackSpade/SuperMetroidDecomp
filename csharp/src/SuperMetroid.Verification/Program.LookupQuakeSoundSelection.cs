@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks statue earthquake sound ordering and loop restart against the native bank-$88 list.</summary>
 internal static class LookupQuakeSoundSelectionVerification
 {
+    /// <summary>Compares all eight rumble IDs, the reset marker, library-two queue limit, and sequence index after each emission.</summary>
     internal static void VerifyQuakeSoundSelection(ISnesAddressSpace rom)
     {
         int count = 0;

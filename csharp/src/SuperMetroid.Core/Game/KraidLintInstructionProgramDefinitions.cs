@@ -12,7 +12,9 @@ internal abstract class KraidLintInstructionProgramDefinitions
     /// <summary><c>kKraid_Ilist_8B04</c> at $A7:8B04.</summary>
     internal const ushort PostGrowth = 0x8b04;
 
+    /// <summary>Duration and sleep words for both Kraid lint poses.</summary>
     public static int MechanicsWordCount => 4;
+    /// <summary>One spritemap operand in each of the initial and post-growth lists.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>Two six-byte poses each contain duration, visual operand and Sleep.
@@ -31,6 +33,7 @@ internal abstract class KraidLintInstructionProgramDefinitions
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + 6 * index + 2);
     }
+    /// <summary>Returns a compiled wait or sleep at its bank-$A7 address and rejects the two spritemap operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

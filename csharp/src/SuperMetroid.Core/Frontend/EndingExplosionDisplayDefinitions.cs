@@ -1,5 +1,6 @@
 namespace SuperMetroid.Core.Frontend;
 
+/// <summary>SNES background map and scanout settings used across the ending explosion's display phases.</summary>
 internal static class EndingExplosionDisplayDefinitions
 {
     /// <summary>Native visible scanout begins at physical line one. With BG VOFS=0, the first displayed BG row is source row one, while OBJ remains screen-relative.</summary>

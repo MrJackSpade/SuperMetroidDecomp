@@ -20,10 +20,14 @@ internal static class IntroScientistSpriteDefinitions
         return (ushort)(Start + arrows * 12 + delivered * 32 + single * 7);
     }
 
+    /// <summary>Ordered view of ten scientist records, retaining their published asset names and part counts.</summary>
     internal static IReadOnlyList<IntroScientistSpriteFrameDefinition> Frames { get; } = new FrameList();
+    /// <summary>Calculates frame metadata from native record sizes without storing a second frame table.</summary>
     private sealed class FrameList : IReadOnlyList<IntroScientistSpriteFrameDefinition>
     {
+        /// <summary>Three arrows, three delivery poses, three examination poses, and a final caret.</summary>
         public int Count => 10;
+        /// <summary>Pairs a bounded native pointer with its installed key and original OAM part count.</summary>
         public IntroScientistSpriteFrameDefinition this[int index]
         {
             get
@@ -35,12 +39,15 @@ internal static class IntroScientistSpriteDefinitions
                 return new(pointer, name, index < 3 ? 2 : index < 6 ? 6 : 1);
             }
         }
+        /// <summary>Yields the ten records in native pointer order.</summary>
         public IEnumerator<IntroScientistSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Uses the same ordered record view for non-generic callers.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
+/// <summary>Native pointer, installed key, and stock OAM part count for an intro scientist pose.</summary>
 internal readonly record struct IntroScientistSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

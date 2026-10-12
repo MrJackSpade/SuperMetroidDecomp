@@ -12,11 +12,14 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
     /// order: body, inner rays, middle rays, outer rays.</summary>
     private static readonly (int RightTile, int Top)[] Rows = [(0xbe, 0), (0xe6, -16), (0xd6, -24), (0xb6, -40)];
 
+    /// <summary>Uses the calculated silhouette only when the selected pose and all supplied OAM parts match it exactly.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Silhouette)
             ? supplied.CalculateIfMatching(new EndingExplosionSilhouetteParts()) : supplied;
 
+    /// <summary>Four tip/body pieces followed by four rows of four streaked tiles.</summary>
     public int Count => 20;
+    /// <summary>Places a lower-body piece or reorders one atlas row right-to-left at the native silhouette coordinates.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -39,9 +42,11 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
                 SnesObjAttributeWord.Create(tile, 0, 3), true);
         }
     }
+    /// <summary>Yields the twenty silhouette pieces in native draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Preserves silhouette draw order for non-generic composition consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

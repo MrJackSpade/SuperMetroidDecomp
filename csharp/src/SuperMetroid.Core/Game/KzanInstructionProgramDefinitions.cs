@@ -9,6 +9,7 @@ internal abstract class KzanInstructionProgramDefinitions
     /// <summary><c>InstList_Kzan</c> at $A6:8B29.</summary>
     internal const ushort Idle = 0x8b29;
 
+    /// <summary>Decodes only the idle frame's one-tick delay and its following sleep command; other addresses are not compiled.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => address switch
     {
         Idle => 1,

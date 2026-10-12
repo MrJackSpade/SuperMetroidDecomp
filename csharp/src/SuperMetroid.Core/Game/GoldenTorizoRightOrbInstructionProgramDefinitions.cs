@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
 {
+    /// <summary>Entry at $AA:CC99 for Golden Torizo's right-foot-forward orb attack.</summary>
     internal const ushort Start = 0xcc99;
 
     /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_RightFootFwd_1</c> at $AA:CCB9.</summary>
@@ -21,6 +22,7 @@ internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Attack callback, ten timed poses, six-shot loop, movement handoff, and return in native execution order.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc99),
         Entry(Start),
@@ -42,6 +44,8 @@ internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
         Frame(3),
         Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
+    /// <summary>Ten spritemap operands interleaved with the compiled orb-attack mechanics.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Finds one bank-$AA visual operand without exposing a mechanics word as editable art.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

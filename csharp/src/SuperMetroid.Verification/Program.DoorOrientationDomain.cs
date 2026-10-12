@@ -2,6 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 
+/// <summary>
+/// Confirms that door orientation bytes decode as a closed direction and closing-behavior
+/// domain, while elevator pseudo-doors remain separate door-list entries.
+/// </summary>
 internal static class DoorOrientationDomainVerification
 {
     /// <summary>

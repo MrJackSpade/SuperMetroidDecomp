@@ -13,6 +13,7 @@ internal static class EndingCloudInstructionDefinitions
     internal const ushort Start = 0xeced;
     /// <summary>$8B:ED1D, exclusive end after the sixth cloud list.</summary>
     internal const ushort End = 0xed1d;
+    /// <summary>Four instruction words per cloud: duration, frame, goto, and loop address.</summary>
     private const int ListBytes = 8;
 
     /// <summary>Reads only the complete words belonging to these six bounded lists.</summary>

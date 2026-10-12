@@ -32,6 +32,7 @@ internal static class EndingShootingStarDefinitions
         new(new(-12, -16), 4, 8), new(new(-8, -4), 32, 0), new(new(-3, -6), 32, 0), new(new(-7, -8), 32, 0),
         new(new(-2, -3), 0x0f00, 0), new(new(-4, -4), 0x0f00, 0), new(new(-8, -2), 0x0f00, 0), new(new(-8, -4), 0x0f00, 0)
     ];
+    /// <summary>Exposes the forty native $8B:E9CF star records in order for initialization and motion updates.</summary>
     internal static ReadOnlySpan<EndingShootingStarDefinition> Records => records;
     /// <summary>$8B:E9A7 / Handle_ShootingStars.tilemapValues: small OBJ tile/attribute words.</summary>
     internal static ReadOnlySpan<ushort> Attributes => [

@@ -3,11 +3,15 @@
 /// <summary>The old Tourian escape-shaft wall species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class OldTourianEscapeShaftWallBehavior
 {
+    /// <summary>Loaded-room dependency required before the wall controller can spawn its explosion.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Native-equivalent eighteen-slot enemy projectile allocator for the wall explosion.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Enemy sound queue used by the wall explosion's bank-$86 instruction.</summary>
     private readonly EnemyAudioQueue _audio;
 
+    /// <summary>Binds room, projectile, and audio owners needed by the old Tourian fake-wall controller.</summary>
     internal OldTourianEscapeShaftWallBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -39,6 +43,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     }
 
 
+    /// <summary>Registers the wall explosion's library-two sound opcode only for the owned projectile kind, then advances its cursor.</summary>
     internal void RegisterWallExplosionSoundInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, projectile => OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind),

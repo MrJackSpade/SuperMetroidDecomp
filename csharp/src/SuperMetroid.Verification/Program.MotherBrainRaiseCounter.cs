@@ -12,12 +12,13 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks which native frame counter gates Mother Brain's fake-death ascent.</summary>
 internal static class MotherBrainRaiseCounterVerification
 {
-    // #1269: Function_MotherBrainBody_FakeDeath_Ascent_RaiseMotherBrain ($A9:8E4D) raises
-    // Mother Brain only when NMI_FrameCounter ($05B6) & 3 is zero. The port gated on the
-    // separate 8-bit $05B5, which is not aligned with it: in the 100% movie the ascent began
-    // one update early, at $05B5=$68 rather than $05B6=$200.
+    /// <summary>
+    /// Confirms $A9:8E4D raises Mother Brain only when $05B6 is divisible by four.
+    /// Issue #1269 exposed an early ascent from gating on unrelated eight-bit $05B5.
+    /// </summary>
     internal static void VerifyMotherBrainRaiseCounter()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -41,6 +42,7 @@ internal static class MotherBrainRaiseCounterVerification
         Console.WriteLine("Mother Brain raise counter: the ascent gates on NMI_FrameCounter ($05B6).");
     }
 
+    /// <summary>Runs the focused fake-death ascent counter check from the verification command line.</summary>
     [VerificationCommand("--mother-brain-raise-counter")]
     internal static int MotherBrainRaiseCounterCommand()
     {

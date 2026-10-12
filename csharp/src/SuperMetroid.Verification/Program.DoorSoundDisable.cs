@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks sound admission during a door transition without suppressing queued audio or music.</summary>
 internal static class DoorSoundDisableVerification
 {
+    /// <summary>Verifies the native rejected-call accumulator, prior sound drain, music admission, re-enable path, and reset.</summary>
     internal static void VerifyDoorSoundDisableGuard()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

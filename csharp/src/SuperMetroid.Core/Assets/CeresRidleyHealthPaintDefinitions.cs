@@ -13,9 +13,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyHealthPaintDefinitions
 {
+    /// <summary>Source healthy body and eye paints from which the three damage bands are calculated.</summary>
     private readonly CeresRidleyFadeColorDefinitions body, eyes;
+    /// <summary>Authored departures from the calculated health shades, keyed by row and color.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Records only input colors that differ from the calculated healthy-to-membrane tint.</summary>
     internal CeresRidleyHealthPaintDefinitions(Bgr555[][] rows,
         CeresRidleyFadeColorDefinitions body, CeresRidleyFadeColorDefinitions eyes)
     {
@@ -24,6 +27,7 @@ internal sealed class CeresRidleyHealthPaintDefinitions
             if (Calculate(row, color) != rows[row][color]) edits.Add(row * 14 + color, rows[row][color]);
     }
 
+    /// <summary>Uses an authored override where present, otherwise calculates the selected damage-band shade.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         if ((uint)row >= 3) throw new ArgumentOutOfRangeException(nameof(row));
@@ -31,6 +35,7 @@ internal sealed class CeresRidleyHealthPaintDefinitions
         return edits.TryGetValue(row * 14 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
+    /// <summary>Tints healthy armor or eyes toward middle membrane paint, preserving two chosen channel shades.</summary>
     private Bgr555 Calculate(int row, int color)
     {
         Bgr555 healthy = color < 11 ? body.Resolve(15, color) : eyes.Resolve(0, color - 11);

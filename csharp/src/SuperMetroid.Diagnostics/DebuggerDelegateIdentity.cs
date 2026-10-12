@@ -5,6 +5,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>Shared stable method identities for debugger delegates, independent of compiler token order.</summary>
 internal static class DebuggerDelegateIdentity
 {
+    /// <summary>Serializes a delegate method by name, staticness, return type, generic arguments, and parameter types.</summary>
     public static void Write(BinaryWriter writer, MethodInfo method)
     {
         writer.Write(method.Name);
@@ -18,6 +19,7 @@ internal static class DebuggerDelegateIdentity
         foreach (ParameterInfo parameter in parameters) writer.Write(parameter.ParameterType.AssemblyQualifiedName!);
     }
 
+    /// <summary>Resolves a unique compatible method signature using loader-approved types across assembly versions.</summary>
     public static MethodInfo Read(BinaryReader reader, Type declaringType, Func<string, Type> resolveType)
     {
         string name = reader.ReadString();
@@ -52,6 +54,7 @@ internal static class DebuggerDelegateIdentity
             $"Debugger delegate {declaringType.FullName}.{name} has {matches.Count} compatible methods in this build.");
     }
 
+    /// <summary>Reads a method signature element count while rejecting corrupted negative lengths.</summary>
     private static int ReadCount(BinaryReader reader)
     {
         int count = reader.ReadInt32();

@@ -37,8 +37,10 @@ public enum ElevatorFrameEvent
 /// </summary>
 public sealed class ElevatorEnemyState
 {
+    /// <summary>Physical elevator enemy slot retaining its room-side resting position.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects the elevator actor's private variables from its occupied slot.</summary>
     internal ElevatorEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A, captured before an arriving actor is moved to parameter 2.</summary>

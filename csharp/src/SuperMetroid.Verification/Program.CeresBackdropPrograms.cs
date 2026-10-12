@@ -3,8 +3,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Compares compiled Ceres backdrop instruction bytes and playback with native bank-$8B lists.</summary>
 internal static class CeresBackdropProgramsVerification
 {
+    /// <summary>Checks the seven backdrop lists, including the longer title sequence.</summary>
     internal static void VerifyCeresBackdropPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcc3f, 0xcc47, false));
@@ -16,6 +18,7 @@ internal static class CeresBackdropProgramsVerification
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcd9b, 0xcda3, false));
     }
 
+    /// <summary>Checks byte and word lookup boundaries plus frame-by-frame cursor, visibility, lifetime, and callback behavior.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres backdrop program")]
     private static void VerifyCeresBackdropProgram(ISnesAddressSpace rom, ushort start, ushort end, bool title)
     {

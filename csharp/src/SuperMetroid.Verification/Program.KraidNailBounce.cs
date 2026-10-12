@@ -5,8 +5,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks Kraid nail contour and wall reflections across every fractional velocity word.</summary>
 internal static class KraidNailBounceVerification
 {
+    /// <summary>Checks independent whole/fraction velocity negation and the distinct post-collision positions.</summary>
     internal static void VerifyKraidNailBounce(SuperMetroidAddressSpace rom)
     {
         var words = new ushort[32 * 32];

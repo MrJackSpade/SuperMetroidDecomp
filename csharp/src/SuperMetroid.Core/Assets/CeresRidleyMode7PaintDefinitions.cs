@@ -13,10 +13,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyMode7PaintDefinitions
 {
+    /// <summary>The reviewed body contour shared by every zoom bucket.</summary>
     private readonly CeresRidleyBodyPaintDefinitions body;
+    /// <summary>The reviewed eye contour shared by every zoom bucket.</summary>
     private readonly CeresRidleyFadeColorDefinitions.EyePaint eyes;
+    /// <summary>Extracted colors that differ from the computed contour at a row and color index.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Builds the shared contours from the first native row and retains only differences in later rows.</summary>
     internal CeresRidleyMode7PaintDefinitions(Bgr555[][] rows)
     {
         body = new(rows[0].AsSpan(0, 11));
@@ -30,6 +34,7 @@ internal sealed class CeresRidleyMode7PaintDefinitions
     /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
     internal static Bgr555 RetreatNeutral => CeresRidleyFadeColorDefinitions.Scale(Neutral, 1);
 
+    /// <summary>Uses a reviewed native color override when present, otherwise scales the shared contour for this zoom row.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         if ((uint)row >= 9) throw new ArgumentOutOfRangeException(nameof(row));
@@ -37,6 +42,7 @@ internal sealed class CeresRidleyMode7PaintDefinitions
         return edits.TryGetValue(row * 15 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
+    /// <summary>Applies one exposure step through bucket six and two steps for each remaining zoom bucket.</summary>
     private Bgr555 Calculate(int row, int color)
     {
         Bgr555 endpoint = color < 11 ? body.Color(color) : color < 14 ? eyes.Color(color - 11) : Neutral;

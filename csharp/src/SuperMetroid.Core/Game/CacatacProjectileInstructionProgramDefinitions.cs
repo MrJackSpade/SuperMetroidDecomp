@@ -29,13 +29,16 @@ internal abstract class CacatacProjectileInstructionProgramDefinitions
 
     /// <summary>Ten six-byte direction programs: one-frame drawing followed by sleep.</summary>
     internal const int ProgramCount = 10;
+    /// <summary>One independently selected spike spritemap for each of the ten direction programs.</summary>
     public static int PresentationWordCount => ProgramCount;
 
+    /// <summary>Finds the spritemap operand two bytes into the selected six-byte direction program.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
         return (ushort)(LeftFacingUp + 6 * index + 2);
     }
+    /// <summary>Supplies each spike's one-tick frame and sleep instruction while rejecting visual operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - LeftFacingUp;

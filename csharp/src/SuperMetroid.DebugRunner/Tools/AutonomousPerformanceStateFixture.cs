@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 /// <summary>Reaches a measured autonomous host frame without changing the demo sequence.</summary>
 internal static class AutonomousPerformanceStateFixture
 {
+    /// <summary>Advances the autonomous session through the requested frame, measures repeated renders of its immutable packet, and exports the frame and save slot.</summary>
     public static int Export(int targetFrame, string destination)
     {
         if (targetFrame is < 1 or > 100000)

@@ -29,6 +29,7 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Native falling, repeated airborne frame, and landing branches shared by the Torizo variants.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbc78),
         Entry(Start),
@@ -42,5 +43,6 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_Torizo_SpawnTorizoLandingDustClouds),
         Op((ushort)TorizoInstruction.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacelessWalkingLeftLeg, GoldenTorizoWalkingLeftLeftLegMoving),
         Op((ushort)CommonEnemyInstruction.Goto, BombTorizoWalkingLeftLeg));
+    /// <summary>Locates a separately installed frame operand within the compiled falling-left program.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

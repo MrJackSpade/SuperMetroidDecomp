@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CompiledDynamicCollectibleGraphicsVerification;
 
+/// <summary>Checks native graphics source pointers and kind identities for dynamically drawn collectibles.</summary>
 internal static class LookupDynamicCollectibleSourcesVerification
 {
+    /// <summary>Confirms each of seventeen native PLM graphics programs selects the compiled source and that its 256 artwork bytes retain that source identity.</summary>
     internal static void VerifyDynamicCollectibleSourcePointers(SuperMetroidAddressSpace rom)
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();
@@ -30,9 +32,11 @@ internal static class LookupDynamicCollectibleSourcesVerification
         }
     }
 
+    /// <summary>Reads an artwork byte from the retail source solely for the dynamic graphics oracle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible source pointers")]
     private static byte DynamicCollectibleSourcePointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Checks ascending identities for kinds four through twenty and rejects all other byte values.</summary>
     internal static void VerifyDynamicCollectibleKindIdentity()
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();

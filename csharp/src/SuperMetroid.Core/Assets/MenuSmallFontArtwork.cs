@@ -16,10 +16,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class MenuSmallFontArtwork
 {
+    /// <summary>Native starting tile and 41-tile span of the menu's small font in the shared sheet.</summary>
     internal const int FirstTile = 0x60, TileCount = 41;
+    /// <summary>One eight-bit ink silhouette row per glyph row, extracted from selected index-14 pixels.</summary>
     private readonly byte[] faces = new byte[TileCount * 8];
+    /// <summary>Supplied pixels that differ from the calculated foreground/shadow rule, including authored B and K trims.</summary>
     private readonly Dictionary<int, byte>? edits;
 
+    /// <summary>Extracts each glyph's foreground mask, calculates its diagonal shadow, and preserves supplied exceptions.</summary>
     internal MenuSmallFontArtwork(IndexedPngImage image)
     {
         for (int tile = FirstTile; tile < FirstTile + TileCount; tile++)
@@ -36,7 +40,9 @@ internal sealed class MenuSmallFontArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
+    /// <summary>Admits only native small-font tile indices in the 41-tile menu range.</summary>
     internal static bool Contains(int tile) => tile is >= FirstTile and < (FirstTile + TileCount);
+    /// <summary>Returns an authored pixel exception or calculates ink and shadow at a bounded glyph coordinate.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
@@ -44,6 +50,7 @@ internal sealed class MenuSmallFontArtwork
             ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Draws index-14 ink and its down-right index-13 shadow from the selected silhouette, including joined corners.</summary>
     private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         int row = (tile - FirstTile) * 8 + point.Y;

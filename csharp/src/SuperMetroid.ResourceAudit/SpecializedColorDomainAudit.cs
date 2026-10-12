@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Relational constraints where selecting a known stream narrows its valid array index.</summary>
 internal static class SpecializedColorDomainAudit
 {
+    /// <summary>Checks literal indices against the selected color stream's shape after its enum domain has been validated separately.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.Name != "Resolve") return null;

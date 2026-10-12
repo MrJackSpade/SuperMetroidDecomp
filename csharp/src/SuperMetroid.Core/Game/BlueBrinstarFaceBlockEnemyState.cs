@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class BlueBrinstarFaceBlockEnemyState
 {
+    /// <summary>Native enemy slot whose variables A and B hold the face block's observable state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds debugger-facing state to the original physical enemy slot.</summary>
     internal BlueBrinstarFaceBlockEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

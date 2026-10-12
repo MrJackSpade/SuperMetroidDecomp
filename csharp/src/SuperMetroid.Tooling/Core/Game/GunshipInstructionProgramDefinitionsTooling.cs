@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(GunshipInstructionProgramDefinitions))]
 internal abstract class GunshipInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>The hull and entrance-pad sequences contribute 28 immutable timing and branch words.</summary>
     public static int MechanicsWordCount => GunshipInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Exposes a compiled gunship control word from the opening, closing, or hull programs.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => GunshipInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>The gunship sequences select 22 installed OAM frames outside their compiled mechanics.</summary>
     public static int PresentationWordCount => GunshipInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Locates an interleaved gunship visual selector for artwork extraction checks.</summary>
     public static ushort PresentationWordAddress(int index) => GunshipInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Matches either byte of a compiled gunship control word in bank $A2; visual selectors remain excluded.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

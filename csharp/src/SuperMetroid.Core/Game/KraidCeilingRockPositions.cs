@@ -27,9 +27,8 @@ public static class KraidCeilingRockPositions
             : SnesLittleEndian.Word(SnesLittleEndian.HighByte(Word(index)), unchecked((byte)Word(index + 1)));
     }
 
-    // Alternate the left (columns2..6) and right (10..13) ceiling gaps.
-    // Within each gap, take rightmost then leftmost remaining blocks inward.
-    // Native rocks originate at the selected block center, eight pixels in.
+    /// <summary>Alternates left and right ceiling gaps, taking outer edges inward and placing each rock at its block center.</summary>
+    /// <remarks>Index nine deliberately returns the following callback word for the reader's overlapping odd-offset result.</remarks>
     private static ushort Word(int index)
     {
         if (index == 9) return FollowingCallback;

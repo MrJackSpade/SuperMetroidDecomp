@@ -12,10 +12,14 @@ namespace SuperMetroid.Core.Assets;
 /// Calculate every original pixel directly; keep only supplied edits.</summary>
 internal sealed class MapMarkerTileArtwork
 {
+    /// <summary>The two arrow halves, defeated-boss corner, and pulse corner are the four calculated marker tiles.</summary>
     internal const int TileCount = 4;
+    /// <summary>Imported pixel differences from the calculated native marker shapes.</summary>
     private readonly Dictionary<int, byte>? edits;
+    /// <summary>Recognizes only the four menu-atlas tile identities owned by this artwork.</summary>
     internal static bool Contains(int tile) => tile is >= 0x9d and <= 0x9f or 0xaf;
 
+    /// <summary>Compares the supplied atlas against the arrow and corner geometry, retaining only mismatched pixels.</summary>
     internal MapMarkerTileArtwork(IndexedPngImage image)
     {
         for (int tile = 0x9d; tile <= 0xaf; tile++)
@@ -30,12 +34,14 @@ internal sealed class MapMarkerTileArtwork
         }
     }
 
+    /// <summary>Uses an imported edit when present; otherwise calculates the requested marker pixel.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Draws the transposed arrows or the nested corner lines from tile-local coordinates.</summary>
     private static byte Basis(int tile, Position16<CharacterPixels> point)
     {
         if (tile == 0xaf)

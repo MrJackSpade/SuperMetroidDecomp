@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks compiled Golden Torizo landing control words against their bank-$AA source.</summary>
 internal static class GoldenTorizoJumpLandingDefinitionsVerification
 {
+    /// <summary>Checks uniqueness, native values, two-byte ownership, and the boundary after the four landing lists.</summary>
     internal static void VerifyGoldenTorizoJumpLandingDefinitions(ISnesAddressSpace rom)
     {
         const int bank = 0xaa0000;
@@ -39,6 +41,7 @@ internal static class GoldenTorizoJumpLandingDefinitionsVerification
             "Golden Torizo landing catalog does not claim the next opcode");
     }
 
+    /// <summary>Reads a native byte for the landing-list comparison only.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo jump landing definitions")]
     private static byte GoldenTorizoJumpLandingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

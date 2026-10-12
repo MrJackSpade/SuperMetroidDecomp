@@ -13,13 +13,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks the reported neutral-input shaft drift against native spin-jump carry behavior.</summary>
 internal static class ReportedShaftMomentumVerification
 {
+    /// <summary>Confirms recorded frames 5842..5849 retain 1.6000 leftward speed without held Left input.</summary>
+    /// <remarks>#1158: native $90:906C accepts carry from the speed calculation in a left spin pose and mode two, even with a neutral controller.</remarks>
     internal static void VerifyReportedShaftMomentum()
     {
-        // #1158, recording inputs 5842..5849: neutral controller, left spin pose,
-        // mode two, base speed 1.6000. $90:906C retains horizontal movement when
-        // the native speed calculation returns carry even without forward input.
         var memory = new SuperMetroidAddressSpace();
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[32 * 32], new byte[32 * 32], new ushort[32 * 32]), new byte[0x400 * 8]);
         var samus = new SamusState
@@ -49,6 +49,7 @@ internal static class ReportedShaftMomentumVerification
         Console.WriteLine("#1158: recorded no-Left drift matches native spin momentum; no movement alteration required.");
     }
 
+    /// <summary>Runs the focused shaft-momentum verification command.</summary>
     [VerificationCommand("--reported-shaft-momentum")]
     internal static int ReportedShaftMomentumCommand()
     {

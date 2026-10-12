@@ -10,10 +10,14 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class CeresDoorRumbleGeometryDefinitions
 {
+    /// <summary>The native routine emits four separate impact effects around the door.</summary>
     internal const int Count = 4;
+    /// <summary>Each interleaved horizontal column is two pixels from the next.</summary>
     private const int ColumnSpacing = 2;
+    /// <summary>Vertical offsets in the native emission order, distinct from horizontal column order.</summary>
     private static readonly short[] VerticalPlacements = [-8, 4, 22, 12];
 
+    /// <summary>Converts emission order into the paired horizontal and native vertical destruction offsets.</summary>
     internal static (short X, short Y) Offset(int index)
     {
         if ((uint)index >= Count)

@@ -14,6 +14,7 @@ internal abstract class BoyonInstructionProgramDefinitions
     /// <summary><c>$A2:86BF</c>, the six-frame bouncing loop.</summary>
     internal const ushort Bouncing = 0x86bf;
 
+    /// <summary>Identifies the four idle or six bouncing spritemap operands after each list's setup commands.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         bool bouncing = address >= Bouncing;

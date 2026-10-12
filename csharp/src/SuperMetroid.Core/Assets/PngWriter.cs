@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Assets;
 public static class PngWriter
 {
 
-    /// <summary>Writes a length/type/data/CRC PNG chunk.</summary>
+    /// <summary>Writes a PNG chunk in network byte order with CRC over its four-byte type and payload, excluding length.</summary>
     internal static void WriteChunk(Stream output, string name, ReadOnlySpan<byte> data)
     {
         Span<byte> length = stackalloc byte[4];
@@ -21,7 +21,6 @@ public static class PngWriter
         output.Write(type);
         output.Write(data);
 
-        // The CRC covers the four-byte type and payload, but not the length field.
         uint crc = 0xffffffff;
         foreach (byte value in type) crc = UpdateCrc(crc, value);
         foreach (byte value in data) crc = UpdateCrc(crc, value);
@@ -30,6 +29,7 @@ public static class PngWriter
         output.Write(checksum);
     }
 
+    /// <summary>Advances a reflected PNG CRC-32 accumulator through one byte using the standard polynomial.</summary>
     internal static uint UpdateCrc(uint crc, byte value)
     {
         crc ^= value;

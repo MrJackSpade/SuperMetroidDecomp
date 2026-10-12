@@ -5,9 +5,10 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Ports $8B:97F7/$9828/$9849: eight independently aging glyph rectangles.</summary>
 internal sealed class CinematicTextGlowSystem
 {
+    /// <summary>Eight native glow records age independently and are allocated from the highest free slot.</summary>
     private readonly GlowSlot[] slots = new GlowSlot[CinematicTextGlowRomData.SlotCount];
 
-    /// <summary>Starts a glow over the text-tilemap rectangle at <paramref name="cell"/>.</summary>
+    /// <summary>Starts a glow over the text-tilemap rectangle at <paramref name="cell"/>; an occupied eight-slot pool silently drops the request.</summary>
     public void Spawn(Position16<TilemapCells> cell, Extent16<TilemapCells> size)
     {
         for (int i = slots.Length - 1; i >= 0; i--)
@@ -16,9 +17,9 @@ internal sealed class CinematicTextGlowSystem
             slots[i] = new GlowSlot { Active = true, Cell = cell, Size = size, Timer = 1 };
             return;
         }
-        // Native allocation simply returns when its fixed eight slots are occupied.
     }
 
+    /// <summary>Advances active glyph rectangles when their WRAM timers expire, rewriting palette bits while preserving tile identity and ending after the final palette.</summary>
     public void Step(Span<ushort> tilemap)
     {
         for (int i = slots.Length - 1; i >= 0; i--)
@@ -42,11 +43,16 @@ internal sealed class CinematicTextGlowSystem
         }
     }
 
+    /// <summary>One independently timed tilemap rectangle in the cinematic glow pool.</summary>
     private struct GlowSlot
     {
+        /// <summary>Whether this native slot currently participates in text glow updates.</summary>
         public bool Active;
+        /// <summary>Upper-left text tilemap cell of the glow rectangle.</summary>
         public Position16<TilemapCells> Cell;
+        /// <summary>Number of text cells recolored along each axis.</summary>
         public Extent16<TilemapCells> Size;
+        /// <summary>Countdown and current palette phase for this rectangle.</summary>
         public ushort Timer, Palette;
     }
 }

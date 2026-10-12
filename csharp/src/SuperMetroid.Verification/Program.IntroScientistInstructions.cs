@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the compiled intro scientist instruction spans against their bank-$8B source bytes.</summary>
 internal static class IntroScientistInstructionsVerification
 {
+    /// <summary>Compares all authored byte and overlapping-word reads, including rejection at each source-region boundary.</summary>
     internal static void VerifyIntroScientistInstructions(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcb9f, 0xcbcd), (0xcbcd, 0xcc2b), (0xce53, 0xce55) })
@@ -23,6 +25,7 @@ internal static class IntroScientistInstructionsVerification
         }
     }
 
+    /// <summary>Reads a native scientist-instruction byte only for this cartridge-oracle comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro scientist instructions")]
     private static byte IntroScientistInstructionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

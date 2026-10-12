@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated intro Rinka parts against native OAM and preservation of independent artwork edits.</summary>
 internal static class IntroRinkaPartsVerification
 {
+    /// <summary>Compares every stock part and visible/wrapped draw, then ensures edited fields retain supplied compositions.</summary>
     internal static void VerifyIntroRinkaParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Rinka", value.AppendIdentity);

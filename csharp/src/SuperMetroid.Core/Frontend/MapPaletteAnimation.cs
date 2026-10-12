@@ -10,8 +10,11 @@ public sealed class MapPaletteAnimation
     /// <param name="bus">Legacy compatibility argument, checked for null but neither retained nor used for cartridge reads.</param>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
     public MapPaletteAnimation(ISnesAddressSpace bus) => Ensure.NotNull(bus);
+    /// <summary>Updates remaining before the next palette frame is applied; starts with one update.</summary>
     private byte timer = 1;
+    /// <summary>Index of the most recently applied map palette frame.</summary>
     private byte frame;
+    /// <summary>Installed host color cycle, excluded from serialized gameplay state.</summary>
     [NonSerialized] private MapPaletteCycle? content;
 
     /// <summary>Rebinds host colors without resetting a saved timer or capturing assets in the state graph.</summary>

@@ -13,8 +13,11 @@ namespace SuperMetroid.Core.Rendering;
 internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
     int map, int characters, Extent16<TilemapCells> mapSize, bool fourBit)
 {
+    /// <summary>Source tile-row key of the cached decode; minus one forces the first VRAM fetch.</summary>
     private int cachedKey = -1;
+    /// <summary>Decoded tilemap attributes for the cached source tile row.</summary>
     private SnesBgTilemapWord tile;
+    /// <summary>Two or four fetched bitplane bytes for the cached source row, reused across its eight pixels.</summary>
     private int plane0, plane1, plane2, plane3;
 
     /// <summary>Samples the plane pixel, wrapping each axis within the tilemap.</summary>

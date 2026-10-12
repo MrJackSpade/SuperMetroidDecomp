@@ -6,9 +6,8 @@ public static class PhantoonPathDefinitions
     /// <summary>$A7:E3D2..E7FD, PhantoonMovementData: 534 signed X/Y unit steps.</summary>
     public const int Length = 534;
 
-    // Compact lossless direction notation: numeric keypad with screen Y increasing
-    // downwards. 8=N, 6=E, 2=S, 4=W; 7/9/1/3 are NW/NE/SW/SE.
-    // Rows are formatting only; the native cursor advances across row boundaries.
+    /// <summary>Lossless keypad notation for native unit steps with screen Y increasing downward; source rows are formatting only.</summary>
+    /// <remarks>8/6/2/4 mean north/east/south/west; 7/9/1/3 are diagonals. The movement cursor crosses string-row boundaries without resetting.</remarks>
     private const string Directions =
         "8686898686886868688686868686886868686868668686868668668668668666" +
         "6866666666663666626662662663636266262662626263333262626226226226" +

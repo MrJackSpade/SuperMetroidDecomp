@@ -11,10 +11,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class DraygonIntroPaintDefinitions
 {
+    /// <summary>First sixteen installed colors, shared in identity with Draygon's primary material.</summary>
     private readonly DraygonMaterialPaintDefinitions primary;
+    /// <summary>Final eight colors, aliased to the Ceres escape-door surface material.</summary>
     private readonly CeresDoorEscapeSurfacePaintDefinitions surface;
+    /// <summary>Independent edit of the copied clear target, or null when it retains the native value.</summary>
     private readonly Bgr555? clearEdit;
 
+    /// <summary>Splits the 25 copied CGRAM colors into primary, clear-target, and door-surface aliases.</summary>
     internal DraygonIntroPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 25);
@@ -23,6 +27,7 @@ internal sealed class DraygonIntroPaintDefinitions
         clearEdit = colors[16] == DraygonMaterialPaintDefinitions.ClearTarget ? null : colors[16];
     }
 
+    /// <summary>Resolves a copied color through its owning material while preserving an edited clear target.</summary>
     internal Bgr555 Color(int index)
     {
         if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));

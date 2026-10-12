@@ -11,6 +11,11 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal static class AndroidDiagnosticBundle
 {
+    /// <summary>
+    /// Creates a new ZIP from the explicit save, settings, log, selected state, and recording
+    /// allowlist, then records included paths and the private-data warning in its manifest.
+    /// Existing destinations are never overwritten.
+    /// </summary>
     public static string Create(string root, string destination, int slot)
     {
         string state = $"debug-states/SuperMetroid-debug-slot-{DebuggerSaveStateStore.SlotName(slot)}.smstate";
@@ -24,7 +29,6 @@ internal static class AndroidDiagnosticBundle
                 if (Path.GetExtension(path) is ".smrec" or ".json" or ".smstate")
                     files.Add("input-recordings/" + Path.GetFileName(path));
 
-        // CreateNew prevents a diagnostic export from overwriting any existing artifact.
         using var output = new FileStream(destination, FileMode.CreateNew, FileAccess.Write);
         using var zip = new ZipArchive(output, ZipArchiveMode.Create);
         foreach (string name in files)

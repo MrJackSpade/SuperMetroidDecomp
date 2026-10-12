@@ -1,7 +1,12 @@
 using SuperMetroid.Android;
 
+/// <summary>Checks Android command mailbox completion under normal use and worker shutdown.</summary>
 internal static class AndroidSessionCommandVerification
 {
+    /// <summary>
+    /// Checks a completed command, pending and late failure delivery, and enqueue/close races.
+    /// Either lock ordering must settle the task without relying on worker Task completion.
+    /// </summary>
     public static void Run()
     {
         var commands = new AndroidSessionCommands();
@@ -18,8 +23,6 @@ internal static class AndroidSessionCommandVerification
         CheckFailure(afterShutdown, failure);
         if (commands.TryDequeue(out _)) throw new InvalidDataException("Closed mailbox retained requests.");
 
-        // Race actual enqueue against closure. Either lock ordering must settle the task;
-        // completion never depends on the worker Task transitioning to IsCompleted.
         for (int i = 0; i < 100; i++)
         {
             var racing = new AndroidSessionCommands();
@@ -33,6 +36,7 @@ internal static class AndroidSessionCommandVerification
         Console.WriteLine("PASS Android command shutdown: normal result, pending/late failure, and 100 enqueue/close races.");
     }
 
+    /// <summary>Checks that a stopped worker faults a command with the original shutdown exception.</summary>
     private static void CheckFailure(Task<string> result, Exception expected)
     {
         if (!result.IsFaulted || result.Exception?.InnerException != expected)

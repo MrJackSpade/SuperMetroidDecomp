@@ -13,13 +13,19 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorNormalPaintDefinitions
 {
+    /// <summary>Largest RGB5 component accepted by the paint calculation.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
+    /// <summary>Blue lift applied to the first two pale door highlights.</summary>
     private const int HighlightBlueTint = 14;
 
+    /// <summary>Independent copied target paint for door slots nine through fourteen.</summary>
     internal CeresDoorWarmTargetPaintDefinitions WarmTargets { get; }
+    /// <summary>Selected categorical channel seeds keyed by palette slot and channel.</summary>
     private readonly Dictionary<int, int> paint = [];
+    /// <summary>Supplied colors that depart from the calculated normal-door composition.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Separates chosen material paint channels from calculated and independently edited colors.</summary>
     internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 15);
@@ -32,6 +38,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
             if (Calculate(slot) != colors[slot - 1]) edits.Add(slot, colors[slot - 1]);
     }
 
+    /// <summary>Identifies channels whose values are authored seeds rather than derived hues.</summary>
     private static bool StoresPaint(int slot, ColorChannel channel) => channel switch
     {
         ColorChannel.Red => false,
@@ -40,8 +47,10 @@ internal sealed class CeresDoorNormalPaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, "Undefined color channel."),
     };
 
+    /// <summary>Reads a stored material-paint channel for one door palette slot.</summary>
     private int Seed(int slot, ColorChannel channel) => paint[slot * 3 + (int)channel];
 
+    /// <summary>Resolves a supplied edit or calculates the requested one-based door paint slot.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 15) throw new IndexOutOfRangeException();
@@ -49,6 +58,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
         return edits.TryGetValue(slot, out Bgr555 color) ? color : Calculate(slot);
     }
 
+    /// <summary>Builds a normal door shade from categorical channel seeds and copied warm targets.</summary>
     private Bgr555 Calculate(int slot)
     {
         if (slot is >= 9 and <= 14) return WarmTargets.ColorAt(slot - 9);

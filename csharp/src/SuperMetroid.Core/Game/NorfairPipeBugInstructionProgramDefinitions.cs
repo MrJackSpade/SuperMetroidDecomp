@@ -12,6 +12,7 @@ internal abstract class NorfairPipeBugInstructionProgramDefinitions
     /// <summary><c>$B3:8B45</c>, horizontal flight facing right.</summary>
     internal const ushort FlyingRight = 0x8b45;
 
+    /// <summary>Two facing halves, each with an eight-frame rising loop and six-frame flight loop plus goto pairs.</summary>
     public static int MechanicsWordCount => 36;
 
     /// <summary>
@@ -34,6 +35,7 @@ internal abstract class NorfairPipeBugInstructionProgramDefinitions
         return new((ushort)(start + 4 * frames + 2 * (word - frames)),
             word == frames ? (ushort)CommonEnemyInstruction.Goto : start);
     }
+    /// <summary>Locates a bank-$B3 duration or loop word and rejects interleaved visual operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

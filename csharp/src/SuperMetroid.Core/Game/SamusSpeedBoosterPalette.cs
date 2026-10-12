@@ -3,8 +3,14 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
+/// <summary>Applies installed Speed Booster cycle colors or native overrun words to Samus's suit palette.</summary>
 internal static class SamusSpeedBoosterPalette
 {
+    /// <summary>
+    /// Copies the selected installed cycle into CGRAM. Native expansion and grapple-code
+    /// overrun pointers instead copy their operand-driven bus words through the 15-bit
+    /// CGRAM port, preserving the unrolled cartridge read behavior.
+    /// </summary>
     internal static void Apply(ISnesAddressSpace bus, SnesCgram cgram, ushort pointer,
         SamusFullBodyCycleColorCatalog? colors)
     {

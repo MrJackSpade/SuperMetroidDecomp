@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Development-tool members of <see cref="SamusArmCannonArtworkCatalog"/>; never linked by player hosts.</summary>
 internal static class SamusArmCannonArtworkCatalogTooling
 {
+    /// <summary>Combines validated placement JSON with the exact number of indexed cannon tile uploads.</summary>
     public static SamusArmCannonArtworkCatalog Load(Stream json, Stream tilePng)
     {
         Ensure.NotNull(json);

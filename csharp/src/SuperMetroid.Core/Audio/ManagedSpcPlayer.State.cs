@@ -109,6 +109,7 @@ internal sealed class ManagedSpcSoundChannel
 /// </summary>
 public sealed partial class ManagedSpcPlayer
 {
+    [SpcMemoryAccess]
     private readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
     private readonly byte[] portsToSnes = new byte[AudioRomData.Apu.PortCount];
     private readonly byte[] inputPorts = new byte[AudioRomData.Apu.PortCount];
@@ -177,7 +178,7 @@ public sealed partial class ManagedSpcPlayer
     /// <remarks>Uploads and instrument, music, sound-effect, and decoded sample definitions are installed separately by the audio renderer before playback.</remarks>
     public ManagedSpcPlayer()
     {
-        dsp = new ManagedSnesDsp(ram);
+        dsp = CreateDsp();
         InitializeDriver();
     }
 
@@ -221,12 +222,8 @@ public sealed partial class ManagedSpcPlayer
 
             int address = SpcDriverData.Ram.InstrumentTable +
                 index * SpcDriverData.Ram.InstrumentRecordSize;
-            ram[address] = instrument.SourceOrNoiseRate;
-            ram[address + 1] = instrument.Adsr1;
-            ram[address + 2] = instrument.Adsr2;
-            ram[address + 3] = instrument.Gain;
-            ram[address + 4] = unchecked((byte)(instrument.PitchBase >> 8));
-            ram[address + 5] = unchecked((byte)instrument.PitchBase);
+            WriteInstrument(address, new SpcInstrumentRecord(instrument.SourceOrNoiseRate, instrument.Adsr1,
+                instrument.Adsr2, instrument.Gain, instrument.PitchBase));
         }
     }
 
@@ -247,7 +244,7 @@ public sealed partial class ManagedSpcPlayer
             if (!byId.TryAdd(program.Id, program))
                 throw new InvalidDataException($"Decoded SFX programs repeat stable ID '{program.Id}'.");
             byte[] encoded = SpcSoundEffectProgramCodec.Encode(program);
-            encoded.CopyTo(ram.AsSpan(program.Address, encoded.Length));
+            WriteBytes(program.Address, encoded);
         }
 
         foreach (AudioSoundLibraryMetadata library in libraries)
@@ -262,7 +259,7 @@ public sealed partial class ManagedSpcPlayer
                             $"SFX effect '{effect.Id}' references unknown program " +
                             $"'{effect.ChannelPrograms[channel]}'.");
                     }
-                    ushort uploadedPointer = ReadWord(effect.StreamPointer + channel * 2);
+                    ushort uploadedPointer = ReadPointerEntry(effect.StreamPointer, channel);
                     if (uploadedPointer != program.Address)
                     {
                         throw new InvalidDataException(
@@ -294,23 +291,23 @@ public sealed partial class ManagedSpcPlayer
             }
         }
         foreach ((int address, byte value) in SpcMusicDefinitionCodec.CompileBank(bank))
-            ram[address] = value;
+            WriteByte(address, value);
     }
 
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
-    public void WritePort(int port, byte value)
+    public void WritePort(ApuPort port, byte value)
     {
         if ((uint)port >= inputPorts.Length)
             throw new ArgumentOutOfRangeException(nameof(port), port, "SPC input port must be zero through three.");
-        inputPorts[port] = value;
+        inputPorts[(int)port] = value;
     }
 
     /// <summary>Reads one SPC-to-CPU acknowledgement port.</summary>
-    public byte ReadPort(int port)
+    public byte ReadPort(ApuPort port)
     {
         if ((uint)port >= portsToSnes.Length)
             throw new ArgumentOutOfRangeException(nameof(port), port, "SPC output port must be zero through three.");
-        return portsToSnes[port];
+        return portsToSnes[(int)port];
     }
 
     /// <summary>
@@ -339,8 +336,7 @@ public sealed partial class ManagedSpcPlayer
             if (length > stream.Length - offset)
                 throw new InvalidDataException(
                     $"SPC upload record for ${target:X4} declares {length} bytes but only {stream.Length - offset} remain.");
-            for (int index = 0; index < length; index++)
-                ram[unchecked((ushort)(target + index))] = stream[offset + index];
+            WriteBytes(target, stream.Slice(offset, length));
             offset += length;
         }
 
@@ -393,12 +389,7 @@ public sealed partial class ManagedSpcPlayer
     private void InitializeDriver()
     {
         dsp.Reset();
-        Array.Clear(ram, SpcDriverData.Ram.FirstWorkRegion, SpcDriverData.Ram.FirstWorkRegionLength);
-        Array.Clear(ram, SpcDriverData.Ram.SmallWorkRegion, SpcDriverData.Ram.SmallWorkRegionLength);
-        Array.Clear(ram, SpcDriverData.Ram.SoundPointerRegion, SpcDriverData.Ram.SoundPointerRegionLength);
-        Array.Clear(ram, SpcDriverData.Ram.SoundStateRegion, SpcDriverData.Ram.SoundStateRegionLength);
-        Array.Clear(ram, SpcDriverData.Ram.SecondarySoundStateRegion,
-            SpcDriverData.Ram.SecondarySoundStateRegionLength);
+        ClearDriverWorkRegions();
 
         for (int index = 0; index < channels.Length; index++)
             channels[index].Index = unchecked((byte)index);
@@ -515,8 +506,6 @@ public sealed partial class ManagedSpcPlayer
         dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterMap.Voice.Adsr2)), unchecked((byte)(adsr >> 8)));
     }
 
-    private ushort ReadWord(int address) => unchecked((ushort)(
-        ram[address & ushort.MaxValue] | (ram[(address + 1) & ushort.MaxValue] << 8)));
 
     private static byte HighByte(ushort value) => unchecked((byte)(value >> 8));
 

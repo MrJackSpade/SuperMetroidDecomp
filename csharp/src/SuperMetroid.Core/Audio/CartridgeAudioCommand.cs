@@ -21,7 +21,7 @@ public enum CartridgeAudioCommandKind : byte
 public readonly record struct CartridgeAudioCommand(
     CartridgeAudioCommandKind Kind,
     int UploadAddress,
-    byte Port,
+    [property: SpcMemoryAccess] byte Port,
     byte Value)
 {
     /// <summary>Creates an upload command retaining the 24-bit cartridge stream identity.</summary>
@@ -29,8 +29,15 @@ public readonly record struct CartridgeAudioCommand(
         new(CartridgeAudioCommandKind.Upload, cartridgeAddress, 0, 0);
 
     /// <summary>Creates a CPU-to-APU write for one of ports zero through three.</summary>
-    public static CartridgeAudioCommand WritePort(byte port, byte value) =>
-        new(CartridgeAudioCommandKind.WritePort, 0, port, value);
+    [SpcMemoryBoundary("codec: a port command stores its port number as the debugger-visible byte")]
+    public static CartridgeAudioCommand WritePort(ApuPort port, byte value) =>
+        new(CartridgeAudioCommandKind.WritePort, 0, (byte)port, value);
+
+    /// <summary>The CPU-to-APU input port a <see cref="CartridgeAudioCommandKind.WritePort"/> command writes.</summary>
+    [SpcMemoryBoundary("codec: decodes the stored port number")]
+    public ApuPort InputPort => Enum.IsDefined((ApuPort)Port)
+        ? (ApuPort)Port
+        : throw new InvalidDataException($"APU input port {Port} is outside $2140-$2143.");
 }
 
 /// <summary>Bytes returned by the SPC to the 65816 through APU ports $2140-$2143.</summary>

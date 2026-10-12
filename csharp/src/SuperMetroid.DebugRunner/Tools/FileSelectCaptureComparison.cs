@@ -36,7 +36,7 @@ internal static class FileSelectCaptureComparison
             game.SetAudioAcknowledgements(actual.ReadAcknowledgements());
             var frame = game.StepCaptured(recording.ControllerInputs[tick], tick + 1, 1).Frame;
             bool IsSwoosh(CartridgeAudioCommand command) =>
-                command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 1 &&
+                command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary1 &&
                 command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value;
             if (frame.AudioCommands.Any(IsSwoosh))
             {

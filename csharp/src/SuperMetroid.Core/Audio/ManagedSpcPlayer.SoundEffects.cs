@@ -144,7 +144,7 @@ public sealed partial class ManagedSpcPlayer
             for (int index = 0; index < libraryChannels.Length; index++)
             {
                 ManagedSpcSoundChannel channel = libraryChannels[index];
-                channel.Pointer = ReadWord(library.CurrentPointer + index * 2);
+                channel.Pointer = ReadPointerEntry(library.CurrentPointer, index);
                 channel.VoiceIndexTimesEight = unchecked((byte)(channel.VoiceIndex * 8));
                 channel.PointerIndex = 0;
                 channel.InstructionTimer = 1;
@@ -232,12 +232,6 @@ public sealed partial class ManagedSpcPlayer
         }
     }
 
-    private byte ReadSoundByte(ManagedSpcSoundChannel channel)
-    {
-        byte value = ram[unchecked((ushort)(channel.Pointer + channel.PointerIndex))];
-        channel.PointerIndex++;
-        return value;
-    }
 
     private void RunSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {

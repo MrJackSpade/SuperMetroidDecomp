@@ -36,6 +36,7 @@ internal static class ManagedSpcPlayerAccess
         internal byte ReadDspRegisterForVerification(byte address) => PrivateState.Field<ManagedSnesDsp>(self, "dsp").ReadRegister(address);
 
         /// <summary>Exposes one APU byte only to deterministic friend-assembly verification.</summary>
+        [SpcMemoryAccess]
         internal byte ReadApuByteForVerification(int address)
         {
             if ((uint)address >= PrivateState.Field<byte[]>(self, "ram").Length)

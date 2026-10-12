@@ -32,9 +32,9 @@ internal static partial class Program
             writes.AddRange(commands.Where(command => command.Kind == CartridgeAudioCommandKind.WritePort));
             renderer.RenderFrame(commands);
         }
-        AssertEqual(1, writes.Count(command => command.Port == 3 && command.Value == 0x1d),
+        AssertEqual(1, writes.Count(command => command.InputPort == ApuPort.SoundLibrary3 && command.Value == 0x1d),
             "opening blue flame sends native sound 1D to library three");
-        AssertEqual(0, writes.Count(command => command.Port == 2 && command.Value == 0x1d),
+        AssertEqual(0, writes.Count(command => command.InputPort == ApuPort.SoundLibrary2 && command.Value == 0x1d),
             "opening flame never sends materialization-library 1D");
         AssertEqual(6, enemies.SoundRequests.Single().MaximumQueued, "opening flame uses native Max6");
         Suite(nameof(VerifyPhantoonFlameSound), () => VerifyPhantoonFlameSound());

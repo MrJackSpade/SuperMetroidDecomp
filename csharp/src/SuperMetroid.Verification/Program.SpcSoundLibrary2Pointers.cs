@@ -36,15 +36,15 @@ internal static partial class Program
 
         short[] pcm = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
         var zero = new ManagedSpcPlayer();
-        zero.WritePort((byte)ApuPort.SoundLibrary1 + library, 0);
+        zero.WritePort(ApuPorts.ForSoundLibrary(library), 0);
         zero.GenerateFrame(pcm);
-        AssertEqual((byte)0, zero.ReadPort((byte)ApuPort.SoundLibrary1 + library),
+        AssertEqual((byte)0, zero.ReadPort(ApuPorts.ForSoundLibrary(library)),
             "zero sound command is a valid acknowledged no-sound sentinel");
 
         // #1269: the driver reads a request on one service and dispatches it on the next, so
         // the undefined command is rejected on the second frame, before its stream dispatch.
         var invalidPlayer = new ManagedSpcPlayer();
-        invalidPlayer.WritePort((byte)ApuPort.SoundLibrary1 + library, (byte)(count + 1));
+        invalidPlayer.WritePort(ApuPorts.ForSoundLibrary(library), (byte)(count + 1));
         invalidPlayer.GenerateFrame(pcm);
         AssertThrows<InvalidDataException>(() => invalidPlayer.GenerateFrame(pcm),
             "runtime rejects the first undefined sound command before stream dispatch");

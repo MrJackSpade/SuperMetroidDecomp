@@ -14,7 +14,7 @@ internal static partial class Program
         AssertEqual((ushort)(0x0100 | SoundEffectLibrary1Sounds.CancelAll.Value), rejected,
             "Disabled queue retains the native post-threshold accumulator");
         var commands = audio.AdvanceFrame(bus, default);
-        AssertTrue(commands.Any(c => c.Kind == CartridgeAudioCommandKind.WritePort && c.Port == 1 && c.Value == SoundEffectLibrary1Sounds.StopSpinJump.Value),
+        AssertTrue(commands.Any(c => c.Kind == CartridgeAudioCommandKind.WritePort && c.InputPort == ApuPort.SoundLibrary1 && c.Value == SoundEffectLibrary1Sounds.StopSpinJump.Value),
             "Disabling new sounds still submits an already queued request");
         AssertTrue(!audio.HasQueuedSounds, "Rejected request does not refill the drained ring");
         audio.QueueMusicDelayed8(MusicCommand.Stop);

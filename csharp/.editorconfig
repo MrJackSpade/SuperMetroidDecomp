@@ -62,6 +62,9 @@ dotnet_diagnostic.SME6301.severity = error
 # #631: S-DSP register layout is confined to the DSP and its typed controls.
 dotnet_diagnostic.SME6310.severity = error
 dotnet_diagnostic.SME6311.severity = error
+# #632: SPC700 APU RAM and port layout is confined to the typed driver-memory views.
+dotnet_diagnostic.SME6320.severity = error
+dotnet_diagnostic.SME6321.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620: advisory until the existing reusable guards are migrated.

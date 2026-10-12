@@ -105,7 +105,7 @@ public static class AudioInputReplaySmokeTest
             foreach (CartridgeAudioCommand command in frame.AudioCommands)
             {
                 if (command.Kind == CartridgeAudioCommandKind.WritePort &&
-                    command.Port == 1 &&
+                    command.InputPort == ApuPort.SoundLibrary1 &&
                     command.Value == 0x0b)
                 {
                     powerBeamCommandObserved = true;
@@ -306,7 +306,7 @@ public static class AudioInputReplaySmokeTest
             string formatted = string.Join(',', commands.Select(command => command.Kind switch
             {
                 CartridgeAudioCommandKind.Upload => $"upload:${command.UploadAddress:X6}",
-                CartridgeAudioCommandKind.WritePort => $"port{command.Port}:${command.Value:X2}",
+                CartridgeAudioCommandKind.WritePort => $"port{(int)command.InputPort}:${command.Value:X2}",
                 _ => throw new InvalidDataException($"Unknown audio command {command.Kind}."),
             }));
             commandTrace.Add($"{frameIndex}/{state}={formatted}");

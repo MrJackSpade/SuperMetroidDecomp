@@ -85,7 +85,7 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunSoundScenario(
             "library-1-power-beam",
-            [((byte)ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value)],
+            [(ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value)],
             pcmHash,
             acknowledgementHash,
             ref scenarios,
@@ -93,7 +93,7 @@ public static class ManagedAudioRegressionSmokeTest
             ref samples);
         RunSoundScenario(
             "library-2-door",
-            [((byte)ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value)],
+            [(ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value)],
             pcmHash,
             acknowledgementHash,
             ref scenarios,
@@ -101,7 +101,7 @@ public static class ManagedAudioRegressionSmokeTest
             ref samples);
         RunSoundScenario(
             "library-3-cinematic",
-            [(AudioRomData.Apu.LibraryThreePort, 0x23)],
+            [(ApuPort.SoundLibrary3, 0x23)],
             pcmHash,
             acknowledgementHash,
             ref scenarios,
@@ -110,9 +110,9 @@ public static class ManagedAudioRegressionSmokeTest
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
-                ((byte)ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value),
-                ((byte)ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value),
-                (AudioRomData.Apu.LibraryThreePort, 0x23),
+                (ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value),
+                (ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value),
+                (ApuPort.SoundLibrary3, 0x23),
             ],
             pcmHash,
             acknowledgementHash,
@@ -164,7 +164,7 @@ public static class ManagedAudioRegressionSmokeTest
                 [
                     CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.SnesAddress),
                     CartridgeAudioCommand.Upload(bank.SnesAddress),
-                    CartridgeAudioCommand.WritePort((byte)ApuPort.Music, 1),
+                    CartridgeAudioCommand.WritePort(ApuPort.Music, 1),
                 ]
                 : Array.Empty<CartridgeAudioCommand>();
             HashFrame(name, engine, commands, pcmHash, acknowledgementHash, ref frames, ref samples);
@@ -174,7 +174,7 @@ public static class ManagedAudioRegressionSmokeTest
 
     private static void RunSoundScenario(
         string name,
-        IReadOnlyList<(byte Port, byte Command)> startCommands,
+        IReadOnlyList<(ApuPort Port, byte Command)> startCommands,
         IncrementalHash pcmHash,
         IncrementalHash acknowledgementHash,
         ref int scenarios,
@@ -195,11 +195,11 @@ public static class ManagedAudioRegressionSmokeTest
             if (cancelHalfway && frame == ShortScenarioFrames / 2)
             {
                 commands.Add(CartridgeAudioCommand.WritePort(
-                    (byte)ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.CancelAll.Value));
+                    ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.CancelAll.Value));
                 commands.Add(CartridgeAudioCommand.WritePort(
-                    (byte)ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.CancelAll.Value));
+                    ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.CancelAll.Value));
                 commands.Add(CartridgeAudioCommand.WritePort(
-                    AudioRomData.Apu.LibraryThreePort, SoundEffectLibrary3Sounds.CancelAll.Value));
+                    ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.CancelAll.Value));
             }
             HashFrame(name, engine, commands, pcmHash, acknowledgementHash, ref frames, ref samples);
         }
@@ -223,34 +223,34 @@ public static class ManagedAudioRegressionSmokeTest
             {
                 commands.Add(CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.SnesAddress));
                 commands.Add(CartridgeAudioCommand.Upload(first.SnesAddress));
-                commands.Add(CartridgeAudioCommand.WritePort((byte)ApuPort.Music, 1));
+                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             else if (frame == 120)
             {
-                commands.Add(CartridgeAudioCommand.WritePort((byte)ApuPort.Music, 0));
+                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 0));
             }
             else if (frame == 150)
             {
                 commands.Add(CartridgeAudioCommand.Upload(second.SnesAddress));
-                commands.Add(CartridgeAudioCommand.WritePort((byte)ApuPort.Music, 1));
+                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             else if (frame == 270)
             {
                 commands.Add(CartridgeAudioCommand.WritePort(
-                    (byte)ApuPort.Music, AudioRomData.Apu.PauseMusic));
+                    ApuPort.Music, AudioRomData.Apu.PauseMusic));
             }
             else if (frame == 330)
             {
                 commands.Add(CartridgeAudioCommand.WritePort(
-                    (byte)ApuPort.Music, AudioRomData.Apu.ResumeMusic));
+                    ApuPort.Music, AudioRomData.Apu.ResumeMusic));
             }
             else if (frame == 390)
             {
-                commands.Add(CartridgeAudioCommand.WritePort((byte)ApuPort.Music, 2));
+                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 2));
             }
             else if (frame == 510)
             {
-                commands.Add(CartridgeAudioCommand.WritePort((byte)ApuPort.Music, 1));
+                commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             HashFrame(
                 "music-lifecycle", engine, commands, pcmHash, acknowledgementHash,

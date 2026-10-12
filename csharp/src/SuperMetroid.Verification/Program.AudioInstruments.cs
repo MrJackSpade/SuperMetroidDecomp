@@ -8,6 +8,7 @@ internal static partial class Program
     /// generated beside still-authoritative opaque upload bytes. Stock definitions must first
     /// match every uploaded SPC record; an edited copy must then alter both APU RAM and PCM.
     /// </summary>
+    [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     private static void VerifyEditableAudioInstruments()
     {
         string sourceDirectory = Path.GetFullPath("standalone-assets/audio");
@@ -86,7 +87,7 @@ internal static partial class Program
             CartridgeAudioCommand titleUpload =
                 CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence);
             CartridgeAudioCommand titleTrack = CartridgeAudioCommand.WritePort(
-                (byte)ApuPort.Music, AudioRomDataMusicTracks.Title);
+                ApuPort.Music, AudioRomDataMusicTracks.Title);
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);
             stockRenderer.RenderFrame([titleUpload]);

@@ -62,8 +62,8 @@ internal static partial class Program
             {
                 if (command.Kind == CartridgeAudioCommandKind.Upload) uploadFrame = frame;
                 if (command.Kind != CartridgeAudioCommandKind.WritePort) continue;
-                ports[command.Port] = command.Value;
-                if (command.Port == 0 && command.Value == 5)
+                ports[(int)command.InputPort] = command.Value;
+                if (command.InputPort == ApuPort.Music && command.Value == 5)
                 {
                     Console.WriteLine($"Destination music at frame {frame}, phase {phase}, music wait frame {musicWaitFrame}.");
                     AssertTrue(musicWaitFrame >= 0, "destination track must not start before door scrolling finishes");
@@ -84,7 +84,7 @@ internal static partial class Program
         audio.QueueRoomMusicTrack(6, 0x80);
         var stopCommands = new List<CartridgeAudioCommand>();
         for (int frame = 0; frame < 9; frame++) stopCommands.AddRange(audio.AdvanceFrame(bus, default));
-        AssertTrue(stopCommands.Contains(CartridgeAudioCommand.WritePort(0, 0)), "nonzero masked track-zero remains an explicit stop");
+        AssertTrue(stopCommands.Contains(CartridgeAudioCommand.WritePort(ApuPort.Music, 0)), "nonzero masked track-zero remains an explicit stop");
         Console.WriteLine("  Door music: IRQ-only waits preserve queued delays; post-scroll stop/upload and track dispatch timing agree.");
     }
 }

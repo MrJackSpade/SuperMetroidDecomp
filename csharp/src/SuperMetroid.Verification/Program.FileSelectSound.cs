@@ -20,7 +20,7 @@ internal static partial class Program
             bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
             menu.Step(accept ? (ushort)SnesButton.A : (ushort)0);
             var commands = audio.AdvanceFrame(bus, renderer.ReadAcknowledgements());
-            writes += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
+            writes += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
             var pcm = renderer.RenderFrame(commands);
             if (!accepted && !accept) AssertTrue(pcm.All(value => value == 0), "isolated selection must be silent before accept");
             else nonzero += pcm.Count(value => value != 0);
@@ -57,7 +57,7 @@ internal static partial class Program
             var frame = game.StepCaptured(tick % 47 == 0 ? (ushort)button : (ushort)0, tick + 1, 1).Frame;
             reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
             bool IsSwoosh(CartridgeAudioCommand command) => command.Kind == CartridgeAudioCommandKind.WritePort &&
-                command.Port == 1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value;
+                command.InputPort == ApuPort.SoundLibrary1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value;
             writes += frame.AudioCommands.Count(IsSwoosh);
             if (frame.AudioCommands.Any(IsSwoosh) && firstSoundTick < 0)
             {

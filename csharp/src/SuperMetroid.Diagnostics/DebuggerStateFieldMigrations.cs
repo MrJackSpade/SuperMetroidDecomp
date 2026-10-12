@@ -509,8 +509,9 @@ internal static class DebuggerStateFieldMigrations
         var previous = new byte[reads.Length];
         for (int library = 0; library < reads.Length; library++)
         {
-            int port = library + (byte)SuperMetroid.Core.Audio.ApuPort.SoundLibrary1;
-            byte echoed = player.ReadPort(port);
+            SuperMetroid.Core.Audio.ApuPort libraryPort = SuperMetroid.Core.Audio.ApuPorts.ForSoundLibrary(library);
+            int port = (byte)libraryPort;
+            byte echoed = player.ReadPort(libraryPort);
             reads[library] = previous[library] = echoed;
             if (inputPorts[port] == byte.MaxValue)
                 inputPorts[port] = echoed;

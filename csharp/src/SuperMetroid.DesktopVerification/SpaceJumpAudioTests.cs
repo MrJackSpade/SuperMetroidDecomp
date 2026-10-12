@@ -32,7 +32,7 @@ internal static partial class Program
             var samus = loaded.Game.RuntimeForVerification!.Samus!;
             if (frame is < 4 or 20) Console.WriteLine($"jump test {frame}: pose={(int)samus.Pose:X2}, locked={samus.InputLocked}, phase={next.Phase}, input={input:X4}");
             spun |= SamusState.IsSpinJumpPose(samus.Pose);
-            stopped |= next.AudioCommands.Any(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 1 && command.Value == 0x32);
+            stopped |= next.AudioCommands.Any(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary1 && command.Value == 0x32);
             audio.RenderFrame(next.AudioCommands);
             loaded.Game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
         }

@@ -166,6 +166,24 @@ internal static partial class Program
         Expect(api + "class Driver { void M(Dsp dsp) => dsp.Cycle(); }");
     }
 
+    private static void VerifySpcMemoryAccessAnalyzer()
+    {
+        var analyzer = new SpcMemoryAccessAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer);
+        const string api =
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SpcMemoryAccessAttribute : System.Attribute { } " +
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SpcMemoryBoundaryAttribute(string reason) : System.Attribute { } " +
+            "sealed class Player { [SpcMemoryAccess] private readonly byte[] ram = new byte[0x10000]; " +
+            "[SpcMemoryBoundary(\"driver-memory view\")] private byte Next(ref ushort cursor) => ram[cursor++]; ";
+
+        // SME6320: raw APU RAM indexing outside a boundary.
+        Expect(api + "byte M(ushort pointer) => ram[pointer]; }",
+            SpcMemoryAccessAnalyzer.RawAccessId, "'Player.ram' is raw SPC700 memory access");
+        // A typed view and code that uses it pass.
+        Expect(api + "byte M(ref ushort pointer) => Next(ref pointer); }");
+    }
+
     private static void VerifySpatialClumpAnalyzer()
     {
         var analyzer = new SpatialClumpAnalyzer();

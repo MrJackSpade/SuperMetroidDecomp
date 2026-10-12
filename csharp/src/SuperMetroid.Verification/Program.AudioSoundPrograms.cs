@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
+    [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     private static void VerifyEditableSoundEffectPrograms()
     {
         string sourceDirectory = Path.GetFullPath("standalone-assets/audio");
@@ -92,7 +93,7 @@ internal static partial class Program
             }
 
             CartridgeAudioCommand trigger = CartridgeAudioCommand.WritePort(
-                (byte)ApuPort.SoundLibrary1,
+                ApuPort.SoundLibrary1,
                 effect.Command);
             bool stockAudible = false;
             bool editedAudible = false;

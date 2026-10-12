@@ -50,7 +50,7 @@ public sealed class CartridgeAudioRenderer
                     Player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
                     break;
                 case CartridgeAudioCommandKind.WritePort:
-                    Player.WritePort(command.Port, command.Value);
+                    Player.WritePort(command.InputPort, command.Value);
                     break;
                 default:
                     throw new InvalidDataException($"Unknown cartridge audio command {command.Kind}.");
@@ -63,5 +63,6 @@ public sealed class CartridgeAudioRenderer
     /// <summary>Snapshots the current SPC-to-CPU acknowledgement bytes corresponding to APU ports $2140-$2143, without advancing synthesis or consuming them.</summary>
     /// <returns>Value-copied output-port bytes in port order 0 through 3, ready for the cartridge command/acknowledgement owner.</returns>
     public CartridgeAudioAcknowledgements ReadAcknowledgements() => new(
-        Player.ReadPort(0), Player.ReadPort(1), Player.ReadPort(2), Player.ReadPort(3));
+        Player.ReadPort(ApuPort.Music), Player.ReadPort(ApuPort.SoundLibrary1),
+        Player.ReadPort(ApuPort.SoundLibrary2), Player.ReadPort(ApuPort.SoundLibrary3));
 }

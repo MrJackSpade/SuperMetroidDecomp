@@ -75,8 +75,8 @@ internal static partial class Program
             writes.AddRange(commands.Where(command => command.Kind == CartridgeAudioCommandKind.WritePort));
             renderer.RenderFrame(commands);
         }
-        AssertEqual(1, writes.Count(command => command.Port == 3 && command.Value == 0x19), "SPC receives exactly one library-three death cry");
-        AssertEqual(0, writes.Count(command => command.Port == 2 && command.Value == 0x19), "Death cry never reaches the wrong library");
+        AssertEqual(1, writes.Count(command => command.InputPort == ApuPort.SoundLibrary3 && command.Value == 0x19), "SPC receives exactly one library-three death cry");
+        AssertEqual(0, writes.Count(command => command.InputPort == ApuPort.SoundLibrary2 && command.Value == 0x19), "Death cry never reaches the wrong library");
         Console.WriteLine("Baby Metroid fatal blow: exact 28-color blackout, seven cartridge recovery rows, untouched sprite palettes, one-shot death cry and SPC publication passed.");
         return 0;
 

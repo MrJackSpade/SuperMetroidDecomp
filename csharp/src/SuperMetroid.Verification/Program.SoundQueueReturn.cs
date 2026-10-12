@@ -34,13 +34,13 @@ internal static partial class Program
                 foreach (var command in queue.AdvanceFrame(bus,
                     new CartridgeAudioAcknowledgements(0, 0, 0, acknowledgement)))
                 {
-                    if (command == CartridgeAudioCommand.WritePort(3, 0)) acknowledgement = 0;
-                    else if (command == CartridgeAudioCommand.WritePort(3, 0x22))
+                    if (command == CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, 0)) acknowledgement = 0;
+                    else if (command == CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, 0x22))
                     {
                         acknowledgement = 0x22;
                         sounds.Add(0x22);
                     }
-                    else if (command == CartridgeAudioCommand.WritePort(3, 3))
+                    else if (command == CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, 3))
                     {
                         acknowledgement = 3;
                         sounds.Add(3);

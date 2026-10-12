@@ -157,7 +157,7 @@ internal static partial class Program
 
         var player = new ManagedSpcPlayer();
         player.Upload(CollectionsMarshal.AsSpan(upload));
-        player.WritePort((byte)ApuPort.Music, 1);
+        player.WritePort(ApuPort.Music, 1);
         short[] pcm = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
         // The SPC starts at tempo $10 and requires multiple 64-cycle timer carries before
         // the two-tick track startup handshake reaches the first pattern command.

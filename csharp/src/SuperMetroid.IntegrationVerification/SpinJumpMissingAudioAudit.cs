@@ -30,8 +30,8 @@ internal static class SpinJumpMissingAudioAudit
             audio.RenderFrame(next.Frame.AudioCommands);
             // $91:F624 queues library-one $33 on initial Screw Attack entry. Observe
             // the real frontend/APU handoff, not merely that the airborne pose changed.
-            heardScrewAttackStart |= next.Frame.AudioCommands.Contains(CartridgeAudioCommand.WritePort(1, 0x33));
-            startCommands += next.Frame.AudioCommands.Count(command => command == CartridgeAudioCommand.WritePort(1, 0x33));
+            heardScrewAttackStart |= next.Frame.AudioCommands.Contains(CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary1, 0x33));
+            startCommands += next.Frame.AudioCommands.Count(command => command == CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary1, 0x33));
             if (frame == 120 && (byte)currentSoundField.GetValue(firstLibrary)! != 0)
                 throw new InvalidDataException("Spin sound is still playing sixty frames after the Up-input cancellation.");
             if (frame % 15 == 0 || next.Frame.AudioCommands.Count != 0)

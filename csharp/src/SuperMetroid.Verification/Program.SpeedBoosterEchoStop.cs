@@ -49,8 +49,8 @@ internal static partial class Program
                 queue.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
             }
             var commands = queue.AdvanceFrame(bus, renderer.ReadAcknowledgements());
-            starts += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 3 && command.Value == 3);
-            stops += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 3 && command.Value == 0x25);
+            starts += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary3 && command.Value == 3);
+            stops += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary3 && command.Value == 0x25);
             var pcm = renderer.RenderFrame(commands);
             finalPeak = pcm.Max(sample => Math.Abs((int)sample));
             if (frame == 39)

@@ -33,7 +33,7 @@ public static class PauseAudioSmokeTest
         int pauseFrames = 0;
         int commandCount = 0;
         var continuity = new StereoPcmContinuityMeter();
-        var pauseSetupPortWrites = new List<(byte Port, byte Value)>();
+        var pauseSetupPortWrites = new List<(ApuPort Port, byte Value)>();
 
         FrontendFrame Step(ushort input)
         {
@@ -51,7 +51,7 @@ public static class PauseAudioSmokeTest
                 {
                     pauseSetupPortWrites.AddRange(next.AudioCommands
                         .Where(command => command.Kind == CartridgeAudioCommandKind.WritePort)
-                        .Select(command => (command.Port, command.Value)));
+                        .Select(command => (command.InputPort, command.Value)));
                 }
                 if (next.AudioCommands.Any(command =>
                         command.Kind == CartridgeAudioCommandKind.Upload))
@@ -102,14 +102,14 @@ public static class PauseAudioSmokeTest
 
         if (pauseFrames == 0 || commandCount == 0)
             throw new InvalidDataException("Pause PCM audit did not exercise audio or pause states.");
-        (byte Port, byte Value)[] expectedCancellationWrites =
+        (ApuPort Port, byte Value)[] expectedCancellationWrites =
         [
-            (1, SoundEffectLibrary1Sounds.CancelAll.Value),
-            (2, SoundEffectLibrary2Sounds.CancelAll.Value),
-            (3, SoundEffectLibrary3Sounds.CancelAll.Value),
+            (ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.CancelAll.Value),
+            (ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.CancelAll.Value),
+            (ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.CancelAll.Value),
         ];
         int cancellationCursor = 0;
-        foreach ((byte port, byte value) in pauseSetupPortWrites)
+        foreach ((ApuPort port, byte value) in pauseSetupPortWrites)
         {
             if (cancellationCursor < expectedCancellationWrites.Length &&
                 (port, value) == expectedCancellationWrites[cancellationCursor])

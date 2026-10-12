@@ -46,10 +46,10 @@ internal static partial class Program
             var renderer = new CartridgeAudioRenderer(assets);
             renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.SpcEngine)]);
             renderer.RenderFrame([CartridgeAudioCommand.Upload(bank.SnesAddress)]);
-            renderer.RenderFrame([CartridgeAudioCommand.WritePort(0, 5)]);
+            renderer.RenderFrame([CartridgeAudioCommand.WritePort(ApuPort.Music, 5)]);
             for (int frame = 0; frame < 600; frame++) renderer.RenderFrame([]);
             renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.LastMetroidInCaptivity)]);
-            renderer.RenderFrame([CartridgeAudioCommand.WritePort(0, 5)]);
+            renderer.RenderFrame([CartridgeAudioCommand.WritePort(ApuPort.Music, 5)]);
             bool audible = false;
             for (int frame = 0; frame < 600; frame++)
                 audible |= renderer.RenderFrame([]).Any(sample => sample != 0);

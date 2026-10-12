@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
+    [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     private static void VerifyEditableMusicPrograms()
     {
         string sourceDirectory = Path.GetFullPath("standalone-assets/audio");
@@ -115,7 +116,7 @@ internal static partial class Program
             CartridgeAudioCommand common = CartridgeAudioCommand.Upload(AudioUploadAddresses.SpcEngine);
             CartridgeAudioCommand titleUpload = CartridgeAudioCommand.Upload(AudioUploadAddresses.TitleSequence);
             CartridgeAudioCommand titleCommand = CartridgeAudioCommand.WritePort(
-                (byte)ApuPort.Music,
+                ApuPort.Music,
                 unchecked((byte)titleTrackIndex));
             stockRenderer.RenderFrame([common]);
             editedRenderer.RenderFrame([common]);

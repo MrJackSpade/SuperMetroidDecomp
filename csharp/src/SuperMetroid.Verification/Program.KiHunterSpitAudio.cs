@@ -51,8 +51,8 @@ internal static partial class Program
             foreach (var command in frame.AudioCommands)
             {
                 if (command.Kind != CartridgeAudioCommandKind.WritePort) continue;
-                ports[command.Port] = command.Value;
-                if (command.Port == 2 && command.Value == 0x4c) writes++;
+                ports[(int)command.InputPort] = command.Value;
+                if (command.InputPort == ApuPort.SoundLibrary2 && command.Value == 0x4c) writes++;
             }
         }
         Step();

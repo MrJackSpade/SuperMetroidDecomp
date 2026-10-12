@@ -31,7 +31,7 @@ internal static partial class Program
             bool expectedLoop = frame >= 39 && (frame - 39) % 54 == 0;
             AssertEqual(expectedLoop, audio.HasQueuedSounds, $"pause beep request cadence at frame {frame}");
             if (expectedLoop) requests++;
-            var acknowledgements = new CartridgeAudioAcknowledgements(player.ReadPort(0), player.ReadPort(1), player.ReadPort(2), player.ReadPort(3));
+            var acknowledgements = new CartridgeAudioAcknowledgements(player.ReadPort(ApuPort.Music), player.ReadPort(ApuPort.SoundLibrary1), player.ReadPort(ApuPort.SoundLibrary2), player.ReadPort(ApuPort.SoundLibrary3));
             foreach (var command in audio.AdvanceFrame(bus, acknowledgements))
             {
                 if (command.Kind == CartridgeAudioCommandKind.Upload)
@@ -41,8 +41,8 @@ internal static partial class Program
                     player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
                     continue;
                 }
-                player.WritePort(command.Port, command.Value);
-                if (command.Port == 3)
+                player.WritePort(command.InputPort, command.Value);
+                if (command.InputPort == ApuPort.SoundLibrary3)
                 {
                     if (command.Value == SoundEffectLibrary3Sounds.MapPaletteLoop.Value && lastPort3 != command.Value)
                         soundWrites++;

@@ -31,8 +31,7 @@ public sealed partial class ManagedSpcPlayer
                 // Indices21 and above start at the echo FIR data after the21 pan samples.
                 // Preserve the existing mutable SPC-RAM compatibility branch.
                 int address = panIndex + SpcDriverData.Music.PanVolumeTableAddress;
-                baseVolume = ram[address];
-                nextVolume = ram[address + 1];
+                (baseVolume, nextVolume) = ReadPanVolumePair(address);
             }
             else
             {
@@ -122,20 +121,21 @@ public sealed partial class ManagedSpcPlayer
             return;
 
         SnesDspVoiceControls voice = Dsp.Voice(channel.Index);
-        if ((ram[address] & SpcDriverData.Instruments.NoiseMarker) != 0)
+        SpcInstrumentRecord record = ReadInstrument(address);
+        if ((record.SourceOrNoiseRate & SpcDriverData.Instruments.NoiseMarker) != 0)
         {
             dspFlags = unchecked((byte)((dspFlags & SpcDriverData.Echo.WriteDisable) |
-                DspFlags.NoiseRateOf(ram[address])));
+                DspFlags.NoiseRateOf(record.SourceOrNoiseRate)));
             noiseEnable |= currentChannelBit;
             voice.WriteSource(0);
         }
         else
         {
-            voice.WriteSource(ram[address]);
+            voice.WriteSource(record.SourceOrNoiseRate);
         }
-        voice.WriteAdsr(ram[address + 1], ram[address + 2]);
-        voice.WriteGain(ram[address + 3]);
-        channel.InstrumentPitchBase = unchecked((ushort)((ram[address + 4] << 8) | ram[address + 5]));
+        voice.WriteAdsr(record.Adsr1, record.Adsr2);
+        voice.WriteGain(record.Gain);
+        channel.InstrumentPitchBase = record.PitchBase;
     }
 
     private void SetInstrument(ManagedSpcMusicChannel channel, byte instrument)
@@ -153,12 +153,12 @@ public sealed partial class ManagedSpcPlayer
 
     private void CheckPitchSlideToNote(ManagedSpcMusicChannel channel)
     {
-        if (channel.PitchSlideLength != 0 || ram[channel.PatternOrderPointer] != (byte)SpcMusicEffect.PitchSlide)
+        if (channel.PitchSlideLength != 0 || PeekSequenceByte(channel.PatternOrderPointer) != (byte)SpcMusicEffect.PitchSlide)
             return;
         channel.PatternOrderPointer++;
-        channel.PitchSlideDelayLeft = ram[channel.PatternOrderPointer++];
-        channel.PitchSlideLength = ram[channel.PatternOrderPointer++];
-        ComputePitchAdd(channel, unchecked((byte)(ram[channel.PatternOrderPointer++] +
+        channel.PitchSlideDelayLeft = NextSequenceByte(ref channel.PatternOrderPointer);
+        channel.PitchSlideLength = NextSequenceByte(ref channel.PatternOrderPointer);
+        ComputePitchAdd(channel, unchecked((byte)(NextSequenceByte(ref channel.PatternOrderPointer) +
             globalTransposition + channel.ChannelTransposition)));
     }
 
@@ -168,7 +168,7 @@ public sealed partial class ManagedSpcPlayer
         if ((uint)tableIndex >= SpcMusicTables.EffectCount)
             throw new InvalidDataException($"Unknown SPC music effect ${rawEffect:X2}.");
         byte argument = SpcMusicTables.EffectByteLength(tableIndex) != 0
-            ? ram[channel.PatternOrderPointer++]
+            ? NextSequenceByte(ref channel.PatternOrderPointer)
             : (byte)0;
 
         switch ((SpcMusicEffect)rawEffect)
@@ -182,14 +182,14 @@ public sealed partial class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.FadePan:
                 channel.PanTicks = argument;
-                channel.PanTarget = ram[channel.PatternOrderPointer++];
+                channel.PanTarget = NextSequenceByte(ref channel.PatternOrderPointer);
                 channel.PanAddPerTick = DivideSignedFixedPoint(
                     channel.PanTarget - (channel.PanValue >> 8), argument);
                 break;
             case SpcMusicEffect.EnableVibrato:
                 channel.VibratoDelayTicks = argument;
-                channel.VibratoRate = ram[channel.PatternOrderPointer++];
-                channel.VibratoDepthTarget = channel.VibratoDepth = ram[channel.PatternOrderPointer++];
+                channel.VibratoRate = NextSequenceByte(ref channel.PatternOrderPointer);
+                channel.VibratoDepthTarget = channel.VibratoDepth = NextSequenceByte(ref channel.PatternOrderPointer);
                 channel.VibratoFadeTicks = 0;
                 break;
             case SpcMusicEffect.DisableVibrato:
@@ -201,7 +201,7 @@ public sealed partial class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.FadeMasterVolume:
                 masterVolumeFadeTicks = argument;
-                masterVolumeFadeTarget = ram[channel.PatternOrderPointer++];
+                masterVolumeFadeTarget = NextSequenceByte(ref channel.PatternOrderPointer);
                 masterVolumeFadeAdd = DivideSignedFixedPoint(
                     masterVolumeFadeTarget - (masterVolume >> 8), argument);
                 break;
@@ -210,7 +210,7 @@ public sealed partial class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.FadeTempo:
                 tempoFadeTicks = argument;
-                tempoFadeTarget = ram[channel.PatternOrderPointer++];
+                tempoFadeTarget = NextSequenceByte(ref channel.PatternOrderPointer);
                 tempoFadeAdd = DivideSignedFixedPoint(tempoFadeTarget - (tempo >> 8), argument);
                 break;
             case SpcMusicEffect.SetGlobalTransposition:
@@ -221,8 +221,8 @@ public sealed partial class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.EnableTremolo:
                 channel.TremoloDelayTicks = argument;
-                channel.TremoloRate = ram[channel.PatternOrderPointer++];
-                channel.TremoloDepth = ram[channel.PatternOrderPointer++];
+                channel.TremoloRate = NextSequenceByte(ref channel.PatternOrderPointer);
+                channel.TremoloDepth = NextSequenceByte(ref channel.PatternOrderPointer);
                 break;
             case SpcMusicEffect.DisableTremolo:
                 channel.TremoloDepth = 0;
@@ -232,14 +232,14 @@ public sealed partial class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.FadeChannelVolume:
                 channel.VolumeFadeTicks = argument;
-                channel.VolumeFadeTarget = ram[channel.PatternOrderPointer++];
+                channel.VolumeFadeTarget = NextSequenceByte(ref channel.PatternOrderPointer);
                 channel.VolumeFadeAddPerTick = DivideSignedFixedPoint(
                     channel.VolumeFadeTarget - (channel.ChannelVolume >> 8), argument);
                 break;
             case SpcMusicEffect.CallPattern:
                 channel.PatternStartPointer = unchecked((ushort)(
-                    (ram[channel.PatternOrderPointer++] << 8) | argument));
-                channel.SubroutineLoops = ram[channel.PatternOrderPointer++];
+                    (NextSequenceByte(ref channel.PatternOrderPointer) << 8) | argument));
+                channel.SubroutineLoops = NextSequenceByte(ref channel.PatternOrderPointer);
                 channel.SavedPatternPointer = channel.PatternOrderPointer;
                 channel.PatternOrderPointer = channel.PatternStartPointer;
                 break;
@@ -254,8 +254,8 @@ public sealed partial class ManagedSpcPlayer
                 channel.PitchEnvelopeDirection = rawEffect == (byte)SpcMusicEffect.PitchEnvelopeTo
                     ? (byte)1 : (byte)0;
                 channel.PitchEnvelopeDelay = argument;
-                channel.PitchEnvelopeTicks = ram[channel.PatternOrderPointer++];
-                channel.PitchEnvelopeSlide = ram[channel.PatternOrderPointer++];
+                channel.PitchEnvelopeTicks = NextSequenceByte(ref channel.PatternOrderPointer);
+                channel.PitchEnvelopeSlide = NextSequenceByte(ref channel.PatternOrderPointer);
                 break;
             case SpcMusicEffect.DisablePitchEnvelope:
                 channel.PitchEnvelopeTicks = 0;
@@ -265,8 +265,8 @@ public sealed partial class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.EnableEcho:
                 echoEnable = argument;
-                echoVolumeLeft = unchecked((ushort)(ram[channel.PatternOrderPointer++] << 8));
-                echoVolumeRight = unchecked((ushort)(ram[channel.PatternOrderPointer++] << 8));
+                echoVolumeLeft = unchecked((ushort)(NextSequenceByte(ref channel.PatternOrderPointer) << 8));
+                echoVolumeRight = unchecked((ushort)(NextSequenceByte(ref channel.PatternOrderPointer) << 8));
                 dspFlags &= unchecked((byte)~SpcDriverData.Echo.WriteDisable);
                 break;
             case SpcMusicEffect.DisableEcho:
@@ -275,8 +275,8 @@ public sealed partial class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.ConfigureEcho:
                 SetupEchoDelay(argument);
-                echoFeedback = ram[channel.PatternOrderPointer++];
-                int preset = ram[channel.PatternOrderPointer++];
+                echoFeedback = NextSequenceByte(ref channel.PatternOrderPointer);
+                int preset = NextSequenceByte(ref channel.PatternOrderPointer);
                 int firOffset = unchecked((byte)(preset * SpcDriverData.Echo.FirTapCount));
                 // `$F7` indexes from APU `$1E32`, not from an abstract four-entry host
                 // array. Retail sequences use values beyond three: Kraid's post-defeat
@@ -288,13 +288,13 @@ public sealed partial class ManagedSpcPlayer
                 for (int tap = 0; tap < SpcDriverData.Echo.FirTapCount; tap++)
                 {
                     Dsp.Global.WriteFirCoefficient(tap,
-                        unchecked((sbyte)ram[SpcDriverData.Echo.FirCoefficientTableAddress + firOffset + tap]));
+                        ReadFirCoefficient(firOffset + tap));
                 }
                 break;
             case SpcMusicEffect.FadeEchoVolume:
                 echoVolumeFadeTicks = argument;
-                echoVolumeFadeTargetLeft = ram[channel.PatternOrderPointer++];
-                echoVolumeFadeTargetRight = ram[channel.PatternOrderPointer++];
+                echoVolumeFadeTargetLeft = NextSequenceByte(ref channel.PatternOrderPointer);
+                echoVolumeFadeTargetRight = NextSequenceByte(ref channel.PatternOrderPointer);
                 echoVolumeFadeAddLeft = DivideSignedFixedPoint(
                     echoVolumeFadeTargetLeft - (echoVolumeLeft >> 8), argument);
                 echoVolumeFadeAddRight = DivideSignedFixedPoint(
@@ -302,8 +302,8 @@ public sealed partial class ManagedSpcPlayer
                 break;
             case SpcMusicEffect.PitchSlide:
                 channel.PitchSlideDelayLeft = argument;
-                channel.PitchSlideLength = ram[channel.PatternOrderPointer++];
-                ComputePitchAdd(channel, unchecked((byte)(ram[channel.PatternOrderPointer++] +
+                channel.PitchSlideLength = NextSequenceByte(ref channel.PatternOrderPointer);
+                ComputePitchAdd(channel, unchecked((byte)(NextSequenceByte(ref channel.PatternOrderPointer) +
                     globalTransposition + channel.ChannelTransposition)));
                 break;
             case SpcMusicEffect.SetPercussionBase:
@@ -334,7 +334,7 @@ public sealed partial class ManagedSpcPlayer
         ushort pointer = channel.PatternOrderPointer;
         for (int instructions = 0; instructions < SpcDriverData.MaximumFastForwardTicks; instructions++)
         {
-            byte command = ram[pointer++];
+            byte command = NextSequenceByte(ref pointer);
             if (command == 0)
             {
                 if (loops == 0)
@@ -345,7 +345,7 @@ public sealed partial class ManagedSpcPlayer
             else
             {
                 while ((command & 0x80) == 0) // allow(BitMask): music-command marker
-                    command = ram[pointer++];
+                    command = NextSequenceByte(ref pointer);
                 if (command == SpcDriverData.Music.TieNote)
                     return false;
                 if (command == (byte)SpcMusicEffect.CallPattern)
@@ -624,7 +624,7 @@ public sealed partial class ManagedSpcPlayer
                 {
                     if (instructions > SpcDriverData.MaximumFastForwardTicks)
                         throw new InvalidDataException($"SPC channel {index} did not reach a timed note.");
-                    byte noteCommand = ram[channel.PatternOrderPointer++];
+                    byte noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
                     if (noteCommand == 0)
                     {
                         if (channel.SubroutineLoops == 0)
@@ -637,12 +637,12 @@ public sealed partial class ManagedSpcPlayer
                     if ((noteCommand & 0x80) == 0) // allow(BitMask): music-command marker
                     {
                         channel.NoteLength = noteCommand;
-                        noteCommand = ram[channel.PatternOrderPointer++];
+                        noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
                         if ((noteCommand & 0x80) == 0) // allow(BitMask): music-command marker
                         {
                             channel.NoteGateOffFixedPoint = SpcMusicTables.NoteGateOffPercentage((noteCommand >> 4) & 7);
                             channel.ChannelVolumeMaster = SpcMusicTables.NoteVolume(noteCommand & 0x0f); // allow(BitMask): volume nibble
-                            noteCommand = ram[channel.PatternOrderPointer++];
+                            noteCommand = NextSequenceByte(ref channel.PatternOrderPointer);
                         }
                     }
                     if (noteCommand >= SpcDriverData.Music.FirstEffect)
@@ -706,7 +706,7 @@ public sealed partial class ManagedSpcPlayer
     {
         portsToSnes[(byte)ApuPort.Music] = track;
         // Track zero deliberately indexes the word immediately before the numbered table.
-        musicTopLevelPointer = ReadWord(SpcDriverData.Ram.DefaultMusicPointer + track * 2);
+        musicTopLevelPointer = ReadPointerEntry(SpcDriverData.Ram.DefaultMusicPointer, track);
         counter = SpcDriverData.Music.TrackStartupTicks;
         keyOff |= unchecked((byte)~channelOnMask);
     }

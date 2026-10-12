@@ -705,7 +705,7 @@ public sealed partial class SuperMetroidRuntime
         // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
         VramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
             sourceAddress: StandardObjectArtworkAddresses.Source,
-            destination: VramDmaDestination.FromNative(StandardObjectArtworkFormat.EncodedVramDestination));
+            destination: GameplayVram.ObjectCharactersDma());
         TrailArtwork?.Tiles?.QueueTo(VramWrites);
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The

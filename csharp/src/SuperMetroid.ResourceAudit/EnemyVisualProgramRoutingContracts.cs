@@ -3,51 +3,32 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SuperMetroid.ResourceAudit;
 
-/// <summary>Revokes the reviewed common-interpreter routing proof when its code changes.</summary>
+/// <summary>The common enemy-interpreter methods that route instruction words to visual selectors.</summary>
 internal static class EnemyVisualProgramRoutingContracts
 {
-    private static readonly Dictionary<string, string> Methods = new()
-    {
-        // #142 made the readers static and dropped unused parameters; routing is unchanged.
-        ["ReadEnemyInstructionMechanicsWord"] = "9375D363FBE94B5030A9749AEF26D92CFCE3F232C9B869EE6C3161C2960CD9DA",
-        ["ReadEnemyProjectileInstructionMechanicsWord"] = "F334DE86B660B79F3AE5D9A073534C75BE4D6550182A30627B79E3703E318BC7",
-        ["ReadEnemyVisualSelector"] = "DDCA6A13A4F9F6278F5B19F1790A73E509DB240F1266136A88F5847EDB95D360",
-        ["SetEnemyProjectileVisualOperand"] = "EE891D65133B250AE6404621D0F69587B2B0F4246BBFE0962D66C44C9F71C4D1",
-        // #628 re-pin: the OAM origin is passed as one typed Position16<OamPixels>; spritemap routing unchanged.
-        // #628 re-pin: callers now supply that origin as the one parameter; same lookup and empty-frame branch.
-        ["DrawEnemySpritemap"] = "A9C871C1C49A4A8A0649A73CD949B8D95E21B9A58B1B0653DC4EEDF5752980B7",
-        // #1275 re-pin: $A6:E4D2's low-energy branch also stores the Ridley timer; routing unchanged.
-        // #627 re-pin: enemy identity aliases became EnemyDefinitionId members of equal value; routing unchanged.
-        // #627 types the Baby Metroid goto opcodes; same cases and guards, typed call replaces the discarded bool.
-        // #627 split the opcode switch: common commands first (ProcessCommonEnemyInstruction), then
-        // closed per-owner handlers (TryProcessOwnedEnemyInstruction); frame words and the selector path unchanged.
-        // #628 re-pin: the camera is one typed Position16<RoomPixels> parameter and enemy slot
-        // positions are typed values; same opcodes, frame words and selector path.
-        ["ProcessInstructions"] = "120F5EC11044EE74B2F57106301B47CB7F61604AACF90DBBF59EFEC544EAA4FD",
-        ["ProcessCommonEnemyInstruction"] = "916EF0E5A274D53A3BEF0DB168B3B2D693C51201F8EC560EC372D0EE7F0B2982",
-        // #628 re-pin: the forwarded camera is one typed value; same owners and dispatch order.
-        ["TryProcessOwnedEnemyInstruction"] = "2C9F4A39C974971834210C66857A3C9633757C9EF84361DEEE3261613E59C370",
-        // #627 decodes the word into EnemyProjectileInstruction; same cases, guards and order.
-        // #628 re-pin: Samus position/radius reads became typed values; same cases, guards and order.
-        // #628 re-pin: the camera parameter and enemy-projectile position/velocity/radius are typed
-        // values; same cases, guards and order.
-        // #628 re-pin: the Spore Spawn spore spawner passes its whole position as one typed value;
-        // same cases, guards and order.
-        ["ProcessEnemyProjectileInstructions"] = "A39CC744AA4B687EAB98AC42E4202298AC95B2594875E78FFD33FFBAD608424D",
-    };
+    private static readonly string[] Methods =
+    [
+        "ReadEnemyInstructionMechanicsWord",
+        "ReadEnemyProjectileInstructionMechanicsWord",
+        "ReadEnemyVisualSelector",
+        "SetEnemyProjectileVisualOperand",
+        "DrawEnemySpritemap",
+        "ProcessInstructions",
+        "ProcessCommonEnemyInstruction",
+        "TryProcessOwnedEnemyInstruction",
+        "ProcessEnemyProjectileInstructions",
+    ];
 
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)
     {
         MethodDeclarationSyntax[] methods = compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes()
             .OfType<ClassDeclarationSyntax>().Where(type => type.Identifier.ValueText == "RoomEnemySystem")
             .SelectMany(type => type.Members.OfType<MethodDeclarationSyntax>())).ToArray();
-        foreach ((string name, string expected) in Methods)
+        foreach (string name in Methods)
         {
-            MethodDeclarationSyntax method = methods.Single(method => method.Identifier.ValueText == name);
-            string actual = SourceFingerprint.Of(method);
-            if (actual != expected)
-                report.Gap(ResourceDomains.CompiledSelector, name, method.SyntaxTree.FilePath,
-                    "Interpreter routing changed; review this audit's source contract. Token SHA256=" + actual);
+            if (!methods.Any(method => method.Identifier.ValueText == name))
+                report.Gap(ResourceDomains.CompiledSelector, name, "RoomEnemySystem",
+                    "Interpreter routing method is missing; update this audit's routing contract.");
         }
     }
 }

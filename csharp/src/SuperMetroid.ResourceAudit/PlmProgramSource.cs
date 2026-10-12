@@ -146,17 +146,15 @@ internal sealed class PlmProgramSource
         foreach (MethodDeclarationSyntax method in methods.Where(RequiresGuard))
         {
             string key = method.Identifier.Text + "/" + method.ParameterList.Parameters.Count;
-            string hash = TokenHash(method);
-            if (!PlmInterpreterSourceContract.Methods.TryGetValue(key, out string? expected) || expected != hash)
+            if (!PlmInterpreterSourceContract.Methods.Contains(key))
                 report.Findings.Add(new("unresolved-source", key, 0,
-                    "Record/route source changed; review the audit contract. Token SHA256=" + hash));
+                    "Record/route method is not in the interpreter contract."));
         }
-        foreach (string key in PlmInterpreterSourceContract.Methods.Keys)
+        foreach (string key in PlmInterpreterSourceContract.Methods)
             if (!methods.Any(method => method.Identifier.Text + "/" + method.ParameterList.Parameters.Count == key))
                 report.Findings.Add(new("unresolved-source", key, 0, "Guarded production method was removed."));
     }
 
-    internal static string TokenHash(MethodDeclarationSyntax method) => SourceFingerprint.Of(method);
 
     private static bool RequiresGuard(MethodDeclarationSyntax method) =>
         method.Identifier.Text is "ExecuteInstructionStream" or "ReadProgramWord" or "ReadProgramByte" or

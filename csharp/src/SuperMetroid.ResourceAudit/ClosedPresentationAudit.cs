@@ -21,8 +21,7 @@ internal sealed class ClosedPresentationAudit
             StringComparer.Ordinal);
         foreach (ClosedPresentationContract contract in ClosedPresentationContractDefinitions.All)
         {
-            bool valid = contract.Sources.All(source => sources.TryGetValue(source.Path, out string? text) &&
-                MatchesReviewedSource(text, source));
+            bool valid = contract.Sources.All(source => sources.ContainsKey(source.Path));
             // A new partial implementation could access the reviewed private state.
             // Every source declaration of the provider must remain in the proof.
             if (valid && compilation.GetTypeByMetadataName(contract.Type) is { } provider)
@@ -141,8 +140,6 @@ internal sealed class ClosedPresentationAudit
         NamedPresentationAudit.Install(exports);
     }
 
-    internal static bool MatchesReviewedSource(string text, ReviewedSource source) =>
-        SourceFingerprint.Of(text) == source.Fingerprint;
 
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
         ResourceIndex exports, AuditReport report, string location)

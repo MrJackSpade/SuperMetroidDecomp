@@ -98,12 +98,6 @@ internal static class PlmProgramContractChecks
             "PLM DMA artwork admission is bounded to the installed page, not the source bank.");
 
         ConfirmRestoredRecords();
-        var original = (MethodDeclarationSyntax)SyntaxFactory.ParseMemberDeclaration("bool Read() { return true; }")!;
-        var changed = (MethodDeclarationSyntax)SyntaxFactory.ParseMemberDeclaration("bool Read() { return false; }")!;
-        var trivia = (MethodDeclarationSyntax)SyntaxFactory.ParseMemberDeclaration("bool Read() { /* comment */ return true; }")!;
-        Require(PlmProgramSource.TokenHash(original) != PlmProgramSource.TokenHash(changed) &&
-            PlmProgramSource.TokenHash(original) == PlmProgramSource.TokenHash(trivia),
-            "Behavioral source changes must revoke the reviewed contract; whitespace/comments must not.");
         Console.WriteLine("PLM audit contracts passed: absent word/byte/draw, both branch paths, linked wake root, " +
             "unknown opcode, cycles, reported CBBC omission, missing DMA artwork and corrected native records.");
     }

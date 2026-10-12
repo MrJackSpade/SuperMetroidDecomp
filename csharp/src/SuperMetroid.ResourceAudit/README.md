@@ -68,7 +68,7 @@ full exception on stderr. Windows entry-point failures cannot open a CLR error d
   Supported constant bank/pointer lookups are checked; dynamic IDs and unknown catalog
   domains are retained as explicit unresolved findings with their source/arguments.
 - Particular complete, loader-validated domains have source-reviewed, method-specific
-  closure rules. They are guarded by provider/definition fingerprints, not baselines.
+  closure rules that list their provider/definition sources; they are not baselines.
   Changed contracts, new operations, invalid constants and unbounded string names remain
   failures. See [CLOSED-PROVIDER-CONTRACTS.md](CLOSED-PROVIDER-CONTRACTS.md) for scope/proof.
   Named menu selections compare finite source-resolved names against loader-required
@@ -112,7 +112,7 @@ No gameplay search is needed or authorized to establish that distinction.
 The JSON has schema `version` 2, scope, reference/distinct-missing/unresolved counts,
 per-domain `coverage`, all `findings`, all `consumers`, and source-owned `compiledDefinitions`.
 It also retains per-consumer `classifications` with the precise closure rule, reason and
-guarded provider-source fingerprints; classified calls do not disappear from inventory.
+provider source files; classified calls do not disappear from inventory.
 Coverage exports count both installed identities and applicable compiled definitions.
 Findings include domain, owner,
 identity, relative source location and explanation. Multiple references to one missing

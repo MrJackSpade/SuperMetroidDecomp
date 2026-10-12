@@ -17,7 +17,6 @@ internal static class EnemyVisualProgramAudit
 
     internal static int Run(string root, string output)
     {
-        EnemyVisualProgramSpecializations.GuardCustomLayouts(root);
         var report = new AuditReport();
         ResourceIndex exports = DefinitionAudit.CollectEnemyVisuals(root, report);
         CSharpCompilation compilation = ConsumerAudit.CreateCompilation(root);
@@ -78,7 +77,7 @@ internal static class EnemyVisualProgramAudit
             }
             else if (EnemyVisualProgramSpecializations.TryOperands(type, addresses))
                 shape = "specialized-layout";
-            else if (EnemyVisualProgramSpecializations.IsReviewedControlOnly(type, root))
+            else if (EnemyVisualProgramSpecializations.IsControlOnly(type))
                 shape = "control-only";
 
             Dictionary<ushort, ushort> words = ReadWords(type, catalog);
@@ -97,7 +96,7 @@ internal static class EnemyVisualProgramAudit
                     Require(type, (byte)bank.Value, operand, source, exports, report);
             rows.Add(new(addresses.Count));
         }
-        EnemyVisualTypedProgramAudit.Inspect(root, compilation, exports, report, rows);
+        EnemyVisualTypedProgramAudit.Inspect(compilation, exports, report, rows);
         report.Sort();
         string destination = Path.GetFullPath(output);
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);

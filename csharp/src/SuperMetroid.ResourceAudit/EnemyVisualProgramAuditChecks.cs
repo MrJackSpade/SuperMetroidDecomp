@@ -71,17 +71,7 @@ internal static class EnemyVisualProgramAuditChecks
             PolypRockInstructionProgramDefinitions.PresentationWord, null, "PolypRock", "fixture", new ResourceIndex(), missingProjectile);
         Require(missingProjectile.Findings.Count == 1, "missing projectile binding/selector is rejected");
 
-        const string reviewed = "static class Program\n{\n    const ushort Frame = 0x8000;\n}\n";
-        string hash = SourceFingerprint.Of(reviewed);
-        Require(EnemyVisualProgramSpecializations.SourceMatches(reviewed.Replace("\n", "\r\n"), hash), "line endings preserve a disposition");
-        Require(EnemyVisualProgramSpecializations.SourceMatches(
-            "/// <summary>Documented.</summary>\n" + reviewed.Replace("0x8000;", "0x8000; // $80:8000"), hash),
-            "documentation and comments preserve a disposition");
-        Require(!EnemyVisualProgramSpecializations.SourceMatches(reviewed.Replace("0x8000", "0x8002"), hash),
-            "changed custom/control-only source revokes its disposition");
-        Require(!EnemyVisualProgramSpecializations.SourceMatches("#define NEW_FRAME\n" + reviewed, hash),
-            "a new preprocessor directive revokes its disposition");
-        Console.WriteLine("Enemy visual audit contracts: owner discovery, missing selector/artwork, bank isolation, projectile binding, and disposition revocation pass.");
+        Console.WriteLine("Enemy visual audit contracts: owner discovery, missing selector/artwork, bank isolation, and projectile binding pass.");
     }
 
     private static void Require(bool condition, string message)

@@ -8,12 +8,10 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Typed custom programs whose frame fields bypass the common operand interpreter.</summary>
 internal static class EnemyVisualTypedProgramAudit
 {
-    internal static void Inspect(string root, CSharpCompilation compilation, ResourceIndex exports,
+    internal static void Inspect(CSharpCompilation compilation, ResourceIndex exports,
         AuditReport report, List<EnemyVisualProgramAudit.ProgramRow> rows)
     {
         const string ceresSource = "csharp/src/SuperMetroid.Core/Game/CeresElevatorArrivalDefinitions.cs";
-        EnemyVisualProgramSpecializations.GuardSource(root, ceresSource,
-            "B77B61FC101DF0A017E158E60848A0FBA7E88052E333C24C8BCEB4F778A972A3");
         SyntaxTree tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == ceresSource);
         SemanticModel model = compilation.GetSemanticModel(tree);
         MethodDeclarationSyntax reader = tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
@@ -33,11 +31,6 @@ internal static class EnemyVisualTypedProgramAudit
         }
         rows.Add(new(ceresFrames));
 
-        // Import and installation admission both derive the exact head-map key set
-        // from these typed frame records. Guard the reviewed producer/loader source;
-        // this is a closed provider proof, not an independently duplicated pointer list.
-        EnemyVisualProgramSpecializations.GuardSource(root,
-            "csharp/src/SuperMetroid.AssetExtraction/EnemyTileArtworkFiles.cs", "142FB557B706B0254DC70FFF24D5B16D6E77B02A6AE5CD19CA0388C56196571E");
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
             report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),

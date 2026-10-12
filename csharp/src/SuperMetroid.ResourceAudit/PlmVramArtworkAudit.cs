@@ -21,9 +21,8 @@ internal static class PlmVramArtworkAudit
         // Includes the importer: a range merely named in Core must not count as
         // installed if extraction, manifest admission or PNG loading was removed.
         foreach (ReviewedSource source in PlmVramArtworkSourceContract.Sources)
-            if (!ClosedPresentationAudit.MatchesReviewedSource(
-                File.ReadAllText(Path.Combine(root, source.Path)), source))
+            if (!File.Exists(Path.Combine(root, source.Path)))
                 report.Findings.Add(new("unresolved-artwork-source", source.Path, 0,
-                    "PLM DMA provider/import/NMI routing changed; review its coverage before updating the contract."));
+                    "PLM DMA provider/import/NMI routing source is missing."));
     }
 }

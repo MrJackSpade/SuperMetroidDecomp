@@ -88,7 +88,6 @@ internal static class VramDmaAudit
                 var methodSyntax = syntax.Ancestors().OfType<BaseMethodDeclarationSyntax>().FirstOrDefault();
                 var method = methodSyntax is null ? null : semantic.GetDeclaredSymbol(methodSyntax) as IMethodSymbol;
                 string owner = method is null ? "<non-method queue producer>" : method.ContainingType.ToDisplayString() + "." + method.Name;
-                string hash = methodSyntax is null ? "" : Hash(methodSyntax);
                 report.Sites.Add(new());
                 bool typed = call.TargetMethod.Name == nameof(VramWriteQueue.EnqueueAsset);
                 int? count = Constant(call, "sizeInBytes");
@@ -104,10 +103,10 @@ internal static class VramDmaAudit
                         typed ? (VramAssetId)source.Value : VramAssetId.None), Location(syntax));
                     continue;
                 }
-                if (!VramDmaProducerContracts.TryGet(owner, hash, out string? family))
+                if (!VramDmaProducerContracts.TryGet(owner, out string? family))
                 {
                     report.Findings.Add(new("unresolved-producer", owner, Location(syntax),
-                        "Nonconstant source/count needs a reviewed finite-domain adapter. Method SHA256=" + hash));
+                        "Nonconstant source/count needs a finite-domain adapter."));
                     continue;
                 }
                 if (!adapted.Add(owner)) continue;
@@ -170,7 +169,6 @@ internal static class VramDmaAudit
         var value = call.Arguments.Single(argument => argument.Parameter?.Name == name).Value.ConstantValue;
         return value is { HasValue: true, Value: not null } ? Convert.ToInt32(value.Value) : null;
     }
-    internal static string Hash(SyntaxNode node) => SourceFingerprint.Of(node);
     private static string Location(SyntaxNode node) => node.SyntaxTree.FilePath + ":" +
         (node.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
 }

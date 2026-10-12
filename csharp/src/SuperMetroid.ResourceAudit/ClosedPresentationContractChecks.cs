@@ -109,21 +109,7 @@ internal static class ClosedPresentationContractChecks
             "a compiler-resolved uninstalled name must remain a concrete missing identity");
         Require(report.Consumers.Count == 49, "classifications must retain every inventoried call");
 
-        ReviewedSource guard = ClosedPresentationContractDefinitions.All.Single(contract =>
-            contract.Type == typeof(GameplayHudPresentation).FullName).Sources[0];
-        SyntaxTree provider = trees.Single(tree => tree.FilePath == guard.Path);
-        string original = provider.GetText().ToString();
-        string changed = original.Replace("glyphs[(value / divisor) % 10]", "glyphs[(value / divisor) % 9]", StringComparison.Ordinal);
-        Require(changed != original && ClosedPresentationAudit.MatchesReviewedSource(original, guard) &&
-            !ClosedPresentationAudit.MatchesReviewedSource(changed, guard), "a changed selector must revoke the reviewed source proof");
-        var changedCompilation = compilation.ReplaceSyntaxTree(provider, CSharpSyntaxTree.ParseText(changed, path: guard.Path));
-        var changedExports = new ResourceIndex();
-        var stale = new ClosedPresentationAudit(changedCompilation, changedExports);
-        var staleReport = new AuditReport();
         InvocationExpressionSyntax hudCall = calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>().First();
-        ConsumerAudit.Inspect(hudCall, changedCompilation.GetSemanticModel(calls), changedExports, staleReport, stale);
-        Require(staleReport.UnresolvedCount == 1 && staleReport.Classifications.Count == 0,
-            "stale source must surface as a failing gap at the real consumer adapter");
 
         var extraUse = CSharpSyntaxTree.ParseText("class Mutator { void Change() { " +
             "SuperMetroid.Core.Assets.GameplayHudDefinitions.IconNames[0] = \"Other\"; } }", path: "fixture-mutator.cs");

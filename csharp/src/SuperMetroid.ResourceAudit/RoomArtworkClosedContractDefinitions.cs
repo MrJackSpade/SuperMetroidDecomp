@@ -4,18 +4,18 @@ namespace SuperMetroid.ResourceAudit;
 internal static class RoomArtworkClosedContractDefinitions
 {
     private static readonly ReviewedSource TilesetSources = new(
-        "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs", "AF68FB26662D9CF4BD94B6DFD4BAF632089B67FFD45BA7E7C6FB377B1281B810");
+        "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs");
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog", "room-complete-tileset-character-sources", ["Get"],
-            [TilesetSources, new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlasCatalog.cs", "09D1137401131608F581E6012F1D805B0D9F39C1D5669B73AAEA596F5AD11A39")]),
+            [TilesetSources, new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlasCatalog.cs")]),
         new("SuperMetroid.Core.Assets.RoomMetatileCatalog", "room-complete-tileset-metatile-sources", ["Get"],
-            [TilesetSources, new("csharp/src/SuperMetroid.Core/Assets/RoomMetatileCatalog.cs", "5D88A49F70038EFEB8210667DDE989DFC239464A46F378ABF74C19C7B79DF9CA")]),
+            [TilesetSources, new("csharp/src/SuperMetroid.Core/Assets/RoomMetatileCatalog.cs")]),
         new("SuperMetroid.Core.Assets.RoomStaticPaletteCatalog", "room-complete-tileset-palette-sources", ["Get"],
-            [TilesetSources, new("csharp/src/SuperMetroid.Core/Assets/RoomStaticPaletteCatalog.cs", "3EC1FDFDF20B3B3AAA7EC7AD4F64403883739359D31D069ACF7E5C3E46572BB6")]),
+            [TilesetSources, new("csharp/src/SuperMetroid.Core/Assets/RoomStaticPaletteCatalog.cs")]),
         new("SuperMetroid.Core.Assets.RoomSkyTilemapCatalog", "room-complete-seven-page-sky-transfer-store", ["TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs", "E3F623660F01CB63B35C26C82589FC4A3832460D29C7BAA9D6707B601C92A2F5"),
-             new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs", "07372EDBFD957309E68971A2EC5AB56DD343C02C3FFE408670925F6E7F0A6D41"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "B9B5FA086321B51D7FE6D26764A7F0D467D5798FFD729FF6FAA2FC0A78177D51")]),
+            [new("csharp/src/SuperMetroid.Core/Assets/RoomSkyTilemapCatalog.cs"),
+             new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs"),
+             new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs")]),
     ];
 }

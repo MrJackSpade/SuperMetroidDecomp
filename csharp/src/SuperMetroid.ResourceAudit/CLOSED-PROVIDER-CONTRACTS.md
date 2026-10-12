@@ -7,12 +7,14 @@ dynamic index may still fail the provider's domain guard; that is not an omitted
 resource. Static invalid constants remain audit failures.
 
 Each rule requires the exact qualified provider type, an explicitly reviewed operation,
-and SHA-256 fingerprints of its complete loader/selector source and definition set.
-Fingerprints normalize CRLF to LF only. Changes, including comments, revoke the proof
-until source review is repeated. Never refresh a fingerprint just to silence a finding.
-New types and operations receive no automatic exemption. Every classified consumer is
-retained in JSON `consumers` and `classifications` with its reason and guarded source
-fingerprints. JSON schema 2 introduces that explicit evidence list.
+and the list of source files that declare and implement the provider and its definition
+set. Every declaration of the provider must be one of those files, and uses outside them
+of escape factories or mutable definition arrays still revoke the proof. Source text is
+not pinned by hash (#1277): whether the code still works is established by the verifier
+suites and replays, and git already records what changed. New types and operations receive
+no automatic exemption. Every classified consumer is retained in JSON `consumers` and
+`classifications` with its reason and source files. JSON schema 2 introduces that explicit
+evidence list.
 
 ## Gameplay HUD v2 — 24 original consumer boundaries
 
@@ -201,8 +203,8 @@ providers cannot be published through those constructors.
 
 Shot/station providers retain per-run arrays. Hand/glass/tube providers flatten
 their payloads but check against the compiled run lengths before translating a
-run/word tuple into a flat offset. Full provider and draw-definition fingerprints
-guard each proof, including the shared run record definition.
+run/word tuple into a flat offset. Each proof lists the provider and
+draw-definition sources, including the shared run record definition.
 
 `PlmVisualDomainDefinitions` supplies those exact shapes to the constant selector
 check. A known pointer narrows the shape before run/word checking; a one-word
@@ -309,7 +311,7 @@ Ten separately reviewed private-constructor loaders require their full supported
 arrays: Botwoon health; cutscene Baby initial/fades; Norfair Ridley initial/reveal;
 four auxiliary enemy palettes; Kraid's five sources; Zebetite pulse; Shitroid
 normal/targets; Ceres Ridley Mode-7 shades; Dachora phases; and Mother Brain health
-pairs. Provider and dimension-definition source fingerprints guard every proof.
+pairs. Every proof lists the provider and dimension-definition sources.
 
 Selected dimensions remain distinct. Auxiliary palette constants narrow frame
 and color ranges; Kraid's sixteen-word backdrop cannot borrow its 144-word health
@@ -330,7 +332,7 @@ and player-visible correctness are not certified.
 Seven reviewed providers already require complete resource sets before private
 construction: the two escape programs, six narration pages, both ending text
 sequences and fixed panels, 520 credits rows, 26 map sprite compositions, four
-map arrow directions, and thirteen map-screen pages. Source fingerprints guard
+map arrow directions, and thirteen map-screen pages. Each proof lists
 the providers and their identity/layout definitions. Sparse sprite IDs, non-None
 escape IDs, sequence/page enums and separate row/direction bounds are checked.
 
@@ -385,7 +387,7 @@ gradients, 31 title sprite identities derived from compiled selectors, four eye
 rectangles, visible caret (including its legacy alias), three Mother Brain and
 twelve explosion compositions, Ceres door art/colors/Mode-7 maps, decimal timer
 art/anchors, and five Ceres warning overlay pages. Provider and identity sources
-are fingerprint-guarded; sparse pointers and array indices retain exact bounds.
+are listed; sparse pointers and array indices retain exact bounds.
 Title blank timed entries are deliberately not installed compositions.
 
 The timer proves only Label/decimal digit/anchor coverage after BCD validation;
@@ -455,7 +457,7 @@ Crocomire and Mother Brain body frame through the exact-set shared loader. Order
 writes are independently compiled and bounds-checked. Unowned pointers, including
 Mother Brain's OAM-only dummy, validly return false. This membership proof does not
 certify the native operand selection, OAM/terrain layering, body position or timing.
-The shared admission source and each family's definition sources are guarded.
+The shared admission source and each family's definition sources are listed.
 
 Room FX requires all six 32x33 pages and eight sparse three-color blends. Apply(0)
 is a compiled clear rather than an asset; Resolve(0) is invalid. Ending fragments

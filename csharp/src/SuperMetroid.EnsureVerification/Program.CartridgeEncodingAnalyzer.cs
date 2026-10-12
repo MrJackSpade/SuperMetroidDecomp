@@ -5,15 +5,16 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using SuperMetroid.EnsureAnalyzer;
+using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class CartridgeEncodingAnalyzerTests
 {
     private static readonly string EncodingRoot = Path.Combine(Path.GetTempPath(), "cartridge-encoding-case");
 
     /// <summary>#641 cartridge-encoding ratchet: positive and negative cases for each diagnostic.</summary>
-    private static void VerifyCartridgeEncodingAnalyzer()
+    internal static void VerifyCartridgeEncodingAnalyzer()
     {
         const string functional = "csharp/src/SuperMetroid.Core/Game/Walker.cs";
         const string catalog = "csharp/src/SuperMetroid.Core/Game/WalkerInstructionLists.cs";
@@ -136,7 +137,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class MemoryAdditionalText(string path, string content) : AdditionalText
+    internal sealed class MemoryAdditionalText(string path, string content) : AdditionalText
     {
         public override string Path { get; } = path;
 

@@ -1,16 +1,17 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class ParameterContractsTests
 {
     /// <summary>
     /// #633 compile-time contracts: each parent operation contract converts to the narrow contracts its
     /// child operations accept, a narrow contract cannot reach a capability its child does not own, and
     /// required capabilities cannot be omitted. Finite compiler fixtures; no gameplay runs.
     /// </summary>
-    private static void VerifyParameterContracts()
+    internal static void VerifyParameterContracts()
     {
         // Room enemy load: the services contract is the union of its children's contracts.
         VerifyContract("enemy services feed the Chozo statue child",

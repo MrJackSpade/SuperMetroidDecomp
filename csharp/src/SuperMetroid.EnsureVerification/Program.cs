@@ -1,9 +1,17 @@
 using System.Runtime.InteropServices;
 using SuperMetroid.Core;
+using static SuperMetroid.EnsureVerification.AnalyzerTests;
+using static SuperMetroid.EnsureVerification.CartridgeEncodingAnalyzerTests;
+using static SuperMetroid.EnsureVerification.CpuBusCodeFixTests;
+using static SuperMetroid.EnsureVerification.EnsureCodeFixTests;
+using static SuperMetroid.EnsureVerification.PaletteFxContractTests;
+using static SuperMetroid.EnsureVerification.ParameterContractsTests;
+using static SuperMetroid.EnsureVerification.ParameterListAnalyzerTests;
+using static SuperMetroid.EnsureVerification.WordReadAnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class Program
 {
     private static int Main(string[] args)
     {

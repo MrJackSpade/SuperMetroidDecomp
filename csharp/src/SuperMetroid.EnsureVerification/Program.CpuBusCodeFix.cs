@@ -7,13 +7,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using SuperMetroid.EnsureAnalyzer;
 using SuperMetroid.EnsureAnalyzer.CodeFixes;
+using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class CpuBusCodeFixTests
 {
     /// <summary>The SME6290 code fix rewrites only unambiguous raw reads, to the declared raw-equivalent view member (#629).</summary>
-    private static void VerifyCpuBusAccessCodeFix()
+    internal static void VerifyCpuBusAccessCodeFix()
     {
         const string api =
             "using System; " +

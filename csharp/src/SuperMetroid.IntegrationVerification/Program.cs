@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rendering;
 /// <summary>
 /// Repository-only integration checks: the gitignored ROM, its shared extracted installation and checked-in fixtures.
 /// </summary>
-internal static partial class Program
+internal static class Program
 {
     private static int Main(string[] args)
     {

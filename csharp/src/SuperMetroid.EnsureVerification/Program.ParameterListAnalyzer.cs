@@ -1,11 +1,12 @@
 using SuperMetroid.EnsureAnalyzer;
+using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class ParameterListAnalyzerTests
 {
     /// <summary>#633 parameter-list rules: positive and negative cases for each diagnostic.</summary>
-    private static void VerifyParameterListAnalyzer()
+    internal static void VerifyParameterListAnalyzer()
     {
         var analyzer = new ParameterListAnalyzer();
         void Expect(string source, string? id = null, string? message = null) =>

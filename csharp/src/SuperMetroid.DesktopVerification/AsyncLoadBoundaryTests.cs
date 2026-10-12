@@ -3,9 +3,11 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 
-internal static partial class Program
+using static DesktopVerificationSupport;
+
+internal static class AsyncLoadBoundaryTests
 {
-    private static async Task VerifyAsyncLoadBoundary(PlayableGameControl control, bool restart = false)
+    internal static async Task VerifyAsyncLoadBoundary(PlayableGameControl control, bool restart = false)
     {
         var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
         var gate = Field<RenderPresentationGate>(worker, "gate");

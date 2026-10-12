@@ -5,7 +5,7 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>
 /// Direct3D 11 renderer verification against the software renderer.
 /// </summary>
-internal static partial class Program
+internal static class Program
 {
     private static void Main(string[] args)
     {

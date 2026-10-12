@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 
-internal static partial class Program
+internal static class DraygonTerrainPriorityTests
 {
     /// <summary>The repository ROM, the independent source of Draygon's authored tilemap words.</summary>
     private static readonly Lazy<SuperMetroid.AssetExtraction.CartridgeImportAddressSpace> draygonReferenceRom =

@@ -8,7 +8,7 @@ namespace SuperMetroid.BuildPolicyVerification;
 /// diagnostic must fail <c>dotnet build</c> with that diagnostic as an error, a compliant
 /// fixture of the same shapes must build, and nothing in maintained source may lower them.
 /// </summary>
-internal static partial class Program
+internal static class Program
 {
     private static int Main(string[] args)
     {

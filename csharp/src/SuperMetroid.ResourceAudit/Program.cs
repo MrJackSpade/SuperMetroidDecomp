@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace SuperMetroid.ResourceAudit;
 
-internal static partial class Program
+internal static class Program
 {
     private static int Main(string[] args)
     {
@@ -11,7 +11,7 @@ internal static partial class Program
         // never escape to the CLR/Windows reporter or open a modal error dialog.
         try
         {
-            if (OperatingSystem.IsWindows()) SetErrorMode(ConsoleErrorPolicy.FailCriticalErrors |
+            if (OperatingSystem.IsWindows()) NativeConsoleProcess.SetErrorMode(ConsoleErrorPolicy.FailCriticalErrors |
                 ConsoleErrorPolicy.NoFaultDialog | ConsoleErrorPolicy.NoOpenFileDialog);
             if (args is ["--pause-presentation-contract-check"])
             {
@@ -184,7 +184,11 @@ internal static partial class Program
             return 2;
         }
     }
+}
 
+/// <summary>Win32 process policy for this console host; keeps OS-owned modal error boxes away.</summary>
+internal static partial class NativeConsoleProcess
+{
     [LibraryImport("kernel32.dll")]
-    private static partial uint SetErrorMode(uint mode);
+    internal static partial uint SetErrorMode(uint mode);
 }

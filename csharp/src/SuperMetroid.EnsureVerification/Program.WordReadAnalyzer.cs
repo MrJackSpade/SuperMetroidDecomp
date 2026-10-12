@@ -1,11 +1,12 @@
 using SuperMetroid.EnsureAnalyzer;
+using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class WordReadAnalyzerTests
 {
     /// <summary>#223: SME6350 recognizes little-endian words rebuilt from adjacent byte reads.</summary>
-    private static void VerifyWordReadAnalyzer()
+    internal static void VerifyWordReadAnalyzer()
     {
         var analyzer = new WordReadAnalyzer();
         void Expect(string source, string? id = null, string? message = null) => VerifySnippet(source, id, message, analyzer);

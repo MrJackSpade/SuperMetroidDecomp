@@ -10,9 +10,11 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+using static DesktopVerificationSupport;
+
+internal static class DesktopTimerSoakTests
 {
-    private static async Task RunDesktopTimerSoak(int seconds)
+    internal static async Task RunDesktopTimerSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds));
         var results = new List<object>();

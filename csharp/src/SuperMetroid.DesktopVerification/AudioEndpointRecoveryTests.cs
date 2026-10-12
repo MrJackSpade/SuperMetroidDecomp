@@ -1,8 +1,10 @@
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+using static DesktopVerificationSupport;
+
+internal static class AudioEndpointRecoveryTests
 {
-    private static void VerifyAudioEndpointRecovery()
+    internal static void VerifyAudioEndpointRecovery()
     {
         long now = 0;
         int opens = 0;
@@ -72,7 +74,7 @@ internal static partial class Program
         Check(failed, "original endpoint error must remain reportable");
     }
 
-    private sealed class EndpointFixture : IHostAudioOutput
+    internal sealed class EndpointFixture : IHostAudioOutput
     {
         internal readonly List<short[]> Frames = [];
         internal Exception? Failure;

@@ -6,13 +6,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using SuperMetroid.EnsureAnalyzer;
 using SuperMetroid.EnsureAnalyzer.CodeFixes;
+using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class EnsureCodeFixTests
 {
     /// <summary>#677: SME6202 cases and the Ensure code fix for every recognized guard shape.</summary>
-    private static void VerifyEnsureCallsAndCodeFix()
+    internal static void VerifyEnsureCallsAndCodeFix()
     {
         // SME6202: Ensure captures the value expression; a manual name or a fitting cast defeats it.
         VerifySnippet("using SuperMetroid.Core; class C { public void M(object value) { Ensure.NotNull(value, \"value\"); } }",

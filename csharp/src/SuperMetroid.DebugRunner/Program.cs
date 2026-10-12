@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 /// software exception" dialog for an unhandled failure, steal desktop focus, and leave the
 /// build output locked until somebody dismisses it.
 /// </summary>
-internal static partial class Program
+internal static class Program
 {
     private static int Main(string[] args)
     {

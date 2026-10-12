@@ -1,7 +1,7 @@
 using static SuiteSchedulingVerification;
 using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class Program
 {
 private static int Main(string[] args)
 {

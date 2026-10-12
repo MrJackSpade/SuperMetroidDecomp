@@ -4,10 +4,11 @@ using Microsoft.CodeAnalysis.CSharp;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class PaletteFxContractTests
 {
     /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
     private const ushort GunshipEngineDefinitionPointer = 0xe1a8;
@@ -16,7 +17,7 @@ internal static partial class Program
     /// Confirms #1152's required color dependency using compiler-only fixtures.
     /// These are finite API-contract checks, not a gameplay or palette-program sweep.
     /// </summary>
-    private static void VerifyPaletteFxDependencyContract()
+    internal static void VerifyPaletteFxDependencyContract()
     {
         VerifyPaletteCall("explicit provider", "fx.Step(bus, cgram, colors, frame);");
         VerifyPaletteCall("old positional call", "fx.Step(bus, cgram, frame);", "CS7036");
@@ -91,7 +92,7 @@ internal static partial class Program
                 $"{description}: expected {expectedError ?? "successful compilation"}; got {string.Join("; ", errors.Select(error => error.ToString()))}");
     }
 
-    private sealed class ContractPaletteColors : IPaletteFxColorSource
+    internal sealed class ContractPaletteColors : IPaletteFxColorSource
     {
         public bool TryReadColor(ushort pointer, out Bgr555 color)
         {

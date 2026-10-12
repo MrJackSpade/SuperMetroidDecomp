@@ -3,9 +3,11 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 
-internal static partial class Program
+using static DesktopVerificationSupport;
+
+internal static class RendererStartupTests
 {
-    private static async Task VerifyRendererStartupFailure(RendererSelection selection)
+    internal static async Task VerifyRendererStartupFailure(RendererSelection selection)
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");
         string directory = directoryScratch.Root;

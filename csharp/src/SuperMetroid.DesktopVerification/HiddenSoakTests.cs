@@ -10,9 +10,11 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+using static DesktopVerificationSupport;
+
+internal static class HiddenSoakTests
 {
-    private static async Task RunHiddenSoak(int seconds)
+    internal static async Task RunHiddenSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds), "Use 5..300 seconds per scene.");
         var results = new List<object>();

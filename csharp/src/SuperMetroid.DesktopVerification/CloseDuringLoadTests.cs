@@ -4,9 +4,11 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Game;
 using SuperMetroid.Rendering.Direct3D11;
 
-internal static partial class Program
+using static DesktopVerificationSupport;
+
+internal static class CloseDuringLoadTests
 {
-    private static async Task VerifyCloseDuringLoad(bool restart)
+    internal static async Task VerifyCloseDuringLoad(bool restart)
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");
         string directory = directoryScratch.Root;

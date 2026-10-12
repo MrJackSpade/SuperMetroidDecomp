@@ -7,11 +7,11 @@ using SuperMetroid.EnsureAnalyzer;
 
 namespace SuperMetroid.EnsureVerification;
 
-internal static partial class Program
+internal static class AnalyzerTests
 {
-    private static readonly MetadataReference[] References = BuildReferences();
+    internal static readonly MetadataReference[] References = BuildReferences();
 
-    private static void VerifyAnalyzer()
+    internal static void VerifyAnalyzer()
     {
         VerifySnippet("using System; class C { public void M(object value) { ArgumentNullException.ThrowIfNull(value); } }",
             EnsureUsageAnalyzer.GuardId, "Ensure.NotNull");
@@ -41,7 +41,7 @@ internal static partial class Program
         VerifySnippet("using System; class C { public void M(int width, int height) { if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width)); } }");
     }
 
-    private static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null,
+    internal static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null,
         DiagnosticAnalyzer? analyzer = null)
     {
         var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Preview));
@@ -72,7 +72,7 @@ internal static partial class Program
     }
 
     /// <summary>#628 spatial data-clump rules: positive and negative cases for each diagnostic.</summary>
-    private static void VerifyCpuBusAccessAnalyzer()
+    internal static void VerifyCpuBusAccessAnalyzer()
     {
         var analyzer = new CpuBusAccessAnalyzer();
         void Expect(string source, string? id = null, string? message = null) =>
@@ -112,7 +112,7 @@ internal static partial class Program
         Expect(api + "[CpuBusBoundary(\"exact bus test double\")] sealed class Fake : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; }");
     }
 
-    private static void VerifyPpuLayoutAccessAnalyzer()
+    internal static void VerifyPpuLayoutAccessAnalyzer()
     {
         var analyzer = new PpuLayoutAccessAnalyzer();
         void Expect(string source, string? id = null, string? message = null) =>
@@ -144,7 +144,7 @@ internal static partial class Program
         Expect(api + "[PpuLayoutBoundary(\"exact hardware test\")] sealed class Sink : IOamSink { public void Write(int offset, byte value) { } }");
     }
 
-    private static void VerifyDspRegisterAccessAnalyzer()
+    internal static void VerifyDspRegisterAccessAnalyzer()
     {
         var analyzer = new DspRegisterAccessAnalyzer();
         void Expect(string source, string? id = null, string? message = null) =>
@@ -166,7 +166,7 @@ internal static partial class Program
         Expect(api + "class Driver { void M(Dsp dsp) => dsp.Cycle(); }");
     }
 
-    private static void VerifySpcMemoryAccessAnalyzer()
+    internal static void VerifySpcMemoryAccessAnalyzer()
     {
         var analyzer = new SpcMemoryAccessAnalyzer();
         void Expect(string source, string? id = null, string? message = null) =>
@@ -184,7 +184,7 @@ internal static partial class Program
         Expect(api + "byte M(ref ushort pointer) => Next(ref pointer); }");
     }
 
-    private static void VerifySpatialClumpAnalyzer()
+    internal static void VerifySpatialClumpAnalyzer()
     {
         var analyzer = new SpatialClumpAnalyzer();
         void Expect(string source, string? id = null, string? message = null) =>
@@ -232,7 +232,7 @@ internal static partial class Program
     }
 
     /// <summary>#627 primitive-domain rules: positive and negative cases for each diagnostic.</summary>
-    private static void VerifyPrimitiveDomainAnalyzer()
+    internal static void VerifyPrimitiveDomainAnalyzer()
     {
         var analyzer = new PrimitiveDomainAnalyzer();
         void Expect(string source, string? id = null, string? message = null) =>

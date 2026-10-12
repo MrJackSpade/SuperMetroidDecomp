@@ -103,6 +103,7 @@ internal static partial class Program
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,16 independent foot-X edits,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ghost palette")]
     private static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
@@ -174,6 +175,7 @@ internal static partial class Program
         Console.WriteLine("Ghost palette:16 native targets and shared-source words,actual white-flash target copy,32 full component-fade steps,and native pixel-slot usage pass; calculated channels preserve the specified source paint and transparent payload.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
@@ -237,6 +239,7 @@ internal static partial class Program
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions());
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
@@ -363,7 +366,7 @@ internal static partial class Program
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, pointer, new(255, 255));
             selected.Draw(pointer, actual, new(255, 255));
-            AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "All417 calculated/remaining identities extract and draw exact native OAM");
+            AssertTrue(native.ImageEquals(actual), "All417 calculated/remaining identities extract and draw exact native OAM");
         }
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileSpriteDocument>(json, options)!;
@@ -425,7 +428,7 @@ internal static partial class Program
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, ChargeFlareSpriteDefinitions.Selectors[selector], new(255, 255));
             flare.Draw(selector, actual, new(255, 255));
-            AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Existing flare span caller preserves exact extracted OAM");
+            AssertTrue(native.ImageEquals(actual), "Existing flare span caller preserves exact extracted OAM");
         }
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
@@ -467,6 +470,7 @@ internal static partial class Program
         Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
@@ -899,6 +903,7 @@ internal static partial class Program
         Console.WriteLine("Pause equipment blank: nine native empty cells, stock/no stored payload, nine independent edits, serialized hashes and20 actual inventory/Hyper tilemap writes pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => ReadDeadTorizoRomWord(rom, address);
@@ -1462,6 +1467,7 @@ internal static partial class Program
         Console.WriteLine("Trail appearance:42 native words,252 independent field edits and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program words")]
     private static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
@@ -1580,6 +1586,7 @@ internal static partial class Program
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream2TubeRamp(ISnesAddressSpace rom)
     {
         PaletteRgb5[] Read(int address) => Enumerable.Range(0, 32).Select(index =>
@@ -1750,6 +1757,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
@@ -2019,6 +2027,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer(0, 8), "Old Tourian upper color bound");
         Console.WriteLine("Stream 2 palette mechanics: original mechanics, inline color offsets, durations, dispatch and bounds pass.");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
     {
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
@@ -2281,6 +2290,7 @@ internal static partial class Program
         Console.WriteLine("Stream2 Power bindings: 805calculated beam/effect selectors,805native operands,zero stored stock operands and805actual handler/edit paths pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo foot geometry")]
     private static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
     {
@@ -2345,7 +2355,7 @@ internal static partial class Program
                     actualOam.AddEnemySpritemap(found.Parts, new Position16<OamPixels>(x, y), 0, 0);
                 }
                 AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Golden Torizo packed OBJ count");
-                AssertTrue(expectedOam.LowTable.SequenceEqual(actualOam.LowTable) && expectedOam.HighTable.SequenceEqual(actualOam.HighTable),
+                AssertTrue(expectedOam.ImageEquals(actualOam),
                     "Golden Torizo calculated stock/supplied parts produce exact packed OAM");
             }
             var identities = definitions.ToDictionary(frame => frame.Name, frame => (frame.Bank << 16) | frame.Pointer, StringComparer.Ordinal);

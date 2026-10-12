@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyGoldenTorizoCodeEntry()
     {
         // Isolated SRAM; installed artwork is read-only and no player save is loaded.

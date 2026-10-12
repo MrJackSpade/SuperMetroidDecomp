@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>#385: reconstruct fresh-room BG2 staging and native DMA, not merely retained current-command destinations.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon tilemap production")]
     private static void VerifyDraygonTilemapProduction()
     {

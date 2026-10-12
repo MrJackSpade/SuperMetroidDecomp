@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Zebetite colors")]
     private static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
@@ -31,7 +32,7 @@ internal static partial class Program
                 "Installed Zebetite pulse retains physical-slot-zero counter and wrap");
             AssertEqual(nativeCounter, installed.Slots[0].VariableC,
                 "Installed Zebetite pulse keeps native frame selection");
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 "Installed Zebetite pulse preserves full native CGRAM and neighbors");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -55,7 +56,7 @@ internal static partial class Program
         {
             Cycle(selected);
             ReferenceCycle(controlCgram, ref controlCounter);
-            AssertTrue(controlCgram.Colors.SequenceEqual(selectedCgram.Colors),
+            AssertTrue(new CgramPalettes(controlCgram).ImageEquals(new CgramPalettes(selectedCgram)),
                 "Zebetite edit leaves preceding pulse frames unchanged");
         }
         Cycle(selected);

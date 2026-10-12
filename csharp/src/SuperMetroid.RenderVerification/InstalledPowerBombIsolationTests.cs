@@ -13,6 +13,7 @@ using SuperMetroid.Core.Spatial;
 /// </summary>
 internal static partial class InstalledPowerBombIsolationTests
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(string installationRoot)
     {
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyCeresBabyInstructionProgramDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -183,8 +184,7 @@ internal static partial class Program
         installedBaby.BeginFrame();
         enemies.DrawCeresRidleyImmediateBabyAndDoor(installedBaby, new(0, 0));
         installedBaby.FinalizeFrame();
-        AssertTrue(nativeBaby.LowTable.SequenceEqual(installedBaby.LowTable) &&
-                   nativeBaby.HighTable.SequenceEqual(installedBaby.HighTable),
+        AssertTrue(nativeBaby.ImageEquals(installedBaby),
             "private Ceres Baby draw matches native OAM with sprite ROM reads forbidden");
         AssertEqual(CeresBabyInstructionProgramDefinitions.HorizontalFrame,
             baby.BabyCurrentSpritemap, "installed art retains the authored Baby pose");

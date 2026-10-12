@@ -27,6 +27,7 @@ internal static partial class Program
         return (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyReserveAutoFrontend()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

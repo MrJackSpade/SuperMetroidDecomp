@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
         bool flareOnly = false, string sourceRom = "Super Metroid.smc")
     {
@@ -50,7 +51,7 @@ internal static partial class Program
                 }
                 DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
                 stock.Draw(selector, actual, new(x, y));
-                AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable),
+                AssertTrue(native.ImageEquals(actual),
                     "Extracted flare matches complete native OAM, including signed placement, high bits and capacity wrap");
                 AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare composition retains native OAM cursor");
                 cases++;

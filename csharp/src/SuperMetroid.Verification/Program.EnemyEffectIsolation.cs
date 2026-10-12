@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Checks the two statically identified melt graphs, not a search for runtime reads.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyCrocomireEffectIsolation()
     {
         var baseline = new CrocomireEffectFixture(MeltEffectArtwork(0x55));
@@ -17,7 +18,7 @@ internal static partial class Program
             baseline.InitializeMap(source); edited.InitializeMap(source);
             AssertCrocomireEffectMechanics(baseline, edited, "melt map replacement");
             AssertTrue(!baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "authored melt map reaches scratch");
-            AssertTrue(!baseline.Vram.Bytes.SequenceEqual(edited.Vram.Bytes), "authored melt map reaches VRAM");
+            AssertTrue(!new VramStore(baseline.Vram).ImageEquals(edited.Vram), "authored melt map reaches VRAM");
 
             byte[] tail = baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..].ToArray();
             baseline.Call("InitializeCrocomireMeltingGraphics"); edited.Call("InitializeCrocomireMeltingGraphics");
@@ -71,6 +72,7 @@ internal static partial class Program
         Console.WriteLine("  Crocomire replacement: both maps/images, exact uploads, 54 calls per dissolve, erase/HDMA/smoke/phase timing unchanged.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMotherBrainRotIsolation()
     {
         var baseline = SuperMetroidAddressSpace.CreateWithoutCartridge();

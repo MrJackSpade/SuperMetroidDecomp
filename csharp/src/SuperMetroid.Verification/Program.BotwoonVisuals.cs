@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledBotwoonVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -36,8 +37,7 @@ internal static partial class Program
             DrawImportedEnemySpritemap(rom, nativeOam, BotwoonVisualDefinitions.Bank,
                 native, new(128, 128), 0, 0);
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
-            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                       nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+            AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"Botwoon head frame $B3:{installedPointer:X4} matches cartridge OAM");
         }

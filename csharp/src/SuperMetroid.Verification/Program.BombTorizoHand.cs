@@ -11,6 +11,7 @@ internal static partial class Program
     /// Locks Bomb Torizo's resident `$D6EA` header, Bombs inventory gate, odd-byte DMA,
     /// eight debris requests, final music command, and cartridge-timed deletion together.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     static void VerifyBombTorizoHandPlm(EnemyTileArtworkCatalog? installedArtwork = null)
     {
         Suite(nameof(VerifyBombTorizoHandProgramDefinitions), () => VerifyBombTorizoHandProgramDefinitions());

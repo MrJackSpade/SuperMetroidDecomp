@@ -59,6 +59,7 @@ internal static partial class Program
         },
     ];
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void AssertEditedAnimationDraw(EnemyAnimationFixture edited, OamBuffer drawn, int frame)
     {
         RoomEnemySlot actor = edited.Actor;

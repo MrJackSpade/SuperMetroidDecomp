@@ -13,6 +13,7 @@ internal static partial class Program
     /// construction is bounded, RGBA expansion replicates bits, channel operations compose, and
     /// older debugger payloads of color words restore through the shape-preserving rule.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyBgr555Domain()
     {
         for (int word = 0; word <= 0x7fff; word++)

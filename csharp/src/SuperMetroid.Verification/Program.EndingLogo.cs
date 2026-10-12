@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo crossfade palette tables")]
     private static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
@@ -34,9 +35,8 @@ internal static partial class Program
                 $"compiled logo palette handoff at frame {frame}");
             AssertEqual(nativeLogo.PaletteStep, logo.PaletteStep,
                 $"compiled logo palette step at frame {frame}");
-            AssertTrue(nativeCgram.Colors.SequenceEqual(cgram.Colors) &&
-                    nativeLogo.Draw(logoSprites).LowTable.SequenceEqual(logo.Draw(logoSprites).LowTable) &&
-                    nativeLogo.Draw(logoSprites).HighTable.SequenceEqual(logo.Draw(logoSprites).HighTable),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(cgram)) &&
+                    nativeLogo.Draw(logoSprites).ImageEquals(logo.Draw(logoSprites)),
                 $"compiled logo palette and OAM at frame {frame}");
             if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
             if (logo.PaletteStep > 0)
@@ -173,7 +173,7 @@ internal static partial class Program
             if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
             else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
-            AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+            AssertTrue(originalOam.ImageEquals(calculatedOam),
                 "logo relationship preserves native OAM and clipping");
         }
         SpriteVisualPart first = visual[0];

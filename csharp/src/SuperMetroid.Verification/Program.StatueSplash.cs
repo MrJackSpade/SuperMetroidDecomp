@@ -69,8 +69,7 @@ internal static partial class Program
                         actualOam.BeginFrame();
                         enemies.DrawEnemyProjectiles(actualOam, new(32, 48));
                         actualOam.FinalizeFrame();
-                        AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) &&
-                            actualOam.HighTable.SequenceEqual(expectedOam.HighTable), "splash OAM stays attached to native surface after camera subtraction");
+                        AssertTrue(actualOam.ImageEquals(expectedOam), "splash OAM stays attached to native surface after camera subtraction");
                         if (actualOam.LastFinalizedSpriteCount != 0) visibleFrames++;
                         enemies.StepEnemyProjectiles(assets.LevelData, null);
                     }

@@ -43,7 +43,7 @@ internal static partial class InstalledSamusArtworkTests
             stock.TileTransfers.TransferToVram(memory, a);
             edited.TileTransfers.TransferToVram(memory, b);
             oa.FinalizeFrame(); ob.FinalizeFrame();
-            Require(oa.LowTable.SequenceEqual(ob.LowTable) && oa.HighTable.SequenceEqual(ob.HighTable),
+            Require(oa.ImageEquals(ob),
                 $"pose {pose:X2}: pixel-only edit changed OAM placement");
             Require(before == PhysicalState(stock) && before == PhysicalState(edited),
                 $"pose {pose:X2}: drawing changed physics, damage or animation state");

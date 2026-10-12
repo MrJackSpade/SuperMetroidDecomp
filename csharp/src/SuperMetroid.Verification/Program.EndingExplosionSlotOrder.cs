@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyEndingExplosionSlotOrder()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

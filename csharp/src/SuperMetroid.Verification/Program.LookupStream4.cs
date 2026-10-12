@@ -12,6 +12,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for foreground cadence")]
     private static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
     {
@@ -118,6 +119,7 @@ internal static partial class Program
                 "title ambient owner list domain");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for title ambient mechanics")]
     private static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
     {
@@ -172,6 +174,7 @@ internal static partial class Program
         AssertEqual(164, ticks, "Both exact ambient loops confirmed twice");
         Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
@@ -387,7 +390,7 @@ internal static partial class Program
             {
                 native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), 0, 0, false, false);
                 installed.Step(installedBus, installedCgram, stock, 0, 0, false, false);
-                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors), "actual installed environmental cycle matches original colors each step");
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
             AssertTrue(installed.IsDefinitionActive(definition.DefinitionPointer), "environmental palette retains native loop behavior");
@@ -462,7 +465,7 @@ internal static partial class Program
             {
                 native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), 0, 0, false, false);
                 installed.Step(installedBus, installedCgram, stock, 0, 0, false, false);
-                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors), "actual installed text fade matches native colors each step");
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed text fade makes zero live color reads");
             AssertTrue(!installed.IsDefinitionActive(definition.DefinitionPointer), "installed text fade deletes at original time");
@@ -474,6 +477,7 @@ internal static partial class Program
         Console.WriteLine("PLANET ZEBES:38 native mechanics words,48 exact colors,three required endpoints,all48 independent edits and both actual installed one-shot fades pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres fades")]
     private static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
     {
@@ -549,6 +553,7 @@ internal static partial class Program
         Console.WriteLine("Ceres fades:224 native words,all48 eye samples calculated from four paint magnitudes and the selected warm-shade composition; all176body samples calculate through the same quantizer/shared stock paint, zero stock overrides,144eye/528body channel edits and10848 actual row applications pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres alarm")]
     private static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
     {
@@ -1130,6 +1135,7 @@ internal static partial class Program
         Console.WriteLine("Ending result panel:288 direct native cells, zero stock fallback samples, independent edits, heading precedence and immutable output snapshots pass; chosen wording has a narrow nonsense disposition; palette choices and font pixels remain required.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
@@ -1242,6 +1248,7 @@ internal static partial class Program
         Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby transfer phase")]
     private static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
@@ -1409,6 +1416,7 @@ internal static partial class Program
         Console.WriteLine("HUD template:96native words/zero overrides,576independent edits/hash/577full applications,three actual initializers/readguard/top-row independence/bounds pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for HUD top row")]
     private static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
     {
@@ -1690,6 +1698,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for beam color relations")]
     private static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
     {
@@ -2542,6 +2551,7 @@ internal static partial class Program
         Console.WriteLine("Draygon presentation layout:250 exact ordered native operand identities/actual selector reads,mechanics separation/domains and existing four-owner reset/IRQ proof pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro")]
     private static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
     {
@@ -2611,6 +2621,7 @@ internal static partial class Program
         Console.WriteLine("Draygon intro:25native aliases/zero overrides,75RGB edits/hash/76full copies,four actual initializers/readguard,45escape edits/independence/bounds pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon sprite")]
     private static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
     {
@@ -2674,6 +2685,7 @@ internal static partial class Program
         Console.WriteLine("Draygon sprite:16native aliases/zero overrides,48RGB edits/hash,98full normal-white copies,six actual hurt producer calls/readguard/independent background+intro/bounds pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon background")]
     private static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
     {
@@ -2740,6 +2752,7 @@ internal static partial class Program
         Console.WriteLine("Draygon background:16native/zero overrides,48RGB edits/hash/independent aliases,98full normal-white copies,six actual hurt producer calls/readguard/belly overwrite/bounds pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon health")]
     private static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
     {
@@ -2806,6 +2819,7 @@ internal static partial class Program
         }
         Console.WriteLine("Draygon health:32 native colors/zero overrides,96RGB edits/hash,776full copies,48actual health calls and48actual hurt calls/read guard/held band/restore pass.");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream4DraygonColors(ISnesAddressSpace rom)
     {
         byte[] original = DraygonColorExtractor.Extract(rom);
@@ -2863,6 +2877,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 1), "Draygon odd native health selector rejected");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Norfair reveal room palette")]
     private static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
     {
@@ -2957,6 +2972,7 @@ internal static partial class Program
         Console.WriteLine("Norfair reveal:210 native words/14 shared room endpoints/zero overrides,630 independent RGB edits/hash,9465 full row copies,138 real producer calls/read guard/cadence/terminator and domain checks pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair initial")]
     private static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
     {
@@ -3057,6 +3073,7 @@ internal static partial class Program
         Console.WriteLine("Norfair initial:32 native words,30 shared material identities,zero stock overrides,96 RGB edits/hash,97 full copies,three real initializers/read guard,90 normal/escape source edits and unchanged210 reveal words pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon colors")]
     private static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
     {
@@ -3227,6 +3244,7 @@ internal static partial class Program
         Console.WriteLine("Ridley ordered spawning: native twelve-call order, exact RNG assignment, partial/full pool exhaustion and one-shot retry behavior pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for beam tile geometry")]
     private static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
     {
@@ -3356,6 +3374,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres start")]
     private static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
     {
@@ -3414,6 +3433,7 @@ internal static partial class Program
         Console.WriteLine("Ceres start:32 native words,16 door/15 Baby aliases,zero native overrides,141 independent RGB edits,144 full start and Baby copies,bounds/null pass; Baby paint uses its separate reviewed owner.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Baby")]
     private static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
     {
@@ -3507,6 +3527,7 @@ internal static partial class Program
         Console.WriteLine("Ceres Baby:60 native colors,zero native overrides,180 independent output RGB edits/9 body-source edits,768 actual15-color copies,36 native interpreter shape selections and startup independence pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres retreat shared")]
     private static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
     {
@@ -3549,6 +3570,7 @@ internal static partial class Program
         Console.WriteLine("Ceres shared retreat:8 native identities,zero stock values,48 independent RGB edits,51 exact dual-domain copies/bounds/null pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres zoom and retreat")]
     private static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
     {
@@ -3631,6 +3653,7 @@ internal static partial class Program
         Console.WriteLine("Ceres zoom/retreat:150 native words,zero stock overrides,405 zoom/87 retreat-source RGB edits,3672 actual zoom selections/90 retreat copies,domains/null pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres health")]
     private static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
     {

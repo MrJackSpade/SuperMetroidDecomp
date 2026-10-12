@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map position tiles and spritemaps")]
     private static void VerifyPauseMapPosition()
     {

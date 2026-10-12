@@ -11,6 +11,7 @@ internal static partial class Program
 {
     // #370 diagnostic: stage each reciprocal doorway, never preload the destination.
     // A completed transition is only fixture setup, not proof the water pixels are correct.
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMoatFirstEntry()
     {
         const string output = "csharp/test-temp/issue-370-moat";

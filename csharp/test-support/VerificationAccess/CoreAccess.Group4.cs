@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
 /// <summary>One consistent read of a render mailbox's private publication counters.</summary>
+[PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
 internal readonly record struct RenderMailboxCounterView(
     long Generation,
     long Published,
@@ -92,6 +93,7 @@ internal static partial class CoreAccess
     extension(SuperMetroidRuntime self)
     {
         /// <summary>Cached gameplay TS byte the last accepted NMI uploaded with the window registers.</summary>
+        [PpuLayoutBoundary("exact hardware test: reads the cached TS register byte")]
         internal byte CachedGameplaySubscreen =>
             (PrivateState.Field<GameplayWindowRegisterCache?>(self, "<GameplayWindowRegisters>k__BackingField")
                 ?? throw new InvalidOperationException("Runtime has no gameplay window register cache."))

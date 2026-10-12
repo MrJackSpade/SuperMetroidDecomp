@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

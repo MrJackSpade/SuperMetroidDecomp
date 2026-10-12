@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu beveled square pixels")]
     private static void VerifyMenuBeveledSquarePixels(ISnesAddressSpace rom)
     {

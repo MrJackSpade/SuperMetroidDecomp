@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending palettes, scroll programs and Mode 7 artwork compared with installed ending renders")]
     private static void VerifyEndingRenderSnapshots()
     {

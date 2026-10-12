@@ -22,6 +22,7 @@ internal static partial class Program
             MotherBrainCorpseArtworkDefinitions.SourceAddress,
             MotherBrainCorpseArtworkDefinitions.ByteCount);
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyInstalledMotherBrainCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {

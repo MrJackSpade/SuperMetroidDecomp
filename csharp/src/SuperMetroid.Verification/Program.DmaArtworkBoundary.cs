@@ -34,7 +34,7 @@ internal static partial class Program
             KraidBackgroundRomData.RoomBackgroundTileAddress,
             KraidBackgroundRomData.RoomBackgroundTileBytes,
             KraidBackgroundRomData.RoomBackgroundTileVramWord);
-        AssertTrue(background.Bytes.SequenceEqual(expected.Bytes),
+        AssertTrue(new VramStore(background).ImageEquals(expected),
             "Kraid background characters use installed art with exact native VRAM placement");
         enemies.TileArtwork = null;
         AssertThrows<InvalidDataException>(upload,
@@ -63,7 +63,7 @@ internal static partial class Program
                     KraidBackgroundRomData.StandardBg3TilesAddress + quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
                     KraidBackgroundRomData.StandardBg3TransferBytes,
                     (ushort)(KraidBackgroundRomData.StandardBg3VramWord + quarter * KraidBackgroundRomData.StandardBg3TransferBytes / 2));
-                AssertTrue(actual.Bytes.SequenceEqual(expected.Bytes),
+                AssertTrue(new VramStore(actual).ImageEquals(expected),
                     $"Kraid BG3 quarter {quarter} matches the native reference, queued={queued}");
                 AssertEqual(quarter + 1, state.DeathBg3TransferCount, "Kraid retains the four-frame restoration cadence");
                 AssertEqual((ushort)KraidAiFunction.DeathFadeInBackground, body.VariableA,

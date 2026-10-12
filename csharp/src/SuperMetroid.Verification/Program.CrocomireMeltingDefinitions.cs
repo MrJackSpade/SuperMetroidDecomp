@@ -163,6 +163,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(-1, out _), "negative upload cursor");
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.TryUpload(0xb4, out _), "upload after records");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting graphics production")]
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
@@ -292,6 +293,7 @@ internal static partial class Program
             "Crocomire melt post-table cursor");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] VerifyInstalledCrocomireMeltingPass(SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
     {
@@ -332,6 +334,7 @@ internal static partial class Program
         return scratch;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire melting tilemap")]
     private static ushort[] VerifyInstalledCrocomireMeltingTilemap(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog artwork,

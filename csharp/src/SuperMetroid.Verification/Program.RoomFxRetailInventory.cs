@@ -385,6 +385,7 @@ internal static partial class Program
     /// bank-$87 animation. The body alone is insufficient: the first source row begins one
     /// tile above the liquid coordinate and must remain visible as the bubbling boundary.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRetailLavaSurface(
         SuperMetroidAddressSpace bus,
         IReadOnlyList<RetailFxRoomState> states)
@@ -883,6 +884,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void SeedVisibleRoomFxPalette(SnesCgram cgram)
     {
         // Standard room palettes normally provide these colors before LoadFXHeader applies

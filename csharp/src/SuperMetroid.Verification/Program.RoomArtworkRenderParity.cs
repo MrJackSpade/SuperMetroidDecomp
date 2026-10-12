@@ -15,6 +15,7 @@ internal static partial class Program
     /// overlapping full-size room-character/CRE transfers; Landing Site exercises the
     /// real door-selected sky page and ordinary room-art upload in one frame.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky transfer bytes compared with installed artwork")]
     private static void VerifyRoomArtworkRenderParity(
         GameInstallation installation, string sourceRom)
@@ -45,7 +46,7 @@ internal static partial class Program
                 AssertTrue(native.ActiveRoomAssets!.RoomCharacters.Length >
                     RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
-            AssertTrue(native.Vram.Bytes.SequenceEqual(installed.Vram.Bytes),
+            AssertTrue(new VramStore(native.Vram).ImageEquals(installed.Vram),
                 $"{name} installed artwork preserves the complete displayed VRAM");
             Rgba32[] nativeFrame = SuperMetroidRuntimeFrameRenderer.Render(native);
             Rgba32[] installedFrame = SuperMetroidRuntimeFrameRenderer.Render(installed);

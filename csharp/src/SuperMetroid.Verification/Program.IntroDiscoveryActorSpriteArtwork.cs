@@ -34,8 +34,7 @@ internal static partial class Program
                 stock.DiscoveryActorSprites.Draw(definition.Pointer, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
-                AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
-                        installed.HighTable.SequenceEqual(native.HighTable) &&
+                AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                     $"intro discovery actor {definition.Name} at Y=${y:X4} preserves native OAM");
             }

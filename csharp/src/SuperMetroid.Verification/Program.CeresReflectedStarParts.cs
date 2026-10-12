@@ -49,7 +49,7 @@ internal static partial class Program
                 expectedOam.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
                 loaded.Draw(0x8fe7, actual, new(120, y), 0x0800, y == 72); actual.FinalizeFrame();
-                AssertTrue(expectedOam.LowTable.SequenceEqual(actual.LowTable) && expectedOam.HighTable.SequenceEqual(actual.HighTable)
+                AssertTrue(expectedOam.ImageEquals(actual)
                     && expectedOam.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "reflection loader preserves independent and paired edits");
             }
         }

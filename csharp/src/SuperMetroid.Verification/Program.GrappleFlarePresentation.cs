@@ -9,6 +9,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
@@ -107,7 +108,7 @@ internal static partial class Program
             AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, b, Position16<RoomPixels>.Zero, stock), "Grapple catalog retains native flare visibility");
             AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, c, Position16<RoomPixels>.Zero, edited), "Grapple art edit retains origin visibility gate");
             AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer), "Grapple shared compiled cadence matches independent native reads");
-            AssertTrue(a.LowTable.SequenceEqual(b.LowTable) && a.HighTable.SequenceEqual(b.HighTable) && a.NextByteOffset == b.NextByteOffset, "Grapple stock parts preserve native complete OAM");
+            AssertTrue(a.ImageEquals(b) && a.NextByteOffset == b.NextByteOffset, "Grapple stock parts preserve native complete OAM");
             AssertEqual(a.NextByteOffset, c.NextByteOffset, "Grapple art edit preserves sprite count");
             for (int i = 0; i < a.NextByteOffset / 4; i++)
             {
@@ -127,6 +128,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple flare presentation")]
     private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleFlareActorBinding(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,

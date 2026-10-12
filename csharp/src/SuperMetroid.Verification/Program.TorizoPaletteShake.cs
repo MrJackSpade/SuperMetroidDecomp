@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static int VerifyTorizoPaletteShake()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -69,7 +70,7 @@ internal static partial class Program
         {
             Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
             restored.PaletteTransition!.Step(restoredColors, TorizoPaletteDefinitions.BodyPaletteMask);
-            AssertTrue(cgram.Colors.SequenceEqual(restoredColors.Colors), "Mid-fade save preserves each color step");
+            AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(restoredColors)), "Mid-fade save preserves each color step");
         }
         VerifyTorizoPaletteCatalogsAgainstRetailRom(cgram);
         Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());
@@ -78,6 +79,7 @@ internal static partial class Program
     }
 
     /// <summary>Compares the faded body colors and every cataloged Torizo palette row with bank $AA.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Torizo palette tables in bank $AA")]
     private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(SnesCgram cgram)
     {

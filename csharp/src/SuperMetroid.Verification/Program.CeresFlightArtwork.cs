@@ -18,6 +18,7 @@ internal static partial class Program
     /// </summary>
     private const int CeresFrontApproachTicks = 30;
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight Mode 7 characters, maps, object characters and palette")]
     private static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -415,6 +416,7 @@ internal static partial class Program
         File.Delete(mapOverride);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     private static byte[] ExpectedCeresFlightVram(CeresFlightArtworkCatalog artwork, bool rear)
     {
         var expected = new byte[SnesVram.ByteCount];

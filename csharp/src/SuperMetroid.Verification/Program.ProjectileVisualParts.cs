@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyProjectileVisualParts()
     {
         var parts = new OamBuffer();
@@ -28,7 +29,7 @@ internal static partial class Program
             int expectedPair = ((expectedX >> 8) & 1) | ((rawX & 0x8000) != 0 ? 2 : 0);
             AssertEqual(expectedPair, (parts.HighTable[index / 4] >> ((index % 4) * 2)) & 3, "Projectile high OAM preserves size and X bit eight");
             AssertEqual(((index + 1) * 4) & 0x1ff, parts.NextByteOffset, "Projectile OAM write pointer wraps at 128 parts");
-            AssertTrue(parts.LowTable.SequenceEqual(packed.LowTable) && parts.HighTable.SequenceEqual(packed.HighTable), "Authored part and packed-ROM draw paths publish identical OAM");
+            AssertTrue(parts.ImageEquals(packed), "Authored part and packed-ROM draw paths publish identical OAM");
             count++;
         }
         Console.WriteLine($"Projectile visual parts: {count} emissions preserve native wrapping, attributes and packed draw parity.");

@@ -34,8 +34,7 @@ internal static partial class Program
                 stock.ScientistSprites.Draw(definition.Pointer, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
-                AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
-                        installed.HighTable.SequenceEqual(native.HighTable) &&
+                AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                     $"intro scientist sprite {definition.Name} at Y=${y:X4} preserves native OAM");
             }
@@ -100,8 +99,7 @@ internal static partial class Program
         DrawImportedCinematicActor(bus, nativeExamination, (IntroDiscoverySprite)typeof(IntroScientistCutsceneState)
             .GetField("baby", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(examination)!);
         nativeExamination.FinalizeFrame();
-        AssertTrue(installedExamination.LowTable.SequenceEqual(nativeExamination.LowTable) &&
-                installedExamination.HighTable.SequenceEqual(nativeExamination.HighTable),
+        AssertTrue(installedExamination.ImageEquals(nativeExamination),
             "installed examination actor preserves live native OAM");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production scientist scenes never reread ten native spritemaps");

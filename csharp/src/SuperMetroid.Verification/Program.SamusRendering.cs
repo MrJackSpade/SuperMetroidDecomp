@@ -12,6 +12,7 @@ internal static partial class Program
 {
 
 /// <summary>Samus rendering, arm cannon, visor, hurt palette, and pose fixture verification.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 static void VerifySamusRenderingSlice()
 {
     var bus = new TestAddressSpace();
@@ -462,6 +463,7 @@ static void VerifySamusRenderingSlice()
 /// native three-level pose/direction/frame pointer topology intact, so a plausible-looking
 /// host animation cannot pass by substituting invented timing or a fixed bitmap.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 static void VerifySamusArmCannon()
 {
     var bus = new TestAddressSpace();
@@ -605,6 +607,7 @@ static void VerifySamusArmCannon()
 /// Proves the byte-aliased `$0A72/$0A73` visor timer, all three room-cycle colors, normal-
 /// room reset, X-ray exclusion, and the inactive-charge call seam.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifySamusVisorPalette()
 {
     var bus = new TestAddressSpace();
@@ -696,6 +699,7 @@ static void VerifySamusVisorPalette()
 /// palette records. This intentionally verifies every call rather than three hand-picked
 /// frames: an off-by-one at seven, forty, or sixty would otherwise look visually plausible.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifySamusHurtFlashPalette()
 {
     var bus = new TestAddressSpace();

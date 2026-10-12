@@ -19,6 +19,7 @@ internal static partial class Program
             new(actor.WholePosition.X, y), actor.PaletteBits,
             originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
     }
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -44,8 +45,7 @@ internal static partial class Program
                 stock.RinkaSprites.Draw(definition.Pointer, installed, new(x, y), palette,
                     onScreen);
                 installed.FinalizeFrame();
-                AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
-                        installed.HighTable.SequenceEqual(native.HighTable) &&
+                AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                     $"intro Rinka {definition.Name} at Y=${y:X4} preserves native OAM clipping");
             }
@@ -79,15 +79,13 @@ internal static partial class Program
         foreach (IntroDiscoverySprite actor in rinkas.LiveRinkas)
             DrawImportedCinematicActor(bus, nativeLiveOam, actor);
         nativeLiveOam.FinalizeFrame();
-        AssertTrue(stockOam.LowTable.SequenceEqual(nativeLiveOam.LowTable) &&
-                stockOam.HighTable.SequenceEqual(nativeLiveOam.HighTable),
+        AssertTrue(stockOam.ImageEquals(nativeLiveOam),
             "installed intro Rinkas preserve native live-actor OAM placement and attributes");
         var editedOam = new OamBuffer();
         editedOam.BeginFrame();
         rinkas.Draw(editedOam, edited.RinkaSprites);
         editedOam.FinalizeFrame();
-        AssertTrue(!stockOam.LowTable.SequenceEqual(editedOam.LowTable) &&
-                stockOam.HighTable.SequenceEqual(editedOam.HighTable),
+        AssertTrue(!stockOam.ImageEquals(editedOam),
             "intro Rinka palette edit changes live OAM attributes without moving actors");
         for (int part = 0; part < stockOam.LastFinalizedSpriteCount; part++)
             AssertTrue(stockOam.LowTable.Slice(part * 4, 2)

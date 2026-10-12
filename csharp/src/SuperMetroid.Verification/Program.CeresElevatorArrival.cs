@@ -8,6 +8,7 @@ internal static partial class Program
     /// Verifies the easy-to-miss graphics-index write in the shared Ceres elevator
     /// initializer at <c>$86:A301</c>.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     static void VerifyCeresElevatorArrivalGraphicsIndex()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

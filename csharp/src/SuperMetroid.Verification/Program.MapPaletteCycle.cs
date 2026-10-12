@@ -8,6 +8,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map palette cycle")]
     private static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
@@ -34,7 +35,7 @@ internal static partial class Program
             bool looped = native.Step(nativeColors);
             if (looped) loops++;
             AssertEqual(looped, installed.Step(installedColors), "imported highlight requests loop sound on native tick");
-            AssertTrue(nativeColors.Colors.SequenceEqual(installedColors.Colors), "all CGRAM colors match throughout imported highlight cycle");
+            AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)), "all CGRAM colors match throughout imported highlight cycle");
         }
         AssertTrue(loops > 5, "highlight parity crosses multiple loop boundaries");
 

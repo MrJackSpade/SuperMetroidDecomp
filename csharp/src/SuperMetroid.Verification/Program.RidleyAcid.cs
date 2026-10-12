@@ -27,8 +27,7 @@ internal static partial class Program
         runtime.Enemies.DrawCeresRidleyImmediateBabyAndDoor(ridleyOam, new(0, 256));
         runtime.Enemies.DrawCeresRidleyPostEnemyHook(ridleyOam, new(0, 256));
         ridleyOam.FinalizeFrame();
-        AssertTrue(ridleyOam.LowTable.SequenceEqual(expectedEmptyOam.LowTable) &&
-            ridleyOam.HighTable.SequenceEqual(expectedEmptyOam.HighTable),
+        AssertTrue(ridleyOam.ImageEquals(expectedEmptyOam),
             "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");
         AssertEqual((ushort)0, state.BabyInstruction,
             "Norfair Ridley never advances an uninitialized Ceres Baby program");

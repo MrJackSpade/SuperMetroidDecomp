@@ -8,6 +8,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifyGameplayCaptureIntegration()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

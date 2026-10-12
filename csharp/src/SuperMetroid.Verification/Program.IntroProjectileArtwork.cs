@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
         var intro = CreateRetailIntroFixture(bus);
@@ -81,6 +82,7 @@ internal static partial class Program
         intro.ProjectileCompositions = RepositoryInstallation.Projectiles.Catalog;
         intro.ProjectileFrameBindings = RepositoryInstallation.Projectiles.FrameBindings;
     }
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw)
     {

@@ -13,6 +13,7 @@ internal static partial class Program
     }
 
     /// <summary>Strict field validation must not delete the supported stock-assisted migrations.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyPaletteContractLegacyOverrides()
     {
         Dictionary<string, JsonObject> documents = PaletteJsonContracts().ToDictionary(item => item.Name, item => item.Document);
@@ -56,11 +57,11 @@ internal static partial class Program
             var actual = new SnesCgram();
             var expected = new SnesCgram();
             migrated.ApplyRoomEntry(actual); roomStock.ApplyRoomEntry(expected);
-            AssertTrue(actual.Colors.SequenceEqual(expected.Colors), "legacy inherits exact room-entry colors");
+            AssertTrue(new CgramPalettes(actual).ImageEquals(new CgramPalettes(expected)), "legacy inherits exact room-entry colors");
             for (int frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
             {
                 migrated.ApplyRecoveryLights(actual, frame); roomStock.ApplyRecoveryLights(expected, frame);
-                AssertTrue(actual.Colors.SequenceEqual(expected.Colors), "legacy inherits exact room recovery colors");
+                AssertTrue(new CgramPalettes(actual).ImageEquals(new CgramPalettes(expected)), "legacy inherits exact room recovery colors");
             }
             migrated.ApplyFinal(actual);
             AssertEqual(PackPaletteContractColor((JsonObject)oldRoom["finalRoom"]![0]!),
@@ -81,7 +82,7 @@ internal static partial class Program
         for (int frame = 0; frame < MotherBrainFakeDeathPaletteRomData.FrameCount; frame++)
         {
             migratedRainbow.ApplyFakeDeathToGrey(legacyCgram, frame); rainbowStock.ApplyFakeDeathToGrey(stockCgram, frame);
-            AssertTrue(legacyCgram.Colors.SequenceEqual(stockCgram.Colors), "legacy inherits exact fake-death colors");
+            AssertTrue(new CgramPalettes(legacyCgram).ImageEquals(new CgramPalettes(stockCgram)), "legacy inherits exact fake-death colors");
         }
         migratedRainbow.ApplyNormal(legacyCgram);
         AssertEqual(PackPaletteContractColor((JsonObject)oldRainbow["normal"]!["body"]![0]!),

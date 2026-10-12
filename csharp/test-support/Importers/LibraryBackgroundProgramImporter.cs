@@ -62,6 +62,7 @@ internal static class LibraryBackgroundProgramImporter
     /// Reference VRAM/WRAM image for an explicitly imported list, independent of the
     /// installed artwork executor. Used by cartridge-versus-asset diagnostics only.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static LibraryBackgroundExecutionResult ExecuteReference(ISnesAddressSpace source,
         SnesVram vram, ushort pointer, ushort activeDoorPointer)
     {

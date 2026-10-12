@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -88,6 +89,7 @@ internal static partial class Program
         throw new InvalidDataException("Player-room sequence never reached a completed grapple wall jump.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [SuperMetroid.Core.Hardware.CpuBusBoundary("exact bus test: retail ROM oracle for the wall-grab pose B8 split tile DMA definition and bytes")]
     private static void VerifyGrappleWallGrabDma(SuperMetroid.Core.Hardware.SnesVram vram, int definition,
         SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)

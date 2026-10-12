@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyEyeWindowSnapshots()
     {
         for (long coefficient = -9; coefficient <= 9; coefficient++)

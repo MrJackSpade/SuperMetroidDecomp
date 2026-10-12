@@ -68,6 +68,7 @@ internal static partial class Program
             [KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, digest)]);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static IntroCinematicArtworkCatalog CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
     {
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,

@@ -220,6 +220,7 @@ internal static partial class Program
             (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
     {

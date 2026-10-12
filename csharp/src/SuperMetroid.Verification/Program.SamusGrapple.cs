@@ -13,6 +13,7 @@ internal static partial class Program
 {
 
 /// <summary>Grapple swing, collision, release, and drawing verification.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 static void VerifySamusGrappleSwingAndRelease()
 {
     var bus = new TestAddressSpace();

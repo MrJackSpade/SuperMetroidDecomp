@@ -13,6 +13,7 @@ internal static partial class Program
 {
 
 /// <summary>Morph Ball, bomb, reaction-PLM, and tunnel verification.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 static void VerifySamusMorphBallMovement()
 {
     var bus = new TestAddressSpace();

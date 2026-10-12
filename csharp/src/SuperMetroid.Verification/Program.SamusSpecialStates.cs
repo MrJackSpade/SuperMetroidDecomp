@@ -82,6 +82,7 @@ static void SeedCrystalFlashCartridge(TestAddressSpace bus)
 }
 
 /// <summary>Crystal Flash, X-ray, and death-sequence verification.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifySamusCrystalFlash()
 {
     var bus = new TestAddressSpace();
@@ -382,6 +383,7 @@ static void SeedXrayCartridge(TestAddressSpace bus)
 /// `$91:DCB4-$DD30`: admission, all four bodies, dedicated turning, angle frames, setup,
 /// widening, aiming, visor palette, teardown, and the native crouched-turn stand-up glitch.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifySamusXray()
 {
     var bus = new TestAddressSpace();
@@ -762,6 +764,7 @@ static SamusDeathPaletteArtworkCatalog DecodeSamusDeathFixtureArtwork(TestAddres
 /// palettes, 60-call flash, nine explosion frames, non-Samus palette whiteout, and terminal
 /// no-draw state.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifySamusDeathSequence()
 {
     var bus = new TestAddressSpace();

@@ -94,6 +94,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyWindowedSceneContract()
     {
         var palette = new ushort[SnesPpuLayout.CgramColorCount]; palette[0] = 31;

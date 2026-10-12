@@ -10,6 +10,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Tourian statue palette sources")]
     private static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
@@ -39,7 +40,7 @@ internal static partial class Program
             (RoomEnemySystem installed, SnesCgram installedCgram) = CreateEnemy(guard, stock);
             ReferenceEntrance(nativeCgram);
             Initialize(installed, parameter);
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"Tourian statue entry parameter {parameter} preserves full native CGRAM");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
                 installed.Slots[0].CurrentInstruction,
@@ -54,7 +55,7 @@ internal static partial class Program
             (RoomEnemySystem installed, SnesCgram installedCgram) = CreateEnemy(guard, stock);
             ReferenceEye(nativeCgram, parameter);
             installed.SpawnTourianUnlockEffect(parameter, soul: false);
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"Tourian eye parameter {parameter} preserves full native CGRAM");
             AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
                 installed.EnemyProjectiles.Single(x => x.IsActive).Position.X.Whole,
@@ -125,7 +126,7 @@ internal static partial class Program
         }
         installedRoom.TourianStatues.StepTiles(installedRoom);
         editedRoom.TourianStatues.StepTiles(editedRoom);
-        AssertTrue(nativeGreyCgram.Colors.SequenceEqual(installedRoom.Cgram.Colors),
+        AssertTrue(new CgramPalettes(nativeGreyCgram).ImageEquals(new CgramPalettes(installedRoom.Cgram)),
             "Tourian grey room instruction preserves full native CGRAM");
         var differences = greyDestinations
             .Select(destination => (Index: destination + 1, Mask: 1 << 10)).ToArray();
@@ -243,6 +244,7 @@ internal static partial class Program
         return guard;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void CheckOnlyDifferences(SnesCgram reference, SnesCgram edited,
         IReadOnlyList<(int Index, int Mask)> differences, string context)
     {

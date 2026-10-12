@@ -13,6 +13,7 @@ internal static partial class Program
     /// Reproduces #1150 at the Ceres-to-Zebes palette handoff, without replaying
     /// the escape or giving production simulation access to a cartridge.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyCeresEnginePaletteBinding(string installationRoot)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));

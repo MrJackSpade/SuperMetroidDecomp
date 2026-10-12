@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Verifies only the already statically identified enemy-reader conversions; no gameplay read discovery.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyEnemyDefinitionBoundary(string sourceRom)
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
@@ -42,8 +43,7 @@ internal static partial class Program
                     clipVerticalWrap: true, originYIsOnScreen: (cy >> 8) == 0);
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&
-                expected.HighTable.SequenceEqual(actual.HighTable), "Torizo composed OAM bytes and origin arithmetic");
+            AssertTrue(expected.ImageEquals(actual), "Torizo composed OAM bytes and origin arithmetic");
             drawCases++;
         }
         AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, memory,

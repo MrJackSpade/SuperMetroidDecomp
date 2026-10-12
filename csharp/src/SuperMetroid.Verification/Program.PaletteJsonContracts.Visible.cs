@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rendering;
 internal static partial class Program
 {
     /// <summary>Real compiled FX/animation and software pixels use only installed color data and live RAM.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyPaletteContractVisibleIsolation()
     {
         var documents = PaletteJsonContracts().ToDictionary(item => item.Name, item => item.Document);
@@ -97,6 +98,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void AssertPaletteContractPixels(SnesCgram stock, SnesCgram edited, int color)
     {
         var vram = new SnesVram();

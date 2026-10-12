@@ -187,6 +187,7 @@ static void VerifyMultiplicationExhaustively()
 /// Verifies both VMAIN modes used by the queue, packed-tail accounting, source-bank wrap,
 /// ordered overwrite behavior, and the NMI consumer's unconditional queue reset.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 [CpuBusBoundary("exact bus test: VRAM queue and channel DMA A-bus source reads that wrap within WRAM bank $7E")]
 static void VerifyVramWriteQueue()
 {
@@ -455,6 +456,7 @@ static void VerifyControllerInputLatch()
 /// Confirms the integrated frame seam preserves NMI ordering, accepted/lagged counters,
 /// controller latching, VRAM draining, and timer dispatch.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 static void VerifyFrameRuntime()
 {
     var infiniteAmmoSamus = new SamusState
@@ -639,6 +641,7 @@ static void VerifySuperMetroidAddressSpace()
 /// Builds synthetic packed spritemaps to verify signed/modular offsets, shared high-OAM
 /// pairs, palette replacement, clipping, finalization, and the exact 544-byte upload size.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
 static void VerifyOamSpritemapPacking()
 {
     var bus = new TestAddressSpace();

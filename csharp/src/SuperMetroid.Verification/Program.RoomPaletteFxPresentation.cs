@@ -61,7 +61,7 @@ internal static partial class Program
         {
             native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
             installed.Step(guarded, installedCgram, presentation, 0, 0, false, false);
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Norfair palette equals native output on frame {frame}");
             AssertEqual(native.SamusInHeatPaletteIndex, installed.SamusInHeatPaletteIndex,
                 $"installed Norfair heat phase equals native output on frame {frame}");
@@ -883,7 +883,7 @@ internal static partial class Program
             {
                 native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, equipment, false, false);
                 installed.Step(guard, installedCgram, presentation, 0, equipment, false, false);
-                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
             }
             AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -935,7 +935,7 @@ internal static partial class Program
             {
                 native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), samusY, 0, false, false);
                 installed.Step(guarded, installedCgram, presentation, samusY, 0, false, false);
-                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {description} definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
                 AssertTrue(native.SoundRequests.SequenceEqual(installed.SoundRequests),
@@ -995,7 +995,7 @@ internal static partial class Program
             {
                 native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
                 installed.Step(guarded, installedCgram, presentation, 0, 0, false, false);
-                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed Wrecked Ship definition ${definition:X4} equals native " +
                     $"output on frame {frame}");
             }
@@ -1049,7 +1049,7 @@ internal static partial class Program
         {
             native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
             installed.Step(guarded, installedCgram, presentation, 0, 0, false, false);
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Maridia palette equals native output on frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -1153,7 +1153,7 @@ internal static partial class Program
         var editedCgram = new SnesCgram();
         stockOwner.Step(bus, stockCgram, currentStock, 0, 0, false, false);
         editedOwner.Step(bus, editedCgram, editedHeat, 0, 0, false, false);
-        AssertTrue(!stockCgram.Colors.SequenceEqual(editedCgram.Colors),
+        AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)),
             "editing Samus's Power Suit heat color changes visible CGRAM");
         AssertEqual(stockOwner.SamusInHeatPaletteIndex,
             editedOwner.SamusInHeatPaletteIndex,

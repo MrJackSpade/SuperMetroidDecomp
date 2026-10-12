@@ -40,6 +40,7 @@ internal static partial class Program
         Console.WriteLine($"  Zebes descent: {slideFrames} frames, {visibleFrames} with planet, no lower-screen reappearance.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyOffScreenCinematicOam()
     {
         var bus = new TestAddressSpace();

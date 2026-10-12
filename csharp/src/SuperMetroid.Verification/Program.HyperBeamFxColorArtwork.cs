@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);
@@ -179,7 +180,7 @@ internal static partial class Program
             AssertEqual(expectedFrame, extracted.CurrentFrameIndex, "Native FX frame order including loop");
             AssertEqual((call & 1) == 0, extracted.CurrentFrameIndex != frameBefore, "Native FX paint/hold cadence");
             AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extracted.InstructionTimer, "Native FX timer");
-            AssertTrue(nativeCgram.Colors.SequenceEqual(extractedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(extractedCgram)),
                 "Extracted Hyper Beam frame matches full CGRAM including untouched colors");
         }
         AssertEqual(1, extracted.CompletedCycles, "Hyper Beam palette loop retains compiled control cadence");

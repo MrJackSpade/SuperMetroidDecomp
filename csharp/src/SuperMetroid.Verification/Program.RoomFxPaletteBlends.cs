@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRoomFxPaletteBlends()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -132,6 +133,7 @@ internal static partial class Program
             "older color overrides inherit the stock red haze tint");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline)
     {
@@ -177,6 +179,7 @@ internal static partial class Program
         Console.WriteLine("Room-FX blend override: edited color reaches CGRAM and removal restores stock.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static (RoomLayer3FxState State, CartridgeReadGuard Bus, SnesCgram Cgram)
         ConstructBlendLoad(RoomFxPaletteBlendCatalog catalog,
             RoomFxLayer3TilemapCatalog tilemaps, byte selection)

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro cinematic characters, tilemaps and palette")]
     private static void VerifyIntroCinematicArtwork(string sourceRom, bool samusBodyOnly = false, bool presentationOnly = false)
     {
@@ -586,6 +587,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -597,7 +599,7 @@ internal static partial class Program
             new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         native.Step(0);
         installed.Step(0);
-        AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
             "installed opening eye frame draws the exact native portrait rectangle");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed opening eye script and frame do not reread ROM");
@@ -637,14 +639,14 @@ internal static partial class Program
         AssertEqual(edited.FrameWords(0)[0], installedVram.ReadWord(destination),
             "eye JSON edit reaches the active portrait tile");
         installed.BindEyeArtwork(stock.EyeFrames);
-        AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
             "restoring stock eye art restores exact native VRAM without restarting script");
 
         for (int frame = 0; frame < 160; frame++)
         {
             native.Step(0);
             installed.Step(0);
-            AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+            AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
                 $"installed normal eye blink preserves native VRAM at frame {frame}");
         }
         native.StartEnglishPageSix();
@@ -653,13 +655,14 @@ internal static partial class Program
         {
             native.Step(0);
             installed.Step(0);
-            AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+            AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
                 $"installed page-six eye blink preserves native VRAM at frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed eye lists and all four frames avoid native source reads");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -680,8 +683,7 @@ internal static partial class Program
             stock.CaretSprites.Draw(definition.Pointer, installed,
                 new(originX, originY), paletteBits);
             installed.FinalizeFrame();
-            AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
-                    installed.HighTable.SequenceEqual(native.HighTable) &&
+            AssertTrue(installed.ImageEquals(native) &&
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                 $"opening caret {definition.Name} produces exact native OAM");
         }
@@ -718,8 +720,7 @@ internal static partial class Program
             stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, stockOam,
                 new(originX, originY), paletteBits);
             stockOam.FinalizeFrame();
-            AssertTrue(previousOam.LowTable.SequenceEqual(stockOam.LowTable) &&
-                    previousOam.HighTable.SequenceEqual(stockOam.HighTable),
+            AssertTrue(previousOam.ImageEquals(stockOam),
                 "prior four-frame override preserves its actual caret composition");
         }
         SpriteVisualPart part = document.Frames["caret-visible"][0];
@@ -756,8 +757,7 @@ internal static partial class Program
         var prepare = typeof(IntroCinematicState).GetMethod("PrepareIllustratedPageOam", flags)!;
         var nativeOam = (OamBuffer)prepare.Invoke(nativeState, null)!;
         var installedOam = (OamBuffer)prepare.Invoke(installedState, null)!;
-        AssertTrue(installedOam.LowTable.SequenceEqual(nativeOam.LowTable) &&
-                installedOam.HighTable.SequenceEqual(nativeOam.HighTable),
+        AssertTrue(installedOam.ImageEquals(nativeOam),
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
@@ -810,6 +810,7 @@ internal static partial class Program
             "flashback setup never rereads the physical level source");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -830,8 +831,7 @@ internal static partial class Program
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
             installed.FinalizeFrame();
-            AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
-                    installed.HighTable.SequenceEqual(native.HighTable) &&
+            AssertTrue(installed.ImageEquals(native) &&
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                 $"intro Mother Brain {definition.Name} produces exact native OAM");
         }
@@ -859,8 +859,7 @@ internal static partial class Program
             IntroMotherBrainSpriteState.Position.ToOam(),
             IntroMotherBrainSpriteState.PaletteBits);
         editedOam.FinalizeFrame();
-        AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) &&
-                editedOam.HighTable.SequenceEqual(stockOam.HighTable),
+        AssertTrue(!editedOam.ImageEquals(stockOam),
             "intro Mother Brain palette edit changes OAM art but not sprite size or X high bits");
         for (int part = 0; part < IntroMotherBrainSpriteDefinitions.StockPartCount; part++)
             AssertTrue(editedOam.LowTable.Slice(part * 4, 2)
@@ -893,6 +892,7 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, IntroCinematicArtworkCatalog stock,
         GameInstallation installation)
@@ -914,8 +914,7 @@ internal static partial class Program
             stock.MotherBrainExplosionSprites.Draw(definition.Pointer, installed,
                 new(x, y), palette);
             installed.FinalizeFrame();
-            AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
-                    installed.HighTable.SequenceEqual(native.HighTable) &&
+            AssertTrue(installed.ImageEquals(native) &&
                     installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                 $"intro Mother Brain explosion {definition.Name} produces exact native OAM");
         }
@@ -946,8 +945,7 @@ internal static partial class Program
         editedOam.BeginFrame();
         explosions.Draw(editedOam, edited.MotherBrainExplosionSprites);
         editedOam.FinalizeFrame();
-        AssertTrue(!editedOam.LowTable.SequenceEqual(stockOam.LowTable) &&
-                editedOam.HighTable.SequenceEqual(stockOam.HighTable),
+        AssertTrue(!editedOam.ImageEquals(stockOam),
             "intro explosion palette edit changes production OAM attributes, not actor placement");
         for (int part = 0; part < stockOam.LastFinalizedSpriteCount; part++)
             AssertTrue(editedOam.LowTable.Slice(part * 4, 2)
@@ -1006,6 +1004,7 @@ internal static partial class Program
     }
 
     /// <summary>The failure message for a cinematic read of migrated artwork, or null when the read is allowed.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static string? IntroArtworkForbiddenRead(int address,
         bool blockIntroMotherBrainExplosions,
         bool blockIntroRinkas,

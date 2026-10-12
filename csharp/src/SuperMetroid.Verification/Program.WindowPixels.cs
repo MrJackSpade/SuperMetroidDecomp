@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyWindowPixels()
     {
         var random = new Random(396);

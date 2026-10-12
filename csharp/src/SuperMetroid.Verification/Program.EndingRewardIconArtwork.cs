@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon Mode-7 characters")]
     private static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {

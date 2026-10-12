@@ -76,8 +76,7 @@ internal static partial class Program
         installedOverlay.BeginFrame();
         enemies.DrawCeresRidleyImmediateBabyAndDoor(installedOverlay, new(0, 0));
         installedOverlay.FinalizeFrame();
-        AssertTrue(nativeOverlay.LowTable.SequenceEqual(installedOverlay.LowTable) &&
-                   nativeOverlay.HighTable.SequenceEqual(installedOverlay.HighTable),
+        AssertTrue(nativeOverlay.ImageEquals(installedOverlay),
             "Ceres private overlay matches native OAM with ROM frame reads forbidden");
 
         EnemySpritemapDocument visual = JsonSerializer.Deserialize<EnemySpritemapDocument>(

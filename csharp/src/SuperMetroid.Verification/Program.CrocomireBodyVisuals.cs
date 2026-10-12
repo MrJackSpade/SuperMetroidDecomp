@@ -74,6 +74,7 @@ internal static partial class Program
                 "generated catalog loads every native BG2 stream by its published key");
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire body visuals")]
     private static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom, string stockDirectory,
@@ -112,8 +113,7 @@ internal static partial class Program
                     newFrame);
                 (OamBuffer installedOam, byte[] installedVram) = Draw(stock, guard,
                     pointer, newFrame);
-                AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                           nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                AssertTrue(nativeOam.ImageEquals(installedOam) &&
                            nativeOam.NextByteOffset == installedOam.NextByteOffset,
                     $"Crocomire body $A4:{pointer:X4} OAM matches native; new frame={newFrame}");
                 AssertTrue(nativeVram.SequenceEqual(installedVram),
@@ -194,8 +194,7 @@ internal static partial class Program
             editedFrame.Pointer, true);
         (OamBuffer editedOam, byte[] editedVram) = Draw(edited, editedGuard,
             editedFrame.Pointer, true);
-        AssertTrue(stockOam.LowTable.SequenceEqual(editedOam.LowTable) &&
-                   stockOam.HighTable.SequenceEqual(editedOam.HighTable),
+        AssertTrue(stockOam.ImageEquals(editedOam),
             "Crocomire BG2 edit does not move its OAM components");
         AssertTrue(!stockVram.SequenceEqual(editedVram),
             "Crocomire BG2 edit changes the live VRAM result");

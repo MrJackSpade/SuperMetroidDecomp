@@ -920,6 +920,43 @@
     },
     {
       "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "MapHighlightCycle",
+      "region": "Cgram",
+      "offset": "$00B0",
+      "count": 16,
+      "encoding": "Bgr555 animated map highlights",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FileSelectRoomMapGraphics.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/PauseMenuState.MapPresentation.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "PauseReserveArrowColor11",
+      "region": "Cgram",
+      "offset": "$006B",
+      "count": 1,
+      "encoding": "Bgr555 animated reserve arrow",
+      "aliasOf": "PpuMemoryLayout.BgPalette6",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseMenuState.MapPresentation.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "PauseReserveArrowColor6",
+      "region": "Cgram",
+      "offset": "$0066",
+      "count": 1,
+      "encoding": "Bgr555 animated reserve arrow",
+      "aliasOf": "PpuMemoryLayout.BgPalette6",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseMenuState.MapPresentation.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
       "name": "TitleCopyright",
       "region": "Cgram",
       "offset": "$00C9",
@@ -2009,7 +2046,6 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs",
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Rooms/RoomGraphicsLayout.cs"
       ]
     },
@@ -2037,7 +2073,8 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs",
-        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs"
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
       ]
     },
     {

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyXrayNoFxDarkening()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

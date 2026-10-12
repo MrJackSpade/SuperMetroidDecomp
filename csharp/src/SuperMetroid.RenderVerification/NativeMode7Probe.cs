@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 /// <summary>Diagnostic translation of upstream-sm/src/snes/ppu.c's reference Mode-7 sampling.</summary>
 internal static class NativeMode7Probe
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     internal static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, int scanlineBias)
     {
         var bg = snapshot.Background!.Value;

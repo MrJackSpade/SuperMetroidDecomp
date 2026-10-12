@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ninja Space Pirate palette")]
     private static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
@@ -34,7 +35,7 @@ internal static partial class Program
         const ushort nativeInstruction = 0xf2da;
         (RoomEnemySlot stockSlot, SnesCgram stockColors) = Initialize(
             NewNinjaPaletteReadGuard(bus), stock);
-        AssertTrue(nativeColors.Colors.SequenceEqual(stockColors.Colors),
+        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(stockColors)),
             "Installed ninja target palette preserves full native CGRAM including neighbors");
         AssertEqual(nativeX, stockSlot.Position.X.Whole,
             "Installing ninja palette does not change initial post placement");
@@ -68,7 +69,7 @@ internal static partial class Program
         (RoomEnemySlot restoredSlot, SnesCgram restoredColors) = Initialize(
             NewNinjaPaletteReadGuard(bus),
             EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory));
-        AssertTrue(restoredColors.Colors.SequenceEqual(editedColors.Colors),
+        AssertTrue(new CgramPalettes(restoredColors).ImageEquals(new CgramPalettes(editedColors)),
             "Reload after stock repair retains the selected ninja target colors");
         AssertEqual(editedSlot.Position.X.Whole, restoredSlot.Position.X.Whole,
             "Reload after stock repair retains ninja placement");

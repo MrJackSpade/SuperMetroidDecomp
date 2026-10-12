@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hyper beam colors")]
     private static void VerifySamusHyperBeamColors()
     {
@@ -386,6 +387,7 @@ internal static partial class Program
         Console.WriteLine("  Hyper Beam: both native palette views, independent edits and guarded runtime cycles pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,

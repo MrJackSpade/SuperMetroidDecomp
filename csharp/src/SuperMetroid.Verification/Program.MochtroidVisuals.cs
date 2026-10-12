@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
     private static void VerifyInstalledMochtroidVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -36,8 +37,7 @@ internal static partial class Program
             DrawImportedEnemySpritemap(rom, nativeOam, MochtroidVisualDefinitions.Bank,
                 nativePointer, new(128, 128), 0, 0);
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
-            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                       nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+            AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"Mochtroid selector {index} installed OAM matches cartridge");
         }

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette fade")]
     private static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
@@ -197,6 +198,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
@@ -348,7 +350,7 @@ internal static partial class Program
                     AssertEqual(1, stockLogo.PaletteStep,
                         "logo override fixture reaches its first palette transfer");
                 }
-                AssertTrue(!stockCgram.Colors.SequenceEqual(editedCgram.Colors) &&
+                AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)) &&
                     stockLogo.Draw(installation.LoadEndingObjectArt().LogoSprites).LowTable.SequenceEqual(editedLogo.Draw(installation.LoadEndingObjectArt().LogoSprites).LowTable),
                     $"edited {id} color changes logo CGRAM without changing actors");
             }
@@ -458,6 +460,7 @@ internal static partial class Program
             "edited Zebes lava palette-FX changes visible ending pixels without changing phase or VRAM");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette artwork")]
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
         ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
@@ -466,7 +469,7 @@ internal static partial class Program
         var installedCgram = new SnesCgram();
         var nativeLogo = new EndingLogo(nativeBus, nativeCgram, () => { }, stock);
         var installedLogo = new EndingLogo(guardedBus, installedCgram, () => { }, stock);
-        AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed initial logo palette matches cartridge CGRAM");
         for (int frame = 0; frame < 300 && !nativeLogo.Completed; frame++)
         {
@@ -487,7 +490,7 @@ internal static partial class Program
             installedLogo.Step(installedCgram, EndingLogoInstructionDefinitions.ReadWord);
             AssertEqual(nativeLogo.PaletteStep, installedLogo.PaletteStep,
                 $"installed logo crossfade step {frame}");
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed logo palette matches every native frame {frame}");
         }
         AssertTrue(nativeLogo.Completed && installedLogo.Completed,

@@ -53,8 +53,7 @@ internal static partial class Program
                 stock.CeresDestruction.Sprites.Draw(frame.Pointer, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
-                AssertTrue(installedOam.LowTable.SequenceEqual(nativeOam.LowTable) &&
-                        installedOam.HighTable.SequenceEqual(nativeOam.HighTable) &&
+                AssertTrue(installedOam.ImageEquals(nativeOam) &&
                         installedOam.LastFinalizedSpriteCount == nativeOam.LastFinalizedSpriteCount,
                     $"Ceres destruction {frame.Name} at Y=${y:X4} preserves cartridge OAM");
             }

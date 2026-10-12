@@ -11,6 +11,7 @@ internal static partial class Program
 {
     // Translate this test's deliberately constructed cartridge visuals into the
     // installed contract. Never mutate the shared retail catalog or its arrays.
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the constructed pause presentation source bytes")]
     private static AreaMapPresentationCatalog CreateConstructedPausePresentation(
         CartridgeImportAddressSpace bus)

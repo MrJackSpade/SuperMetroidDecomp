@@ -68,6 +68,7 @@ internal static partial class Program
     /// This replaces loops whose copy/pasted index arithmetic was harder to audit than the
     /// palette behavior they were meant to prove.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     static void AssertPaletteSlice(
         SnesCgram actual,
         int destinationIndex,

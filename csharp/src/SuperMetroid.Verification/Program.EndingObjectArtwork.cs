@@ -75,7 +75,7 @@ internal static partial class Program
                 if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
                 else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
                 originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
-                AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+                AssertTrue(originalOam.ImageEquals(calculatedOam),
                     "cloud grid preserves native OAM and clipping");
             }
             SpriteVisualPart first = visual[0];
@@ -117,6 +117,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EndingCloudInstructionDefinitions.ReadWord(invalid), "cloud program bounds");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending object sheets and BG maps")]
     private static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
@@ -186,8 +187,7 @@ internal static partial class Program
                 stock.CloudSprites.Draw(definition.Pointer, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
-                AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,
                     $"ending cloud {definition.Name} at Y=${y:X4} preserves cartridge OAM");
             }
@@ -425,8 +425,7 @@ internal static partial class Program
         editedCloudSprites.CloudSprites.Draw(0xb83b, editedCloudOam,
             new(120, 72), 0x0800, originIsOnScreen: true);
         editedCloudOam.FinalizeFrame();
-        AssertTrue(preservedCloudOam.LowTable.SequenceEqual(editedCloudOam.LowTable) &&
-                preservedCloudOam.HighTable.SequenceEqual(editedCloudOam.HighTable),
+        AssertTrue(preservedCloudOam.ImageEquals(editedCloudOam),
             "ending cloud sprite override survives stock repair with edited OAM");
         File.Delete(invalidPath);
         File.Delete(cloudSpriteOverride);

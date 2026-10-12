@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot palette timing definitions")]
     private static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)

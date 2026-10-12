@@ -49,6 +49,7 @@ internal static partial class Program
 
         internal void Step() => instructions(Body, Inner.Samus, Inner.Level, Position16<RoomPixels>.Zero, 0);
         internal OamBuffer Draw() => Inner.Draw();
+        [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void ClearBg2() => Inner.Vram.ExecuteWordTransfer(
             new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayout.VramBase, 1);
     }

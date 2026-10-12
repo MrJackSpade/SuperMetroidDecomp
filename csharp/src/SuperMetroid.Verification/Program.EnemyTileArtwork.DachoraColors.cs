@@ -10,6 +10,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Dachora colors and selector pointers")]
     private static void VerifyInstalledDachoraColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)

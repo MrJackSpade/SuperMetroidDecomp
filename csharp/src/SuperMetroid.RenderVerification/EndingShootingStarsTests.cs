@@ -11,6 +11,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static class EndingShootingStarsTests
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirm only #1163's ten identified native aliases through the real queue/runtime resolver. No frames or ROM.</summary>
 internal static class VramDmaArtworkChecks
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void Run(string mapDirectory)
     {
         var maps = AreaMapPresentationCatalog.Load(mapDirectory, null);

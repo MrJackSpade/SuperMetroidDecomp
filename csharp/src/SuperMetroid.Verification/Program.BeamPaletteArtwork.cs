@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus, BeamTileCatalog tiles)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
@@ -23,7 +24,7 @@ internal static partial class Program
             var nativeQueue = new VramWriteQueue(); var queue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), queue, actual, selection, tiles, catalog);
-            AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "Extracted beam palette matches native full CGRAM including untouched neighbors");
+            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Extracted beam palette matches native full CGRAM including untouched neighbors");
             AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Palette selection retains tile queue timing");
             var document = JsonNode.Parse(bytes)!;
             var red = document["palettes"]![BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))]![3]!;
@@ -34,7 +35,7 @@ internal static partial class Program
                 AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusProjectileRomData.Palettes.BeamDestinationIndex + 3 ? 1 : 0)),
                     actual.Colors[i], "Palette edit changes exactly the selected color channel bit");
             catalog.LoadTo(actual, SamusBeamCombinations.FromTableIndex(selection));
-            AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "Previously loaded palette remains immutable after editing input");
+            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Previously loaded palette remains immutable after editing input");
         }
         string json = Encoding.UTF8.GetString(bytes);
         AssertThrows<InvalidDataException>(() => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(json.Insert(1, "\"version\":1,")))), "Duplicate palette metadata rejected");
@@ -56,6 +57,7 @@ internal static partial class Program
             () => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), palettes);

@@ -136,8 +136,7 @@ internal static partial class Program
                     new Position16<OamPixels>(128, 112));
             }
             presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, new(128, 112), 0);
-            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                nativeOam.HighTable.SequenceEqual(installedOam.HighTable), "Title composition matches independent native OBJ records");
+            AssertTrue(nativeOam.ImageEquals(installedOam), "Title composition matches independent native OBJ records");
         }
         TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Pointer == yearPointer);
         SpriteVisualPart originalPart = year.Parts[0];
@@ -214,6 +213,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the title palette")]
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
     {
@@ -315,7 +315,7 @@ internal static partial class Program
         {
             native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), 0, 0, false, false);
             installed.Step(guardedBus, installedCgram, presentation, 0, 0, false, false);
-            if (!nativeCgram.Colors.SequenceEqual(installedCgram.Colors))
+            if (!new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)))
             {
                 throw new InvalidDataException(
                     $"Installed title ambient palette diverged from native output on frame {frame}.");
@@ -483,6 +483,7 @@ internal static partial class Program
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyTitleGradientObjectEligibility()
     {
         var oam = new OamBuffer();

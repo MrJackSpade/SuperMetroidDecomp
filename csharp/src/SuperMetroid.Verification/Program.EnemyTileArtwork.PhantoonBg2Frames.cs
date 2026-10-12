@@ -233,6 +233,7 @@ internal static partial class Program
         return found ? (ushort)arguments[4]! : (ushort)0;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
     {

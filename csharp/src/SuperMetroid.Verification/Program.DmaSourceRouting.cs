@@ -6,6 +6,7 @@ internal static partial class Program
     /// Checks the actual PPU transfer paths, including a fixed-bank DMA wrap that changes
     /// mapped source type between consecutive bytes. A generic bus read throws here.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: PPU DMA and import palette source routing across cartridge, WRAM and SRAM")]
     private static void VerifyDmaSourceRouting()
     {

@@ -1935,6 +1935,7 @@ internal static partial class Program
         AssertEqual(16, mechanicsBytes, "compiled Norfair heat-phase bytes");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Beacon palette-FX program mechanics words")]
     private static void VerifyBeaconPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -2038,6 +2039,7 @@ internal static partial class Program
             "beacon resumes after the native eighteen-byte skip");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Glow palette-FX program mechanics words")]
     private static void VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)

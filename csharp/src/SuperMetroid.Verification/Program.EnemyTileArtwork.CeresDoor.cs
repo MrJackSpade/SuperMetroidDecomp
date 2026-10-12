@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door tiles, palettes and Mode-7 transfer records")]
     private static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
         string directory, EnemyTileArtworkCatalog stock)
@@ -26,12 +27,12 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.NormalColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomData.NormalTargetColor);
         visual.LoadNormalColors(compiledColors, CeresDoorVisualRomData.NormalTargetColor);
-        AssertTrue(nativeColors.Colors.SequenceEqual(compiledColors.Colors),
+        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
             "installed Ceres-door normal RGB5 palette matches the cartridge");
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeColors, bus, CeresDoorVisualRomData.EscapeColors,
             CeresDoorVisualRomData.SetupColorCount, CeresDoorVisualRomData.ActiveTargetColor);
         visual.LoadEscapeColors(compiledColors, CeresDoorVisualRomData.ActiveTargetColor);
-        AssertTrue(nativeColors.Colors.SequenceEqual(compiledColors.Colors),
+        AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
             "installed Ceres-door escape RGB5 palette matches the cartridge");
         for (int row = 0; row < CeresDoorVisualRomData.AnimationRowCount; row++)
         {
@@ -41,7 +42,7 @@ internal static partial class Program
                 CeresDoorVisualRomData.AnimationColorCount,
                 CeresDoorVisualRomData.AnimationTargetColor);
             visual.LoadAnimationColors(compiledColors, row);
-            AssertTrue(nativeColors.Colors.SequenceEqual(compiledColors.Colors),
+            AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors)),
                 $"installed Ceres-door animated RGB5 row {row} matches the cartridge");
         }
         for (int frame = 0; frame < CeresDoorVisualRomData.Mode7FrameCount; frame++)
@@ -73,7 +74,7 @@ internal static partial class Program
             nativeVram.LoadMode7MapBytes(nativeFrame,
                 CeresDoorVisualRomData.Mode7DestinationWord);
             visual.LoadMode7DoorFrame(installedVram, frame);
-            AssertTrue(nativeVram.Bytes.SequenceEqual(installedVram.Bytes),
+            AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram),
                 $"installed Ceres-door Mode-7 frame {frame} matches native transfer");
         }
 
@@ -126,7 +127,7 @@ internal static partial class Program
         var stockMode7 = new SnesVram();
         edited.LoadMode7DoorFrame(editedMode7, 0);
         visual.LoadMode7DoorFrame(stockMode7, 0);
-        AssertTrue(!editedMode7.Bytes.SequenceEqual(stockMode7.Bytes),
+        AssertTrue(!new VramStore(editedMode7).ImageEquals(stockMode7),
             "Ceres-door Mode-7 frame override changes the live tilemap");
     }
 }

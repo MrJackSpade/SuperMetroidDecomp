@@ -36,6 +36,7 @@ internal static class CeresDestructionCinematicStateAccess
         /// <summary>
         /// Reads the low-byte Mode-7 map selected by the cinematic's current native transfers.
         /// </summary>
+        [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal byte ReadMode7MapByte(int mapByteIndex)
         {
             if ((uint)mapByteIndex >= CeresDestructionRomData.Vram.Mode7MapCapacityBytes)
@@ -284,6 +285,7 @@ internal static class PauseMenuStateAccess
         /// upload. This narrow friend-test seam proves the bottom pause chrome reached VRAM;
         /// callers cannot mutate the private menu PPU.
         /// </summary>
+        [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
         internal ushort ReadPauseButtonLabelWord(int nativeWordIndex)
         {
             const int firstUploadedNativeWordIndex = 0x0320;
@@ -355,6 +357,7 @@ internal static class TitleSequenceStateAccess
         internal byte Brightness => (byte)PrivateState.Field<int>(self, "brightness");
 
         /// <summary>Current title CGRAM, including cartridge palette-animation writes.</summary>
+        [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
         internal ReadOnlySpan<Bgr555> PaletteColors => PrivateState.Field<SnesCgram>(self, "cgram").Colors;
 
         /// <summary>Current native Mode-7 A/D scalar, exposed for transform regression audits.</summary>

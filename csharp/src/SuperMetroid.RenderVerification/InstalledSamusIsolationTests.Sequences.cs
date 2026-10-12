@@ -31,6 +31,7 @@ internal sealed partial class InstalledSamusIsolationTests
         return samus;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private void CheckCrystalFlash(bool left)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
@@ -149,6 +150,7 @@ internal sealed partial class InstalledSamusIsolationTests
         Console.WriteLine($"  {kind} suit: {frames} identical stage/window/pose/control calls; edited suit colors applied.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private void CheckDeath(SamusPoseId source, ushort suit)
     {
         Pair pair = Create(source, suit);
@@ -178,7 +180,7 @@ internal sealed partial class InstalledSamusIsolationTests
                 pair.Check(context + " explosion draw");
                 draws++;
                 if (!a.LowTable.SequenceEqual(b.LowTable)) changedOam++;
-                if (!pair.Stock.Tiles.Bytes.SequenceEqual(pair.Edited.Tiles.Bytes)) changedTiles++;
+                if (!new VramStore(pair.Stock.Tiles).ImageEquals(pair.Edited.Tiles)) changedTiles++;
             }
             frames++;
         }

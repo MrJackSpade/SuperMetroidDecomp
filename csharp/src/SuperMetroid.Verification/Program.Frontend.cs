@@ -32,6 +32,7 @@ static void VerifyLoRomCrossBankCompressedData()
     AssertEqual(0x44, output[3], "cross-bank final literal");
 }
 
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 static void VerifyMode7Rendering()
 {
     var vram = new SnesVram();
@@ -139,6 +140,7 @@ static void VerifyMode7Rendering()
         "Ceres Ridley scanline 208 restores Mode-1 BG2 floor");
 }
 
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifyLayerCompositorBackdrop()
 {
     var cgram = new SnesCgram();
@@ -161,6 +163,7 @@ static void VerifyLayerCompositorBackdrop()
     AssertEqual(cgram.GetRgba(1), frame[1], "non-keyed pixel replaces backdrop");
 }
 
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 static void VerifyBgPriorityPlaneRendering()
 {
     var vram = new SnesVram();
@@ -518,6 +521,7 @@ static void VerifySavedGameLoadAppearance()
         "  Saved-game appearance: front pose, ROM palette FX, 360-frame lifetime, and save lockout agree.");
 }
 
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifyIntroGameplayFlashbackVerticalScroll()
 {
     // `$8B:A66F` installs BG1VOFS eight for the illustrated page. The two following
@@ -546,6 +550,7 @@ static void VerifyIntroGameplayFlashbackVerticalScroll()
     Console.WriteLine("  Intro: Mother Brain and SR388 BG1 retain the native eight-pixel vertical scroll.");
 }
 
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifyCinematicPaletteFader()
 {
     var target = new ushort[SnesCgram.ColorCount];

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
     {
         var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted));
@@ -385,6 +386,7 @@ internal static partial class Program
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), edited.Resolve(pointer, color),
                 "Varia bright-only edit preserves supplied midpoint and other colors");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
         AreaMapPresentationCatalog original, ISnesAddressSpace rom,

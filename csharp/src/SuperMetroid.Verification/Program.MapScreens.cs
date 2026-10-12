@@ -10,6 +10,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewMapScreenGuard(bus);
@@ -31,7 +32,7 @@ internal static partial class Program
             var nativeRoom = new FileSelectRoomMapGraphics(bus, system, area,
                 mapPresentation: original);
             var installedRoom = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
-            AssertTrue(nativeRoom.Vram.Bytes.SequenceEqual(installedRoom.Vram.Bytes), "stock resolved frame/footer/area label matches full native VRAM");
+            AssertTrue(new VramStore(nativeRoom.Vram).ImageEquals(installedRoom.Vram), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().AsSpan().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
                 AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).AsSpan().SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");

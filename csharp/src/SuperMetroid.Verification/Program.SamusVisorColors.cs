@@ -58,6 +58,7 @@ internal static partial class Program
             new SamusVisorColorDocument { Version = SamusVisorColorFormat.Version, Colors = colors })));
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
@@ -89,6 +90,7 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed room cycle does not read visor ROM table");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyInstalledXrayVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
     {
@@ -147,6 +149,7 @@ internal static partial class Program
         return samus;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySamusVisorColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)

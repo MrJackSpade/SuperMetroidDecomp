@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyKraidLiveHeadAlias(EnemyTileArtworkCatalog art)
     {
         var fixture = new KraidHeadClockFixture(art);

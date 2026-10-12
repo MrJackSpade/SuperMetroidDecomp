@@ -88,6 +88,7 @@ public static class GitHubErrorReporterSmokeTest
             client.CreatedIssues.Count);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static string VerifyFrameFailureSnapshot()
     {
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();

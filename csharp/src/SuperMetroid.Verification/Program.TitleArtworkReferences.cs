@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Validates statically identified title selectors without running gameplay or reading a ROM.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyTitleArtworkReferences()
     {
         var frames = TitleSpriteDefinitions.NativePointers.ToArray()

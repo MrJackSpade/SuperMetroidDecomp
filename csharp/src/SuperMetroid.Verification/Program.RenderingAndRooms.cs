@@ -32,6 +32,7 @@ private static byte[] AllBlueExplicitScrollTable() =>
     Enumerable.Repeat((byte)1, RoomScrollGrid.StorageByteCount).ToArray();
 
 /// <summary>OBJ, HUD, cameras, scrolling, tilemaps, room data, and sky verification.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifyObjRendering()
 {
     var bus = new TestAddressSpace();
@@ -100,6 +101,7 @@ static void VerifyObjRendering()
 /// Verifies the HUD ROM-template mutation, authentic WRAM queue source, 2-bpp tilemap
 /// interpretation, palette selection, and final pixel without relying on the private ROM.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 static void VerifyHudStateAndBg3Rendering()
 {
     var bus = new TestAddressSpace();
@@ -1044,6 +1046,7 @@ static void VerifyCartridgeRoomStateSelection()
 }
 
 /// <summary>Checks $80:A9DE-$80:AD17 staging geometry and $80:8CD8 NMI destinations.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 static void VerifyBackgroundTilemapStreamer()
 {
     const int width = 32;
@@ -1129,6 +1132,7 @@ static void VerifyBackgroundTilemapStreamer()
 }
 
 /// <summary>Checks Mode-1 4-bpp BG pixels, palette selection, transparency, and H flip.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 static void VerifyFourBitBackgroundRendering()
 {
     var vram = new SnesVram();
@@ -1390,6 +1394,7 @@ static Rgba32[] CreateOpaqueBlackGameplayFrame()
 }
 
 /// <summary>Checks bank-$88 sky fixed-point bands and four queued circular-map rows.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 static void VerifyScrollingSkyState()
 {
     AssertTrue(

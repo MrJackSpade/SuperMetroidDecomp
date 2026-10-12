@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program and frame attribute words")]
     private static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
@@ -80,7 +81,7 @@ internal static partial class Program
             { native.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); authored.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); }
             system.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), native, Position16<RoomPixels>.Zero, true);
             system.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), authored, Position16<RoomPixels>.Zero, true, catalog);
-            AssertTrue(native.LowTable.SequenceEqual(authored.LowTable) && native.HighTable.SequenceEqual(authored.HighTable), "Trail catalog preserves native culling and complete OAM bytes");
+            AssertTrue(native.ImageEquals(authored), "Trail catalog preserves native culling and complete OAM bytes");
             AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Trail catalog retains OAM capacity behavior");
             AssertEqual(3, side.InstructionTimer, "Frozen draw cannot advance trail animation");
             AssertEqual(attributes, side.TileNumberAttributes, "Artwork selection does not mutate stored trail attributes");
@@ -159,6 +160,7 @@ internal static partial class Program
                     side.TileNumberAttributes);
         }
     }
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
         var runtime = CreateRetailRuntimeFixture(bus);

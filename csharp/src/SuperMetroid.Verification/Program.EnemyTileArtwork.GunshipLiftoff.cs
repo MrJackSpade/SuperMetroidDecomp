@@ -8,6 +8,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed gunship liftoff transfers")]
     private static void VerifyInstalledGunshipLiftoffArtwork(
         SuperMetroidAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
@@ -55,7 +56,7 @@ internal static partial class Program
         var nativeVram = new SnesVram();
         stockQueue.DrainTo(installedVram, ReferenceMutableMemory.From(bus), runtime);
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
-        AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
             "all five installed takeoff uploads match the native VRAM image");
 
         string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(0);

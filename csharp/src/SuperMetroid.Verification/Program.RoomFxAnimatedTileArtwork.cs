@@ -8,6 +8,7 @@ using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
     /// <summary>Exercises every retail frame through both native transfer owners.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room-FX animated tile transfer frames")]
     private static void VerifyRoomFxAnimatedTileArtwork()
     {
@@ -111,6 +112,7 @@ internal static partial class Program
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes and ROM-free NMI transfers.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
         string stock, string overrides, AreaMapPresentationCatalog baseline,
         GameplayBasePaletteCatalog initialPalettes)

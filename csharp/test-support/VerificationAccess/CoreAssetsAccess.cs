@@ -14,6 +14,7 @@ internal static class BeamTileAtlasAccess
 {
     extension(BeamTileAtlas self)
     {
+        [PpuLayoutBoundary("codec: beam tile transfer at its native VRAM word")]
         internal void LoadTo(SnesVram vram) =>
             vram.LoadBytes(BeamTileAtlasDefinitions.DestinationWord * 2, self.Transfer.Span);
     }
@@ -266,6 +267,7 @@ internal static class EscapeTimerTileAtlasAccess
     extension(EscapeTimerTileAtlas self)
     {
         /// <summary>Queues both native records in their original order and at their original destinations.</summary>
+        [PpuLayoutBoundary("codec: escape timer queued DMA records at their native VRAM words")]
         internal void QueueTo(VramWriteQueue queue)
         {
             ArgumentNullException.ThrowIfNull(queue);

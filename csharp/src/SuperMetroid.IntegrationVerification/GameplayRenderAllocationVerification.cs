@@ -4,6 +4,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static class GameplayRenderAllocationVerification
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     public static int Run()
     {
         var vram = new SnesVram();

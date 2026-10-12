@@ -17,6 +17,7 @@ internal static partial class Program
         bus.WriteByte(SamusMovementRomData.Banks.Movement + 1, 0x34);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",

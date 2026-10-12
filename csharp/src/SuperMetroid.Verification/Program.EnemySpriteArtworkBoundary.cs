@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile presentation spritemap pointers")]
     private static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
@@ -107,8 +108,7 @@ internal static partial class Program
         static void Equal(OamBuffer expected, OamBuffer actual, string context)
         {
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, context + " count");
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&
-                expected.HighTable.SequenceEqual(actual.HighTable), context + " packed OAM");
+            AssertTrue(expected.ImageEquals(actual), context + " packed OAM");
         }
     }
 }

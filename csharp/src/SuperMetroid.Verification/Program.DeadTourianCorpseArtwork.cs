@@ -89,6 +89,7 @@ internal static partial class Program
         Console.WriteLine("  Tourian corpse artwork: ten guarded sidehopper/Zoomer/Ripper/Skree variants match cartridge WRAM; a PNG edit and reload reach the live buffer.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Tourian corpse visuals")]
     private static void VerifyDeadTourianCorpseVisuals(
         EnemyTileArtworkCatalog stock)
@@ -126,8 +127,7 @@ internal static partial class Program
             DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
                 nativePointer, new(128, 128), 0, 0);
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
-            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                       nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+            AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"dead Tourian corpse {index} installed OAM matches cartridge");
         }
@@ -160,8 +160,7 @@ internal static partial class Program
             DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
                 nativePointer, new(128, 128), 0, 0);
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
-            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                       nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+            AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"dead Sidehopper selector {index} installed OAM matches cartridge");
         }

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static class OrdinarySmokeTests
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         HardwareWindowTests.Run(device, renderer);

@@ -36,6 +36,7 @@ internal static partial class Program
         return expected;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyEnemyTileArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -124,7 +125,7 @@ internal static partial class Program
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, definition);
                 var installedCgram = new SnesCgram();
                 stock.LoadPaletteTo(pointer, new CgramPalettes(installedCgram).All.Slice(8 * 16, 16));
-                AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+                AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
             }
 
@@ -225,7 +226,7 @@ internal static partial class Program
             var reloadedVram = new SnesVram();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
                 .LoadTo(editedPointer, editedByteCount, new VramStore(reloadedVram).All, 0);
-            AssertTrue(reloadedVram.Bytes.SequenceEqual(editedVram.Bytes),
+            AssertTrue(new VramStore(reloadedVram).ImageEquals(editedVram),
                 "enemy override survives content reload without modifying stock PNG");
 
             string stockPalettePath = Path.Combine(directory,
@@ -253,7 +254,7 @@ internal static partial class Program
             var reloadedColors = new SnesCgram();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
                 .LoadPaletteTo(editedPointer, new CgramPalettes(reloadedColors).All.Slice(8 * 16, 16));
-            AssertTrue(reloadedColors.Colors.SequenceEqual(changedColors.Colors),
+            AssertTrue(new CgramPalettes(reloadedColors).ImageEquals(new CgramPalettes(changedColors)),
                 "enemy palette override survives catalog reload");
 
             byte[] original = File.ReadAllBytes(editedFile);

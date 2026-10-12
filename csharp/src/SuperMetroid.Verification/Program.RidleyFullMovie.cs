@@ -639,6 +639,7 @@ internal static partial class Program
         Console.WriteLine("Both pause-page directions preserve 15 fade-out, one load and 30 fade-in updates.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRidleyPaletteSelection()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -693,6 +694,7 @@ internal static partial class Program
         Console.WriteLine("Pause palette advances only in stable pause, remaining latched through both outer fades.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRidleyDoorEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -858,6 +860,7 @@ internal static partial class Program
     private static ushort ReadRetailPlmProgramWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     private static void VerifyRidleyFullMovie(string directory)
     {
         var ridleyMovie = ReplayMovie.Load("Ridley", "csharp/test-fixtures/issue-1266-ridley/Ridley fight showcase.smv",

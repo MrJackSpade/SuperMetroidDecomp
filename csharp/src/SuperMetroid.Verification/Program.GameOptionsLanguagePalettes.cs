@@ -57,6 +57,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options toggle geometry")]
     private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyGameOptionsLanguagePalettes()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire rumble definitions")]
     private static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
     {

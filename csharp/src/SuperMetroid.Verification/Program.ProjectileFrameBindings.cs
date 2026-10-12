@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for timed projectile records' native sprite references")]
     private static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {

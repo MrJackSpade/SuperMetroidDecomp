@@ -9,4 +9,7 @@ public readonly struct VramStore(SnesVram vram)
 
     /// <summary>Zeroes every word, as a screen's full-VRAM clear does before installing its own image.</summary>
     public void Clear() => vram.Clear();
+
+    /// <summary>Whether this VRAM holds exactly the same 64 KiB image as <paramref name="other"/>.</summary>
+    public bool ImageEquals(SnesVram other) => vram.Bytes.SequenceEqual(Ensure.NotNull(other).Bytes);
 }

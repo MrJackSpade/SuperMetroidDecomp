@@ -11,6 +11,7 @@ internal static partial class Program
     // Expected values come from native-chainsaw-fire-probe, not from another C# path.
     // This remains separately invokable for focused diagnostics and also runs in the
     // default suite now that the cartridge-backed firing/lifetime slice is implemented.
+    [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     private static void VerifyChainsawFiring()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

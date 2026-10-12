@@ -245,6 +245,7 @@ internal static partial class Program
         Console.WriteLine("Phantoon closed eye:60/360/720 native waits,2280 actual moving countdown calls,both directions/exact eye-open handoffs and48 real spiral spawns pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres platform")]
     private static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
     {
@@ -451,6 +452,7 @@ internal static partial class Program
             return result;
         }
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream5CrocomireSharedPaint(SuperMetroidAddressSpace rom)
     {
         int[] sources = [CrocomirePaletteRomData.FightBodySource, CrocomirePaletteRomData.InitialWallSource,
@@ -644,7 +646,7 @@ internal static partial class Program
                         Draw((MapSpriteId)Read(pointer + i * 6 + 4), Read(pointer + i * 6), Read(pointer + i * 6 + 2), 0);
                 }
             }
-            AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) && actual.HighTable.SequenceEqual(expected.HighTable), "Actual native ordered landmark OAM");
+            AssertTrue(actual.ImageEquals(expected), "Actual native ordered landmark OAM");
             AssertEqual(defeated ? (byte)1 : (byte)0, system.GetBossBitsRaw(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
             void Draw(MapSpriteId id, int x, int y, ushort palette) => sprites.Draw(id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), palette);
@@ -841,6 +843,7 @@ internal static partial class Program
         public bool RevealsCellAbove(Position16<MapTiles> cell) => false;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Zebes star fields")]
     private static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
@@ -921,6 +924,7 @@ internal static partial class Program
             AssertTrue(expectedOam.HighTable.SequenceEqual(actualOam.HighTable), "Exact star high OAM");
         }
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);
@@ -1040,6 +1044,7 @@ internal static partial class Program
     }
 
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MagdollitePaletteCycleExtractor.Extract(rom);
@@ -1089,6 +1094,7 @@ internal static partial class Program
             return actual;
         }
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.ZebetiteColorExtractor.Extract(rom);
@@ -1229,6 +1235,7 @@ internal static partial class Program
         Console.WriteLine("Morph Ball eye: four native mount tuples, eight actual wrapped initializers,16 native beam colors and actual full-beam cycle pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for map highlight")]
     private static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
     {
@@ -1485,6 +1492,7 @@ internal static partial class Program
         Console.WriteLine("Stream 5 Phantoon: eight native rain columns, eight actual rain populations/gaps and nine eye selectors/eight actual octants pass with native tables forbidden; shot markers have a separately reviewed random-bucket exception.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door ramp")]
     private static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)
     {
@@ -1836,12 +1844,13 @@ internal static partial class Program
                 CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
                 new(unchecked((ushort)(x - camera + native)), 80), EnemyPaletteBits.Palette2, 0);
             expected.FinalizeFrame();
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+            AssertTrue(expected.ImageEquals(actual),
                 "Byte-decoded quake preserves actual low/high OAM through coordinate wrap");
         }
         Console.WriteLine("Ceres quake byte decoding:56 actual wrapped low/high OAM frames match full native overlapping-word reads.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight palette")]
     private static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
     {
@@ -1911,6 +1920,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres normal paint")]
     private static void VerifyLookupStream5CeresNormalPaint(SuperMetroidAddressSpace rom)
     {
@@ -1977,6 +1987,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape paint")]
     private static void VerifyLookupStream5CeresEscapePaint(SuperMetroidAddressSpace rom)
     {
@@ -2042,6 +2053,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres beacon paint")]
     private static void VerifyLookupStream5CeresBeaconPaint(SuperMetroidAddressSpace rom)
     {

@@ -42,7 +42,7 @@ internal static partial class Program
                 DrawImportedSpritemap(rom, native, pointer, new((ushort)anchors[index].X, (ushort)anchors[index].Y), 0x600);
                 edited.Draw(actual, PauseReserveTankVisual.Full, index);
                 native.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable),
+                AssertTrue(native.ImageEquals(actual),
                     "edited reserve coordinates reach actual sprite output");
             }
         }

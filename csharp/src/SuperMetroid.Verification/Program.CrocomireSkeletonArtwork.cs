@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton artwork")]
     private static void VerifyCrocomireSkeletonArtwork(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
@@ -58,7 +59,7 @@ internal static partial class Program
             byte[] page = Enumerable.Range(0, 0x200).Select(offset => rom.ReadCartridgeByte(source + offset)).ToArray();
             nativeVram.LoadBytes((0x6000 + destination) * 2, page);
         }
-        AssertTrue(installedVram.Bytes.SequenceEqual(nativeVram.Bytes),
+        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
             "all six installed Crocomire skeleton uploads match native full VRAM");
         AssertEqual((ushort)(frames.Length * 2),
             installedState.TargetHeightOrSkeletonTileIndex,

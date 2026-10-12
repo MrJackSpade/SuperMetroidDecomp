@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Replacing every head image must not replace the compiled clock, callback or mouth window.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyKraidInstalledHeadIsolation(string directory, EnemyTileArtworkCatalog stock)
     {
         string overrides = Path.Combine(directory, "kraid-head-clock-overrides");
@@ -84,7 +85,7 @@ internal static partial class Program
                     uploadCount++; frames++;
                     KraidHeadClockFixture.ExpectedUpload(expectedStock, stock.KraidBackground!.HeadWords(physical));
                     KraidHeadClockFixture.ExpectedUpload(expectedEdited, edited.KraidBackground!.HeadWords(physical));
-                    AssertTrue(!baseline.Vram.Bytes.SequenceEqual(changed.Vram.Bytes), "replacement head is actually visible");
+                    AssertTrue(!new VramStore(baseline.Vram).ImageEquals(changed.Vram), "replacement head is actually visible");
                 }
                 AssertEqual((ushort)(nextEvent - tick), baseline.Body.VariableC, "native countdown on every hold tick");
                 KraidHeadInstructionDefinition displayed = commands.Take(cursor).Last(item => item.Kind == KraidHeadInstructionKind.Frame);
@@ -129,6 +130,7 @@ internal static partial class Program
         private readonly Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> hit;
         private readonly Action<KraidEnemyState, ushort> transfer;
 
+        [PpuLayoutBoundary("exact hardware test: fills VRAM with a sentinel image before the head transfer")]
         internal KraidHeadClockFixture(EnemyTileArtworkCatalog art)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

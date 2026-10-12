@@ -41,6 +41,7 @@ internal static partial class Program
         Console.WriteLine("Phantoon intro flame: actual spawn sends library 3 / 1D / Max6 through the production audio queue.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyPhantoonDeathWaveInitialization()
     {
         var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());

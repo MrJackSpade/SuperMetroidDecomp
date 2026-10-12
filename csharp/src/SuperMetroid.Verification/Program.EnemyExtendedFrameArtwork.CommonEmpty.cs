@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for shared empty extended frames")]
     private static void VerifySharedEmptyExtendedFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -66,8 +67,7 @@ internal static partial class Program
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame, new(0x0080, 0x0080));
             OamBuffer installed = DrawExtendedForBank(stock, visualGuard, bank,
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame, new(0x0080, 0x0080));
-            AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) &&
-                native.HighTable.SequenceEqual(installed.HighTable) &&
+            AssertTrue(native.ImageEquals(installed) &&
                 native.NextByteOffset == installed.NextByteOffset,
                 $"bank ${bank:X2} shared empty frame draws without ROM art reads");
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.Callback(false),

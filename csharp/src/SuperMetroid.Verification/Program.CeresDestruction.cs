@@ -13,6 +13,7 @@ static ushort ReadSyntheticCeresCinematicWord(ISnesAddressSpace fixture, ushort 
     fixture.ReadCartridgeByte(0x8b0000 | pointer) |
     fixture.ReadCartridgeByte(0x8b0000 | unchecked((ushort)(pointer + 1))) << 8);
 
+[PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
 static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];

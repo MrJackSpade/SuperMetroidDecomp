@@ -105,6 +105,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: a null bank-$90 atmospheric pointer reads low WRAM through the $90:0000 system-bank mirror")]
     private static void VerifyNullAtmosphericPointerReadsMirroredWorkRam(
         SuperMetroidAddressSpace rom,

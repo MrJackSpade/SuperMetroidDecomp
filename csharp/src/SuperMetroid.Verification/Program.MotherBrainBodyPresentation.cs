@@ -11,6 +11,7 @@ internal static partial class Program
     /// Exercises the statically identified missing Mother Brain body draw path with
     /// a RAM-only fixture. This is not a gameplay search for cartridge accesses.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMotherBrainBodyPresentation()
     {
         var author = new EnemyIdentityFixture();
@@ -116,6 +117,7 @@ internal static partial class Program
         };
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body)
     {
         var expected = new byte[authored.Length * 4];
@@ -138,6 +140,7 @@ internal static partial class Program
         AssertEqual(high, actual.HighTable[0], "body limb sizes and high X bits match authored art");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void AssertBodyBg2(SnesVram actual, EnemyBg2FrameDocument authored, string oamName)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];

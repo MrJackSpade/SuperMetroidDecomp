@@ -6,6 +6,7 @@ using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false, string sourceRom = "Super Metroid.smc")
     {
@@ -96,6 +97,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
     {
         var forbidden = NewProjectileCompositionForbiddenBus();
@@ -123,7 +125,7 @@ internal static partial class Program
                 shots.DrawLiveProjectiles(forbidden, extracted, Position16<RoomPixels>.Zero, parity, content);
                 shots.DrawExplosions(forbidden, extracted, Position16<RoomPixels>.Zero, content);
                 bombs.Draw(forbidden, extracted, Position16<RoomPixels>.Zero, content);
-                AssertTrue(native.LowTable.SequenceEqual(extracted.LowTable) && native.HighTable.SequenceEqual(extracted.HighTable),
+                AssertTrue(native.ImageEquals(extracted),
                     "Production projectile composition preserves admission, flicker and OAM");
                 AssertEqual(native.NextByteOffset, extracted.NextByteOffset, "Composition owner preserves OAM cursor");
                 AssertEqual((ushort)123, shot.Damage, "Composition does not mutate damage");
@@ -147,6 +149,7 @@ internal static partial class Program
             .ForbidAll(address => $"Composition draw read ROM {address:X6}.")
             .RejectWrites(_ => "Composition draw mutated the bus.");
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeProjectileCompositions(ISnesAddressSpace bus,
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
@@ -237,6 +240,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
     {
         using var rootScratch = new TestTempDirectory("projectile-install");

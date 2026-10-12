@@ -187,6 +187,7 @@ internal static partial class Program
         return guard;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static bool IsFileSelectPresentationAddress(int address) =>
         InFileSelectRange(address, FileSelectMapRomData.InitialMenuBackground,
             FileSelectMapRomData.TilemapBytes) ||

@@ -127,6 +127,7 @@ internal static class ProjectileHostBindingVerification
             throw new InvalidDataException("Host did not bind current projectile frame choices.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void CheckCatalog(ProjectileSpriteCatalog actual, ProjectileSpriteCatalog expected)
     {
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
@@ -159,6 +160,7 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Host restored stale flare placement.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void CheckFlareCompositions(ChargeFlareSpriteCatalog actual, ChargeFlareSpriteCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare compositions.");
@@ -200,7 +202,7 @@ internal static class ProjectileHostBindingVerification
             var diskColors = new SuperMetroid.Core.Hardware.SnesCgram();
             (actual.Palettes ?? throw new InvalidDataException("Host palette catalog is absent.")).LoadTo(boundColors, SamusBeamCombinations.FromTableIndex(selection));
             expected.Palettes!.LoadTo(diskColors, SamusBeamCombinations.FromTableIndex(selection));
-            if (!boundColors.Colors.SequenceEqual(diskColors.Colors))
+            if (!new CgramPalettes(boundColors).ImageEquals(new CgramPalettes(diskColors)))
                 throw new InvalidDataException("Host restored stale palette colors instead of current selection.");
         }
     }

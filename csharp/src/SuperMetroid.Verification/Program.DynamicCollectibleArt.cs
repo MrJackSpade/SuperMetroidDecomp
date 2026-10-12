@@ -115,6 +115,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static (byte[] Vram, ushort TileWord, CollectiblePlmSnapshot Item)
         LoadRetailBombsWithArt(ISnesAddressSpace bus,
             RoomPlmDynamicCollectibleArtCatalog art)

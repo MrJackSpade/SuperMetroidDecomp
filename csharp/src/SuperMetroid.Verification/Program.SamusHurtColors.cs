@@ -48,6 +48,7 @@ internal static partial class Program
         Console.WriteLine("  Samus hurt colors: both native palettes and guarded ordinary/cinematic cycles pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         SamusHurtColorCatalog catalog, bool cinematic)
     {
@@ -90,6 +91,7 @@ internal static partial class Program
             $"installed {(cinematic ? "intro" : "ordinary")} hurt cycle does not read native art");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySamusHurtColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom)
     {

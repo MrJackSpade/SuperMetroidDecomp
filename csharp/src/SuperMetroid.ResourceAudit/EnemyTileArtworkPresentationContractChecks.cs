@@ -19,6 +19,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         EnemyArtworkStaticContractChecks.Run();
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void ConfirmInstalledData()
     {
         var cached = new Dictionary<int, RoomCharacterAtlas>();

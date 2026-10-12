@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ocean Sky")]
     private static void VerifyOceanSky()
     {

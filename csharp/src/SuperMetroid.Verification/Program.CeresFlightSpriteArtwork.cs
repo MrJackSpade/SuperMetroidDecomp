@@ -31,8 +31,7 @@ internal static partial class Program
                 installed.BeginFrame();
                 stock.Sprites.Draw(frame.Pointer, installed, new(120, y), 0x0800, onScreen);
                 installed.FinalizeFrame();
-                AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
-                        installed.HighTable.SequenceEqual(native.HighTable) &&
+                AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                     $"Ceres flight {frame.Name} at Y=${y:X4} preserves cartridge OAM");
             }

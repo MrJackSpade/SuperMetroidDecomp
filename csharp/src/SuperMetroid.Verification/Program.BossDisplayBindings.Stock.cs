@@ -10,6 +10,7 @@ internal static partial class Program
     /// Import-only oracle for the declared native roots. It never passes its ROM
     /// source to the production draw/collision/instruction paths.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyBossDisplayStock()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -52,7 +53,7 @@ internal static partial class Program
                 fixture.SetFrame(frame.Pointer, true); fixture.ClearBg2();
                 OamBuffer rendered = fixture.Draw();
                 AssertEqual(expectedOam.NextByteOffset, rendered.NextByteOffset, "stock packed sprite count");
-                AssertTrue(expectedOam.LowTable.SequenceEqual(rendered.LowTable) && expectedOam.HighTable.SequenceEqual(rendered.HighTable),
+                AssertTrue(expectedOam.ImageEquals(rendered),
                     "stock packed OAM matches independently decoded native records");
                 AssertBossBg2(fixture.Vram, native.Bg2.Select(write => new EnemyBg2WriteDocument
                 { X = write.DestinationWord % EnemyBg2FrameLayout.TilemapWidth, Y = write.DestinationWord / EnemyBg2FrameLayout.TilemapWidth,

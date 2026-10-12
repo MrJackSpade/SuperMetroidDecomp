@@ -50,7 +50,7 @@ internal static partial class Program
                 if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0c00);
                 else result.DrawOffScreen(actual, new(120, y), 0x0c00);
                 actual.FinalizeFrame();
-                AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable)
+                AssertTrue(native.ImageEquals(actual)
                     && native.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "native Scientist OAM at visible and wrapped origins");
             }
         }
@@ -77,7 +77,7 @@ internal static partial class Program
                 var actual = new OamBuffer(); actual.BeginFrame();
                 presentation.Draw(pointer, actual, new(120, 72), 0x0c00);
                 actual.FinalizeFrame();
-                AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable)
+                AssertTrue(expected.ImageEquals(actual)
                     && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,
                     "both caret schema loaders preserve original and independently edited compositions");
             }

@@ -124,7 +124,7 @@ internal static partial class Program
             if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
             else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();
-            AssertTrue(originalOam.LowTable.SequenceEqual(calculatedOam.LowTable) && originalOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+            AssertTrue(originalOam.ImageEquals(calculatedOam),
                 "completion text preserves native OAM and clipping");
         }
         SpriteVisualPart first = visual[0];

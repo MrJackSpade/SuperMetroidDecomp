@@ -5,6 +5,7 @@ using Hardware = SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyRenderPacketCodec()
     {
         var frame = new RenderFrameSnapshot(new(9876543210, 42, ushort.MaxValue),
@@ -99,6 +100,7 @@ internal static partial class Program
         return restored;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyBg2ViewportPackets()
     {
         var random = new Random(321);

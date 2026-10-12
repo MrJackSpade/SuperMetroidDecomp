@@ -66,6 +66,7 @@ internal static partial class CoreAccess
         internal bool PageTransitionActive => PrivateState.Field<PauseMenuTransition>(pause, "transition") != PauseMenuTransition.None;
         internal Position16<MapPixels> MapScroll => PrivateState.Field<Position16<MapPixels>>(pause, "mapScrollPosition");
 
+        [PpuLayoutBoundary("rendering view: the pause map BG1 tilemap word displayed at a map cell")]
         internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell)
         {
             var vram = PrivateState.Field<SnesVram>(pause, "vram");
@@ -113,6 +114,7 @@ internal static partial class CoreAccess
 
     extension(OamBuffer oam)
     {
+        [PpuLayoutBoundary("codec: OAM low/high-table DMA upload payload")]
         internal byte[] CreateUploadPayload()
         {
             var payload = new byte[OamBuffer.UploadByteCount];

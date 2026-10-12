@@ -13,6 +13,7 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyKiHunterAcidSpitInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -165,8 +166,7 @@ internal static partial class Program
                         new Position16<OamPixels>(128, 112), 0, 0, clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
                         $"KiHunter frame $86:{operand:X4} native sprite part count");
-                    AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&
-                        expected.HighTable.SequenceEqual(actual.HighTable),
+                    AssertTrue(expected.ImageEquals(actual),
                         $"KiHunter frame $86:{operand:X4} installed composition matches native OAM");
                 }
             }

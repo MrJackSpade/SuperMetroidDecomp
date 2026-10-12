@@ -41,7 +41,7 @@ internal static partial class Program
                     MenuSpriteCompiler.Compile(parts, role.Name).DrawOnScreen(expected, new(100, 100), 0x600);
                     edited.Draw((MapSpriteId)role.NativeId, actual, new(100, 100), 0x600);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
-                    AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                    AssertTrue(expected.ImageEquals(actual),
                         "every marker part field preserves independently authored edits");
                 }
             }
@@ -60,7 +60,7 @@ internal static partial class Program
                 }
                 edited.Draw((MapSpriteId)frame.NativeId, actual, new(100, 100), 0x600);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                AssertTrue(expected.ImageEquals(actual),
                     "independently edited map sprite role and all unchanged roles");
             }
             frames.Remove(changed.Name);
@@ -76,6 +76,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map spritemap pointers")]
     private static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
     {
@@ -99,7 +100,7 @@ internal static partial class Program
                 catalog.Draw((MapSpriteId)frame.NativeId, installed, new(x, y), (ushort)(palette << 9));
                 AssertEqual(native.NextByteOffset, installed.NextByteOffset, "map sprite count/capacity matches native");
                 native.FinalizeFrame(); installed.FinalizeFrame();
-                AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) && native.HighTable.SequenceEqual(installed.HighTable),
+                AssertTrue(native.ImageEquals(installed),
                     $"{frame.Name} preserves native order, coordinates, attributes and clipping");
             }
         }

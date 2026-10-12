@@ -13,6 +13,7 @@ internal static partial class Program
         return bus;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyQueuedVramAssets()
     {
         foreach (ushort destination in new ushort[] { 0, 0x7fff, 0x8000, 0xffff })

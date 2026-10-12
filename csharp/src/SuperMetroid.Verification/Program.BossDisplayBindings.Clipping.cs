@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
     /// <summary>Newly authored OAM on BG2-only roots must use the common native wrap/clipping path.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyBossDisplayClipping()
     {
         int checks = 0;

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 [CpuBusBoundary("exact bus test: reference decoder of ROM packed spritemaps compared against installed OAM output")]
 internal static class ImportedSpritemapOracle
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     public static void DrawGeneric(IImportCartridgeSource source, OamBuffer oam,
         int address, Position16<OamPixels> origin, ushort paletteBits,
         bool originIsOnScreen = true)

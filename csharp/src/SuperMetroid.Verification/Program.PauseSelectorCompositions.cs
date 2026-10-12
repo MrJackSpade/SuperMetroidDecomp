@@ -36,7 +36,7 @@ internal static partial class Program
                     MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new((ushort)anchor.X, (ushort)anchor.Y), edited.PaletteBits);
                     edited.Draw(actual, category, 0, 0);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
-                    AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                    AssertTrue(expected.ImageEquals(actual),
                         "all selector part fields remain independently editable");
                 }
             }
@@ -66,7 +66,7 @@ internal static partial class Program
                 composition.DrawOnScreen(expected, new((ushort)anchor.X, (ushort)anchor.Y), edited.PaletteBits);
                 edited.Draw(actual, category, 0, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                AssertTrue(expected.ImageEquals(actual),
                     "independent authored group/phase and cyclic OAM");
                 AssertEqual(source.DurationTicks, edited.Duration(phase), "composition edit leaves phase timing unchanged");
             }
@@ -94,7 +94,7 @@ internal static partial class Program
                 DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 selector.Draw(actual, anchor.Category, anchor.Item, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                AssertTrue(expected.ImageEquals(actual),
                     "native selector composition, attributes, order and OAM capacity");
             }
         }

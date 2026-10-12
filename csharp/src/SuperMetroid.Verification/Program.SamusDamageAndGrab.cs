@@ -12,6 +12,7 @@ internal static partial class Program
 {
 
 /// <summary>Drained Samus, solid-enemy collision, and Draygon-grab verification.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifySamusDrainedController()
 {
     var bus = new TestAddressSpace();

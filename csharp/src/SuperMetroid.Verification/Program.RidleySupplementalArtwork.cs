@@ -97,10 +97,10 @@ internal static partial class Program
         return oam;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void AssertRidleySupplementOam(
         OamBuffer expected, OamBuffer actual, string description) =>
-        AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&
-                   expected.HighTable.SequenceEqual(actual.HighTable) &&
+        AssertTrue(expected.ImageEquals(actual) &&
                    expected.NextByteOffset == actual.NextByteOffset, description);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley supplemental artwork words")]

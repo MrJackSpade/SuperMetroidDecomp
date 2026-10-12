@@ -16,6 +16,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="memory">The 128 KiB native WRAM image at the movie's first input boundary.</param>
     /// <param name="saveRam">The movie's starting 8 KiB cartridge SRAM.</param>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static (CartridgeImportAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus, SuperMetroidGame Game)
         ImportNativeSnapshot(byte[] memory, byte[] saveRam)
     {

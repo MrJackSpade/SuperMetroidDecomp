@@ -279,6 +279,7 @@ internal static partial class Program
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain rainbow, grey and beam palettes")]
     private static void VerifyMotherBrainRainbowPaletteOverride(
         ISnesAddressSpace bus,
@@ -307,7 +308,7 @@ internal static partial class Program
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette + MotherBrainRainbowPaletteRomData.ColorCount * sizeof(ushort),
                 MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
             original.MotherBrainRainbowPalette.ApplyRainbow(installed, frame);
-            AssertTrue(native.Colors.SequenceEqual(installed.Colors),
+            AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain rainbow frame {frame} matches all native CGRAM colors");
         }
 
@@ -341,7 +342,7 @@ internal static partial class Program
             var guard = NewPaletteReadForbiddenBus();
             if (draining) original.MotherBrainRainbowPalette.ApplyToGrey(guard, installed, frame);
             else original.MotherBrainRainbowPalette.ApplyFromGrey(guard, installed, frame);
-            AssertTrue(native.Colors.SequenceEqual(installed.Colors),
+            AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
             int tail = palette + (count + MotherBrainDrainedPaletteRomData.BackLegCount) * sizeof(ushort);
             AssertEqual(CpuBusRegionRead.Read(bus, tail), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram],
@@ -360,7 +361,7 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeNormal, bus, MotherBrainRainbowPaletteRomData.NormalSecondarySource,
             MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainRainbowPaletteRomData.SecondaryColor);
         original.MotherBrainRainbowPalette.ApplyNormal(installedNormal);
-        AssertTrue(nativeNormal.Colors.SequenceEqual(installedNormal.Colors),
+        AssertTrue(new CgramPalettes(nativeNormal).ImageEquals(new CgramPalettes(installedNormal)),
             "Mother Brain normal restoration matches both fixed native sources");
         AssertEqual(MotherBrainBeamRomData.InitialColor,
             original.MotherBrainRainbowPalette.BeamInitialColor,
@@ -566,6 +567,7 @@ internal static partial class Program
         Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades, live edits, legacy overrides and strict validation pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyMotherBrainHealthPaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -590,7 +592,7 @@ internal static partial class Program
             MotherBrainHealthPalette.Apply(native, health, extracted);
             MotherBrainHealthPalette.Apply(installed, health,
                 original.MotherBrainHealthPalette);
-            AssertTrue(native.Colors.SequenceEqual(installed.Colors),
+            AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain health {health} stock colors exactly match the native three-copy output");
             AssertEqual((ushort)0, installed.Colors[MotherBrainRainbowPaletteRomData.BrainColor - 1],
                 "Mother Brain health palette leaves transparent color untouched");
@@ -658,6 +660,7 @@ internal static partial class Program
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies, live body/leg edits, schema checks and content identity pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRoomPaletteFxOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1312,6 +1315,7 @@ internal static partial class Program
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapCatalog(ISnesAddressSpace bus, ISnesAddressSpace guard,
         AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
@@ -1353,6 +1357,7 @@ internal static partial class Program
                     MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram + 1),
                 address => new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}."));
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps)
     {
         var guard = new MutableCartridgeReadGuard(source);

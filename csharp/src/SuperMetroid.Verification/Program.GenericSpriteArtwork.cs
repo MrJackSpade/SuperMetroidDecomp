@@ -153,8 +153,7 @@ internal static partial class Program
         static void EqualOam(OamBuffer expected, OamBuffer actual, string context)
         {
             AssertEqual(expected.LastFinalizedSpriteCount, actual.LastFinalizedSpriteCount, context + " count");
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&
-                expected.HighTable.SequenceEqual(actual.HighTable), context + " packed bytes");
+            AssertTrue(expected.ImageEquals(actual), context + " packed bytes");
         }
     }
 }

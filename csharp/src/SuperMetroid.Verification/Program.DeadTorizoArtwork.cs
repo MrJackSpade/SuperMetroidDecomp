@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledDeadTorizoArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
@@ -33,8 +34,7 @@ internal static partial class Program
         // $A9:D39A draws the fixed corpse map at world (296, 187).
         DrawImportedEnemySpritemap(nativeBus, nativeCorpse, 0xa9, 0xd761, new(296, 187), 0, 0);
         OamBuffer installedCorpse = DrawDeadTorizoCorpseFrame(stock, installedBus, Position16<RoomPixels>.Zero);
-        AssertTrue(nativeCorpse.LowTable.SequenceEqual(installedCorpse.LowTable) &&
-                   nativeCorpse.HighTable.SequenceEqual(installedCorpse.HighTable) &&
+        AssertTrue(nativeCorpse.ImageEquals(installedCorpse) &&
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
             "Dead Torizo private corpse hook draws installed native-parity OAM without ROM reads");
         AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, installedBus, new(0, 188)).NextByteOffset,
@@ -85,6 +85,7 @@ internal static partial class Program
         Console.WriteLine("  Dead Torizo artwork: guarded initial corpse and sand-line ROM parity, visible PNG edit and reload pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo stationary visual")]
     private static void VerifyDeadTorizoStationaryVisual(
         EnemyTileArtworkCatalog stock)
@@ -110,8 +111,7 @@ internal static partial class Program
         DrawImportedEnemySpritemap(rom, nativeOam, DeadTorizoArtworkDefinitions.SpritemapBank,
             nativePointer, new(128, 128), 0, 0);
         installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
-        AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                   nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+        AssertTrue(nativeOam.ImageEquals(installedOam) &&
                    nativeOam.NextByteOffset == installedOam.NextByteOffset,
             "Dead Torizo stationary installed OAM matches all native sprite entries");
         AssertEqual(25 * 4, installedOam.NextByteOffset,

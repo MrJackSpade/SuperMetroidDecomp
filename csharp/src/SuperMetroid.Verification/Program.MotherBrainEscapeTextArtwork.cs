@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain escape-text characters and transfer records")]
     private static void VerifyInstalledMotherBrainEscapeTextArtwork(
         string directory, EnemyTileArtworkCatalog stock)

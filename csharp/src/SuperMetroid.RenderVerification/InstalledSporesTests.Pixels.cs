@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class InstalledSporesTests
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void CheckPixels(List<RenderFrameSnapshot> packets)
     {
         int cases = 0;

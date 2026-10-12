@@ -46,6 +46,7 @@ internal static partial class Program
         Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
         using var temporary = new TestTempDirectory("map-catalog");
@@ -112,9 +113,9 @@ internal static partial class Program
                      .Where(entry => entry.Definition.TileDataAddress == editedDefinition.TileDataAddress &&
                          entry.Definition.TileDataSize == editedDefinition.TileDataSize))
             expectedVram[RoomEnemyRomLayout.VramByteBase + entry.StagingOffset] ^= 0x80;
-        AssertTrue(!beforeVram.Bytes.SequenceEqual(afterVram.Bytes) && afterVram.Bytes.SequenceEqual(expectedVram),
+        AssertTrue(!new VramStore(beforeVram).ImageEquals(afterVram) && afterVram.Bytes.SequenceEqual(expectedVram),
             "PNG replacement changes exactly the authored pixel at its production VRAM destination");
-        AssertTrue(beforeColors.Colors.SequenceEqual(afterColors.Colors), "PNG replacement does not change enemy colors");
+        AssertTrue(new CgramPalettes(beforeColors).ImageEquals(new CgramPalettes(afterColors)), "PNG replacement does not change enemy colors");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "PNG replacement changes selected presentation identity");
         AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(stockPath, overridePath).ContentIdentity,
             "enemy replacement persists through a fresh catalog load");

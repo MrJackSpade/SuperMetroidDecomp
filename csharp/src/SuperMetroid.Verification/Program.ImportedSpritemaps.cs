@@ -74,6 +74,7 @@ internal static partial class Program
     private static byte ExecutedEnemySelectorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     // Confirm the visual actually selected by a timed instruction, whether its owner
     // carries an installed operand or a legacy compiled sprite identity.
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
         RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)
@@ -105,8 +106,7 @@ internal static partial class Program
             clipVerticalWrap: true, originYIsOnScreen: true);
         AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
             $"projectile frame $86:{operand:X4} native sprite part count");
-        AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) &&
-            expected.HighTable.SequenceEqual(actual.HighTable),
+        AssertTrue(expected.ImageEquals(actual),
             $"projectile frame $86:{operand:X4} installed composition matches native OAM");
     }
 

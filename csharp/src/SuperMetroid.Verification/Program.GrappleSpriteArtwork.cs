@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple endpoint and segment OBJ attributes")]
     private static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
     {
@@ -36,7 +37,7 @@ internal static partial class Program
                 SamusGrappleMovement.DrawConnectedBeam(bus, originalState, originalOam, originalQueue, new(0, 0));
                 SamusGrappleMovement.DrawConnectedBeam(guard, stockState, stockOam, stockQueue, new(0, 0), stock);
                 SamusGrappleMovement.DrawConnectedBeam(guard, editedState, editedOam, editedQueue, new(0, 0), changed);
-                AssertTrue(originalOam.LowTable.SequenceEqual(stockOam.LowTable) && originalOam.HighTable.SequenceEqual(stockOam.HighTable), "Stock JSON preserves entire native OAM");
+                AssertTrue(originalOam.ImageEquals(stockOam), "Stock JSON preserves entire native OAM");
                 AssertEqual(stockOam.NextByteOffset, editedOam.NextByteOffset, "Visual edit preserves segment count");
                 AssertTrue(stockOam.HighTable.SequenceEqual(editedOam.HighTable), "Visual edit preserves object size and high-X");
                 for (int offset = 0; offset < stockOam.NextByteOffset; offset += 4)

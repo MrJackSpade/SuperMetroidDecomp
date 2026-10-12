@@ -62,7 +62,7 @@ internal static partial class Program
                 if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0e00);
                 else result.DrawOffScreen(actual, new(120, y), 0x0e00);
                 actual.FinalizeFrame();
-                AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable)
+                AssertTrue(native.ImageEquals(actual)
                     && native.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "native CeresLargeAsteroid OAM at visible and wrapped origins");
             }
         }

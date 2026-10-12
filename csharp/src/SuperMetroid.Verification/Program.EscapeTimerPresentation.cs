@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed escape-timer characters")]
     private static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original,
@@ -172,6 +173,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled escape-timer digit pointers")]
     private static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
     {
@@ -209,8 +211,7 @@ internal static partial class Program
             EscapeTimerPresentation.Load(new MemoryStream(guardedExtraction)));
         AssertEqual(native.NextByteOffset, guarded.NextByteOffset,
             "compiled timer pointers preserve native OAM part count");
-        AssertTrue(native.LowTable.SequenceEqual(guarded.LowTable) &&
-            native.HighTable.SequenceEqual(guarded.HighTable),
+        AssertTrue(native.ImageEquals(guarded),
             "native timer draw no longer rereads the immutable digit pointer table");
         Console.WriteLine("Escape timer digit pointers: ten cartridge words, exact extraction and OAM, no runtime pointer-table reads.");
     }

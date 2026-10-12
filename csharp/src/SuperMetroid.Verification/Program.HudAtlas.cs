@@ -8,6 +8,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed HUD tile atlas")]
     private static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules,
@@ -33,7 +34,7 @@ internal static partial class Program
         AssertTrue(beforeNmi.AsSpan().SequenceEqual(installed.Vram.Bytes), "lag NMI does not publish installed HUD artwork");
         native.RunNmi(0, mainLoopRequestedNmi: true);
         installed.RunNmi(0, mainLoopRequestedNmi: true);
-        AssertTrue(native.Vram.Bytes.SequenceEqual(installed.Vram.Bytes), "accepted NMI matches all VRAM bytes with HUD artwork ROM blocked");
+        AssertTrue(new VramStore(native.Vram).ImageEquals(installed.Vram), "accepted NMI matches all VRAM bytes with HUD artwork ROM blocked");
         Rgba32[] baseline = Render(native);
         AssertTrue(baseline.AsSpan().SequenceEqual(Render(installed)), "stock installed HUD/minimap renders identical pixels");
 

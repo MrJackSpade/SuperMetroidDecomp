@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyGameplayBasePalettes(string sourceRom)
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",

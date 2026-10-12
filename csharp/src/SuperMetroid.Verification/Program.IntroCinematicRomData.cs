@@ -9,6 +9,7 @@ internal static partial class Program
     /// Verifies that intro resources are mapped, fixed VRAM regions fit, palette spans are
     /// byte-aligned/in-range, and actor sounds retain their library-qualified identities.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     static void VerifyIntroCinematicRomData()
     {
         int[] resources =
@@ -123,6 +124,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for cinematic code pointer catalog")]
     private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertIntroPaletteSpans(
         IntroCinematicRomData.Palette.Regions spans,
         string context)

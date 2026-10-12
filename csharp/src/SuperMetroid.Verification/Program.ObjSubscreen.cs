@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyObjSubscreenAddition()
     {
         Suite(nameof(VerifyMode7ObjSubtraction), () => VerifyMode7ObjSubtraction());
@@ -39,6 +40,7 @@ internal static partial class Program
             "legacy packets retain replacing OBJ composition");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyMode7Bg1Addition()
     {
         foreach (bool opaqueBg in new[] { false, true })
@@ -70,6 +72,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyMode7ObjSubtraction()
     {
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];
@@ -94,6 +97,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packet cannot claim Mode7 OBJ subtraction");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyObjFixedColor()
     {
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];
@@ -137,6 +141,7 @@ internal static partial class Program
             .SequenceEqual(RenderForComparison(legacyPriority)), "legacy priority packets remain readable without color payload");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyBg4SubscreenAddition()
     {
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];

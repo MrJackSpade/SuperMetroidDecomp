@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Acceptance for the source-identified mismatch between selected OAM and physical BG2.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyBossDisplayBindings()
     {
         var stock = new BossDisplayDocuments(edited: false);
@@ -58,6 +59,7 @@ internal static partial class Program
             $"mixed remaps, native new-frame gating and {hitSamples} compiled collision samples ({hits} hits). RAM-only production.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void AssertBossBg2(SnesVram actual, EnemyBg2WriteDocument[] writes)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];

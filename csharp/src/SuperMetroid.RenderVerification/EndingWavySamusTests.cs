@@ -10,6 +10,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static class EndingWavySamusTests
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;

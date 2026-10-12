@@ -31,6 +31,7 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 }
 
 /// <summary>Stored-shine and shinespark verification.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 static void VerifySamusStoredShineAndShinespark()
 {
     var bus = new TestAddressSpace();

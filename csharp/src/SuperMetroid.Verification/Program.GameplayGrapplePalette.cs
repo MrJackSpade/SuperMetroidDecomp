@@ -11,6 +11,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyGameplayGrapplePalette()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

@@ -35,7 +35,7 @@ internal static partial class Program
                 }
                 edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                AssertTrue(expected.ImageEquals(actual),
                     "each authored reserve frame independently selected");
             }
             frames.Remove(changed.Name);
@@ -80,7 +80,7 @@ internal static partial class Program
                 MenuSpriteCompiler.Compile([part], frame.Name).DrawOnScreen(expected, new(24, 95), 0x600);
                 edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
-                AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+                AssertTrue(expected.ImageEquals(actual),
                     "independent authored part field reaches OAM");
             }
         }
@@ -108,7 +108,7 @@ internal static partial class Program
             DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
             presentation.Draw(actual, (PauseReserveTankVisual)frame.Id, index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+            AssertTrue(expected.ImageEquals(actual),
                 "native reserve frame selection, OAM attributes, ordering and capacity");
         }
     }

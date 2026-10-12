@@ -55,8 +55,10 @@ internal static partial class Program
         internal void SetProgram(ushort pointer)
         { Actor.CurrentInstruction = pointer; Actor.InstructionTimer = 1; Actor.Timer = 0; }
         internal void Step() => instructions(Actor, null, null, Position16<RoomPixels>.Zero, 0);
+        [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal (bool Hit, ushort Callback) Hitbox(Position16<RoomPixels> probe, bool shot)
         { bool hit = hitbox(Actor, probe, new(2, 2), shot, out ushort callback); return (hit, callback); }
+        [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void ClearBg2() => Vram.ExecuteWordTransfer(
             new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayout.VramBase, 1);
         private void Bind(string name, object value) => typeof(RoomEnemySystem).GetField(name, Private)!.SetValue(Enemies, value);

@@ -24,6 +24,7 @@ internal static partial class Program
         Suite(nameof(VerifyMotherBrainFallingTubePopulationDefinitions), () => VerifyMotherBrainFallingTubePopulationDefinitions(rom));
         Console.WriteLine("Falling-tube layout: five native records, all eight columns, production spawns and independent fixture behavior pass; placement magnitudes and delay remain required.");
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, SnesCgram.ColorCount)
@@ -63,6 +64,7 @@ internal static partial class Program
             return IntroCinematicPalette.Load(json);
         }
     }
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyStream3IntroEyeRectangles(ISnesAddressSpace rom)
     {
         ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)
@@ -231,7 +233,7 @@ internal static partial class Program
             var point = original.HeadingAnchors[page];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new((ushort)point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
-            AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
+            AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual heading draw preserves exact native ordered OAM");
             ushort Word(int location) => (ushort)(rom.ReadCartridgeByte(location) | rom.ReadCartridgeByte(location + 1) << 8);
             AssertEqual((ushort)count, Word(address), "native border header");
@@ -302,7 +304,7 @@ internal static partial class Program
             var anchor = original.BorderAnchors[page];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(original.ObjectPalette << 9));
-            AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
+            AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual file-select border draw preserves native OAM");
             ushort Word(int location) => (ushort)(rom.ReadCartridgeByte(location) | rom.ReadCartridgeByte(location + 1) << 8);
             AssertEqual((ushort)count, Word(address), "native border header");
@@ -518,7 +520,7 @@ internal static partial class Program
             }
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new((ushort)x, (ushort)y), (ushort)(palette << 9));
-            AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
+            AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual game-over draw emits exact native ordered OAM " + name);
         }
         foreach (string name in GameOverPresentationDefinitions.SpriteNames)
@@ -704,6 +706,7 @@ internal static partial class Program
             }
         }
     }
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.GameOverPresentationExtractor.Extract(rom);
@@ -849,7 +852,7 @@ internal static partial class Program
                 MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingFrameName(pair.Key)], "heading oracle")
                     .DrawOnScreen(expected, new(checked((ushort)pair.Value.X), unchecked((ushort)(pair.Value.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
-                AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) && actual.HighTable.SequenceEqual(expected.HighTable),
+                AssertTrue(actual.ImageEquals(expected),
                     "options stock/edited heading origin and scroll");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, 0), "options invalid action");
@@ -1658,6 +1661,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(0, invalid), "stream 3 Shitroid pulse color bounds");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for drain fades")]
     private static void VerifyStream3DrainFades(ISnesAddressSpace rom)
     {
@@ -2413,6 +2417,7 @@ internal static partial class Program
                 "stream 3 Fireflea visual bounds");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot colors")]
     private static void VerifyStream3WorkRobotColors(ISnesAddressSpace rom)
     {
@@ -2487,6 +2492,7 @@ internal static partial class Program
                 "stream 3 Work Robot color bounds");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for health tint")]
     private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
     {
@@ -2562,6 +2568,7 @@ internal static partial class Program
                     }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for recovery lights")]
     private static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
     {
@@ -2629,14 +2636,14 @@ internal static partial class Program
                     var actual = new SnesCgram();
                     stock.ApplyRecoveryLights(expected, frame);
                     edited.ApplyRecoveryLights(actual, frame);
-                    AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+                    AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                         "stream 3 independent final-room edit cannot change recovery content");
                     for (int phase = 0; phase < 2; phase++)
                     {
                         ushort pointer = (ushort)(0xd046 + (frame * 2 + phase) * 4);
                         stock.ApplyFlash(expected, pointer);
                         edited.ApplyFlash(actual, pointer);
-                        AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+                        AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                             "stream 3 independent final-room edit cannot change flash content");
                     }
                 }
@@ -2652,10 +2659,11 @@ internal static partial class Program
             var actual = new SnesCgram();
             stock.ApplyRecoveryLights(expected, frame);
             oldOverride.ApplyRecoveryLights(actual, frame);
-            AssertTrue(expected.Colors.SequenceEqual(actual.Colors), "stream 3 legacy room override reuses calculated stock recovery");
+            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "stream 3 legacy room override reuses calculated stock recovery");
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room flash")]
     private static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
     {
@@ -2803,6 +2811,7 @@ internal static partial class Program
         new(
             $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
             $"${opcode:X2} at ${opcodeAddress >> 16:X2}:{opcodeAddress & 0xffff:X4}.");
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for phase two rear leg")]
     private static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
     {
@@ -2990,7 +2999,7 @@ internal static partial class Program
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, new(128, 128), 0, 0);
             calculatedOam.AddEnemySpritemap(parts, new Position16<OamPixels>(128, 128), 0, 0);
-            AssertTrue(nativeOam.LowTable.SequenceEqual(calculatedOam.LowTable) && nativeOam.HighTable.SequenceEqual(calculatedOam.HighTable),
+            AssertTrue(nativeOam.ImageEquals(calculatedOam),
                 "stream 3 calculated Baby view matches native OAM drawing");
             SpriteVisualPart[] original = document.Frames[frame.Name];
             for (int index = 0; index < original.Length; index++)
@@ -3103,6 +3112,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Baby visual enumeration domain");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain attack palette")]
     private static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
@@ -3154,6 +3164,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for final room paints")]
     private static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
@@ -3219,6 +3230,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room entry palettes")]
     private static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
@@ -3378,6 +3390,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the initial narration tilemap and opening font")]
     private static void VerifyStream3InitialNarrationMap()
     {
@@ -3519,7 +3532,7 @@ internal static partial class Program
             actual.DrawHelmet(actualOam, frame, 0);
             var anchor = expected.HelmetAnchors[0];
             expectedParts.DrawOnScreen(expectedOam, new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(expected.ObjectPalette << 9));
-            AssertTrue(actualOam.LowTable.SequenceEqual(expectedOam.LowTable) && actualOam.HighTable.SequenceEqual(expectedOam.HighTable),
+            AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual helmet draw preserves native and independent edited ordered OAM");
         }
     }
@@ -3574,6 +3587,7 @@ internal static partial class Program
         Console.WriteLine("Intro font: 144 native tiles/2304 bytes, 2304 independent edits, four outline additions/91 removals, exact period alias and no stock output storage pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro background page tilemaps")]
     private static void VerifyStream3BackgroundMaps()
     {
@@ -3724,6 +3738,7 @@ internal static partial class Program
         Console.WriteLine("Nintendo fade entries: both native definition/slot/fallthrough-or-branch contracts, order and bounds pass; timing/colors unchanged.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro Samus head tilemap")]
     private static void VerifyStream3PortraitMap()
     {

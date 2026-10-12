@@ -47,6 +47,7 @@ internal sealed partial class InstalledSamusIsolationTests
             $"{tests.changedColors} changed CGRAM observations. No ROM, import or player data is used.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private Pair Create(SamusPoseId pose = SamusPoseId.FacingRightNormalPose,
         ushort equipment = 0, SamusLiquidMedium medium = SamusLiquidMedium.Air, bool lowCeiling = false)
     {
@@ -134,9 +135,10 @@ internal sealed partial class InstalledSamusIsolationTests
             Require(Stock.Level.ForegroundEntries.Span.SequenceEqual(Edited.Level.ForegroundEntries.Span),
                 context + ": collision room changed");
             tests.comparisons++;
-            if (!Stock.Colors.Colors.SequenceEqual(Edited.Colors.Colors)) tests.changedColors++;
+            if (!new CgramPalettes(Stock.Colors).ImageEquals(new CgramPalettes(Edited.Colors))) tests.changedColors++;
         }
 
+        [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
         internal void Draw(string context, ushort frame = 0)
         {
             var beforeStock = new SamusMechanicsSnapshot(Stock.Samus);
@@ -155,7 +157,7 @@ internal sealed partial class InstalledSamusIsolationTests
             Check(context + " after draw");
             tests.draws++;
             if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable)) tests.changedOam++;
-            if (!Stock.Tiles.Bytes.SequenceEqual(Edited.Tiles.Bytes)) tests.changedTiles++;
+            if (!new VramStore(Stock.Tiles).ImageEquals(Edited.Tiles)) tests.changedTiles++;
         }
     }
 

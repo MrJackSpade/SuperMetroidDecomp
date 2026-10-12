@@ -5,6 +5,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static class TileSmokeTests
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         VerifyFourthPlaneByteSelection(device, renderer);
@@ -39,6 +40,7 @@ internal static class TileSmokeTests
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyFourthPlaneByteSelection(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var vram = new byte[SnesPpuLayout.VramByteCount];

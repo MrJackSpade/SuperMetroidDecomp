@@ -34,6 +34,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyBombTorizoDebrisOverride(string directory,
         EnemyTileArtworkCatalog stock, TorizoInstructionTileSheetDefinition page)
     {
@@ -74,6 +75,7 @@ internal static partial class Program
             "a missing required debris page is rejected at installation loading, not during play");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
         GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,

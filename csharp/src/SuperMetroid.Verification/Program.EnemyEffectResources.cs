@@ -69,7 +69,7 @@ internal static partial class Program
         AssertCrocomireEffectMechanics(expected, actual, context);
         AssertTrue(expected.Effect.MeltingGraphics.SequenceEqual(actual.Effect.MeltingGraphics), context + " graphics unchanged");
         AssertTrue(expected.Effect.Bg2WorkingTilemap.SequenceEqual(actual.Effect.Bg2WorkingTilemap), context + " tilemap unchanged");
-        AssertTrue(expected.Vram.Bytes.SequenceEqual(actual.Vram.Bytes), context + " VRAM unchanged");
+        AssertTrue(new VramStore(expected.Vram).ImageEquals(actual.Vram), context + " VRAM unchanged");
     }
 
     private static void VerifyCrocomireMeltJson()

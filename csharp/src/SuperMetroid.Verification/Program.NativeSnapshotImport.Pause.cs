@@ -15,6 +15,7 @@ internal static partial class Program
     /// since: map scroll, animation phases and the delayed-held input filter. Gameplay colors
     /// come from <c>BackupOfPalettesDuringMenu</c>, where pausing moved them.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         ISnesAddressSpace bus, Func<int, ushort> W, byte[] memory)
     {

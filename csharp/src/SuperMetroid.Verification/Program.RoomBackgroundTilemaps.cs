@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room background tilemaps")]
     private static void VerifyRoomBackgroundTilemapExtraction()
     {
@@ -46,7 +47,7 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
         LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource),
             selectedVram, ceresList, activeDoorPointer: 0, tilemapArt: catalog);
-        AssertTrue(nativeVram.Bytes.SequenceEqual(selectedVram.Bytes),
+        AssertTrue(new VramStore(nativeVram).ImageEquals(selectedVram),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
         byte[] original = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), ceresSource);

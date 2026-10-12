@@ -5,6 +5,7 @@ using System.Reflection;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleEndpointGeometry(ISnesAddressSpace bus)
     {
         // $94:B093 chooses by pose, not grapple connection phase. Keep the
@@ -51,6 +52,7 @@ internal static partial class Program
         Console.WriteLine("Grapple endpoint geometry: 360 pose/camera/wrapped-coordinate cases and actual actor pose handoff match native clipping, borrow and OAM attributes.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleEndpointActor(SuperMetroidAddressSpace bus)
     {
         var runtime = CreateRetailRuntimeFixture(bus);

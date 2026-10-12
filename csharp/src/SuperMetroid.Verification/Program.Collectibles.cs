@@ -489,6 +489,7 @@ internal static partial class Program
             "equipped beam word round-trips independently from collected beams");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyPermanentItemMessageBox()
     {
         var bus = new TestAddressSpace();
@@ -672,6 +673,7 @@ internal static partial class Program
             "unsupported message identifies numeric ID and source context");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySuitPickupTransformation()
     {
         TestAddressSpace bus = CreateSuitPickupCartridge();

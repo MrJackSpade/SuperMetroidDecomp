@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 /// </summary>
 internal static class ImportedVramOracle
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void ExecuteQueued(SnesVram vram, ISnesAddressSpace source,
         int sourceAddress, ushort sizeInBytes, ushort encodedDestination)
     {
@@ -15,6 +16,7 @@ internal static class ImportedVramOracle
             encodedDestination);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void ExecuteHardware(SnesVram vram, ISnesAddressSpace source,
         int sourceAddress, ushort dmaSize, ushort encodedDestination)
     {

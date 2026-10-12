@@ -32,8 +32,7 @@ internal static partial class Program
                 stock.RewardSprites.Draw(frame.Pointer, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
-                AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,
                     $"ending reward {frame.Name} at Y=${y:X4} preserves cartridge OAM");
             }

@@ -56,6 +56,9 @@ dotnet_diagnostic.SME6283.severity = error
 # #629: the CPU A-bus layout is confined to declared boundaries.
 dotnet_diagnostic.SME6290.severity = error
 dotnet_diagnostic.SME6291.severity = error
+# #630: the PPU layout is confined to declared rendering boundaries.
+dotnet_diagnostic.SME6300.severity = error
+dotnet_diagnostic.SME6301.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620: advisory until the existing reusable guards are migrated.

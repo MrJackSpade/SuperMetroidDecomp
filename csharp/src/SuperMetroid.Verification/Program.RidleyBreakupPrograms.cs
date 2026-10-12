@@ -13,6 +13,7 @@ internal static partial class Program
     private static ushort ReadRetailRidleyBankWord(ISnesAddressSpace rom, ushort address) =>
         (ushort)(rom.ReadCartridgeByte(0xa60000 | address) | rom.ReadCartridgeByte(0xa60000 | (address + 1)) << 8);
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRidleyBreakupPrograms()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

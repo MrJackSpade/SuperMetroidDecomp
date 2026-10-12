@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyMotherBrainRoomPaletteProgramDefinitions()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -66,7 +67,7 @@ internal static partial class Program
             run.Invoke(enemies, [state]);
             AssertEqual(nativePointer, state.RoomPaletteInstructionPointer, "native room flash pointer and loop");
             AssertEqual(nativeTimer, state.RoomPaletteInstructionTimer, "native room flash two-tick cadence");
-            AssertTrue(expected.Colors.SequenceEqual(output.Colors), "native room flash full CGRAM and mirrored colors");
+            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(output)), "native room flash full CGRAM and mirrored colors");
         }
         AssertEqual(14, nativeOperands.Count, "native oracle traverses every room flash operand");
 

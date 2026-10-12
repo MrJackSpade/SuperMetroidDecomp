@@ -127,8 +127,8 @@ internal static partial class Program
             var guardedCgram = new SnesCgram();
             native.LoadGraphics(nativeVram, nativeCgram);
             guarded.LoadGraphics(guardedVram, guardedCgram);
-            AssertTrue(nativeVram.Bytes.SequenceEqual(guardedVram.Bytes) &&
-                nativeCgram.Colors.SequenceEqual(guardedCgram.Colors),
+            AssertTrue(new VramStore(nativeVram).ImageEquals(guardedVram) &&
+                new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(guardedCgram)),
                 $"room $8F:{roomPointer:X4} retains exact VRAM/CGRAM output");
         }
 
@@ -138,6 +138,7 @@ internal static partial class Program
     }
 
     /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room character streams compared with installed character atlases")]
     static void VerifyRoomCharacterAtlases()
     {
@@ -199,8 +200,8 @@ internal static partial class Program
             var installedCgram = new SnesCgram();
             native.LoadGraphics(nativeVram, nativeCgram);
             installed.LoadGraphics(installedVram, installedCgram);
-            AssertTrue(nativeVram.Bytes.SequenceEqual(installedVram.Bytes) &&
-                nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram) &&
+                new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");
         }
 

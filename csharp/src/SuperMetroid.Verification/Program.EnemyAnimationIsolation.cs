@@ -1,5 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -14,6 +15,7 @@ internal static partial class Program
             "boss attack/hitbox windows and death progression remain frame-exact with replaced display sequences and projectile art.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyBoyonAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
         var heights = new HashSet<ushort>();
@@ -44,6 +46,7 @@ internal static partial class Program
             $"{heights.Count} Y positions and {bounceSounds} bounce callbacks; OAM changes every frame without changing mechanics.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyTorizoAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
         // The fixed right-orb program has 24 startup frames, six 6-frame firing

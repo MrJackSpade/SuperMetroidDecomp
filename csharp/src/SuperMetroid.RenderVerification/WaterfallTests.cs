@@ -8,6 +8,7 @@ internal static class WaterfallTests
 {
     // GR-3: native TM=$11, TS=$06, CGADSUB=$B1. Distinct colors make
     // an omitted plane, wrong priority, opaque overlay or halving observable.
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var vram = new SnesVram();

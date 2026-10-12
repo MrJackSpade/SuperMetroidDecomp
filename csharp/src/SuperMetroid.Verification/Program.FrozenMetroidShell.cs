@@ -8,6 +8,7 @@ internal static partial class Program
 {
     // #1207: freezing during the shell's intentionally empty frame must select
     // the frozen shell immediately, including its actual emitted sprite parts.
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static int VerifyFrozenMetroidShell()
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -49,8 +50,7 @@ internal static partial class Program
             actual.BeginFrame();
             draw.Invoke(enemies, [actual, Position16<RoomPixels>.Zero]);
             Require(actual.NextByteOffset == expected.NextByteOffset &&
-                actual.LowTable.SequenceEqual(expected.LowTable) &&
-                actual.HighTable.SequenceEqual(expected.HighTable),
+                actual.ImageEquals(expected),
                 "Frozen shell OAM must match every authored part and frozen palette attribute.");
         }
         Console.WriteLine("Frozen Metroid shell: empty-frame reproduction, visible frozen OAM and retained timer passed.");

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 internal static partial class Program
 {
     /// <summary>Full stock import, live edit, repair and invalid-override contract for room art.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue ghost and scrolling-sky source bytes")]
     private static void VerifyRoomArtworkInstallation(string sourceRom)
     {
@@ -81,7 +82,7 @@ internal static partial class Program
             var installedGhostVram = new SnesVram();
             LibraryBackgroundLoader.Execute(bus, installedGhostVram, ghostTransfer.ListPointer,
                 activeDoorPointer: 0, characterArt: stock, tilemapArt: RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps());
-            AssertTrue(nativeGhostVram.Bytes.SequenceEqual(installedGhostVram.Bytes),
+            AssertTrue(new VramStore(nativeGhostVram).ImageEquals(installedGhostVram),
                 "installed statue-ghost PNG matches the complete native library upload");
             int ghostTileCount = nativeGhost.Length / RoomCharacterAtlasFormat.BytesPerTile;
             int ghostColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, ghostTileCount);
@@ -134,7 +135,7 @@ internal static partial class Program
                 "installed RGB5 override changes only its room CGRAM color");
             var compiledStockCgram = new SnesCgram();
             stockPalettes.Get(paletteSource).LoadTo(compiledStockCgram);
-            AssertTrue(stockCgram.Colors.SequenceEqual(compiledStockCgram.Colors),
+            AssertTrue(new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(compiledStockCgram)),
                 "installed stock room palette matches native room CGRAM");
 
             AssertTrue(File.Exists(Path.Combine(installed.RoomMetatileDirectory,
@@ -215,7 +216,7 @@ internal static partial class Program
             LibraryBackgroundLoader.Execute(bus, stockBackgroundVram,
                 ceres.State.BackgroundDataPointer, activeDoorPointer: 0,
                 tilemapArt: stockBackgrounds);
-            AssertTrue(nativeBackgroundVram.Bytes.SequenceEqual(stockBackgroundVram.Bytes),
+            AssertTrue(new VramStore(nativeBackgroundVram).ImageEquals(stockBackgroundVram),
                 "installed Ceres background tilemap retains native VRAM words");
             string backgroundStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory,
                 backgroundName);
@@ -305,7 +306,7 @@ internal static partial class Program
                 paletteArt: repaired.LoadRoomPalettes());
             var repairedCgram = new SnesCgram();
             repairedPaletteRoom.LoadGraphics(new SnesVram(), repairedCgram);
-            AssertTrue(repairedCgram.Colors.SequenceEqual(editedCgram.Colors),
+            AssertTrue(new CgramPalettes(repairedCgram).ImageEquals(new CgramPalettes(editedCgram)),
                 "repaired installation retains the selected user room palette");
             CartridgeRoomAssets repairedBlocks = LoadFixtureRoomAssets(bus, landing,
                 metatileArt: repaired.LoadRoomMetatiles());
@@ -316,7 +317,7 @@ internal static partial class Program
             LibraryBackgroundLoader.Execute(bus, repairedBackgroundVram,
                 ceres.State.BackgroundDataPointer, activeDoorPointer: 0,
                 tilemapArt: repaired.LoadRoomBackgroundTilemaps());
-            AssertTrue(repairedBackgroundVram.Bytes.SequenceEqual(editedBackgroundVram.Bytes),
+            AssertTrue(new VramStore(repairedBackgroundVram).ImageEquals(editedBackgroundVram),
                 "repaired installation retains selected user background tilemap");
             AssertTrue(repaired.LoadRoomSkyTilemaps().TryResolve(landingSky.SourceAddress,
                     landingSky.ByteCount, out ReadOnlyMemory<byte> repairedSky) &&

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for file-select room-map labels and frames")]
     private static void VerifyFileSelectRoomMapGraphics()
     {
@@ -131,6 +132,7 @@ internal static partial class Program
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     private static void VerifyFileSelectMapAnimations()
     {
         var bus = new TestAddressSpace();
@@ -210,6 +212,7 @@ internal static partial class Program
         AssertEqual(2, resumed.LastFinalizedSpriteCount, "both available direction shapes draw");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyFileSelectMapIcons()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -457,6 +460,7 @@ internal static partial class Program
         AssertEqual(stoppedX, precedence.Scroll.X, "held input cannot scroll beyond unavailable arrow");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyFileSelectStationMarker()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus body artwork")]
     private static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
@@ -112,8 +113,7 @@ internal static partial class Program
             installedOam.BeginFrame();
             DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, new(127, 131));
             installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, new Position16<OamPixels>(127, 131), sprites);
-            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+            AssertTrue(nativeOam.ImageEquals(installedOam) &&
                 nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"Samus OAM index {index} installed/native staging parity");
         }
@@ -164,8 +164,7 @@ internal static partial class Program
             installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, new(0, 0), 128,
                 stock.Spritemaps);
             AssertTrue(nativeEffectOam.NextByteOffset > 0 &&
-                nativeEffectOam.LowTable.SequenceEqual(installedEffectOam.LowTable) &&
-                nativeEffectOam.HighTable.SequenceEqual(installedEffectOam.HighTable),
+                nativeEffectOam.ImageEquals(installedEffectOam),
                 $"atmospheric type {type} uses installed Samus OAM art with native parity");
         }
         foreach (byte type in new byte[] { 1, 4, 6, 7 })
@@ -193,8 +192,7 @@ internal static partial class Program
             installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, Position16<RoomPixels>.Zero, 128,
                 stock.Spritemaps, stock.Atmosphere);
             AssertTrue(nativeEffectOam.NextByteOffset > 0 &&
-                nativeEffectOam.LowTable.SequenceEqual(installedEffectOam.LowTable) &&
-                nativeEffectOam.HighTable.SequenceEqual(installedEffectOam.HighTable) &&
+                nativeEffectOam.ImageEquals(installedEffectOam) &&
                 nativeEffects.Slots[0].FrameAndType == installedEffects.Slots[0].FrameAndType &&
                 nativeEffects.Slots[0].AnimationTimer == installedEffects.Slots[0].AnimationTimer,
                 $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
@@ -222,8 +220,7 @@ internal static partial class Program
         deathSamus.DeathSequence.DrawExplosion(bus, nativeDeathOam, stock.Spritemaps);
         deathSamus.DeathSequence.DrawExplosion(guardedBus, installedDeathOam, stock.Spritemaps);
         AssertTrue(nativeDeathOam.NextByteOffset > 0 &&
-            nativeDeathOam.LowTable.SequenceEqual(installedDeathOam.LowTable) &&
-            nativeDeathOam.HighTable.SequenceEqual(installedDeathOam.HighTable),
+            nativeDeathOam.ImageEquals(installedDeathOam),
             "death explosion uses installed Samus OAM art with native parity");
         foreach (SamusDeathTileSegment segment in SamusSpecialSequenceRomData.Death.TileSegments)
         {
@@ -245,7 +242,7 @@ internal static partial class Program
                 segment.EncodedVramDestination);
             installedQueue.DrainTo(installedDeathVram, ReferenceMutableMemory.From(guardedBus),
                 new DeathTileAssetProvider(stock.DeathTiles));
-            AssertTrue(nativeDeathVram.Bytes.SequenceEqual(installedDeathVram.Bytes),
+            AssertTrue(new VramStore(nativeDeathVram).ImageEquals(installedDeathVram),
                 $"death tile segment ${segment.SourceAddress:X6} NMI transfer parity");
         }
         for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
@@ -318,7 +315,7 @@ internal static partial class Program
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
                     guardedBus, installedSamus, installedColors, installedWrites,
                     stock.DeathPalettes);
-                AssertTrue(nativeColors.Colors.SequenceEqual(installedColors.Colors) &&
+                AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)) &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
                     nativeSamus.DeathSequence.AnimationTimer ==
                         installedSamus.DeathSequence.AnimationTimer &&
@@ -346,7 +343,7 @@ internal static partial class Program
             var installedVram = new SnesVram();
             nativeTransfer.TransferToVram(bus, nativeVram);
             installedTransfer.TransferToVram(guardedBus, installedVram);
-            AssertTrue(nativeVram.Bytes.SequenceEqual(installedVram.Bytes),
+            AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram),
                 $"Samus pose {pose:X2} complete split VRAM transfer parity");
         }
 
@@ -569,7 +566,7 @@ internal static partial class Program
             new DeathTileAssetProvider(stock.DeathTiles));
         editedDeathTransfer.DrainTo(editedDeathTilesVram, ReferenceMutableMemory.From(guardedBus),
             new DeathTileAssetProvider(replacement.DeathTiles));
-        AssertTrue(!stockDeathTilesVram.Bytes.SequenceEqual(editedDeathTilesVram.Bytes),
+        AssertTrue(!new VramStore(stockDeathTilesVram).ImageEquals(editedDeathTilesVram),
             "edited death explosion PNG reaches the queued production VRAM transfer");
         var stockDeathOam = new OamBuffer();
         var editedDeathOam = new OamBuffer();
@@ -634,7 +631,7 @@ internal static partial class Program
         var editedPixels = new SnesVram();
         stockTransfer.TransferToVram(guardedBus, stockPixels);
         editedTransfer.TransferToVram(guardedBus, editedPixels);
-        AssertTrue(!stockPixels.Bytes.SequenceEqual(editedPixels.Bytes),
+        AssertTrue(!new VramStore(stockPixels).ImageEquals(editedPixels),
             "edited Samus body PNG changes the production VRAM transfer for pose $09");
         document["topPointers"]![0] = 0x8000;
         File.WriteAllText(selectedManifest, document.ToJsonString());
@@ -662,6 +659,7 @@ internal static partial class Program
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus arm cannon artwork")]
     private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
         SamusBodyArtworkCatalog body)

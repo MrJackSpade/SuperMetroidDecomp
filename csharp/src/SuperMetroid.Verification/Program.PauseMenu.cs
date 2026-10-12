@@ -14,6 +14,7 @@ internal static partial class Program
     /// the tiny visual fixture makes layer priority, OAM placement and unpause
     /// transfers observable without depending on retail pixel colors.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     static void VerifyPauseMenuEquipmentInteraction()
     {
         var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];

@@ -9,6 +9,7 @@ internal static partial class Program
 {
     // #1166: confirm the statically identified single-operand omissions, including
     // the installed compositions consumed immediately after instruction selection.
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifySingleFrameEnemyVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

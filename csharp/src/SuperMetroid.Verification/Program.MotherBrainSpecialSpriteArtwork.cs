@@ -15,6 +15,7 @@ internal static partial class Program
     private static void SeedMotherBrainCorpseCartridgeSentinel(TestAddressSpace source) =>
         source.WriteBytes(0xa0c000, [0x6b]);
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMotherBrainSpriteTransferSources()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -42,6 +43,7 @@ internal static partial class Program
             "Mother Brain cartridge-source refusal names the missing installed artwork");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain special sprite sheets and Baby tile records")]
     private static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
         string directory, EnemyTileArtworkCatalog stock)
@@ -151,6 +153,7 @@ internal static partial class Program
             "  Mother Brain special sprites: legs, Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain leg tile-transfer records and pixels")]
     private static void VerifyMotherBrainLegTileTransfers(
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
@@ -217,6 +220,7 @@ internal static partial class Program
             "Misaligned Mother Brain leg transfer pointer should fail explicitly.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMotherBrainInstalledTransferBoundary(
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
@@ -293,6 +297,7 @@ internal static partial class Program
         throw new InvalidOperationException($"Expected InvalidDataException: {label}.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle: independent cartridge transfer of a Mother Brain special sprite sheet")]
     private static SnesVram ReferenceMotherBrainSpecialPages(
         ISnesAddressSpace bus, MotherBrainSpecialSpriteSheetDefinition sheet)

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     // #1168: reproduce the runtime's queue -> power-bomb damage -> draw ordering.
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyPowerBombDeathDrawing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -60,8 +61,7 @@ internal static partial class Program
             {
                 AssertTrue(actor.Health is > 0 and < 1000, "nonlethal power bomb damages the live actor");
                 AssertEqual(before.NextByteOffset, after.NextByteOffset, "survivor keeps its sprite count");
-                AssertTrue(before.LowTable.SequenceEqual(after.LowTable) &&
-                    before.HighTable.SequenceEqual(after.HighTable), "survivor keeps its sprite composition");
+                AssertTrue(before.ImageEquals(after), "survivor keeps its sprite composition");
                 actor.SpritemapPointer = 0;
                 AssertThrows<InvalidDataException>(() => enemies.DrawLayers(new OamBuffer(), new(0, 0), 0, 7),
                     "a live actor's missing composition must not be silently hidden");

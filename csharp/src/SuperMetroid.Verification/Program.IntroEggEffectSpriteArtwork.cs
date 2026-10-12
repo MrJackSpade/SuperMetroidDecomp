@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
@@ -34,8 +35,7 @@ internal static partial class Program
                 stock.EggEffectSprites.Draw(definition.Pointer, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
-                AssertTrue(installed.LowTable.SequenceEqual(native.LowTable) &&
-                        installed.HighTable.SequenceEqual(native.HighTable) &&
+                AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,
                     $"intro egg effect {definition.Name} at Y=${y:X4} preserves native OAM");
             }
@@ -66,15 +66,13 @@ internal static partial class Program
         DrawImportedCinematicActor(bus, nativeLiveOam, (IntroDiscoverySprite)typeof(IntroEggParticle)
             .GetField("sprite", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(fragment)!);
         nativeLiveOam.FinalizeFrame();
-        AssertTrue(stockOam.LowTable.SequenceEqual(nativeLiveOam.LowTable) &&
-                stockOam.HighTable.SequenceEqual(nativeLiveOam.HighTable),
+        AssertTrue(stockOam.ImageEquals(nativeLiveOam),
             "installed egg fragment preserves native live-actor OAM");
         var editedOam = new OamBuffer();
         editedOam.BeginFrame();
         fragment.Draw(editedOam, edited.EggEffectSprites);
         editedOam.FinalizeFrame();
-        AssertTrue(!stockOam.LowTable.SequenceEqual(editedOam.LowTable) &&
-                stockOam.HighTable.SequenceEqual(editedOam.HighTable) &&
+        AssertTrue(!stockOam.ImageEquals(editedOam) &&
                 stockOam.LowTable.Slice(0, 2).SequenceEqual(editedOam.LowTable.Slice(0, 2)),
             "egg-fragment art edit changes OAM palette without moving its particle");
 

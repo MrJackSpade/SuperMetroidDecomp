@@ -24,7 +24,7 @@ internal static partial class Program
             original.MotherBrainRoomColors);
         Method("LoadMotherBrainRoomEntryColors").Invoke(native, null);
         Method("LoadMotherBrainRoomEntryColors").Invoke(installed, null);
-        AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors, extracted));
         var nativeState = new MotherBrainEnemyState(native.Slots[0])
@@ -40,7 +40,7 @@ internal static partial class Program
         {
             run.Invoke(native, [nativeState]);
             run.Invoke(installed, [installedState]);
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Mother Brain room flash matches full native CGRAM on frame {frame}");
             AssertEqual(nativeState.RoomPaletteInstructionPointer,
                 installedState.RoomPaletteInstructionPointer,
@@ -51,7 +51,7 @@ internal static partial class Program
         }
         Method("StopMotherBrainRoomPalette").Invoke(native, [nativeState]);
         Method("StopMotherBrainRoomPalette").Invoke(installed, [installedState]);
-        AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed final grey room colors match all native CGRAM words");
         AssertEqual(nativeState.RoomPaletteInstructionPointer,
             installedState.RoomPaletteInstructionPointer,
@@ -61,7 +61,7 @@ internal static partial class Program
         Seed(installedCgram);
         Method("SetupMotherBrainPhaseTwoGraphics").Invoke(native, [nativeState]);
         Method("SetupMotherBrainPhaseTwoGraphics").Invoke(installed, [installedState]);
-        AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed phase-two attack/rear-leg colors match full native CGRAM");
         AssertEqual(nativeState.Function, installedState.Function,
             "phase-two colors do not alter the next body function");
@@ -137,13 +137,13 @@ internal static partial class Program
         var originalRecovery = new SnesCgram();
         migratedV2.MotherBrainRoomColors.ApplyRecoveryLights(migratedRecovery, 0);
         original.MotherBrainRoomColors.ApplyRecoveryLights(originalRecovery, 0);
-        AssertTrue(migratedRecovery.Colors.SequenceEqual(originalRecovery.Colors),
+        AssertTrue(new CgramPalettes(migratedRecovery).ImageEquals(new CgramPalettes(originalRecovery)),
             "version-two override inherits new recovery-light colors from stock");
         var migratedV2Entry = new SnesCgram();
         var originalV2Entry = new SnesCgram();
         migratedV2.MotherBrainRoomColors.ApplyRoomEntry(migratedV2Entry);
         original.MotherBrainRoomColors.ApplyRoomEntry(originalV2Entry);
-        AssertTrue(!migratedV2Entry.Colors.SequenceEqual(originalV2Entry.Colors),
+        AssertTrue(!new CgramPalettes(migratedV2Entry).ImageEquals(new CgramPalettes(originalV2Entry)),
             "version-two override keeps its edited room-entry colors");
         byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
         {
@@ -160,13 +160,13 @@ internal static partial class Program
             MotherBrainRoomPaletteProgramDefinitions.FlashStart);
         original.MotherBrainRoomColors.ApplyFlash(originalFlash,
             MotherBrainRoomPaletteProgramDefinitions.FlashStart);
-        AssertTrue(!migratedFlash.Colors.SequenceEqual(originalFlash.Colors),
+        AssertTrue(!new CgramPalettes(migratedFlash).ImageEquals(new CgramPalettes(originalFlash)),
             "version-one room-color override retains its existing flash edit");
         var migratedEntry = new SnesCgram();
         var originalEntry = new SnesCgram();
         migrated.MotherBrainRoomColors.ApplyRoomEntry(migratedEntry);
         original.MotherBrainRoomColors.ApplyRoomEntry(originalEntry);
-        AssertTrue(migratedEntry.Colors.SequenceEqual(originalEntry.Colors),
+        AssertTrue(new CgramPalettes(migratedEntry).ImageEquals(new CgramPalettes(originalEntry)),
             "version-one room-color override inherits only the new room-entry colors from verified stock");
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
@@ -200,7 +200,7 @@ internal static partial class Program
             var request = RecoveryRequest(frame);
             apply.Invoke(native, [request]);
             apply.Invoke(runtime, [request]);
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Mother Brain recovery-light frame {frame} matches full native CGRAM");
         }
         var invalid = RecoveryRequest(0) with { SourceAddress = 0 };
@@ -215,6 +215,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertRecoveryLightsEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
     {
@@ -245,6 +246,7 @@ internal static partial class Program
             (ushort)(MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort)),
             MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination);
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertRoomEntryEdited(AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited)
     {
@@ -267,6 +269,7 @@ internal static partial class Program
             "room-entry edits change only the two selected CGRAM colors");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertEdited(string methodName, AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, int expectedFirstColor, int expectedDifferences,
         bool flash = false)
@@ -319,6 +322,7 @@ internal static partial class Program
     private static MethodInfo Method(string name) => typeof(RoomEnemySystem).GetMethod(name,
         BindingFlags.Instance | BindingFlags.NonPublic)!;
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void Seed(SnesCgram cgram)
     {
         for (int index = 0; index < SnesCgram.ColorCount; index++)

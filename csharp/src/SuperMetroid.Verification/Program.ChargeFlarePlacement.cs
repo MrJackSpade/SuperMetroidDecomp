@@ -8,6 +8,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for charge flare placement")]
     private static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
     {
@@ -54,7 +55,7 @@ internal static partial class Program
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
             if ((y & 0xff00) == 0) DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
             drawMetadata(actual, samus, Position16<RoomPixels>.Zero, component, transform, stock, sprites, direction, running, yOffset, facingLeft);
-            AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7");
+            AssertTrue(native.ImageEquals(actual), "Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7");
             AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare placement preserves OAM admission");
             cases++;
         }
@@ -126,6 +127,7 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeFlarePlacement(SuperMetroidAddressSpace bus, ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
         var runtime = CreateRetailRuntimeFixture(bus);

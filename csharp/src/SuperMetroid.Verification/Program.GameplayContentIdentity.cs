@@ -54,6 +54,7 @@ internal static partial class Program
             "room overlay positions/order, canonical records and host warnings pass without a ROM.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static IReadOnlyDictionary<string, string> CreateGameplayIdentityFixture(
         string? edit = null, bool reverse = false)
     {

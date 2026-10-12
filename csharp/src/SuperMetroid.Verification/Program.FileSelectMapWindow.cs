@@ -66,6 +66,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapWindowComposition()
     {
         TestAddressSpace fake = CreateComposedMapWindowCartridge();
@@ -109,6 +110,7 @@ internal static partial class Program
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyFileSelectAreaMapGraphics()
     {
         Rgba32[] main = [new(255, 8, 0), new(0, 0, 8)];

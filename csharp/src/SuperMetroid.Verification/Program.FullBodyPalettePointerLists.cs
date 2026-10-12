@@ -188,6 +188,7 @@ internal static partial class Program
     private static ushort ReadPalettePointerWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for full-body cycle palette colors")]
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SnesCgram actual, int pointer, string context)

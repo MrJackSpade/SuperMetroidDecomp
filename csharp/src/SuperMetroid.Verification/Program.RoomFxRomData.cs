@@ -171,6 +171,7 @@ internal static partial class Program
         Suite(nameof(VerifyRenderableLayer3Fx), () => VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Fog));
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyRenderableLayer3Fx(
         TestAddressSpace bus,
         SnesVram vram,

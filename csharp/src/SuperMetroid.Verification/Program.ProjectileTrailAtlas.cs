@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyProjectileTrailAtlas(ISnesAddressSpace bus)
     {
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
@@ -47,6 +48,7 @@ internal static partial class Program
         Console.WriteLine("Trail PNG: native room/NMI parity and twelve edited pixels preserve every other VRAM byte, including the interleaved graphics gap.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyTrailAtlasBinding(ISnesAddressSpace bus, byte[] png)
     {
         var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));

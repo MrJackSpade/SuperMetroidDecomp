@@ -96,7 +96,7 @@ internal static partial class Program
                 if (y == 72) calculated.DrawOnScreen(generated, new(120, y), 0x0800);
                 else calculated.DrawOffScreen(generated, new(120, y), 0x0800);
                 native.FinalizeFrame(); generated.FinalizeFrame();
-                AssertTrue(native.LowTable.SequenceEqual(generated.LowTable) && native.HighTable.SequenceEqual(generated.HighTable),
+                AssertTrue(native.ImageEquals(generated),
                     "calculated grid preserves native OAM and clipping");
             }
             SpriteVisualPart first = visual[0];
@@ -221,8 +221,7 @@ internal static partial class Program
                 stock.ExplosionSprites.Draw(frame.Pointer, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
-                AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
+                AssertTrue(nativeOam.ImageEquals(installedOam) &&
                         nativeOam.LastFinalizedSpriteCount == installedOam.LastFinalizedSpriteCount,
                     $"ending explosion {frame.Name} at Y=${y:X4} preserves cartridge OAM");
             }

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
     private static void VerifyInstalledShitroidColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)

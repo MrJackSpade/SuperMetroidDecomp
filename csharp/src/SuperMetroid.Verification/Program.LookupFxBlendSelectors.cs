@@ -36,6 +36,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for FX blend source addresses")]
     private static byte FxBlendSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         var document = new RoomFxPaletteBlendDocument { Version = 1, Blends = new() };

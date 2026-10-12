@@ -203,6 +203,7 @@ internal static partial class Program
             "installed Puyo programs retain compiled timing and control words");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
@@ -1033,8 +1034,7 @@ internal static partial class Program
                 DrawImportedEnemySpritemap(rom, native, frame.Bank, frame.Pointer,
                     new(x, y), palette, baseTile);
                 installed.AddEnemySpritemap(parts, new Position16<OamPixels>(x, y), palette, baseTile);
-                AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) &&
-                           native.HighTable.SequenceEqual(installed.HighTable) &&
+                AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,
                     $"installed {frame.Name} OAM matches native at {x:X4},{y:X4}");
             }
@@ -1182,8 +1182,7 @@ internal static partial class Program
             var nativeRoom = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeRoom, frame.Bank, frame.Pointer,
                 new(0x0040, 0x0080), 0, 0);
-            AssertTrue(room.LowTable.SequenceEqual(nativeRoom.LowTable) &&
-                       room.HighTable.SequenceEqual(nativeRoom.HighTable),
+            AssertTrue(room.ImageEquals(nativeRoom),
                 $"production room draws installed {frame.Name} without visual ROM reads");
         }
 
@@ -3506,8 +3505,7 @@ internal static partial class Program
             });
         AssertTrue(!nativeFirst.LowTable.SequenceEqual(nativeSecond.LowTable),
             "selected Boyon test frames are visually distinct");
-        AssertTrue(nativeSecond.LowTable.SequenceEqual(displayedSecond.LowTable) &&
-                   nativeSecond.HighTable.SequenceEqual(displayedSecond.HighTable),
+        AssertTrue(nativeSecond.ImageEquals(displayedSecond),
             "authored frame binding changes live OAM without a ROM visual read");
         AssertTrue(LoadSpritemapOverride().TryGetDisplay(EnemySpritemapDefinitions.BoyonBank,
                     0x88da, out _),
@@ -3664,6 +3662,7 @@ internal static partial class Program
         }
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -3674,8 +3673,7 @@ internal static partial class Program
             var expected = new OamBuffer();
             DrawImportedEnemySpritemap(rom, expected, frame.Bank, frame.Pointer,
                 new(0x0040, 0x0090), 0x0400, 0x0010);
-            AssertTrue(actual.LowTable.SequenceEqual(expected.LowTable) &&
-                       actual.HighTable.SequenceEqual(expected.HighTable) &&
+            AssertTrue(actual.ImageEquals(expected) &&
                        actual.NextByteOffset == expected.NextByteOffset,
                 $"Mother Brain private draw uses installed {frame.Name} with native OAM");
         }
@@ -3701,6 +3699,7 @@ internal static partial class Program
         return oam;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, RoomSpriteObjectKind kind)
     {

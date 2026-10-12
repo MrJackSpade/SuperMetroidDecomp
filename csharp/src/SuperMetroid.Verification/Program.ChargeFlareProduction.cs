@@ -9,6 +9,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
@@ -35,7 +36,7 @@ internal static partial class Program
                     placement: placement, compositions: stock);
                 compiled.HandleChargeFlareAndDraw(guarded, b, samus, new(0, 0), placement: placement, compositions: stock);
                 changed.HandleChargeFlareAndDraw(guarded, c, samus, new(0, 0), placement: placement, compositions: edited);
-                AssertTrue(a.LowTable.SequenceEqual(b.LowTable) && a.HighTable.SequenceEqual(b.HighTable), "Normal/Hyper flare producer preserves complete native sprite output");
+                AssertTrue(a.ImageEquals(b), "Normal/Hyper flare producer preserves complete native sprite output");
                 AssertEqual(a.NextByteOffset, b.NextByteOffset, "Flare producer preserves OAM cursor");
                 AssertEqual(a.NextByteOffset, c.NextByteOffset, "Edited flare producer preserves component count");
                 for (int i = 0; i < a.NextByteOffset / 4; i++)

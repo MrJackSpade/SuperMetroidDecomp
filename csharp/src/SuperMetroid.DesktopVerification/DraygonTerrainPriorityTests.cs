@@ -19,6 +19,7 @@ internal static partial class Program
         return total;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int VerifyDraygonPartTilemap(SuperMetroidRuntime runtime, RoomEnemySlot body)
     {
         if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)) return 0;
@@ -62,6 +63,7 @@ internal static partial class Program
     /// the native Mode-1 ladder (upstream-sm/src/snes/ppu.c layersPerMode).
     /// This tests composition, not whether the captured tilemap matches a CPU replay.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static (long Terrain, long Body) VerifyDraygonTerrainPriority(LayeredRenderSnapshot capture)
     {
         var layer = (OrdinaryGameplayRenderLayer)capture.Layers[0];

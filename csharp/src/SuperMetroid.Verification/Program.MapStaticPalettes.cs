@@ -7,6 +7,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed static map palettes")]
     private static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
@@ -24,7 +25,7 @@ internal static partial class Program
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             nativeWorld.SelectArea(area); world.SelectArea(area);
-            AssertTrue(nativeWorld.Cgram.Colors.SequenceEqual(world.Cgram.Colors), "named world-selection palette matches native copy programs");
+            AssertTrue(new CgramPalettes(nativeWorld.Cgram).ImageEquals(new CgramPalettes(world.Cgram)), "named world-selection palette matches native copy programs");
             AssertTrue(nativeWorld.RenderBackgrounds().AsSpan().SequenceEqual(world.RenderBackgrounds()), "all six stock world selections render identical pixels");
         }
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -55,7 +56,7 @@ internal static partial class Program
         pause.BindMapPresentation(original); room.BindMapPresentation(original); world.BindPalettes(original.Palettes);
         AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "restored pause accepts current static colors without stale edited state");
         AssertTrue(roomBefore.AsSpan().SequenceEqual(room.RenderBackgrounds(new(0, 0))), "room map rebind restores original colors");
-        AssertTrue(nativeWorld.Cgram.Colors.SequenceEqual(world.Cgram.Colors), "world rebind restores complete original colors");
+        AssertTrue(new CgramPalettes(nativeWorld.Cgram).ImageEquals(new CgramPalettes(world.Cgram)), "world rebind restores complete original colors");
 
         var entry = new FileSelectMapEntry(original.Palettes);
         var controlEntry = new FileSelectMapEntry(original.Palettes);

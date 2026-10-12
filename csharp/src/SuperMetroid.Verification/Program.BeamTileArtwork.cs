@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailDefinitions), () => VerifyProjectileTrailDefinitions(bus));
@@ -22,7 +23,7 @@ internal static partial class Program
             var native = new SnesVram(); var extracted = new SnesVram();
             LoadNativeBeamFixture(bus, native, new SnesCgram(), null, selection);
             atlas.LoadTo(extracted);
-            AssertTrue(native.Bytes.SequenceEqual(extracted.Bytes), "PNG matches production beam upload across complete VRAM");
+            AssertTrue(new VramStore(native).ImageEquals(extracted), "PNG matches production beam upload across complete VRAM");
             var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
             image.Pixels[0] ^= 1;
             using var editedPng = new MemoryStream();
@@ -42,25 +43,25 @@ internal static partial class Program
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewBeamArtworkReadGuard(bus), queue, actualPalette, selection, catalog);
             var legacyVram = new SnesVram();
             nativeQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
-            AssertTrue(legacyVram.Bytes.SequenceEqual(native.Bytes), "Legacy beam source resolves exact native pixels without ROM DMA");
+            AssertTrue(new VramStore(legacyVram).ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
             // Recreate the consumed reference queue for the native record-layout assertions.
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
             AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Beam PNG keeps native seven-byte queue size");
             AssertEqual(nativeQueue.Entries[0].SizeInBytes, queue.Entries[0].SizeInBytes, "Queued beam transfer retains byte count");
             AssertEqual(nativeQueue.Entries[0].EncodedVramDestination, queue.Entries[0].EncodedVramDestination, "Queued beam retains destination");
-            AssertTrue(actualPalette.Colors.SequenceEqual(expectedPalette.Colors), "PNG selection leaves beam palette behavior unchanged");
+            AssertTrue(new CgramPalettes(actualPalette).ImageEquals(new CgramPalettes(expectedPalette)), "PNG selection leaves beam palette behavior unchanged");
             using var state = new MemoryStream();
             SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(state, queue);
             state.Position = 0;
             var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
             var stockVram = new SnesVram();
             queue.DrainTo(stockVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
-            AssertTrue(stockVram.Bytes.SequenceEqual(native.Bytes), "Queued PNG publishes native pixels only at drain");
+            AssertTrue(new VramStore(stockVram).ImageEquals(native), "Queued PNG publishes native pixels only at drain");
             var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
             var editedCatalog = BeamTileCatalog.Load(replacements);
             var reboundVram = new SnesVram();
             restored.DrainTo(reboundVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), editedCatalog);
-            AssertTrue(reboundVram.Bytes.SequenceEqual(extracted.Bytes), "Restored pending transfer resolves current PNG, not serialized stock bytes");
+            AssertTrue(new VramStore(reboundVram).ImageEquals(extracted), "Restored pending transfer resolves current PNG, not serialized stock bytes");
             AssertEqual(0, restored.TailInBytes, "NMI clears restored asset queue");
         }
         using var wrongSize = new MemoryStream();
@@ -77,6 +78,7 @@ internal static partial class Program
         Console.WriteLine("Beam PNG artwork: twelve production VRAM uploads, exact edited-pixel isolation and malformed resource rejection pass.");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native beam tile artwork fixture")]
     private static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
@@ -105,6 +107,7 @@ internal static partial class Program
         return guard;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyRuntimeBeamArtwork(ISnesAddressSpace bus, Dictionary<string, byte[]> files, BeamTileCatalog stock)
     {
         var image = IndexedPng.Read(new MemoryStream(files[BeamTileAtlasDefinitions.FileName(0)]), new(64, 8));

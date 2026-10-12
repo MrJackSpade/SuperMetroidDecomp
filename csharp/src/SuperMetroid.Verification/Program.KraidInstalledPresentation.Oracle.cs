@@ -33,6 +33,7 @@ internal static partial class Program
         return result;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for one Kraid head tilemap frame")]
     private static (KraidEnemyState State, SnesVram Vram) ReadImportedKraidHeadFrame(
         CartridgeImportAddressSpace source, ushort pointer)

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
 /// <summary>Exact indexed-pixel oracle plus backend comparison for disk-authored replacements.</summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
 internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRenderer renderer)
 {
     private long sequence;
@@ -11,6 +12,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
     internal long ChangedPixels { get; private set; }
     private readonly SnesCgram colors = MakeColors();
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal void Pair(SnesVram stock, SnesVram edited, OamBuffer oam, string context)
     {
         RenderFrameSnapshot a = Packet(stock), b = Packet(edited);
@@ -45,6 +47,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
         Comparisons++;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     private static SnesCgram MakeColors()
     {
         var result = new SnesCgram();

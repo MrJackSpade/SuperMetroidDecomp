@@ -3,11 +3,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
     // #1255: $84:8968 grants energy before its synchronous bank-$85 message,
     // but the following PLM empty draw and main-loop HUD update wait for return.
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyCollectibleMessageTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

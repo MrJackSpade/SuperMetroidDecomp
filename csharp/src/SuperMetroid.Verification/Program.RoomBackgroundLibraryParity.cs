@@ -26,6 +26,7 @@ internal static partial class Program
                 $"library background $8F:{listPointer:X4} WRAM byte {offset}");
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom, GameInstallation installed)
     {
@@ -145,6 +146,7 @@ internal static partial class Program
     /// The authored retail lists are covered above; these synthetic command lists
     /// test the failure boundary that no retail list presently exercises.
     /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyInstalledBackgroundTransferFailures(
         RoomBackgroundTilemapCatalog backgrounds, RoomSkyTilemapCatalog skies,
         HudTileAtlas hud, RoomCharacterAtlasCatalog characters)

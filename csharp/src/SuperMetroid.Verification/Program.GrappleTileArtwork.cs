@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple tile transfers and segment tile pointers")]
     private static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
@@ -56,12 +57,12 @@ internal static partial class Program
                 AssertEqual(a.Entries[i].SizeInBytes, b.Entries[i].SizeInBytes, "Grapple atlas preserves transfer byte count");
                 AssertEqual(a.Entries[i].EncodedVramDestination, b.Entries[i].EncodedVramDestination, "Grapple atlas preserves transfer ordering and destination");
             }
-            AssertTrue(oa.LowTable.SequenceEqual(ob.LowTable) && oa.HighTable.SequenceEqual(ob.HighTable) && oa.LowTable.SequenceEqual(oc.LowTable) && oa.HighTable.SequenceEqual(oc.HighTable), "Grapple PNG edits do not change rope OBJ placement or composition");
+            AssertTrue(oa.ImageEquals(ob) && oa.ImageEquals(oc), "Grapple PNG edits do not change rope OBJ placement or composition");
             AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(selected)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Grapple PNG edits preserve entire rope/animation simulation state");
             var va = new SnesVram(); var vb = new SnesVram(); var vc = new SnesVram();
             va.LoadBytes(0, poison); vb.LoadBytes(0, poison); vc.LoadBytes(0, poison);
             ImportedVramOracle.Drain(a, va, bus); b.DrainTo(vb, ReferenceMutableMemory.From(guard), stock); c.DrainTo(vc, ReferenceMutableMemory.From(guard), edited);
-            AssertTrue(va.Bytes.SequenceEqual(vb.Bytes), "Actual Grapple stock producer/drain preserves all VRAM with pointer/tile ROM forbidden");
+            AssertTrue(new VramStore(va).ImageEquals(vb), "Actual Grapple stock producer/drain preserves all VRAM with pointer/tile ROM forbidden");
             byte[] expectedBytes = va.Bytes.ToArray();
             expectedBytes[GrappleTileDefinitions.PointDestination * 2] ^= 128;
             for (int tile = 0; tile < 4; tile++) expectedBytes[GrappleTileDefinitions.SegmentDestination * 2 + tile * 32] ^= 128;

@@ -142,6 +142,7 @@ internal static class SuperMetroidRuntimeAccess
         /// <c>$A6:C4CB-$A6:C4D8</c>. The following entries are typewriter BG text and are not
         /// needed by the OAM escape-timer renderer.
         /// </summary>
+        [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void QueueEscapeTimerSpriteTiles()
         {
             if (self.MapPresentation is null)

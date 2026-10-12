@@ -41,7 +41,7 @@ internal static partial class Program
                     MotherBrainFakeDeathPaletteRomData.BrainColor);
                 state.FunctionTimer = 0;
                 step.Invoke(enemies, [state]);
-                AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+                AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                     $"installed Mother Brain fake-death {(toGrey ? "descent" : "ascent")} frame {frame} matches full native CGRAM");
                 AssertEqual((ushort)(frame + 1), toGrey ? state.GrayFadeIndex : state.GrayTransitionCounter,
                     "native grey fade cursor increments once per selected frame");
@@ -52,7 +52,7 @@ internal static partial class Program
             // The ninth selection is the native zero-terminator, not an editable color.
             state.FunctionTimer = 0;
             step.Invoke(enemies, [state]);
-            AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                 "fake-death grey terminator leaves every CGRAM word unchanged");
             AssertEqual(toGrey ? MotherBrainBodyFunction.FakeDeathDescentCollapseTubes :
                 MotherBrainBodyFunction.SecondPhaseStretchingShakeHead, state.Function,
@@ -71,6 +71,7 @@ internal static partial class Program
         return enemies;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static (Bgr555[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)
     {

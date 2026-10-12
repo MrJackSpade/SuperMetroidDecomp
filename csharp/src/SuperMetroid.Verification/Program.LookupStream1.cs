@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldBackgroundRomByte(rom, address + i)).ToArray();
@@ -72,6 +73,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 world background")]
     private static byte LookupStream1WorldBackgroundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLookupStream1DeathPixels(ISnesAddressSpace rom)
     {
         var pages = SamusSpecialSequenceRomData.Death.TileSegments;
@@ -122,7 +124,7 @@ internal static partial class Program
             var actual = new SnesVram(); var expected = new SnesVram();
             expected.ExecuteQueuedAssetWrite(native.AsSpan(page * pageBytes, pageBytes).ToArray(), pages[page].EncodedVramDestination);
             queue.DrainTo(actual, ReferenceMutableMemory.From(rom), new DeathTileAssetProvider(stock));
-            AssertTrue(actual.Bytes.SequenceEqual(expected.Bytes), "Actual five-page NMI transport matches native");
+            AssertTrue(new VramStore(actual).ImageEquals(expected), "Actual five-page NMI transport matches native");
         }
         AssertTrue(!stock.TryResolve(0, pageBytes, out _), "Unknown death source remains unresolved");
         AssertThrows<InvalidDataException>(() => stock.TryResolve(pages[0].SourceAddress, pageBytes - 1, out _), "Exact death page size required");
@@ -373,6 +375,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 timer cadence")]
     private static byte LookupStream1TimerCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
@@ -1767,6 +1770,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Powamp programs")]
     private static byte LookupStream1PowampProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(LookupStream1TimerLayoutRomByte(rom, address) | LookupStream1TimerLayoutRomByte(rom, address + 1) << 8);
@@ -1844,7 +1848,7 @@ internal static partial class Program
         static void EqualOam(OamBuffer expected, OamBuffer actual, string message)
         {
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, message + " count");
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), message);
+            AssertTrue(expected.ImageEquals(actual), message);
         }
         OamBuffer DrawDocument(EscapeTimerPresentationDocument selected)
         {
@@ -1870,6 +1874,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 timer layout")]
     private static byte LookupStream1TimerLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(LookupStream1FlarePlacementRomByte(rom, address) | LookupStream1FlarePlacementRomByte(rom, address + 1) << 8));
@@ -1955,7 +1960,7 @@ internal static partial class Program
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose))))));
             draw(NewLookupFlareForbiddenBus(), actual, samus, Position16<RoomPixels>.Zero, 0, null, stock, compositions);
             draw(NewLookupFlareForbiddenBus(), edited, samus, Position16<RoomPixels>.Zero, 0, null, shifted, compositions);
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "Actual flare OAM matches independently positioned native sprite");
+            AssertTrue(expected.ImageEquals(actual), "Actual flare OAM matches independently positioned native sprite");
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Native flare OAM admission");
             AssertTrue(actual.NextByteOffset > 0, "Focused flare placement fixture emits its native sprite");
             for (int index = 0; index < actual.NextByteOffset / 4; index++)
@@ -2482,6 +2487,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Nuclear Waffle")]
     private static byte LookupStream1NuclearWaffleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(LookupStream1VisualCatalogsRomByte(rom, address) | LookupStream1VisualCatalogsRomByte(rom, address + 1) << 8);
@@ -2498,7 +2504,7 @@ internal static partial class Program
             var actual = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, selector, new(100, 100));
             stock.Draw(selector, actual, new(100, 100));
-            AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),
+            AssertTrue(expected.ImageEquals(actual),
                 "calculated flare selector draws exact native composition");
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "calculated flare native OAM cursor");
         }
@@ -3050,6 +3056,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 atmospheric attributes")]
     private static byte LookupStream1AtmosphericAttributesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
     {
         byte[] json = EscapeTypewriterExtractor.Extract(rom);
@@ -3127,7 +3134,7 @@ internal static partial class Program
                 AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
                 AssertEqual(click, actual.ClickRequested, "escape text native click order");
-                AssertTrue(expectedVram.Bytes.SequenceEqual(actualVram.Bytes), "escape text native per-character VRAM");
+                AssertTrue(new VramStore(expectedVram).ImageEquals(actualVram), "escape text native per-character VRAM");
                 totalFrames++;
             }
             AssertTrue(done, "escape text native program terminates");
@@ -3192,6 +3199,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 visor colors")]
     private static byte LookupStream1VisorColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldForegroundRomByte(rom, address + i)).ToArray();
@@ -3472,6 +3480,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 projectile programs")]
     private static byte LookupStream1ProjectileProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -3648,6 +3657,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Samus OAM pointer table")]
     private static byte LookupStream1OamPointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: Samus spritemap selector zero reads its record from bank $92's low-half live memory")]
     private static void VerifySamusZeroOamSelectorReadsLowBankMemory(SamusSpritemapArtworkCatalog stock)
     {
@@ -3747,6 +3757,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body pixels")]
     private static byte LookupStream1BodyPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new TestTempDirectory("map-catalog");
@@ -3854,7 +3865,7 @@ internal static partial class Program
             Copy(state.TopDefinitionAddress, 0x6000);
             if (state.BottomTransferEnabled) Copy(state.BottomDefinitionAddress, 0x6080);
             state.TransferToVram(guard, actual);
-            AssertTrue(expected.Bytes.SequenceEqual(actual.Bytes), "Actual complete native split DMA and physical cross-group aliases");
+            AssertTrue(new VramStore(expected).ImageEquals(actual), "Actual complete native split DMA and physical cross-group aliases");
             AssertTrue(state.TopTransferEnabled, "Native NMI preserves transfer flags");
             transfers++;
         }

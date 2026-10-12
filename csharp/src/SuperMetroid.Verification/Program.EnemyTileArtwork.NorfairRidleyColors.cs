@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Norfair Ridley colors and reveal pointers")]
     private static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
@@ -41,7 +42,7 @@ internal static partial class Program
         (SnesCgram nativeCgram, RidleyEnemyState nativeState) = CreateReference();
         (RoomEnemySystem installed, SnesCgram installedCgram, RoomEnemySlot installedSlot,
             RidleyEnemyState installedState) = Create(guard, stock);
-        AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+        AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "Norfair Ridley initial palette matches all native CGRAM entries");
         for (int call = 0; call <= NorfairRidleyPaletteRomData.RevealRowCount * 3; call++)
         {
@@ -53,7 +54,7 @@ internal static partial class Program
                 $"Norfair Ridley reveal call {call} three-call cadence");
             AssertEqual(nativeState.Function, installedState.Function,
                 $"Norfair Ridley reveal call {call} terminal function");
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"Norfair Ridley reveal call {call} preserves full native CGRAM");
         }
         AssertEqual(RidleyAiFunction.ClearVelocity, installedState.Function,

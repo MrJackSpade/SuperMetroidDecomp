@@ -13,6 +13,7 @@ internal static partial class Program
     private static PaletteRgb5[][] PaletteContractRows(int rows, int colors) => Enumerable.Range(0, rows)
         .Select(row => PaletteContractColors(colors, row)).ToArray();
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static IEnumerable<PaletteJsonContract> PaletteJsonContracts()
     {
         yield return new("room static", PaletteContractDocument(new RoomStaticPaletteDocument

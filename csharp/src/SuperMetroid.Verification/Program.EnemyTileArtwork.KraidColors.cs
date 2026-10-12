@@ -119,6 +119,7 @@ internal static partial class Program
 
     // Independent palette writes from pinned sm_a7.c. This fixture's zero health
     // thresholds select band eight at 1000 HP; odd hurt frames select the flash band.
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid palette consumer reference")]
     private static ushort[] ReferenceKraidPaletteConsumer(
         ISnesAddressSpace rom, KraidPaletteConsumer consumer)
@@ -183,6 +184,7 @@ internal static partial class Program
         return guard;
     }
 
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static Bgr555[] CaptureKraidPaletteConsumer(
         ISnesAddressSpace bus, EnemyTileArtworkCatalog artwork,
         KraidPaletteConsumer consumer)

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
         var palettes = new Dictionary<string, ushort[]>();

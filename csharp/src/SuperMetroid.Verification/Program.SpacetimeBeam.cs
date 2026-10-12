@@ -316,6 +316,7 @@ internal static partial class Program
             AssertTrue(predicate(), context);
         }
     }
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: the SpaceTime palette pointer $90:19FF reads live enemy-projectile WRAM at $7E:19FF")]
     private static void VerifySpacetimeBeamGraphics()
     {

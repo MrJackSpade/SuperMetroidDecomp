@@ -36,6 +36,7 @@ static void SeedRoomEnemyLoadingArtworkAndSpawnData(
         WriteTestWord(bus, 0xb49200 + word * 2, unchecked((ushort)(0x3100 + word)));
 }
 
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 static void VerifyRoomEnemyLoading()
 {
     const ushort populationPointer = 0x9100;
@@ -185,9 +186,9 @@ static void VerifyRoomEnemyLoading()
     var installedCgram = new SnesCgram();
     installedEnemies.Load(new EnemyTileSourceReadGuard(bus), populationPointer, tilesetPointer,
         installedVram, installedCgram, () => 0x9999);
-    AssertTrue(vram.Bytes.SequenceEqual(installedVram.Bytes),
+    AssertTrue(new VramStore(vram).ImageEquals(installedVram),
         "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
-    AssertTrue(cgram.Colors.SequenceEqual(installedCgram.Colors),
+    AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
         "enemy tile overrides cannot alter native palettes");
     AssertEqual(slot.Position.X.Whole, installedEnemies.Slots[0].Position.X.Whole,
         "enemy tile overrides do not alter population coordinates");
@@ -688,6 +689,7 @@ private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddress
 /// Proves that the stationary Ceres elevator platform is animated by the room's variant-two
 /// door actor, not by either arrival projectile that is deleted when the platform lands.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 static void VerifyCeresElevatorPlatformAnimation()
 {
     const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresDoor;
@@ -849,6 +851,7 @@ static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom
 /// room $E0B5. This fixture uses native $A0/$A1/$A6/$B4 layouts and follows the translated
 /// dispatcher through the complete initial delay, eye fade, and body fade.
 /// </summary>
+[PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 static void VerifyCeresRidleyRoomEntry()
 {
     const EnemyDefinitionId definitionPointer = EnemyDefinitionId.RidleyCeres;

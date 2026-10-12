@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape overlay tilemaps")]
     private static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
         string stockDirectory, EnemyTileArtworkCatalog stock)
@@ -65,7 +66,7 @@ internal static partial class Program
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        AssertTrue(nativeVram.Bytes.SequenceEqual(installedVram.Bytes),
+        AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram),
             "Ceres English/Japanese tilemap VRAM matches cartridge without source reads");
 
         string overrideDirectory = Path.Combine(stockDirectory,

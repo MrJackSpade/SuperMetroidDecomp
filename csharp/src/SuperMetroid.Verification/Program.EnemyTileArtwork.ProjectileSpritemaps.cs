@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledEnemyProjectileSpritemaps(
         ISnesAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -33,8 +34,7 @@ internal static partial class Program
                 clipVerticalWrap: true, originYIsOnScreen: onScreen);
             AssertEqual(nativeOam.NextByteOffset, installedOam.NextByteOffset,
                 $"installed $8D:{pointer:X4} OAM part count");
-            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                       nativeOam.HighTable.SequenceEqual(installedOam.HighTable),
+            AssertTrue(nativeOam.ImageEquals(installedOam),
                 $"installed $8D:{pointer:X4} OAM pixels, wrapping, tile base and palette");
         }
 
@@ -62,8 +62,7 @@ internal static partial class Program
             NewEnemyProjectileVisualGuard(bus),
             RoomEnemyProjectileKind.CeresRidleyFireball);
         AssertTrue(nativeCeres.NextByteOffset > 0 &&
-            nativeCeres.LowTable.SequenceEqual(installedCeres.LowTable) &&
-            nativeCeres.HighTable.SequenceEqual(installedCeres.HighTable),
+            nativeCeres.ImageEquals(installedCeres),
             "Ceres Ridley fireball uses installed OAM without visual ROM reads");
         for (int index = 0;
              index < AlcoonFireballInstructionProgramDefinitions.PresentationWordCount;
@@ -78,8 +77,7 @@ internal static partial class Program
                 RoomEnemyProjectileKind.AlcoonFireball);
             AssertTrue(nativeAlcoon.NextByteOffset > 0 &&
                 nativeAlcoon.NextByteOffset == installedAlcoon.NextByteOffset &&
-                nativeAlcoon.LowTable.SequenceEqual(installedAlcoon.LowTable) &&
-                nativeAlcoon.HighTable.SequenceEqual(installedAlcoon.HighTable),
+                nativeAlcoon.ImageEquals(installedAlcoon),
                 $"Alcoon fireball frame {index} draws stock OAM without visual ROM reads");
         }
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
@@ -103,8 +101,7 @@ internal static partial class Program
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.LowTable.SequenceEqual(extracted.LowTable) &&
-                    native.HighTable.SequenceEqual(extracted.HighTable),
+                    native.ImageEquals(extracted),
                 $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
@@ -120,8 +117,7 @@ internal static partial class Program
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg);
             AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                native.LowTable.SequenceEqual(extracted.LowTable) &&
-                native.HighTable.SequenceEqual(extracted.HighTable),
+                native.ImageEquals(extracted),
                 $"Golden Torizo egg frame {index} draws stock OAM without visual ROM reads");
         }
         var torizoFamilies = new (string Name, RoomEnemyProjectileKind Kind, int Count,
@@ -156,8 +152,7 @@ internal static partial class Program
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.LowTable.SequenceEqual(extracted.LowTable) &&
-                    native.HighTable.SequenceEqual(extracted.HighTable),
+                    native.ImageEquals(extracted),
                 $"Torizo {family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
@@ -181,8 +176,7 @@ internal static partial class Program
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.LowTable.SequenceEqual(extracted.LowTable) &&
-                    native.HighTable.SequenceEqual(extracted.HighTable),
+                    native.ImageEquals(extracted),
                 $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
@@ -233,8 +227,7 @@ internal static partial class Program
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.LowTable.SequenceEqual(extracted.LowTable) &&
-                    native.HighTable.SequenceEqual(extracted.HighTable),
+                    native.ImageEquals(extracted),
                 $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
@@ -267,8 +260,7 @@ internal static partial class Program
                 OamBuffer extracted = DrawProgramFrame(stock, operand,
                     NewEnemyProjectileVisualGuard(bus), kind);
                 AssertTrue(native.NextByteOffset == extracted.NextByteOffset &&
-                    native.LowTable.SequenceEqual(extracted.LowTable) &&
-                    native.HighTable.SequenceEqual(extracted.HighTable),
+                    native.ImageEquals(extracted),
                     $"{family} frame {index} draws stock OAM without visual ROM reads");
             }
         }
@@ -277,8 +269,7 @@ internal static partial class Program
         OamBuffer installedShard = DrawNoobTubeShard(stock,
             NewEnemyProjectileVisualGuard(bus));
         AssertTrue(nativeShard.NextByteOffset > 0 &&
-            nativeShard.LowTable.SequenceEqual(installedShard.LowTable) &&
-            nativeShard.HighTable.SequenceEqual(installedShard.HighTable),
+            nativeShard.ImageEquals(installedShard),
             "n00b-tube flicker instruction uses installed OAM without visual ROM reads");
 
         var installedSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
@@ -299,8 +290,7 @@ internal static partial class Program
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, padPointer, new(128, 28), 0, true);
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, platformPointer, new(128, 97), 0, true);
             installedArrival.Draw(installedOam, Position16<RoomPixels>.Zero);
-            AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                       nativeOam.HighTable.SequenceEqual(installedOam.HighTable),
+            AssertTrue(nativeOam.ImageEquals(installedOam),
                 $"Ceres elevator arrival frame {frame} draws from installed $8D compositions");
         }
 
@@ -865,8 +855,7 @@ internal static partial class Program
                         new Position16<OamPixels>(originX, originY), 0x0a00, 4,
                         clipVerticalWrap: true, originYIsOnScreen: true);
                     AssertTrue(nativeOam.NextByteOffset == installedOam.NextByteOffset &&
-                        nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
-                        nativeOam.HighTable.SequenceEqual(installedOam.HighTable),
+                        nativeOam.ImageEquals(installedOam),
                         $"installed shared frame $86:{frame.OperandAddress:X4} matches ROM OAM at {originX:X4},{originY:X4}");
                 }
                 if (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(
@@ -894,8 +883,7 @@ internal static partial class Program
                     NewEnemyProjectileVisualGuard(bus));
                 AssertTrue(native.NextByteOffset > 0 &&
                     native.NextByteOffset == installedBurst.NextByteOffset &&
-                    native.LowTable.SequenceEqual(installedBurst.LowTable) &&
-                    native.HighTable.SequenceEqual(installedBurst.HighTable),
+                    native.ImageEquals(installedBurst),
                     $"installed Skree/Metaree burst ${program:X4} draws stock OAM without visual ROM reads");
             }
         }

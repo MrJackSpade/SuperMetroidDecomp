@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room base palettes")]
     private static void VerifyRoomStaticPaletteExtraction()
     {
@@ -32,7 +33,7 @@ internal static partial class Program
             var actual = new SnesCgram();
             expected.LoadBytes(native.AsSpan(0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount));
             palette.LoadTo(actual);
-            AssertTrue(expected.Colors.SequenceEqual(actual.Colors),
+            AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                 $"graphics-set palette ${source:X6} keeps all 128 native CGRAM colors");
             compiled.Add(source, palette);
         }
@@ -50,7 +51,7 @@ internal static partial class Program
             var installedCgram = new SnesCgram();
             native.LoadGraphics(new SnesVram(), nativeCgram);
             installed.LoadGraphics(new SnesVram(), installedCgram);
-            AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
+            AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"room $8F:{roomPointer:X4} loads installed palette without source reads");
         }
 

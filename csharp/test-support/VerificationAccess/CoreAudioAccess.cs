@@ -5,7 +5,23 @@ internal static class ManagedSnesDspAccess
 {
     extension(ManagedSnesDsp self)
     {
+        [DspRegisterAccess]
         internal byte ReadRegister(byte address) => PrivateState.Field<byte[]>(self, "registers")[address & 0x7f];
+    }
+}
+
+/// <summary>Verification views of FLG's two meanings: the control bits and the noise rate (#631 alias proof).</summary>
+internal static class DspFlagsAccess
+{
+    extension(DspFlags self)
+    {
+        /// <summary>The reset (bit 7), mute (bit 6) and echo-write-disable (bit 5) bits.</summary>
+        [DspRegisterBoundary("exact register test: FLG control-bit view")]
+        internal byte Control => unchecked((byte)(self.Value & ~SnesDspRegisterMap.Fields.NoiseRateMask));
+
+        /// <summary>The noise clock rate index (bits 0-4).</summary>
+        [DspRegisterBoundary("exact register test: FLG noise-rate view")]
+        internal int NoiseRate => self.Value & SnesDspRegisterMap.Fields.NoiseRateMask;
     }
 }
 
@@ -15,6 +31,8 @@ internal static class ManagedSpcPlayerAccess
     extension(ManagedSpcPlayer self)
     {
         /// <summary>Exposes the mirrored DSP register file to deterministic verification.</summary>
+        [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
+        [DspRegisterAccess]
         internal byte ReadDspRegisterForVerification(byte address) => PrivateState.Field<ManagedSnesDsp>(self, "dsp").ReadRegister(address);
 
         /// <summary>Exposes one APU byte only to deterministic friend-assembly verification.</summary>

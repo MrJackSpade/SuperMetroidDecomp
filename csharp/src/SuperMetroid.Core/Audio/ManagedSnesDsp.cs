@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// music driver continues to write the ordinary DSP registers, so samples remain data rather
 /// than pre-rendered sound effects.
 /// </summary>
+[DspRegisterBoundary("implementation: the S-DSP register file and mixer")]
 public sealed class ManagedSnesDsp
 {
     /// <summary>Native 32.04-kHz stereo frames accumulated for each 60-Hz gameplay update.</summary>
@@ -95,6 +96,7 @@ public sealed class ManagedSnesDsp
         sampleBank = bank ?? throw new ArgumentNullException(nameof(bank));
 
     /// <summary>Applies one SPC write to the mirrored S-DSP register file.</summary>
+    [DspRegisterAccess]
     public void WriteRegister(byte address, byte value)
     {
         if (address >= SnesDspRegisterMap.RegisterFileSize)

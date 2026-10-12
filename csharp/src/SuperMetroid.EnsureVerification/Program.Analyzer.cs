@@ -144,6 +144,28 @@ internal static partial class Program
         Expect(api + "[PpuLayoutBoundary(\"exact hardware test\")] sealed class Sink : IOamSink { public void Write(int offset, byte value) { } }");
     }
 
+    private static void VerifyDspRegisterAccessAnalyzer()
+    {
+        var analyzer = new DspRegisterAccessAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer);
+        const string api =
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class DspRegisterAccessAttribute : System.Attribute { } " +
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class DspRegisterBoundaryAttribute(string reason) : System.Attribute { } " +
+            "[DspRegisterAccess] enum GlobalRegister : byte { KeyOn = 0x4c } " +
+            "[DspRegisterBoundary(\"implementation\")] sealed class Dsp { [DspRegisterAccess] public void WriteRegister(byte address, byte value) { } public void Cycle() { } } ";
+
+        // SME6310: raw register writes and register numbers outside a boundary.
+        Expect(api + "class Driver { void M(Dsp dsp) => dsp.WriteRegister(0x4c, 1); }",
+            DspRegisterAccessAnalyzer.RawAccessId, "'Dsp.WriteRegister' is raw S-DSP register access");
+        Expect(api + "class Driver { byte M() => (byte)GlobalRegister.KeyOn; }",
+            DspRegisterAccessAnalyzer.RawAccessId, "'GlobalRegister.KeyOn'");
+        // Typed controls, ordinary DSP members and passing the DSP along pass.
+        Expect(api + "[DspRegisterBoundary(\"typed controls\")] readonly struct Controls(Dsp dsp) { public void KeyOn(byte voices) => dsp.WriteRegister((byte)GlobalRegister.KeyOn, voices); } " +
+            "class Driver { void M(Controls dsp) { dsp.KeyOn(1); } }");
+        Expect(api + "class Driver { void M(Dsp dsp) => dsp.Cycle(); }");
+    }
+
     private static void VerifySpatialClumpAnalyzer()
     {
         var analyzer = new SpatialClumpAnalyzer();

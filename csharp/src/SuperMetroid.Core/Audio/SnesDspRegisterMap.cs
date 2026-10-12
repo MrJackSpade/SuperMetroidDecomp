@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>The ten registers at the low offsets of each voice's sixteen-byte block.</summary>
+[DspRegisterAccess]
 internal enum DspVoiceRegister : byte
 {
     /// <summary>VxVOLL: left volume.</summary>
@@ -26,6 +27,7 @@ internal enum DspVoiceRegister : byte
 }
 
 /// <summary>The S-DSP's named global registers, valued by their register-file address.</summary>
+[DspRegisterAccess]
 internal enum DspGlobalRegister : byte
 {
     /// <summary>MVOLL: left master volume.</summary>
@@ -65,6 +67,7 @@ internal enum DspGlobalRegister : byte
 /// These values describe the chip's public register layout; mixer code should name the
 /// register it is handling instead of scattering raw addresses through control flow.
 /// </summary>
+[DspRegisterAccess]
 internal static class SnesDspRegisterMap
 {
     internal const int RegisterFileSize = 0x80;
@@ -75,13 +78,8 @@ internal static class SnesDspRegisterMap
     /// <summary>Voice register offsets for address arithmetic (voice block + offset).</summary>
     internal static class Voice
     {
-        internal const int VolumeLeft = (int)DspVoiceRegister.VolumeLeft;
-        internal const int PitchLow = (int)DspVoiceRegister.PitchLow;
-        internal const int PitchHigh = (int)DspVoiceRegister.PitchHigh;
-        internal const int SourceNumber = (int)DspVoiceRegister.SourceNumber;
         internal const int Adsr1 = (int)DspVoiceRegister.Adsr1;
         internal const int Adsr2 = (int)DspVoiceRegister.Adsr2;
-        internal const int Gain = (int)DspVoiceRegister.Gain;
         internal const int EnvelopeOutput = (int)DspVoiceRegister.EnvelopeOutput;
         internal const int SampleOutput = (int)DspVoiceRegister.SampleOutput;
     }

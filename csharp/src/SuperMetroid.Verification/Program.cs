@@ -5024,6 +5024,11 @@ if (args is ["--cpu-bus-boundary"])
     Suite(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary());
     return 0;
 }
+if (args is ["--dsp-register-boundary"])
+{
+    Suite(nameof(VerifyDspRegisterBoundary), () => VerifyDspRegisterBoundary());
+    return 0;
+}
 if (args is ["--ppu-layout-boundary"])
 {
     Suite(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary());

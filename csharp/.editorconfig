@@ -59,6 +59,9 @@ dotnet_diagnostic.SME6291.severity = error
 # #630: the PPU layout is confined to declared rendering boundaries.
 dotnet_diagnostic.SME6300.severity = error
 dotnet_diagnostic.SME6301.severity = error
+# #631: S-DSP register layout is confined to the DSP and its typed controls.
+dotnet_diagnostic.SME6310.severity = error
+dotnet_diagnostic.SME6311.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620: advisory until the existing reusable guards are migrated.

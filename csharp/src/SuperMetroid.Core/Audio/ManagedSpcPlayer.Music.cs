@@ -48,8 +48,7 @@ public sealed partial class ManagedSpcPlayer
             byte final = unchecked((byte)(interpolated * channel.FinalVolume >> 8));
             if (((channel.PanFlags << side) & 0x80) != 0) // allow(BitMask): phase-inversion bit
                 final = unchecked((byte)-final);
-            WriteDsp(unchecked((byte)(channel.Index * SnesDspRegisterMap.VoiceStride +
-                SnesDspRegisterMap.Voice.VolumeLeft + side)), final);
+            Dsp.Voice(channel.Index).WriteVolume((DspStereoSide)side, unchecked((sbyte)final));
             volume = unchecked((ushort)(SpcDriverData.Music.FullyLeftPan - volume));
         }
     }
@@ -73,9 +72,7 @@ public sealed partial class ManagedSpcPlayer
         frequency = unchecked((ushort)(channel.InstrumentPitchBase * frequency >> 8));
         if ((currentChannelBit & channelOnMask) == 0)
         {
-            byte register = unchecked((byte)(channel.Index * SnesDspRegisterMap.VoiceStride));
-            WriteDsp(unchecked((byte)(register + SnesDspRegisterMap.Voice.PitchLow)), frequency);
-            WriteDsp(unchecked((byte)(register + SnesDspRegisterMap.Voice.PitchHigh)), frequency >> 8);
+            Dsp.Voice(channel.Index).WritePitch(frequency);
         }
     }
 
@@ -124,21 +121,20 @@ public sealed partial class ManagedSpcPlayer
         if ((channelOnMask & currentChannelBit) != 0)
             return;
 
-        byte register = unchecked((byte)(channel.Index * SnesDspRegisterMap.VoiceStride));
+        SnesDspVoiceControls voice = Dsp.Voice(channel.Index);
         if ((ram[address] & SpcDriverData.Instruments.NoiseMarker) != 0)
         {
             dspFlags = unchecked((byte)((dspFlags & SpcDriverData.Echo.WriteDisable) |
-                (ram[address] & SnesDspRegisterMap.Fields.NoiseRateMask)));
+                DspFlags.NoiseRateOf(ram[address])));
             noiseEnable |= currentChannelBit;
-            WriteDsp(unchecked((byte)(register + SnesDspRegisterMap.Voice.SourceNumber)), 0);
+            voice.WriteSource(0);
         }
         else
         {
-            WriteDsp(unchecked((byte)(register + SnesDspRegisterMap.Voice.SourceNumber)), ram[address]);
+            voice.WriteSource(ram[address]);
         }
-        WriteDsp(unchecked((byte)(register + SnesDspRegisterMap.Voice.Adsr1)), ram[address + 1]);
-        WriteDsp(unchecked((byte)(register + SnesDspRegisterMap.Voice.Adsr2)), ram[address + 2]);
-        WriteDsp(unchecked((byte)(register + SnesDspRegisterMap.Voice.Gain)), ram[address + 3]);
+        voice.WriteAdsr(ram[address + 1], ram[address + 2]);
+        voice.WriteGain(ram[address + 3]);
         channel.InstrumentPitchBase = unchecked((ushort)((ram[address + 4] << 8) | ram[address + 5]));
     }
 
@@ -291,9 +287,8 @@ public sealed partial class ManagedSpcPlayer
                 // eight-tap group ends at or before offset255; no tap carries past X.
                 for (int tap = 0; tap < SpcDriverData.Echo.FirTapCount; tap++)
                 {
-                    WriteDsp(unchecked((byte)(SnesDspRegisterMap.FirstFirCoefficient +
-                        tap * SnesDspRegisterMap.VoiceStride)),
-                        ram[SpcDriverData.Echo.FirCoefficientTableAddress + firOffset + tap]);
+                    Dsp.Global.WriteFirCoefficient(tap,
+                        unchecked((sbyte)ram[SpcDriverData.Echo.FirCoefficientTableAddress + firOffset + tap]));
                 }
                 break;
             case SpcMusicEffect.FadeEchoVolume:
@@ -435,7 +430,7 @@ public sealed partial class ManagedSpcPlayer
             (--channel.NoteKeyOffTicksLeft == 0 || channel.NoteTicksLeft == 2))
         {
             if (WantsKeyOff(channel) && (currentChannelBit & channelOnMask) == 0)
-                WriteDsp((byte)DspGlobalRegister.KeyOff, currentChannelBit);
+                Dsp.Global.KeyOff(new DspVoiceMask(currentChannelBit));
         }
 
         affectedVolumeOrPitch = 0;

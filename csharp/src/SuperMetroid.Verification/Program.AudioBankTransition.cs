@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyReleasedVoiceBankSwitch()
     {
         var ram = new byte[65536];
@@ -25,11 +26,11 @@ internal static partial class Program
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         AssertTrue((dsp.ReadRegister((byte)DspGlobalRegister.EndFlags) & 1) != 0, "retired raw headers continue setting ENDX");
         AssertEqual((byte)0, dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput), "retired voice remains silent");
-        dsp.WriteRegister(SnesDspRegisterMap.Voice.SourceNumber, 1);
+        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
         dsp.WriteRegister((byte)DspGlobalRegister.KeyOn, 1);
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) > 0, "key-on restores ordinary PCM playback");
-        dsp.WriteRegister(SnesDspRegisterMap.Voice.SourceNumber, 0);
+        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 0);
         AssertThrows<InvalidDataException>(() =>
         {
             for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();

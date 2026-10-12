@@ -331,10 +331,7 @@ public sealed partial class ManagedSpcPlayer
             soundChannel.InstructionTimer = ReadSoundByte(soundChannel);
             if (soundChannel.UpdateAdsr != 0)
             {
-                WriteDsp(unchecked((byte)(soundChannel.VoiceIndexTimesEight +
-                    SnesDspRegisterMap.Voice.Adsr1)), soundChannel.AdsrSettings);
-                WriteDsp(unchecked((byte)(soundChannel.VoiceIndexTimesEight +
-                    SnesDspRegisterMap.Voice.Adsr2)), soundChannel.AdsrSettings >> 8);
+                WriteSoundEffectAdsr(soundChannel.VoiceIndexTimesEight, soundChannel.AdsrSettings);
             }
             if (soundChannel.Legato == 0)
                 keyOn |= soundChannel.VoiceBitset;

@@ -319,9 +319,9 @@ public sealed partial class ManagedSpcPlayer
     /// </summary>
     public void Upload(ReadOnlySpan<byte> stream)
     {
-        WriteDsp((byte)DspGlobalRegister.EchoVolumeLeft, 0);
-        WriteDsp((byte)DspGlobalRegister.EchoVolumeRight, 0);
-        WriteDsp((byte)DspGlobalRegister.KeyOff, byte.MaxValue);
+        Dsp.Global.WriteEchoVolume(DspStereoSide.Left, 0);
+        Dsp.Global.WriteEchoVolume(DspStereoSide.Right, 0);
+        Dsp.Global.KeyOff(DspVoiceMask.All);
 
         int offset = 0;
         for (;;)
@@ -404,9 +404,9 @@ public sealed partial class ManagedSpcPlayer
             channels[index].Index = unchecked((byte)index);
         SetupEchoDelay(SpcDriverData.Echo.InitialDelay);
         dspFlags |= SpcDriverData.Echo.WriteDisable;
-        WriteDsp((byte)DspGlobalRegister.MasterVolumeLeft, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
-        WriteDsp((byte)DspGlobalRegister.MasterVolumeRight, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
-        WriteDsp((byte)DspGlobalRegister.SourceDirectory, 0x6d); // allow(HardwareAddress): cartridge BRR directory page
+        Dsp.Global.WriteMasterVolume(DspStereoSide.Left, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
+        Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
+        Dsp.Global.WriteSourceDirectory(0x6d); // allow(HardwareAddress): cartridge BRR directory page
         SetHighByte(ref tempo, SpcDriverData.Music.InitialTempo);
         timerCycles = 0;
         LoopPartOne();
@@ -420,20 +420,20 @@ public sealed partial class ManagedSpcPlayer
     /// for1165; the pending key masks clear only after publication.</summary>
     private void LoopPartOne()
     {
-        WriteDsp((byte)DspGlobalRegister.KeyOff, keyOff);
-        WriteDsp((byte)DspGlobalRegister.PitchModulation, 0);
-        WriteDsp((byte)DspGlobalRegister.NoiseEnable, noiseEnable);
-        WriteDsp((byte)DspGlobalRegister.KeyOff, 0);
-        WriteDsp((byte)DspGlobalRegister.KeyOn, keyOn);
+        Dsp.Global.KeyOff(new DspVoiceMask(keyOff));
+        Dsp.Global.WritePitchModulation(DspVoiceMask.None);
+        Dsp.Global.WriteNoiseEnable(new DspVoiceMask(noiseEnable));
+        Dsp.Global.KeyOff(DspVoiceMask.None);
+        Dsp.Global.KeyOn(new DspVoiceMask(keyOn));
         if ((echoStoredTime & 0x80) == 0) // allow(BitMask): signed SPC countdown bit
         {
-            WriteDsp((byte)DspGlobalRegister.Flags, dspFlags);
+            Dsp.Global.WriteFlags(new DspFlags(dspFlags));
             if (echoStoredTime == echoDelay)
             {
-                WriteDsp((byte)DspGlobalRegister.EchoEnable, echoEnable);
-                WriteDsp((byte)DspGlobalRegister.EchoFeedback, echoFeedback);
-                WriteDsp((byte)DspGlobalRegister.EchoVolumeRight, HighByte(echoVolumeRight));
-                WriteDsp((byte)DspGlobalRegister.EchoVolumeLeft, HighByte(echoVolumeLeft));
+                Dsp.Global.WriteEchoEnable(new DspVoiceMask(echoEnable));
+                Dsp.Global.WriteEchoFeedback(unchecked((sbyte)echoFeedback));
+                Dsp.Global.WriteEchoVolume(DspStereoSide.Right, unchecked((sbyte)HighByte(echoVolumeRight)));
+                Dsp.Global.WriteEchoVolume(DspStereoSide.Left, unchecked((sbyte)HighByte(echoVolumeLeft)));
             }
         }
         keyOff = keyOn = 0;
@@ -482,31 +482,37 @@ public sealed partial class ManagedSpcPlayer
         echoDelay = requestedDelay;
         if (requestedDelay != lastWrittenEchoDelay)
         {
-            byte countdown = unchecked((byte)((lastWrittenEchoDelay &
-                SnesDspRegisterMap.Fields.EchoDelayMask) ^ byte.MaxValue));
+            byte countdown = unchecked((byte)(SnesDspControls.EchoDelayOf(lastWrittenEchoDelay) ^ byte.MaxValue));
             if ((echoStoredTime & 0x80) != 0) // allow(BitMask): signed SPC countdown bit
                 countdown = unchecked((byte)(countdown + echoStoredTime));
             echoStoredTime = countdown;
 
-            WriteDsp((byte)DspGlobalRegister.EchoEnable, 0);
-            WriteDsp((byte)DspGlobalRegister.EchoFeedback, 0);
-            WriteDsp((byte)DspGlobalRegister.EchoVolumeRight, 0);
-            WriteDsp((byte)DspGlobalRegister.EchoVolumeLeft, 0);
-            WriteDsp((byte)DspGlobalRegister.Flags, unchecked((byte)(dspFlags |
-                SpcDriverData.Echo.WriteDisable)));
+            Dsp.Global.WriteEchoEnable(DspVoiceMask.None);
+            Dsp.Global.WriteEchoFeedback(0);
+            Dsp.Global.WriteEchoVolume(DspStereoSide.Right, 0);
+            Dsp.Global.WriteEchoVolume(DspStereoSide.Left, 0);
+            Dsp.Global.WriteFlags(new DspFlags(unchecked((byte)(dspFlags | SpcDriverData.Echo.WriteDisable))));
             lastWrittenEchoDelay = echoDelay;
-            WriteDsp((byte)DspGlobalRegister.EchoDelay, echoDelay);
+            Dsp.Global.WriteEchoDelay(echoDelay);
         }
 
         byte echoPage = unchecked((byte)(((echoDelay * SpcDriverData.Echo.DelayToPages) ^
             byte.MaxValue) + SpcDriverData.Echo.BufferPageBias));
-        WriteDsp((byte)DspGlobalRegister.EchoBufferAddress, echoPage);
+        Dsp.Global.WriteEchoBufferPage(echoPage);
     }
 
-    private void WriteDsp(byte register, int value)
+    private SnesDspControls Dsp => new(dsp);
+
+    /// <summary>
+    /// The sound-effect ADSR update as the cartridge driver performs it: the register address is
+    /// formed from voice × 8 rather than the sixteen-byte voice stride, so for odd voices these two
+    /// writes land on another register. The quirk is preserved exactly.
+    /// </summary>
+    [DspRegisterBoundary("native quirk: sound-effect ADSR writes address voice × 8 + ADSR1/ADSR2, as the cartridge driver does")]
+    private void WriteSoundEffectAdsr(byte voiceIndexTimesEight, ushort adsr)
     {
-        byte narrowed = unchecked((byte)value);
-        dsp.WriteRegister(register, narrowed);
+        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterMap.Voice.Adsr1)), unchecked((byte)adsr));
+        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterMap.Voice.Adsr2)), unchecked((byte)(adsr >> 8)));
     }
 
     private ushort ReadWord(int address) => unchecked((ushort)(

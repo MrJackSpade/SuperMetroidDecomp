@@ -25,6 +25,7 @@ internal static partial class Program
         Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
     }
 
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspUsesLiveSourceAtLoop()
     {
         var dsp = new ManagedSnesDsp(new byte[0x10000]);
@@ -40,12 +41,13 @@ internal static partial class Program
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "initial source is positive");
         // SRCN is not a key-on operation. The existing interpolation window remains
         // audible until END/LOOP resolves the live directory entry (native dsp_decodeBrr).
-        dsp.WriteRegister(SnesDspRegisterMap.Voice.SourceNumber, 1);
+        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "source write does not reset voice output");
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) < 0, "loop follows live source without another key-on");
     }
 
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspUsesIndependentLoopEntry()
     {
         var dsp = new ManagedSnesDsp(new byte[65536]);
@@ -59,7 +61,7 @@ internal static partial class Program
             new Dictionary<byte, byte> { [1] = 2 }));
         ConfigureAudibleVoiceZero(dsp);
         for (int tick = 0; tick < 32; tick++) dsp.Cycle();
-        dsp.WriteRegister(SnesDspRegisterMap.Voice.SourceNumber, 1);
+        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) > 0,
             "source change retains current interpolation window");
         for (int tick = 0; tick < 32; tick++) dsp.Cycle();
@@ -124,6 +126,7 @@ internal static partial class Program
     /// Preset `$0A` deliberately lands beyond the four conventional filters and must read
     /// the resident bytes at `$1E82`, exactly as the SPC's indexed load does.
     /// </summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedSpcUsesAddressedFirCoefficients()
     {
         const ushort topLevel = 0x6000;
@@ -202,6 +205,7 @@ internal static partial class Program
     /// Exercises PCM source lookup, Gaussian interpolation, direct-gain envelope, pitch
     /// stepping, stereo volumes, and the end/loop path without a cartridge room.
     /// </summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspPlaysConstructedPcmSample()
     {
         byte[] apuRam = new byte[0x10000];
@@ -264,6 +268,7 @@ internal static partial class Program
     /// A replacement WAV may carry more source frames than the stock 32-kHz decode. The DSP
     /// normalizes phase advance, applies the same live envelope/pan path, and still obeys key-off.
     /// </summary>
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement()
     {
         ManagedSnesDsp dsp = new(new byte[0x10000]);
@@ -291,6 +296,7 @@ internal static partial class Program
         AssertEqual(0, dsp.ReadRegister(0x08), "replacement voice reaches silence after key-off");
     }
 
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
     {
         dsp.WriteRegister(0x00, 0x7f);
@@ -376,6 +382,7 @@ internal static partial class Program
         }
     }
 
+    [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspRejectsInvalidBoundaries()
     {
         AssertThrows<ArgumentException>(

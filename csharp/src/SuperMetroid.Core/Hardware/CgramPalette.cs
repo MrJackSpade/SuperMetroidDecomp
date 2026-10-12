@@ -99,12 +99,15 @@ public readonly struct CgramPalette
 public readonly struct CgramPalettes(SnesCgram cgram)
 {
     /// <summary>Colours in a complete CGRAM image.</summary>
+    [PpuLayoutAccess]
     public const int ColorCount = SnesPpuLayout.CgramColorCount;
 
     /// <summary>Bytes in a complete CGRAM image of little-endian colour words.</summary>
+    [PpuLayoutAccess]
     public const int ByteCount = SnesPpuLayout.CgramByteCount;
 
     /// <summary>All 256 colours.</summary>
+    [PpuLayoutAccess]
     public CgramPalette All => new(cgram, PpuMemoryLayout.Cgram);
 
     /// <summary>The 128 background colours.</summary>

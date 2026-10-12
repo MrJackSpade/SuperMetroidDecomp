@@ -5,8 +5,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Checks D3D11 capture of the stock attract-demo sequence and its return to the title.</summary>
 internal static class RetailAttractTests
 {
+    /// <summary>Compares captured pixels, state, phase, and audio through demo completion or cancellation, including each scene's frozen final image.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Attract scenes are compiled stock definitions, so the fixture tours the stock first

@@ -6,14 +6,17 @@ using SuperMetroid.Core.Spatial;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled Samus and enemy square-slope quadrants against native byte tables.</summary>
 internal static class SquareSlopeDefinitionsVerification
 {
+    /// <summary>Runs separate missile-point and enemy-quadrant comparisons.</summary>
     internal static void VerifyCompiledSquareSlopes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySamusSquareSlopeAlgorithm), () => VerifySamusSquareSlopeAlgorithm(rom));
         Suite(nameof(VerifyEnemySquareSlopeAlgorithm), () => VerifyEnemySquareSlopeAlgorithm(rom));
     }
 
+    /// <summary>Checks all native Samus quadrant bytes and actual missile reactions for five shapes and BTS orientations.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus square slope algorithm")]
     private static void VerifySamusSquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -54,6 +57,7 @@ internal static class SquareSlopeDefinitionsVerification
         Console.WriteLine("Samus square-slope algorithm: 20 native bytes, bounds and 10240 real missile point cases in both axes pass without ROM reads.");
     }
 
+    /// <summary>Compares both native enemy quadrant copies and rejects indices outside their twenty-byte range.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy square slope algorithm")]
     private static void VerifyEnemySquareSlopeAlgorithm(SuperMetroidAddressSpace rom)
     {

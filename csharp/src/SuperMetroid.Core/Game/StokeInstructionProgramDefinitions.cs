@@ -21,9 +21,10 @@ internal abstract class StokeInstructionProgramDefinitions
     /// Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.
     /// </summary>
     private static readonly ushort[] WalkingFrameDurations = [8, 16, 8, 8];
-    // Attack holds of 16 are the same authored cadence (reviewed under #1165).
+    /// <summary>Both facing programs contribute movement setup, walking holds, fireball spawn, and attack return control.</summary>
     public static int MechanicsWordCount => 26;
 
+    /// <summary>Compiles left and right walking loops and sixteen-tick attack holds around fireball callbacks.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -50,6 +51,7 @@ internal abstract class StokeInstructionProgramDefinitions
         };
         return new((ushort)(attack + offset), value);
     }
+    /// <summary>Reads a compiled Stoke control word while excluding interleaved visual operands.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

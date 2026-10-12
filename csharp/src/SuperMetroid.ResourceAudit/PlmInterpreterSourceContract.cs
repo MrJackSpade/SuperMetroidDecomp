@@ -6,6 +6,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PlmInterpreterSourceContract
 {
+    /// <summary>Names guarded PLM interpreter methods by signature so program-source changes remain visible to the audit.</summary>
     internal static readonly IReadOnlySet<string> Methods = new HashSet<string>
     {
         "TryIdentifyPermanentCollectible/3",

@@ -6,6 +6,8 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Checks known tuple components without pretending unknown caller values have been proven safe.</summary>
 internal static class PlmVisualDomainAudit
 {
+    /// <summary>Reports a constant draw pointer, run, or word index outside the
+    /// selected compiled PLM visual shape; dynamic tuple parts remain unknown.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.Name != "GetWord") return null;

@@ -10,9 +10,13 @@ using SuperMetroid.Core.Hardware;
 [CpuBusBoundary("exact bus test: constructed cartridge serving only declared bytes")]
 internal sealed class SyntheticCartridge : ISnesAddressSpace, IImportCartridgeSource
 {
+    /// <summary>Explicit CPU-address bytes that take precedence over declared zero ranges.</summary>
     private readonly Dictionary<int, byte> bytes = [];
+    /// <summary>Address predicates for bounded source regions intentionally modeled as zero.</summary>
     private readonly List<Func<int, bool>> zeroFilled = [];
+    /// <summary>Caller-selected failure for reads outside seeded or zero-filled source regions.</summary>
     private readonly Func<int, Exception> undeclaredRead;
+    /// <summary>Caller-selected failure for every attempted cartridge write.</summary>
     private readonly Func<int, Exception> write;
 
     /// <summary>Creates an empty cartridge.</summary>

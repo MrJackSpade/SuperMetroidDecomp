@@ -12,8 +12,10 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
+/// <summary>Checks that Kraid's five named editable palette sources retain separate values and identities.</summary>
 internal static class KraidColorSourceSelectionVerification
 {
+    /// <summary>Exercises every source color, source-specific bounds, unknown keys, and stable content hashing.</summary>
     internal static void VerifyKraidColorSourceSelection()
     {
         var original = new Dictionary<KraidPaletteSource, PaletteRgb5[]>();
@@ -54,6 +56,7 @@ internal static class KraidColorSourceSelectionVerification
         Console.WriteLine("Kraid palette source selection: all five distinct fixtures, every color, bounds and identity pass.");
     }
 
+    /// <summary>Runs the Kraid palette-source contract from the verification command line.</summary>
     [VerificationCommand("--lookup-kraid-color-sources")]
     internal static int LookupKraidColorSourcesCommand()
     {

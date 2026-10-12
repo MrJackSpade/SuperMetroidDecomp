@@ -20,6 +20,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
     /// <summary>$8B:CE53, shared sprite-object delete list.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
 
+    /// <summary>Calculates a big or small explosion's six frame pairs, blank hold, and self-loop word in native order.</summary>
     private static ushort ProgramWord(int index)
     {
         bool big = index < 16;
@@ -36,6 +37,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
         };
     }
 
+    /// <summary>Reads either byte of a compiled explosion instruction word, including the shared delete opcode.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer == DeletePointer)
@@ -48,6 +50,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>Allows native overlapping reads within the two explosion lists and the separate shared delete word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer)

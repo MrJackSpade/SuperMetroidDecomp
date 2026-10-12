@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Samus's same-frame fall after a dead Draygon releases her during enemy AI.</summary>
 internal static class ReleasedSamusFallsOffDraygonVerification
 {
     /// <summary>
@@ -63,6 +64,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         Console.WriteLine("  Released Samus falls: a mid-frame Draygon release still detects the missing floor.");
     }
 
+    /// <summary>Runs the focused Draygon release and fall verification command.</summary>
     [VerificationCommand("--released-samus-falls-off-draygon")]
     internal static int ReleasedSamusFallsOffDraygonCommand()
     {

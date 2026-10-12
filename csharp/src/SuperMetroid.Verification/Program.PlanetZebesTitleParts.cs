@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated Planet Zebes title parts against native OAM and preserves independent art edits.</summary>
 internal static class PlanetZebesTitlePartsVerification
 {
+    /// <summary>Compares the stock title pose, altered part fields, custom counts, bounds, and visible or wrapped OAM origins.</summary>
     internal static void VerifyPlanetZebesTitleParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("PlanetZebesTitle", value.AppendIdentity);

@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the eight native Zebes escape explosion sprites and sound selectors in production spawning.</summary>
 internal static class ZebesEscapeExplosionDefinitionsVerification
 {
+    /// <summary>Compares compiled sprite and sound rows with bank-$8F and checks all random and inherited index handoffs with table reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Zebes escape explosion definitions")]
     internal static void VerifyZebesEscapeExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -62,6 +64,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
             "Zebes escape explosion definitions: sixteen native bytes and all 128 random/inherited selection handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Rejects runtime reads of the migrated sprite and sound bytes at $8F:C1D6-C1E5.</summary>
     private static CartridgeReadGuard NewZebesEscapeExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x8fc1d6 and < 0x8fc1e6,
             address => $"Zebes escape explosion attempted migrated table read ${address:X6}.");

@@ -2,6 +2,8 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 
+/// <summary>Development commands for exporting and tracing the reproduced
+/// shutter bomb arc against native WRAM and trajectory evidence.</summary>
 internal static class ShutterNativeArc
 {
     /// <summary>

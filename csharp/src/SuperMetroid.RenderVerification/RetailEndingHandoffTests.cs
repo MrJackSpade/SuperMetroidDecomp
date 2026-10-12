@@ -8,8 +8,10 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Compares the gunship escape event, fade, and ending handoff through captured rendering and audio.</summary>
 internal static class RetailEndingHandoffTests
 {
+    /// <summary>Runs paired retail games through the native takeoff boundary and sixty ending frames.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
@@ -65,6 +67,7 @@ internal static class RetailEndingHandoffTests
     }
 }
 
+/// <summary>Fixture position that places the gunship top hull near its escape completion threshold.</summary>
 internal static class EndingHandoffFixtureDefinitions
 {
     /// <summary>Stage Samus near the gunship top-hull Y=256 escape threshold; the native attachment places the hull above her.</summary>

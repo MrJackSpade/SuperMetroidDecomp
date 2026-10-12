@@ -5,9 +5,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Wavy Phantoon's separate bank-$88 owner, including its setup-only first call.</summary>
 public sealed class PhantoonWaveHdmaState
 {
+    /// <summary>Whether a new channel request still needs its setup-only first HDMA pass.</summary>
     private bool _pendingSetup;
+    /// <summary>Eye parameter captured for the next channel setup.</summary>
     private ushort _pendingMode;
+    /// <summary>Reusable short or long wave-cycle scroll words; death initialization fills the full range.</summary>
     private ushort[] _cycle = new ushort[PhantoonWaveRomData.LongHalfCycle * 2];
+    /// <summary>Selected wave cycle length, set only when pending setup executes.</summary>
     private int _cycleLength;
     /// <summary>Whether an HDMA setup has run and the channel has not subsequently observed eye parameter one equal to zero; scheduling Begin alone does not activate it.</summary>
     public bool Active { get; private set; }

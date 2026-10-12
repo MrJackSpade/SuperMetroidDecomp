@@ -26,8 +26,10 @@ public enum LowerNorfairRioEnemyFunction : ushort
 /// </summary>
 public sealed class LowerNorfairRioEnemyState
 {
+    /// <summary>Physical Rio slot whose common C/D/F words carry velocity and indirect AI dispatch.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects the Lower Norfair Rio state from an existing enemy slot without duplicating WRAM variables.</summary>
     internal LowerNorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Last bank-$A2 instruction-list identity installed for this actor, native <c>Holtz.instList</c> at <c>$7E:7800,x</c>; distinct from the advancing cursor and prevents timer resets when the same list is requested again.</summary>

@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Centered flashes followed by mirrored explosion quadrants in native OAM order.</summary>
 internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Replaces a recognized small or large intro explosion pointer with its reviewed flash or quadrant composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int index = 0; index < 12; index++)
@@ -13,7 +14,9 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                 return supplied.CalculateIfMatching(new IntroMotherBrainExplosionParts(index >= 6, index % 6));
         return supplied;
     }
+    /// <summary>Early flash frames use one centered part; later frames use four mirrored quadrants.</summary>
     public int Count => frame < (big ? 1 : 2) ? 1 : 4;
+    /// <summary>Selects a centered flash or one mirrored quadrant at the native tile and offset.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -48,13 +51,16 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
+    /// <summary>Yields the selected explosion's parts in native OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same OAM parts to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Authored tile identities for the intro Mother Brain flash and mirrored explosion quadrants.</summary>
 internal static class IntroMotherBrainExplosionAtlas
 {
     /// <summary>Tile$53, initial centered small explosion flash in8C:97F7.</summary>

@@ -4,10 +4,14 @@ using static SamusEaterPlmDefinitionsVerification;
 
 internal static class LookupColoredCapVerification
 {
+    /// <summary>Compares all 48 cap-frame pointers and their one-run geometry with the cartridge draw lists.</summary>
     internal static void VerifyColoredCapGeometry(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 0);
+    /// <summary>Checks the collision nibble of each exported cap tile against its native level word.</summary>
     internal static void VerifyColoredCapCollision(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 1);
+    /// <summary>Checks the visual tile bits of each exported cap frame against its native level word.</summary>
     internal static void VerifyColoredCapVisuals(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 2);
 
+    /// <summary>Checks the selected geometry, collision, or visual field across yellow, green, and red caps in all four directions.</summary>
     private static void VerifyColoredCapField(SuperMetroidAddressSpace rom, int field)
     {
         (ushort First, string Name)[] families = [

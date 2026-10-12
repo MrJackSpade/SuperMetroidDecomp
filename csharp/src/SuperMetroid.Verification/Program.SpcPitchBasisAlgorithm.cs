@@ -3,8 +3,12 @@ using System.Numerics;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the calculated equal-temperament SPC pitch basis against
+/// every native table word using exact rational bounds on the semitone ratio.</summary>
 internal static class SpcPitchBasisAlgorithmVerification
 {
+    /// <summary>Brackets the twelfth root of two, compares all thirteen native
+    /// frequencies, and confirms invalid semitone indices are rejected.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pitch basis algorithm")]
     internal static void VerifySpcPitchBasisAlgorithm(SuperMetroidAddressSpace rom)
     {

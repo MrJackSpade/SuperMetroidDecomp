@@ -4,8 +4,12 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupAnimatedFramesVerification;
 
+/// <summary>Checks every authored simple animated-tile frame operand against
+/// the cartridge and rejects non-frame cursors across the ushort domain.</summary>
 internal static class LookupAnimatedArtworkSourcesVerification
 {
+    /// <summary>Compares compiled artwork source addresses with original bank-$87
+    /// operands and verifies unknown objects cannot acquire a visual mapping.</summary>
     internal static void VerifySimpleAnimationArtworkSources(SuperMetroidAddressSpace rom)
     {
         int total = 0;

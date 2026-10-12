@@ -34,7 +34,8 @@ internal static class DebuggerEnumValues
         return value;
     }
 
-    // Every enum underlying type fits in 64 bits; signed values keep their two's-complement bits.
+    /// <summary>Normalizes any enum backing type to a 64-bit bit pattern while
+    /// retaining the two's-complement representation of signed values.</summary>
     private static ulong Bits(object enumValue) => Type.GetTypeCode(Enum.GetUnderlyingType(enumValue.GetType())) switch
     {
         TypeCode.SByte or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 =>

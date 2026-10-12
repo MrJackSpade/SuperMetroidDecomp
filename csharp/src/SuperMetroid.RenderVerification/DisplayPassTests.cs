@@ -6,8 +6,10 @@ using Vortice.Direct3D11;
 using Vortice.DXGI;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks the D3D11 display scaler, GPU timing boundaries, and compute reuse after display.</summary>
 internal static class DisplayPassTests
 {
+    /// <summary>Compares scaled display pixels against the legacy desktop layout oracle across window sizes and verifies subsequent compute rendering.</summary>
     internal static unsafe void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var packet = RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(

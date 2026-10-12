@@ -16,7 +16,9 @@ internal static class CrocomireBodyVisualDefinitions
     internal const ushort FirstPureOamFrame = 0xca7e;
     /// <summary>First skeleton extended frame at $A4:E1FE.</summary>
     internal const ushort FirstSkeletonFrame = 0xe1fe;
+    /// <summary>Fifty selected fight-body roots exclude the later skeleton range.</summary>
     internal const int BodyFrameCount = 50;
+    /// <summary>The first forty-two body roots contain BG2 components alongside OAM parts.</summary>
     internal const int MixedBg2FrameCount = 42;
 
     /// <summary>$A4:BFC4, twelve selected six-component charge/step-back frames.</summary>
@@ -32,6 +34,7 @@ internal static class CrocomireBodyVisualDefinitions
     /// <summary>$A4:C752, fourteen selected seven-component body frames.</summary>
     private const ushort LaterBodyStart = 0xc752;
 
+    /// <summary>Enumerates selected body roots without caching a duplicate pointer table.</summary>
     internal static CrocomireBodyFrameSequence Frames => new(BodyFrameCount);
 
     /// <summary>Enumerates native frame roots in ascending order. A frame has a
@@ -58,6 +61,7 @@ internal static class CrocomireBodyVisualDefinitions
         InRun(pointer, BodyStart, 3, 0x3a) || pointer == IsolatedBodyFrame ||
         InRun(pointer, LaterBodyStart, 14, 0x3a);
 
+    /// <summary>Checks exact record alignment inside one contiguous native frame run.</summary>
     private static bool InRun(ushort pointer, ushort start, int count, int stride)
     {
         int offset = pointer - start;
@@ -68,12 +72,18 @@ internal static class CrocomireBodyVisualDefinitions
 /// <summary>Calculated body-frame enumeration; no cached pointer lookup.</summary>
 internal readonly record struct CrocomireBodyFrameSequence(int Length)
 {
+    /// <summary>Calculates one selected fight-body root from its sequence index.</summary>
     internal ushort this[int index] => CrocomireBodyVisualDefinitions.FramePointer(index);
+    /// <summary>Walks native body roots in selected instruction order.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Value-type cursor over the calculated frame sequence.</summary>
     internal struct Enumerator(CrocomireBodyFrameSequence sequence)
     {
+        /// <summary>Ordinal before the next move; starts before the first frame.</summary>
         private int index = -1;
+        /// <summary>Advances until the fifty selected body roots are exhausted.</summary>
         public bool MoveNext() => ++index < sequence.Length;
+        /// <summary>Native pointer for the current selected fight-body frame.</summary>
         public ushort Current => sequence[index];
     }
 }

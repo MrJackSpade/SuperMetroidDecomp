@@ -53,6 +53,7 @@ public static class SamusBeamCombinations
         ? (SamusBeamCombination)index
         : throw new ArgumentOutOfRangeException(nameof(index), index, "Beam-combination table index is outside $0-$F.");
 
+    /// <summary>Exposes the native table index and equipment-bit predicates for a beam combination.</summary>
     extension(SamusBeamCombination combination)
     {
         /// <summary>The four-bit index the native tables use.</summary>

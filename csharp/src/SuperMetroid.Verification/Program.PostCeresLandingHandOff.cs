@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static RoomDefinitionIntegrationVerification;
 
+/// <summary>Checks station-load state and the gunship unlock boundary after the Ceres escape.</summary>
 internal static class PostCeresLandingHandOffVerification
 {
     /// <summary>

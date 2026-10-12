@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks the room shake produced by Ceres Ridley's real left-wall lunge collision.</summary>
 internal static class CeresRidleyWallVerification
 {
+    /// <summary>Confirms the lunge clips at X=40, publishes a BG2-only first-frame displacement, and lasts twelve displayed frames.</summary>
     internal static void VerifyCeresRidleyWallImpact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

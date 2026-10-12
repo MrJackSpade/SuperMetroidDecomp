@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks six Ceres planet, star, and title actor records against native setup metadata.</summary>
 internal static class CeresZebesActorMetadataVerification
 {
+    /// <summary>Compares spawn, slide, and completion callbacks while rejecting invalid actor ordinals.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Zebes actor metadata")]
     internal static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
     {

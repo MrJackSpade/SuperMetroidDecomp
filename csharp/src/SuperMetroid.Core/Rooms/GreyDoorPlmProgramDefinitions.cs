@@ -25,6 +25,8 @@ internal static class GreyDoorPlmProgramDefinitions
     /// <summary>$84:BD0F: follow the installed link when shot.</summary>
     private const ushort FollowLinkWhenShot = 0xbd0f;
 
+    /// <summary>Reads a little-endian word from the four adjacent door programs,
+    /// preserving overlapping views across packed operands and orientation boundaries.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

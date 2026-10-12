@@ -7,8 +7,10 @@ using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks native bomb-helper rejection and beam-charge cancellation in morph ball.</summary>
 internal static class BombChargeRejectionVerification
 {
+    /// <summary>Distinguishes helper rejection from delayed full-charge spread release across equipment and input edges.</summary>
     internal static void VerifyBombChargeRejection()
     {
         Suite(nameof(VerifyBombChargeRelease), () => VerifyBombChargeRelease());
@@ -47,6 +49,7 @@ internal static class BombChargeRejectionVerification
         }
     }
 
+    /// <summary>Checks that releasing Shoot cancels charge without placing a bomb or spending Power Bombs.</summary>
     private static void VerifyBombChargeRelease()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -2,13 +2,19 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CollectibleVisualsVerification;
 
+/// <summary>Checks the 24 exported collectible PLM draw records against native geometry, bits, and names.</summary>
 internal static class LookupCollectibleDrawsVerification
 {
+    /// <summary>Checks each draw record's one-cell geometry and complete pointer domain.</summary>
     internal static void VerifyCollectibleDrawGeometry(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 0);
+    /// <summary>Compares collision bits in each collectible's level word with the cartridge.</summary>
     internal static void VerifyCollectibleDrawCollision(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 1);
+    /// <summary>Compares visual tile bits in each collectible's level word with the cartridge.</summary>
     internal static void VerifyCollectibleDrawVisuals(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 2);
+    /// <summary>Checks published names, reverse lookup, and ordinal identity rejection.</summary>
     internal static void VerifyCollectibleDrawIdentity(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 3);
 
+    /// <summary>Checks one requested draw field across all exported pointers and unsupported inputs.</summary>
     private static void VerifyCollectibleDrawField(SuperMetroidAddressSpace rom, int field)
     {
         // Original exported pointer/name contract; physical values come from the ROM.

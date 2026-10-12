@@ -2,10 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidArmInstructionProgramDefinitionsVerification;
 
+/// <summary>Checks generated Kraid arm control and visual operand addresses against native instruction streams.</summary>
 internal static class KraidArmGeneratedProgramsVerification
 {
-    // Independent decoder of the pinned four arm instruction regions: duration/frame
-    // pairs, no-operand callbacks, and the terminal $80ED goto with one operand.
+    /// <summary>Independently decodes four native arm lists, including duration/frame pairs, callbacks, and terminal goto operands.</summary>
     private static (List<InstructionMechanicsWord> Mechanics, List<ushort> Presentation)
         ReadOriginalKraidArmPrograms(SuperMetroidAddressSpace rom)
     {
@@ -31,6 +31,7 @@ internal static class KraidArmGeneratedProgramsVerification
         return (mechanics, presentation);
     }
 
+    /// <summary>Checks all 66 control words and exhaustive compiled-byte ownership boundaries.</summary>
     internal static void VerifyKraidArmGeneratedMechanics(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidArmPrograms(rom).Mechanics;
@@ -57,6 +58,7 @@ internal static class KraidArmGeneratedProgramsVerification
         AssertThrows<IndexOutOfRangeException>(() => KraidArmInstructionProgramDefinitions.MechanicsWord(66), "mechanics index past end");
     }
 
+    /// <summary>Checks 57 visual operand addresses remain outside the mechanics reader.</summary>
     internal static void VerifyKraidArmGeneratedPresentation(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidArmPrograms(rom).Presentation;

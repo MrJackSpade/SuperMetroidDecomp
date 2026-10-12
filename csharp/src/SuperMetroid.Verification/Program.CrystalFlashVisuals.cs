@@ -6,8 +6,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Core.Game.SamusPaletteRomData;
 
+/// <summary>Compares Crystal Flash palette timing and actual body/window contributions in a captured frame.</summary>
 internal static class CrystalFlashVisualsVerification
 {
+    /// <summary>Checks authored body and bubble palette rows, then isolates visible body and color-window pixels.</summary>
     internal static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, int elapsed)
     {
         var samus = runtime.Player.Samus!;

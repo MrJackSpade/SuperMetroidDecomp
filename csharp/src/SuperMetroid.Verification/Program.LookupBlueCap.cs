@@ -2,12 +2,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks blue-door cap draw geometry, collision, visuals, and four alias pointers.</summary>
 internal static class LookupBlueCapVerification
 {
+    /// <summary>Checks pointer ownership, visual alias mapping, and native run geometry.</summary>
     internal static void VerifyBlueCapGeometry(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 0);
+    /// <summary>Checks each frame's compiled collision nibble against native draw words.</summary>
     internal static void VerifyBlueCapCollision(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 1);
+    /// <summary>Checks each frame's metatile and flip bits against native draw words.</summary>
     internal static void VerifyBlueCapVisuals(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 2);
 
+    /// <summary>Compares a selected field across sixteen editable frames and four visual aliases.</summary>
     private static void VerifyBlueCapField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa9b3,0xa9bf,0xa9cb,0xa9d7,0xa9ef,0xa9fb,0xaa07,0xaa13,0xaa2b,0xaa37,0xaa43,0xaa4f,0xaa67,0xaa73,0xaa7f,0xaa8b,0xa9a7,0xa9e3,0xaa1f,0xaa5b];

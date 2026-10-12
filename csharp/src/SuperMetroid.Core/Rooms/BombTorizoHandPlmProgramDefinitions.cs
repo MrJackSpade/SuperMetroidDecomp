@@ -21,6 +21,8 @@ internal static class BombTorizoHandPlmProgramDefinitions
     /// <summary>$84:D3BF: cleared-hand draw, music command and deletion after the eighth fragment.</summary>
     private const ushort Completion = 0xd3bf;
 
+    /// <summary>Reads any little-endian word wholly inside the hand program,
+    /// including overlapping views of its seven-byte packed DMA operand.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

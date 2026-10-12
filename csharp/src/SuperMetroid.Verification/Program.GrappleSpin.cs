@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Fire input consumed during the spin-to-grapple pose handoff.</summary>
 internal static class GrappleSpinVerification
 {
+    /// <summary>Confirms both facings leave spin before the grapple fires, then held Fire extends while a tap requests cancellation.</summary>
     internal static void VerifyGrappleSpinInput()
     {
         foreach (bool left in new[] { false, true })
@@ -48,6 +50,7 @@ internal static class GrappleSpinVerification
         }
     }
 
+    /// <summary>Runs the focused grapple Fire-edge and spin-pose transition check.</summary>
     [VerificationCommand("--grapple-spin")]
     internal static int GrappleSpinCommand()
     {

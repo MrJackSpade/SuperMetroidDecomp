@@ -56,6 +56,7 @@ internal static class DragonAnimationDefinitions
         DragonAnimationSelector selector) =>
         (DragonAnimationSelector)(RequireLiveIndex(selector) & 1);
 
+    /// <summary>Rejects the reinstall sentinel and any selector outside Dragon's six live animations.</summary>
     private static int RequireLiveIndex(DragonAnimationSelector selector)
     {
         int index = (int)selector;

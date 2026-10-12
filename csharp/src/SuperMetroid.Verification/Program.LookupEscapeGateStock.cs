@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks the three escape-gate block drawings and catalog identity against native PLM words.</summary>
 internal static class LookupEscapeGateStockVerification
 {
+    /// <summary>Compares open, half-closed, and closed rows with stock and installed art, then checks bounds, edited-copy isolation, and invalid imports.</summary>
     internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmEscapeGateVisualCatalog installed)
     {

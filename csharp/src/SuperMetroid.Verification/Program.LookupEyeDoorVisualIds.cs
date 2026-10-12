@@ -1,7 +1,11 @@
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Checks the original eye-door draw pointer to editable visual-ID
+/// mapping and its mirrored clear alias.</summary>
 internal static class LookupEyeDoorVisualIdsVerification
 {
+    /// <summary>Verifies all 23 named eye-door frames, reverse lookup, and
+    /// rejection of unsupported IDs and pointers.</summary>
     internal static void VerifyEyeDoorVisualIds()
     {
         // Original 23-entry public override identity contract, before the naming conversion.

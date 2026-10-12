@@ -1,6 +1,11 @@
 namespace SuperMetroid.Desktop;
 
 /// <summary>Deterministic result from the host timing counter regression.</summary>
+/// <param name="EmulatedFramesPerSecond">Published update rate under the 1,000-tick clock.</param>
+/// <param name="PaintedFramesPerSecond">Published display rate under the same clock.</param>
+/// <param name="AverageEmulationMilliseconds">Mean update duration for the first reporting interval.</param>
+/// <param name="WorstEmulationMilliseconds">Longest update duration in that interval.</param>
+/// <param name="LateFrames">Observed discarded-frame count, including fractional debt.</param>
 public readonly record struct FrameTimingCounterSmokeTestResult(
     double EmulatedFramesPerSecond,
     double PaintedFramesPerSecond,
@@ -59,6 +64,7 @@ public static class FrameTimingCounterSmokeTest
             snapshot.LateFrames);
     }
 
+    /// <summary>Fails if a published counter differs from the deterministic clock oracle by more than one millionth.</summary>
     private static void AssertNear(double actual, double expected, string subject)
     {
         if (Math.Abs(actual - expected) > 0.000_001)

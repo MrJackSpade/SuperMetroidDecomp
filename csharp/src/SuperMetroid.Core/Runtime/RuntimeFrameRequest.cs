@@ -46,6 +46,7 @@ public sealed record RuntimeFramePolicy
 /// </summary>
 public sealed class RuntimeFrameAudio
 {
+    /// <summary>Captures only the audio callbacks admitted by a named frame scenario.</summary>
     private RuntimeFrameAudio(Func<ushort>? queueEchoSound, Action? checkLowHealth)
     {
         QueueEchoSound = queueEchoSound;

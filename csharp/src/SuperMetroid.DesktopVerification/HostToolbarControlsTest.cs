@@ -6,6 +6,8 @@ using SuperMetroid.Desktop;
 /// <summary>Inspect the production host control tree without showing a window or touching player saves.</summary>
 internal static class HostToolbarControlsTest
 {
+    /// <summary>Checks the production desktop toolbar labels and spacing, then
+    /// confirms keyboard and polled gamepad Start reach the host controls.</summary>
     public static void Run(string rom)
     {
         using var scratch = new TestScratchDirectory("toolbar");

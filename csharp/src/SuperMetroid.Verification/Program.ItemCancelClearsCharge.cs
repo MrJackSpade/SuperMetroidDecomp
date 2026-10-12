@@ -13,6 +13,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Reproduction of the item-cancel edge that resets an unselected
+/// charge beam before held Shoot advances its flare counter again.</summary>
 internal static class ItemCancelClearsChargeVerification
 {
     /// <summary>
@@ -53,6 +55,7 @@ internal static class ItemCancelClearsChargeVerification
         Console.WriteLine("  Item cancel: a Y press with nothing selected still clears the charge.");
     }
 
+    /// <summary>Runs the focused charge-reset reproduction from the verification CLI.</summary>
     [VerificationCommand("--item-cancel-clears-charge")]
     internal static int ItemCancelClearsChargeCommand()
     {

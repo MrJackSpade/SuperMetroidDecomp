@@ -9,9 +9,13 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public static class RoomLevelStreamDefinitions
 {
+    /// <summary>Embedded corpus of decompressed collision and BTS room streams.</summary>
     private const string ResourceName = "SuperMetroid.RoomLevelStreams.bin";
+    /// <summary>Expected version word following the corpus's SMLV marker.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Fixed corpus header before source-address and stream-length records.</summary>
     private const int HeaderByteCount = 44;
+    /// <summary>Defers corpus validation and allocation until a room source is first requested.</summary>
     private static readonly Lazy<Corpus> Installed = new(Load);
 
     /// <summary>Reads one complete decompressed native level stream by cartridge source identity.</summary>
@@ -21,6 +25,7 @@ public static class RoomLevelStreamDefinitions
             : throw new InvalidDataException(
                 $"Compiled room-level data lacks source ${sourceAddress:X6}.");
 
+    /// <summary>Validates the embedded corpus header, exact room-source set, record bounds, and absence of trailing bytes.</summary>
     private static Corpus Load()
     {
         using Stream source = typeof(RoomLevelStreamDefinitions).Assembly
@@ -58,6 +63,7 @@ public static class RoomLevelStreamDefinitions
         return new Corpus(streams);
     }
 
+    /// <summary>Collects compressed level-data identities from every compiled room-state selection.</summary>
     private static HashSet<int> BuildExpectedSources()
     {
         var expected = new HashSet<int>();
@@ -67,6 +73,7 @@ public static class RoomLevelStreamDefinitions
         return expected;
     }
 
+    /// <summary>Validated mapping from cartridge source addresses to owned decompressed level streams.</summary>
     private sealed record Corpus(
         IReadOnlyDictionary<int, ReadOnlyMemory<byte>> Streams);
 }

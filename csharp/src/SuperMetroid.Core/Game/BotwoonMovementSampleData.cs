@@ -12,6 +12,8 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal static class BotwoonMovementSampleData
 {
+    /// <summary>One packed X/Y nibble pair per native movement sample,
+    /// retained in original table order for bounded indexed lookup.</summary>
     private static readonly byte[] PackedSamples = Convert.FromBase64String(
         """
         A0NDMkNDQ0NDMkNDQ0NDMkNDQ0NDMkNDQ0NCQ0NDQ0MyQ0NDQ0NDQ0NDQ0NDQzRDQ0NDQzRDQ0M0Q0M0Q0M0Q0M0Q0RDNENEQzRD

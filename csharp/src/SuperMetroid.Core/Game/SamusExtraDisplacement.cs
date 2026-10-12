@@ -66,6 +66,7 @@ internal static class SamusExtraDisplacement
         return extra == 0 ? null : AddPositiveDownwardBias(extra);
     }
 
+    /// <summary>Adds one whole pixel only to nonnegative external Y displacement before the grounded or extra-only collision scan.</summary>
     private static int AddPositiveDownwardBias(int displacement) =>
         displacement < 0
             ? displacement

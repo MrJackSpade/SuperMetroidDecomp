@@ -15,8 +15,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Grapple fire, attachment, and stop commands through movement and audio publication.</summary>
 internal static class GrappleSoundsVerification
 {
+    /// <summary>Confirms extension stays silent, release paths stop once, and sounds reach the correct APU port.</summary>
     internal static void VerifyGrappleSounds()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -58,12 +60,14 @@ internal static class GrappleSoundsVerification
         }
     }
 
+    /// <summary>Runs Grapple sound checks together with pose-refire behavior.</summary>
     [VerificationCommand("--grapple-sound-refire-fixtures")]
     internal static int GrappleSoundRefireFixturesCommand()
     {
      VerifyGrappleSounds(); VerifyGrapplePoseRefire(); return 0; 
     }
 
+    /// <summary>Runs the focused Grapple sound verification command.</summary>
     [VerificationCommand("--grapple-sounds")]
     internal static int GrappleSoundsCommand()
     {

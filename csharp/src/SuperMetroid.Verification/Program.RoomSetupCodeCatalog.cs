@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RoomMainCodeCatalogVerification;
 
+/// <summary>Audits bank-$8F room setup callback identities against reachable retail room states.</summary>
 internal static class RoomSetupCodeCatalogVerification
 {
     /// <summary>

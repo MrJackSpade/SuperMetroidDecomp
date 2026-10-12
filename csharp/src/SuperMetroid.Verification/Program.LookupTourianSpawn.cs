@@ -4,8 +4,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Compares Tourian statue animated-object initialization with the
+/// four native spawn calls and their initial instruction pointers.</summary>
 internal static class LookupTourianSpawnVerification
 {
+    /// <summary>Reads the bounded bank-$8F spawn sequence and checks the
+    /// production objects preserve its order, pointers, and initial timer.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue spawn order")]
     internal static void VerifyTourianStatueSpawnOrder(ISnesAddressSpace rom)
     {

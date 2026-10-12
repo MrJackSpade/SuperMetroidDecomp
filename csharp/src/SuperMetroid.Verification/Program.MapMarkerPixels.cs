@@ -2,12 +2,17 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks calculated map-marker tiles against native pixels and independent artwork edits.</summary>
 internal static class MapMarkerPixelsVerification
 {
+    /// <summary>Checks the two file-map arrow glyphs.</summary>
     internal static void VerifyMapArrowPixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0x9d, 0x9e]);
+    /// <summary>Checks the map position pulse glyph.</summary>
     internal static void VerifyMapPulsePixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0xaf]);
+    /// <summary>Checks the defeated-boss marker glyph.</summary>
     internal static void VerifyDefeatedBossPixels(ISnesAddressSpace rom) => VerifyMapMarkerPixelFamily(rom, [0x9f]);
 
+    /// <summary>Compares stock pixels and VRAM uploads, then checks edited tiles and coordinate bounds.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for map marker pixel family")]
     private static void VerifyMapMarkerPixelFamily(ISnesAddressSpace rom, int[] tiles)

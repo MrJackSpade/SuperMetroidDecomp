@@ -10,7 +10,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoLeftOrbInstructionProgramDefinitions
 {
+    /// <summary>$AA:CAFF begins the right-foot-forward left-facing orb-spew list.</summary>
     internal const ushort Start = 0xcaff;
+    /// <summary>$AA:CB41 begins the left-foot-forward counterpart.</summary>
     internal const ushort LeftFootForward = 0xcb41;
 
     /// <summary><c>InstList_GoldenTorizo_SpewChozoOrbs_FaceLeft_RightFootFwd_1</c> at $AA:CB1F.</summary>
@@ -25,6 +27,7 @@ internal abstract class GoldenTorizoLeftOrbInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Both foot poses attack, spawn six timed orb volleys, then restore walking movement.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcaff),
         Entry(Start),
@@ -65,6 +68,8 @@ internal abstract class GoldenTorizoLeftOrbInstructionProgramDefinitions
         Frame(3),
         Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
+    /// <summary>Twenty extended-frame selectors are interleaved with the two orb-spew programs.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Locates an editable frame selector without exposing the list's mechanical operands.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

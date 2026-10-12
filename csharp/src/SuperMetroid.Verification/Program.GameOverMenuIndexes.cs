@@ -3,13 +3,15 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks game-over menu index timing, audio cancellation, and continue dispatch.</summary>
 internal static class GameOverMenuIndexesVerification
 {
     /// <summary>
     /// #1275: game-over indexes zero ($81:8D0F) and one ($81:91A4) each end in their own NMI
     /// wait, so each spans two updates and the second resumes without a main-loop dispatch.
     /// Index zero cancels library-three sounds; index two neither animates the Baby nor
-    /// draws the selection missile.
+    /// draws the selection missile. On a Yes answer, loading state $1F publishes the
+    /// Ceres loader on the accepting frame; other saves fade into the area map.
     /// </summary>
     internal static void VerifyGameOverMenuNativeIndexes(ISnesAddressSpace bus, AreaMapPresentationCatalog presentation)
     {
@@ -44,8 +46,6 @@ internal static class GameOverMenuIndexesVerification
         AssertEqual(babyTimer, (int)PrivateState.Field<ushort>(menu, "babyInstructionTimer"), "music wait keeps the Baby timer");
         AssertEqual(missileTimer, PrivateState.Field<int>(menu, "missileTimer"), "music wait does not draw the missile");
 
-        // $81:915D: a Yes answer on a save whose loading state is $1F publishes the Ceres
-        // loader on the accepting frame; any other save fades into the area map.
         foreach (bool ceres in new[] { true, false })
         {
             var answered = new GameOverMenuState(bus, new CartridgeAudioState(), presentation, continueLoadsCeresArrival: ceres);

@@ -59,6 +59,7 @@ public static class RoomMetatileExtractor
         }
     }
 
+    /// <summary>Decodes one quadrant's SNES tilemap word into editable tile, palette, priority, and flip fields.</summary>
     private static RoomMetatileCell Cell(ReadOnlySpan<byte> sourceBlock, int quadrant)
     {
         var word = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(

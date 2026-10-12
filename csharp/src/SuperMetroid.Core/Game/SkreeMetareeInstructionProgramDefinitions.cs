@@ -22,6 +22,8 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions
     /// <summary><c>UNUSED_InstList_Skree_StopAnimating_A3C694</c> at $A3:C694.</summary>
     internal const ushort SkreeStopAnimating = 0xc694;
 
+    /// <summary>Maps one of the twenty compiled instruction words to the corresponding Skree or Metaree address and value.</summary>
+    /// <remarks>The two programs share their layout but use separate base addresses and attack-ready instructions.</remarks>
     internal static InstructionMechanicsWord MechanicsWord(bool metaree, int index)
     {
         if ((uint)index >= 20) throw new IndexOutOfRangeException();
@@ -61,9 +63,12 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions
         });
     }
 
+    /// <summary>Resolves a Metaree instruction address against its compiled mechanics words.</summary>
     internal static ushort ReadMetareeMechanicsWord(ushort address) => ReadMechanicsWord(true, address);
+    /// <summary>Resolves a Skree instruction address against its compiled mechanics words.</summary>
     internal static ushort ReadSkreeMechanicsWord(ushort address) => ReadMechanicsWord(false, address);
 
+    /// <summary>Rejects addresses outside the twenty-word native program instead of reading cartridge data.</summary>
     private static ushort ReadMechanicsWord(bool metaree, ushort address)
     {
         for (int index = 0; index < 20; index++)

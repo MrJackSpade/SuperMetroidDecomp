@@ -19,6 +19,7 @@ public sealed class KraidBackgroundArtwork
             }
         });
 
+    /// <summary>Immutable head tilemaps keyed by the native bank-$A7 visual source pointer.</summary>
     private readonly Dictionary<ushort, KraidHeadTilemapAtlas> heads;
 
     /// <summary>Groups installed Kraid BG2 maps, head frames, and revealed room characters without composing or uploading the boss's mutable working tilemap.</summary>

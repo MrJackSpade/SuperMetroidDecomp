@@ -7,11 +7,14 @@ namespace SuperMetroid.Core.Assets;
 /// strips and upper/lower body atlas regions.</summary>
 internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Uses calculated parts only for the suited ending jump frame.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.LargeSamusFromEndingJumping)
             ? supplied.CalculateIfMatching(new EndingRewardJumpParts()) : supplied;
 
+    /// <summary>Twenty native limb and body sprite strips form the jumping pose.</summary>
     public int Count => 20;
+    /// <summary>Places one strip from the suited jumping atlas in native draw order.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -59,10 +62,12 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Yields all twenty jumping-pose strips in native draw order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same ordered sprite strips to non-generic enumeration.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Checks calculated egg-cracking poses against native OAM while retaining independent visual edits.</summary>
 internal static class IntroEggCrackingPartsVerification
 {
+    /// <summary>Compares six stock cracking frames, altered part fields, custom counts, bounds, and visible or wrapped OAM origins.</summary>
     internal static void VerifyIntroEggCrackingParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggCracking", value.AppendIdentity);

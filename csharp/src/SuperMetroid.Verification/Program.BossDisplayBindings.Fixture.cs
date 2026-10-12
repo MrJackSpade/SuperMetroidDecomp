@@ -4,21 +4,31 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Builds a RAM-only boss actor fixture for queued OAM and hitbox checks.</summary>
 internal static class BossDisplayBindingsFixtureVerification
 {
     /// <summary>One compiled boss actor with RAM only, exercising the public queued draw path.</summary>
     internal sealed class BossDisplayFixture
     {
+        /// <summary>Allows fixture access to nonpublic enemy-system bindings.</summary>
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
+        /// <summary>Cartridge-free address space for the boss actor.</summary>
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        /// <summary>VRAM receiving boss tilemap transfers during draw checks.</summary>
         internal SnesVram Vram { get; } = new();
+        /// <summary>Enemy owner whose ordinary queue and presentation path the fixture exercises.</summary>
         internal RoomEnemySystem Enemies { get; }
+        /// <summary>First physical slot, initialized as the selected boss definition.</summary>
         internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
+        /// <summary>Bound production instruction interpreter for one actor step.</summary>
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort> instructions;
+        /// <summary>Bound extended-hitbox query used by the collision check.</summary>
         private readonly HitboxQuery hitbox;
+        /// <summary>Queries an extended hitbox and returns its callback pointer when touched.</summary>
         private delegate bool HitboxQuery(RoomEnemySlot actor, Position16<RoomPixels> position,
             Extent16<RoomPixels> radius, bool shot, out ushort callback);
 
+        /// <summary>Installs one centered boss actor and enqueues it for the production draw path.</summary>
         internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork)
         {
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
@@ -35,6 +45,7 @@ internal static class BossDisplayBindingsFixtureVerification
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }
 
+        /// <summary>Selects an extended spritemap and optionally marks it as a new instruction frame.</summary>
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
@@ -42,6 +53,7 @@ internal static class BossDisplayBindingsFixtureVerification
                 (fresh ? EnemyExtraProperties.NewInstructionFrame : 0));
         }
 
+        /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>
         internal OamBuffer Draw()
         {
             var result = new OamBuffer(); result.BeginFrame();
@@ -49,15 +61,20 @@ internal static class BossDisplayBindingsFixtureVerification
             return result;
         }
 
+        /// <summary>Starts an instruction list with a one-tick countdown.</summary>
         internal void SetProgram(ushort pointer)
         { Actor.CurrentInstruction = pointer; Actor.InstructionTimer = 1; Actor.Timer = 0; }
+        /// <summary>Advances the selected actor's production instruction interpreter once.</summary>
         internal void Step() => instructions(Actor, null, null, Position16<RoomPixels>.Zero, 0);
+        /// <summary>Probes the actor's extended hitbox at a two-pixel radius.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal (bool Hit, ushort Callback) Hitbox(Position16<RoomPixels> probe, bool shot)
         { bool hit = hitbox(Actor, probe, new(2, 2), shot, out ushort callback); return (hit, callback); }
+        /// <summary>Clears the boss BG2 tilemap before a presentation check.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void ClearBg2() => Vram.ExecuteWordTransfer(
             new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight], EnemyBg2FrameLayout.VramBase, 1);
+        /// <summary>Connects a private production field to a fixture owner by name.</summary>
         private void Bind(string name, object value) => typeof(RoomEnemySystem).GetField(name, Private)!.SetValue(Enemies, value);
     }
 }

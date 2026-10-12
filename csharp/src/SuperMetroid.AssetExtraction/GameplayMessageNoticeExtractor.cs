@@ -104,6 +104,8 @@ public static class GameplayMessageNoticeExtractor
         return output.ToArray();
     }
 
+    /// <summary>Copies one native save-confirmation choice row as raw tilemap
+    /// cells so YES and NO selection graphics remain distinct from editable text.</summary>
     private static GameplayMessageTitleCell[] ReadSelection(
         ISnesAddressSpace bus,
         int sourceWord)

@@ -12,8 +12,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+/// <summary>Checks installed waterfall room color math and combined BG2 subscreen capture.</summary>
 internal static class WaterfallRoomsVerification
 {
+    /// <summary>Loads both reported rooms, confirms native TM/TS/CGADSUB values, and checks BG2 joins the subscreen without a second overlay.</summary>
     internal static void VerifyWaterfallRooms()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -53,6 +55,7 @@ internal static class WaterfallRoomsVerification
         }
     }
 
+    /// <summary>Runs the focused two-room waterfall composition check.</summary>
     [VerificationCommand("--waterfall-rooms")]
     internal static int WaterfallRoomsCommand()
     {

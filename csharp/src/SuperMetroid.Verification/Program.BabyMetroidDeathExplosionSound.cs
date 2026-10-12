@@ -15,6 +15,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Checks Baby Metroid death sounds and Mother Brain escape effects use their native sound libraries.</summary>
 internal static class BabyMetroidDeathExplosionSoundVerification
 {
     /// <summary>
@@ -65,6 +66,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         Console.WriteLine("  Escape explosion sounds: Baby Metroid's in library three, Mother Brain's dust and door in library two.");
     }
 
+    /// <summary>Runs the focused Baby Metroid death-explosion sound verification command.</summary>
     [VerificationCommand("--baby-metroid-death-explosion-sound")]
     internal static int BabyMetroidDeathExplosionSoundCommand()
     {

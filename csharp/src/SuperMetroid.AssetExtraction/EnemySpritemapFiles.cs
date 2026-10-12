@@ -10,6 +10,8 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM enemy spritemap part records → named enemy visual frames")]
 internal static class EnemySpritemapFiles
 {
+    /// <summary>Exports each named enemy spritemap and validates the resulting JSON
+    /// against the runtime catalog before returning the asset bytes.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Supplies native projectile instruction lifetimes and bounded synthetic artwork fixtures.</summary>
 internal static class ProjectileNativeFixtureVerification
 {
+    /// <summary>Follows a retail bank-$93 explosion list through timed records and branches until its delete opcode.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile lifetime")]
     internal static int NativeProjectileLifetime(SuperMetroidAddressSpace rom, int selector)
     {
@@ -23,8 +25,7 @@ internal static class ProjectileNativeFixtureVerification
         throw new InvalidDataException("Expected finite native explosion program.");
     }
 
-    // Keep synthetic artwork and terrain, but use the cartridge-selected programs.
-    // Only sprite-reference fields are replaced; timing/damage/collision stay native.
+    /// <summary>Seeds cartridge-selected projectile programs into a test bus, replacing only spritemap references while retaining native timing and collision.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile fixture")]
     internal static SuperMetroid.AssetExtraction.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {

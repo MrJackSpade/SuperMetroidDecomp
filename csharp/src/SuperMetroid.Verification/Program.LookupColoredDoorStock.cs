@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Checks the 48 colored-door draw frames, editable overlays, and stock isolation.</summary>
 internal static class LookupColoredDoorStockVerification
 {
+    /// <summary>Compares each four-row colored-door frame with ROM and validates lookup, hashing, and malformed edits.</summary>
     internal static void VerifyColoredDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmColoredDoorVisualCatalog installed)
     {

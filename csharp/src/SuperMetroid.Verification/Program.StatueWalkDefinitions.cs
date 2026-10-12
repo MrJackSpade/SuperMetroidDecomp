@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks compiled Golden Torizo walking and Chozo statue carry motion against native tables.</summary>
 internal static class StatueWalkDefinitionsVerification
 {
+    /// <summary>Compares overlapping Torizo velocity windows and Chozo carry words, then checks production movement and Samus offsets without a bus.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for statue walking")]
     internal static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
     {

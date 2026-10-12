@@ -9,14 +9,17 @@ namespace SuperMetroid.Core.Assets;
 /// separate background, pulse, health and fade colors are excluded.</summary>
 internal sealed class BabyMetroidInitialPalette
 {
+    /// <summary>Complete imported palette retained only when it differs from the reviewed paint calculation.</summary>
     private readonly Bgr555[]? supplied;
 
+    /// <summary>Uses calculated Baby colors when all fifteen supplied entries agree, otherwise keeps this palette's edits.</summary>
     internal BabyMetroidInitialPalette(Bgr555[] colors)
     {
         for (int color = 0; color < colors.Length; color++)
             if (Calculate(color) != colors[color]) { supplied = colors.ToArray(); return; }
     }
 
+    /// <summary>Selects an independently supplied color or the reviewed dome, innard, and fang paint.</summary>
     internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= BabyMetroidCutsceneColorRomData.InitialColorCount)
@@ -24,6 +27,7 @@ internal sealed class BabyMetroidInitialPalette
         return supplied is null ? Calculate(color) : supplied[color];
     }
 
+    /// <summary>Composes selected material paints, smooth innard shades, and the fang midpoint by palette slot.</summary>
     private static Bgr555 Calculate(int color)
     {
         var slot = (BabyMetroidInitialColorSlot)color;
@@ -50,9 +54,11 @@ internal sealed class BabyMetroidInitialPalette
         };
     }
 
+    /// <summary>Raises each innard-light channel to form the clipped glint.</summary>
     private static Bgr555 Glint(Bgr555 light) =>
         light.Map((_, channel) => Math.Min(Bgr555.MaxChannel, channel + InnardGlintAddition));
 
+    /// <summary>Eases the innard red channel with smoothstep, then interpolates other channels by that red level.</summary>
     private static Bgr555 InnardShade(Bgr555 light, Bgr555 dark, int shade)
     {
         int lightRed = light.Red, darkRed = dark.Red;
@@ -66,9 +72,11 @@ internal sealed class BabyMetroidInitialPalette
             (lightChannel * (red - darkRed) + darkChannel * (lightRed - red)) / intervals);
     }
 
+    /// <summary>Averages each RGB5 channel down to the intermediate fang paint.</summary>
     internal static Bgr555 Midpoint(Bgr555 light, Bgr555 dark) =>
         light.Zip(dark, (_, lightChannel, darkChannel) => (lightChannel + darkChannel) / 2);
 
+    /// <summary>Hashes all resolved initial colors so supplied edits affect presentation identity.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)
     {
         Span<Bgr555> colors = stackalloc Bgr555[BabyMetroidCutsceneColorRomData.InitialColorCount];

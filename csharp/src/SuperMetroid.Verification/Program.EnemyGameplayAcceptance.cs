@@ -113,7 +113,7 @@ internal static partial class Program
                      .Where(entry => entry.Definition.TileDataAddress == editedDefinition.TileDataAddress &&
                          entry.Definition.TileDataSize == editedDefinition.TileDataSize))
             expectedVram[RoomEnemyRomLayout.VramByteBase + entry.StagingOffset] ^= 0x80;
-        AssertTrue(!new VramStore(beforeVram).ImageEquals(afterVram) && afterVram.Bytes.SequenceEqual(expectedVram),
+        AssertTrue(!beforeVram.ImageEquals(afterVram) && afterVram.Bytes.SequenceEqual(expectedVram),
             "PNG replacement changes exactly the authored pixel at its production VRAM destination");
         AssertTrue(new CgramPalettes(beforeColors).ImageEquals(new CgramPalettes(afterColors)), "PNG replacement does not change enemy colors");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "PNG replacement changes selected presentation identity");

@@ -226,7 +226,7 @@ internal static partial class Program
             var reloadedVram = new SnesVram();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
                 .LoadTo(editedPointer, editedByteCount, new VramStore(reloadedVram).All, 0);
-            AssertTrue(new VramStore(reloadedVram).ImageEquals(editedVram),
+            AssertTrue(reloadedVram.ImageEquals(editedVram),
                 "enemy override survives content reload without modifying stock PNG");
 
             string stockPalettePath = Path.Combine(directory,

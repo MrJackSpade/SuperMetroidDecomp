@@ -599,7 +599,7 @@ internal static partial class Program
             new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         native.Step(0);
         installed.Step(0);
-        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
+        AssertTrue(installedVram.ImageEquals(nativeVram),
             "installed opening eye frame draws the exact native portrait rectangle");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed opening eye script and frame do not reread ROM");
@@ -639,14 +639,14 @@ internal static partial class Program
         AssertEqual(edited.FrameWords(0)[0], installedVram.ReadWord(destination),
             "eye JSON edit reaches the active portrait tile");
         installed.BindEyeArtwork(stock.EyeFrames);
-        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
+        AssertTrue(installedVram.ImageEquals(nativeVram),
             "restoring stock eye art restores exact native VRAM without restarting script");
 
         for (int frame = 0; frame < 160; frame++)
         {
             native.Step(0);
             installed.Step(0);
-            AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
+            AssertTrue(installedVram.ImageEquals(nativeVram),
                 $"installed normal eye blink preserves native VRAM at frame {frame}");
         }
         native.StartEnglishPageSix();
@@ -655,7 +655,7 @@ internal static partial class Program
         {
             native.Step(0);
             installed.Step(0);
-            AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
+            AssertTrue(installedVram.ImageEquals(nativeVram),
                 $"installed page-six eye blink preserves native VRAM at frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,

@@ -127,7 +127,7 @@ internal static partial class Program
             var guardedCgram = new SnesCgram();
             native.LoadGraphics(nativeVram, nativeCgram);
             guarded.LoadGraphics(guardedVram, guardedCgram);
-            AssertTrue(new VramStore(nativeVram).ImageEquals(guardedVram) &&
+            AssertTrue(nativeVram.ImageEquals(guardedVram) &&
                 new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(guardedCgram)),
                 $"room $8F:{roomPointer:X4} retains exact VRAM/CGRAM output");
         }
@@ -200,7 +200,7 @@ internal static partial class Program
             var installedCgram = new SnesCgram();
             native.LoadGraphics(nativeVram, nativeCgram);
             installed.LoadGraphics(installedVram, installedCgram);
-            AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram) &&
+            AssertTrue(nativeVram.ImageEquals(installedVram) &&
                 new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"room $8F:{roomPointer:X4} retains exact compiled-art VRAM/CGRAM output");
         }

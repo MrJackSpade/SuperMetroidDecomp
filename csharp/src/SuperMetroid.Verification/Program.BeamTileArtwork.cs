@@ -23,7 +23,7 @@ internal static partial class Program
             var native = new SnesVram(); var extracted = new SnesVram();
             LoadNativeBeamFixture(bus, native, new SnesCgram(), null, selection);
             atlas.LoadTo(extracted);
-            AssertTrue(new VramStore(native).ImageEquals(extracted), "PNG matches production beam upload across complete VRAM");
+            AssertTrue(native.ImageEquals(extracted), "PNG matches production beam upload across complete VRAM");
             var image = IndexedPng.Read(new MemoryStream(png), new(64, 8));
             image.Pixels[0] ^= 1;
             using var editedPng = new MemoryStream();
@@ -43,7 +43,7 @@ internal static partial class Program
             SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewBeamArtworkReadGuard(bus), queue, actualPalette, selection, catalog);
             var legacyVram = new SnesVram();
             nativeQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
-            AssertTrue(new VramStore(legacyVram).ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
+            AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
             // Recreate the consumed reference queue for the native record-layout assertions.
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
             AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Beam PNG keeps native seven-byte queue size");
@@ -56,12 +56,12 @@ internal static partial class Program
             var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
             var stockVram = new SnesVram();
             queue.DrainTo(stockVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
-            AssertTrue(new VramStore(stockVram).ImageEquals(native), "Queued PNG publishes native pixels only at drain");
+            AssertTrue(stockVram.ImageEquals(native), "Queued PNG publishes native pixels only at drain");
             var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
             var editedCatalog = BeamTileCatalog.Load(replacements);
             var reboundVram = new SnesVram();
             restored.DrainTo(reboundVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), editedCatalog);
-            AssertTrue(new VramStore(reboundVram).ImageEquals(extracted), "Restored pending transfer resolves current PNG, not serialized stock bytes");
+            AssertTrue(reboundVram.ImageEquals(extracted), "Restored pending transfer resolves current PNG, not serialized stock bytes");
             AssertEqual(0, restored.TailInBytes, "NMI clears restored asset queue");
         }
         using var wrongSize = new MemoryStream();

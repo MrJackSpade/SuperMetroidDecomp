@@ -75,7 +75,7 @@ internal static partial class Program
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram),
+        AssertTrue(nativeVram.ImageEquals(installedVram),
             "all Ceres timer and door VRAM bytes match the cartridge without source reads");
 
         CeresEscapeTileSheetDefinition warning =

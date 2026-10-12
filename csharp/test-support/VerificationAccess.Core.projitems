@@ -2,6 +2,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/PrivateState.cs" Link="TestSupport/VerificationAccess/PrivateState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAccess.cs" Link="TestSupport/VerificationAccess/CoreAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/PpuImageAccess.cs" Link="TestSupport/VerificationAccess/PpuImageAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAssetsAccess.cs" Link="TestSupport/VerificationAccess/CoreAssetsAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAudioAccess.cs" Link="TestSupport/VerificationAccess/CoreAudioAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreFrontendAccess.cs" Link="TestSupport/VerificationAccess/CoreFrontendAccess.cs" />

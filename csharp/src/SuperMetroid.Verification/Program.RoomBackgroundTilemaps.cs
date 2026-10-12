@@ -47,7 +47,7 @@ internal static partial class Program
         SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
         LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource),
             selectedVram, ceresList, activeDoorPointer: 0, tilemapArt: catalog);
-        AssertTrue(new VramStore(nativeVram).ImageEquals(selectedVram),
+        AssertTrue(nativeVram.ImageEquals(selectedVram),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
         byte[] original = RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(bus), ceresSource);

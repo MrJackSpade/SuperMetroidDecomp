@@ -59,7 +59,7 @@ internal static partial class Program
             byte[] page = Enumerable.Range(0, 0x200).Select(offset => rom.ReadCartridgeByte(source + offset)).ToArray();
             nativeVram.LoadBytes((0x6000 + destination) * 2, page);
         }
-        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
+        AssertTrue(installedVram.ImageEquals(nativeVram),
             "all six installed Crocomire skeleton uploads match native full VRAM");
         AssertEqual((ushort)(frames.Length * 2),
             installedState.TargetHeightOrSkeletonTileIndex,

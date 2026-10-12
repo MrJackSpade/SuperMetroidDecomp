@@ -52,10 +52,6 @@ public sealed class OamBuffer
     /// </summary>
     public int LastFinalizedSpriteCount { get; private set; }
 
-    /// <summary>Whether this OAM holds exactly the same low and high tables as <paramref name="other"/>.</summary>
-    public bool ImageEquals(OamBuffer other) =>
-        LowTable.SequenceEqual(Ensure.NotNull(other).LowTable) && HighTable.SequenceEqual(other.HighTable);
-
     /// <summary>
     /// Starts the game-logic OAM construction phase. This ports the main-loop calls to
     /// <c>ClearHighOAM</c> and <c>STZ OAMStack</c> at <c>$82:8953-$82:8957</c>.

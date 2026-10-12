@@ -82,7 +82,7 @@ internal static partial class Program
             var installedGhostVram = new SnesVram();
             LibraryBackgroundLoader.Execute(bus, installedGhostVram, ghostTransfer.ListPointer,
                 activeDoorPointer: 0, characterArt: stock, tilemapArt: RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps());
-            AssertTrue(new VramStore(nativeGhostVram).ImageEquals(installedGhostVram),
+            AssertTrue(nativeGhostVram.ImageEquals(installedGhostVram),
                 "installed statue-ghost PNG matches the complete native library upload");
             int ghostTileCount = nativeGhost.Length / RoomCharacterAtlasFormat.BytesPerTile;
             int ghostColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, ghostTileCount);
@@ -216,7 +216,7 @@ internal static partial class Program
             LibraryBackgroundLoader.Execute(bus, stockBackgroundVram,
                 ceres.State.BackgroundDataPointer, activeDoorPointer: 0,
                 tilemapArt: stockBackgrounds);
-            AssertTrue(new VramStore(nativeBackgroundVram).ImageEquals(stockBackgroundVram),
+            AssertTrue(nativeBackgroundVram.ImageEquals(stockBackgroundVram),
                 "installed Ceres background tilemap retains native VRAM words");
             string backgroundStockPath = Path.Combine(installed.RoomBackgroundTilemapDirectory,
                 backgroundName);
@@ -317,7 +317,7 @@ internal static partial class Program
             LibraryBackgroundLoader.Execute(bus, repairedBackgroundVram,
                 ceres.State.BackgroundDataPointer, activeDoorPointer: 0,
                 tilemapArt: repaired.LoadRoomBackgroundTilemaps());
-            AssertTrue(new VramStore(repairedBackgroundVram).ImageEquals(editedBackgroundVram),
+            AssertTrue(repairedBackgroundVram.ImageEquals(editedBackgroundVram),
                 "repaired installation retains selected user background tilemap");
             AssertTrue(repaired.LoadRoomSkyTilemaps().TryResolve(landingSky.SourceAddress,
                     landingSky.ByteCount, out ReadOnlyMemory<byte> repairedSky) &&

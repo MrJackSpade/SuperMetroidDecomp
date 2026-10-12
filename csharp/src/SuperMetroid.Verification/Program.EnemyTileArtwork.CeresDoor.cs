@@ -74,7 +74,7 @@ internal static partial class Program
             nativeVram.LoadMode7MapBytes(nativeFrame,
                 CeresDoorVisualRomData.Mode7DestinationWord);
             visual.LoadMode7DoorFrame(installedVram, frame);
-            AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram),
+            AssertTrue(nativeVram.ImageEquals(installedVram),
                 $"installed Ceres-door Mode-7 frame {frame} matches native transfer");
         }
 
@@ -127,7 +127,7 @@ internal static partial class Program
         var stockMode7 = new SnesVram();
         edited.LoadMode7DoorFrame(editedMode7, 0);
         visual.LoadMode7DoorFrame(stockMode7, 0);
-        AssertTrue(!new VramStore(editedMode7).ImageEquals(stockMode7),
+        AssertTrue(!editedMode7.ImageEquals(stockMode7),
             "Ceres-door Mode-7 frame override changes the live tilemap");
     }
 }

@@ -242,7 +242,7 @@ internal static partial class Program
                 segment.EncodedVramDestination);
             installedQueue.DrainTo(installedDeathVram, ReferenceMutableMemory.From(guardedBus),
                 new DeathTileAssetProvider(stock.DeathTiles));
-            AssertTrue(new VramStore(nativeDeathVram).ImageEquals(installedDeathVram),
+            AssertTrue(nativeDeathVram.ImageEquals(installedDeathVram),
                 $"death tile segment ${segment.SourceAddress:X6} NMI transfer parity");
         }
         for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
@@ -343,7 +343,7 @@ internal static partial class Program
             var installedVram = new SnesVram();
             nativeTransfer.TransferToVram(bus, nativeVram);
             installedTransfer.TransferToVram(guardedBus, installedVram);
-            AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram),
+            AssertTrue(nativeVram.ImageEquals(installedVram),
                 $"Samus pose {pose:X2} complete split VRAM transfer parity");
         }
 
@@ -566,7 +566,7 @@ internal static partial class Program
             new DeathTileAssetProvider(stock.DeathTiles));
         editedDeathTransfer.DrainTo(editedDeathTilesVram, ReferenceMutableMemory.From(guardedBus),
             new DeathTileAssetProvider(replacement.DeathTiles));
-        AssertTrue(!new VramStore(stockDeathTilesVram).ImageEquals(editedDeathTilesVram),
+        AssertTrue(!stockDeathTilesVram.ImageEquals(editedDeathTilesVram),
             "edited death explosion PNG reaches the queued production VRAM transfer");
         var stockDeathOam = new OamBuffer();
         var editedDeathOam = new OamBuffer();
@@ -631,7 +631,7 @@ internal static partial class Program
         var editedPixels = new SnesVram();
         stockTransfer.TransferToVram(guardedBus, stockPixels);
         editedTransfer.TransferToVram(guardedBus, editedPixels);
-        AssertTrue(!new VramStore(stockPixels).ImageEquals(editedPixels),
+        AssertTrue(!stockPixels.ImageEquals(editedPixels),
             "edited Samus body PNG changes the production VRAM transfer for pose $09");
         document["topPointers"]![0] = 0x8000;
         File.WriteAllText(selectedManifest, document.ToJsonString());

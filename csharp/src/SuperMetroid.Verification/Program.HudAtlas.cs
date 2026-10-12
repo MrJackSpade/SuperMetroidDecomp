@@ -34,7 +34,7 @@ internal static partial class Program
         AssertTrue(beforeNmi.AsSpan().SequenceEqual(installed.Vram.Bytes), "lag NMI does not publish installed HUD artwork");
         native.RunNmi(0, mainLoopRequestedNmi: true);
         installed.RunNmi(0, mainLoopRequestedNmi: true);
-        AssertTrue(new VramStore(native.Vram).ImageEquals(installed.Vram), "accepted NMI matches all VRAM bytes with HUD artwork ROM blocked");
+        AssertTrue(native.Vram.ImageEquals(installed.Vram), "accepted NMI matches all VRAM bytes with HUD artwork ROM blocked");
         Rgba32[] baseline = Render(native);
         AssertTrue(baseline.AsSpan().SequenceEqual(Render(installed)), "stock installed HUD/minimap renders identical pixels");
 

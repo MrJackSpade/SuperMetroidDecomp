@@ -56,7 +56,7 @@ internal static partial class Program
         var nativeVram = new SnesVram();
         stockQueue.DrainTo(installedVram, ReferenceMutableMemory.From(bus), runtime);
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
-        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
+        AssertTrue(installedVram.ImageEquals(nativeVram),
             "all five installed takeoff uploads match the native VRAM image");
 
         string fileName = EnemyTileArtworkFormat.GunshipLiftoffFileName(0);

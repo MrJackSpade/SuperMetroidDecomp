@@ -66,7 +66,7 @@ internal static partial class Program
         }
         var nativeVram = new SnesVram();
         ImportedVramOracle.Drain(nativeQueue, nativeVram, rom);
-        AssertTrue(new VramStore(nativeVram).ImageEquals(installedVram),
+        AssertTrue(nativeVram.ImageEquals(installedVram),
             "Ceres English/Japanese tilemap VRAM matches cartridge without source reads");
 
         string overrideDirectory = Path.Combine(stockDirectory,

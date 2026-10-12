@@ -157,7 +157,7 @@ internal sealed partial class InstalledSamusIsolationTests
             Check(context + " after draw");
             tests.draws++;
             if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable)) tests.changedOam++;
-            if (!new VramStore(Stock.Tiles).ImageEquals(Edited.Tiles)) tests.changedTiles++;
+            if (!Stock.Tiles.ImageEquals(Edited.Tiles)) tests.changedTiles++;
         }
     }
 

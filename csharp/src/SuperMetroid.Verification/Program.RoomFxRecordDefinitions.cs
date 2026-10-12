@@ -51,7 +51,7 @@ internal static partial class Program
         AssertEqual(nativeFx.Timer, compiledFx.Timer, "Ceres compiled FX timer");
         AssertEqual(nativeFx.LiquidOptions, compiledFx.LiquidOptions,
             "Ceres compiled FX liquid options");
-        AssertTrue(new VramStore(nativeVram).ImageEquals(compiledVram),
+        AssertTrue(nativeVram.ImageEquals(compiledVram),
             "Ceres compiled FX retains VRAM output");
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(compiledCgram)),
             "Ceres compiled FX retains CGRAM output");

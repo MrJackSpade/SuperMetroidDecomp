@@ -18,7 +18,7 @@ internal static partial class Program
             baseline.InitializeMap(source); edited.InitializeMap(source);
             AssertCrocomireEffectMechanics(baseline, edited, "melt map replacement");
             AssertTrue(!baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "authored melt map reaches scratch");
-            AssertTrue(!new VramStore(baseline.Vram).ImageEquals(edited.Vram), "authored melt map reaches VRAM");
+            AssertTrue(!baseline.Vram.ImageEquals(edited.Vram), "authored melt map reaches VRAM");
 
             byte[] tail = baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..].ToArray();
             baseline.Call("InitializeCrocomireMeltingGraphics"); edited.Call("InitializeCrocomireMeltingGraphics");

@@ -41,7 +41,7 @@ internal static partial class InstalledSamusArtworkTests
                     expected.LoadBytes(destinations.First * 2, b.Planar.Span[..b.FirstSize]);
                     if (b.SecondSize != 0)
                         expected.LoadBytes(destinations.Second * 2, b.Planar.Span[b.FirstSize..]);
-                    Require(new VramStore(expected).ImageEquals(vb), "Split DMA changed neighboring VRAM");
+                    Require(expected.ImageEquals(vb), "Split DMA changed neighboring VRAM");
                     var oam = TileGallery(destinations.First, a.FirstSize, destinations.Second, a.SecondSize);
                     check.Pair(va, vb, oam, $"{(upper ? "top" : "bottom")}/{set:X2}/{position:X2}");
                     count++;

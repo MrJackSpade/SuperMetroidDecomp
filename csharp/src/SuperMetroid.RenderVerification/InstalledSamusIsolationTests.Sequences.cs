@@ -180,7 +180,7 @@ internal sealed partial class InstalledSamusIsolationTests
                 pair.Check(context + " explosion draw");
                 draws++;
                 if (!a.LowTable.SequenceEqual(b.LowTable)) changedOam++;
-                if (!new VramStore(pair.Stock.Tiles).ImageEquals(pair.Edited.Tiles)) changedTiles++;
+                if (!pair.Stock.Tiles.ImageEquals(pair.Edited.Tiles)) changedTiles++;
             }
             frames++;
         }

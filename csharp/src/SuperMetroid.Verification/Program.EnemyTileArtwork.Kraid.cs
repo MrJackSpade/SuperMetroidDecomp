@@ -35,7 +35,7 @@ internal static partial class Program
             "Kraid BG2 ownership remains unchanged");
         SnesVram nativeVram = TransferKraidVisiblePages(native);
         SnesVram installedVram = TransferKraidVisiblePages(installed);
-        AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
+        AssertTrue(installedVram.ImageEquals(nativeVram),
             "installed Kraid BG2 sources preserve both live VRAM pages");
 
         string upperPath = Path.Combine(directory, KraidBackgroundArtworkFormat.UpperFileName);
@@ -103,7 +103,7 @@ internal static partial class Program
             AssertTrue(selected.BackgroundTilemapWords.SequenceEqual(
                     baseline.BackgroundTilemapWords),
                 $"Kraid head ${pointer:X4} preserves the live working map");
-            AssertTrue(new VramStore(installedVram).ImageEquals(nativeVram),
+            AssertTrue(installedVram.ImageEquals(nativeVram),
                 $"Kraid head ${pointer:X4} preserves the actual VRAM transfer");
             AssertEqual(baseline.HeadTilemapUploadCount, selected.HeadTilemapUploadCount,
                 $"Kraid head ${pointer:X4} preserves upload count");
@@ -138,7 +138,7 @@ internal static partial class Program
             "Kraid head edit leaves all later VRAM bytes unchanged");
         (_, SnesVram reloadedVram) = RunKraidHeadFrame(
             EnemyTileArtworkFiles.Load(directory, overrides), editedPointer);
-        AssertTrue(new VramStore(reloadedVram).ImageEquals(changedVram),
+        AssertTrue(reloadedVram.ImageEquals(changedVram),
             "Kraid head tilemap edit survives a catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);
@@ -176,9 +176,9 @@ internal static partial class Program
             stock.HudTiles, stock, useQueue: true);
         SnesVram installedDirect = RunKraidBg3Restoration(enemyArtwork,
             stock.HudTiles, stock, useQueue: false);
-        AssertTrue(new VramStore(installedQueued).ImageEquals(baselineQueued),
+        AssertTrue(installedQueued.ImageEquals(baselineQueued),
             "installed NMI-queued Kraid BG3 restoration preserves native VRAM");
-        AssertTrue(new VramStore(installedDirect).ImageEquals(baselineQueued),
+        AssertTrue(installedDirect.ImageEquals(baselineQueued),
             "installed direct Kraid BG3 restoration preserves native VRAM");
         // These checks exercise asset binding/queue restoration, not starting colors.
         // Supply the constructor's explicit palette dependency; never revive its ROM fallback.
@@ -218,7 +218,7 @@ internal static partial class Program
                 $"legacy pending Kraid BG3 quarter {quarter} rebinds to current art");
         restored.VramWrites.DrainTo(restored.Vram,
             SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), restored);
-        AssertTrue(new VramStore(restored.Vram).ImageEquals(baselineQueued),
+        AssertTrue(restored.Vram.ImageEquals(baselineQueued),
             "restored legacy Kraid BG3 queue uses installed pixels, not ROM");
 
         string overrides = Path.Combine(directory, "kraid-bg3-map-overrides");
@@ -304,7 +304,7 @@ internal static partial class Program
         var baseline = new SnesVram();
         baseline.LoadBytes(KraidBackgroundRomData.RoomBackgroundTileVramWord * 2, native);
         SnesVram installed = UploadKraidRoomBackground(stock);
-        AssertTrue(new VramStore(installed).ImageEquals(baseline),
+        AssertTrue(installed.ImageEquals(baseline),
             "installed Kraid room-background upload preserves full native VRAM");
 
         string fileName = KraidBackgroundArtworkFormat.RoomBackgroundFileName;
@@ -329,7 +329,7 @@ internal static partial class Program
                 .SequenceEqual(changed.Bytes[(destination + 1)..]),
             "Kraid backdrop PNG edit leaves later VRAM bytes unchanged");
         SnesVram reloaded = UploadKraidRoomBackground(EnemyTileArtworkFiles.Load(directory, overrides));
-        AssertTrue(new VramStore(reloaded).ImageEquals(changed),
+        AssertTrue(reloaded.ImageEquals(changed),
             "Kraid room-background PNG override survives catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);

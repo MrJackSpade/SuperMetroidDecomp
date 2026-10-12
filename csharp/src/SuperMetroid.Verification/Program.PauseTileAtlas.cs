@@ -28,7 +28,7 @@ internal static partial class Program
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "pause-only PNG edit changes content identity");
         var firstMap = new SnesVram(); var editedMap = new SnesVram();
         original.Tiles.LoadTo(new VramStore(firstMap).All.Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort))); edited.Tiles.LoadTo(new VramStore(editedMap).All.Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
-        AssertTrue(new VramStore(firstMap).ImageEquals(editedMap), "pause UI override does not alter shared map characters");
+        AssertTrue(firstMap.ImageEquals(editedMap), "pause UI override does not alter shared map characters");
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(area);

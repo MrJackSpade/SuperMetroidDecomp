@@ -151,7 +151,7 @@ static void VerifyLibraryBackgroundLoader()
         SuperMetroid.AssetExtraction.LibraryBackgroundProgramImporter.ExecuteReference(typed, nativeVram,
             0xe000, activeDoorPointer: 0);
     AssertEqual(result, native, "typed source routing preserves native command execution");
-    AssertTrue(new VramStore(nativeVram).ImageEquals(vram),
+    AssertTrue(nativeVram.ImageEquals(vram),
         "typed native library-background reads preserve the complete VRAM result");
     AssertTrue(typed.CartridgeReads > 0 && typed.WorkRamReads > 0,
         "native library-background command and decompression reads use typed ROM/WRAM");

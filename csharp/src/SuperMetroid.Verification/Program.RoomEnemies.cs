@@ -186,7 +186,7 @@ static void VerifyRoomEnemyLoading()
     var installedCgram = new SnesCgram();
     installedEnemies.Load(new EnemyTileSourceReadGuard(bus), populationPointer, tilesetPointer,
         installedVram, installedCgram, () => 0x9999);
-    AssertTrue(new VramStore(vram).ImageEquals(installedVram),
+    AssertTrue(vram.ImageEquals(installedVram),
         "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
     AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
         "enemy tile overrides cannot alter native palettes");

@@ -50,7 +50,7 @@ internal static class VramDmaProducerContracts
             // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "D4A69DE535DAB85451E27199652458C96B21B079078C25AA5C4A9C464F3D443C") => "sky",
             // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
-            ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "1F6B454946130A398244264B243CCB7F64600E90844442D01C7993E82C666F55") => "statues",
+            ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "ECFD06A5B81EFA49A0A79006931D447A1A2683F0FE0B595F004E73D0B10038D5") => "statues",
             // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
             ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "2C16DDAE96CCA50EA3B18A5548E934889989B587526D7424B20F1A329A9A7D36") => "treadmill",
             // #628 reviewed: the camera and BG1 offset are read from their typed positions and the PLM step takes the camera as one Position16<RoomPixels>; PLM VRAM requests unchanged.

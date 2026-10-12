@@ -145,9 +145,6 @@ public readonly struct CgramPalettes(SnesCgram cgram)
         }
     }
 
-    /// <summary>Whether this CGRAM holds exactly the same image as <paramref name="other"/>.</summary>
-    public bool ImageEquals(CgramPalettes other) => Image.SequenceEqual(other.Image);
-
     private static bool Covers(ReadOnlySpan<PpuLayoutCell> cells, int color)
     {
         foreach (PpuLayoutCell cell in cells)

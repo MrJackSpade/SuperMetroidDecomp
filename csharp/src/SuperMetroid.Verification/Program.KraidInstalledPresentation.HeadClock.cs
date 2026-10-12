@@ -85,7 +85,7 @@ internal static partial class Program
                     uploadCount++; frames++;
                     KraidHeadClockFixture.ExpectedUpload(expectedStock, stock.KraidBackground!.HeadWords(physical));
                     KraidHeadClockFixture.ExpectedUpload(expectedEdited, edited.KraidBackground!.HeadWords(physical));
-                    AssertTrue(!new VramStore(baseline.Vram).ImageEquals(changed.Vram), "replacement head is actually visible");
+                    AssertTrue(!baseline.Vram.ImageEquals(changed.Vram), "replacement head is actually visible");
                 }
                 AssertEqual((ushort)(nextEvent - tick), baseline.Body.VariableC, "native countdown on every hold tick");
                 KraidHeadInstructionDefinition displayed = commands.Take(cursor).Last(item => item.Kind == KraidHeadInstructionKind.Frame);

@@ -124,7 +124,7 @@ internal static partial class Program
             var actual = new SnesVram(); var expected = new SnesVram();
             expected.ExecuteQueuedAssetWrite(native.AsSpan(page * pageBytes, pageBytes).ToArray(), pages[page].EncodedVramDestination);
             queue.DrainTo(actual, ReferenceMutableMemory.From(rom), new DeathTileAssetProvider(stock));
-            AssertTrue(new VramStore(actual).ImageEquals(expected), "Actual five-page NMI transport matches native");
+            AssertTrue(actual.ImageEquals(expected), "Actual five-page NMI transport matches native");
         }
         AssertTrue(!stock.TryResolve(0, pageBytes, out _), "Unknown death source remains unresolved");
         AssertThrows<InvalidDataException>(() => stock.TryResolve(pages[0].SourceAddress, pageBytes - 1, out _), "Exact death page size required");
@@ -3134,7 +3134,7 @@ internal static partial class Program
                 AssertEqual(timer, actual.DelayTimer, "escape text native countdown");
                 AssertEqual(glyphs, actual.GlyphsWritten, "escape text native glyph count");
                 AssertEqual(click, actual.ClickRequested, "escape text native click order");
-                AssertTrue(new VramStore(expectedVram).ImageEquals(actualVram), "escape text native per-character VRAM");
+                AssertTrue(expectedVram.ImageEquals(actualVram), "escape text native per-character VRAM");
                 totalFrames++;
             }
             AssertTrue(done, "escape text native program terminates");
@@ -3865,7 +3865,7 @@ internal static partial class Program
             Copy(state.TopDefinitionAddress, 0x6000);
             if (state.BottomTransferEnabled) Copy(state.BottomDefinitionAddress, 0x6080);
             state.TransferToVram(guard, actual);
-            AssertTrue(new VramStore(expected).ImageEquals(actual), "Actual complete native split DMA and physical cross-group aliases");
+            AssertTrue(expected.ImageEquals(actual), "Actual complete native split DMA and physical cross-group aliases");
             AssertTrue(state.TopTransferEnabled, "Native NMI preserves transfer flags");
             transfers++;
         }

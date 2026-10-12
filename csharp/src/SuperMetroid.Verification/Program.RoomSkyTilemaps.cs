@@ -104,7 +104,7 @@ internal static partial class Program
                 NewSkyPageReadGuard(bus, blockLandingList: true), compiledVram,
                 unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
                 compiled.DoorPointer, skyArt: stock);
-            AssertTrue(new VramStore(expectedVram).ImageEquals(compiledVram),
+            AssertTrue(expectedVram.ImageEquals(compiledVram),
                 $"Landing Site door {index} uploads the exact stock sky page without visual/list ROM reads");
         }
 
@@ -116,7 +116,7 @@ internal static partial class Program
         LibraryBackgroundLoader.Execute(NewSkyPageReadGuard(bus, blockLandingList: true), installedDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             LandingSiteRomData.LandingCutsceneDoorPointer, skyArt: stock);
-        AssertTrue(new VramStore(nativeDoorVram).ImageEquals(installedDoorVram),
+        AssertTrue(nativeDoorVram.ImageEquals(installedDoorVram),
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
 
         var nativeRows = new VramWriteQueue();
@@ -129,7 +129,7 @@ internal static partial class Program
         var installedRowVram = new SnesVram();
         ImportedVramOracle.Drain(nativeRows, nativeRowVram, bus);
         installedRows.DrainTo(installedRowVram, ReferenceMutableMemory.From(guard), new SkyPageProvider(stock));
-        AssertTrue(new VramStore(nativeRowVram).ImageEquals(installedRowVram),
+        AssertTrue(nativeRowVram.ImageEquals(installedRowVram),
             "per-frame sky rows use installed pages without ROM visual reads");
         foreach (ushort cameraY in new ushort[] { 0x0000, 0x04f0 })
         {
@@ -142,7 +142,7 @@ internal static partial class Program
             ImportedVramOracle.Drain(nativeEdgeRows, nativeEdgeVram, bus);
             installedEdgeRows.DrainTo(installedEdgeVram, ReferenceMutableMemory.From(guard),
                 new SkyPageProvider(stock));
-            AssertTrue(new VramStore(nativeEdgeVram).ImageEquals(installedEdgeVram),
+            AssertTrue(nativeEdgeVram.ImageEquals(installedEdgeVram),
                 $"camera Y=${cameraY:X4} preserves native sky-row overread and wrap parity");
         }
         foreach (ushort cameraY in new ushort[] { 0x0000, 0x0100, 0x0300, 0x04f0 })
@@ -161,7 +161,7 @@ internal static partial class Program
             ImportedVramOracle.Drain(nativeOceanRows, nativeOceanVram, bus);
             installedOceanRows.DrainTo(installedOceanVram, ReferenceMutableMemory.From(guard),
                 new SkyPageProvider(stock));
-            AssertTrue(new VramStore(nativeOceanVram).ImageEquals(installedOceanVram),
+            AssertTrue(nativeOceanVram.ImageEquals(installedOceanVram),
                 $"ocean camera Y=${cameraY:X4} uses installed sky rows and live wrapped WRAM with exact native NMI output");
             if (cameraY == 0)
                 AssertEqual((byte)0x5a,

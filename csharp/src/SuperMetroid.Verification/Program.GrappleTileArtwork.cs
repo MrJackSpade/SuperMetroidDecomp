@@ -62,7 +62,7 @@ internal static partial class Program
             var va = new SnesVram(); var vb = new SnesVram(); var vc = new SnesVram();
             va.LoadBytes(0, poison); vb.LoadBytes(0, poison); vc.LoadBytes(0, poison);
             ImportedVramOracle.Drain(a, va, bus); b.DrainTo(vb, ReferenceMutableMemory.From(guard), stock); c.DrainTo(vc, ReferenceMutableMemory.From(guard), edited);
-            AssertTrue(new VramStore(va).ImageEquals(vb), "Actual Grapple stock producer/drain preserves all VRAM with pointer/tile ROM forbidden");
+            AssertTrue(va.ImageEquals(vb), "Actual Grapple stock producer/drain preserves all VRAM with pointer/tile ROM forbidden");
             byte[] expectedBytes = va.Bytes.ToArray();
             expectedBytes[GrappleTileDefinitions.PointDestination * 2] ^= 128;
             for (int tile = 0; tile < 4; tile++) expectedBytes[GrappleTileDefinitions.SegmentDestination * 2 + tile * 32] ^= 128;

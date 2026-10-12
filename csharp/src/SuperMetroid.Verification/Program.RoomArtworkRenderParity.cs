@@ -46,7 +46,7 @@ internal static partial class Program
                 AssertTrue(native.ActiveRoomAssets!.RoomCharacters.Length >
                     RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
-            AssertTrue(new VramStore(native.Vram).ImageEquals(installed.Vram),
+            AssertTrue(native.Vram.ImageEquals(installed.Vram),
                 $"{name} installed artwork preserves the complete displayed VRAM");
             Rgba32[] nativeFrame = SuperMetroidRuntimeFrameRenderer.Render(native);
             Rgba32[] installedFrame = SuperMetroidRuntimeFrameRenderer.Render(installed);

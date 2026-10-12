@@ -249,10 +249,9 @@ internal static partial class Program
         MethodInfo draw = typeof(RoomPlmSystem)
             .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(method => method.Name == "DrawPlmInstruction" &&
-                method.GetParameters().Length == 8);
+                method.GetParameters().Length == 7);
         int origin = 8 * width + 8;
-        draw.Invoke(plms, [guard, level, streamer, (ushort)0, origin, pointer,
-            default(Position16<RoomPixels>), (ushort)0]);
+        draw.Invoke(plms, [guard, level, streamer, (ushort)0, origin, pointer, default(PlmView)]);
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(origin).LevelWord,
             "Samus Eater edited draw retains native collision word");

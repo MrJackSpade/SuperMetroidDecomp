@@ -20,7 +20,7 @@ internal static partial class Program
             PoseId = SamusPoseId.NormalJumpAimDiagonalUpLeftPose };
         var level = runtime.LevelData!;
         var plms = runtime.Plms;
-        for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, runtime.BackgroundStreamer!, new(0, 224), 0);
+        for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         ushort input = (ushort)SnesButton.X;

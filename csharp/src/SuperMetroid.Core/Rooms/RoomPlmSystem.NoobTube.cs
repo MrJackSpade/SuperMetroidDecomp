@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms;
 public sealed partial class RoomPlmSystem
 {
     private IRoomEarthquakeWriter? _noobTubeEarthquake;
-    private IRoomPlmEnemyEffects? _noobTubeEnemies;
+    private INoobTubeProjectileSpawner? _noobTubeEnemies;
     private RoomLayer3FxState? _noobTubeRoomFx;
 
     private void ResetNoobTubeState()

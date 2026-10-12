@@ -1141,7 +1141,7 @@ internal static class RoomPlmSystemAccess
             PrivateState.Invoke(self, "DrawPlmInstruction", bus, level, streamer,
                 PrivateState.Property<PlmHeaderId>(active[0], "HeaderPointer"),
                 PrivateState.Property<int>(active[0], "BlockIndex"),
-                drawPointer, default(Position16<RoomPixels>), (ushort)0);
+                drawPointer, default(PlmView));
         }
 
         /// <summary>
@@ -1498,13 +1498,11 @@ internal static class RoomPlmSystemAccess
             ISnesAddressSpace bus,
             RoomLevelData level,
             BackgroundTilemapStreamer streamer,
-            Position16<RoomPixels> layer1Position,
-            ushort bg1XOffset,
+            PlmView view,
             RoomScrollGrid? scrolls = null,
             ushort enemyDeaths = 0,
             byte enemyDeathQuota = 0)
-            => self.Step(bus, level, streamer, layer1Position, bg1XOffset,
-                scrolls, enemyDeaths, enemyDeathQuota, controllerNewInput: 0);
+            => self.Step(bus, level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
     private static IEnumerable<object> ActiveSlots(RoomPlmSystem plms) =>

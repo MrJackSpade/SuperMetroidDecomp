@@ -11,15 +11,7 @@ public sealed partial class RoomPlmSystem
     private AreaId _greyDoorArea;
     private ITourianStatueProgress? _tourianStatue;
 
-    private bool TryStepGreyDoor(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        PlmSlot slot,
-        Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset,
-        ushort enemyDeaths,
-        byte enemyDeathQuota)
+    private bool TryStepGreyDoor(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, ushort enemyDeaths, byte enemyDeathQuota)
     {
         GreyDoorPlmState? door = slot.GreyDoor;
         if (door is null)
@@ -55,14 +47,7 @@ public sealed partial class RoomPlmSystem
                 bus,
                 unchecked((ushort)(door.ClosedBlueList + 5)));
             level.SetBehavior(slot.BlockIndex, blueBts);
-            DrawPlmInstruction(
-                bus,
-                level,
-                streamer,
-                slot.BlockIndex,
-                drawPointer,
-                layer1Position,
-                bg1XOffset);
+            DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, drawPointer, view);
             slot.Active = false;
             slot.GreyDoor = null;
             return true;
@@ -70,14 +55,7 @@ public sealed partial class RoomPlmSystem
 
         if (!door.InitialDrawCompleted)
         {
-            DrawPlmInstruction(
-                bus,
-                level,
-                streamer,
-                slot.BlockIndex,
-                door.ClosedGreyDraw,
-                layer1Position,
-                bg1XOffset);
+            DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, door.ClosedGreyDraw, view);
             door.InitialDrawCompleted = true;
         }
 

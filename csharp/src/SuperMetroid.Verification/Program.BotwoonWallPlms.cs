@@ -118,7 +118,7 @@ internal static partial class Program
         int soundCount = 0;
         for (int frame = 0; frame < 220 && plms.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, new(0, 0), 0, scrolls);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
             soundCount += plms.SoundRequests.Count(request =>
                 request.SoundEffect == SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2,

@@ -279,16 +279,7 @@ internal static partial class Program
         TestAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer) =>
-        plms.Step(
-            bus,
-            level,
-            streamer,
-            layer1Position: new(0, 0),
-            bg1XOffset: 0,
-            scrolls: null,
-            enemyDeaths: 0,
-            enemyDeathQuota: 0,
-            controllerNewInput: 0);
+        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the downward-gate enemy projectile definitions and list")]
     private static void SeedDownwardGateProjectileRom(TestAddressSpace bus)

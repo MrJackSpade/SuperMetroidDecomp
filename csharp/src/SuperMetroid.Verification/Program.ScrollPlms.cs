@@ -70,7 +70,7 @@ internal static partial class Program
             SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, plms: plms);
             AssertEqual(shouldWake, plms.ScrollPlmTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
-            plms.Step(bus, level, streamer, new(0, 0), 0, scrolls);
+            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         }
 
         // A direct touch wakes the resident object. Its next handler pass interprets the
@@ -79,7 +79,7 @@ internal static partial class Program
             "direct special-air contact finds resident scroll owner");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
-        plms.Step(bus, level, streamer, new(0, 0), 0, scrolls);
+        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "scroll byte-pair program mutates active room grid");
         AssertTrue(!plms.ScrollPlmTriggered(origin),
@@ -99,7 +99,7 @@ internal static partial class Program
             "scroll extension remains traversable special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "horizontal extension resolves and wakes B703 owner");
-        plms.Step(bus, level, streamer, new(0, 0), 0, scrolls);
+        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "extension-triggered contact executes the same scroll program");
 
@@ -128,7 +128,7 @@ internal static partial class Program
             "Morph Ball traverses scroll extension as special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "Morph Ball wrapper forwards live PLM owner to block collision");
-        plms.Step(bus, level, streamer, new(0, 0), 0, scrolls);
+        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual(1, scrolls.ReadStorage(1),
             "Morph Ball scroll contact executes resident bank-$8F program");
 

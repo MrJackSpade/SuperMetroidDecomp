@@ -72,12 +72,7 @@ internal static partial class Program
 
         for (int warm = 0; warm < 2; warm++)
         {
-            plms.Step(
-                bus,
-                level,
-                runtime.BackgroundStreamer!,
-                new(FrozenGateCameraX, FrozenGateCameraY),
-                bg1XOffset: 0);
+            plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
         }
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -115,12 +110,7 @@ internal static partial class Program
         AssertEqual(expected.FinalX, samus.Position.X.Whole,
             $"{expected.Distance}-pixel case preserves native final X");
 
-        plms.Step(
-            bus,
-            level,
-            runtime.BackgroundStreamer!,
-            new(FrozenGateCameraX, FrozenGateCameraY),
-            bg1XOffset: 0);
+        plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         bool gateWoke = gate.InstructionPointer != sleepingInstruction;

@@ -49,14 +49,7 @@ public sealed partial class RoomPlmSystem
     /// animation frame. The declined route jumps to `$B008`, which still installs the
     /// once-per-room-entry lockout. Returns the first frame's tilemap updates.
     /// </summary>
-    public SaveStationConfirmationResult ResolveSaveStationConfirmation(
-        ISnesAddressSpace bus,
-        StationActivationEvent activation,
-        bool accepted,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset)
+    public SaveStationConfirmationResult ResolveSaveStationConfirmation(ISnesAddressSpace bus, StationActivationEvent activation, bool accepted, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -89,8 +82,7 @@ public sealed partial class RoomPlmSystem
         // `$84:AFF4` queues library-one sound $2E right after centring Samus.
         _soundRequests.Add(CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6));
         _tilemapUpdates.Clear();
-        DrawSaveStationFrame(bus, level, streamer, activation.BlockIndex, station,
-            layer1Position, bg1XOffset);
+        DrawSaveStationFrame(bus, level, streamer, activation.BlockIndex, station, view);
         return new SaveStationConfirmationResult(true, _tilemapUpdates.ToArray());
     }
 
@@ -394,13 +386,7 @@ public sealed partial class RoomPlmSystem
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 
-    private bool TryStepStation(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        PlmSlot slot,
-        Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset)
+    private bool TryStepStation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         StationPlmState? station = slot.Station;
         if (station is null)
@@ -448,25 +434,11 @@ public sealed partial class RoomPlmSystem
                 station.OperationTimer = StationAccessMovementFrames;
                 operationStartedThisPass = true;
                 _soundRequests.Add(CreateSoundRequest(RoomPlmSounds.StationExtension, MaximumQueued: 6));
-                DrawStationAccess(
-                    bus,
-                    level,
-                    streamer,
-                    station,
-                    extended: false,
-                    layer1Position,
-                    bg1XOffset);
+                DrawStationAccess(bus, level, streamer, station, extended: false, view: view);
             }
         }
 
-        if (station.Kind == StationKind.Save && StepSaveStationAnimation(
-                bus,
-                level,
-                streamer,
-                slot,
-                station,
-                layer1Position,
-                bg1XOffset))
+        if (station.Kind == StationKind.Save && StepSaveStationAnimation(bus, level, streamer, slot, station, view))
         {
             return true;
         }
@@ -480,14 +452,7 @@ public sealed partial class RoomPlmSystem
                 switch (station.OperationPhase)
                 {
                     case StationOperationPhase.Extending:
-                        DrawStationAccess(
-                            bus,
-                            level,
-                            streamer,
-                            station,
-                            extended: true,
-                            layer1Position,
-                            bg1XOffset);
+                        DrawStationAccess(bus, level, streamer, station, extended: true, view: view);
                         station.OperationPhase = StationOperationPhase.Extended;
                         station.OperationTimer = StationAccessExtendedHoldFrames;
                         break;
@@ -507,14 +472,7 @@ public sealed partial class RoomPlmSystem
                         station.OperationTimer = StationAccessMovementFrames;
                         break;
                     case StationOperationPhase.Retracting:
-                        DrawStationAccess(
-                            bus,
-                            level,
-                            streamer,
-                            station,
-                            extended: false,
-                            layer1Position,
-                            bg1XOffset);
+                        DrawStationAccess(bus, level, streamer, station, extended: false, view: view);
                         station.OperationPhase = StationOperationPhase.FinalRetractionHold;
                         station.OperationTimer = StationAccessMovementFrames;
                         break;
@@ -554,28 +512,14 @@ public sealed partial class RoomPlmSystem
                 $"{station.Kind} station animation $84:{(int)station.AnimationList:X4} " +
                 $"frame {station.AnimationFrame} does not begin with a timed draw.");
         }
-        DrawPlmInstruction(
-            bus,
-            level,
-            streamer,
-            slot.BlockIndex,
-            draw,
-            layer1Position,
-            bg1XOffset);
+        DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, draw, view);
         station.AnimationTimer = timer;
         station.InitialDrawCompleted = true;
         station.AnimationFrame = (station.AnimationFrame + 1) % station.AnimationFrameCount;
         return true;
     }
 
-    private bool StepSaveStationAnimation(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        PlmSlot slot,
-        StationPlmState station,
-        Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset)
+    private bool StepSaveStationAnimation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, StationPlmState station, PlmView view)
     {
         if (station.SavePhase is SaveStationPhase.Idle or
             SaveStationPhase.AwaitingConfirmation)
@@ -608,20 +552,12 @@ public sealed partial class RoomPlmSystem
                 slot.BlockIndex));
             return true;
         }
-        DrawSaveStationFrame(bus, level, streamer, slot.BlockIndex, station,
-            layer1Position, bg1XOffset);
+        DrawSaveStationFrame(bus, level, streamer, slot.BlockIndex, station, view);
         return true;
     }
 
     /// <summary>Draws the next of the two four-frame electricity frames (`$84:AFFA`/`$AFFE`).</summary>
-    private void DrawSaveStationFrame(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        int blockIndex,
-        StationPlmState station,
-        Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset)
+    private void DrawSaveStationFrame(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, StationPlmState station, PlmView view)
     {
         StationAnimationList list = station.AnimationFrame == 0
             ? StationAnimationList.SaveFirstFrame
@@ -633,14 +569,7 @@ public sealed partial class RoomPlmSystem
             throw new InvalidDataException(
                 $"Save-station animation list $84:{(int)list:X4} has timer {frame.Duration}, expected 4.");
         }
-        DrawPlmInstruction(
-            bus,
-            level,
-            streamer,
-            blockIndex,
-            frame.DrawPointer,
-            layer1Position,
-            bg1XOffset);
+        DrawPlmInstruction(bus, level, streamer, blockIndex, frame.DrawPointer, view);
         station.AnimationTimer = frame.Duration;
         station.AnimationFrame ^= 1;
         if (station.AnimationFrame == 0)
@@ -691,28 +620,14 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex));
     }
 
-    private void DrawStationAccess(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        StationPlmState station,
-        bool extended,
-        Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset)
+    private void DrawStationAccess(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, StationPlmState station, bool extended, PlmView view)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
             ?? throw new InvalidDataException("Station access has no BTS owner.");
         StationAccessPlmDefinition definition =
             StationAccessPlmDefinitions.Resolve(accessBehavior);
         ushort drawPointer = definition.DrawPointer(extended);
-        DrawPlmInstruction(
-            bus,
-            level,
-            streamer,
-            station.AccessBlockIndex,
-            drawPointer,
-            layer1Position,
-            bg1XOffset);
+        DrawPlmInstruction(bus, level, streamer, station.AccessBlockIndex, drawPointer, view);
     }
 
     private sealed class StationPlmState(

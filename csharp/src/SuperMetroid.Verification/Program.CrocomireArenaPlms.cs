@@ -56,7 +56,7 @@ internal static partial class Program
             $"Crocomire header ${(int)header:X4} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(guard, level, streamer, new(0, 0), 0);
+        plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(1, plms.ActiveCount,
             $"Crocomire header ${(int)header:X4} persists for native draw frame");
         for (int y = 0; y < 9; y++)
@@ -64,7 +64,7 @@ internal static partial class Program
             AssertEqual(expectedWord(new((ushort)x, (ushort)y)),
                 level.GetCollisionBlockByIndex((3 + y) * width + 5 + x).LevelWord,
                 $"Crocomire header ${(int)header:X4} physical block ({x},{y})");
-        plms.Step(guard, level, streamer, new(0, 0), 0);
+        plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.ActiveCount,
             $"Crocomire header ${(int)header:X4} deletes on next frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,

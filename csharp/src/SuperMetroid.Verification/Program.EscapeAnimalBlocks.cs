@@ -39,7 +39,7 @@ internal static partial class Program
         AssertTrue(plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true), "nonzero beam opens rescue wall");
         AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "rescue event waits for animation");
         for (int frame = 0; frame < 16; frame++)
-            plms.Step(bus, level, streamer, new(0, 0), 0);
+            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(system.HasEvent(EventNumber.CrittersEscaped), "native animation sets rescue event");
         for (int y = 10; y <= 12; y++)
             AssertEqual((ushort)0x80ff, level.GetCollisionBlock(new(15, checked((ushort)y))).LevelWord, "native rescue opening clears artwork but remains solid to Samus");

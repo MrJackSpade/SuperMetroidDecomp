@@ -50,18 +50,7 @@ public sealed partial class SuperMetroidRuntime
                 "The PLM handler requires an active room, camera, and Samus.");
         }
 
-        IReadOnlyList<PlmTilemapUpdate> updates = Plms.Step(
-            _addressSpace,
-            LevelData,
-            BackgroundStreamer,
-            Camera.PixelPosition,
-            unchecked((ushort)BackgroundScroll.Bg1Offset.X),
-            Camera.Scrolls,
-            Enemies.EnemiesKilled,
-            Enemies.DeathQuota,
-            controllerNewInput,
-            Samus.CollectedItems,
-            powerBombExplosionStatus: BombProjectiles.PowerBombExplosion.Status);
+        IReadOnlyList<PlmTilemapUpdate> updates = Plms.Step(_addressSpace, LevelData, BackgroundStreamer, new PlmView { Layer1Position = Camera.PixelPosition, Bg1XOffset = unchecked((ushort)BackgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = Camera.Scrolls, EnemyDeaths = Enemies.EnemiesKilled, EnemyDeathQuota = Enemies.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = Samus.CollectedItems, PowerBombExplosionStatus = BombProjectiles.PowerBombExplosion.Status });
         foreach (PlmTilemapUpdate update in updates)
             update.ExecuteTo(Vram);
         ApplyPendingDownwardGateProjectileRequests();

@@ -40,7 +40,7 @@ internal static partial class Program
                 runtime.Projectiles.StepFrame(bus, level, samus, input, input, new(cameraX, cameraY), runtime.BombProjectiles, roomPlms: runtime.Plms);
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
-                runtime.Plms.Step(bus, level, runtime.BackgroundStreamer!, new(cameraX, cameraY), 0);
+                runtime.Plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(cameraX, cameraY), Bg1XOffset = 0 });
                 openingSound |= runtime.Plms.SoundRequests.Any(request => request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;

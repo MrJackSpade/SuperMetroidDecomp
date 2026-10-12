@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge translation of PLM $84:B964, the old Tourian escape shaft fake wall.</summary>
 public sealed partial class RoomPlmSystem
 {
-    private IRoomPlmEnemyEffects? _oldTourianWallEnemies;
+    private IOldTourianWallExplosion? _oldTourianWallEnemies;
 
     private void ResetOldTourianEscapeShaftWallState() =>
         _oldTourianWallEnemies = null;

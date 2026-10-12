@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge-authored wall-cannon PLMs used by Draygon's room.</summary>
 public sealed partial class RoomPlmSystem
 {
-    private IRoomPlmEnemyEffects? _draygonCannonEnemies;
+    private IDraygonCannonControl? _draygonCannonEnemies;
 
     private static bool IsDraygonCannonHeader(PlmHeaderId header) => header is
         PlmHeaderId.DraygonCannonFacingRight or

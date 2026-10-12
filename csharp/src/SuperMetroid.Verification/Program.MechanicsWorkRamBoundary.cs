@@ -32,11 +32,11 @@ internal static partial class Program
             WriteMirroredWorkRamWord(memory, 0x841100, (ushort)RoomPlmInstruction.DrawPlmBlockClone);
             WriteMirroredWorkRamWord(memory, 0x841102, (ushort)RoomPlmInstruction.Delete);
             plms.SetSoleInstructionPointerForVerification(0x1100);
-            plms.Step(memory, level, streamer, new(0, 0), 0);
+            plms.Step(memory, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0xc456,
                 level.GetCollisionBlockByIndex(origin).LevelWord, "active WRAM drives the exact physical output");
             AssertEqual(1, plms.TilemapUpdates.Count, "WRAM-backed draw publishes its visible update");
-            plms.Step(memory, level, streamer, new(0, 0), 0);
+            plms.Step(memory, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.ActiveCount, "WRAM-backed instruction resumes and deletes on the next pass");
         }
 

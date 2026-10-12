@@ -40,7 +40,7 @@ internal static partial class Program
             "typed extension setup publishes its native collision type");
         var scrolls = RoomScrollGrid.CreateImplicit(memory, new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
         AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
-        plms.Step(memory, level, streamer, new(0, 0), 0, scrolls);
+        plms.Step(memory, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
         AssertTrue(!plms.ScrollPlmTriggered(plms.ScrollPlms[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
 

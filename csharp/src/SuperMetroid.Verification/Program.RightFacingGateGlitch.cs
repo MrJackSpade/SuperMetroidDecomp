@@ -84,7 +84,7 @@ internal static partial class Program
             var streamer = level.CreateBackgroundStreamer(0);
             plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, populationVram, new Bank80SystemState(), runtime.ActiveRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             for (int warm = 0; warm < 2; warm++)
-                plms.Step(bus, level, streamer, new((ushort)cameraX, (ushort)cameraY), 0);
+                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
             plms.TakeDownwardGateProjectileRequests();
 
             var shots = CreateProjectileFixture();
@@ -109,7 +109,7 @@ internal static partial class Program
                     actual.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
                     break;
                 }
-                plms.Step(bus, level, streamer, new((ushort)cameraX, (ushort)cameraY), 0);
+                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
             }
         }
 

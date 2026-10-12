@@ -100,14 +100,7 @@ public sealed partial class RoomPlmSystem
     /// header's first list. This is the semantic equivalent of the native slot retaining
     /// its room argument, variable, link register, and family pre-instruction state.
     /// </summary>
-    private bool TryCompleteResidentDoorClosing(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        PlmSlot slot,
-        ushort target,
-        Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset)
+    private bool TryCompleteResidentDoorClosing(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, ushort target, PlmView view)
     {
         if (slot.ColoredDoor is { Phase: ColoredDoorPhase.Closing } coloredDoor &&
             target == coloredDoor.InitialList)
@@ -118,14 +111,7 @@ public sealed partial class RoomPlmSystem
             coloredDoor.Phase = ColoredDoorPhase.Waiting;
             coloredDoor.InitialDrawCompleted = true;
             coloredDoor.HasPendingHit = false;
-            DrawPlmInstruction(
-                bus,
-                level,
-                streamer,
-                slot.BlockIndex,
-                coloredDoor.ColoredClosedDraw,
-                layer1Position,
-                bg1XOffset);
+            DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, coloredDoor.ColoredClosedDraw, view);
             return true;
         }
 
@@ -138,14 +124,7 @@ public sealed partial class RoomPlmSystem
             greyDoor.Phase = GreyDoorPhase.Locked;
             greyDoor.InitialDrawCompleted = true;
             greyDoor.HasPendingHit = false;
-            DrawPlmInstruction(
-                bus,
-                level,
-                streamer,
-                slot.BlockIndex,
-                greyDoor.ClosedGreyDraw,
-                layer1Position,
-                bg1XOffset);
+            DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, greyDoor.ClosedGreyDraw, view);
             return true;
         }
 

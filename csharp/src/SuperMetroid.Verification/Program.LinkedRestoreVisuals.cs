@@ -182,7 +182,7 @@ internal static partial class Program
         ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;
         for (int frame = 0; frame < (bomb ? 420 : 100); frame++)
         {
-            plms.Step(guarded, level, streamer, new(0, 0), 0);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             sawImmediate |= plms.TilemapUpdates.Any(update =>
                 update.TopRowDestination == blockDestination &&
                 update.TopRow[0] == editedWord);

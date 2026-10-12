@@ -27,7 +27,7 @@ internal static partial class Program
                 horizontal: true, movingPositive: !right, roomWidthInBlocks: 32);
             AssertTrue(Touch(), "full recharge station remains solid");
             AssertTrue(!samus.InputLocked, "full resource must be rejected before station input lock");
-            plms.Step(bus, level, streamer, new(0, 0), 0);
+            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(!samus.InputLocked && plms.StationActivationEvents.Count == 0,
                 "rejected recharge starts no operation and leaves controller enabled");
 
@@ -36,14 +36,14 @@ internal static partial class Program
             // The first access-list instruction rechecks fullness and explicitly
             // restores movement before deleting an access that no longer needs refill.
             if (missile) samus.Missiles = samus.MaxMissiles; else samus.Health = samus.MaxHealth;
-            plms.Step(bus, level, streamer, new(0, 0), 0);
+            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.StationActivationEvents.Count, "full-resource access-list exit skips recharge");
             AssertTrue(!samus.InputLocked, "full-resource access-list exit immediately restores controller input");
             AssertTrue(Touch() && !samus.InputLocked, "touching completed station cannot relock input at full resource");
             if (missile) samus.Missiles = 1; else samus.Health = 25;
             AssertTrue(Touch() && samus.InputLocked, "ordinary recharge still accepts depleted resource");
             for (int frame = 0; frame < 120; frame++)
-                plms.Step(bus, level, streamer, new(0, 0), 0);
+                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(missile ? samus.MaxMissiles : samus.MaxHealth,
                 missile ? samus.Missiles : samus.Health, "ordinary recharge restores the depleted resource");
             AssertTrue(!samus.InputLocked, "ordinary recharge unlocks after retraction");

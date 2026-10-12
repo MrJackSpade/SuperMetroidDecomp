@@ -82,7 +82,7 @@ internal static partial class Program
             ushort firstDraw = ReadWord(rom, 0x840000 | (initial + 12));
             AssertTrue(GreyDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
                 $"resident grey-door header ${(int)header:X4} selects compiled art");
-            plms.Step(guarded, level, streamer, new(0, 0), 0);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
@@ -116,24 +116,24 @@ internal static partial class Program
                     $"resident grey door ${(int)header:X4} selects its closing list");
                 for (int frame = 0; frame < 20 &&
                      plms.GreyDoors.Single().Phase == GreyDoorPhase.Closing; frame++)
-                    plms.Step(guarded, level, streamer, new(0, 0), 0);
+                    plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(GreyDoorPhase.Locked, plms.GreyDoors.Single().Phase,
                     $"resident grey door ${(int)header:X4} returns to locked owner");
 
                 // The default room argument selects the boss-defeated condition. A
                 // closed door must flash only after the cartridge event bit changes.
                 system.SetBossBits(AreaId.Crateria, BossBits.AreaBoss);
-                plms.Step(guarded, level, streamer, new(0, 0), 0);
+                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(GreyDoorPhase.Flashing, plms.GreyDoors.Single().Phase,
                     $"resident grey door ${(int)header:X4} unlocks after boss event");
                 AssertTrue(plms.TryNotifyColoredDoorHit(origin,
                         new SamusProjectileTypeWord(0)),
                     $"resident grey door ${(int)header:X4} accepts a beam hit");
-                plms.Step(guarded, level, streamer, new(0, 0), 0);
+                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(GreyDoorPhase.Opening, plms.GreyDoors.Single().Phase,
                     $"resident grey door ${(int)header:X4} enters opening list");
                 for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
-                    plms.Step(guarded, level, streamer, new(0, 0), 0);
+                    plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(0, plms.ActiveCount,
                     $"resident grey door ${(int)header:X4} completes and deletes");
                 AssertTrue(system.HasOpenedDoorBit(0),
@@ -149,7 +149,7 @@ internal static partial class Program
                 var reopened = new RoomPlmSystem { GreyDoorVisuals = stock };
                 AssertEqual(1, reopened.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                     $"opened grey door ${(int)header:X4} reloads");
-                reopened.Step(guarded, reopenedLevel, reopenedStreamer, new(0, 0), 0);
+                reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(0, reopened.ActiveCount,
                     $"opened grey door ${(int)header:X4} converts to blue cap");
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -200,30 +200,25 @@ internal static partial class Program
         AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
             "Bomb Torizo door selects its Bomb-gated closing list");
         for (int frame = 0; frame < 10; frame++)
-            plms.Step(guarded, level, streamer, new(0, 0), 0);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(GreyDoorPhase.Closing, plms.GreyDoors.Single().Phase,
             "Bomb Torizo closing list loops while Samus has no Bombs");
         for (int frame = 0; frame < 80 &&
              plms.GreyDoors.Single().Phase == GreyDoorPhase.Closing; frame++)
-            plms.Step(guarded, level, streamer, new(0, 0), 0,
-                scrolls: null,
-                enemyDeaths: 0,
-                enemyDeathQuota: 0,
-                controllerNewInput: 0,
-                collectedItems: SamusEquipmentFlags.Bombs.ToNativeWord());
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.Bombs.ToNativeWord() });
         AssertEqual(GreyDoorPhase.Locked, plms.GreyDoors.Single().Phase,
             "collected Bombs let the special closing list rejoin its resident owner");
         system.SetBossBits(AreaId.Crateria, BossBits.AreaTorizo);
-        plms.Step(guarded, level, streamer, new(0, 0), 0);
+        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(GreyDoorPhase.Flashing, plms.GreyDoors.Single().Phase,
             "Bomb Torizo defeat unlocks the special grey door");
         AssertTrue(plms.TryNotifyColoredDoorHit(origin, new SamusProjectileTypeWord(0)),
             "Bomb Torizo grey door accepts a post-unlock beam hit");
-        plms.Step(guarded, level, streamer, new(0, 0), 0);
+        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(GreyDoorPhase.Opening, plms.GreyDoors.Single().Phase,
             "Bomb Torizo grey door selects its opening list");
         for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
-            plms.Step(guarded, level, streamer, new(0, 0), 0);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.ActiveCount,
             "Bomb Torizo grey door completes its opening and deletes");
         AssertTrue(system.HasOpenedDoorBit(0x1b),
@@ -240,7 +235,7 @@ internal static partial class Program
         var reopened = new RoomPlmSystem();
         AssertEqual(1, reopened.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "opened Bomb Torizo grey door reloads");
-        reopened.Step(guarded, reopenedLevel, reopenedStreamer, new(0, 0), 0);
+        reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, reopened.ActiveCount,
             "opened Bomb Torizo grey door converts to a blue cap");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -297,7 +292,7 @@ internal static partial class Program
         int frame = 0;
         while (frame++ < 200 &&
             level.GetCollisionBlockByIndex(origin).LevelWord != 0x0482)
-            plms.Step(guarded, level, streamer, new(0, 0), 0);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(frame <= 200,
             "blue-door opening reaches the shared right-facing clear draw");
         AssertEqual((ushort)0x0482,

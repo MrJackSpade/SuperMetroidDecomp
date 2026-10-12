@@ -63,7 +63,7 @@ internal static partial class Program
             ushort pressed = frame == 0 ? held : (ushort)0;
             bombs.StepFrame(bus, level, samus, held, pressed);
             shots.StepFrame(bus, level, samus, held, pressed, new(1109, 0), bombs, roomPlms: plms);
-            plms.Step(bus, level, runtime.BackgroundStreamer!, new(1109, 0), 0);
+            plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(1109, 0), Bg1XOffset = 0 });
             if (firstFull < 0 && plms.ActiveCount == 40) firstFull = frame;
         }
         AssertEqual(343, firstFull, "Authored room reaches full pool with live PLM timers");

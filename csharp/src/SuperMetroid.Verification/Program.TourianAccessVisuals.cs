@@ -166,7 +166,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         // The edited bottom clear row must be inside the camera to assert its
         // immediate VRAM update; the physical level mutation is world-relative.
-        plms.Step(bus, level, streamer, new(0, 12 * 16), 0);
+        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 12 * 16), Bg1XOffset = 0 });
         AssertEqual(clear ? (ushort)0x00ff : (ushort)0x0053,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
             $"Tourian {(clear ? "clear" : "crumble")} edited art retains native physical word");

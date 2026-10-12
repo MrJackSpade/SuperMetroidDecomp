@@ -74,7 +74,7 @@ internal static partial class Program
                 AssertTrue(plms.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                     $"Chozo actor ${(int)header:X4} spawns in a bounded test room");
-                plms.Step(guarded, level, streamer, new(0, 0), 0);
+                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 int origin = 4 * width + 3;
                 AssertEqual(physical,
                     level.GetCollisionBlockByIndex(origin).LevelWord,
@@ -98,8 +98,7 @@ internal static partial class Program
             var seenCrumbleWords = new HashSet<ushort>();
             for (int frame = 0; frame < 15; frame++)
             {
-                crumblePlms.Step(guarded, crumbleLevel,
-                    crumbleLevel.CreateBackgroundStreamer(), new(0, 0), 0);
+                crumblePlms.Step(guarded, crumbleLevel, crumbleLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 seenCrumbleWords.Add(crumbleLevel.GetCollisionBlock(new(3, 4)).LevelWord);
             }
             foreach (ushort word in new ushort[] { 0x0053, 0x0054, 0x0055, 0x00ff })
@@ -116,8 +115,7 @@ internal static partial class Program
                 new ChozoStatuePlmRequest(PlmHeaderId.WreckedShipChozoHand,
                     new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                 "Wrecked Ship hand spawns from its compiled header");
-            wreckedHandPlms.Step(guarded, wreckedHandLevel,
-                wreckedHandLevel.CreateBackgroundStreamer(), new(0, 0), 0);
+            wreckedHandPlms.Step(guarded, wreckedHandLevel, wreckedHandLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(wreckedHandPlms.PopulationSlots.Count == 0,
                 "Wrecked Ship hand executes the shared compiled delete list");
             AssertEqual(0, guarded.ForbiddenReadAttempts,

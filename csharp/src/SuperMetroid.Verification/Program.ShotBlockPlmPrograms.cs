@@ -13,8 +13,7 @@ internal static partial class Program
         // was absent from the compiled program. Exercise the actual interpreter
         // against RAM-only memory, not the old import-capable reference guard.
         ShotBlockFixture reported = NewShotBlockFixture(4);
-        reported.Plms.Step(new SuperMetroidAddressSpace(), reported.Level,
-            reported.Streamer, new(0, 0), 0);
+        reported.Plms.Step(new SuperMetroidAddressSpace(), reported.Level, reported.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x0053,
             reported.Level.GetCollisionBlockByIndex(27).LevelWord,
             "reported permanent shot block draws its first break frame without a cartridge read");
@@ -26,12 +25,12 @@ internal static partial class Program
         {
             ShotBlockFixture fixture = NewShotBlockFixture(behavior);
             var memory = new SuperMetroidAddressSpace();
-            fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, new(0, 0), 0);
+            fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0x0053,
                 fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
                 $"shot-block BTS {behavior} first physical break frame");
             for (int frame = 1; frame < 420; frame++)
-                fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, new(0, 0), 0);
+                fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             ushort expected = behavior switch
             {
                 0 => 0xc052,
@@ -167,8 +166,8 @@ internal static partial class Program
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
-                stock.Plms.Step(rom, stock.Level, stock.Streamer, new(0, 0), 0);
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new(0, 0), 0);
+                stock.Plms.Step(rom, stock.Level, stock.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(stock.Plms.ActiveCount, compiled.Plms.ActiveCount,
                     $"shot-block BTS {behavior} active slots at frame {frame}");
                 AssertEqual(stock.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
@@ -371,7 +370,7 @@ internal static partial class Program
             var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
                 "visual-only test allocates the production shot-block PLM");
-            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, streamer, new(0, 0), 0);
+            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "visual-only edit publishes one immediate PLM tilemap update");
             return (level.GetCollisionBlockByIndex(block).LevelWord,

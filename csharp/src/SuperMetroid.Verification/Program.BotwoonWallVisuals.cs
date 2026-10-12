@@ -148,7 +148,7 @@ internal static partial class Program
             "edited Botwoon wall-clear PLM allocates");
         var guard = NewBotwoonWallSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(guard, level, streamer, new(0, 0), 0);
+        plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         int blockIndex = 7 * width + 15;
         AssertEqual((ushort)0x00ff,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,
@@ -163,7 +163,7 @@ internal static partial class Program
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                 blockIndex, 0).TopRow[0],
             "Botwoon wall edit survives background streaming");
-        plms.Step(guard, level, streamer, new(0, 0), 0);
+        plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.ActiveCount,
             "edited Botwoon wall preserves native deletion timing");
         AssertEqual(0, guard.ForbiddenReadAttempts,

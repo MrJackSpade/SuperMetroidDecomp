@@ -134,8 +134,7 @@ internal static partial class Program
         AssertTrue(tubePlms.TrySpawnMaridiaElevatube(tubeLevel),
             "elevatube allocates alongside Kraid appearance resource");
         var tubeGuard = NewKraidRoomSourceGuard(new TestAddressSpace());
-        tubePlms.Step(tubeGuard, tubeLevel,
-            tubeLevel.CreateBackgroundStreamer(), new(0, 0), 0);
+        tubePlms.Step(tubeGuard, tubeLevel, tubeLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         int tubeBlock = tubeLevel.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
         AssertEqual((ushort)0x8180,
@@ -176,7 +175,7 @@ internal static partial class Program
             $"Kraid visual owner ${(int)header:X4} allocates");
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(guard, level, streamer, new(layer1X, 0), 0);
+        plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(layer1X, 0), Bg1XOffset = 0 });
         int blockIndex = 5 * width + 5 + blockOffset;
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(blockIndex).LevelWord,

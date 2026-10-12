@@ -351,16 +351,7 @@ internal static partial class Program
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         ushort controllerNewInput = 0) =>
-        plms.Step(
-            bus,
-            level,
-            streamer,
-            layer1Position: new(0, 0),
-            bg1XOffset: 0,
-            scrolls: null,
-            enemyDeaths: 0,
-            enemyDeathQuota: 0,
-            controllerNewInput);
+        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = controllerNewInput });
 
     /// <summary>Writes the exact n00b-tube list words plus intentionally tiny draw data.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Noob Tube PLM header, instruction list and crack projectile")]

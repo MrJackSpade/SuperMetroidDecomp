@@ -4028,14 +4028,7 @@ Landed: true, HitCeiling: false);
                 "A save-station message returned without active room level data.");
             if (BackgroundStreamer is null || Camera is null)
                 throw new InvalidOperationException("A save-station message returned without an active room.");
-            SaveStationConfirmationResult confirmation = Plms.ResolveSaveStationConfirmation(
-                _addressSpace,
-                saveStation,
-                accepted.Value,
-                level,
-                BackgroundStreamer,
-                Camera.PixelPosition,
-                unchecked((ushort)BackgroundScroll.Bg1Offset.X));
+            SaveStationConfirmationResult confirmation = Plms.ResolveSaveStationConfirmation(_addressSpace, saveStation, accepted.Value, level, BackgroundStreamer, new PlmView { Layer1Position = Camera.PixelPosition, Bg1XOffset = unchecked((ushort)BackgroundScroll.Bg1Offset.X) });
             foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
                 update.ExecuteTo(Vram);
             if (confirmation.Saving)
@@ -4061,9 +4054,7 @@ Landed: true, HitCeiling: false);
 
         if (LevelData is null || BackgroundStreamer is null || Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
-        foreach (PlmTilemapUpdate update in Plms.CompleteCollectibleMessage(
-                     _addressSpace, LevelData, BackgroundStreamer, Camera.PixelPosition,
-                     unchecked((ushort)BackgroundScroll.Bg1Offset.X)))
+        foreach (PlmTilemapUpdate update in Plms.CompleteCollectibleMessage(_addressSpace, LevelData, BackgroundStreamer, new PlmView { Layer1Position = Camera.PixelPosition, Bg1XOffset = unchecked((ushort)BackgroundScroll.Bg1Offset.X) }))
             update.ExecuteTo(Vram);
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.

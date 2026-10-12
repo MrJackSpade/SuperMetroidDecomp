@@ -58,7 +58,7 @@ internal static partial class Program
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
              plms.ActiveCount != 0; frame++)
         {
-            plms.Step(guard, level, streamer, new(0, 0), 0);
+            plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0 && header is
                 PlmHeaderId.CrumbleKraidCeilingIntoBackground1 or
                 PlmHeaderId.CrumbleKraidCeilingIntoBackground2 or

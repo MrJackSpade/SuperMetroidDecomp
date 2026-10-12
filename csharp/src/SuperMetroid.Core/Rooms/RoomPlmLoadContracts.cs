@@ -64,21 +64,40 @@ public interface IRoomEarthquakeWriter
     void SetType(ushort type);
 }
 
-/// <summary>The enemy-side effects room PLMs trigger (#633).</summary>
-public interface IRoomPlmEnemyEffects
+/// <summary>The N00b tube's shard projectiles (#633).</summary>
+public interface INoobTubeProjectileSpawner
 {
     /// <summary>Spawns one N00b tube shard projectile.</summary>
     void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request);
+}
 
+/// <summary>Eye-door projectiles (#633).</summary>
+public interface IEyeDoorProjectileSpawner
+{
     /// <summary>Spawns one eye-door projectile.</summary>
     void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request);
+}
 
+/// <summary>The old Tourian escape-shaft wall's explosion (#633).</summary>
+public interface IOldTourianWallExplosion
+{
     /// <summary>Spawns the old Tourian escape-shaft wall explosion.</summary>
     void SpawnOldTourianEscapeShaftWallExplosion();
+}
 
+/// <summary>Draygon cannon control (#633).</summary>
+public interface IDraygonCannonControl
+{
     /// <summary>Disables the Draygon cannon whose enemy-control word is at <paramref name="variablePointer"/>.</summary>
     void DisableDraygonCannon(ushort variablePointer);
 }
+
+/// <summary>
+/// Every enemy-side effect room PLMs trigger (#633): the union of the PLM families' narrow
+/// contracts; each family keeps only its own.
+/// </summary>
+public interface IRoomPlmEnemyEffects :
+    INoobTubeProjectileSpawner, IEyeDoorProjectileSpawner, IOldTourianWallExplosion, IDraygonCannonControl;
 
 /// <summary>
 /// The room services resident PLMs use after load (#633). Samus and the area's boss flags are

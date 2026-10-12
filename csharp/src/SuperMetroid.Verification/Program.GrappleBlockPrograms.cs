@@ -139,8 +139,8 @@ internal static partial class Program
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 300; frame++)
             {
-                native.Plms.Step(rom, native.Level, native.Streamer, new(0, 0), 0);
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new(0, 0), 0);
+                native.Plms.Step(rom, native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(native.Plms.ActiveCount, compiled.Plms.ActiveCount,
                     $"Grapple BTS {bts} active count, frame {frame}");
                 AssertEqual(native.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
@@ -196,8 +196,7 @@ internal static partial class Program
             var plms = new RoomPlmSystem { GrappleBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
-            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level,
-                level.CreateBackgroundStreamer(), new(0, 0), 0);
+            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "first Grapple draw publishes one immediate tile upload");
             return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,

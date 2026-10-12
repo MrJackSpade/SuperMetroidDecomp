@@ -92,7 +92,7 @@ internal static partial class Program
             ushort firstDraw = ReadWord(rom, 0x840000 | (initial + 14));
             AssertTrue(ColoredDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
                 $"resident colored-door header ${(int)header:X4} selects compiled art");
-            plms.Step(guarded, level, streamer, new(0, 0), 0);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
@@ -122,7 +122,7 @@ internal static partial class Program
                 $"resident colored door ${(int)header:X4} selects its native closing list");
             for (int frame = 0; frame < 20 &&
                  plms.ColoredDoors.Single().Phase == ColoredDoorPhase.Closing; frame++)
-                plms.Step(guarded, level, streamer, new(0, 0), 0);
+                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(ColoredDoorPhase.Waiting, plms.ColoredDoors.Single().Phase,
                 $"resident colored door ${(int)header:X4} finishes closing and resumes its owner");
 
@@ -139,12 +139,12 @@ internal static partial class Program
             {
                 AssertTrue(plms.TryNotifyColoredDoorHit(origin, accepted),
                     $"resident colored door ${(int)header:X4} accepts hit {hit + 1}");
-                plms.Step(guarded, level, streamer, new(0, 0), 0);
+                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             }
             AssertEqual(ColoredDoorPhase.Opening, plms.ColoredDoors.Single().Phase,
                 $"resident colored door ${(int)header:X4} reaches opening threshold");
             for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
-                plms.Step(guarded, level, streamer, new(0, 0), 0);
+                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.ActiveCount,
                 $"resident colored door ${(int)header:X4} completes opening and deletes");
             AssertTrue(system.HasOpenedDoorBit(0),
@@ -159,7 +159,7 @@ internal static partial class Program
             var reopened = new RoomPlmSystem { ColoredDoorVisuals = stock };
             AssertEqual(1, reopened.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"opened colored door ${(int)header:X4} reloads");
-            reopened.Step(guarded, reopenedLevel, reopenedStreamer, new(0, 0), 0);
+            reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, reopened.ActiveCount,
                 $"opened colored door ${(int)header:X4} converts to a blue cap");
             AssertEqual(0, guarded.ForbiddenReadAttempts,

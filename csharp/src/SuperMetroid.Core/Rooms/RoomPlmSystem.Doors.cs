@@ -56,13 +56,7 @@ public sealed partial class RoomPlmSystem
             wasOpened ? ColoredDoorPhase.ConvertToBlue : ColoredDoorPhase.Waiting);
     }
 
-    private bool TryStepColoredDoor(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        PlmSlot slot,
-        Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset)
+    private bool TryStepColoredDoor(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         ColoredDoorPlmState? door = slot.ColoredDoor;
         if (door is null)
@@ -100,14 +94,7 @@ public sealed partial class RoomPlmSystem
                 bus,
                 unchecked((ushort)(door.ClosedBlueList + 5)));
             level.SetPlmBehavior(slot.BlockIndex, blueBts);
-            DrawPlmInstruction(
-                bus,
-                level,
-                streamer,
-                slot.BlockIndex,
-                drawPointer,
-                layer1Position,
-                bg1XOffset);
+            DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, drawPointer, view);
             slot.Active = false;
             slot.ColoredDoor = null;
             return true;
@@ -115,14 +102,7 @@ public sealed partial class RoomPlmSystem
 
         if (!door.InitialDrawCompleted)
         {
-            DrawPlmInstruction(
-                bus,
-                level,
-                streamer,
-                slot.BlockIndex,
-                door.ColoredClosedDraw,
-                layer1Position,
-                bg1XOffset);
+            DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, door.ColoredClosedDraw, view);
             door.InitialDrawCompleted = true;
         }
 

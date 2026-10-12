@@ -165,8 +165,8 @@ internal static partial class Program
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
             {
-                native.Plms.Step(rom, native.Level, native.Streamer, new(0, 0), 0);
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new(0, 0), 0);
+                native.Plms.Step(rom, native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(native.Plms.ActiveCount, compiled.Plms.ActiveCount,
                     $"contact-crumble BTS {bts} active count, frame {frame}");
                 AssertEqual(native.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
@@ -231,7 +231,7 @@ internal static partial class Program
             var streamer = level.CreateBackgroundStreamer();
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 4; frame++)
-                plms.Step(guarded, level, streamer, new(0, 0), 0);
+                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "contact-break draw avoids compiled source bytes");
             AssertEqual(1, plms.TilemapUpdates.Count,
@@ -273,7 +273,7 @@ internal static partial class Program
             var streamer = level.CreateBackgroundStreamer();
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
-                plms.Step(guarded, level, streamer, new(0, 0), 0);
+                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked contact restoration uses no compiled source bytes");
             return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,

@@ -154,7 +154,7 @@ internal static partial class Program
         int soundFrame = -1;
         for (int frame = 0; frame < 32 && plms.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, new(0, 16 * 16), 0);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 16 * 16), Bg1XOffset = 0 });
             if (plms.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,

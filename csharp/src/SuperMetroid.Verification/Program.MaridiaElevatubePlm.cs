@@ -28,7 +28,7 @@ internal static partial class Program
         int heardAtFrame = -1;
         for (int frame = 0; frame < 24 && plms.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, new(0, 0), 0);
+            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0)
                 AssertEqual((ushort)0x8180,
                     level.GetCollisionBlockByIndex(blockIndex).LevelWord,

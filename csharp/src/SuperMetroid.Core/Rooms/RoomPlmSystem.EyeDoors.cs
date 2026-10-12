@@ -8,7 +8,7 @@ public sealed partial class RoomPlmSystem
 {
     private Bank80SystemState? _eyeDoorSystem;
     private IRoomSamusAccess? _eyeDoorSamus;
-    private IRoomPlmEnemyEffects? _eyeDoorEnemies;
+    private IEyeDoorProjectileSpawner? _eyeDoorEnemies;
 
     private static bool IsEyeDoorHeader(PlmHeaderId header) => header is
         PlmHeaderId.EyeDoorEyeFacingRight or
@@ -281,7 +281,7 @@ public sealed partial class RoomPlmSystem
         EyeDoorProjectileDefinition definitionPointer,
         ushort parameter)
     {
-        IRoomPlmEnemyEffects enemies = _eyeDoorEnemies ??
+        IEyeDoorProjectileSpawner enemies = _eyeDoorEnemies ??
             throw new InvalidOperationException("Eye-door bytecode has no bank-$86 spawn owner.");
         enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
             definitionPointer,

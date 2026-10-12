@@ -132,7 +132,7 @@ public static partial class SuperMetroidGameOptionsIni
         string contents,
         string sourceName = "SuperMetroid.ini")
     {
-        ArgumentNullException.ThrowIfNull(contents);
+        Ensure.NotNull(contents);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
 
         bool? skipOpeningCinematic = null;

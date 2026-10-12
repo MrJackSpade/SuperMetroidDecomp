@@ -136,7 +136,7 @@ public sealed class Bank80SystemState
     /// </summary>
     public void WritePersistentMirror(ISnesMemoryBus bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var mirror = new SaveMirrorMemory(bus);
         mirror.Events.CopyFrom(_events);
         mirror.BossBits.CopyFrom(_bossBitsByArea);
@@ -155,7 +155,7 @@ public sealed class Bank80SystemState
     /// </summary>
     public void LoadPersistentMirror(ISnesMemoryBus bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var mirror = new SaveMirrorMemory(bus);
         mirror.Events.CopyTo(_events);
         mirror.BossBits.CopyTo(_bossBitsByArea);
@@ -388,12 +388,7 @@ public sealed class Bank80SystemState
     /// <summary>Restores all eight native area-boss bytes from a save-slot payload.</summary>
     public void LoadBossBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != AreaCount)
-        {
-            throw new ArgumentException(
-                "A boss-state snapshot must contain exactly eight bytes.",
-                nameof(bytes));
-        }
+        Ensure.LengthEqual(bytes, AreaCount);
 
         bytes.CopyTo(_bossBitsByArea);
     }
@@ -461,12 +456,7 @@ public sealed class Bank80SystemState
     /// <summary>Restores the complete native event-bit allocation from a save slot.</summary>
     public void LoadEventBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != EventByteCount)
-        {
-            throw new ArgumentException(
-                "An event-state snapshot must contain exactly eight bytes.",
-                nameof(bytes));
-        }
+        Ensure.LengthEqual(bytes, EventByteCount);
 
         bytes.CopyTo(_events);
     }
@@ -498,12 +488,7 @@ public sealed class Bank80SystemState
     /// <summary>Restores all persistent broken-orb bits from the native save payload.</summary>
     public void LoadRoomChozoBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != RoomChozoBitByteCount)
-        {
-            throw new ArgumentException(
-                "A Chozo-state snapshot must contain exactly 64 bytes.",
-                nameof(bytes));
-        }
+        Ensure.LengthEqual(bytes, RoomChozoBitByteCount);
 
         bytes.CopyTo(_roomChozoBits);
     }
@@ -539,12 +524,7 @@ public sealed class Bank80SystemState
     /// </summary>
     public void LoadCollectedItemBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != ItemBitByteCount)
-        {
-            throw new ArgumentException(
-                "A collected-item snapshot must contain exactly 64 bytes.",
-                nameof(bytes));
-        }
+        Ensure.LengthEqual(bytes, ItemBitByteCount);
 
         bytes.CopyTo(_collectedItemBits);
     }
@@ -594,12 +574,7 @@ public sealed class Bank80SystemState
     /// <summary>Restores all persistent opened-door bits from a native save payload.</summary>
     public void LoadOpenedDoorBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != DoorBitByteCount)
-        {
-            throw new ArgumentException(
-                "An opened-door snapshot must contain exactly 64 bytes.",
-                nameof(bytes));
-        }
+        Ensure.LengthEqual(bytes, DoorBitByteCount);
 
         bytes.CopyTo(_openedDoorBits);
     }
@@ -645,12 +620,7 @@ public sealed class Bank80SystemState
     /// <summary>Restores all seven unpacked WRAM explored-map planes from a save snapshot.</summary>
     public void LoadExploredMapBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != _exploredMapTiles.Length)
-        {
-            throw new ArgumentException(
-                $"An explored-map snapshot must contain exactly {_exploredMapTiles.Length} bytes.",
-                nameof(bytes));
-        }
+        Ensure.LengthEqual(bytes, _exploredMapTiles.Length);
         bytes.CopyTo(_exploredMapTiles);
     }
 
@@ -679,8 +649,7 @@ public sealed class Bank80SystemState
     /// <summary>Restores the complete native save/elevator marker allocation.</summary>
     public void LoadUsedSaveStationBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != UsedSaveStationByteCount)
-            throw new ArgumentException("A save/elevator snapshot must contain exactly 16 bytes.", nameof(bytes));
+        Ensure.LengthEqual(bytes, UsedSaveStationByteCount);
         bytes.CopyTo(_usedSaveStationsAndElevators);
     }
 
@@ -717,8 +686,7 @@ public sealed class Bank80SystemState
     /// <summary>Restores the complete native map-station allocation.</summary>
     public void LoadMapStationBytes(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != MapStationByteCount)
-            throw new ArgumentException("A map-station snapshot must contain exactly 12 bytes.", nameof(bytes));
+        Ensure.LengthEqual(bytes, MapStationByteCount);
         bytes.CopyTo(_mapStations);
     }
 

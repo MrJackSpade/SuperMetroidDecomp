@@ -34,7 +34,7 @@ public sealed class MaridiaElevatubeRoomMainState
     public void SetUpFromSouth(SamusState samus)
     {
         EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromSouth);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         // $8F:E272 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
         Position = MaridiaElevatubeRomData.SouthStartingPosition;
         Velocity = MaridiaElevatubeRomData.SouthStartingVelocity;
@@ -46,7 +46,7 @@ public sealed class MaridiaElevatubeRoomMainState
     public void SetUpFromNorth(SamusState samus)
     {
         EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromNorth);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         // $8F:E297 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
         Position = MaridiaElevatubeRomData.NorthStartingPosition;
         Velocity = MaridiaElevatubeRomData.NorthStartingVelocity;
@@ -60,7 +60,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// </summary>
     public void ResetOnExit(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         samus.SetStationaryScriptControlLock(false);
         IsActive = false;
     }
@@ -80,10 +80,10 @@ public sealed class MaridiaElevatubeRoomMainState
     {
         if (!IsActive)
             return null;
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(scratch);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(plms);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(scratch);
+        Ensure.NotNull(level);
+        Ensure.NotNull(plms);
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Maridia elevatube room main requires an active Samus state.");
 

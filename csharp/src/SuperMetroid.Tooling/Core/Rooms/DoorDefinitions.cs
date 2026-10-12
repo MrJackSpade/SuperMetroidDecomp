@@ -8,7 +8,7 @@ public sealed class DoorListDefinition
     /// <param name="doorPointers">Bank-$83 door-record pointers in the zero-based order selected by door-block BTS values.</param>
     public DoorListDefinition(ushort pointer, ushort[] doorPointers)
     {
-        ArgumentNullException.ThrowIfNull(doorPointers);
+        Ensure.NotNull(doorPointers);
         Pointer = pointer;
         DoorPointers = doorPointers.ToArray();
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -53,8 +54,7 @@ static class SyntheticSamusCartridge
         SamusMovementType movementType,
         ReadOnlySpan<byte> entry)
     {
-        if (entry.Length != 12)
-            throw new ArgumentException("A native speed-table entry is exactly twelve bytes.", nameof(entry));
+        Ensure.LengthEqual(entry, 12);
         bus.WriteBytes(0x909f55 + (int)movementType * 12, entry);
     }
 
@@ -120,8 +120,7 @@ static class SyntheticSamusCartridge
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $90:9F25 bomb-jump speed record")]
     internal static void WriteBombJumpSpeedEntry(TestAddressSpace bus, ReadOnlySpan<byte> entry)
     {
-        if (entry.Length != 12)
-            throw new ArgumentException("A native speed-table entry is exactly twelve bytes.", nameof(entry));
+        Ensure.LengthEqual(entry, 12);
         bus.WriteBytes(0x909f25, entry);
     }
 

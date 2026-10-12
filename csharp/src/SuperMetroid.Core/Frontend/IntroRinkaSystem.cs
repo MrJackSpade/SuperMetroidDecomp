@@ -45,8 +45,8 @@ internal sealed class IntroRinkaSystem
     public void Step(ISnesAddressSpace bus, SamusState samus, bool motherBrainExploding,
         bool explosionsAllocated)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         spawnsForbidden = explosionsAllocated;
         // A slot below the one being processed is still ahead in this pass, so a Rinka the

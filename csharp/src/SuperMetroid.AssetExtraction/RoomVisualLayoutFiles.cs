@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Collections.ObjectModel;
 using System.Security.Cryptography;
@@ -52,7 +53,7 @@ public static class RoomVisualLayoutFiles
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);

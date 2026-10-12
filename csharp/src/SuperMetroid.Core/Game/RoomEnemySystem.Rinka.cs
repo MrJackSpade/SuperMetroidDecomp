@@ -224,7 +224,7 @@ public sealed partial class RoomEnemySystem
         Func<int, bool> loaderInitializedSlot,
         Position16<RoomPixels> camera)
     {
-        ArgumentNullException.ThrowIfNull(loaderInitializedSlot);
+        Ensure.NotNull(loaderInitializedSlot);
         while (_deferredRinkaSpawnSlots.Count != 0 && loaderInitializedSlot(_deferredRinkaSpawnSlots[0]))
         {
             int slotIndex = _deferredRinkaSpawnSlots[0];

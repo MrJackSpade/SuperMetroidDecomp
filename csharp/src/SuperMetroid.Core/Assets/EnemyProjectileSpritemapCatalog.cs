@@ -56,7 +56,7 @@ public sealed class EnemyProjectileSpritemapCatalog
     public static EnemyProjectileSpritemapCatalog Load(Stream json,
         EnemyProjectileSpritemapCatalog? stock = null)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EnemyProjectileSpritemapDocument document;
         try
         {

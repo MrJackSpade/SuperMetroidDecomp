@@ -27,7 +27,7 @@ public sealed class RoomFxLayer3TilemapCatalog
     /// <summary>Compiles named 32x33 pages to the original ordered VRAM transfer words.</summary>
     public static RoomFxLayer3TilemapCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         RoomFxLayer3TilemapDocument document = JsonAssetDocument.Read<RoomFxLayer3TilemapDocument>(
             json, JsonOptions, "room-FX BG3 tilemap");
         if (document.Version != RoomFxLayer3TilemapFormat.Version ||
@@ -70,7 +70,7 @@ public sealed class RoomFxLayer3TilemapCatalog
     /// <summary>Validates and writes a complete editable tilemap document.</summary>
     public static void Write(Stream json, RoomFxLayer3TilemapDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);

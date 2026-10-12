@@ -22,7 +22,7 @@ public sealed class FileSelectMapNavigation
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
     public FileSelectMapNavigation(ISnesAddressSpace bus, int area, ushort initialHeldInput = 0)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         if ((uint)area >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         this.area = area;

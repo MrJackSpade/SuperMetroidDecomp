@@ -21,7 +21,7 @@ public sealed class RoomScrollGrid
 
     private RoomScrollGrid(ISnesMemoryBus bus, Extent16<RoomScreens> size)
     {
-        _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        _bus = Ensure.NotNull(bus);
         if (size.X == 0 || size.Y == 0 || size.X * size.Y > StorageByteCount)
             throw new ArgumentOutOfRangeException(nameof(size));
 
@@ -39,13 +39,8 @@ public sealed class RoomScrollGrid
         ReadOnlySpan<byte> storage,
         Extent16<RoomScreens> size)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        if (storage.Length != StorageByteCount)
-        {
-            throw new ArgumentException(
-                $"Compiled room scroll storage must contain exactly {StorageByteCount} bytes.",
-                nameof(storage));
-        }
+        Ensure.NotNull(bus);
+        Ensure.LengthEqual(storage, StorageByteCount);
 
         var grid = new RoomScrollGrid(
             SnesMemoryBusRequirement.Require(bus, "Room scroll storage requires live WRAM."), size);
@@ -75,7 +70,7 @@ public sealed class RoomScrollGrid
         Extent16<RoomScreens> size,
         RoomScrollState lastRowState)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(SnesMemoryBusRequirement.Require(bus,
             "Implicit scroll storage keeps the previous room's bytes past its cells; it requires WRAM."), size);

@@ -26,7 +26,7 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
     public RoomPlmSpeedBoosterVisualCatalog(
         IEnumerable<RoomPlmSpeedBoosterVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         RoomPlmSpeedBoosterVisualEntry[] selected = entries.ToArray();
         if (selected.Length != 1 || selected[0] is null ||
             !SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId(

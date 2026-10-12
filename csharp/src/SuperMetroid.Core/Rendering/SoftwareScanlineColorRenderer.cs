@@ -8,8 +8,7 @@ internal static class SoftwareScanlineColorRenderer
 {
     internal static void Composite(Span<Rgba32> pixels, ScanlineColorAddRenderLayer layer)
     {
-        if (pixels.Length != SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels)
-            throw new ArgumentException("Color windows require a native-sized frame.", nameof(pixels));
+        Ensure.LengthEqual(pixels, SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
         for (int y = 0; y < layer.Windows.Length; y++)
         {
             ColorAddWindow window = layer.Windows[y];

@@ -84,7 +84,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     public void ApplyHurtFlash(SnesCgram cgram, ReadOnlySpan<Bgr555> introPalette)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if (hurtFlashTimer == 0)
             return;
 
@@ -111,7 +111,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Ports the timing/control-flow portion of $8B:9409 for definition $CE55.</summary>
     public void Step(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (instructionTimer-- != 1)
             return;
 

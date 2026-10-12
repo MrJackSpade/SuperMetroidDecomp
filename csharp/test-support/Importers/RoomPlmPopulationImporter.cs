@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -13,7 +14,7 @@ internal static class RoomPlmPopulationImporter
 {
     public static RoomPlmPopulationDefinition Read(ISnesAddressSpace source, ushort pointer)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         if (source is not IImportCartridgeSource cartridge)
             throw new ArgumentException("PLM import requires an explicit cartridge-import source.", nameof(source));
         var records = new List<RoomPlmPlacement>();

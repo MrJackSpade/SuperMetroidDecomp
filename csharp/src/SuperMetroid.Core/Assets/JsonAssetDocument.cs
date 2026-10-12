@@ -15,13 +15,13 @@ internal static class JsonAssetDocument
     /// <summary>Validates already-buffered presentation bytes with the same property rules as streams.</summary>
     internal static T Read<T>(byte[] json, JsonSerializerOptions options)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         return Read<T>(json, options, typeof(T).Name);
     }
 
     internal static T Read<T>(Stream json, JsonSerializerOptions options, string description)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         if (json is MemoryStream memory && memory.TryGetBuffer(out ArraySegment<byte> segment))
         {
             int position = checked((int)memory.Position);
@@ -97,8 +97,8 @@ internal static class JsonAssetDocument
     internal static void RejectDuplicateProperties(JsonElement element, StringComparer comparer,
         Func<string, Exception> error, bool descendArrays = true)
     {
-        ArgumentNullException.ThrowIfNull(comparer);
-        ArgumentNullException.ThrowIfNull(error);
+        Ensure.NotNull(comparer);
+        Ensure.NotNull(error);
         RejectDuplicates(JsonMarshal.GetRawUtf8Value(element), comparer, descendArrays, error);
     }
 

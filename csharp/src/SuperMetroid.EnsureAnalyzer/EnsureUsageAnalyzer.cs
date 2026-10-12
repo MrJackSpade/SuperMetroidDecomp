@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,12 +19,25 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         "Use Ensure for reusable validation",
         "Use Ensure.{0} for this reusable argument validation",
         "Usage",
-        DiagnosticSeverity.Warning,
+        DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Keep generic argument validation in the shared Ensure API.");
 
-    /// <summary>Gets the diagnostic reported for argument guards that can use the shared Ensure API.</summary>
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [GuardRule];
+    /// <summary>Diagnostic identifier for an Ensure call that defeats its caller-expression capture.</summary>
+    public const string RedundantArgumentId = "SME6202";
+
+    private static readonly DiagnosticDescriptor RedundantArgumentRule = new(
+        RedundantArgumentId,
+        "Let Ensure capture the value expression",
+        "{0}",
+        "Usage",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Ensure reports the caller's value expression itself. A manually written parameter name " +
+            "duplicates or contradicts it, and a numeric cast to fit an overload changes the validated value's type.");
+
+    /// <summary>Gets the diagnostics reported for argument guards and Ensure calls.</summary>
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [GuardRule, RedundantArgumentRule];
 
     /// <summary>Registers argument-guard analysis when the compilation provides the shared Ensure API.</summary>
     /// <param name="context">The context used to configure analysis and register syntax callbacks.</param>
@@ -52,6 +66,11 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
             return;
 
         string owner = method.ContainingType.ToDisplayString();
+        if (owner == "SuperMetroid.Core.Ensure")
+        {
+            AnalyzeEnsureCall(context, invocation, method);
+            return;
+        }
         string? operation = owner switch
         {
             "System.ArgumentNullException" when method.Name == "ThrowIfNull" => "NotNull",
@@ -61,6 +80,45 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         if (operation is not null)
             Report(context, invocation.GetLocation(), operation);
     }
+    private static void AnalyzeEnsureCall(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
+    {
+        IMethodSymbol definition = method.ReducedFrom ?? method.OriginalDefinition;
+        foreach (ArgumentSyntax argument in invocation.ArgumentList.Arguments)
+        {
+            IParameterSymbol? parameter = ParameterOf(argument, invocation, definition);
+            if (parameter is null)
+                continue;
+            if (parameter.GetAttributes().Any(attribute =>
+                    attribute.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute"))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(RedundantArgumentRule, argument.GetLocation(),
+                    $"Remove the manual parameter name; Ensure.{method.Name} captures the value expression"));
+            }
+            else if (argument.Expression is CastExpressionSyntax cast &&
+                     IsCapturedValue(parameter, definition) &&
+                     IsNumeric(context.SemanticModel.GetTypeInfo(cast.Expression).Type))
+            {
+                context.ReportDiagnostic(Diagnostic.Create(RedundantArgumentRule, cast.GetLocation(),
+                    $"Do not cast the value to fit Ensure.{method.Name}; validate it in its own type"));
+            }
+        }
+    }
+
+    private static IParameterSymbol? ParameterOf(ArgumentSyntax argument, InvocationExpressionSyntax invocation, IMethodSymbol method)
+    {
+        if (argument.NameColon is { } nameColon)
+            return method.Parameters.FirstOrDefault(parameter => parameter.Name == nameColon.Name.Identifier.ValueText);
+        int index = invocation.ArgumentList.Arguments.IndexOf(argument);
+        return index < method.Parameters.Length ? method.Parameters[index] : null;
+    }
+
+    // The value Ensure validates is the parameter its caller-expression capture names.
+    private static bool IsCapturedValue(IParameterSymbol parameter, IMethodSymbol method) =>
+        method.Parameters.Any(candidate => candidate.GetAttributes().Any(attribute =>
+            attribute.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute" &&
+            attribute.ConstructorArguments.Length == 1 &&
+            attribute.ConstructorArguments[0].Value as string == parameter.Name));
+
     private static void AnalyzeIf(SyntaxNodeAnalysisContext context)
     {
         if (InsideEnsure(context))

@@ -22,10 +22,10 @@ public static partial class SamusGrappleMovement
         Assets.GrappleTileAtlas? artwork = null,
         SamusPoseId samusPose = 0)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(grapple);
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(vramWrites);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(grapple);
+        Ensure.NotNull(oam);
+        Ensure.NotNull(vramWrites);
         if (!UsesBeamSpecificDrawingPath(grapple.Phase))
             return;
 
@@ -159,8 +159,8 @@ public static partial class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.CancelPending)
             throw new InvalidOperationException("A grapple firing cancellation is not queued.");

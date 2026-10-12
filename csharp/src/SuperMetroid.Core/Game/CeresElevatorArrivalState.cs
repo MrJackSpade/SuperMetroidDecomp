@@ -27,8 +27,8 @@ public sealed class CeresElevatorArrivalState
         SamusState samus,
         EnemyProjectileSpritemapCatalog? projectileSpritemaps = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        ArgumentNullException.ThrowIfNull(samus);
+        this.bus = Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         this.projectileSpritemaps = projectileSpritemaps;
 
         // SpawnEprojWithGfx first copies enemy slot zero's tile/palette word. The shared
@@ -58,7 +58,7 @@ public sealed class CeresElevatorArrivalState
     /// <returns>True on and after the frame that calls Samus command <c>$0E</c>.</returns>
     public bool Step(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
 
         // SpawnEprojInner takes the highest free physical slot. The pad is spawned first
         // into slot $22, the platform second into $20, and EprojRunAll scans downward;
@@ -107,7 +107,7 @@ public sealed class CeresElevatorArrivalState
     /// </summary>
     public void Draw(OamBuffer oam, Position16<RoomPixels> camera)
     {
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(oam);
         DrawProjectile(pad, oam, camera);
         DrawProjectile(platform, oam, camera);
     }

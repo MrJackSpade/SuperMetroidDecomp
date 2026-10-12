@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +17,7 @@ public static class PowerBombFixedColorExtractor
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return PowerBombFixedColorCatalog.Write(new PowerBombFixedColorDocument
         {
             Version = PowerBombFixedColorFormat.Version,

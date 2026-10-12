@@ -22,7 +22,7 @@ public static partial class GameSaveJsonCodec
     /// <summary>Captures all meaningful persistent state without a duplicate native-memory image.</summary>
     public static GameSaveJsonDocument Capture(SuperMetroidAddressSpace addressSpace, AreaMapPresentationCatalog maps)
     {
-        ArgumentNullException.ThrowIfNull(addressSpace);
+        Ensure.NotNull(addressSpace);
         var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
         var slots = new GameSaveSlotJsonDocument?[SuperMetroidSaveRam.SlotCount];
         for (int slotIndex = 0; slotIndex < slots.Length; slotIndex++)
@@ -49,7 +49,7 @@ public static partial class GameSaveJsonCodec
     /// <summary>Parses one strict schema and reports malformed properties with JSON paths.</summary>
     public static GameSaveJsonDocument Deserialize(string json, string sourceName = "game save")
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
         try
         {
@@ -84,7 +84,7 @@ public static partial class GameSaveJsonCodec
         GameSaveJsonDocument document,
         SuperMetroidAddressSpace addressSpace, AreaMapPresentationCatalog maps)
     {
-        ArgumentNullException.ThrowIfNull(addressSpace);
+        Ensure.NotNull(addressSpace);
         Validate(document);
         SaveRamImage.Clear(addressSpace);
         var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
@@ -231,7 +231,7 @@ public static partial class GameSaveJsonCodec
 
     private static void Validate(GameSaveJsonDocument document)
     {
-        ArgumentNullException.ThrowIfNull(document);
+        Ensure.NotNull(document);
         if (document.SchemaVersion != GameSaveJsonFormat.SchemaVersion)
         {
             throw new InvalidDataException(

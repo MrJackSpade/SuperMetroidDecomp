@@ -32,7 +32,7 @@ public sealed class SamusCeresRidleyEjectionState
     /// </summary>
     public void Request(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         IsActive = true;
         InitializationPending = true;
 
@@ -60,9 +60,9 @@ public sealed class SamusCeresRidleyEjectionState
         ushort layer1X,
         ushort nmiFrameCounter)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!IsActive)
             throw new InvalidOperationException("Ceres Ridley ejection is not active.");
 

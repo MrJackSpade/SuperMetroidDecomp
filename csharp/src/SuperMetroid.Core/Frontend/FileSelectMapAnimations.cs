@@ -18,7 +18,7 @@ public sealed class FileSelectMapAnimations
     /// <exception cref="InvalidOperationException">Installed arrow definitions are absent, including when the optional argument is omitted.</exception>
     public FileSelectMapAnimations(ISnesAddressSpace bus, MapArrowPresentation? presentation = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         palette = new MapPaletteAnimation(bus);
         BindPresentation(presentation);
     }

@@ -26,7 +26,7 @@ internal static class BabyMetroidGradualAcceleration
         ushort wrongWayOffScreenSpeed,
         Func<bool> isVaguelyOffScreen)
     {
-        ArgumentNullException.ThrowIfNull(isVaguelyOffScreen);
+        Ensure.NotNull(isVaguelyOffScreen);
         bool carry = true;
         ushort distance = Sbc(position, target, ref carry);
         if (distance == 0)

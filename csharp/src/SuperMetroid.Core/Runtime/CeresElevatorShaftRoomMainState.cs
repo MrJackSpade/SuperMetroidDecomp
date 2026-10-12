@@ -44,7 +44,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// </summary>
     public void Reset(bool active, RoomMainScratchState scratch)
     {
-        ArgumentNullException.ThrowIfNull(scratch);
+        Ensure.NotNull(scratch);
         IsActive = active;
         if (active)
         {
@@ -73,8 +73,8 @@ public sealed class CeresElevatorShaftRoomMainState
         bool allowDeparture,
         RoomMainScratchState scratch)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(scratch);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(scratch);
         DepartureRequestedThisFrame = false;
 
         // The room code is entirely dormant before Ridley's self-destruct sequence sets

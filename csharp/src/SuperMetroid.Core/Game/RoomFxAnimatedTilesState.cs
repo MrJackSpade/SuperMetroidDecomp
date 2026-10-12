@@ -39,7 +39,7 @@ internal sealed class RoomFxAnimatedTilesState
     /// </summary>
     public void Load(ISnesAddressSpace bus, RoomFxType type)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         AnimatedTileObject definition = type switch
         {
             RoomFxType.Lava => AnimatedTileObject.Lava,
@@ -57,7 +57,7 @@ internal sealed class RoomFxAnimatedTilesState
     /// <summary>Loads a timed looping object selected by a cartridge header, independent of FX type.</summary>
     public void LoadDefinition(ISnesAddressSpace bus, AnimatedTileObject definition)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         Reset();
         objectPointer = definition;
         if (objectPointer == AnimatedTileObject.None)
@@ -86,8 +86,8 @@ internal sealed class RoomFxAnimatedTilesState
     public void Step(ISnesAddressSpace bus, SnesVram vram, VramWriteQueue? writes = null,
         RoomFxAnimatedTileAtlas? artwork = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(vram);
         LastSourceAddress = null;
         if (!IsActive)
             return;

@@ -99,7 +99,7 @@ public sealed class EndingTextPresentation
     /// <exception cref="InvalidDataException">The JSON, version, template dimensions, text lengths, or supported glyphs are invalid.</exception>
     public static EndingTextPresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] source;
         using (var buffer = new MemoryStream()) { json.CopyTo(buffer); source = buffer.ToArray(); }
         EndingTextDocument document;

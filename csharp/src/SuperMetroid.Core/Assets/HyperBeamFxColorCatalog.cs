@@ -198,7 +198,7 @@ public sealed class HyperBeamFxColorCatalog
     [PpuLayoutBoundary("codec: Hyper Beam FX colours at their native CGRAM index operand")]
     public void Apply(SnesCgram cgram, int frame, int destination)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)frame >= HyperBeamFxColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
             new CgramPalettes(cgram).All.Write(destination + color, Resolve(frame, color));

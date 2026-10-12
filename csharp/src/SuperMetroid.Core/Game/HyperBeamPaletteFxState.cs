@@ -55,8 +55,8 @@ public sealed class HyperBeamPaletteFxState
     public HyperBeamPaletteFxStepResult Step(ISnesAddressSpace bus, SnesCgram cgram,
         HyperBeamFxColorCatalog? presentationColors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
 
         if (!IsActive)
         {

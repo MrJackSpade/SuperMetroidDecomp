@@ -40,7 +40,7 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
     public RoomPlmBombTorizoHandVisualCatalog(
         IEnumerable<RoomPlmBombTorizoHandVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmBombTorizoHandVisualEntry entry in entries)

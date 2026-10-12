@@ -34,9 +34,9 @@ public static class SamusHurtFlashPalette
         ushort controllerInput,
         SamusHurtColorCatalog? presentationColors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(samus);
 
         ushort counterBefore = samus.HurtFlashCounter;
         if (counterBefore == 0)
@@ -119,7 +119,7 @@ public static class SamusHurtFlashPalette
     /// <returns>Whether the nonzero latch caused a resume-charging sound request; this is not confirmation of playback.</returns>
     public static bool ConsumeResumeChargingBeamSound(SamusState samus, ushort controllerInput)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (samus.ResumeChargingBeamSoundFlag == 0)
             return false;
 

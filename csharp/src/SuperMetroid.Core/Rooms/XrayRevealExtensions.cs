@@ -10,7 +10,7 @@ public static class XrayRevealExtensions
     public static ushort? Resolve(RoomLevelData level, int blockIndex,
         XrayRevealVisualCatalog? visuals = null)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(blockIndex);
         if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
             throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(blockIndex));

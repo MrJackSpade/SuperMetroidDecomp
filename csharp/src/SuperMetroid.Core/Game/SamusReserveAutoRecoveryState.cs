@@ -17,7 +17,7 @@ public sealed class SamusReserveAutoRecoveryState
     /// <summary>Starts only the retail automatic-mode path selected by reserve-mode bit zero.</summary>
     public void Begin(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (unchecked((short)samus.Health) > 0)
             throw new InvalidOperationException("Reserve recovery requires nonpositive energy.");
         if ((samus.ReserveTankMode & 1) == 0 || samus.ReserveEnergy == 0)
@@ -41,7 +41,7 @@ public sealed class SamusReserveAutoRecoveryState
     /// <summary>Runs <c>RefillHealthFromReserveTanks</c> once after the frame's accepted NMI.</summary>
     public SamusReserveAutoRecoveryStep StepAfterNmi(SamusState samus, ushort nmiFrameCounter)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (!IsActive)
             throw new InvalidOperationException("Reserve recovery has not begun.");
 

@@ -36,7 +36,7 @@ public sealed class SuperMetroidSaveRam
     public SuperMetroidSaveRam(ISnesAddressSpace bus, AreaMapPresentationCatalog? mapPresentation)
     {
         this.mapPresentation = mapPresentation;
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         this.bus = bus as ISnesMemoryBus ??
             throw new ArgumentException("Save slots require an SRAM-capable address space.", nameof(bus));
     }
@@ -149,7 +149,7 @@ public sealed class SuperMetroidSaveRam
     /// </summary>
     public void SaveSlot(int slot, SuperMetroidSaveSnapshot snapshot)
     {
-        ArgumentNullException.ThrowIfNull(snapshot);
+        Ensure.NotNull(snapshot);
         int slotOffset = GetSlotOffset(slot);
         byte[] payload = new byte[SlotByteCount];
 
@@ -516,7 +516,7 @@ public sealed record SuperMetroidSaveSlot(
     /// <summary>Restores the subset already represented by the translated Samus owner.</summary>
     public void ApplyTo(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         samus.EquippedItems = EquippedItems;
         samus.CollectedItems = CollectedItems;
         samus.EquippedBeams = EquippedBeams;
@@ -541,7 +541,7 @@ public sealed record SuperMetroidSaveSlot(
     public void ApplyTo(SamusState samus, Bank80SystemState system)
     {
         ApplyTo(samus);
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(system);
         system.LoadEventBytes(EventBytes);
         system.LoadBossBytes(BossBytes);
         system.LoadRoomChozoBytes(RoomChozoBytes);
@@ -689,8 +689,8 @@ public sealed record SuperMetroidSaveSnapshot
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> or <paramref name="system"/> is <see langword="null"/>.</exception>
     public static SuperMetroidSaveSnapshot Capture(SamusState samus, Bank80SystemState system, SaveSnapshotContext context)
     {
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(system);
         var events = new byte[Bank80SystemState.EventByteCount];
         var bosses = new byte[Bank80SystemState.AreaCount];
         var roomChozo = new byte[Bank80SystemState.RoomChozoBitByteCount];

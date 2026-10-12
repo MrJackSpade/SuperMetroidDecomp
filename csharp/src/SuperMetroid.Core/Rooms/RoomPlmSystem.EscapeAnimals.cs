@@ -24,7 +24,7 @@ public sealed partial class RoomPlmSystem
     /// <returns>False when no PLM remains: the event is unset or every slot is occupied.</returns>
     public bool TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         IGlobalEventFlags events = _events ?? throw new InvalidOperationException(
             "Crateria mainstreet escape passage requires the room event owner.");
         if (_slots.All(slot => slot.Active))

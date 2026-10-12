@@ -17,8 +17,8 @@ public static class LibraryBackgroundLoader
     /// <summary>Runs one high-bank room-state list and returns its executed command count.</summary>
     public static LibraryBackgroundExecutionResult Execute(ISnesAddressSpace bus, SnesVram vram, ushort listPointer, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(vram);
         if (unchecked((short)listPointer) >= 0)
         {
             throw new ArgumentOutOfRangeException(
@@ -40,9 +40,9 @@ public static class LibraryBackgroundLoader
     /// <summary>Executes an already-defined program; constructed fixtures never require a runtime byte decoder.</summary>
     public static LibraryBackgroundExecutionResult ExecuteProgram(ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundProgram program, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(program);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(program);
         ushort? bg3CharacterBaseWord = null;
         foreach (LibraryBackgroundInstruction instruction in program.Instructions)
         {

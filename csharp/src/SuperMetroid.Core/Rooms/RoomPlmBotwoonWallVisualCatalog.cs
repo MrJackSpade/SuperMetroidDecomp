@@ -33,7 +33,7 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
     public RoomPlmBotwoonWallVisualCatalog(
         IEnumerable<RoomPlmBotwoonWallVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         RoomPlmBotwoonWallVisualEntry[] selected = entries.ToArray();
         if (selected.Length != 1 || selected[0] is null ||
             selected[0].Id != BotwoonWallPlmDrawDefinitions.VisualId(

@@ -86,7 +86,7 @@ public sealed class PhantoonColorCatalog
     /// <returns>The compiled color catalog.</returns>
     public static PhantoonColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         PhantoonColorDocument document;
         try
         {

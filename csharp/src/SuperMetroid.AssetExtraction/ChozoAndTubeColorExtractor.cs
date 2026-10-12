@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,7 +15,7 @@ public static class ChozoAndTubeColorExtractor
     /// <returns>UTF-8 JSON bytes for the versioned Chozo and tube color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return ChozoAndTubeColorCatalog.Write(new ChozoAndTubeColorDocument
         {
             Version = ChozoAndTubeColorFormat.Version,

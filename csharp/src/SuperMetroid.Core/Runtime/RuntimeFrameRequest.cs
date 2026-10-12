@@ -63,12 +63,12 @@ public sealed class RuntimeFrameAudio
     /// the reset tables, and the admitted low-health check runs after Samus's periodic damage.
     /// </summary>
     public static RuntimeFrameAudio Gameplay(Func<ushort> queueEchoSound, Action checkLowHealth) =>
-        new(queueEchoSound ?? throw new ArgumentNullException(nameof(queueEchoSound)),
-            checkLowHealth ?? throw new ArgumentNullException(nameof(checkLowHealth)));
+        new(Ensure.NotNull(queueEchoSound),
+            Ensure.NotNull(checkLowHealth));
 
     /// <summary>Attract playback: the echo is queued synchronously and no low-health check runs.</summary>
     public static RuntimeFrameAudio EchoOnly(Func<ushort> queueEchoSound) =>
-        new(queueEchoSound ?? throw new ArgumentNullException(nameof(queueEchoSound)), null);
+        new(Ensure.NotNull(queueEchoSound), null);
 
     /// <summary>The synchronous echo call, returning its accumulator; none publishes the echo after the frame.</summary>
     internal Func<ushort>? QueueEchoSound { get; }

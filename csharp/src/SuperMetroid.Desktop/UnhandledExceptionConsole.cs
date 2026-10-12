@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Threading;
 
 namespace SuperMetroid.Desktop;
@@ -48,7 +49,7 @@ public static class UnhandledExceptionConsole
     /// </summary>
     public static int ReportAndWait(Exception exception)
     {
-        ArgumentNullException.ThrowIfNull(exception);
+        Ensure.NotNull(exception);
 
         // A fatal exception can provoke cleanup failures on other threads. Only the first
         // failure owns the console prompt; subsequent reporters return instead of interleaving
@@ -70,9 +71,9 @@ public static class UnhandledExceptionConsole
         TextWriter error,
         Action waitForAcknowledgment)
     {
-        ArgumentNullException.ThrowIfNull(exception);
-        ArgumentNullException.ThrowIfNull(error);
-        ArgumentNullException.ThrowIfNull(waitForAcknowledgment);
+        Ensure.NotNull(exception);
+        Ensure.NotNull(error);
+        Ensure.NotNull(waitForAcknowledgment);
 
         error.WriteLine();
         error.WriteLine("FATAL: Super Metroid stopped because of an unhandled exception.");

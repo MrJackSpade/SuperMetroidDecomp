@@ -41,8 +41,8 @@ public sealed class EndingMode7SceneArtwork
     /// <exception cref="InvalidDataException">The map schema, atlas format, palette length, or native transfer length is invalid.</exception>
     public static EndingMode7SceneArtwork Load(Stream mapJson, Stream charactersPng)
     {
-        ArgumentNullException.ThrowIfNull(mapJson);
-        ArgumentNullException.ThrowIfNull(charactersPng);
+        Ensure.NotNull(mapJson);
+        Ensure.NotNull(charactersPng);
         EndingMode7MapDocument document = ReadMap(mapJson);
         IndexedPngImage image = IndexedPng.Read(charactersPng,
             new(EndingMode7ArtworkFormat.CharacterWidth, EndingMode7ArtworkFormat.CharacterHeight));
@@ -63,7 +63,7 @@ public sealed class EndingMode7SceneArtwork
     /// <exception cref="InvalidDataException">The serialized document does not satisfy the ending backdrop map schema.</exception>
     public static void WriteMap(Stream json, EndingMode7MapDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = ReadMap(new MemoryStream(bytes, writable: false));
@@ -109,10 +109,10 @@ public sealed class EndingMode7ArtworkCatalog
         EndingMode7SceneArtwork escapeB, EndingMode7SceneArtwork planetExplosion,
         EndingRewardIconArtwork rewardIcon)
     {
-        this.escapeA = escapeA ?? throw new ArgumentNullException(nameof(escapeA));
-        this.escapeB = escapeB ?? throw new ArgumentNullException(nameof(escapeB));
-        this.planetExplosion = planetExplosion ?? throw new ArgumentNullException(nameof(planetExplosion));
-        RewardIcon = rewardIcon ?? throw new ArgumentNullException(nameof(rewardIcon));
+        this.escapeA = Ensure.NotNull(escapeA);
+        this.escapeB = Ensure.NotNull(escapeB);
+        this.planetExplosion = Ensure.NotNull(planetExplosion);
+        RewardIcon = Ensure.NotNull(rewardIcon);
     }
 
     /// <summary>Interleaved map/character sheet transferred during the reward landing.</summary>
@@ -163,8 +163,8 @@ public sealed class EndingRewardIconArtwork
     /// <exception cref="InvalidDataException">The map schema or indexed character atlas is invalid.</exception>
     public static EndingRewardIconArtwork Load(Stream mapJson, Stream charactersPng)
     {
-        ArgumentNullException.ThrowIfNull(mapJson);
-        ArgumentNullException.ThrowIfNull(charactersPng);
+        Ensure.NotNull(mapJson);
+        Ensure.NotNull(charactersPng);
         EndingMode7MapDocument map;
         try
         {
@@ -199,7 +199,7 @@ public sealed class EndingRewardIconArtwork
     /// <exception cref="InvalidDataException">The map's version, dimensions, index count, or index range is invalid.</exception>
     public static void WriteMap(Stream json, EndingMode7MapDocument map)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         ValidateMap(map);
         JsonSerializer.Serialize(json, map, MapPresentationFormat.JsonOptions);
     }

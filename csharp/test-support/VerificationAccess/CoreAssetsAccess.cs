@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -195,7 +196,7 @@ internal static class EnemyTileArtworkCatalogAccess
     {
         /// <summary>Explicitly partial constructed artwork; never an installed production catalog.</summary>
         internal static EnemyTileArtworkCatalog FromArtworkForVerification(EnemyTileArtworkParts parts) =>
-            (EnemyTileArtworkCatalog)PrivateState.Construct(typeof(EnemyTileArtworkCatalog), parts ?? throw new ArgumentNullException(nameof(parts)));
+            (EnemyTileArtworkCatalog)PrivateState.Construct(typeof(EnemyTileArtworkCatalog), Ensure.NotNull(parts));
     }
 
     extension(EnemyTileArtworkCatalog self)
@@ -207,7 +208,7 @@ internal static class EnemyTileArtworkCatalogAccess
         /// </summary>
         internal EnemyTileArtworkCatalog WithSpritemaps(EnemySpritemapCatalog spritemaps)
         {
-            ArgumentNullException.ThrowIfNull(spritemaps);
+            Ensure.NotNull(spritemaps);
             var copy = (EnemyTileArtworkCatalog)((object)(PrivateState.Invoke(self, "MemberwiseClone"))!);
             PrivateState.SetProperty(copy, "Spritemaps", spritemaps);
             return copy;
@@ -216,7 +217,7 @@ internal static class EnemyTileArtworkCatalogAccess
         /// <summary>This installation with its extended frames replaced; see <see cref="WithSpritemaps"/>.</summary>
         internal EnemyTileArtworkCatalog WithExtendedFrames(EnemyExtendedFrameCatalog extendedFrames)
         {
-            ArgumentNullException.ThrowIfNull(extendedFrames);
+            Ensure.NotNull(extendedFrames);
             var copy = (EnemyTileArtworkCatalog)((object)(PrivateState.Invoke(self, "MemberwiseClone"))!);
             PrivateState.SetProperty(copy, "ExtendedFrames", extendedFrames);
             return copy;
@@ -233,7 +234,7 @@ internal static class EscapeTimerTileAtlasAccess
         [PpuLayoutBoundary("codec: escape timer queued DMA records at their native VRAM words")]
         internal void QueueTo(VramWriteQueue queue)
         {
-            ArgumentNullException.ThrowIfNull(queue);
+            Ensure.NotNull(queue);
             if (((byte[])(PrivateState.Invoke(self, "Transfer"))!).Length != EscapeTimerTileAtlasFormat.TotalByteCount)
                 throw new InvalidDataException("Escape timer artwork no longer matches its native transfer pages.");
             queue.EnqueueAsset(VramAssetId.EscapeTimerFirstTiles,

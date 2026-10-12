@@ -38,7 +38,7 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
     /// <returns>The compiled ending-cloud presentation.</returns>
     public static EndingCloudSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EndingCloudSpriteDocument document;
         try
         {
@@ -76,7 +76,7 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
     /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, EndingCloudSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

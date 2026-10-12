@@ -25,8 +25,8 @@ public static class FileSelectMapWindowCompositor
     public static Rgba32[] Composite(ReadOnlySpan<Rgba32> area, ReadOnlySpan<Rgba32> roomFrame,
         FileSelectMapWindow window, Rgba32[] pixels)
     {
-        ArgumentNullException.ThrowIfNull(window);
-        ArgumentNullException.ThrowIfNull(pixels);
+        Ensure.NotNull(window);
+        Ensure.NotNull(pixels);
         int length = FrontendFrame.Width * FrontendFrame.Height;
         if (area.Length != length || roomFrame.Length != length || pixels.Length != length)
             throw new ArgumentException("File-select map windows require two complete 256x224 scenes and a complete output.");

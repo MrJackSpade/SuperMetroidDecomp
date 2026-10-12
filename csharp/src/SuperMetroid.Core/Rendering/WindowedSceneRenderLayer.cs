@@ -27,7 +27,7 @@ public sealed record WindowedSceneRenderLayer : RenderLayer
     /// <exception cref="ArgumentException"><paramref name="scene"/> contains another windowed-scene insertion.</exception>
     public WindowedSceneRenderLayer(LayeredRenderSnapshot scene, int left, int top, int right, int bottom)
     {
-        ArgumentNullException.ThrowIfNull(scene);
+        Ensure.NotNull(scene);
         if (left < 0 || top < 0 || right < left || bottom < top ||
             right > SnesPpuLayout.ScreenWidthPixels || bottom > SnesPpuLayout.ScreenHeightPixels)
             throw new ArgumentOutOfRangeException(nameof(left));

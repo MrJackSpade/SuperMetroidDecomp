@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
@@ -22,10 +23,9 @@ internal sealed class DebuggerSaveStateStore
         SuperMetroidGameOptions? hostOptions,
         GameContentIdentity contentIdentity)
     {
-        ArgumentNullException.ThrowIfNull(contentIdentity);
+        Ensure.NotNull(contentIdentity);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        if (romDigest.Length != SHA256.HashSizeInBytes)
-            throw new ArgumentException("Debugger state source digest must contain 32 bytes.", nameof(romDigest));
+        Ensure.LengthEqual(romDigest, SHA256.HashSizeInBytes);
         // Null preserves the captured policy for exact replay. Interactive hosts
         // explicitly supply their active INI options instead of trusting old state.
         this.hostOptions = hostOptions;
@@ -45,7 +45,7 @@ internal sealed class DebuggerSaveStateStore
         string? directoryOverride = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
-        ArgumentNullException.ThrowIfNull(contentIdentity);
+        Ensure.NotNull(contentIdentity);
         if (!contentIdentity.SourceCartridgeSha256.Equals(
                 SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
@@ -81,8 +81,8 @@ internal sealed class DebuggerSaveStateStore
         ManagedSpcPlayer? audioPlayer)
     {
         ValidateSlot(slot);
-        ArgumentNullException.ThrowIfNull(addressSpace);
-        ArgumentNullException.ThrowIfNull(game);
+        Ensure.NotNull(addressSpace);
+        Ensure.NotNull(game);
         EnsureRomMatches(addressSpace);
 
         Directory.CreateDirectory(directory);
@@ -238,7 +238,7 @@ internal sealed class DebuggerSaveStateStore
 
     private void EnsureRomMatches(SuperMetroidAddressSpace addressSpace)
     {
-        ArgumentNullException.ThrowIfNull(addressSpace);
+        Ensure.NotNull(addressSpace);
         // The live address space contains only mutable memory. Source revision is
         // validated when assets are installed and recorded in the content receipt.
         if (!CryptographicOperations.FixedTimeEquals(SupportedCartridge.CreateSha256Digest(), romDigest))

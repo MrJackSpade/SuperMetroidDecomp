@@ -23,7 +23,7 @@ internal sealed class CreditsObjectState
 
     public CreditsObjectState(CreditsPresentation presentation)
     {
-        this.presentation = presentation ?? throw new ArgumentNullException(nameof(presentation));
+        this.presentation = Ensure.NotNull(presentation);
         Array.Fill(tilemap, EndingCreditsRomData.Rendering.BlankTile);
     }
 
@@ -76,7 +76,7 @@ internal sealed class CreditsObjectState
     /// <summary>Uploads the live circular tilemap to native BG1 base word $4800.</summary>
     public void UploadTilemap(SnesVram vram)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         new EndingVram(vram).CreditsTilemap.Write(tilemap);
     }
 

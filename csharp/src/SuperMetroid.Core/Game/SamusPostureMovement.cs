@@ -108,8 +108,8 @@ public static class SamusPostureMovement
         RoomLevelData level,
         SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
     }
 }

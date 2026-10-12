@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -11,7 +12,7 @@ internal static class LoadStationEntryImporter
 {
     public static LoadStationEntry Load(ISnesAddressSpace bus, AreaId areaIndex, byte stationIndex)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int areaTableIndex = AreaIds.ToIndex(areaIndex);
         ushort listPointer = RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),

@@ -17,7 +17,7 @@ public sealed class ScrollBoundaryCamera
     /// <param name="scrolls">Room-sized grid of native directional scroll states.</param>
     public ScrollBoundaryCamera(RoomScrollGrid scrolls)
     {
-        Scrolls = scrolls ?? throw new ArgumentNullException(nameof(scrolls));
+        Scrolls = Ensure.NotNull(scrolls);
     }
 
     /// <summary>

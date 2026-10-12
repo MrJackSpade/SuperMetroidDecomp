@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -14,7 +15,7 @@ internal sealed class EvidencedDoorMusicUploadNmis : IDoorMusicUploadNmiSource
     /// <summary>Declares the native upload-wait NMIs that follow <paramref name="nextUpdate"/>.</summary>
     public void Expect(int nextUpdate, int count)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        Ensure.AtLeastZero(count);
         update = nextUpdate;
         expected = count;
         consumed = false;

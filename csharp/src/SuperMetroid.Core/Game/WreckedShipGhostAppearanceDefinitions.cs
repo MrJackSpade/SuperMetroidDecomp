@@ -57,7 +57,7 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// </summary>
     public static (short X, short Y) SpawnOffset(int index)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(index);
+        Ensure.AtLeastZero(index);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, SpawnCount);
         int horizontalDirection = index % 3 - 1;
         int verticalDirection = index / 3 - 1;
@@ -74,7 +74,7 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// </summary>
     public static short FlickerDuration(int index)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(index);
+        Ensure.AtLeastZero(index);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, FlickerCount);
         if (index == FlickerCount - 1)
             return -1;

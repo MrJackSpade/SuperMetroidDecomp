@@ -43,7 +43,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     /// <exception cref="ArgumentNullException"><paramref name="destination"/> is null.</exception>
     public void Apply(SnesCgram destination)
     {
-        ArgumentNullException.ThrowIfNull(destination);
+        Ensure.NotNull(destination);
         new CgramPalettes(destination).LoadImage(colors);
     }
 

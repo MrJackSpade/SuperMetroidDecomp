@@ -112,7 +112,7 @@ internal readonly struct SnesDspVoiceControls
     /// <summary>Binds voice <paramref name="index"/> (0-7).</summary>
     public SnesDspVoiceControls(ManagedSnesDsp dsp, int index)
     {
-        this.dsp = dsp ?? throw new ArgumentNullException(nameof(dsp));
+        this.dsp = Ensure.NotNull(dsp);
         if ((uint)index > SnesDspRegisterMap.VoiceIndexMask)
             throw new ArgumentOutOfRangeException(nameof(index), index, "The S-DSP has eight voices.");
         block = unchecked((byte)(index * SnesDspRegisterMap.VoiceStride));

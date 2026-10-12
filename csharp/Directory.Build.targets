@@ -1,7 +1,5 @@
 <Project>
   <PropertyGroup>
-    <!-- #620 starts as advisory while existing guards are migrated. -->
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);SME6201</WarningsNotAsErrors>
     <!-- #627 primitive-domain rules report the audit inventory until each rule reaches zero.
          SME6271 and SME6272 have reached zero; .editorconfig makes them errors. -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);SME6270</WarningsNotAsErrors>

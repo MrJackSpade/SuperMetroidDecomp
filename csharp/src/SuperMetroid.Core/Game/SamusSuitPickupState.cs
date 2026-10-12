@@ -84,8 +84,8 @@ public sealed class SamusSuitPickupState
         SamusSuitPickupKind kind,
         bool soundSuppressed = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         if (IsActive)
             throw new InvalidOperationException("A suit pickup transformation is already active.");
 
@@ -148,9 +148,9 @@ public sealed class SamusSuitPickupState
     /// <summary>Runs one installed bank-$88 HDMA pre-instruction.</summary>
     public void Step(ISnesAddressSpace bus, SamusState samus, SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(cgram);
         if (!IsActive)
             return;
         if (_preInstructionInstallCallsRemaining != 0)

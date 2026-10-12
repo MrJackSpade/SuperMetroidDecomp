@@ -45,9 +45,9 @@ public sealed partial class FileSelectMapMenuState
     public FileSelectMapMenuState(ISnesAddressSpace bus, CartridgeAudioState audio,
         SuperMetroidSaveSlot slot, ushort initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
-        ArgumentNullException.ThrowIfNull(slot);
+        this.bus = Ensure.NotNull(bus);
+        this.audio = Ensure.NotNull(audio);
+        Ensure.NotNull(slot);
         area = slot.Area;
         stationIndex = slot.SaveStation;
         if ((uint)area >= FileSelectMapRomData.AreaCount)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -83,7 +84,7 @@ public sealed class FrameTimingCounter
     /// <summary>Records the complete host cost of one translated video frame.</summary>
     public void RecordEmulatedFrame(long elapsedTicks)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(elapsedTicks);
+        Ensure.AtLeastZero(elapsedTicks);
         emulatedFrames++;
         emulationTicks += elapsedTicks;
         EmulatedFrameMeasured?.Invoke(elapsedTicks);
@@ -93,7 +94,7 @@ public sealed class FrameTimingCounter
     /// <summary>Records one canvas paint, including scaling the native raster to the host.</summary>
     public void RecordPaint(long elapsedTicks)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(elapsedTicks);
+        Ensure.AtLeastZero(elapsedTicks);
         paintedFrames++;
         paintTicks += elapsedTicks;
         worstPaintTicks = Math.Max(worstPaintTicks, elapsedTicks);

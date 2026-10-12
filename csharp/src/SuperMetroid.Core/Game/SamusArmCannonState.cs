@@ -49,8 +49,8 @@ public sealed class SamusArmCannonState
     /// </summary>
     public SamusArmCannonUpdateResult Update(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         if (samus.SelectedHudItem >= SamusArmCannonDefinitions.HudItemCount)
         {
             throw new InvalidDataException(
@@ -92,10 +92,10 @@ public sealed class SamusArmCannonState
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(vramWrites);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
+        Ensure.NotNull(vramWrites);
+        Ensure.NotNull(samus);
 
         // The cannon shares Samus's invincibility flicker, and a closed frame performs
         // neither OAM nor DMA work. Native returns before even consulting pose data.

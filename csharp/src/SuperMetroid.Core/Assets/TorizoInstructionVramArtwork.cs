@@ -98,7 +98,7 @@ public sealed class TorizoInstructionVramArtwork
 
     internal TorizoInstructionVramArtwork(RoomCharacterAtlas[] pages)
     {
-        ArgumentNullException.ThrowIfNull(pages);
+        Ensure.NotNull(pages);
         if (pages.Length != TorizoInstructionVramArtworkDefinitions.All.Length)
             throw new InvalidDataException("Torizo instruction artwork requires every tile page.");
         for (int index = 0; index < pages.Length; index++)

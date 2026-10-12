@@ -59,7 +59,7 @@ internal static class GrappleBeamTilePatterns
     /// <summary>$9A:9220-929F vertical characters transpose the four horizontal characters at $8220-829F without reordering animation frames.</summary>
     internal static byte[] VerticalSegments(ReadOnlySpan<byte> horizontal)
     {
-        if (horizontal.Length != 128) throw new ArgumentException("Grapple segments require four planar characters.", nameof(horizontal));
+        Ensure.LengthEqual(horizontal, 128);
         var vertical = new byte[128];
         for (int tile = 0; tile < 4; tile++)
         for (int plane = 0; plane < 4; plane++)

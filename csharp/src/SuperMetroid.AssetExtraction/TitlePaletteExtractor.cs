@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -12,7 +13,7 @@ internal static class TitlePaletteExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var source = new SnesCgram();
         CartridgePaletteImporter.LoadToCgram(source, bus, TitleSequenceRomData.Assets.PaletteAddress);
         PaletteRgb5[] colors = new CgramPalettes(source).Image.ToArray().Select(PaletteRgb5.From).ToArray();

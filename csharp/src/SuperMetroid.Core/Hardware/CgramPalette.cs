@@ -124,8 +124,7 @@ public readonly struct CgramPalettes(SnesCgram cgram)
     /// <summary>Replaces the complete image with <paramref name="colors"/> (exactly 256 colours).</summary>
     public void LoadImage(ReadOnlySpan<Bgr555> colors)
     {
-        if (colors.Length != ColorCount)
-            throw new ArgumentException($"A CGRAM image holds {ColorCount} colours, not {colors.Length}.", nameof(colors));
+        Ensure.LengthEqual(colors, ColorCount);
         All.CopyFrom(colors);
     }
 
@@ -135,8 +134,7 @@ public readonly struct CgramPalettes(SnesCgram cgram)
     /// </summary>
     public void LoadImageExcept(ReadOnlySpan<Bgr555> colors, params ReadOnlySpan<PpuLayoutCell> preserved)
     {
-        if (colors.Length != ColorCount)
-            throw new ArgumentException($"A CGRAM image holds {ColorCount} colours, not {colors.Length}.", nameof(colors));
+        Ensure.LengthEqual(colors, ColorCount);
         CgramPalette all = All;
         for (int color = 0; color < ColorCount; color++)
         {

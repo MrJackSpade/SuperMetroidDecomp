@@ -40,7 +40,7 @@ public sealed class RoomPlmNoobTubeVisualCatalog
     public RoomPlmNoobTubeVisualCatalog(
         IEnumerable<RoomPlmNoobTubeVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmNoobTubeVisualEntry entry in entries)

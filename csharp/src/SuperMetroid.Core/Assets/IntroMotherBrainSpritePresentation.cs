@@ -35,7 +35,7 @@ public sealed class IntroMotherBrainSpritePresentation
     /// <exception cref="InvalidDataException">JSON is malformed, contains duplicate properties, has an unsupported version or frame set, or contains invalid OAM visual fields.</exception>
     public static IntroMotherBrainSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         IntroMotherBrainSpriteDocument document;
         try
         {
@@ -74,7 +74,7 @@ public sealed class IntroMotherBrainSpritePresentation
     /// <exception cref="InvalidDataException">The serialized document does not satisfy the loader's schema and visual-field constraints.</exception>
     public static void Write(Stream json, IntroMotherBrainSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

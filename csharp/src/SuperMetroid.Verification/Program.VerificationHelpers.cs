@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -25,8 +26,8 @@ internal static partial class Program
         IEnumerable<T> actual,
         string context)
     {
-        ArgumentNullException.ThrowIfNull(expected);
-        ArgumentNullException.ThrowIfNull(actual);
+        Ensure.NotNull(expected);
+        Ensure.NotNull(actual);
 
         T[] expectedItems = expected.ToArray();
         T[] actualItems = actual.ToArray();
@@ -51,7 +52,7 @@ internal static partial class Program
         SamusState actual,
         string context)
     {
-        ArgumentNullException.ThrowIfNull(actual);
+        Ensure.NotNull(actual);
         AssertEqual(expected, actual.Position.Whole, context);
     }
 
@@ -75,7 +76,7 @@ internal static partial class Program
         ReadOnlySpan<ushort> expected,
         string context)
     {
-        ArgumentNullException.ThrowIfNull(actual);
+        Ensure.NotNull(actual);
         if (destinationIndex < 0 || destinationIndex > SnesCgram.ColorCount - expected.Length)
             throw new ArgumentOutOfRangeException(nameof(destinationIndex));
 
@@ -97,7 +98,7 @@ internal static partial class Program
     [CpuBusAccess]
     static void WriteTestByte(TestAddressSpace bus, int address, byte value)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bus.WriteByte(address, value);
     }
 
@@ -122,7 +123,7 @@ internal static partial class Program
     [CpuBusAccess]
     static void WriteTestWords(TestAddressSpace bus, int address, params ushort[] values)
     {
-        ArgumentNullException.ThrowIfNull(values);
+        Ensure.NotNull(values);
         for (int index = 0; index < values.Length; index++)
             WriteTestWord(bus, address + index * sizeof(ushort), values[index]);
     }
@@ -183,7 +184,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus animation-delay stream")]
     static void WriteAnimationDelayStream(TestAddressSpace bus, ushort stream, ReadOnlySpan<byte> delays)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bus.WriteBytes(SamusMovementRomData.Banks.Pose | stream, delays);
     }
 
@@ -257,8 +258,8 @@ internal static partial class Program
     /// </summary>
     static void StepFrames(int frameCount, Action<int> step)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(frameCount);
-        ArgumentNullException.ThrowIfNull(step);
+        Ensure.AtLeastZero(frameCount);
+        Ensure.NotNull(step);
 
         for (int frame = 0; frame < frameCount; frame++)
             step(frame);
@@ -275,8 +276,8 @@ internal static partial class Program
         int maximumFrames,
         string context)
     {
-        ArgumentNullException.ThrowIfNull(isComplete);
-        ArgumentNullException.ThrowIfNull(step);
+        Ensure.NotNull(isComplete);
+        Ensure.NotNull(step);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maximumFrames);
 
         int frames = 0;

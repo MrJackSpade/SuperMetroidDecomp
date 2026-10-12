@@ -99,7 +99,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     public bool TryQueueNativeTransfer(VramWriteQueue queue, int sourceAddress, ushort byteCount,
         ushort destinationWord)
     {
-        ArgumentNullException.ThrowIfNull(queue);
+        Ensure.NotNull(queue);
         if (!EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, destinationWord, out EscapeTimerTilePage page))
             return false;
         VramAssetId asset = EscapeTimerTilePages.AssetOf(page);
@@ -114,7 +114,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     public bool TryLoadNativeTransfer(SnesVram vram, int sourceAddress, ushort byteCount,
         ushort destinationWord)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         if (!EscapeTimerTilePages.TryMatch(sourceAddress, byteCount, destinationWord, out EscapeTimerTilePage page))
             return false;
 

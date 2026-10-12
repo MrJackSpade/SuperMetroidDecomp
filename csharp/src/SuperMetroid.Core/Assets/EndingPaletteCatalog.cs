@@ -71,7 +71,7 @@ public sealed class EndingPalette
     [PpuLayoutBoundary("codec: native ending palette transfers at their CGRAM index operands")]
     public void LoadTo(SnesCgram cgram, int sourceColor, int count, int destinationColor)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if (sourceColor < 0 || count < 0 || sourceColor > ColorCount - count)
             throw new ArgumentOutOfRangeException(nameof(sourceColor));
         if (nativeBytes is not null)
@@ -131,7 +131,7 @@ public sealed class EndingPalette
     /// <exception cref="InvalidDataException">The serialized document fails <see cref="Load"/>'s schema or RGB5 validation.</exception>
     public static void Write(Stream json, EndingPaletteId id, EndingPaletteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false), id);

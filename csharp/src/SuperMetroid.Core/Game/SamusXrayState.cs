@@ -140,8 +140,8 @@ public sealed class SamusXrayState
     /// </summary>
     public bool TryBegin(ISnesAddressSpace bus, SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, bool deferActivation = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         bool cancellingDirectGMode = IsReserveMode;
         if ((IsActive && !cancellingDirectGMode) || PendingActivationPose is not null)
@@ -333,8 +333,8 @@ public sealed class SamusXrayState
         SamusState samus,
         ushort controllerInput)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         EnsureActive();
 
         SamusMovementType movementType = samus.ReadMovementType(bus);
@@ -386,8 +386,8 @@ public sealed class SamusXrayState
     /// </summary>
     public ushort? StepMovement(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         EnsureActive();
 
         if (samus.ReadMovementType(bus) == SamusMovementType.TurningOnGround)
@@ -419,8 +419,8 @@ public sealed class SamusXrayState
         ushort dashBinding = (ushort)SnesButton.B,
         bool vramQueueHasRoom = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         EnsureActive();
 
         XrayBeamPhase phaseAtStart = BeamPhase;
@@ -519,8 +519,8 @@ public sealed class SamusXrayState
         ushort equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
 
         if ((BeamSizeFlag & 0x8000) != 0)
         {

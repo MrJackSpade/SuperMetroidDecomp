@@ -247,7 +247,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     public void BeginWindup(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (samus.SharedShineTimer == 0)
             throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
 
@@ -322,8 +322,8 @@ public sealed class SamusShinesparkState
     public void BeginDirectionalLaunch(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose,
         bool deferPoseChange = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         // `$91:FACA` installs the launch handler over whatever handler is current. A windup
         // whose handler normal movement replaced (a knockback ending in `$C7/$C8`) keeps its
         // pose and the windup's speeds, and a direction still launches from it.
@@ -365,9 +365,9 @@ public sealed class SamusShinesparkState
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
     public ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
-        ArgumentNullException.ThrowIfNull(terrain.Bus);
-        ArgumentNullException.ThrowIfNull(terrain.Level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(terrain.Bus);
+        Ensure.NotNull(terrain.Level);
+        Ensure.NotNull(samus);
 
         ShinesparkPhase phaseAtStart = Phase;
         if (Phase == ShinesparkPhase.Windup)
@@ -466,8 +466,8 @@ false);
         SamusSuitColorCatalog? suitColors = null,
         SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
             return false;
 

@@ -19,7 +19,7 @@ public sealed partial class RoomEnemySystem
     {
         EnsureLoaded();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(system);
 
         RoomEnemyProjectileKind kind = request.DefinitionPointer switch
         {

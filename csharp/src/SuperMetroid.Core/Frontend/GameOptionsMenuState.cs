@@ -51,7 +51,7 @@ public sealed class GameOptionsMenuState
         bool japaneseText = false,
         AreaMapPresentationCatalog? mapPresentation = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");

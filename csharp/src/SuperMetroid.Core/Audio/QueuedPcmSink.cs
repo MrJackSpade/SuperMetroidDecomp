@@ -20,7 +20,7 @@ public sealed class QueuedPcmSink : IDisposable
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is zero or negative.</exception>
     public QueuedPcmSink(Action<short[]> write, int capacity)
     {
-        ArgumentNullException.ThrowIfNull(write);
+        Ensure.NotNull(write);
         queue = new(capacity);
         worker = Task.Factory.StartNew(() =>
         {

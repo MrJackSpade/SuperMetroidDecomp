@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 
@@ -7,7 +8,7 @@ internal static class InstalledGameBindings
     /// <summary>Loads every game catalog once; the returned action binds them to each new game.</summary>
     internal static Action<SuperMetroidGame> Create(GameInstallation installation)
     {
-        ArgumentNullException.ThrowIfNull(installation);
+        Ensure.NotNull(installation);
         var assetMapPresentation = installation.LoadMaps();
         var assetGameplayBasePalettes = installation.LoadGameplayBasePalettes();
         var assetStandardObjectArt = installation.LoadStandardObjects();

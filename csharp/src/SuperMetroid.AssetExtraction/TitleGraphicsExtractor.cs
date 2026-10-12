@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -12,7 +13,7 @@ internal static class TitleGraphicsExtractor
 {
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte[] mode7 = Read(
             TitleSequenceRomData.Assets.Mode7CharactersAddress,
             TitleSequenceRomData.Vram.Mode7CharacterByteCount,

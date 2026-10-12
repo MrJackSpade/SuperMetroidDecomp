@@ -10,7 +10,7 @@ internal static class SoftwareBgColorMathRenderer
     internal static void Composite(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Bg2BppColorMathRenderLayer layer)
     {
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
-        if (output.Length != width * height) throw new ArgumentException("BG math needs a native-sized frame.", nameof(output));
+        Ensure.LengthEqual(output, width * height);
         int yMask = layer.MapHeightTiles * SnesPpuLayout.BackgroundTileSizePixels - 1;
         ReadOnlySpan<byte> bytes = vram.Bytes;
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];

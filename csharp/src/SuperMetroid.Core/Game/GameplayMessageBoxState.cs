@@ -151,7 +151,7 @@ public sealed class GameplayMessageBoxState
         ushort runBinding = (ushort)SnesButton.B,
         string sourceContext = nameof(GameplayMessageBoxState))
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte rawMessageId = (byte)messageId;
         if (messageId is (< GameplayMessageId.EnergyTank or > GameplayMessageId.GravitySuit) and
             not GameplayMessageId.GunshipSaveConfirmation)

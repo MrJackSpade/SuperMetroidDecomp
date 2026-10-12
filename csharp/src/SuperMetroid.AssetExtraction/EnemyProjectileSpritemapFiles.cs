@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +17,7 @@ public static class EnemyProjectileSpritemapFiles
     /// <exception cref="InvalidDataException">A native spritemap exceeds the supported part count or the resulting visual document is invalid.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach ((ushort pointer, string name) in EnemyProjectileSpritemapDefinitions.Frames)
             frames.Add(name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));

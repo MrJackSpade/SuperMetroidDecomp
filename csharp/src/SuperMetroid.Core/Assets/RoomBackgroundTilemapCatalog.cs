@@ -14,7 +14,7 @@ public sealed class RoomBackgroundTilemapCatalog
     public RoomBackgroundTilemapCatalog(
         IReadOnlyDictionary<int, RoomBackgroundTilemapAtlas> bySource)
     {
-        ArgumentNullException.ThrowIfNull(bySource);
+        Ensure.NotNull(bySource);
         if (bySource.Count != RoomBackgroundTilemapFormat.RetailCompressedSourceCount ||
             RoomBackgroundTilemapSources.All.Any(source =>
                 !bySource.TryGetValue(source, out RoomBackgroundTilemapAtlas? atlas) || atlas is null))

@@ -55,7 +55,7 @@ internal abstract class GunshipDustInstructionProgramDefinitions
 
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(index);
+        Ensure.AtLeastZero(index);
         for (int programIndex = 0; programIndex < ProgramCount; programIndex++)
         {
             GunshipDustInstructionProgramDefinition program = Program(programIndex);
@@ -97,7 +97,7 @@ internal abstract class GunshipDustInstructionProgramDefinitions
 
     public static ushort PresentationWordAddress(int index)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(index);
+        Ensure.AtLeastZero(index);
         for (int programIndex = 0; programIndex < ProgramCount; programIndex++)
         {
             GunshipDustInstructionProgramDefinition program = Program(programIndex);

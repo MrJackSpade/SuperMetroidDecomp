@@ -131,7 +131,7 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <returns>The immutable auxiliary-color catalog, retaining supplied rows when they differ from calculated stock relationships.</returns>
     public static EnemyAuxiliaryColorCatalog Load(Stream source)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         EnemyAuxiliaryColorDocument document;
         try
         {

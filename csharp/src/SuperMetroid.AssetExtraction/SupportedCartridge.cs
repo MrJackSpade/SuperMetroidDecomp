@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Hardware;
 
@@ -25,7 +26,7 @@ public static class SupportedCartridge
     /// <summary>Reads bounded input, strips an optional copier header, and rejects other revisions or modifications.</summary>
     public static byte[] Read(Stream source, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         byte[] buffer = new byte[RomByteCount + CopierHeaderByteCount + 1];
         int length = 0;
         while (length < buffer.Length)

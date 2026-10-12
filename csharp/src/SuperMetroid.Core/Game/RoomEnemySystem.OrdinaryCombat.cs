@@ -39,7 +39,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level = null,
         ushort? onlyNativeEnemyIndex = null)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         EnsureLoaded();
         SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
         if (contactDamageIndex == SamusContactDamageIndex.None && samus.InvincibilityTimer != 0)
@@ -616,9 +616,9 @@ public sealed partial class RoomEnemySystem
         SamusState? samus = null,
         ushort? onlyNativeEnemyIndex = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(projectiles);
-        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(projectiles);
+        Ensure.NotNull(sharedProjectiles);
         EnsureLoaded();
 
         int hitCount = 0;
@@ -1710,8 +1710,8 @@ public sealed partial class RoomEnemySystem
         SamusState? samus = null,
         ushort? onlyNativeEnemyIndex = null)
     {
-        ArgumentNullException.ThrowIfNull(bombs);
-        ArgumentNullException.ThrowIfNull(ordinaryProjectiles);
+        Ensure.NotNull(bombs);
+        Ensure.NotNull(ordinaryProjectiles);
         EnsureLoaded();
 
         int hitCount = 0;
@@ -2322,7 +2322,7 @@ public sealed partial class RoomEnemySystem
         byte explosionRadius,
         SamusState? samus = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         EnsureLoaded();
         if (explosionRadius == 0)
             return 0;

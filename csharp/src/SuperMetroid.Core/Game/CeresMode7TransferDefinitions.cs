@@ -203,7 +203,7 @@ public static class CeresMode7TransferDefinitions
     /// <summary>Replays direct calculated tiles as native $2118 low-byte writes, preserving high bytes and list order.</summary>
     public static void ApplyTo(SnesVram vram, CeresMode7TransferList pointer)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         var mode7 = new Mode7Vram(vram);
         foreach (CeresMode7Transfer transfer in Get(pointer))
             for (int index = 0; index < transfer.TileNumbers.Count; index++)

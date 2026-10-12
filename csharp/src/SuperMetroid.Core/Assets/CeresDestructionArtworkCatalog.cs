@@ -59,12 +59,12 @@ public sealed class CeresDestructionArtworkCatalog
         Stream zebesMapJson, Stream zebesCharactersPng, Stream spritesJson,
         Stream revealActorsJson, Stream destructionActorsJson)
     {
-        ArgumentNullException.ThrowIfNull(ceresMapJson);
-        ArgumentNullException.ThrowIfNull(zebesMapJson);
-        ArgumentNullException.ThrowIfNull(zebesCharactersPng);
-        ArgumentNullException.ThrowIfNull(spritesJson);
-        ArgumentNullException.ThrowIfNull(revealActorsJson);
-        ArgumentNullException.ThrowIfNull(destructionActorsJson);
+        Ensure.NotNull(ceresMapJson);
+        Ensure.NotNull(zebesMapJson);
+        Ensure.NotNull(zebesCharactersPng);
+        Ensure.NotNull(spritesJson);
+        Ensure.NotNull(revealActorsJson);
+        Ensure.NotNull(destructionActorsJson);
         CeresDestructionMapDocument document = ReadMap(ceresMapJson);
         var maps = new byte[CeresDestructionArtworkFormat.MapByteCount];
         for (int view = 0; view < document.Views.Length; view++)
@@ -86,7 +86,7 @@ public sealed class CeresDestructionArtworkCatalog
     /// <param name="document">Ordered destruction-view and clear-view cells to serialize.</param>
     public static void WriteMap(Stream json, CeresDestructionMapDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = ReadMap(new MemoryStream(bytes, writable: false));

@@ -13,8 +13,7 @@ public static class PhantoonWaveTable
         if (mode == 0) throw new ArgumentOutOfRangeException(nameof(mode), "Inactive HDMA does not build a wave.");
         int half = (mode & PhantoonWaveRomData.LongWaveModeBit) != 0
             ? PhantoonWaveRomData.LongHalfCycle : PhantoonWaveRomData.ShortHalfCycle;
-        if (destination.Length != half * 2)
-            throw new ArgumentException("Destination must hold exactly one native wave cycle.", nameof(destination));
+        Ensure.LengthEqual(destination, half * 2);
         int step = (PhantoonWaveRomData.PhaseMask + 1) / (half * 2);
         for (int i = 0; i < half; i++)
         {

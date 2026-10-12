@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ public static class MagdollitePaletteCycleExtractor
     /// <exception cref="InvalidDataException">An imported color sets bit 15, which cannot be represented by RGB5 channels.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new PaletteRgb5[MagdollitePaletteRomData.FrameCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {

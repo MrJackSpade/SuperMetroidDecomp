@@ -406,7 +406,7 @@ public sealed partial class RoomEnemySystem
         OamBuffer oam,
         Position16<RoomPixels> camera)
     {
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(oam);
         EnsureLoaded();
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
@@ -427,7 +427,7 @@ public sealed partial class RoomEnemySystem
         OamBuffer oam,
         Position16<RoomPixels> camera)
     {
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(oam);
         EnsureLoaded();
         if (Ridley is null ||
             _slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
@@ -601,7 +601,7 @@ public sealed partial class RoomEnemySystem
 
     private bool ResolveRidleyBodySamusContact(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         EnsureLoaded();
         // $A0:9A8B-$9A98 gates ordinary contact only on the contact-damage mode and
         // Samus's invincibility timer. It does not inspect the bank-$90 knockback-active

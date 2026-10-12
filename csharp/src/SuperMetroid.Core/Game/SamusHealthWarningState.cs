@@ -14,7 +14,7 @@ public sealed class SamusHealthWarningState
     /// </summary>
     public void Update(ushort health, CartridgeAudioState audio, bool soundSuppressed = false)
     {
-        ArgumentNullException.ThrowIfNull(audio);
+        Ensure.NotNull(audio);
         bool critical = unchecked((short)(health - SamusHealthWarningRomData.HealthyThreshold)) < 0;
         if (critical == IsActive) return;
 

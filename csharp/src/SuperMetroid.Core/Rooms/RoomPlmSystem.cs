@@ -236,7 +236,7 @@ public sealed partial class RoomPlmSystem
     /// <returns>False only when all 40 native PLM slots are occupied.</returns>
     public bool TrySpawnBotwoonWall(RoomLevelData level, PlmHeaderId header)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (header is not (
             PlmHeaderId.ClearBotwoonWall or
             PlmHeaderId.CrumbleBotwoonWall))
@@ -289,7 +289,7 @@ public sealed partial class RoomPlmSystem
     /// <returns>False only when all 40 native PLM slots are occupied.</returns>
     public bool TrySpawnSporeSpawnCeiling(RoomLevelData level, PlmHeaderId header)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (header is not (
                 PlmHeaderId.CrumbleSporeSpawnCeiling or
                 PlmHeaderId.ClearSporeSpawnCeiling))
@@ -334,7 +334,7 @@ public sealed partial class RoomPlmSystem
         Position16<RoomBlocks> block,
         PlmHeaderId header)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         ushort instructionPointer = header switch
         {
             PlmHeaderId.CrumbleKraidCeilingIntoBackground1 =>
@@ -394,7 +394,7 @@ public sealed partial class RoomPlmSystem
         Position16<RoomBlocks> block,
         PlmHeaderId header)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         ushort instructionPointer = header switch
         {
             PlmHeaderId.ClearCrocomireBridge => RoomPlmInstructionLists.ClearCrocomireBridge,
@@ -441,7 +441,7 @@ public sealed partial class RoomPlmSystem
         Position16<RoomBlocks> block,
         PlmHeaderId header)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (header is not (
             PlmHeaderId.ClearBabyMetroidInvisibleWall or
             PlmHeaderId.CreateBabyMetroidInvisibleWall))
@@ -499,7 +499,7 @@ public sealed partial class RoomPlmSystem
         Position16<RoomBlocks> block,
         PlmHeaderId header)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         ushort instructionPointer = header switch
         {
             PlmHeaderId.FillMotherBrainsWall => RoomPlmInstructionLists.FillMotherBrainsWall,
@@ -565,7 +565,7 @@ public sealed partial class RoomPlmSystem
         int blockIndex,
         RoomBlockBehavior bts)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (!bts.IsBreakableGrappleReaction)
             throw new ArgumentOutOfRangeException(nameof(bts), "Breakable grapple BTS must be one or two.");
 
@@ -603,7 +603,7 @@ public sealed partial class RoomPlmSystem
         int blockIndex,
         RoomBlockBehavior bts)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (!bts.IsNormalReactionIndex(8))
         {
             throw new ArgumentOutOfRangeException(
@@ -656,7 +656,7 @@ public sealed partial class RoomPlmSystem
         int blockIndex,
         RoomBlockBehavior bts)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (!bts.IsNormalReactionIndex(8))
         {
             throw new ArgumentOutOfRangeException(
@@ -709,8 +709,8 @@ public sealed partial class RoomPlmSystem
         RoomBlockBehavior bts,
         SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!SpeedBoosterBlockPlmDefinitions.TryResolve(
                 bts,
                 _activeAreaIndex,
@@ -766,7 +766,7 @@ public sealed partial class RoomPlmSystem
         RoomBlockBehavior bts,
         SamusProjectileTypeWord projectileType)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (!bts.IsNormalReactionIndex(16))
         {
             throw new ArgumentOutOfRangeException(
@@ -833,7 +833,7 @@ public sealed partial class RoomPlmSystem
         SamusProjectileTypeWord projectileType,
         bool solidBlock)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (bts.Value == EscapeAnimalPlmRomData.ReactionBts)
             return TrySpawnCrittersEscapeReaction(level, blockIndex, projectileType);
         bool areaDependent = bts.UsesAreaReactionTable;
@@ -991,7 +991,7 @@ public sealed partial class RoomPlmSystem
         AreaId areaIndex,
         SamusProjectileTypeWord projectileType)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         _ = AreaIds.ToIndex(areaIndex);
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
@@ -1050,9 +1050,9 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public IReadOnlyList<PlmTilemapUpdate> Step(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view, PlmFrameInputs frame)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(streamer);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(streamer);
         _soundRequests.Clear();
         PublishPendingDownwardGateSounds();
         _tilemapUpdates.Clear();

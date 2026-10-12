@@ -9,7 +9,7 @@ public sealed partial class SuperMetroidGame
     /// </summary>
     public void ApplyHostOptions(SuperMetroidGameOptions hostOptions)
     {
-        ArgumentNullException.ThrowIfNull(hostOptions);
+        Ensure.NotNull(hostOptions);
         runtime?.ApplyHostOptions(hostOptions);
         ConfiguredOptions = hostOptions;
     }

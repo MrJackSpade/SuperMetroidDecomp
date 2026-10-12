@@ -15,8 +15,8 @@ public static class SamusSpecialSuperPalette
         SnesCgram cgram,
         SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(samus);
 
         ushort flags = samus.SpecialSuperPaletteFlags;
         if (flags == 0 || (flags & 0x8000) != 0)

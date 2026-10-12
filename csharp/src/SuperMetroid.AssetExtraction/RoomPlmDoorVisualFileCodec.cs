@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -31,7 +32,7 @@ internal static class RoomPlmDoorVisualFileCodec
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
         Func<ushort, string> visualId)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Entry[] entries = ReadAndVerifyNative(bus, family, definitions, visualId);
@@ -51,7 +52,7 @@ internal static class RoomPlmDoorVisualFileCodec
     internal static TCatalog Load<TCatalog>(string stockDirectory, string? overrideDirectory,
         RoomPlmVisualFamily<TCatalog> visuals)
     {
-        ArgumentNullException.ThrowIfNull(visuals);
+        Ensure.NotNull(visuals);
         string visualFileName = visuals.FileName;
         string family = visuals.Name;
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions = visuals.Definitions;

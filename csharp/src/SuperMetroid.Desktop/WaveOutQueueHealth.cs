@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Observes queue drains without changing PCM, buffering, or device pacing.</summary>
@@ -14,7 +15,7 @@ internal sealed class WaveOutQueueHealth
     /// </summary>
     internal void Observe(int hardwareQueued, bool prerollRequired)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(hardwareQueued);
+        Ensure.AtLeastZero(hardwareQueued);
         if (prerollRequired) return;
         lock (sync)
         {

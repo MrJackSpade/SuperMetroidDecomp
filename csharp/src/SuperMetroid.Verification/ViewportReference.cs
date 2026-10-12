@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -14,16 +15,11 @@ internal static class ViewportReference
         Extent16<TilemapCells> tilemapSize = viewport.TilemapSize ??
             throw new ArgumentException("The frozen reference requires an explicit tilemap size.", nameof(viewport));
         int tilemapWidthInTiles = tilemapSize.X, tilemapHeightInTiles = tilemapSize.Y;
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         if (width <= 0 || height <= 0)
             throw new ArgumentOutOfRangeException(nameof(width));
-        if (output.Length != checked(width * height))
-        {
-            throw new ArgumentException(
-                "A 4-bpp destination must contain exactly width*height pixels.",
-                nameof(output));
-        }
+        Ensure.LengthEqual(output, checked(width * height));
         if (tilemapWidthInTiles is not (32 or 64))
             throw new ArgumentOutOfRangeException(nameof(tilemapWidthInTiles));
         if (tilemapHeightInTiles is not (32 or 64))

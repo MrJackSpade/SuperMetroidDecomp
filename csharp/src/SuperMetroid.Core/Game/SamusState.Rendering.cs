@@ -42,8 +42,8 @@ public sealed partial class SamusState
     public static void LoadPowerSuitPalette(ISnesAddressSpace bus, SnesCgram cgram,
         SamusSuitColorCatalog? suitColors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
 
         // OBJ palettes begin at CGRAM 128. Spritemap palette 4 therefore resolves to 192,
         // exactly matching CopyToSamusSuitPalette's &palette_buffer[192] destination.
@@ -56,8 +56,8 @@ public sealed partial class SamusState
     /// </summary>
     public void LoadSuitPalette(ISnesAddressSpace bus, SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
 
         SamusNormalSuitPalette.Load(cgram, EquippedItems, SuitColors);
     }
@@ -75,7 +75,7 @@ public sealed partial class SamusState
     /// </summary>
     public void InitializeAnimation(ISnesAddressSpace bus, ushort initialFrame = 0)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         AnimationFrame = initialFrame;
         // `$91:FB08` does not simply reuse the previous animation pass's `$0A9A`. It
@@ -130,7 +130,7 @@ public sealed partial class SamusState
         ushort timer,
         bool refreshRadius)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         // Both drained controllers store only $0A1C; $0A1E/$0A1F keep the prior movement.
         WritePoseWithoutInitialization(pose);
         if (refreshRadius)
@@ -166,7 +166,7 @@ public sealed partial class SamusState
     /// </remarks>
     public void AnimateNoFx(ISnesAddressSpace bus, SamusAnimationStep step)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         EnsureAnimationInitialized();
 
         // `$90:8000` dispatches the active room-FX animation handler before touching the
@@ -207,7 +207,7 @@ public sealed partial class SamusState
     /// </summary>
     internal void AnimateDeathFrame(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         EnsureAnimationInitialized();
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameTimer - 1));
         if (AnimationFrameTimer != 0 && (AnimationFrameTimer & 0x8000) == 0)
@@ -492,8 +492,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter = 0,
         SamusMode7Transform? mode7Transform = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
 
         SamusMovementType movementType = ReadMovementType(bus);
 
@@ -706,8 +706,8 @@ public sealed partial class SamusState
         OamBuffer oam,
         Position16<RoomPixels> layer1)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
 
         if ((HorizontalSpeed.SpeedEchoIndex & 0x8000) != 0)
         {
@@ -767,8 +767,8 @@ public sealed partial class SamusState
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
         if ((nmiFrameCounter & 1) == 0 ||
             Shinespark.Phase is not (ShinesparkPhase.Crash or ShinesparkPhase.CrashEchoCircle))
         {
@@ -796,8 +796,8 @@ public sealed partial class SamusState
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
         if ((nmiFrameCounter & 1) == 0)
             return;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -17,7 +18,7 @@ public static class SamusChargeColorExtractor
     /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var charged = new PaletteRgb5[SamusChargeColorFormat.SuitCount][][];
         var pseudo = new PaletteRgb5[SamusChargeColorFormat.SuitCount][][];
         for (int suit = 0; suit < SamusChargeColorFormat.SuitCount; suit++)

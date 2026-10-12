@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -13,7 +14,7 @@ internal static class EnemyExtendedFrameFiles
 {
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new Dictionary<string, EnemyExtendedVisualComponent[]>(
             StringComparer.Ordinal);
         foreach (EnemyExtendedFrameDefinition definition in
@@ -43,7 +44,7 @@ internal static class EnemyExtendedFrameFiles
     internal static EnemyExtendedVisualComponent[] ExtractComponents(
         ISnesAddressSpace bus, EnemyExtendedFrameDefinition definition)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte bank = definition.Bank;
         ushort pointer = definition.Pointer;
         int baseAddress = (bank << 16) | pointer;

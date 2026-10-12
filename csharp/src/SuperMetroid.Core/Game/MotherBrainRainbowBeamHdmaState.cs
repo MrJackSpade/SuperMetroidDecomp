@@ -35,7 +35,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
     public void Step(ISnesAddressSpace bus, bool active, Position16<RoomPixels> head,
         SnesAngle angle, ushort angularWidth)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (!active)
         {
             Active = false;

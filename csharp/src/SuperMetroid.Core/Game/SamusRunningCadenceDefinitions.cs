@@ -73,7 +73,7 @@ internal static class SamusRunningCadenceDefinitions
         ushort listPointer,
         ushort byteIndex)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
         if (TryReadCompiledByte(address, out byte value))
             return value;

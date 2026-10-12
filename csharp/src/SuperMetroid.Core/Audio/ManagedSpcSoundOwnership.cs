@@ -14,8 +14,8 @@ internal static class ManagedSpcSoundOwnership
         ManagedSpcMusicChannel musicChannel,
         ManagedSpcSoundChannel soundChannel)
     {
-        ArgumentNullException.ThrowIfNull(musicChannel);
-        ArgumentNullException.ThrowIfNull(soundChannel);
+        Ensure.NotNull(musicChannel);
+        Ensure.NotNull(soundChannel);
         soundChannel.Volume = musicChannel.FinalVolume;
         soundChannel.PhaseInvert = musicChannel.PanFlags;
     }

@@ -51,15 +51,14 @@ internal sealed class IntroCinematicObjectSystem
         IntroNarrationPresentation? narrationPresentation = null,
         IntroEyeTilemapPresentation? eyeArtwork = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.subtitles = subtitles ?? throw new ArgumentNullException(nameof(subtitles));
-        this.vram = vram ?? throw new ArgumentNullException(nameof(vram));
-        this.textTilemap = textTilemap ?? throw new ArgumentNullException(nameof(textTilemap));
+        this.bus = Ensure.NotNull(bus);
+        this.subtitles = Ensure.NotNull(subtitles);
+        this.vram = Ensure.NotNull(vram);
+        this.textTilemap = Ensure.NotNull(textTilemap);
         this.audio = audio;
         this.narrationPresentation = narrationPresentation;
         this.eyeArtwork = eyeArtwork;
-        if (textTilemap.Length != IntroCinematicRomData.Layers.TextTilemapWordCount)
-            throw new ArgumentException("The cinematic tilemap staging buffer must contain $400 words.", nameof(textTilemap));
+        Ensure.LengthEqual(textTilemap, IntroCinematicRomData.Layers.TextTilemapWordCount);
     }
 
     /// <summary>Set when opcode $8B:AE5B reaches the English page-one input marker.</summary>

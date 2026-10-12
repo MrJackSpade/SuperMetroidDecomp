@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,7 +15,7 @@ public static class CeresRidleyColorExtractor
     /// <returns>UTF-8 JSON bytes for the versioned Ceres Ridley color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return CeresRidleyColorCatalog.Write(new CeresRidleyColorDocument
         {
             Version = (int)CeresRidleyColorVersion.Current,

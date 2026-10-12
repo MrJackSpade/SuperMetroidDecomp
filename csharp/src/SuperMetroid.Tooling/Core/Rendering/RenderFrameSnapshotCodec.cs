@@ -15,7 +15,7 @@ public static partial class RenderFrameSnapshotCodec
     /// <returns>Portable bytes containing frame identity, composition, required PPU memory, and brightness passes; no CLR object identities or GPU resources are serialized.</returns>
     public static byte[] Serialize(RenderFrameSnapshot frame)
     {
-        ArgumentNullException.ThrowIfNull(frame);
+        Ensure.NotNull(frame);
         // Every packet carries a complete VRAM image; start large enough to never regrow for it.
         using var stream = new MemoryStream(SnesPpuLayout.VramByteCount + 16 * 1024);
         Serialize(frame, stream);
@@ -25,8 +25,8 @@ public static partial class RenderFrameSnapshotCodec
     /// <summary>Writes the packet encoding to <paramref name="output"/>, e.g. a hash for comparison.</summary>
     public static void Serialize(RenderFrameSnapshot frame, Stream output)
     {
-        ArgumentNullException.ThrowIfNull(frame);
-        ArgumentNullException.ThrowIfNull(output);
+        Ensure.NotNull(frame);
+        Ensure.NotNull(output);
         var counted = new CountingStream(output);
         using var writer = new BinaryWriter(counted, System.Text.Encoding.UTF8, leaveOpen: true);
         writer.Write(RenderPacketFormat.Signature);
@@ -97,7 +97,7 @@ public static partial class RenderFrameSnapshotCodec
     /// <summary>Reads a packet held in an array directly, without first copying it.</summary>
     public static RenderFrameSnapshot Deserialize(byte[] bytes)
     {
-        ArgumentNullException.ThrowIfNull(bytes);
+        Ensure.NotNull(bytes);
         if (bytes.Length > RenderPacketFormat.MaximumPacketBytes)
             throw new InvalidDataException("Display fixture exceeds the bounded packet size.");
         using var stream = new MemoryStream(bytes, writable: false);

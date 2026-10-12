@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -15,8 +16,8 @@ internal static class ImportedSpritemapOracle
         int address, Position16<OamPixels> origin, ushort paletteBits,
         bool originIsOnScreen = true)
     {
-        ArgumentNullException.ThrowIfNull(source);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(source);
+        Ensure.NotNull(oam);
         _ = SnesAddress.FromBusAddress(address);
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
 
@@ -52,7 +53,7 @@ internal static class ImportedSpritemapOracle
     private static EnemySpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,
         byte bank, ushort pointer)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         byte Byte(int offset) => source.ReadCartridgeByte(
             (bank << 16) | ((pointer + offset) & 0xffff));
         ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);

@@ -74,7 +74,7 @@ public sealed class SamusSuitColorCatalog
     /// <summary>Writes only Samus's sixteen OBJ colors; no equipment or phase state changes.</summary>
     public void Apply(SnesCgram cgram, ushort suitTableOffset)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int index = 0; index < SamusSuitColorFormat.ColorsPerSuit; index++)
             new SamusPalettes(cgram).Suit.Write(index,
                 Resolve(suitTableOffset, index));
@@ -85,7 +85,7 @@ public sealed class SamusSuitColorCatalog
     /// <returns>The compiled suit-color catalog.</returns>
     public static SamusSuitColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         SamusSuitColorDocument document;
         try
         {

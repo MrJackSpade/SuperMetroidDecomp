@@ -25,7 +25,7 @@ public sealed class GameplayBasePaletteCatalog
     /// <summary>Loads the complete selected 256-color starting image into CGRAM.</summary>
     public void LoadInitial(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         new CgramPalettes(cgram).LoadImage(initial);
     }
 
@@ -33,7 +33,7 @@ public sealed class GameplayBasePaletteCatalog
     [PpuLayoutBoundary("codec: room-load sprite palette copies at their native CGRAM index operands")]
     public void LoadCommonSprites(SnesCgram cgram, int destination)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < commonSprites.Length; color++)
             new CgramPalettes(cgram).All.Write(destination + color, commonSprites[color]);
     }
@@ -42,7 +42,7 @@ public sealed class GameplayBasePaletteCatalog
     [PpuLayoutBoundary("codec: room-load sprite palette copies at their native CGRAM index operands")]
     public void LoadEnemyProjectileSprites(SnesCgram cgram, int destination)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
             new CgramPalettes(cgram).All.Write(destination + color,
                 initial[GameplayBasePaletteFormat.EnemyProjectileInitialColor + color]);

@@ -62,9 +62,7 @@ public sealed class FileSelectPresentation
     {
         if (!pages.TryGetValue(name, out ushort[]? source))
             throw new InvalidDataException($"Unknown file-select page {name}.");
-        if (destination.Length != FileSelectPresentationDefinitions.CellCount)
-            throw new ArgumentException("File-select destination must contain 1024 cells.",
-                nameof(destination));
+        Ensure.LengthEqual(destination, FileSelectPresentationDefinitions.CellCount);
         source.CopyTo(destination);
     }
 

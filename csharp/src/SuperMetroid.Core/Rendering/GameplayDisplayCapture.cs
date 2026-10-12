@@ -13,7 +13,7 @@ public static partial class GameplayDisplayCapture
     /// </summary>
     public static LayeredRenderSnapshot? TryCaptureFrame(SuperMetroidRuntime runtime)
     {
-        ArgumentNullException.ThrowIfNull(runtime);
+        Ensure.NotNull(runtime);
         LayeredRenderSnapshot basis = runtime.ActiveDoor?.UsesCeresElevatorMode7 == true || runtime.Enemies.CeresRidley is { Mode7Active: true }
             ? CaptureMode7Base(runtime) : CaptureOrdinaryBase(runtime);
         var layers = new List<RenderLayer>(basis.Layers.ToArray());
@@ -71,7 +71,7 @@ public static partial class GameplayDisplayCapture
     [PpuLayoutBoundary("codec: ordinary gameplay render packet (BG base registers)")]
     public static LayeredRenderSnapshot CaptureOrdinaryBase(SuperMetroidRuntime runtime)
     {
-        ArgumentNullException.ThrowIfNull(runtime);
+        Ensure.NotNull(runtime);
         if (runtime.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before capture.");
         if (runtime.ActiveDoor.UsesCeresElevatorMode7 || runtime.Enemies.CeresRidley is { Mode7Active: true })

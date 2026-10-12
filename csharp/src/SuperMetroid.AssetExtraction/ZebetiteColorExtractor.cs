@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -15,7 +16,7 @@ public static class ZebetiteColorExtractor
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new PaletteRgb5[ZebetiteColorFormat.FrameCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {

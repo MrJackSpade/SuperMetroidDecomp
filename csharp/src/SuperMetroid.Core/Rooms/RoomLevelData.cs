@@ -370,7 +370,7 @@ public sealed class RoomLevelData
         SamusPoseId samusPose,
         bool publishDoorSideEffects = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (DoorListPointer is not ushort doorListPointer)
         {
             // Every cartridge-backed room header supplies this pointer. Its nullable form

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +17,7 @@ public static class GameplayMessagePanelExtractor
     /// <exception cref="InvalidDataException">A panel has an unexpected binding, draw routine, size, glyph, or title palette, or fails schema validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var panels = new Dictionary<string, GameplayMessagePanel>(StringComparer.Ordinal);
         foreach (GameplayMessageId id in GameplayMessagePanelDefinitions.MessageIds)
         {

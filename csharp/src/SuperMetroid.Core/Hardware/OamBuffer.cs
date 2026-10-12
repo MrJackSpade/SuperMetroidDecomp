@@ -123,8 +123,8 @@ public sealed class OamBuffer
         Position16<OamPixels> origin,
         SamusSpritemapArtworkCatalog artwork)
     {
-        ArgumentNullException.ThrowIfNull(memory);
-        ArgumentNullException.ThrowIfNull(artwork);
+        Ensure.NotNull(memory);
+        Ensure.NotNull(artwork);
 
         if (artwork.TryGet(spritemapIndex, out SamusSpritemapDefinition? definition))
         {
@@ -202,7 +202,7 @@ public sealed class OamBuffer
         Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap = false, bool originYIsOnScreen = true)
     {
-        ArgumentNullException.ThrowIfNull(parts);
+        Ensure.NotNull(parts);
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         for (int index = 0; index < parts.Count; index++)
             AppendEnemySpritemapPart(parts[index], origin, paletteBits,
@@ -346,8 +346,7 @@ public sealed class OamBuffer
     {
         if ((uint)modeledSpriteCount > SpriteCount)
             throw new ArgumentOutOfRangeException(nameof(modeledSpriteCount));
-        if (payload.Length != UploadByteCount)
-            throw new ArgumentException("OAM requires a complete low/high table image.", nameof(payload));
+        Ensure.LengthEqual(payload, UploadByteCount);
         payload[..LowTableByteCount].CopyTo(_lowTable);
         payload[LowTableByteCount..].CopyTo(_highTable);
         NextByteOffset = 0;
@@ -366,7 +365,7 @@ public sealed class OamBuffer
     /// </remarks>
     public void CopyFinalizedFrom(OamBuffer stagingBuffer)
     {
-        ArgumentNullException.ThrowIfNull(stagingBuffer);
+        Ensure.NotNull(stagingBuffer);
 
         stagingBuffer._lowTable.CopyTo(_lowTable, 0);
         stagingBuffer._highTable.CopyTo(_highTable, 0);

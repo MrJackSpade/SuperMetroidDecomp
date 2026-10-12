@@ -12,7 +12,7 @@ public sealed class RoomSkyTilemapCatalog : IInstalledArtworkTransferSource
     /// <param name="selectedPages">Exactly seven 32-by-32 compiled BG tilemap pages.</param>
     public RoomSkyTilemapCatalog(IReadOnlyList<RoomBackgroundTilemapAtlas> selectedPages)
     {
-        ArgumentNullException.ThrowIfNull(selectedPages);
+        Ensure.NotNull(selectedPages);
         if (selectedPages.Count != RoomSkyTilemapFormat.PageCount)
             throw new InvalidDataException(
                 $"Scrolling sky requires {RoomSkyTilemapFormat.PageCount} ordered pages.");

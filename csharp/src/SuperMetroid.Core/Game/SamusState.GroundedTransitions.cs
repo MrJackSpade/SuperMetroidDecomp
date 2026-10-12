@@ -17,7 +17,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyAerialAimTransition(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (IsCompactAerialPose(Pose) || IsCompactAerialPose(targetPose))
         {
             // Compact poses change Samus's collision height. This overload intentionally
@@ -79,8 +79,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         bool rightJump = IsRightFacingNormalJumpPose(Pose) &&
             IsRightFacingNormalJumpPose(targetPose);
@@ -160,7 +160,7 @@ public sealed partial class SamusState
     /// </remarks>
     public void ApplyGroundedAimTransition(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool sourceRight = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
             IsRightFacingRanIntoWallPose(Pose) ||
             IsRightFacingLandingPose(Pose);
@@ -259,8 +259,8 @@ public sealed partial class SamusState
         out BlockMoveResult? onePixelProbe,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
         onePixelProbe = null;
 
         if (currentXSpeedKilledByBlock && ReadMovementKind(bus) == SamusMovementType.Running)
@@ -305,7 +305,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyRanIntoWallPoseChange(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool moonwalking = IsMoonwalkingPose(Pose);
         bool rightSource = IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
             IsRightFacingRanIntoWallPose(Pose) || IsRightFacingLandingPose(Pose) || moonwalking;
@@ -329,7 +329,7 @@ public sealed partial class SamusState
     /// <summary>Applies `$89/$8A/$CF-$D2`'s same-facing exit to a type-one running pose.</summary>
     public void ApplyRanIntoWallToRunning(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool rightRoute = IsRightFacingRanIntoWallPose(Pose) &&
             IsRightFacingRunningPose(targetPose);
         bool leftRoute = IsLeftFacingRanIntoWallPose(Pose) &&
@@ -360,7 +360,7 @@ public sealed partial class SamusState
         SamusPoseId targetPose,
         bool moonwalkEnabled)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         bool sourceStandingRight = IsRightFacingStandingPose(Pose) ||
             IsRightFacingRanIntoWallPose(Pose) ||
@@ -417,7 +417,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyMoonwalkTurnJump(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         SamusPoseId expectedTarget = ReadShotDirection(bus) switch
         {
@@ -462,7 +462,7 @@ public sealed partial class SamusState
     /// </remarks>
     public void ApplyStandingRightToRunningRight(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (Pose != SamusPoseId.FacingRightNormalPose)
         {
             throw new InvalidOperationException(
@@ -483,7 +483,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyRunningRightToStandingRight(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (Pose != SamusPoseId.MovingRightNormalPose)
         {
             throw new InvalidOperationException(
@@ -531,7 +531,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyLandingToRunning(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool right = IsRightFacingLandingPose(Pose) &&
             targetPose == SamusPoseId.MovingRightNormalPose;
         bool left = IsLeftFacingLandingPose(Pose) &&
@@ -552,7 +552,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyGroundedTurn(ISnesAddressSpace bus, SamusPoseId targetPose, ushort controllerInput = 0)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         // `$91:F8D3-$F8DB` gives the two front-view poses a deliberately unusual route.
         // Their pose-X direction is zero, so they cannot honestly be classified as either

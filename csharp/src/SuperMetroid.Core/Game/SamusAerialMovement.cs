@@ -25,8 +25,8 @@ public static class SamusAerialMovement
     /// </summary>
     public static void InitializeJump(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
@@ -45,8 +45,8 @@ public static class SamusAerialMovement
     /// </summary>
     public static void InitializeWallJump(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
@@ -65,7 +65,7 @@ public static class SamusAerialMovement
     /// </summary>
     public static void ApplyEquippedSpeedBoosterJumpBonus(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             return;
 
@@ -81,8 +81,8 @@ public static class SamusAerialMovement
     /// </summary>
     public static void ConfigureEnvironmentGravity(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
             SamusVerticalMotionDefinitions.Gravity(samus.LiquidPhysics.DetermineMovementMedium(samus));
     }
@@ -843,9 +843,9 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
     }
 
     private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)

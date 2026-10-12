@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
@@ -1151,7 +1152,7 @@ static void VerifySamusGrappleSwingAndRelease()
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $9B:C14A/$C15E grapple flare origin tables")]
 static void WriteGrappleFlareOrigin(TestAddressSpace bus, int direction, Offset16<RoomPixels> origin)
 {
-    ArgumentOutOfRangeException.ThrowIfNegative(direction);
+    Ensure.AtLeastZero(direction);
     ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(direction, 10);
     WriteTestWord(bus, 0x9bc14a + direction * 2, unchecked((ushort)origin.X));
     WriteTestWord(bus, 0x9bc15e + direction * 2, unchecked((ushort)origin.Y));

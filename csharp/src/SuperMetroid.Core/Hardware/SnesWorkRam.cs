@@ -7,7 +7,7 @@ public static class SnesWorkRam
     /// <summary>Reads two WRAM bytes; the typed source rejects cartridge, SRAM, and peripheral windows.</summary>
     public static ushort ReadWord(ISnesMutableMemory memory, int address)
     {
-        ArgumentNullException.ThrowIfNull(memory);
+        Ensure.NotNull(memory);
         int highAddress = SnesAddressMath.AddWithinBank(address, 1);
         return (ushort)(memory.ReadWorkRamByte(address) | memory.ReadWorkRamByte(highAddress) << 8);
     }

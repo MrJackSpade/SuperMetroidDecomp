@@ -38,7 +38,7 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
     /// <returns>Compiled editable compositions, using calculated stock letter parts only when every supplied visual field matches.</returns>
     public static EndingCompletionTextSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EndingCompletionTextSpriteDocument document;
         try
         {
@@ -78,7 +78,7 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
     /// <param name="document">Versioned phrase-prefix, digit, and colon compositions to serialize.</param>
     public static void Write(Stream json, EndingCompletionTextSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

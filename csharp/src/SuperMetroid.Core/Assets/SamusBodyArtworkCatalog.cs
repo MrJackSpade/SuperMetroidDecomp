@@ -63,21 +63,21 @@ public sealed partial class SamusBodyArtworkCatalog
     /// <param name="parts">Samus's body pointer tables, frame tiles, offsets and dependent artwork catalogs (#633).</param>
     public SamusBodyArtworkCatalog(SamusBodyArtworkParts parts)
     {
-        ArgumentNullException.ThrowIfNull(parts.TopPointers);
-        ArgumentNullException.ThrowIfNull(parts.BottomPointers);
-        ArgumentNullException.ThrowIfNull(parts.PosePointers);
-        ArgumentNullException.ThrowIfNull(parts.GraphicsYOffsets);
-        ArgumentNullException.ThrowIfNull(parts.Frames);
-        ArgumentNullException.ThrowIfNull(parts.Top);
-        ArgumentNullException.ThrowIfNull(parts.Bottom);
-        ArgumentNullException.ThrowIfNull(parts.Spritemaps);
-        ArgumentNullException.ThrowIfNull(parts.Atmosphere);
-        ArgumentNullException.ThrowIfNull(parts.DeathPalettes);
-        ArgumentNullException.ThrowIfNull(parts.DeathTiles);
-        ArgumentNullException.ThrowIfNull(parts.ArmCannon);
-        ArgumentNullException.ThrowIfNull(parts.LandingYOffsets);
-        ArgumentNullException.ThrowIfNull(parts.PostureYOffsets);
-        ArgumentNullException.ThrowIfNull(parts.DrainedYOffsets);
+        Ensure.NotNull(parts.TopPointers);
+        Ensure.NotNull(parts.BottomPointers);
+        Ensure.NotNull(parts.PosePointers);
+        Ensure.NotNull(parts.GraphicsYOffsets);
+        Ensure.NotNull(parts.Frames);
+        Ensure.NotNull(parts.Top);
+        Ensure.NotNull(parts.Bottom);
+        Ensure.NotNull(parts.Spritemaps);
+        Ensure.NotNull(parts.Atmosphere);
+        Ensure.NotNull(parts.DeathPalettes);
+        Ensure.NotNull(parts.DeathTiles);
+        Ensure.NotNull(parts.ArmCannon);
+        Ensure.NotNull(parts.LandingYOffsets);
+        Ensure.NotNull(parts.PostureYOffsets);
+        Ensure.NotNull(parts.DrainedYOffsets);
         if (parts.TopPointers.Length != TopSetCount || parts.BottomPointers.Length != BottomSetCount ||
             parts.PosePointers.Length != PoseCount || parts.GraphicsYOffsets.Length != PoseCount ||
             parts.LandingYOffsets.Length != SamusRenderingRomData.Body.LandingVerticalOffsetByteCount ||
@@ -359,7 +359,7 @@ public sealed class SamusBodyTileDefinition
     public SamusBodyTileDefinition(int sourceAddress, ushort firstSize, ushort secondSize,
         byte[] planar)
     {
-        ArgumentNullException.ThrowIfNull(planar);
+        Ensure.NotNull(planar);
         sourceAddressOverride = sourceAddress;
         firstSizeOverride = firstSize;
         SecondSize = secondSize;

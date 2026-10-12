@@ -123,9 +123,9 @@ public sealed class RoomLayer3FxState
 
     private void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         Reset();
 
         // Both native room-load paths clear VRAM $5880-$5FFF to $184E immediately before
@@ -217,7 +217,7 @@ public sealed class RoomLayer3FxState
     /// </summary>
     public void AdvanceHdmaSharedState(Bank80SystemState system, bool timeIsFrozen)
     {
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(system);
         if (!MovesLiquidInHdmaPass || liquidHdmaObjectsDeleted)
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
@@ -267,8 +267,8 @@ public sealed class RoomLayer3FxState
     /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
     public void Step(ISnesAddressSpace bus, SnesVram vram, RoomLayer3FxFrame frame)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(vram);
         audioPowerBomb = frame.PowerBomb;
         if (!frame.LiquidMotionAlreadyAdvanced)
         {
@@ -367,7 +367,7 @@ public sealed class RoomLayer3FxState
     /// </summary>
     public void ApplyToSamusLiquidPhysics(SamusLiquidPhysicsState liquid)
     {
-        ArgumentNullException.ThrowIfNull(liquid);
+        Ensure.NotNull(liquid);
         switch (Type)
         {
             case RoomFxType.Water:

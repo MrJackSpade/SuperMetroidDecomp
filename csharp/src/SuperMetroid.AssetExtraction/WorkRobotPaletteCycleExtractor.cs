@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ public static class WorkRobotPaletteCycleExtractor
     /// <exception cref="InvalidDataException">A source color sets unrepresentable bit 15.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new PaletteRgb5[WorkRobotPaletteTimingDefinitions.RecordCount][];
         for (int frame = 0; frame < frames.Length; frame++)
         {

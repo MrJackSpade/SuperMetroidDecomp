@@ -56,23 +56,22 @@ public sealed class EndingObjectArtworkCatalog
     /// <exception cref="InvalidDataException">A transfer has an incorrect byte length, or the fragment sequence does not contain exactly four non-null, correctly sized entries.</exception>
     public EndingObjectArtworkCatalog(EndingObjectArtworkParts parts)
     {
-        Clouds = parts.Clouds ?? throw new ArgumentNullException(nameof(parts.Clouds));
-        Explosion = parts.Explosion ?? throw new ArgumentNullException(nameof(parts.Explosion));
-        WaitingSamus = parts.WaitingSamus ?? throw new ArgumentNullException(nameof(parts.WaitingSamus));
-        ShootingScreen = parts.ShootingScreen ?? throw new ArgumentNullException(nameof(parts.ShootingScreen));
-        SuitlessSamus = parts.SuitlessSamus ?? throw new ArgumentNullException(nameof(parts.SuitlessSamus));
-        WaitingTilemap = parts.WaitingTilemap ?? throw new ArgumentNullException(nameof(parts.WaitingTilemap));
-        PostCreditsFragmentA = parts.PostCreditsFragmentA ?? throw new ArgumentNullException(nameof(parts.PostCreditsFragmentA));
-        PostCreditsFragmentB = parts.PostCreditsFragmentB ?? throw new ArgumentNullException(nameof(parts.PostCreditsFragmentB));
-        PostShotLogoTiles = parts.PostShotLogoTiles ?? throw new ArgumentNullException(nameof(parts.PostShotLogoTiles));
-        PostShotLogoMap = parts.PostShotLogoMap ?? throw new ArgumentNullException(nameof(parts.PostShotLogoMap));
-        CloudSprites = parts.CloudSprites ?? throw new ArgumentNullException(nameof(parts.CloudSprites));
-        ExplosionSprites = parts.ExplosionSprites ?? throw new ArgumentNullException(nameof(parts.ExplosionSprites));
-        CompletionTextSprites = parts.CompletionTextSprites ??
-            throw new ArgumentNullException(nameof(parts.CompletionTextSprites));
-        RewardSprites = parts.RewardSprites ?? throw new ArgumentNullException(nameof(parts.RewardSprites));
-        LogoSprites = parts.LogoSprites ?? throw new ArgumentNullException(nameof(parts.LogoSprites));
-        ArgumentNullException.ThrowIfNull(parts.Fragments);
+        Clouds = Ensure.NotNull(parts.Clouds);
+        Explosion = Ensure.NotNull(parts.Explosion);
+        WaitingSamus = Ensure.NotNull(parts.WaitingSamus);
+        ShootingScreen = Ensure.NotNull(parts.ShootingScreen);
+        SuitlessSamus = Ensure.NotNull(parts.SuitlessSamus);
+        WaitingTilemap = Ensure.NotNull(parts.WaitingTilemap);
+        PostCreditsFragmentA = Ensure.NotNull(parts.PostCreditsFragmentA);
+        PostCreditsFragmentB = Ensure.NotNull(parts.PostCreditsFragmentB);
+        PostShotLogoTiles = Ensure.NotNull(parts.PostShotLogoTiles);
+        PostShotLogoMap = Ensure.NotNull(parts.PostShotLogoMap);
+        CloudSprites = Ensure.NotNull(parts.CloudSprites);
+        ExplosionSprites = Ensure.NotNull(parts.ExplosionSprites);
+        CompletionTextSprites = Ensure.NotNull(parts.CompletionTextSprites);
+        RewardSprites = Ensure.NotNull(parts.RewardSprites);
+        LogoSprites = Ensure.NotNull(parts.LogoSprites);
+        Ensure.NotNull(parts.Fragments);
         if (!HasNativeLength(Clouds, EndingObjectTransfer.Clouds) ||
             !HasNativeLength(Explosion, EndingObjectTransfer.Explosion) ||
             !HasNativeLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||

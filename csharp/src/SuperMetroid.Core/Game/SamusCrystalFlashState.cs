@@ -110,8 +110,8 @@ public sealed class SamusCrystalFlashState
         ushort shotBinding = (ushort)SnesButton.X,
         bool skipInputCheck = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         // `$90:D5AD-$D5B9` uses CMP, not a bit test. This deliberately rejects any extra
         // held button, including Jump, Dash, Select, or the opposite D-pad directions.
@@ -198,8 +198,8 @@ public sealed class SamusCrystalFlashState
         SamusState samus,
         ushort nmiFrameCounter)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         if (Phase == CrystalFlashPhase.Inactive)
             throw new InvalidOperationException("Crystal Flash has no installed movement handler.");
 
@@ -346,9 +346,9 @@ public sealed class SamusCrystalFlashState
         Assets.BeamPaletteCatalog? palettes = null,
         Assets.CrystalFlashColorCatalog? colors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(samus);
         if (SpecialPaletteKind != SamusSpecialPaletteType.CrystalFlash)
             return false;
 

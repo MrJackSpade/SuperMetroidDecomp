@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
@@ -51,9 +52,9 @@ public sealed record GameContentIdentity(
         InstalledProjectilePresentation projectiles,
         IEnumerable<KeyValuePair<string, string>>? additionalContentSha256 = null)
     {
-        ArgumentNullException.ThrowIfNull(audio);
-        ArgumentNullException.ThrowIfNull(maps);
-        ArgumentNullException.ThrowIfNull(projectiles);
+        Ensure.NotNull(audio);
+        Ensure.NotNull(maps);
+        Ensure.NotNull(projectiles);
         return Create(
             audio.ContentIdentity,
             maps.ContentIdentity,

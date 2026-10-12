@@ -65,7 +65,7 @@ public sealed class IntroNarrationPresentation
     /// <summary>Loads and validates the exact six-page opening-narration document.</summary>
     public static IntroNarrationPresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] source;
         using (var buffer = new MemoryStream())
         {
@@ -194,7 +194,7 @@ public sealed class IntroNarrationPresentation
     /// <summary>Validates and writes an opening-narration document as JSON.</summary>
     public static void Write(Stream output, IntroNarrationDocument document)
     {
-        ArgumentNullException.ThrowIfNull(output);
+        Ensure.NotNull(output);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
             document, MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

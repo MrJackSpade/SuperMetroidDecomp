@@ -27,7 +27,7 @@ public sealed class RoomMetatileAtlas
     /// <exception cref="InvalidDataException">The table length, JSON schema, block count, quadrant, tile coordinate, or palette index is invalid.</exception>
     public static RoomMetatileAtlas Load(Stream json, int expectedNativeByteCount)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         int expectedCount = RoomMetatileFormat.ValidateBlockCount(expectedNativeByteCount);
         RoomMetatileDocument document = JsonAssetDocument.Read<RoomMetatileDocument>(
             json, JsonOptions, "room metatile");
@@ -76,7 +76,7 @@ public sealed class RoomMetatileAtlas
     /// <exception cref="InvalidDataException">The serialized document or expected table length fails metatile validation.</exception>
     public static void Write(Stream json, RoomMetatileDocument document, int expectedNativeByteCount)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false), expectedNativeByteCount);
         json.Write(bytes);

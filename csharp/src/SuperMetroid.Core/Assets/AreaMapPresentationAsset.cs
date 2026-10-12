@@ -34,8 +34,8 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     /// <summary>Loads a full row-major layout, without ROM reads or writable file operations.</summary>
     public static AreaMapPresentationAsset Load(Stream json, IAreaMapView rules)
     {
-        ArgumentNullException.ThrowIfNull(json);
-        ArgumentNullException.ThrowIfNull(rules);
+        Ensure.NotNull(json);
+        Ensure.NotNull(rules);
         MapPresentationDocument document;
         try
         {
@@ -70,7 +70,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     /// <summary>Applies other exploration rules to these already-validated, never-mutated cells.</summary>
     internal AreaMapPresentationAsset WithRules(IAreaMapView rules)
     {
-        ArgumentNullException.ThrowIfNull(rules);
+        Ensure.NotNull(rules);
         if (rules.Area != Area) throw new ArgumentException($"Rules for {rules.Area} cannot apply to the {Area} map.", nameof(rules));
         return new(cells, rules);
     }
@@ -87,8 +87,8 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     /// <summary>Importer entrypoint: writes presentation only, never source addresses or gameplay rules.</summary>
     public static void Write(Stream json, IAreaMapView map)
     {
-        ArgumentNullException.ThrowIfNull(json);
-        ArgumentNullException.ThrowIfNull(map);
+        Ensure.NotNull(json);
+        Ensure.NotNull(map);
         var cells = new MapPresentationCell[AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles];
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)

@@ -42,8 +42,8 @@ public sealed class SamusVisorPaletteState
         SamusSpecialPaletteType specialSamusPaletteType,
         LayerBlendingConfiguration layerBlendingDefaultConfig)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
 
         ushort packedBefore = PackedTimerIndex;
 

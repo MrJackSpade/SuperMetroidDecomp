@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -18,7 +19,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
 
     /// <summary>Guards <paramref name="source"/>, which serves every read and write no rule rejects.</summary>
     internal CartridgeReadGuard(ISnesAddressSpace source) =>
-        this.source = source ?? throw new ArgumentNullException(nameof(source));
+        this.source = Ensure.NotNull(source);
 
     private CartridgeReadGuard()
     {
@@ -39,8 +40,8 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     /// <summary>Rejects every read <paramref name="match"/> selects with <paramref name="failure"/>.</summary>
     internal CartridgeReadGuard Forbid(Func<int, bool> match, Func<int, Exception> failure)
     {
-        ArgumentNullException.ThrowIfNull(match);
-        ArgumentNullException.ThrowIfNull(failure);
+        Ensure.NotNull(match);
+        Ensure.NotNull(failure);
         readRules.Add(new(match, failure, null));
         return this;
     }
@@ -48,7 +49,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     /// <summary>Rejects every read <paramref name="match"/> selects with an <see cref="InvalidOperationException"/>.</summary>
     internal CartridgeReadGuard Forbid(Func<int, bool> match, Func<int, string> message)
     {
-        ArgumentNullException.ThrowIfNull(message);
+        Ensure.NotNull(message);
         return Forbid(match, address => new InvalidOperationException(message(address)));
     }
 
@@ -70,8 +71,8 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     /// <summary>Records every read <paramref name="match"/> selects and lets it continue.</summary>
     internal CartridgeReadGuard Observe(Func<int, bool> match, Action<int> observe)
     {
-        ArgumentNullException.ThrowIfNull(match);
-        ArgumentNullException.ThrowIfNull(observe);
+        Ensure.NotNull(match);
+        Ensure.NotNull(observe);
         readRules.Add(new(match, null, observe));
         return this;
     }
@@ -84,8 +85,8 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     /// <summary>Rejects every write <paramref name="match"/> selects with <paramref name="failure"/>.</summary>
     internal CartridgeReadGuard RejectWrites(Func<int, bool> match, Func<int, Exception> failure)
     {
-        ArgumentNullException.ThrowIfNull(match);
-        ArgumentNullException.ThrowIfNull(failure);
+        Ensure.NotNull(match);
+        Ensure.NotNull(failure);
         writeRules.Add(new(match, failure));
         return this;
     }
@@ -93,7 +94,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     /// <summary>Rejects every write with an <see cref="InvalidOperationException"/>.</summary>
     internal CartridgeReadGuard RejectWrites(Func<int, string> message)
     {
-        ArgumentNullException.ThrowIfNull(message);
+        Ensure.NotNull(message);
         return RejectWrites(_ => true, address => new InvalidOperationException(message(address)));
     }
 

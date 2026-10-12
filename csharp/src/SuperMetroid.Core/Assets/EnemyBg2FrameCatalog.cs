@@ -48,7 +48,7 @@ internal sealed class EnemyBg2FrameCatalog
     internal static EnemyBg2FrameCatalog Load(Stream json,
         EnemyBg2FrameDefinitionSequence definitions, int version, string family)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EnemyBg2FrameDocument document;
         try
         {

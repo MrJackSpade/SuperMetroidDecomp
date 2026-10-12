@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
@@ -63,7 +64,7 @@ public static class CartridgeRoomHeaderImporter
     public static CartridgeRoomHeader Load(ISnesAddressSpace bus, ushort roomPointer,
         RoomStateSelectionContext selection = default)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int address = 0x8f0000 | roomPointer;
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         ushort doorList = RomDataReader.ReadWordFixedBank(

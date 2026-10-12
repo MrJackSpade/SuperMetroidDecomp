@@ -66,7 +66,7 @@ public sealed class CeresEscapeTileArtwork
 
     internal CeresEscapeTileArtwork(RoomCharacterAtlas[] pages)
     {
-        ArgumentNullException.ThrowIfNull(pages);
+        Ensure.NotNull(pages);
         if (pages.Length != CeresEscapeTileArtworkDefinitions.All.Length)
             throw new InvalidDataException("Ceres escape artwork requires both tile pages.");
         for (int index = 0; index < pages.Length; index++)

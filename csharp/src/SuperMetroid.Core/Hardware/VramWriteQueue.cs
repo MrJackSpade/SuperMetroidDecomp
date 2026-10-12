@@ -91,8 +91,8 @@ public sealed class VramWriteQueue
     /// </summary>
     public void DrainTo(SnesVram vram, ISnesMutableMemory memory, IVramAssetProvider? assets = null)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(memory);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(memory);
 
         // Use an index rather than foreach to make append-during-drain behavior explicit:
         // this object is single-threaded like the original main-loop/NMI handshake.

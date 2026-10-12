@@ -140,7 +140,7 @@ public sealed partial class RoomEnemySystem
     /// <exception cref="ArgumentNullException"><paramref name="camera"/> is null.</exception>
     public void RunScrollingFinishedHook(ScrollBoundaryCamera camera)
     {
-        ArgumentNullException.ThrowIfNull(camera);
+        Ensure.NotNull(camera);
         if (_sporeSpawn?.ScrollClampHookActive != true)
             return;
 

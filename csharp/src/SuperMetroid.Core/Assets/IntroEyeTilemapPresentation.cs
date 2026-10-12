@@ -56,7 +56,7 @@ public sealed class IntroEyeTilemapPresentation
     /// <summary>Loads and validates the four ordered Samus portrait eye rectangles.</summary>
     public static IntroEyeTilemapPresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         IntroEyeTilemapDocument document = JsonAssetDocument.Read<IntroEyeTilemapDocument>(
             json, MapPresentationFormat.JsonOptions, "opening eye tilemap");
         if (document.Version != IntroEyeTilemapFormat.Version ||
@@ -94,7 +94,7 @@ public sealed class IntroEyeTilemapPresentation
     /// <summary>Validates and writes an opening-eye tilemap document as JSON.</summary>
     public static void Write(Stream json, IntroEyeTilemapDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

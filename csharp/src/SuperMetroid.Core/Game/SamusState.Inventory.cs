@@ -9,7 +9,7 @@ public sealed partial class SamusState
     /// </summary>
     internal void CopyInventoryFrom(SamusState source)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         EquippedItems = source.EquippedItems;
         CollectedItems = source.CollectedItems;
         EquippedBeams = source.EquippedBeams;

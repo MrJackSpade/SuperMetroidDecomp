@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,7 +15,7 @@ public static class MotherBrainDeathColorExtractor
     /// <returns>UTF-8 JSON bytes for the complete versioned Mother Brain death-color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var body = new PaletteRgb5[MotherBrainDeathRomData.BodyFadeFrameCount][];
         var leg = new PaletteRgb5[body.Length][];
         for (int frame = 0; frame < body.Length; frame++)

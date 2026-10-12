@@ -10,7 +10,7 @@ public static class SamusEnergyRestoration
     /// </summary>
     public static void Restore(SamusState samus, ushort amount)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         ushort restored = unchecked((ushort)(samus.Health + amount));
         samus.Health = restored;
         if (unchecked((short)(restored - samus.MaxHealth)) < 0)

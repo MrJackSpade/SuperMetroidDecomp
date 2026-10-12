@@ -37,7 +37,7 @@ public static class RoomFxAnimatedTileArtworkDefinitions
     public static int SourceAddress(RoomFxAnimatedTileObjectDefinition definition,
         ushort instructionPointer)
     {
-        ArgumentNullException.ThrowIfNull(definition);
+        Ensure.NotNull(definition);
         int first = definition.ObjectPointer switch
         {
             AnimatedTileObject.HorizontalSpikes => HorizontalSpikesFirstSource,

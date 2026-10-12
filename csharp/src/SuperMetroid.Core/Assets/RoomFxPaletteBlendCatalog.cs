@@ -50,7 +50,7 @@ public sealed class RoomFxPaletteBlendCatalog
     /// <exception cref="InvalidDataException">The JSON, schema version, blend identities, color count, or RGB5 values are invalid.</exception>
     public static RoomFxPaletteBlendCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         RoomFxPaletteBlendDocument document;
         try
         {
@@ -102,7 +102,7 @@ public sealed class RoomFxPaletteBlendCatalog
     /// <summary>Applies the native three-color write, or clears only color 27 for selection zero.</summary>
     public void Apply(SnesCgram cgram, RoomFxPaletteBlend selection)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if (selection == RoomFxPaletteBlend.None)
         {
             new RoomFxPalettes(cgram).Layer3Empty.Write(0, Bgr555.Black);

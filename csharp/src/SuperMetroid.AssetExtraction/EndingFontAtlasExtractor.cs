@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -17,7 +18,7 @@ public static class EndingFontAtlasExtractor
     /// <exception cref="InvalidDataException">The compressed data is invalid or expands to fewer than the required character bytes.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte[] decoded = RomDataReader.Decompress(
             CartridgeImportSource.Require(bus),
             EndingCreditsRomData.Assets.EndingFontCharacters,

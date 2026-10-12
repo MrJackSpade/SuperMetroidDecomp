@@ -218,9 +218,9 @@ public sealed partial class BabyMetroidCutsceneState
         ushort enemyFrameCounter = 0,
         ushort randomNumber = 0)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(motherBrain);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(motherBrain);
         if (Phase == BabyMetroidCutscenePhase.Inactive)
             throw new InvalidOperationException("The cutscene Baby Metroid has not been initialized.");
 

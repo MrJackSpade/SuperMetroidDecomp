@@ -25,8 +25,7 @@ public sealed record ScanlineColorAddRenderLayer : RenderLayer
     /// <exception cref="ArgumentException">The input does not contain exactly 224 entries.</exception>
     public ScanlineColorAddRenderLayer(ReadOnlySpan<ColorAddWindow> windows)
     {
-        if (windows.Length != SnesPpuLayout.ScreenHeightPixels)
-            throw new ArgumentException("Color windows must cover exactly 224 physical scanlines.", nameof(windows));
+        Ensure.LengthEqual(windows, SnesPpuLayout.ScreenHeightPixels);
         this.windows = windows.ToArray();
     }
 }

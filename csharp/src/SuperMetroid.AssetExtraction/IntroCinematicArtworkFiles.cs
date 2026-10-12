@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -25,7 +26,7 @@ public static class IntroCinematicArtworkFiles
     [PpuLayoutBoundary("codec: native 512-byte CGRAM image of the opening palette")]
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);

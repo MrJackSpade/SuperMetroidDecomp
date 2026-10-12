@@ -51,7 +51,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
     public void ProcessFrame(ushort layer1YPosition, bool timeIsFrozen, VramWriteQueue writes,
         RoomMainCallback roomMainCallback = RoomMainCallback.ScrollingSkyLand)
     {
-        ArgumentNullException.ThrowIfNull(writes);
+        Ensure.NotNull(writes);
         if (timeIsFrozen)
         {
             // $88:AFA8 writes a zero first HDMA entry, terminating the table, and queues no

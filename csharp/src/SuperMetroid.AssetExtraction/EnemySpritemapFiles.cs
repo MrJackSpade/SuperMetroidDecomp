@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +11,7 @@ internal static class EnemySpritemapFiles
 {
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach (EnemySpritemapDefinition definition in EnemySpritemapDefinitions.Frames)
         {

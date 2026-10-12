@@ -45,8 +45,8 @@ public sealed class GameOverMenuState
         bool continueLoadsCeresArrival = false)
     {
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
+        this.bus = Ensure.NotNull(bus);
+        this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
         ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -15,7 +16,7 @@ public static class EscapeTimerTileAtlasExtractor
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(
                 CartridgeImportSource.Require(bus),

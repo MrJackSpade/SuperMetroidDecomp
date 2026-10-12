@@ -40,7 +40,7 @@ public sealed class RoomPlmMotherBrainGlassVisualCatalog
     public RoomPlmMotherBrainGlassVisualCatalog(
         IEnumerable<RoomPlmMotherBrainGlassVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmMotherBrainGlassVisualEntry entry in entries)

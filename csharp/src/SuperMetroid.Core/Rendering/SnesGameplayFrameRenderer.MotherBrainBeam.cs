@@ -11,7 +11,7 @@ public static partial class SnesGameplayFrameRenderer
     /// </summary>
     public static ScanlineColorAddRenderLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamHdmaState beam)
     {
-        ArgumentNullException.ThrowIfNull(beam);
+        Ensure.NotNull(beam);
         if (!beam.Active) return null;
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);

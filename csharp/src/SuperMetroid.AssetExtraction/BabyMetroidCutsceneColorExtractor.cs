@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,7 +15,7 @@ public static class BabyMetroidCutsceneColorExtractor
     /// <returns>UTF-8 JSON bytes for the complete Baby cutscene color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var fade = new PaletteRgb5[BabyMetroidCutsceneColorRomData.FadeFrameCount][];
         for (int frame = 0; frame < fade.Length; frame++)
             fade[frame] = Read(BabyMetroidCutsceneColorRomData.FadeSource(frame + 1),

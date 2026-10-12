@@ -18,8 +18,8 @@ public static class SamusBombJumpMovement
     /// <summary>Runs `$90:E025`, which initializes velocity but deliberately moves zero pixels.</summary>
     public static BombJumpMovementResult Start(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         byte direction = unchecked((byte)samus.BombJumpDirection);
         if (direction is < 1 or > 3 || (samus.BombJumpDirection & 0x0800) == 0)
             throw new InvalidOperationException($"Bomb-jump start requires armed direction $0801-$0803, got ${samus.BombJumpDirection:X4}.");
@@ -43,10 +43,10 @@ public static class SamusBombJumpMovement
         ushort nmiFrameCounter,
         RoomPlmSystem plms)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(plms);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(plms);
         if (!samus.BombJumpActive)
             throw new InvalidOperationException("Bomb-jump main handler requires an active jump.");
 

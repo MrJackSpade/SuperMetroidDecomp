@@ -9,7 +9,7 @@ public sealed class MapPaletteAnimation
     /// <summary>Creates the map palette clock at frame zero with a one-update initial delay; installed cycle data must be supplied through <see cref="Bind"/> before the first palette update.</summary>
     /// <param name="bus">Legacy compatibility argument, checked for null but neither retained nor used for cartridge reads.</param>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
-    public MapPaletteAnimation(ISnesAddressSpace bus) => ArgumentNullException.ThrowIfNull(bus);
+    public MapPaletteAnimation(ISnesAddressSpace bus) => Ensure.NotNull(bus);
     private byte timer = 1;
     private byte frame;
     [NonSerialized] private MapPaletteCycle? content;

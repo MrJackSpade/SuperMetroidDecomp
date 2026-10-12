@@ -30,8 +30,8 @@ public sealed partial class FileSelectRoomMapGraphics
     public FileSelectRoomMapGraphics(ISnesAddressSpace bus, Bank80SystemState system, AreaId area,
         MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(system);
         if (mapPresentation is null)
             throw new InvalidOperationException(
                 "Room-map graphics require installed map presentation assets.");
@@ -105,7 +105,7 @@ public sealed partial class FileSelectRoomMapGraphics
     public Rgba32[] Render(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations = null)
     {
-        ArgumentNullException.ThrowIfNull(marker);
+        Ensure.NotNull(marker);
         Rgba32[] pixels = RenderBackgrounds(scroll);
         OamBuffer oam = PrepareIcons(scroll, marker, animations);
         Rgba32[] objects = objScratch ??= new Rgba32[256 * 224];

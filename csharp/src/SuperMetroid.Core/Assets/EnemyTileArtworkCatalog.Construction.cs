@@ -14,8 +14,8 @@ public sealed partial class EnemyTileArtworkCatalog
     public static EnemyTileArtworkCatalog FromInstalledArtwork(EnemyTileArtworkParts parts)
     {
         Ensure.NotNull(parts);
-        ArgumentNullException.ThrowIfNull(parts.Sheets);
-        ArgumentNullException.ThrowIfNull(parts.Palettes);
+        Ensure.NotNull(parts.Sheets);
+        Ensure.NotNull(parts.Palettes);
         var installedSheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
         var installedPalettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
         ValidateInstalledSheets(installedSheets, installedPalettes);
@@ -34,8 +34,8 @@ public sealed partial class EnemyTileArtworkCatalog
     private EnemyTileArtworkCatalog(EnemyTileArtworkParts parts)
     {
         Ensure.NotNull(parts);
-        ArgumentNullException.ThrowIfNull(parts.Sheets);
-        ArgumentNullException.ThrowIfNull(parts.Palettes);
+        Ensure.NotNull(parts.Sheets);
+        Ensure.NotNull(parts.Palettes);
         if (parts.Sheets.Count != parts.Palettes.Count || parts.Sheets.Keys.Any(pointer => !parts.Palettes.ContainsKey(pointer)))
             throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
         this.sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
@@ -98,8 +98,8 @@ public sealed partial class EnemyTileArtworkCatalog
     private static void ValidateInstalledSheets(Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
         Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes)
     {
-        ArgumentNullException.ThrowIfNull(sheets);
-        ArgumentNullException.ThrowIfNull(palettes);
+        Ensure.NotNull(sheets);
+        Ensure.NotNull(palettes);
         if (sheets.Count != EnemyTileSourceDefinitions.All.Count ||
             palettes.Count != EnemyTileSourceDefinitions.All.Count)
             throw new InvalidDataException("Installed enemy artwork must contain every required sheet and palette.");

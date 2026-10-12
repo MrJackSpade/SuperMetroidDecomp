@@ -15,8 +15,8 @@ public sealed class RoomMetatileCatalog
     public RoomMetatileCatalog(RoomMetatileAtlas cre,
         IReadOnlyDictionary<int, RoomMetatileAtlas> bySource)
     {
-        Cre = cre ?? throw new ArgumentNullException(nameof(cre));
-        ArgumentNullException.ThrowIfNull(bySource);
+        Cre = Ensure.NotNull(cre);
+        Ensure.NotNull(bySource);
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             int source = RoomTilesetDefinitions.Get(graphicsSet).BlockDefinitionsAddress;

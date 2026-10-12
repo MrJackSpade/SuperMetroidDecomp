@@ -44,7 +44,7 @@ public static class SamusSlopePhysics
         int displacement,
         uint verticalSpeed)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
         // the routine's complete early-return condition, not a host-side policy choice.
@@ -75,7 +75,7 @@ public static class SamusSlopePhysics
         RoomBlockBehavior bts,
         ushort xPosition)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         // BTS bit $40 mirrors the profile horizontally. XORing the complete coordinate by
         // $000F is equivalent to flipping its low nibble while retaining native word math.
@@ -101,8 +101,8 @@ public static class SamusSlopePhysics
         ushort yRadius,
         bool horizontalSlopeCollisionEnabled = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
         ushort xPosition = position.X;
         ushort yPosition = position.Y;
 

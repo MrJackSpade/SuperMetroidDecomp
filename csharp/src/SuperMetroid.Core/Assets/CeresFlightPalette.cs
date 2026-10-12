@@ -95,7 +95,7 @@ public sealed class CeresFlightPalette
     /// <param name="document">Document containing the supported version and all 256 RGB5 colors.</param>
     public static void Write(Stream json, CeresFlightPaletteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));
@@ -106,7 +106,7 @@ public sealed class CeresFlightPalette
     /// <param name="cgram">Destination color memory to overwrite in color-entry order.</param>
     public void LoadTo(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
         for (int index = 0; index < image.Length; index++)
             image[index] = ColorAt(index);

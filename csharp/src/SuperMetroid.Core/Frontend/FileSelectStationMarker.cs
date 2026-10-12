@@ -24,7 +24,7 @@ public sealed class FileSelectStationMarker
     /// <summary>Rebinds drawing position without changing the existing marker animation or selected load index.</summary>
     internal void BindPosition(ISnesAddressSpace bus, AreaId area, int stationIndex, SuperMetroid.Core.Assets.MapSaveMarkerLayout? layout)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int areaIndex = AreaIds.ToIndex(area);
         if ((uint)areaIndex >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));

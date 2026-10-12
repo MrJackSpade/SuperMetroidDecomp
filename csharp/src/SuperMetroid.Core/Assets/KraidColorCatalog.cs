@@ -164,7 +164,7 @@ public sealed class KraidColorCatalog
     /// <exception cref="InvalidDataException">The JSON has duplicate or unknown properties, an unsupported version, incorrect source lengths, null colors, or RGB5 channels outside 0..31.</exception>
     public static KraidColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         KraidColorDocument document;
         try
         {

@@ -12,10 +12,10 @@ public sealed class IntroCinematicArtworkCatalog
     /// <exception cref="InvalidDataException">The background-page count is not four, a page is missing, or a background, portrait, or narration page is not $0800 bytes.</exception>
     public IntroCinematicArtworkCatalog(IntroCinematicArtworkParts parts)
     {
-        BackgroundCharacters = parts.BackgroundCharacters ?? throw new ArgumentNullException(nameof(parts.BackgroundCharacters));
-        IntroObjectCharacters = parts.IntroObjectCharacters ?? throw new ArgumentNullException(nameof(parts.IntroObjectCharacters));
-        CinematicObjectCharacters = parts.CinematicObjectCharacters ?? throw new ArgumentNullException(nameof(parts.CinematicObjectCharacters));
-        ArgumentNullException.ThrowIfNull(parts.BackgroundPages);
+        BackgroundCharacters = Ensure.NotNull(parts.BackgroundCharacters);
+        IntroObjectCharacters = Ensure.NotNull(parts.IntroObjectCharacters);
+        CinematicObjectCharacters = Ensure.NotNull(parts.CinematicObjectCharacters);
+        Ensure.NotNull(parts.BackgroundPages);
         if (parts.BackgroundPages.Count != IntroCinematicArtworkFormat.BackgroundPageCount)
             throw new InvalidDataException("Opening cinematic requires four ordered BG tilemap pages.");
         var pages = new byte[IntroCinematicArtworkFormat.BackgroundPageByteCount * parts.BackgroundPages.Count];
@@ -36,20 +36,18 @@ public sealed class IntroCinematicArtworkCatalog
         ReadOnlyMemory<byte> narration = RequirePage(parts.InitialNarrationTilemap, "initial narration");
         if (!narration.Span.SequenceEqual(IntroInitialNarrationTilemapDefinitions.Compile()))
             suppliedInitialNarration = narration.ToArray();
-        FinalLine = parts.FinalLine ?? throw new ArgumentNullException(nameof(parts.FinalLine));
-        EyeFrames = parts.EyeFrames ?? throw new ArgumentNullException(nameof(parts.EyeFrames));
-        CaretSprites = parts.CaretSprites ?? throw new ArgumentNullException(nameof(parts.CaretSprites));
-        MotherBrainSprites = parts.MotherBrainSprites ?? throw new ArgumentNullException(nameof(parts.MotherBrainSprites));
-        MotherBrainExplosionSprites = parts.MotherBrainExplosionSprites ??
-            throw new ArgumentNullException(nameof(parts.MotherBrainExplosionSprites));
-        RinkaSprites = parts.RinkaSprites ?? throw new ArgumentNullException(nameof(parts.RinkaSprites));
-        EggEffectSprites = parts.EggEffectSprites ?? throw new ArgumentNullException(nameof(parts.EggEffectSprites));
-        DiscoveryActorSprites = parts.DiscoveryActorSprites ??
-            throw new ArgumentNullException(nameof(parts.DiscoveryActorSprites));
-        ScientistSprites = parts.ScientistSprites ?? throw new ArgumentNullException(nameof(parts.ScientistSprites));
-        Palette = parts.Palette ?? throw new ArgumentNullException(nameof(parts.Palette));
-        CeresFlight = parts.CeresFlight ?? throw new ArgumentNullException(nameof(parts.CeresFlight));
-        CeresDestruction = parts.CeresDestruction ?? throw new ArgumentNullException(nameof(parts.CeresDestruction));
+        FinalLine = Ensure.NotNull(parts.FinalLine);
+        EyeFrames = Ensure.NotNull(parts.EyeFrames);
+        CaretSprites = Ensure.NotNull(parts.CaretSprites);
+        MotherBrainSprites = Ensure.NotNull(parts.MotherBrainSprites);
+        MotherBrainExplosionSprites = Ensure.NotNull(parts.MotherBrainExplosionSprites);
+        RinkaSprites = Ensure.NotNull(parts.RinkaSprites);
+        EggEffectSprites = Ensure.NotNull(parts.EggEffectSprites);
+        DiscoveryActorSprites = Ensure.NotNull(parts.DiscoveryActorSprites);
+        ScientistSprites = Ensure.NotNull(parts.ScientistSprites);
+        Palette = Ensure.NotNull(parts.Palette);
+        CeresFlight = Ensure.NotNull(parts.CeresFlight);
+        CeresDestruction = Ensure.NotNull(parts.CeresDestruction);
 
         static ReadOnlyMemory<byte> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -144,11 +145,10 @@ internal static class SnesGameplayFrameRendererAccess
             SamusState samus,
             Position16<RoomPixels> layer1)
         {
-            ArgumentNullException.ThrowIfNull(bus);
-            ArgumentNullException.ThrowIfNull(xray);
-            ArgumentNullException.ThrowIfNull(samus);
-            if (frame.Length != SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height)
-                throw new ArgumentException("X-ray compositor requires one complete 256x224 frame.", nameof(frame));
+            Ensure.NotNull(bus);
+            Ensure.NotNull(xray);
+            Ensure.NotNull(samus);
+            Ensure.LengthEqual(frame, SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height);
 
             // Setup stages have not installed `$88:86EF` yet. States three through five have
             // already replaced the active table with `$00FF` endpoints while the two backed-up
@@ -242,8 +242,8 @@ internal static class SnesMode7RendererAccess
             Mode7RenderRegisters registers,
             Extent16<ScreenPixels>? size = null)
         {
-            ArgumentNullException.ThrowIfNull(vram);
-            ArgumentNullException.ThrowIfNull(cgram);
+            Ensure.NotNull(vram);
+            Ensure.NotNull(cgram);
             Extent16<ScreenPixels> viewport = size ?? SnesPpuLayout.ScreenSize;
 
             var output = new Rgba32[viewport.X * viewport.Y];
@@ -270,9 +270,9 @@ internal static class SnesObjRendererAccess
             Extent16<ScreenPixels>? size = null,
             int? priority = null)
         {
-            ArgumentNullException.ThrowIfNull(oam);
-            ArgumentNullException.ThrowIfNull(vram);
-            ArgumentNullException.ThrowIfNull(cgram);
+            Ensure.NotNull(oam);
+            Ensure.NotNull(vram);
+            Ensure.NotNull(cgram);
             Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
             var output = new Rgba32[frame.X * frame.Y];
             SnesObjRenderer.Render(output, oam, vram, cgram, obsel, frame, priority);
@@ -298,9 +298,9 @@ internal static class SnesObjRendererAccess
             byte obsel,
             Extent16<ScreenPixels>? size = null)
         {
-            ArgumentNullException.ThrowIfNull(oam);
-            ArgumentNullException.ThrowIfNull(vram);
-            ArgumentNullException.ThrowIfNull(cgram);
+            Ensure.NotNull(oam);
+            Ensure.NotNull(vram);
+            Ensure.NotNull(cgram);
             Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
 
             var pixels = new Rgba32[frame.X * frame.Y];

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -18,7 +19,7 @@ public static class RoomFxLayer3TilemapExtractor
     /// <exception cref="InvalidDataException">A native pointer does not select its compiled source or the assembled tilemap document fails validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var pages = new Dictionary<string, RoomBackgroundTilemapCell[]>();
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {

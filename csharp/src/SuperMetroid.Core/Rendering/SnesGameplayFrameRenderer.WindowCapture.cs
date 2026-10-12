@@ -31,8 +31,8 @@ public static partial class SnesGameplayFrameRenderer
         SamusPowerBombExplosionState explosion, Position16<RoomPixels> layer1,
         int firstVisibleScanline = HudHeight)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(explosion);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(explosion);
         if ((uint)firstVisibleScanline > Height)
             throw new ArgumentOutOfRangeException(nameof(firstVisibleScanline));
         if (!explosion.IsActive) return null;

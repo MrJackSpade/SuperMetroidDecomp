@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -15,7 +16,7 @@ public static class AreaMapImporter
     /// <returns>Owned native bytes, source addresses, and decoded tile words for the selected area.</returns>
     public static AreaMapCartridgeData Load(ISnesAddressSpace bus, AreaId area)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int areaIndex = AreaIds.ToIndex(area);
         int tilemapAddress = RomDataReader.ReadLongFixedBank(
             CartridgeImportSource.Require(bus),

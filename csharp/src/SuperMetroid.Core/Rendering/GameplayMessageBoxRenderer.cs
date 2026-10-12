@@ -13,7 +13,7 @@ public static class GameplayMessageBoxRenderer
     /// <summary>Copies the currently exposed message; inactive/zero-radius messages emit no overlay.</summary>
     public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox)
     {
-        ArgumentNullException.ThrowIfNull(messageBox);
+        Ensure.NotNull(messageBox);
         return messageBox.IsActive && messageBox.RadiusPixels != 0
             ? new(messageBox.Tilemap, messageBox.RadiusPixels) : null;
     }
@@ -21,7 +21,7 @@ public static class GameplayMessageBoxRenderer
     /// <summary>Draws from owned display data without consulting the live message state.</summary>
     public static void Composite(Span<Rgba32> frame, MessageBoxRenderLayer layer, SnesVram vram, SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(layer);
+        Ensure.NotNull(layer);
         CompositeTilemap(frame, layer.Tilemap, layer.RowCount, layer.RadiusPixels, vram, cgram);
     }
 
@@ -36,11 +36,10 @@ public static class GameplayMessageBoxRenderer
         SnesVram vram,
         SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(messageBox);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        if (frame.Length != ScreenWidth * ScreenHeight)
-            throw new ArgumentException("A gameplay frame must contain exactly 256x224 pixels.", nameof(frame));
+        Ensure.NotNull(messageBox);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        Ensure.LengthEqual(frame, ScreenWidth * ScreenHeight);
         if (!messageBox.IsActive || messageBox.RadiusPixels == 0)
             return;
 
@@ -53,8 +52,8 @@ public static class GameplayMessageBoxRenderer
     private static void CompositeTilemap(Span<Rgba32> frame, ReadOnlySpan<ushort> tilemap,
         int rowCount, int radiusPixels, SnesVram vram, SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         if (frame.Length != ScreenWidth * ScreenHeight)
             throw new ArgumentException("A message overlay requires exactly 256x224 pixels.", nameof(frame));
         // InitializePpuForMessageBoxes overwrites only CGRAM $19/$1A, then

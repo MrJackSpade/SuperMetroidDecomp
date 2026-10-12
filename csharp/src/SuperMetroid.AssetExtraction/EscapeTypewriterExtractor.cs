@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +17,7 @@ public static class EscapeTypewriterExtractor
     /// <exception cref="InvalidDataException">A program has an unexpected header or command, unsupported characters, excessive lines, or invalid text placement.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var programs = new Dictionary<string, EscapeTypewriterProgramDocument>(StringComparer.Ordinal);
         foreach (EscapeTypewriterProgramId id in Enum.GetValues<EscapeTypewriterProgramId>())
         {

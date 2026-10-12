@@ -11,7 +11,7 @@ internal static class DoorScrollPrograms
     /// <summary>Executes ordered scroll writes; setup routines without scroll writes leave the grid unchanged.</summary>
     public static bool TryApply(DoorSetupCode pointer, RoomScrollGrid scrolls)
     {
-        ArgumentNullException.ThrowIfNull(scrolls);
+        Ensure.NotNull(scrolls);
         return Dispatch(pointer, scrolls);
     }
 

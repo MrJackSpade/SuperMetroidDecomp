@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +17,7 @@ internal static class EnemyBg2FrameFiles
         EnemyBg2FrameDefinitionSequence definitions, int version,
         int maximumComponents, string family, bool allowMixedOam = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new Dictionary<string, EnemyBg2WriteDocument[]>(StringComparer.Ordinal);
         foreach (EnemyBg2FrameDefinition frame in definitions)
         {

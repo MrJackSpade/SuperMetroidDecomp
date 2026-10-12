@@ -34,7 +34,7 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
     /// <exception cref="InvalidDataException">An entry changes an identity/collision bits, repeats a frame, or leaves coverage incomplete.</exception>
     public RoomPlmGrappleBlockVisualCatalog(IEnumerable<RoomPlmGrappleBlockVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmGrappleBlockVisualEntry entry in entries)

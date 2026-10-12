@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -9,7 +10,7 @@ internal static class CeresEscapeOverlayTilemapFiles
 {
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var words = new Dictionary<string, ushort[]>();
         foreach (CeresEscapeOverlayTilemapDefinition page in
                  CeresEscapeOverlayTilemapDefinitions.All)

@@ -72,7 +72,7 @@ public sealed partial class RoomPlmSystem
         RoomBlockBehavior bts,
         SamusProjectileTypeWord projectileType)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (!bts.TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger))
             return false;
 

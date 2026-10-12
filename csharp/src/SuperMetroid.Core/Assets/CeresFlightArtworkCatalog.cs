@@ -63,12 +63,12 @@ public sealed class CeresFlightArtworkCatalog
     public static CeresFlightArtworkCatalog Load(Stream mode7Png, Stream mapJson,
         Stream objectPng, Stream paletteJson, Stream spritesJson, Stream actorsJson)
     {
-        ArgumentNullException.ThrowIfNull(mode7Png);
-        ArgumentNullException.ThrowIfNull(mapJson);
-        ArgumentNullException.ThrowIfNull(objectPng);
-        ArgumentNullException.ThrowIfNull(paletteJson);
-        ArgumentNullException.ThrowIfNull(spritesJson);
-        ArgumentNullException.ThrowIfNull(actorsJson);
+        Ensure.NotNull(mode7Png);
+        Ensure.NotNull(mapJson);
+        Ensure.NotNull(objectPng);
+        Ensure.NotNull(paletteJson);
+        Ensure.NotNull(spritesJson);
+        Ensure.NotNull(actorsJson);
         IndexedPngImage mode7 = IndexedPng.Read(mode7Png,
             new(CeresFlightArtworkFormat.Mode7Width, CeresFlightArtworkFormat.Mode7Height));
         IndexedPngImage objects = IndexedPng.Read(objectPng,
@@ -103,7 +103,7 @@ public sealed class CeresFlightArtworkCatalog
     /// <exception cref="InvalidDataException">The document is null or has an unsupported version, dimensions, array length, or tile index.</exception>
     public static void WriteMap(Stream json, CeresFlightMapDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
         _ = ReadMap(new MemoryStream(bytes, writable: false));
         json.Write(bytes);

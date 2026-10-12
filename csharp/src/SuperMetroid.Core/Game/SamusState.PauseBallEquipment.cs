@@ -10,7 +10,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ReconcilePauseBallEquipment(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool springEquipped = EquippedItems.HasAny(SamusEquipmentFlags.SpringBall);
         SamusMovementType movement = ReadMovementType(bus);
         bool enable = springEquipped && movement is

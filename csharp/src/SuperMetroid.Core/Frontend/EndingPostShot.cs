@@ -22,7 +22,7 @@ internal sealed class EndingPostShot
     public EndingPostShot(ISnesAddressSpace bus, SnesCgram cgram, EndingFontAtlas fontAtlas,
         EndingObjectArtworkCatalog? artwork = null)
     {
-        ArgumentNullException.ThrowIfNull(fontAtlas);
+        Ensure.NotNull(fontAtlas);
         this.bus = bus;
         sourcePalette = new CgramPalettes(cgram).Image.ToArray();
         BindArtwork(artwork);
@@ -55,8 +55,8 @@ internal sealed class EndingPostShot
     internal static void RebindCompletedLogoArtwork(SnesVram vram,
         EndingObjectArtworkCatalog artwork)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(artwork);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(artwork);
         ReadOnlySpan<byte> tiles = artwork.PostShotLogoTiles.Transfer.Span;
         ReadOnlySpan<byte> map = artwork.PostShotLogoMap.Transfer.Span;
         for (int index = 1; index < EndingPostShotUploadDefinitions.Count; index++)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -17,7 +18,7 @@ public static class RoomFxPaletteBlendExtractor
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var blends = new Dictionary<string, PaletteRgb5[]>();
         foreach (RoomFxPaletteBlend id in RoomFxPaletteBlendDefinitions.Ids)
         {

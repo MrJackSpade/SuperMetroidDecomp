@@ -61,7 +61,7 @@ public sealed class CeresRevealActorLayout
     /// <exception cref="InvalidDataException">The JSON, schema version, six-entry order, actor identity, or unsigned 16-bit coordinate is invalid.</exception>
     public static CeresRevealActorLayout Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CeresRevealActorLayoutDocument document;
         try
         {
@@ -97,7 +97,7 @@ public sealed class CeresRevealActorLayout
     /// <exception cref="InvalidDataException">The serialized document fails schema, identity, order, or coordinate validation.</exception>
     public static void Write(Stream json, CeresRevealActorLayoutDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

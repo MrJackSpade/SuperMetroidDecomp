@@ -5,7 +5,7 @@ public static partial class SuperMetroidGameOptionsIni
     /// <summary>Updates one validated setting while preserving unrelated lines and comments.</summary>
     public static string WithValue(string contents, string section, string key, string value)
     {
-        ArgumentNullException.ThrowIfNull(contents);
+        Ensure.NotNull(contents);
         foreach (string token in new[] { section, key, value })
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(token);

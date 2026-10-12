@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +17,7 @@ public static class GameplayMessageTitleExtractor
     /// <exception cref="InvalidDataException">Native layout, transparency, palette consistency, or glyphs do not fit the editable title format.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var titles = new Dictionary<string, GameplayMessageTitle>(StringComparer.Ordinal);
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {

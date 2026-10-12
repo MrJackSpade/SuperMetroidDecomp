@@ -35,10 +35,10 @@ public sealed class SamusSpritemapArtworkCatalog
     public SamusSpritemapArtworkCatalog(ushort[] topBases, ushort[] bottomBases,
         ushort[] pointers, SamusSpritemapDefinition[] definitions)
     {
-        ArgumentNullException.ThrowIfNull(topBases);
-        ArgumentNullException.ThrowIfNull(bottomBases);
-        ArgumentNullException.ThrowIfNull(pointers);
-        ArgumentNullException.ThrowIfNull(definitions);
+        Ensure.NotNull(topBases);
+        Ensure.NotNull(bottomBases);
+        Ensure.NotNull(pointers);
+        Ensure.NotNull(definitions);
         if (topBases.Length != SamusBodyArtworkCatalog.PoseCount ||
             bottomBases.Length != SamusBodyArtworkCatalog.PoseCount ||
             pointers.Length != PointerCount)

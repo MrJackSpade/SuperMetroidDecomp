@@ -197,7 +197,7 @@ public sealed partial class ManagedSpcPlayer
     public void ApplyInstrumentDefinitions(
         IReadOnlyList<AudioInstrumentMetadata> instruments)
     {
-        ArgumentNullException.ThrowIfNull(instruments);
+        Ensure.NotNull(instruments);
         if (instruments.Count != SpcDriverData.Ram.InstrumentCount)
         {
             throw new InvalidDataException(
@@ -236,8 +236,8 @@ public sealed partial class ManagedSpcPlayer
         IReadOnlyList<AudioSoundProgramMetadata> programs,
         IReadOnlyList<AudioSoundLibraryMetadata> libraries)
     {
-        ArgumentNullException.ThrowIfNull(programs);
-        ArgumentNullException.ThrowIfNull(libraries);
+        Ensure.NotNull(programs);
+        Ensure.NotNull(libraries);
         Dictionary<string, AudioSoundProgramMetadata> byId = new(StringComparer.Ordinal);
         foreach (AudioSoundProgramMetadata program in programs)
         {
@@ -277,7 +277,7 @@ public sealed partial class ManagedSpcPlayer
     /// </summary>
     public void ApplyMusicDefinitions(AudioBankMetadata bank)
     {
-        ArgumentNullException.ThrowIfNull(bank);
+        Ensure.NotNull(bank);
         for (int track = 0; track < bank.MusicTracks.Count; track++)
         {
             int pointerAddress = SpcDriverData.Ram.DefaultMusicPointer + track * 2;

@@ -27,10 +27,10 @@ public static class RomDataReader
     /// <summary>Typed overload of <see cref="ReadFixedBank(IImportCartridgeSource,int,int)"/>.</summary>
     public static byte[] ReadFixedBank(IImportCartridgeSource cartridge, SnesAddress sourceAddress, int byteCount)
     {
-        ArgumentNullException.ThrowIfNull(cartridge);
+        Ensure.NotNull(cartridge);
         if (!sourceAddress.IsUpperLoRomWindow)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress));
-        ArgumentOutOfRangeException.ThrowIfNegative(byteCount);
+        Ensure.AtLeastZero(byteCount);
         if (byteCount > 0x10000 - sourceAddress.Offset)
             throw new ArgumentOutOfRangeException(nameof(byteCount),
                 "A cartridge import cannot continue through the bank's low memory window.");
@@ -50,7 +50,7 @@ public static class RomDataReader
     /// <summary>Typed cartridge word read; a low-window wrap is not a cartridge import.</summary>
     public static ushort ReadWordFixedBank(IImportCartridgeSource cartridge, SnesAddress address)
     {
-        ArgumentNullException.ThrowIfNull(cartridge);
+        Ensure.NotNull(cartridge);
         if (!address.IsUpperLoRomWindow || address.Offset == 0xffff)
             throw new ArgumentOutOfRangeException(nameof(address),
                 "A cartridge word must remain in the upper bank window.");
@@ -67,7 +67,7 @@ public static class RomDataReader
     /// <summary>Typed 24-bit cartridge pointer read; a low-window wrap is not a cartridge import.</summary>
     public static int ReadLongFixedBank(IImportCartridgeSource cartridge, SnesAddress address)
     {
-        ArgumentNullException.ThrowIfNull(cartridge);
+        Ensure.NotNull(cartridge);
         if (!address.IsUpperLoRomWindow || address.Offset > 0xfffd)
             throw new ArgumentOutOfRangeException(nameof(address),
                 "A 24-bit cartridge pointer must remain in the upper bank window.");
@@ -106,7 +106,7 @@ public static class RomDataReader
         int maximumCompressedBytes = 0x8000,
         int maximumOutputBytes = 4 * 1024 * 1024)
     {
-        ArgumentNullException.ThrowIfNull(cartridge);
+        Ensure.NotNull(cartridge);
         if (!sourceAddress.IsUpperLoRomWindow)
         {
             throw new ArgumentOutOfRangeException(

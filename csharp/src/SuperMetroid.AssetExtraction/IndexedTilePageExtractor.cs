@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -15,7 +16,7 @@ internal static class IndexedTilePageExtractor
     internal static byte[] Extract(ISnesAddressSpace bus, int sourceAddress,
         int byteCount, string identity)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(identity);
         _ = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
         byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress, byteCount);

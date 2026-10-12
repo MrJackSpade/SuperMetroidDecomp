@@ -102,7 +102,7 @@ public sealed class HudState
     /// </summary>
     public void Initialize(ISnesAddressSpace bus, HudSnapshot snapshot)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         (presentation ?? throw new InvalidOperationException(
             "HUD initialization requires installed presentation assets.")).ApplyTemplate(_tiles);
@@ -150,8 +150,8 @@ public sealed class HudState
         bool timeIsFrozen = false,
         bool soundSuppressed = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating gameplay counters.");
 
@@ -210,8 +210,8 @@ public sealed class HudState
     /// </summary>
     public void UpdateMinimap(ISnesAddressSpace bus, Bank80SystemState system, MinimapFrame frame)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(system);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");
         if (frame.PresentationMap is null)
@@ -303,8 +303,8 @@ public sealed class HudState
     /// </summary>
     public void QueueUpload(ISnesAddressSpace bus, VramWriteQueue queue)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(queue);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(queue);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before queueing its tilemap.");
 

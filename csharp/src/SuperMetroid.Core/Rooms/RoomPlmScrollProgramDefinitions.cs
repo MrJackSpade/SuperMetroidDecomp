@@ -8,7 +8,7 @@ internal static partial class RoomPlmScrollProgramDefinitions
 
     internal static void Apply(ushort pointer, Action<int, RoomScrollState> write)
     {
-        ArgumentNullException.ThrowIfNull(write);
+        Ensure.NotNull(write);
         if (!TryApply(pointer, write))
             throw new InvalidDataException($"Compiled room scroll programs lack retail source $8F:{pointer:X4}.");
     }

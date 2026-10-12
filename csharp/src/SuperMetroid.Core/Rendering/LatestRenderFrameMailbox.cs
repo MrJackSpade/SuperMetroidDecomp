@@ -36,7 +36,7 @@ public sealed class LatestRenderFrameMailbox
     /// </summary>
     public void Publish(RenderFrameSnapshot frame)
     {
-        ArgumentNullException.ThrowIfNull(frame);
+        Ensure.NotNull(frame);
         lock (sync)
         {
             if (frame.Identity.Generation != generation)
@@ -85,7 +85,7 @@ public sealed class LatestRenderFrameMailbox
     /// </summary>
     public bool IsCurrent(RenderFrameSnapshot frame)
     {
-        ArgumentNullException.ThrowIfNull(frame);
+        Ensure.NotNull(frame);
         lock (sync) return frame.Identity.Generation == generation;
     }
 

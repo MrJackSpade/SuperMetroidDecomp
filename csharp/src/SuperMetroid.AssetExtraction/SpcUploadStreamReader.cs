@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
@@ -11,7 +12,7 @@ public static class SpcUploadStreamReader
     public static byte[] Read(IImportCartridgeSource cartridge, int sourceAddress,
         bool includeExecutionAddress = false)
     {
-        ArgumentNullException.ThrowIfNull(cartridge);
+        Ensure.NotNull(cartridge);
         if ((uint)sourceAddress > AudioRomData.SpcUpload.MaximumSnesAddress ||
             (sourceAddress & AudioRomData.SpcUpload.LoRomUpperWindowBit) == 0)
         {

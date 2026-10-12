@@ -24,7 +24,7 @@ public sealed partial class FileSelectAreaMapGraphics
     public static FileSelectAreaMapGraphics FromPresentation(ISnesAddressSpace bus, int selectedArea,
         AreaMapPresentationCatalog presentation)
     {
-        ArgumentNullException.ThrowIfNull(presentation);
+        Ensure.NotNull(presentation);
         var graphics = new FileSelectAreaMapGraphics(bus, selectedArea, presentation.Tiles, presentation.Palettes,
             presentation.Screens, presentation.WorldArtwork, presentation.Sprites);
         graphics.BindLabels(presentation.Labels);
@@ -44,7 +44,7 @@ public sealed partial class FileSelectAreaMapGraphics
     public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
         MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         if (mapTiles is null || mapPalettes is null || mapScreens is null ||
             worldArtwork is null || mapSprites is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");

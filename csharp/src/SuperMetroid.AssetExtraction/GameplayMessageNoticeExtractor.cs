@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -16,7 +17,7 @@ public static class GameplayMessageNoticeExtractor
     /// <exception cref="InvalidDataException">A message uses unexpected routines, has incompatible glyph or palette data, or fails notice-schema validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var notices = new Dictionary<string, GameplayMessageNotice>(StringComparer.Ordinal);
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {

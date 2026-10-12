@@ -21,7 +21,7 @@ internal sealed class EndingRewardJump
     public EndingRewardJump(ISnesAddressSpace bus, EndingReward reward, Action<int> queueGraphicsUpload)
     {
         this.bus = bus;
-        this.queueGraphicsUpload = queueGraphicsUpload ?? throw new ArgumentNullException(nameof(queueGraphicsUpload));
+        this.queueGraphicsUpload = Ensure.NotNull(queueGraphicsUpload);
         helmeted = reward == EndingReward.Armored;
         if (reward != EndingReward.Suitless)
             head = Spawn(helmeted ? EndingRewardActor.JumpHelmetedHead : EndingRewardActor.JumpHelmetlessHead);

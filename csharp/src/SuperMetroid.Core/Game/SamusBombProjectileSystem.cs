@@ -84,8 +84,8 @@ public sealed class SamusBombProjectileSystem
         ushort controllerInput,
         ushort gameState = (ushort)Frontend.SuperMetroidGameState.MainGameplay)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
         // frame handler. A power bomb spawned later by alpha consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
@@ -123,9 +123,9 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ushort controllerInput, ushort controllerNewInput, bool deferSamusOverlap = false, bool advancePowerBombHdma = true)
     {
-        ArgumentNullException.ThrowIfNull(terrain.Bus);
-        ArgumentNullException.ThrowIfNull(terrain.Level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(terrain.Bus);
+        Ensure.NotNull(terrain.Level);
+        Ensure.NotNull(samus);
 
         if (advancePowerBombHdma)
             AdvancePowerBombHdma(terrain.Bus, samus, controllerInput);
@@ -245,7 +245,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Runs the bomb subset of the post-alpha Samus/projectile interaction pass.</summary>
     public void ResolveSamusOverlap(SamusState samus, ushort projectileInvincibilityTimer)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         byte direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None
             ? PublishBombJumpOverlap(samus) : (byte)0;
         LastFrameResult = LastFrameResult with { PublishedBombJumpDirection = direction };
@@ -260,8 +260,8 @@ public sealed class SamusBombProjectileSystem
         Position16<RoomPixels> layer1,
         Assets.ProjectileSpriteCatalog? compositions = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {

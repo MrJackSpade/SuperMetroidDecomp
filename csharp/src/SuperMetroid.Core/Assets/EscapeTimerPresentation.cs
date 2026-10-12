@@ -33,8 +33,8 @@ public sealed class EscapeTimerPresentation
     /// <exception cref="InvalidOperationException">A timer byte contains a nondecimal BCD nibble; earlier sprite parts may already have been emitted.</exception>
     public void Draw(EscapeTimer timer, OamBuffer oam)
     {
-        ArgumentNullException.ThrowIfNull(timer);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(timer);
+        Ensure.NotNull(oam);
 
         DrawFrame(EscapeTimerPresentationDefinitions.LabelFrame, Anchor("Label"));
         DrawPair(timer.MinutesBcd, Anchor("Minutes"));

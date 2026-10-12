@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -16,7 +17,7 @@ public static class SamusVisorColorExtractor
     /// <exception cref="ArgumentException"><paramref name="bus"/> lacks cartridge import access.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             SamusVisorColorFormat.SourceAddress,
             SamusVisorColorFormat.ColorCount * sizeof(ushort));

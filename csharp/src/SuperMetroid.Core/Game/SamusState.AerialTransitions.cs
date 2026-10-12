@@ -74,8 +74,8 @@ public sealed partial class SamusState
         ushort controllerNewInput,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         SamusPoseId sourcePose = Pose;
         bool normalJumpTarget =
@@ -161,8 +161,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         SamusPoseId sourcePose = Pose;
         SamusMovementType sourceMovementType = ReadMovementType(bus);
@@ -249,7 +249,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplySpinJumpDirectionTransition(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (!IsSpinJumpPose(targetPose) ||
             (!IsWallJumpPose(Pose) && !IsSpinJumpPose(Pose)))
         {
@@ -302,7 +302,7 @@ public sealed partial class SamusState
         ushort nmiFrameCounter = 0,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         // Only the type-3 spin mover reaches `$91:EABE`. The cached movement type, not the
         // live pose, gates it: a drained pose stored without InitializeSamusPose_1 keeps
         // spinning and still wall-jumps.
@@ -369,7 +369,7 @@ public sealed partial class SamusState
     /// </remarks>
     public void ApplyGrappleWallJump(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (Pose is not (SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose))
         {
             throw new InvalidOperationException(
@@ -416,8 +416,8 @@ public sealed partial class SamusState
         RoomPlmSystem? plms = null,
         bool clearMovementSpeed = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         bool supportedTarget = targetPose is
             SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose or
@@ -600,7 +600,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyShinesparkDirectionTransition(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (Pose is not (SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose))
         {
             throw new InvalidOperationException(
@@ -622,7 +622,7 @@ public sealed partial class SamusState
         SamusPoseId targetPose,
         ushort controllerNewInput = 0)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool verified =
             SamusState.IsStandingGroundTurnToJumpTransition(Pose, targetPose) ||
             (Pose, targetPose) is

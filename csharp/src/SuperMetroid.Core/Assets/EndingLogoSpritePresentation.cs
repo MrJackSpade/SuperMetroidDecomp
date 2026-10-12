@@ -38,7 +38,7 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
     /// <returns>The compiled ending-logo presentation.</returns>
     public static EndingLogoSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EndingLogoSpriteDocument document;
         try
         {
@@ -85,7 +85,7 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
     /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, EndingLogoSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 
 namespace SuperMetroid.Desktop;
@@ -15,9 +16,9 @@ internal static class PlaybackFrameBatch
         Func<ushort, FrontendFrame?> advanceFrame,
         Func<bool>? canAdvance = null)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(requestedFrames);
-        ArgumentNullException.ThrowIfNull(readInput);
-        ArgumentNullException.ThrowIfNull(advanceFrame);
+        Ensure.AtLeastZero(requestedFrames);
+        Ensure.NotNull(readInput);
+        Ensure.NotNull(advanceFrame);
         if (requestedFrames == 0) return (0, null);
         FrontendFrame? lastFrame = null;
         int completed = 0;

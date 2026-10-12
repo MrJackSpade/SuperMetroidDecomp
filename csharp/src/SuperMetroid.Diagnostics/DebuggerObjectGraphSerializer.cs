@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -13,8 +14,8 @@ internal static class DebuggerObjectGraphSerializer
 {
     public static void Serialize(Stream destination, object root)
     {
-        ArgumentNullException.ThrowIfNull(destination);
-        ArgumentNullException.ThrowIfNull(root);
+        Ensure.NotNull(destination);
+        Ensure.NotNull(root);
         using var writer = new BinaryWriter(destination, System.Text.Encoding.UTF8, leaveOpen: true);
         new GraphWriter(writer).Write(root);
     }
@@ -24,7 +25,7 @@ internal static class DebuggerObjectGraphSerializer
 
     public static T Deserialize<T>(Stream source) where T : class
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         using var reader = new BinaryReader(source, System.Text.Encoding.UTF8, leaveOpen: true);
         object? root = new GraphReader(reader).Read();
         return root as T ?? throw new InvalidDataException(

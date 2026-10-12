@@ -429,8 +429,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public void StartActiveBeam(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         SetHeadInstructionList(HeadFiringRainbowInstructionList);
         AngularWidth = 0x0200;

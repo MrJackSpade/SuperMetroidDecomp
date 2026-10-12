@@ -39,7 +39,7 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     public RoomPlmTourianAccessVisualCatalog(
         IEnumerable<RoomPlmTourianAccessVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmTourianAccessVisualEntry entry in entries)

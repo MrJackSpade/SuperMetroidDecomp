@@ -39,7 +39,7 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
     internal static BeamTileCatalog FromAtlases(BeamTileAtlas[] sheets, BeamPaletteCatalog palettes,
         HyperBeamFxColorCatalog hyperBeamFxColors)
     {
-        ArgumentNullException.ThrowIfNull(sheets);
+        Ensure.NotNull(sheets);
         if (sheets.Length != BeamTileAtlasDefinitions.ArtworkCount || sheets.Any(sheet => sheet is null))
             throw new ArgumentException("Every beam selection needs a compiled atlas.", nameof(sheets));
         return new((BeamTileAtlas[])sheets.Clone(), palettes, hyperBeamFxColors);

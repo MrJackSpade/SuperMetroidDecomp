@@ -6,25 +6,21 @@ can be explained by a generic argument exception.
 ```csharp
 using SuperMetroid.Core;
 
-width = Ensure.GreaterThanZero(width);
-tilemapWidthInTiles = Ensure.OneOf(tilemapWidthInTiles, 32, 64);
-output = Ensure.LengthEqual(output, checked(width * height));
-mode = Ensure.IsDefined(options.MapReveal);
+this.bus = Ensure.NotNull(bus);
+Ensure.AtLeastZero(byteCount);
+index = Ensure.BetweenInclusive(0, 7, index);
+Ensure.LengthEqual(colors, 16);
 ```
 
 Every operation returns its input value. `CallerArgumentExpression` supplies the
-parameter name from the *value expression*, including a property or indexer such
-as `options.MapReveal` or `options.Modes[0]`. Do not manually write `nameof(options)`
-or cast a numeric input to fit an overload.
+parameter name from the *value expression*, including a property such as
+`parts.Clouds`. Do not manually write a parameter name or cast a numeric input to
+fit an overload.
 
-`Between` and `BetweenInclusive` include both endpoints. `BetweenExclusive`
-excludes both. All comparison operations reject NaN; their return type is the
-same as the numeric input type. The public numeric overloads cover signed and
-unsigned integral types through 128 bits, native integers, `BigInteger`, `Half`,
-`float`, `double`, and `decimal`.
-`IsDefined<TEnum>` uses the typed `Enum.IsDefined` operation and is for ordinary
-closed enums. It rejects unnamed `[Flags]` combinations; do not apply it to a
-flags domain without proving that exact rule is intended.
+The operations are `NotNull` (reference types), `AtLeastZero` (`int` and `long`),
+`BetweenInclusive` (`int`, both endpoints included) and `LengthEqual` (anything
+convertible to a read-only span). Add an operation or overload only with a
+type-preserving return value, caller-expression capture and focused verification.
 
 Keep parser errors, corrupt-state checks, cartridge invariants, and validation
 requiring domain context at the owning boundary. Such checks often use
@@ -33,13 +29,17 @@ message and do not become `Ensure` calls merely because they compare numbers.
 
 ## Analyzer
 
-`SME6201` suggests an `Ensure` operation for standard argument throw helpers
-and simple immediate-throw null, numeric, enum, allowed-value, equality, and
-length/count guards. `SME6202` catches redundant casts or manual parameter names
-in `Ensure.IsDefined` calls. Both are warnings while the existing guards are
-migrated; `WarningsNotAsErrors` keeps them advisory despite the repository's
-general warnings-as-errors setting. The analyzer deliberately leaves compound
-conditions and custom state or parser exceptions alone.
+`SME6201` reports standard argument throw helpers (`ThrowIfNull`, `ThrowIfNegative`)
+and simple immediate-throw null, sign, range and length guards on a visible member's
+parameters. `SME6202` reports an `Ensure` call that passes its parameter name by hand
+or casts the validated value to fit an overload. Both are build errors (#677). The
+analyzer deliberately leaves compound conditions, private routines' state checks and
+custom state or parser exceptions alone.
+
+The IDE code fix rewrites each recognized guard to its `Ensure` operation when the
+value's type fits exactly, and removes a manual parameter name. A value that does not
+fit (for example a `long` range or an unconstrained generic) stays diagnostic-only:
+add the missing typed overload instead of casting.
 
 When a new reusable rule appears, add the operation to `Ensure` with a
 type-preserving return value, caller-expression capture, documented boundaries,

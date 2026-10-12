@@ -80,7 +80,7 @@ public sealed class ShitroidColorCatalog
     /// <returns>Compiled colors retaining independently edited frames and targets exactly, sharing the calculated stock pulse only when all samples agree.</returns>
     public static ShitroidColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         ShitroidColorDocument document;
         try
         {

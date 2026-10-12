@@ -71,7 +71,7 @@ internal sealed partial class CeresDestructionCinematicState
         IPaletteFxColorSource? paletteFxColors = null,
         bool withSamus = false)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         this.withSamus = withSamus;
         this.audio = audio;
         this.paletteFxColors = paletteFxColors;

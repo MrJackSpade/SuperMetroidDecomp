@@ -70,10 +70,10 @@ public sealed class SamusDeathPaletteArtworkCatalog
     public SamusDeathPaletteArtworkCatalog(Bgr555[][][] suited, Bgr555[][] suitless,
         Bgr555[] whiteout, ushort[] explosionPaletteIndices)
     {
-        ArgumentNullException.ThrowIfNull(suited);
-        ArgumentNullException.ThrowIfNull(suitless);
-        ArgumentNullException.ThrowIfNull(whiteout);
-        ArgumentNullException.ThrowIfNull(explosionPaletteIndices);
+        Ensure.NotNull(suited);
+        Ensure.NotNull(suitless);
+        Ensure.NotNull(whiteout);
+        Ensure.NotNull(explosionPaletteIndices);
         FixedGridShape paletteRows = new(SamusPaletteRomData.Death.PaletteCount, ColorCount);
         if (suited.Length != SuitCount ||
             suited.Any(family => !paletteRows.Fits(family)) ||

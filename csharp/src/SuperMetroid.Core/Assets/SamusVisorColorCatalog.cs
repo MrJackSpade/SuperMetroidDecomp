@@ -26,7 +26,7 @@ public sealed class SamusVisorColorCatalog
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, a length other than six, null colors, or RGB5 channels outside 0..31.</exception>
     public static SamusVisorColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         SamusVisorColorDocument document;
         try
         {

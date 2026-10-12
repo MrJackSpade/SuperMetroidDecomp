@@ -27,8 +27,8 @@ internal static class AutomaticCheckpointSaver
     private static void SaveCeresCheckpoint(
         ISnesAddressSpace bus, SuperMetroidRuntime runtime, int slot, ushort loadingGameState)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(runtime);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(runtime);
         SamusState samus = runtime.Samus
             ?? throw new InvalidOperationException("Ceres checkpoint requires a live Samus actor.");
         runtime.System.LoadSavedLoadingGameState(loadingGameState);
@@ -44,8 +44,8 @@ internal static class AutomaticCheckpointSaver
         SuperMetroidRuntime runtime,
         int selectedSaveSlot)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(runtime);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(runtime);
         if (runtime.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted)
             return false;
 

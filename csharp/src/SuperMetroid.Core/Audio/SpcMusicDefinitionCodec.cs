@@ -77,7 +77,7 @@ internal static class SpcMusicDefinitionCodec
 
     internal static byte[] EncodeTrack(AudioMusicTrackMetadata track)
     {
-        ArgumentNullException.ThrowIfNull(track);
+        Ensure.NotNull(track);
         if (track.Instructions is null)
             throw new InvalidDataException($"Music track '{track.Id}' has no instruction list.");
         if (track.Address == 0)
@@ -140,7 +140,7 @@ internal static class SpcMusicDefinitionCodec
 
     internal static byte[] EncodeProgram(AudioMusicProgramMetadata program)
     {
-        ArgumentNullException.ThrowIfNull(program);
+        Ensure.NotNull(program);
         if (program.Instructions is null)
             throw new InvalidDataException($"Music program '{program.Id}' has no instruction list.");
         var bytes = new List<byte>(program.ByteCapacity);

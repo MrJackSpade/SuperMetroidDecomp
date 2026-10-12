@@ -20,7 +20,7 @@ public sealed class ManagedPcmSample
         int? loopSampleIndex)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
-        ArgumentNullException.ThrowIfNull(samples);
+        Ensure.NotNull(samples);
         if (sampleRate is < PcmSampleFormat.MinimumReplacementSampleRate or
             > PcmSampleFormat.MaximumReplacementSampleRate)
         {
@@ -69,7 +69,7 @@ public sealed class ManagedPcmSampleBank
         IReadOnlyDictionary<byte, byte>? loopEntrySources = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        ArgumentNullException.ThrowIfNull(samples);
+        Ensure.NotNull(samples);
         Name = name;
         UploadAddress = uploadAddress;
         this.samples = new Dictionary<byte, ManagedPcmSample>(samples);

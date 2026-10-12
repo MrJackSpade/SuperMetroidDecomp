@@ -43,7 +43,7 @@ public sealed class NorfairRidleyColorCatalog
     /// <param name="cgram">Destination color memory to update.</param>
     public void ApplyInitial(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
             new RidleyPalettes(cgram).NorfairInitial.Write(color, initial.ColorAt(color));
     }
@@ -54,7 +54,7 @@ public sealed class NorfairRidleyColorCatalog
     public void ApplyReveal(SnesCgram cgram, int row)
     {
         NorfairRidleyRevealPaintDefinitions.ValidateRow(row);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < NorfairRidleyPaletteRomData.RevealColorCount; color++)
             new RidleyPalettes(cgram).NorfairReveal.Write(color, reveal.ColorAt(row, color));
     }

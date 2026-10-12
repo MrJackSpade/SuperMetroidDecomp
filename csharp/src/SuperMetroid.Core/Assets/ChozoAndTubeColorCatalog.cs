@@ -86,7 +86,7 @@ public sealed class ChozoAndTubeColorCatalog
     /// <summary>Installs the tube-crack image at CGRAM 144–175, matching palette-only initializer $AA:E716; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
     public void ApplyTubeCracks(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
             new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveTubeCracks(color));
     }
@@ -100,7 +100,7 @@ public sealed class ChozoAndTubeColorCatalog
     /// <returns>Compiled selected tube and statue inks; statue variant selection, hand PLMs, and tube behavior remain engine-owned.</returns>
     public static ChozoAndTubeColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         ChozoAndTubeColorDocument document;
         try
         {
@@ -131,7 +131,7 @@ public sealed class ChozoAndTubeColorCatalog
 
     private void Apply(SnesCgram cgram, ChozoStatuePalette palette)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
             new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveStatue(palette, color));
     }

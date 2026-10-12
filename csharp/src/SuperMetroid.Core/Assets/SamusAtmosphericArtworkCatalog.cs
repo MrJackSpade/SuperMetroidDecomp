@@ -19,8 +19,8 @@ public sealed class SamusAtmosphericArtworkCatalog
     /// <exception cref="InvalidDataException">Either list does not contain exactly four words. Individual packed attribute values are not restricted.</exception>
     public SamusAtmosphericArtworkCatalog(ushort[] typeOne, ushort[] sharedTypeFour)
     {
-        ArgumentNullException.ThrowIfNull(typeOne);
-        ArgumentNullException.ThrowIfNull(sharedTypeFour);
+        Ensure.NotNull(typeOne);
+        Ensure.NotNull(sharedTypeFour);
         if (typeOne.Length != SamusMovementRomData.Environment.DirectAtmosphericFrameCount ||
             sharedTypeFour.Length != SamusMovementRomData.Environment.DirectAtmosphericFrameCount)
             throw new InvalidDataException("Samus atmospheric small-OBJ lists must each contain four frames.");

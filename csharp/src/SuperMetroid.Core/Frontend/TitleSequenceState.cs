@@ -72,7 +72,7 @@ public sealed class TitleSequenceState
         TitlePalettePresentation? titlePalettePresentation,
         TitleGraphicsPresentation? titleGraphicsPresentation)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.titleGradientPresentation = titleGradientPresentation;
         this.titlePalettePresentation = titlePalettePresentation;

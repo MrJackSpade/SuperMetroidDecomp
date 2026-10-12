@@ -472,7 +472,7 @@ public sealed partial class RoomEnemySystem
     /// <param name="queue">Ordered NMI VRAM-write queue to which selected enemy character transfers are appended.</param>
     public void QueueGraphicsUploads(VramWriteQueue queue)
     {
-        ArgumentNullException.ThrowIfNull(queue);
+        Ensure.NotNull(queue);
         EnsureLoaded();
         foreach (RoomEnemyGraphicsSetEntry entry in _graphicsSet)
         {
@@ -858,7 +858,7 @@ public sealed partial class RoomEnemySystem
         int firstLayer,
         int lastLayer)
     {
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(oam);
         EnsureLoaded();
         if ((uint)firstLayer > 7 || (uint)lastLayer > 7 || firstLayer > lastLayer)
             throw new ArgumentOutOfRangeException(nameof(firstLayer));

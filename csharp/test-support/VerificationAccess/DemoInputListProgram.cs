@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 
 /// <summary>A demo-input owner whose list uses only the shared instructions and pre-instructions (#633).</summary>
@@ -7,7 +8,7 @@ internal sealed class DemoInputListProgram : IDemoInputProgram
 
     /// <summary>Wraps the owner's bounded compiled list reader.</summary>
     public DemoInputListProgram(Func<ushort, ushort> readInstructionWord) =>
-        this.readInstructionWord = readInstructionWord ?? throw new ArgumentNullException(nameof(readInstructionWord));
+        this.readInstructionWord = Ensure.NotNull(readInstructionWord);
 
     /// <inheritdoc/>
     public ushort ReadInstructionWord(ushort pointer) => readInstructionWord(pointer);

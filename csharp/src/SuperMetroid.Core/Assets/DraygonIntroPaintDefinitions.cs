@@ -17,7 +17,7 @@ internal sealed class DraygonIntroPaintDefinitions
 
     internal DraygonIntroPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
-        if (colors.Length != 25) throw new ArgumentException("Draygon intro requires twenty-five colors.", nameof(colors));
+        Ensure.LengthEqual(colors, 25);
         primary = new(colors[..16]);
         surface = new(colors[17..]);
         clearEdit = colors[16] == DraygonMaterialPaintDefinitions.ClearTarget ? null : colors[16];

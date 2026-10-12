@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -223,7 +224,7 @@ internal static class LandingSiteEntryStateAccess
         /// </summary>
         internal static LandingSiteEntryState Load(ISnesAddressSpace bus, ushort doorPointer)
         {
-            ArgumentNullException.ThrowIfNull(bus);
+            Ensure.NotNull(bus);
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
 
             // The destination is a bank-$8F room pointer. Rejecting any other room
@@ -412,7 +413,7 @@ internal static class RoomLevelDataAccess
         /// </summary>
         internal void RestoreFrom(RoomLevelData source)
         {
-            ArgumentNullException.ThrowIfNull(source);
+            Ensure.NotNull(source);
             if (source.Size.X != self.Size.X || source.Size.Y != self.Size.Y ||
                 source.DoorListPointer != self.DoorListPointer ||
                 PrivateState.Field<byte[]>(source, "_blockDefinitions").Length != PrivateState.Field<byte[]>(self, "_blockDefinitions").Length ||
@@ -1335,7 +1336,7 @@ internal static class RoomPlmSystemAccess
             RoomBlockBehavior bts,
             SamusProjectileTypeWord projectileType)
         {
-            ArgumentNullException.ThrowIfNull(level);
+            Ensure.NotNull(level);
             bool areaDependent = bts.UsesAreaReactionTable;
             if (areaDependent && !bts.IsAreaReactionIndex(8))
             {

@@ -18,8 +18,7 @@ internal static class PngWriterTooling
         int scale = 1)
         where TSpace : ISpatialSpace
     {
-        if (indexes.Length != size.Area)
-            throw new ArgumentException("Pixel count does not match dimensions.", nameof(indexes));
+        Ensure.LengthEqual(indexes, size.Area);
         if (palette.Count == 0)
             throw new ArgumentException("Palette is empty.", nameof(palette));
 
@@ -36,8 +35,7 @@ internal static class PngWriterTooling
         int scale = 1)
         where TSpace : ISpatialSpace
     {
-        if (pixels.Length != size.Area)
-            throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
+        Ensure.LengthEqual(pixels, size.Area);
         ArgumentOutOfRangeException.ThrowIfLessThan(scale, 1);
 
         int width = size.X;

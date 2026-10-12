@@ -32,7 +32,7 @@ public sealed class IntroCaretSpritePresentation
     /// <returns>The validated presentation installed under native visible-frame identity <c>$8C:8D68</c>.</returns>
     public static IntroCaretSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         IntroCaretSpriteDocument document;
         try
         {
@@ -79,7 +79,7 @@ public sealed class IntroCaretSpritePresentation
     /// <param name="document">Current or supported legacy document to serialize.</param>
     public static void Write(Stream json, IntroCaretSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

@@ -37,7 +37,7 @@ public static class SnesLayerCompositor
     /// </remarks>
     public static Rgba32[] CreateBackdrop(SnesCgram cgram, int pixelCount, Rgba32[]? outputBuffer = null)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pixelCount);
 
         if (outputBuffer is not null && outputBuffer.Length != pixelCount)

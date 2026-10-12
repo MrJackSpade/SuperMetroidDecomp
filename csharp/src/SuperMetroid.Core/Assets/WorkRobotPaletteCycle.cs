@@ -78,7 +78,7 @@ public sealed class WorkRobotPaletteCycle
     [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
     public void ApplyFrame(SnesCgram cgram, int frame, int destination)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if (destination < 0 ||
             destination + WorkRobotPaletteRomData.ColorCount > CgramPalettes.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(destination));
@@ -91,7 +91,7 @@ public sealed class WorkRobotPaletteCycle
     /// <returns>The compiled palette cycle.</returns>
     public static WorkRobotPaletteCycle Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         WorkRobotPaletteCycleDocument document;
         try
         {

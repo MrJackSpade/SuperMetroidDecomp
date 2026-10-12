@@ -19,7 +19,7 @@ internal sealed class CeresDoorEscapePaintDefinitions
     private readonly Dictionary<int, Bgr555> edits = [];
 
     internal CeresDoorEscapePaintDefinitions(ReadOnlySpan<Bgr555> colors, CeresDoorNormalPaintDefinitions normal)
-        : this(colors, (normal ?? throw new ArgumentNullException(nameof(normal))).WarmTargets) { }
+        : this(colors, (Ensure.NotNull(normal)).WarmTargets) { }
 
     internal CeresDoorEscapePaintDefinitions(ReadOnlySpan<Bgr555> colors)
         : this(colors, WarmFrom(colors)) { }

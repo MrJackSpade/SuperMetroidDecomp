@@ -17,7 +17,7 @@ public sealed class AttractDemoInput
     /// <summary>Production title playback uses compiled input definitions, not ROM bytecode.</summary>
     public AttractDemoInput(AttractDemoScene scene)
     {
-        ArgumentNullException.ThrowIfNull(scene);
+        Ensure.NotNull(scene);
         Script.LoadStockAttractObject(scene.InputObject);
         Script.Enable();
     }

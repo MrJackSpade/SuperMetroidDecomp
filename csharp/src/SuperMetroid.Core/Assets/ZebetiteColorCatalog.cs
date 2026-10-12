@@ -84,7 +84,7 @@ public sealed class ZebetiteColorCatalog
     [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
     public void Apply(SnesCgram cgram, int frame, int destinationColor)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)frame >= ZebetiteColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < ZebetiteColorFormat.ColorsPerFrame; color++)
             new CgramPalettes(cgram).All.Write(destinationColor + color, Resolve(frame, color));

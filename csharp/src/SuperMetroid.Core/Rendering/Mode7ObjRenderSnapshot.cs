@@ -48,7 +48,7 @@ public sealed record Mode7ObjRenderSnapshot
     public Mode7ObjRenderSnapshot(PpuMemorySnapshot memory, Mode7RenderRegisters? background,
         byte objectSelection, byte brightness, ReadOnlySpan<Frontend.TitleGradientLine> gradient = default)
     {
-        ArgumentNullException.ThrowIfNull(memory);
+        Ensure.NotNull(memory);
         if (brightness > Hardware.SnesPpuLayout.MaximumMasterBrightness) throw new ArgumentOutOfRangeException(nameof(brightness));
         Memory = memory;
         Background = background;

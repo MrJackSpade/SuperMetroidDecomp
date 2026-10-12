@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -17,7 +18,7 @@ public static class DraygonColorExtractor
     /// <exception cref="InvalidDataException">A native color uses bit 15, which the RGB5 document cannot represent.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var bands = new PaletteRgb5[DraygonColorRomData.HealthBandCount][];
         for (int band = 0; band < bands.Length; band++)
             bands[band] = Read(DraygonColorRomData.HealthBandsSource +

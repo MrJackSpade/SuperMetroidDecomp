@@ -84,14 +84,14 @@ public readonly record struct Bgr555
     /// <summary>Applies <paramref name="map"/> to each channel; the results must be valid channels.</summary>
     public Bgr555 Map(Func<ColorChannel, int, int> map)
     {
-        ArgumentNullException.ThrowIfNull(map);
+        Ensure.NotNull(map);
         return new(map(ColorChannel.Red, Red), map(ColorChannel.Green, Green), map(ColorChannel.Blue, Blue));
     }
 
     /// <summary>Combines matching channels of this color and <paramref name="other"/>; the results must be valid channels.</summary>
     public Bgr555 Zip(Bgr555 other, Func<ColorChannel, int, int, int> combine)
     {
-        ArgumentNullException.ThrowIfNull(combine);
+        Ensure.NotNull(combine);
         return new(combine(ColorChannel.Red, Red, other.Red), combine(ColorChannel.Green, Green, other.Green),
             combine(ColorChannel.Blue, Blue, other.Blue));
     }

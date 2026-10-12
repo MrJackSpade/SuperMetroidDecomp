@@ -11,7 +11,7 @@ public sealed partial class RoomEnemySystem
     {
         EnsureLoaded();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        ArgumentOutOfRangeException.ThrowIfNegative(request.PlmBlockIndex);
+        Ensure.AtLeastZero(request.PlmBlockIndex);
 
         switch (request.Operation)
         {

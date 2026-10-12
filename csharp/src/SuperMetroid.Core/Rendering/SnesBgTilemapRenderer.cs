@@ -15,18 +15,13 @@ public static class SnesBgTilemapRenderer
     /// </summary>
     public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, BgViewport viewport, bool? priority = null)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         int width = viewport.Size.X;
         int height = viewport.Size.Y;
         if (width == 0 || height == 0)
             throw new ArgumentOutOfRangeException(nameof(viewport.Size));
-        if (output.Length != width * height)
-        {
-            throw new ArgumentException(
-                "A 4-bpp destination must contain exactly width*height pixels.",
-                nameof(output));
-        }
+        Ensure.LengthEqual(output, width * height);
         // Gameplay-style BGSC defaults to two horizontal 32x32 screens.
         Extent16<TilemapCells> tilemap = viewport.TilemapSize ?? new Extent16<TilemapCells>(64, 32);
         int tilemapWidthInTiles = tilemap.X;
@@ -114,19 +109,14 @@ public static class SnesBgTilemapRenderer
     /// </summary>
     public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, int rowCount, bool transparentColorZero = false, bool? priority = null)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         if (rowCount is <= 0 or > 32)
             throw new ArgumentOutOfRangeException(nameof(rowCount));
 
         const int width = 32 * 8;
         int height = rowCount * 8;
-        if (output.Length != checked(width * height))
-        {
-            throw new ArgumentException(
-                "A 2-bpp destination must contain exactly 256*rowCount*8 pixels.",
-                nameof(output));
-        }
+        Ensure.LengthEqual(output, checked(width * height));
 
         for (int tileY = 0; tileY < rowCount; tileY++)
         {

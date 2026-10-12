@@ -64,8 +64,8 @@ internal sealed partial class EndingCreditsState
 
     public EndingCreditsState(ISnesAddressSpace bus, CartridgeAudioState audio, EndingCreditsSetup setup)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
+        this.bus = Ensure.NotNull(bus);
+        this.audio = Ensure.NotNull(audio);
         this.gameTimeHours = setup.GameTimeHours;
         this.gameTimeMinutes = setup.GameTimeMinutes;
         this.inventory = setup.Inventory;

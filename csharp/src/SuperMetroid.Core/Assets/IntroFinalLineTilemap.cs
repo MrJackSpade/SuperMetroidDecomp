@@ -48,7 +48,7 @@ public sealed class IntroFinalLineTilemap
     /// <exception cref="InvalidDataException">The document schema, cell count, or character/palette selectors are invalid.</exception>
     public static IntroFinalLineTilemap Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         IntroFinalLineTilemapDocument document = JsonAssetDocument.Read<IntroFinalLineTilemapDocument>(
             json, MapPresentationFormat.JsonOptions, "opening divider tilemap");
         if (document.Version != IntroFinalLineTilemapFormat.Version ||
@@ -79,7 +79,7 @@ public sealed class IntroFinalLineTilemap
     /// <param name="document">Complete four-row map to validate and serialize.</param>
     public static void Write(Stream json, IntroFinalLineTilemapDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

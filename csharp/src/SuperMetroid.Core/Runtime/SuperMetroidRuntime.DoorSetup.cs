@@ -133,7 +133,7 @@ internal static class DoorSetupCodeInterpreter
         ushort doorPointer,
         RoomScrollGrid scrolls)
     {
-        ArgumentNullException.ThrowIfNull(scrolls);
+        Ensure.NotNull(scrolls);
         switch (setupCodePointer)
         {
             case DoorSetupCode.None:

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ public static class RoomMetatileExtractor
     /// <exception cref="InvalidDataException">Decompression, block-count validation, or the visual document's native-byte roundtrip fails.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
         Add(RoomMetatileFormat.CreFileName,
             RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);

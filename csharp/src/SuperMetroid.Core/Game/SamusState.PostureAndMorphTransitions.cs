@@ -26,8 +26,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         bool rightRoute = IsRightFacingCrouchingPose(Pose) &&
             targetPose == SamusPoseId.FacingRightNormalPose;
@@ -88,8 +88,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         bool rightRoute = IsRightFacingCrouchingPose(Pose) &&
             targetPose == SamusPoseId.NeutralJumpTransitionRightPose;
@@ -151,8 +151,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         bool startsCrouchingRight =
             (IsRightFacingStandingPose(Pose) || IsRightFacingRunningPose(Pose) ||
@@ -274,8 +274,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         // `$91:F7CE` does not require movement type five. Falling straight-down `$2D/$2E`
         // and spin-jump input tables can select the same `$37/$38` initializer. The literal
@@ -411,8 +411,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         SamusPoseId sourcePose = Pose;
         bool rightFacingRoute = sourcePose == SamusPoseId.UnmorphingTransitionRightPose &&
@@ -463,7 +463,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyMorphBallPoseChange(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool sourceSupported = IsStableBallPose(Pose);
         bool targetSupported = IsStableBallPose(targetPose);
         if (!sourceSupported || !targetSupported)
@@ -527,7 +527,7 @@ public sealed partial class SamusState
     /// <returns>True only when the collision ends grounded; false means another rebound.</returns>
     public bool ApplyMorphBallLanding(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (!IsAirborneMorphBallPose(Pose) && !IsGroundedMorphBallPose(Pose))
             throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not ${(int)Pose:X2}.");
 
@@ -576,7 +576,7 @@ public sealed partial class SamusState
     /// </summary>
     public bool ApplySpringBallLanding(ISnesAddressSpace bus, ushort controllerInput)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (!IsAirborneSpringBallPose(Pose) && !IsGroundedSpringBallPose(Pose))
             throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not ${(int)Pose:X2}.");
 
@@ -634,7 +634,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplySpringBallJump(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool validTarget = targetPose is SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose;
         if (!IsGroundedSpringBallPose(Pose) || !validTarget)
             throw new InvalidOperationException(
@@ -653,7 +653,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyBombJumpFallingPose(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool left = IsFacingLeft(bus);
         if (IsGroundedSpringBallPose(Pose))
             ApplyMorphBallPoseChange(bus, left ? SamusPoseId.SpringBallFallingLeftPose : SamusPoseId.SpringBallFallingRightPose);
@@ -671,7 +671,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyMorphBallWalkOff(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         bool springBall = IsGroundedSpringBallPose(Pose);
         if (!IsGroundedMorphBallPose(Pose) && !springBall)
             throw new InvalidOperationException($"Morph-Ball walk-off requires grounded pose, not ${(int)Pose:X2}.");
@@ -695,8 +695,8 @@ public sealed partial class SamusState
         ISnesAddressSpace bus, RoomLevelData level, SamusPoseId targetPose,
         ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
         bool supportedSource =
             IsRightFacingStandingPose(Pose) || IsLeftFacingStandingPose(Pose) ||
             IsRightFacingLandingPose(Pose) || IsLeftFacingLandingPose(Pose) ||
@@ -756,7 +756,7 @@ public sealed partial class SamusState
     /// </summary>
     public SamusPoseId SelectFallingPoseForCurrentAim(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         // PSP_Falling indexes its pair with PoseXDirection, not the muzzle direction.
         // Moonwalk's visual facing opposes this physics byte; aim input is reconsidered
         // by the next frame's input handler after this ordinary falling pose is installed.
@@ -779,7 +779,7 @@ public sealed partial class SamusState
         bool wasSpinning,
         ushort controllerInput = 0)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         SamusPoseId sourcePose = Pose;
         bool leavingScrewAttack = IsScrewAttackPose(sourcePose);
         SamusPoseId targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
@@ -813,8 +813,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
 
         SamusPoseId sourcePose = Pose;
         bool leavingScrewAttack = IsScrewAttackPose(sourcePose);
@@ -932,8 +932,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
         if (!IsCompactAerialPose(Pose))
             throw new InvalidOperationException($"Compact landing requires pose $17/$18/$2D/$2E, not ${(int)Pose:X2}.");
 
@@ -979,7 +979,7 @@ public sealed partial class SamusState
     /// </summary>
     public bool ApplyPendingVerifiedAnimationTransition(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (PendingTransitionalPose is not SamusPoseId targetPose)
             return false;
 
@@ -1152,7 +1152,7 @@ public sealed partial class SamusState
         string transitionName,
         bool refreshRadius = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (Pose != expectedPose)
         {
             throw new InvalidOperationException(

@@ -18,8 +18,8 @@ public sealed partial class RoomPlmSystem
         WreckedShipTreadmillDirection direction,
         bool areaBossDefeated)
     {
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(streamer);
+        Ensure.NotNull(level);
+        Ensure.NotNull(streamer);
 
         PlmHeaderId header = direction switch
         {
@@ -82,7 +82,7 @@ public sealed partial class RoomPlmSystem
     /// <returns>False only when all forty native PLM slots are occupied.</returns>
     public bool TrySpawnMaridiaElevatube(RoomLevelData level)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         int blockIndex = level.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
 

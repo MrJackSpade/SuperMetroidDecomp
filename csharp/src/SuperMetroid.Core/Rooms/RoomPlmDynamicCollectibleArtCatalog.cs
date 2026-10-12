@@ -25,7 +25,7 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
     public RoomPlmDynamicCollectibleArtCatalog(
         IEnumerable<RoomPlmDynamicCollectibleArtEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<InWorldCollectibleKind, RoomPlmDynamicCollectibleGraphic>();
         var seen = new bool[RoomPlmDynamicCollectibleGraphicsDefinitions.GraphicCount];
         foreach (RoomPlmDynamicCollectibleArtEntry entry in entries)

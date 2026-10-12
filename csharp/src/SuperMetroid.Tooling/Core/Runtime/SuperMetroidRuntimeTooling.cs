@@ -58,7 +58,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
             CartridgeDoorHeader door,
             Position16<RoomPixels> camera = default)
         {
-            ArgumentNullException.ThrowIfNull(door);
+            Ensure.NotNull(door);
             if (self.Samus is null)
                 throw new InvalidOperationException("Door verification requires initialized Samus state.");
 

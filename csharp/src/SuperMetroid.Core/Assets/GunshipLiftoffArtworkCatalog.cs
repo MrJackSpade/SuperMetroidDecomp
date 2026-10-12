@@ -56,7 +56,7 @@ public sealed class GunshipLiftoffArtworkCatalog
 
     internal GunshipLiftoffArtworkCatalog(RoomCharacterAtlas[] frames)
     {
-        ArgumentNullException.ThrowIfNull(frames);
+        Ensure.NotNull(frames);
         if (frames.Length != GunshipLiftoffTransferDefinitions.Frames.Length ||
             frames.Any(frame => frame is null ||
                 frame.Transfer.Length != GunshipLiftoffTransferDefinitions.ByteCount))

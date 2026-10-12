@@ -78,7 +78,7 @@ public sealed class RoomVisualLayoutCatalog
     private RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
         bool requireCompleteInstallation)
     {
-        ArgumentNullException.ThrowIfNull(layouts);
+        Ensure.NotNull(layouts);
         this.layouts = new Dictionary<int, RoomVisualLayout>(layouts);
         foreach ((int source, RoomVisualLayout layout) in this.layouts)
             if (layout is null || layout.SourceAddress != source)

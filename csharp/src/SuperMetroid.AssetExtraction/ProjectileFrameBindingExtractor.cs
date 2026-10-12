@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -17,7 +18,7 @@ public static class ProjectileFrameBindingExtractor
     /// <exception cref="InvalidDataException">A timed record selects a spritemap outside the compiled visual catalog or binding validation fails.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new Dictionary<string, string>();
         var legalSprites = ProjectileSpriteDefinitions.NativePointers.ToArray().ToHashSet();
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)

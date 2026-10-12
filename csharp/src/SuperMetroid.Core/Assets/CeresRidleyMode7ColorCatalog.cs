@@ -33,7 +33,7 @@ public sealed class CeresRidleyMode7ColorCatalog
     /// <exception cref="ArgumentOutOfRangeException">The zoom row is outside 0..8.</exception>
     public void Apply(SnesCgram cgram, int zoomHighByte)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         _ = Resolve(zoomHighByte, 0);
         for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
             new RidleyPalettes(cgram).CeresMode7Zoom.Write(color, rows.Resolve(zoomHighByte, color));
@@ -46,7 +46,7 @@ public sealed class CeresRidleyMode7ColorCatalog
     {
         FixedGridShape zoomShape = new(CeresRidleyPaletteRomData.Mode7ZoomRowCount,
             CeresRidleyPaletteRomData.Mode7ZoomColorCount);
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CeresRidleyMode7ColorDocument document;
         try
         {

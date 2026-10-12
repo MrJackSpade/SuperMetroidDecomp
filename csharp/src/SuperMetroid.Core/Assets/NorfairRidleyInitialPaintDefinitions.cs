@@ -21,7 +21,7 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
 
     internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
-        if (colors.Length != 32) throw new ArgumentException("Norfair Ridley initial paint requires thirty-two colors.", nameof(colors));
+        Ensure.LengthEqual(colors, 32);
         clearBlue = colors[0].Blue;
         if (colors[0] != ClearSlot) edits.Add(0, colors[0]);
         if (colors[16] != ClearSlot) edits.Add(16, colors[16]);

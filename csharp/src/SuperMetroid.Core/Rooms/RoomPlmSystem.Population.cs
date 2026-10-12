@@ -19,11 +19,11 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public int LoadRoomPopulation(PlmRoom room, RoomPlmPopulationDefinition population, RoomPlmServices services)
     {
-        ArgumentNullException.ThrowIfNull(room);
-        ArgumentNullException.ThrowIfNull(population);
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(services.Samus);
-        ArgumentNullException.ThrowIfNull(services.Bosses);
+        Ensure.NotNull(room);
+        Ensure.NotNull(population);
+        Ensure.NotNull(services);
+        Ensure.NotNull(services.Samus);
+        Ensure.NotNull(services.Bosses);
 
         // These are room-owned services used later by resident pre-instructions. They are
         // installed once, not once per family scan, so every actor in this population sees

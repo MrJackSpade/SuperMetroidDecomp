@@ -13,11 +13,11 @@ public sealed record PlmRoom
     public PlmRoom(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, SnesVram vram,
         Bank80SystemState system, AreaId areaIndex)
     {
-        Bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        Level = level ?? throw new ArgumentNullException(nameof(level));
-        Streamer = streamer ?? throw new ArgumentNullException(nameof(streamer));
-        Vram = vram ?? throw new ArgumentNullException(nameof(vram));
-        System = system ?? throw new ArgumentNullException(nameof(system));
+        Bus = Ensure.NotNull(bus);
+        Level = Ensure.NotNull(level);
+        Streamer = Ensure.NotNull(streamer);
+        Vram = Ensure.NotNull(vram);
+        System = Ensure.NotNull(system);
         AreaIndex = areaIndex;
     }
 

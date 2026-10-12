@@ -41,7 +41,7 @@ public sealed class RenderFrameSnapshot
         ReadOnlySpan<byte> brightnessPasses = default)
         : this(identity, brightnessPasses)
     {
-        ArgumentNullException.ThrowIfNull(layers);
+        Ensure.NotNull(layers);
         Layers = layers;
     }
 
@@ -53,7 +53,7 @@ public sealed class RenderFrameSnapshot
         ReadOnlySpan<byte> brightnessPasses = default)
         : this(identity, brightnessPasses)
     {
-        ArgumentNullException.ThrowIfNull(mode7);
+        Ensure.NotNull(mode7);
         Mode7 = mode7;
     }
 

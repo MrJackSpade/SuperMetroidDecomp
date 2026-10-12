@@ -27,7 +27,7 @@ public sealed class LayeredRenderSnapshot
     public LayeredRenderSnapshot(PpuMemorySnapshot memory, ReadOnlySpan<RenderLayer> layers,
         byte objectSelection, byte brightness)
     {
-        ArgumentNullException.ThrowIfNull(memory);
+        Ensure.NotNull(memory);
         if (brightness > Hardware.SnesPpuLayout.MaximumMasterBrightness) throw new ArgumentOutOfRangeException(nameof(brightness));
         // Each accepted record is sealed and owns any array data. Copy the sequence so a scene
         // cannot rearrange a queued frame's priority ladder after publication.

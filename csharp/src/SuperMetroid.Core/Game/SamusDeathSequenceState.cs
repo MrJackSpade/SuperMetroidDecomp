@@ -72,8 +72,8 @@ public sealed class SamusDeathSequenceState
         SamusState samus,
         Position16<RoomPixels> layer1)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         if (IsActive)
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
 
@@ -131,10 +131,10 @@ public sealed class SamusDeathSequenceState
         VramWriteQueue vramWrites,
         SamusDeathPaletteArtworkCatalog? artwork = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(vramWrites);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(vramWrites);
         if (!IsActive)
             throw new InvalidOperationException("Samus death sequence has not begun.");
 
@@ -236,8 +236,8 @@ public sealed class SamusDeathSequenceState
     public void DrawExplosion(ISnesAddressSpace bus, OamBuffer oam,
         SamusSpritemapArtworkCatalog? artwork = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
         if (ExplosionSpritemapIndex is not ushort spritemap)
             return;
         oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -9,7 +10,7 @@ internal static class LibraryBackgroundSourceInventory
 {
     public static IReadOnlyList<LibraryBackgroundSource> Scan(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var sources = new List<LibraryBackgroundSource>();
         foreach (ushort listPointer in RoomStateDefinitions.All
             .Select(state => state.BackgroundDataPointer)

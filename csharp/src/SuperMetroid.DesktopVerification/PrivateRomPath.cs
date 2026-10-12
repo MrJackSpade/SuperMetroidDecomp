@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 /// <summary>Locates the user's private cartridge image without requiring debug arguments.</summary>
 static class PrivateRomPath
 {
@@ -11,7 +12,7 @@ static class PrivateRomPath
 
     public static string Resolve(string[] arguments)
     {
-        ArgumentNullException.ThrowIfNull(arguments);
+        Ensure.NotNull(arguments);
         return arguments.Length switch
         {
             0 => FindAutomatically(),

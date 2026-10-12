@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -42,7 +43,7 @@ public static class CreditsPresentationExtractor
 
     internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte[] source = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CreditsPresentationDefinitions.Native.Tilemap);
         if (source.Length < CreditsPresentationDefinitions.Native.TilemapBytes)
         {

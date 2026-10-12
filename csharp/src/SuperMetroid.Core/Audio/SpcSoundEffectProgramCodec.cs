@@ -97,7 +97,7 @@ internal static class SpcSoundEffectProgramCodec
 
     internal static byte[] Encode(AudioSoundProgramMetadata program)
     {
-        ArgumentNullException.ThrowIfNull(program);
+        Ensure.NotNull(program);
         if (program.Instructions is null)
             throw new InvalidDataException($"SPC sound program '{program.Id}' has no instruction list.");
         var bytes = new List<byte>(program.ByteCapacity);

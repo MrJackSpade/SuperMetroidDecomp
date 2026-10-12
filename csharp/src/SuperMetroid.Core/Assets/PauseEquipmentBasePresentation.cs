@@ -48,8 +48,7 @@ public sealed class PauseEquipmentBasePresentation
     public void RebindBaseInto(Span<byte> current,
         PauseEquipmentLabelPresentation? equipmentLabels = null)
     {
-        if (current.Length != PauseEquipmentBaseDefinitions.Cells * sizeof(ushort))
-            throw new ArgumentException("Equipment base requires a complete 32x32 tilemap.", nameof(current));
+        Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
             bool liveOwned = equipmentLabels is null
@@ -74,8 +73,7 @@ public sealed class PauseEquipmentBasePresentation
     /// </summary>
     public void RebindBeforeInventoryRefreshInto(Span<byte> current)
     {
-        if (current.Length != PauseEquipmentBaseDefinitions.Cells * sizeof(ushort))
-            throw new ArgumentException("Equipment base requires a complete 32x32 tilemap.", nameof(current));
+        Ensure.LengthEqual(current, PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
             if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell)) continue;

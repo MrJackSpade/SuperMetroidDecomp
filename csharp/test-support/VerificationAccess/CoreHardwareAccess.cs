@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
@@ -152,7 +153,7 @@ internal static class SnesVramAccess
             ushort dmaSize,
             ushort encodedDestination)
         {
-            ArgumentNullException.ThrowIfNull(memory);
+            Ensure.NotNull(memory);
             if ((uint)sourceAddress > 0x00ff_ffff)
                 throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
 

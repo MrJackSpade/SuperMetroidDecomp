@@ -367,8 +367,8 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         GrapplePendingConnection pending)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
 
         samus.Pose = pending.Pose;

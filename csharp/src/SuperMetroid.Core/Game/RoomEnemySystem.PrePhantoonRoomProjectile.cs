@@ -16,7 +16,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile(BackgroundScrollState backgroundScroll)
     {
-        ArgumentNullException.ThrowIfNull(backgroundScroll);
+        Ensure.NotNull(backgroundScroll);
         EnsureLoaded();
         RoomEnemyProjectileSlot projectile = AllocateEnemyProjectile() ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile found no free slot in a freshly cleared pool.");

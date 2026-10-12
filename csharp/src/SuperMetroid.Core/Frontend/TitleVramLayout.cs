@@ -28,8 +28,7 @@ public readonly struct TitleVram(SnesVram vram)
     /// <summary>Writes one Baby Metroid character page through the Mode 7 high-byte port, keeping the map bytes.</summary>
     public void LoadBabyMetroidPage(ReadOnlySpan<byte> pixels)
     {
-        if (pixels.Length != TitleVramLayout.BabyMetroidCharacters.Count)
-            throw new ArgumentException($"A Baby Metroid page holds {TitleVramLayout.BabyMetroidCharacters.Count} pixels.", nameof(pixels));
+        Ensure.LengthEqual(pixels, TitleVramLayout.BabyMetroidCharacters.Count);
         new Mode7Vram(vram).LoadCharacters(pixels, TitleVramLayout.BabyMetroidCharacters.Offset);
     }
 }

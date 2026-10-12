@@ -39,9 +39,9 @@ public static class SamusGroundedMovement
         RoomPlmSystem? plms = null,
         bool publishDoorSideEffects = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!SamusState.IsForwardFacingPose(samus.Pose))
         {
             throw new InvalidOperationException(
@@ -77,9 +77,9 @@ public static class SamusGroundedMovement
         ushort controllerInput,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!SamusState.IsRightFacingStandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
@@ -124,9 +124,9 @@ public static class SamusGroundedMovement
         ushort controllerInput,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!SamusState.IsLeftFacingStandingPose(samus.Pose))
         {
             throw new InvalidOperationException(
@@ -178,9 +178,9 @@ public static class SamusGroundedMovement
         ushort controllerInput = 0,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!SamusState.IsRightFacingRunningPose(samus.Pose))
         {
             throw new InvalidOperationException(
@@ -239,9 +239,9 @@ public static class SamusGroundedMovement
         ushort controllerInput = 0,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!SamusState.IsLeftFacingRunningPose(samus.Pose))
         {
             throw new InvalidOperationException(
@@ -290,9 +290,9 @@ public static class SamusGroundedMovement
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         bool turnsLeft = SamusState.IsRightToLeftGroundTurnPose(samus.Pose) ||
             SamusState.IsMoonwalkTurnJumpLeftPose(samus.Pose);
         bool turnsRight = SamusState.IsLeftToRightGroundTurnPose(samus.Pose) ||
@@ -371,9 +371,9 @@ public static class SamusGroundedMovement
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!SamusState.IsMoonwalkingPose(samus.Pose) ||
             samus.ReadMovementType(bus) != SamusMovementType.Moonwalking)
         {
@@ -426,9 +426,9 @@ public static class SamusGroundedMovement
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!SamusState.IsRanIntoWallPose(samus.Pose) ||
             samus.ReadMovementType(bus) != SamusMovementType.RanIntoWall)
         {
@@ -478,9 +478,9 @@ public static class SamusGroundedMovement
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         // Do not duplicate the pose list here. The predicates are the single audited definition
         // of movement type zero's landing family and deliberately include firing landings `$E6`
         // and `$E7`. Keeping dispatch and this defensive guard on the same predicates prevents a
@@ -526,9 +526,9 @@ public static class SamusGroundedMovement
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (samus.ReadMovementType(bus) != SamusMovementType.Knockback)
         {
             throw new InvalidOperationException(

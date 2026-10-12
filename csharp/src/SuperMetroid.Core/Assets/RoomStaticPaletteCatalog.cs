@@ -13,7 +13,7 @@ public sealed class RoomStaticPaletteCatalog
     /// <exception cref="InvalidDataException">A required graphics-set palette is missing or null.</exception>
     public RoomStaticPaletteCatalog(IReadOnlyDictionary<int, RoomStaticPalette> bySource)
     {
-        ArgumentNullException.ThrowIfNull(bySource);
+        Ensure.NotNull(bySource);
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             int source = RoomTilesetDefinitions.Get(graphicsSet).PaletteAddress;

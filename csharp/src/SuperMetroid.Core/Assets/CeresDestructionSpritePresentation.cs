@@ -41,7 +41,7 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
     /// <returns>Selected compiled frames, sharing calculated stock compositions only when all supplied visual fields match.</returns>
     public static CeresDestructionSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CeresDestructionSpriteDocument document;
         try
         {
@@ -86,7 +86,7 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
     /// <param name="document">Versioned selected backdrop and blast compositions to serialize.</param>
     public static void Write(Stream json, CeresDestructionSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

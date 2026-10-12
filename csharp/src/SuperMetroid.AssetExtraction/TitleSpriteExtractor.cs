@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -11,7 +12,7 @@ internal static class TitleSpriteExtractor
 {
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var pointers = new HashSet<ushort>
         {
             TitleSequenceRomData.Sprites.SuperMetroidLogo,

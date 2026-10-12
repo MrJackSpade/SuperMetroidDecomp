@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -1076,8 +1077,8 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         /// </summary>
         internal void StepNeckMovement(ISnesAddressSpace bus, SamusState samus)
         {
-            ArgumentNullException.ThrowIfNull(bus);
-            ArgumentNullException.ThrowIfNull(samus);
+            Ensure.NotNull(bus);
+            Ensure.NotNull(samus);
             if (self.NeckMovementEnabled != 0)
             {
                 ushort lowerAngle = self.LowerNeckAngle;
@@ -1319,9 +1320,9 @@ internal static class RoomEnemySystemAccess
             SamusProjectileSystem projectiles,
             SamusBombProjectileSystem sharedProjectiles)
         {
-            ArgumentNullException.ThrowIfNull(bus);
-            ArgumentNullException.ThrowIfNull(projectiles);
-            ArgumentNullException.ThrowIfNull(sharedProjectiles);
+            Ensure.NotNull(bus);
+            Ensure.NotNull(projectiles);
+            Ensure.NotNull(sharedProjectiles);
             var kraid = PrivateState.Field<KraidEnemyState?>(self, "<Kraid>k__BackingField");
             RoomEnemySlot body = self.Slots[0];
             if (kraid is null || body.EnemyDefinitionPointer != EnemyDefinitionId.Kraid ||
@@ -1566,7 +1567,7 @@ internal static class RoomEnemySystemAccess
         /// </summary>
         internal void DrawEnemyProjectiles(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false)
         {
-            ArgumentNullException.ThrowIfNull(oam);
+            Ensure.NotNull(oam);
             PrivateState.Invoke(self, "EnsureLoaded");
 
             PrivateState.Invoke(self, "DrawRoomSpriteObjects", oam, camera);
@@ -1654,7 +1655,7 @@ internal static class RoomLayer3FxStateAccess
         internal void LoadDefinition(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram,
             RoomFxRecordDefinition definition, ushort randomNumber)
         {
-            ArgumentNullException.ThrowIfNull(definition);
+            Ensure.NotNull(definition);
             PrivateState.Invoke(self, "LoadCore", (ISnesAddressSpace)(bus), (SnesVram)(vram), (SnesCgram)(cgram), new RoomFxLoadSource
             {
                 FxPointer = definition.Pointer,
@@ -1707,7 +1708,7 @@ internal static class RoomPaletteFxSystemAccess
         internal void LoadDefinition(ISnesAddressSpace bus, RoomFxRecordDefinition definition,
             AreaId area, ushort equippedItems, bool areaMiniBossDefeated)
         {
-            ArgumentNullException.ThrowIfNull(definition);
+            Ensure.NotNull(definition);
             PrivateState.Invoke(self, "LoadRoomCore", (ISnesAddressSpace)(bus), (ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (AreaId)(area), (ushort)(equippedItems), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
         }
     }
@@ -1769,8 +1770,8 @@ internal static class SamusAerialMovementAccess
         /// </summary>
         internal static void InitializeDryAirJump(ISnesAddressSpace bus, SamusState samus)
         {
-            ArgumentNullException.ThrowIfNull(bus);
-            ArgumentNullException.ThrowIfNull(samus);
+            Ensure.NotNull(bus);
+            Ensure.NotNull(samus);
 
             (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
                 SamusVerticalMotionDefinitions.Launch(SamusLiquidMedium.Air, highJump: false, wallJump: false);
@@ -1786,8 +1787,8 @@ internal static class SamusAerialMovementAccess
         /// </summary>
         internal static void ConfigureDryAirGravity(ISnesAddressSpace bus, SamusState samus)
         {
-            ArgumentNullException.ThrowIfNull(bus);
-            ArgumentNullException.ThrowIfNull(samus);
+            Ensure.NotNull(bus);
+            Ensure.NotNull(samus);
             (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
                 SamusVerticalMotionDefinitions.Gravity(SamusLiquidMedium.Air);
         }
@@ -1905,8 +1906,8 @@ internal static class SamusGrappleMovementAccess
             short angularVelocity,
             bool faceRight)
         {
-            ArgumentNullException.ThrowIfNull(bus);
-            ArgumentNullException.ThrowIfNull(samus);
+            Ensure.NotNull(bus);
+            Ensure.NotNull(samus);
             if (ropeLength is < 8 or > 63)
                 throw new ArgumentOutOfRangeException(nameof(ropeLength), "Retail connected rope length is 8..63 pixels.");
             if (angularVelocity is < -SamusGrappleRomData.Physics.MaximumAngularVelocity or
@@ -1981,7 +1982,7 @@ internal static class SamusLiquidPhysicsStateAccess
         /// </summary>
         internal void InitializeRememberedMedium(SamusState samus)
         {
-            ArgumentNullException.ThrowIfNull(samus);
+            Ensure.NotNull(samus);
             ushort bottom = samus.Kinematics.BottomBoundary;
             PrivateState.SetProperty(self, "LiquidPhysicsType", self.FxType switch
             {
@@ -2091,8 +2092,8 @@ internal static class SamusShinesparkStateAccess
             SamusState samus,
             Position16<RoomPixels> layer1)
         {
-            ArgumentNullException.ThrowIfNull(bus);
-            ArgumentNullException.ThrowIfNull(samus);
+            Ensure.NotNull(bus);
+            Ensure.NotNull(samus);
             PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), layer1, PrivateState.Field<object>(self, "_firstReleasedCrashEcho"));
             PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), layer1, PrivateState.Field<object>(self, "_secondReleasedCrashEcho"));
         }

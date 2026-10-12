@@ -7,7 +7,7 @@ public sealed partial class RoomPlmSystem
     /// <summary>Runs $8F:C8D3's hardcoded spawn and $84:B8DC's scroll setup.</summary>
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
-        ArgumentNullException.ThrowIfNull(scrolls);
+        Ensure.NotNull(scrolls);
         for (int index = _slots.Length - 1; index >= 0; index--)
         {
             PlmSlot slot = _slots[index];

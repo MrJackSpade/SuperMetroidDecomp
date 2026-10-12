@@ -163,7 +163,7 @@ public sealed class DemoInputState
         Action<DemoInputState, ushort>? initializer = null,
         Func<ushort, ushort>? definitionWord = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         InitializationParameter = initializationParameter;
         Func<ushort, ushort> readDefinition = definitionWord ?? throw new InvalidOperationException(
@@ -196,8 +196,8 @@ public sealed class DemoInputState
     /// </summary>
     public void Step(ISnesAddressSpace bus, IDemoInputProgram program)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(program);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(program);
         if (!Enabled || InstructionPointer == 0)
             return;
 

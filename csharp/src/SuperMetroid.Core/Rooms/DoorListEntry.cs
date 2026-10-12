@@ -31,7 +31,7 @@ public readonly record struct DoorListEntry
     /// <summary>A physical door header.</summary>
     public static DoorListEntry Physical(CartridgeDoorHeader door)
     {
-        ArgumentNullException.ThrowIfNull(door);
+        Ensure.NotNull(door);
         return new(door.Pointer, door);
     }
 

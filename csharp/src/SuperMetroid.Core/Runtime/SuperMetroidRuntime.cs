@@ -41,7 +41,7 @@ public sealed partial class SuperMetroidRuntime
     /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
     public SuperMetroidRuntime(ISnesAddressSpace addressSpace, HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt = null)
     {
-        _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
+        _addressSpace = Ensure.NotNull(addressSpace);
         InitialPaletteArt = initialPaletteArt;
         GrantAllEquipmentEnabled = overrides.GrantAllEquipment;
         UnlockTourianEnabled = overrides.UnlockTourian;
@@ -619,7 +619,7 @@ public sealed partial class SuperMetroidRuntime
         IReadOnlyList<BackgroundUpdateRequest> requests,
         string owner)
     {
-        ArgumentNullException.ThrowIfNull(requests);
+        Ensure.NotNull(requests);
         ArgumentException.ThrowIfNullOrWhiteSpace(owner);
         if (BackgroundStreamer is null)
             throw new InvalidOperationException($"{owner} has no active background streamer.");
@@ -1033,7 +1033,7 @@ public sealed partial class SuperMetroidRuntime
     /// <param name="request">The state policy, audio calls and post-NMI host work for this frame.</param>
     public RuntimeFrameResult StepFrame(ushort controller1Input, RuntimeFrameRequest request)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        Ensure.NotNull(request);
         ApplyTesterInventory();
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
             HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
@@ -3725,7 +3725,7 @@ Landed: true, HitCeiling: false);
     /// </summary>
     internal void AcceptHardwareWaitNmis(int count)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(count);
+        Ensure.AtLeastZero(count);
         if (count == 0)
             return;
         NmiLagCounter = 0;

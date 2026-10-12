@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -20,7 +21,7 @@ public static class GameOverPresentationExtractor
     /// <exception cref="InvalidDataException">The native animation differs from its compiled definitions, text escapes the 32x32 page, or presentation validation fails.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         VerifyCompiledAnimation(bus);
 
         ushort[] tilemap = new ushort[GameOverPresentationDefinitions.TilemapCellCount];

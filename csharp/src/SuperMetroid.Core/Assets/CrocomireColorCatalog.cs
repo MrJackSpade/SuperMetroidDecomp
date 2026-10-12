@@ -92,7 +92,7 @@ public sealed class CrocomireColorCatalog
     /// <returns>Selected compiled inks, preserving independent supplied edits even where stock source transfers overlap.</returns>
     public static CrocomireColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CrocomireColorDocument document;
         try
         {

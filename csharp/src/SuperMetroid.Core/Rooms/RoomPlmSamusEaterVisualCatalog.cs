@@ -40,7 +40,7 @@ public sealed class RoomPlmSamusEaterVisualCatalog
     public RoomPlmSamusEaterVisualCatalog(
         IEnumerable<RoomPlmSamusEaterVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmSamusEaterVisualEntry entry in entries)

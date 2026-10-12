@@ -92,7 +92,7 @@ public sealed partial class SuperMetroidGame
         SuperMetroidGameOptions? gameOptions,
         bool renderGameplayFrames)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
         this.renderGameplayFrames = renderGameplayFrames;
         saveRam = new SuperMetroidSaveRam(bus, mapPresentation);
@@ -1737,8 +1737,8 @@ public sealed partial class SuperMetroidGame
         SamusState samus,
         SuperMetroidSaveSlot slot)
     {
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(slot);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(slot);
         slot.ApplyTo(samus);
         samus.Missiles = 0;
         samus.MaxMissiles = 0;

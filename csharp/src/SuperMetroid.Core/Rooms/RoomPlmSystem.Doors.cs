@@ -215,7 +215,7 @@ public sealed partial class RoomPlmSystem
         RoomBlockBehavior behavior,
         SamusProjectileTypeWord projectileType)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         if (!behavior.TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation))
         {
             throw new ArgumentOutOfRangeException(

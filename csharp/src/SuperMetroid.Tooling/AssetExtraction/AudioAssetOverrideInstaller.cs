@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.AssetExtraction;
+﻿using SuperMetroid.Core;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
 /// Seeds the persistent editable-audio directory from a validated stock installation.
@@ -12,7 +13,7 @@ public static class AudioAssetOverrideInstaller
     /// <returns>The absolute override-directory path after the validated staging directory has been moved into place.</returns>
     public static string Initialize(GameInstallation installation)
     {
-        ArgumentNullException.ThrowIfNull(installation);
+        Ensure.NotNull(installation);
         _ = installation.LoadAudio();
 
         string source = Path.GetFullPath(installation.AudioDirectory);

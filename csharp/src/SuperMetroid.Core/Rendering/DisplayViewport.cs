@@ -14,8 +14,8 @@ public readonly record struct DisplayViewport(Offset16<DisplayPixels> Offset, Ex
     [SpatialComponents("Host boundary: window-system APIs report the client size as two signed integers.")]
     public static Extent16<DisplayPixels> ClientSize(int width, int height)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(width);
-        ArgumentOutOfRangeException.ThrowIfNegative(height);
+        Ensure.AtLeastZero(width);
+        Ensure.AtLeastZero(height);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(width, ushort.MaxValue);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(height, ushort.MaxValue);
         return new((ushort)width, (ushort)height);

@@ -14,8 +14,8 @@ public readonly struct WramByte
     /// <summary>Binds a one-byte WRAM <paramref name="cell"/>.</summary>
     public WramByte(ISnesMemoryBus bus, CpuBusCell cell)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        ArgumentNullException.ThrowIfNull(cell);
+        this.bus = Ensure.NotNull(bus);
+        Ensure.NotNull(cell);
         cell.Require(CpuBusRegion.WorkRam, 1);
         address = cell.Address;
     }
@@ -40,8 +40,8 @@ public readonly struct WramWord
     /// <summary>Binds a two-byte WRAM <paramref name="cell"/>.</summary>
     public WramWord(ISnesMemoryBus bus, CpuBusCell cell)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        ArgumentNullException.ThrowIfNull(cell);
+        this.bus = Ensure.NotNull(bus);
+        Ensure.NotNull(cell);
         cell.Require(CpuBusRegion.WorkRam, 2);
         address = cell.Address;
     }
@@ -80,8 +80,8 @@ public readonly struct WramBytes
     /// <summary>Binds a WRAM range <paramref name="cell"/>.</summary>
     public WramBytes(ISnesMemoryBus bus, CpuBusCell cell)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        ArgumentNullException.ThrowIfNull(cell);
+        this.bus = Ensure.NotNull(bus);
+        Ensure.NotNull(cell);
         cell.Require(CpuBusRegion.WorkRam, cell.ByteCount);
         address = cell.Address;
         Length = cell.ByteCount;
@@ -99,8 +99,7 @@ public readonly struct WramBytes
     /// <summary>Writes <paramref name="bytes"/> over the whole range, in address order.</summary>
     public void Write(ReadOnlySpan<byte> bytes)
     {
-        if (bytes.Length != Length)
-            throw new ArgumentException($"Expected {Length} bytes, received {bytes.Length}.", nameof(bytes));
+        Ensure.LengthEqual(bytes, Length);
         for (int index = 0; index < bytes.Length; index++)
             Write(index, bytes[index]);
     }
@@ -126,8 +125,8 @@ public readonly struct WramWords
     /// <summary>Binds a WRAM word-table <paramref name="cell"/> (an even byte count).</summary>
     public WramWords(ISnesMemoryBus bus, CpuBusCell cell)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        ArgumentNullException.ThrowIfNull(cell);
+        this.bus = Ensure.NotNull(bus);
+        Ensure.NotNull(cell);
         if (cell.ByteCount % 2 != 0)
             throw new ArgumentException($"{cell.Name} holds {cell.ByteCount} bytes, not whole words.", nameof(cell));
         cell.Require(CpuBusRegion.WorkRam, cell.ByteCount);
@@ -163,8 +162,8 @@ public readonly struct SramBytes
     /// <summary>Binds an SRAM range <paramref name="cell"/>.</summary>
     public SramBytes(ISnesMemoryBus bus, CpuBusCell cell)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        ArgumentNullException.ThrowIfNull(cell);
+        this.bus = Ensure.NotNull(bus);
+        Ensure.NotNull(cell);
         cell.Require(CpuBusRegion.SaveRam, cell.ByteCount);
         address = cell.Address;
         Length = cell.ByteCount;

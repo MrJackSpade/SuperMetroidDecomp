@@ -26,7 +26,7 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
     public RoomPlmMaridiaElevatubeVisualCatalog(
         IEnumerable<RoomPlmMaridiaElevatubeVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         RoomPlmMaridiaElevatubeVisualEntry[] selected = entries.ToArray();
         if (selected.Length != 1 || selected[0] is null ||
             !MaridiaElevatubePlmDefinitions.TryGetDrawByVisualId(

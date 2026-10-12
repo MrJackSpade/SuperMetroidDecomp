@@ -13,7 +13,7 @@ public static class SoftwareFrameSnapshotRenderer
     /// </summary>
     public static Rgba32[] Render(RenderFrameSnapshot frame, Rgba32[]? gameplayOutputBuffer = null)
     {
-        ArgumentNullException.ThrowIfNull(frame);
+        Ensure.NotNull(frame);
         if (gameplayOutputBuffer is not null && gameplayOutputBuffer.Length != frame.Size.X * frame.Size.Y)
             throw new ArgumentException("Unexpected output buffer dimensions.", nameof(gameplayOutputBuffer));
         Rgba32[] pixels;

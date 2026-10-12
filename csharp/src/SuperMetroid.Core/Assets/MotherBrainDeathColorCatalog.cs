@@ -80,7 +80,7 @@ public sealed class MotherBrainDeathColorCatalog
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, incorrect image dimensions, null colors, or channels outside 0..31.</exception>
     public static MotherBrainDeathColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         MotherBrainDeathColorDocument document;
         try
         {

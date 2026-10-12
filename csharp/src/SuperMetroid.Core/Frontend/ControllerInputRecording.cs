@@ -42,7 +42,7 @@ public sealed record ControllerInputRecording
     /// <summary>Writes the compact, versioned recording to a stream.</summary>
     public void Write(Stream destination)
     {
-        ArgumentNullException.ThrowIfNull(destination);
+        Ensure.NotNull(destination);
         Validate();
 
         ControllerInputRecordingVersion formatVersion = ContentIdentity is null
@@ -125,7 +125,7 @@ public sealed record ControllerInputRecording
     /// <summary>Reads and strictly validates one complete recording.</summary>
     public static ControllerInputRecording Read(Stream source)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         Span<byte> prefix = stackalloc byte[8 + sizeof(uint)];
         source.ReadExactly(prefix);
         if (!prefix[..ControllerInputRecordingFormat.Magic.Length].SequenceEqual(
@@ -266,10 +266,10 @@ public sealed record ControllerInputRecording
 
     private void Validate()
     {
-        ArgumentNullException.ThrowIfNull(RomSha256);
-        ArgumentNullException.ThrowIfNull(InitialSaveRam);
-        ArgumentNullException.ThrowIfNull(GameOptions);
-        ArgumentNullException.ThrowIfNull(ControllerInputs);
+        Ensure.NotNull(RomSha256);
+        Ensure.NotNull(InitialSaveRam);
+        Ensure.NotNull(GameOptions);
+        Ensure.NotNull(ControllerInputs);
         if (RomSha256.Length != ControllerInputRecordingFormat.DigestByteCount)
             throw new InvalidDataException("A controller recording requires a 32-byte ROM digest.");
         if (ContentIdentity is { } contentIdentity)

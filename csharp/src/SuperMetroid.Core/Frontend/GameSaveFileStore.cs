@@ -24,7 +24,7 @@ public static class GameSaveFileStore
         string jsonPath,
         string legacySramPath, AreaMapPresentationCatalog maps)
     {
-        ArgumentNullException.ThrowIfNull(addressSpace);
+        Ensure.NotNull(addressSpace);
         ArgumentException.ThrowIfNullOrWhiteSpace(jsonPath);
         ArgumentException.ThrowIfNullOrWhiteSpace(legacySramPath);
         if (File.Exists(jsonPath))
@@ -59,7 +59,7 @@ public static class GameSaveFileStore
     /// <remarks>Writes BOM-free UTF-8 to a unique adjacent .tmp file, flushes it to disk, then replaces or moves it into place. Remaining temporary files are deleted in a finally block; filesystem errors propagate.</remarks>
     public static void WriteAtomic(SuperMetroidAddressSpace addressSpace, string jsonPath, AreaMapPresentationCatalog maps)
     {
-        ArgumentNullException.ThrowIfNull(addressSpace);
+        Ensure.NotNull(addressSpace);
         ArgumentException.ThrowIfNullOrWhiteSpace(jsonPath);
         string fullPath = Path.GetFullPath(jsonPath);
         string? directory = Path.GetDirectoryName(fullPath);

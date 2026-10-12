@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -14,7 +15,7 @@ internal static class CeresFlightArtworkExtractor
     [PpuLayoutBoundary("codec: native 512-byte CGRAM image of the Ceres flight palette")]
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte[] characters = Read(CeresFlightRomData.Assets.Mode7Characters,
             CeresFlightArtworkFormat.Mode7ByteCount, "Mode-7 characters");
         byte[] objectCharacters = Read(CeresFlightRomData.Assets.ObjectCharacters,

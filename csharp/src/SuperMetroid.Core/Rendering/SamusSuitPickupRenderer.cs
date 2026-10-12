@@ -12,7 +12,7 @@ public static class SamusSuitPickupRenderer
     /// <summary>Captures the live window once; later rendering does not read or advance the pickup.</summary>
     public static ScanlineColorAddRenderLayer? Capture(SamusSuitPickupState pickup)
     {
-        ArgumentNullException.ThrowIfNull(pickup);
+        Ensure.NotNull(pickup);
         if (!pickup.IsActive) return null;
         var windows = new ColorAddWindow[Height];
         byte red = ExpandFiveBit(pickup.FixedColorRed);
@@ -37,9 +37,8 @@ public static class SamusSuitPickupRenderer
     /// </remarks>
     public static void Composite(Span<Rgba32> frame, SamusSuitPickupState pickup)
     {
-        ArgumentNullException.ThrowIfNull(pickup);
-        if (frame.Length != Width * Height)
-            throw new ArgumentException("Suit-pickup compositor requires one 256x224 frame.", nameof(frame));
+        Ensure.NotNull(pickup);
+        Ensure.LengthEqual(frame, Width * Height);
         if (!pickup.IsActive)
             return;
 

@@ -60,7 +60,7 @@ public sealed class CeresDestructionActorLayout
     /// <exception cref="InvalidDataException">The JSON, schema version, actor count/order/identity, or coordinate range is invalid.</exception>
     public static CeresDestructionActorLayout Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CeresDestructionActorLayoutDocument document;
         try
         {
@@ -97,7 +97,7 @@ public sealed class CeresDestructionActorLayout
     /// <exception cref="InvalidDataException">The serialized document fails layout validation.</exception>
     public static void Write(Stream json, CeresDestructionActorLayoutDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

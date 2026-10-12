@@ -65,7 +65,7 @@ internal static class KraidMouthHitboxes
         ISnesAddressSpace bus,
         ushort pointer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (IsDefined(pointer))
         {
             (short left, short top, _, short bottom) = Resolve(pointer);

@@ -54,11 +54,11 @@ internal sealed partial class PauseMenuState
 
     public PauseMenuState(ISnesAddressSpace bus, PauseMenuEntry entry)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         this.mapPresentation = entry.MapPresentation ?? throw new InvalidOperationException(
             "Pause menu requires installed map and equipment presentation assets.");
-        this.samus = entry.Samus ?? throw new ArgumentNullException(nameof(entry.Samus));
-        this.system = entry.System ?? throw new ArgumentNullException(nameof(entry.System));
+        this.samus = Ensure.NotNull(entry.Samus);
+        this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
         mapArrows = new FileSelectMapAnimations(bus, entry.MapPresentation.Arrows);
         paletteAnimation = new MapPaletteAnimation(bus);

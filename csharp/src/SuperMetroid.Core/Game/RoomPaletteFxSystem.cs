@@ -57,7 +57,7 @@ public sealed class RoomPaletteFxSystem
         ushort equippedItems,
         bool areaMiniBossDefeated = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         Spawn(definition, equippedItems, areaMiniBossDefeated);
         if (!IsDefinitionActive(definition))
         {
@@ -83,7 +83,7 @@ public sealed class RoomPaletteFxSystem
         AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         foreach (PaletteFxSlot slot in slots)
             slot.Clear();
         soundRequests.Clear();
@@ -122,9 +122,9 @@ public sealed class RoomPaletteFxSystem
     public void Step(ISnesAddressSpace bus, SnesCgram cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
         SamusPowerBombExplosionState? powerBomb = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(colors);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(colors);
         audioPowerBomb = powerBomb;
 
         // PaletteFXObject_Handler owns a new publication window on every game frame.

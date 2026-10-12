@@ -30,6 +30,7 @@ internal static partial class Program
             VerifyParameterListAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();
+            VerifyEnsureCallsAndCodeFix();
             VerifyPaletteFxDependencyContract();
             Console.WriteLine("Ensure API, analyzer and palette-FX dependency checks passed.");
             return 0;

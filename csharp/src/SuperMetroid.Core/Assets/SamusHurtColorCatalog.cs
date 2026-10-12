@@ -53,7 +53,7 @@ public sealed class SamusHurtColorCatalog
     /// <exception cref="InvalidDataException">The JSON is malformed, null, has duplicate or unknown properties, uses an unsupported version, or does not supply two sixteen-color palettes with RGB channels from zero through 31.</exception>
     public static SamusHurtColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         SamusHurtColorDocument document;
         try
         {

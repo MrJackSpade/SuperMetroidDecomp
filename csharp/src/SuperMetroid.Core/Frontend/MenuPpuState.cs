@@ -19,7 +19,7 @@ internal sealed class MenuPpuState
     public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? sprites = null,
         bool loadInitialBackground = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         BindWorldArtwork(worldArtwork);
         BindMapTiles(mapTiles);
         BindMapSprites(sprites);
@@ -65,8 +65,7 @@ internal sealed class MenuPpuState
 
     public void LoadBg1(ReadOnlySpan<byte> tilemapBytes)
     {
-        if (tilemapBytes.Length != 0x0800)
-            throw new ArgumentException("Menu BG1 must contain one 32x32 two-byte tilemap.", nameof(tilemapBytes));
+        Ensure.LengthEqual(tilemapBytes, 0x0800);
         new MenuVram(Vram).Bg1Tilemap.Load(tilemapBytes);
     }
 }

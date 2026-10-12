@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -65,7 +66,7 @@ public sealed partial class PlayableGameControl : UserControl
         GitHubErrorReporter? errorReporter = null,
         string? audioDirectory = null)
     {
-        ArgumentNullException.ThrowIfNull(installation);
+        Ensure.NotNull(installation);
         installedAudioDirectory = audioDirectory;
         playerDataDirectory = Path.GetFullPath(installation.Root);
         // The installed save basename is stable even when the private import copy
@@ -73,7 +74,7 @@ public sealed partial class PlayableGameControl : UserControl
         string saveBase = Path.Combine(playerDataDirectory, GameInstallationLayout.RomFileName);
         saveFilePath = Path.ChangeExtension(saveBase, GameSaveJsonFormat.FileExtension);
         legacySaveRamPath = Path.ChangeExtension(saveBase, ".srm");
-        this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
+        this.gameOptions = Ensure.NotNull(gameOptions);
         this.replay = replay;
         this.errorReporter = errorReporter;
         Dock = DockStyle.Fill;

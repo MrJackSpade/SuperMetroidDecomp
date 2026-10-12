@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
@@ -15,7 +16,7 @@ public static class CartridgeRoomStateImporter
     /// <returns>The decoded definition retaining its native state pointer; no room selection or runtime setup is performed.</returns>
     public static CartridgeRoomState Load(ISnesAddressSpace bus, ushort statePointer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int address = 0x8f0000 | statePointer;
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         byte Byte(int offset) => cartridge.ReadCartridgeByte(address + offset);

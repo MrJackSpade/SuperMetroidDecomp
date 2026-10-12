@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 
 /// <summary>
@@ -19,8 +20,8 @@ internal sealed class SyntheticCartridge : ISnesAddressSpace, IImportCartridgeSo
     /// <param name="write">The failure for any write.</param>
     internal SyntheticCartridge(Func<int, Exception> undeclaredRead, Func<int, Exception> write)
     {
-        this.undeclaredRead = undeclaredRead ?? throw new ArgumentNullException(nameof(undeclaredRead));
-        this.write = write ?? throw new ArgumentNullException(nameof(write));
+        this.undeclaredRead = Ensure.NotNull(undeclaredRead);
+        this.write = Ensure.NotNull(write);
     }
 
     /// <summary>Every served read's CPU address, in order.</summary>
@@ -40,7 +41,7 @@ internal sealed class SyntheticCartridge : ISnesAddressSpace, IImportCartridgeSo
     internal void DeclareZero(int start, int count) => DeclareZero(address => address >= start && address < start + count);
 
     /// <summary>Declares every address <paramref name="match"/> selects readable as zero.</summary>
-    internal void DeclareZero(Func<int, bool> match) => zeroFilled.Add(match ?? throw new ArgumentNullException(nameof(match)));
+    internal void DeclareZero(Func<int, bool> match) => zeroFilled.Add(Ensure.NotNull(match));
 
     /// <inheritdoc />
     public byte ReadCartridgeByte(int cpuAddress)

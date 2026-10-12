@@ -671,7 +671,7 @@ internal static class SamusAnimationDelayDefinitions
     /// <summary>Read an immutable delay/command byte, retaining low-bank mutable aliases.</summary>
     internal static byte ReadAnimationByte(ISnesAddressSpace bus, ushort listPointer, ushort byteIndex)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
         if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)
             return SamusAnimationDelayPrograms.ByteAt(address & ushort.MaxValue);

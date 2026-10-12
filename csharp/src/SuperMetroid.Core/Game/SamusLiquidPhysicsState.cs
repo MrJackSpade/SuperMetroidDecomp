@@ -155,7 +155,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// </summary>
     public SamusLiquidMedium DetermineMovementMedium(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return SamusLiquidMedium.Air;
         // Samus_GetBottom_R18 samples the current pose definition, even before the next
@@ -170,7 +170,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// </summary>
     public bool IsTopBoundarySubmerged(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         return DetermineRawMediumAtBoundary(samus.Kinematics.TopBoundary) != SamusLiquidMedium.Air;
     }
 
@@ -190,7 +190,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// </remarks>
     public bool IsBottomBoundarySubmerged(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         return DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) != SamusLiquidMedium.Air;
     }
 
@@ -207,7 +207,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// </remarks>
     public bool DetermineGrappleSubmersion(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         return !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
             FxType != RoomFxType.None &&
             IsBelowSurface(FxYPosition, samus.Kinematics.BottomBoundary);
@@ -219,7 +219,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// </summary>
     public ushort DeterminePoseChangeAnimationBuffer(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return samus.XSpeedDivisor;
 
@@ -247,8 +247,8 @@ public sealed partial class SamusLiquidPhysicsState
         Bank80SystemState? system = null,
         bool beginSoundRequestFrame = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         // Direct verifier/debugger calls begin a publication window here. The full runtime
         // begins it before movement and passes false, preserving collision sounds queued by
@@ -370,8 +370,8 @@ public sealed partial class SamusLiquidPhysicsState
         ushort impactYSpeed,
         ushort impactYSubspeed)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         // `$91:F046-$F074` ends the spin-loop sound separately from the impact. The test is
         // on PREVIOUS movement type and pose because landing selection has not run yet.
@@ -546,7 +546,7 @@ public sealed partial class SamusLiquidPhysicsState
     /// </summary>
     public void ApplyPeriodicDamage(SamusState samus, bool timeIsFrozen)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (timeIsFrozen)
         {
             PeriodicSubDamage = 0;

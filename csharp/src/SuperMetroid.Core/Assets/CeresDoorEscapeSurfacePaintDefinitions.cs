@@ -18,7 +18,7 @@ internal sealed class CeresDoorEscapeSurfacePaintDefinitions
 
     internal CeresDoorEscapeSurfacePaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
-        if (colors.Length != 8) throw new ArgumentException("Escape surface requires eight colors.", nameof(colors));
+        Ensure.LengthEqual(colors, 8);
         highlightAndEdgeLevels = new int[4];
         for (int index = 0; index < highlightAndEdgeLevels.Length; index++) highlightAndEdgeLevels[index] = colors[index].Red;
         bevelPeak = colors[4].Red;

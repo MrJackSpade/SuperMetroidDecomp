@@ -10,6 +10,11 @@ public static partial class Ensure
         [CallerArgumentExpression(nameof(value))] string? parameterName = null) =>
         value >= 0 ? value : throw new ArgumentOutOfRangeException(parameterName, value, "Value must be at least zero.");
 
+    /// <summary>Requires a value of at least zero.</summary>
+    public static long AtLeastZero(long value,
+        [CallerArgumentExpression(nameof(value))] string? parameterName = null) =>
+        value >= 0 ? value : throw new ArgumentOutOfRangeException(parameterName, value, "Value must be at least zero.");
+
     /// <summary>Requires a value between the two bounds, inclusive.</summary>
     public static int BetweenInclusive(int minimum, int maximum, int value,
         [CallerArgumentExpression(nameof(value))] string? parameterName = null)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.AssetExtraction;
@@ -41,7 +42,7 @@ public static class RoomPlmPresentationIdentity
     /// <summary>Loads the same selected art domains when inspecting an installed diagnostic artifact.</summary>
     public static IReadOnlyDictionary<string, string> Load(GameInstallation installation)
     {
-        ArgumentNullException.ThrowIfNull(installation);
+        Ensure.NotNull(installation);
         return Create(new RoomPlmVisualCatalogSet { ShotBlock = installation.LoadRoomPlmShotBlockVisuals(), GrappleBlock = installation.LoadRoomPlmGrappleBlockVisuals(), Station = installation.LoadRoomPlmStationVisuals(), BlueDoor = installation.LoadRoomPlmBlueDoorVisuals(), ColoredDoor = installation.LoadRoomPlmColoredDoorVisuals(), GreyDoor = installation.LoadRoomPlmGreyDoorVisuals(), EyeDoor = installation.LoadRoomPlmEyeDoorVisuals(), MotherBrainGlass = installation.LoadRoomPlmMotherBrainGlassVisuals(), NoobTube = installation.LoadRoomPlmNoobTubeVisuals(), DownwardGate = installation.LoadRoomPlmDownwardGateVisuals(), ElevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals(), EscapeGate = installation.LoadRoomPlmEscapeGateVisuals(), BombTorizoHand = installation.LoadRoomPlmBombTorizoHandVisuals(), DraygonCannon = installation.LoadRoomPlmDraygonCannonVisuals(), ChozoStatue = installation.LoadRoomPlmChozoStatueVisuals(), LinkedRestore = installation.LoadRoomPlmLinkedRestoreVisuals(), TourianAccess = installation.LoadRoomPlmTourianAccessVisuals(), SpeedBooster = installation.LoadRoomPlmSpeedBoosterVisuals(), MaridiaElevatube = installation.LoadRoomPlmMaridiaElevatubeVisuals(), SporeSpawnCeiling = installation.LoadRoomPlmSporeSpawnCeilingVisuals(), SamusEater = installation.LoadRoomPlmSamusEaterVisuals(), BotwoonWall = installation.LoadRoomPlmBotwoonWallVisuals(), Kraid = installation.LoadRoomPlmKraidVisuals(), Crocomire = installation.LoadRoomPlmCrocomireVisuals(), MotherBrainFakeDeath = installation.LoadRoomPlmMotherBrainFakeDeathVisuals(), Collectible = installation.LoadRoomPlmCollectibleVisuals(), DynamicCollectibleArt = installation.LoadRoomPlmDynamicCollectibleArt() });
     }
 }

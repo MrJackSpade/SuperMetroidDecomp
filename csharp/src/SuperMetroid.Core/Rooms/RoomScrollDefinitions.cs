@@ -13,7 +13,7 @@ public sealed class RoomScrollDefinition
     /// <exception cref="ArgumentNullException">The storage array is null.</exception>
     public RoomScrollDefinition(ushort pointer, byte[] storage)
     {
-        ArgumentNullException.ThrowIfNull(storage);
+        Ensure.NotNull(storage);
         Pointer = pointer;
         Storage = storage.ToArray();
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -31,7 +32,7 @@ public static class EnemyTileArtworkFiles
     [PpuLayoutBoundary("codec: native enemy palette CGDATA stream compared with the compiled sheet")]
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);

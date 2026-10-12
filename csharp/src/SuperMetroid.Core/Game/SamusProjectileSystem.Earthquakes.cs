@@ -8,7 +8,7 @@ public sealed partial class SamusProjectileSystem
     private RoomEnemySystem? _roomEarthquakeOwner;
 
     internal void BindRoomEarthquakeOwner(RoomEnemySystem owner)
-        => _roomEarthquakeOwner = owner ?? throw new ArgumentNullException(nameof(owner));
+        => _roomEarthquakeOwner = Ensure.NotNull(owner);
 
     /// <param name="earthquakeType">
     /// The impact's type at $93:8125, or the enemy-hit type at $A0:9CB7/$A0:A1E9.

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +11,7 @@ internal static class TitleGradientExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var variants = new TitleGradientVariant[TitleGradientFormat.VariantCount];
         for (int variant = 0; variant < variants.Length; variant++)
         {

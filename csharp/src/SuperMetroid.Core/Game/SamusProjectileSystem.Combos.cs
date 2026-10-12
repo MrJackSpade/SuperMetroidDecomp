@@ -15,9 +15,9 @@ public sealed partial class SamusProjectileSystem
     internal bool TryActivateCombo(ISnesAddressSpace bus, SamusState samus,
         SamusBombProjectileSystem shared, out ushort sound)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(shared);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(shared);
         sound = 0;
         if (samus.SelectedHudItem != 3) return false;
         SamusBeamCombination beam = new SamusBeamLoadoutWord(samus.EquippedBeams).LowNibbleCombination;

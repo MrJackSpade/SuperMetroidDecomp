@@ -23,7 +23,7 @@ public sealed class RoomBackgroundTilemapAtlas
     /// <exception cref="InvalidDataException">The requested size, JSON schema, page/cell counts, or character/palette selectors are invalid.</exception>
     public static RoomBackgroundTilemapAtlas Load(Stream json, int expectedByteCount)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         int pageCount = RoomBackgroundTilemapFormat.ValidatePageCount(expectedByteCount);
         RoomBackgroundTilemapDocument document = JsonAssetDocument.Read<RoomBackgroundTilemapDocument>(
             json, JsonOptions, "room background tilemap");
@@ -71,7 +71,7 @@ public sealed class RoomBackgroundTilemapAtlas
     /// <exception cref="InvalidDataException">The document is null or fails the schema, size, cell, or selector checks performed by <see cref="Load"/>.</exception>
     public static void Write(Stream json, RoomBackgroundTilemapDocument document, int expectedByteCount)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false), expectedByteCount);
         json.Write(bytes);

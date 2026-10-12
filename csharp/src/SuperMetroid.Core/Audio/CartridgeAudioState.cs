@@ -267,8 +267,8 @@ public sealed class CartridgeAudioState
         bool advanceMusicQueue = true,
         int soundEffectHandlerCalls = 1)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentOutOfRangeException.ThrowIfNegative(soundEffectHandlerCalls);
+        Ensure.NotNull(bus);
+        Ensure.AtLeastZero(soundEffectHandlerCalls);
         List<CartridgeAudioCommand> commands = [.. _pendingImmediateCommands];
         _pendingImmediateCommands.Clear();
         if (advanceMusicQueue) HandleMusicQueue(commands);

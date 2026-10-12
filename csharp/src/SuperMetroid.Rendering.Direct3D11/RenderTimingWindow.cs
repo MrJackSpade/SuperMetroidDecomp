@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 namespace SuperMetroid.Rendering.Direct3D11;
 
 /// <summary>Bounded rolling timings. Recording never allocates; readers sort their own copy outside the lock.</summary>
@@ -12,7 +13,7 @@ internal sealed class RenderTimingWindow
     internal RenderTimingWindow(int capacity = RenderTelemetryLimits.DefaultHistoryCapacity, int warmup = 60)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
-        ArgumentOutOfRangeException.ThrowIfNegative(warmup);
+        Ensure.AtLeastZero(warmup);
         samples = new double[capacity];
         this.warmup = warmup;
     }

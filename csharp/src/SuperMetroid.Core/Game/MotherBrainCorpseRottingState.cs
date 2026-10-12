@@ -35,8 +35,8 @@ public sealed class MotherBrainCorpseRottingState
     /// </summary>
     public void Initialize(ISnesAddressSpace bus, RoomCharacterAtlas artwork)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(artwork);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(artwork);
         ReadOnlySpan<byte> installedTiles = artwork.Transfer.Span;
         if (installedTiles.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
             throw new InvalidDataException("Installed Mother Brain corpse PNG has the wrong tile count.");
@@ -73,7 +73,7 @@ public sealed class MotherBrainCorpseRottingState
         ushort randomNumberSeed,
         ushort mainEnemyExecutionCounter)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (!IsInitialized)
         {
             throw new InvalidOperationException(

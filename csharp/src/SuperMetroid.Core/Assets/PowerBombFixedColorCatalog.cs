@@ -41,7 +41,7 @@ public sealed class PowerBombFixedColorCatalog
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, incorrect sequence lengths, null colors, or channels outside 0..31.</exception>
     public static PowerBombFixedColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         PowerBombFixedColorDocument document;
         try
         {

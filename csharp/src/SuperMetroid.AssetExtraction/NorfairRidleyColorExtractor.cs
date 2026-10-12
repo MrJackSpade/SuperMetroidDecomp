@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,7 +15,7 @@ public static class NorfairRidleyColorExtractor
     /// <returns>UTF-8 JSON bytes for the versioned Norfair Ridley color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var reveal = new PaletteRgb5[NorfairRidleyPaletteRomData.RevealRowCount][];
         for (int row = 0; row < reveal.Length; row++)
         {

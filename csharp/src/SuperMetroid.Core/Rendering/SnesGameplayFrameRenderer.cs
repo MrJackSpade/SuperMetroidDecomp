@@ -29,7 +29,7 @@ public static partial class SnesGameplayFrameRenderer
         byte obsel = 0x03,
         Rgba32[]? outputBuffer = null)
     {
-        ArgumentNullException.ThrowIfNull(layer);
+        Ensure.NotNull(layer);
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         OrdinaryGameplayRegisters registers = layer.Registers;
         Span<SnesMainScreenLayers> windowMasks = stackalloc SnesMainScreenLayers[Width];
@@ -359,9 +359,9 @@ public static partial class SnesGameplayFrameRenderer
     /// </summary>
     public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = 0x03, Rgba32[]? outputBuffer = null)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(oam);
 
         const int floorHeight = 16;
         const int floorFirstScanline = Height - floorHeight;
@@ -474,8 +474,7 @@ public static partial class SnesGameplayFrameRenderer
         int intensity = CeresHazeRenderDefinitions.MaximumComponent,
         RoomFxPaletteBlendCatalog? colors = null)
     {
-        if (frame.Length != Width * Height)
-            throw new ArgumentException("Ceres haze requires one complete 256x224 frame.", nameof(frame));
+        Ensure.LengthEqual(frame, Width * Height);
 
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
@@ -514,10 +513,9 @@ public static partial class SnesGameplayFrameRenderer
         SamusPowerBombExplosionState explosion,
         Position16<RoomPixels> layer1)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(explosion);
-        if (frame.Length != Width * Height)
-            throw new ArgumentException("Power-bomb compositor requires one complete 256x224 frame.", nameof(frame));
+        Ensure.NotNull(bus);
+        Ensure.NotNull(explosion);
+        Ensure.LengthEqual(frame, Width * Height);
         if (!explosion.IsActive)
             return;
 
@@ -566,10 +564,9 @@ public static partial class SnesGameplayFrameRenderer
         SnesCgram cgram,
         RoomLayer3FxRenderSnapshot fx)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        if (frame.Length != Width * Height)
-            throw new ArgumentException("Room FX compositor requires one complete 256x224 frame.", nameof(frame));
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        Ensure.LengthEqual(frame, Width * Height);
         LayerBlendingConfiguration expectedConfiguration = fx.Type switch
         {
             RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.LavaAcidAdditive,
@@ -782,9 +779,8 @@ public static partial class SnesGameplayFrameRenderer
         MorphBallEyeBeamRenderSnapshot beam,
         Position16<RoomPixels> layer1)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        if (frame.Length != Width * Height)
-            throw new ArgumentException("Morph Ball eye compositor requires one complete 256x224 frame.", nameof(frame));
+        Ensure.NotNull(bus);
+        Ensure.LengthEqual(frame, Width * Height);
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or
             MorphBallEyeBeamPhase.PendingInitialization)
         {
@@ -926,7 +922,7 @@ public static partial class SnesGameplayFrameRenderer
 
     private static Rgba32[] CreateBackdrop(SnesCgram cgram, Rgba32[]? outputBuffer = null)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
 
         // CGRAM color zero is the PPU backdrop. Starting with it (rather than transparent
         // host pixels) matches every screen location no translated layer has covered yet.
@@ -944,9 +940,9 @@ public static partial class SnesGameplayFrameRenderer
         OamBuffer oam,
         byte obsel)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(oam);
 
         // IRQ command 4 writes BG3SC=$5A and TM=$04 for scanlines 0-31. That exposes the
         // four HUD rows at tilemap word $5800 while disabling OBJ in the HUD band.

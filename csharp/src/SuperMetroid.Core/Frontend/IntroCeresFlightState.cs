@@ -48,9 +48,9 @@ internal sealed class IntroCeresFlightState
     public IntroCeresFlightState(ISnesAddressSpace bus, CartridgeAudioState audio,
         CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         this.japaneseText = japaneseText;
-        this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
+        this.audio = Ensure.NotNull(audio);
         spriteArtwork = artwork?.Sprites;
         actorLayout = artwork?.Actors;
 

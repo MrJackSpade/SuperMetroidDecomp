@@ -78,6 +78,6 @@ dotnet_diagnostic.SME6343.severity = error
 dotnet_diagnostic.SME6344.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
-# #620: advisory until the existing reusable guards are migrated.
-dotnet_diagnostic.SME6201.severity = warning
-dotnet_diagnostic.SME6202.severity = warning
+# #620/#677: reusable argument guards use Ensure; Ensure calls let it capture the value expression.
+dotnet_diagnostic.SME6201.severity = error
+dotnet_diagnostic.SME6202.severity = error

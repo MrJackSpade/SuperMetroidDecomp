@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -24,8 +25,8 @@ public static class CartridgePaletteImporter
         int colorCount = SnesCgram.ColorCount,
         int destinationIndex = 0)
     {
-        ArgumentNullException.ThrowIfNull(destination);
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(destination);
+        Ensure.NotNull(bus);
         if (colorCount < 0 || destinationIndex < 0 || destinationIndex + colorCount > SnesCgram.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(colorCount), "CGRAM load must remain within 256 colors.");
 

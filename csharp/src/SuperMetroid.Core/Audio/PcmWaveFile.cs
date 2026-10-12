@@ -88,7 +88,7 @@ public static class PcmWaveFile
     public static void WriteMonoPcm16(string path, int sampleRate, IReadOnlyList<short> samples)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
-        ArgumentNullException.ThrowIfNull(samples);
+        Ensure.NotNull(samples);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sampleRate);
         int dataBytes = checked(samples.Count * sizeof(short));
         using FileStream stream = File.Create(path);

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
@@ -15,7 +16,7 @@ public static class CartridgeDoorHeaderImporter
     /// <returns>The decoded door header retaining its native pointer identity; no runtime state is changed.</returns>
     public static CartridgeDoorHeader Load(ISnesAddressSpace bus, ushort pointer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int address = DoorHeaderRomDataTooling.BankAddress | pointer;
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         byte Byte(int offset) => cartridge.ReadCartridgeByte(address + offset);

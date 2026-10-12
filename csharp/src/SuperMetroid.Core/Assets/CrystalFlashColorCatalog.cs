@@ -105,7 +105,7 @@ public sealed class CrystalFlashColorCatalog
     /// <exception cref="ArgumentOutOfRangeException">The body frame index is outside the sequence.</exception>
     public void ApplyBody(SnesCgram cgram, int frame)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
             new SamusPalettes(cgram).CrystalFlashBody.Write(color,
                 ResolveBody(frame, color));
@@ -117,7 +117,7 @@ public sealed class CrystalFlashColorCatalog
     /// <exception cref="ArgumentOutOfRangeException">The bubble frame index is outside the sequence.</exception>
     public void ApplyBubble(SnesCgram cgram, int frame)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
             new SamusPalettes(cgram).CrystalFlashBubble.Write(color,
                 ResolveBubble(frame, color));
@@ -130,7 +130,7 @@ public sealed class CrystalFlashColorCatalog
     /// <exception cref="InvalidDataException">The JSON, schema version, palette dimensions, or color values are invalid.</exception>
     public static CrystalFlashColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CrystalFlashColorDocument document;
         try
         {

@@ -52,7 +52,7 @@ public sealed class RoomStaticPalette
     /// <param name="document">The palette document to validate and serialize.</param>
     public static void Write(Stream json, RoomStaticPaletteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));
         json.Write(bytes);
@@ -62,7 +62,7 @@ public sealed class RoomStaticPalette
     /// <param name="cgram">The color memory that receives the 256-byte native transfer.</param>
     public void LoadTo(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         new CgramPalettes(cgram).Background.LoadPortBytes(nativeBytes);
     }
 

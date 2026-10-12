@@ -44,7 +44,7 @@ public sealed class MotherBrainHealthPalettePresentation
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="damageState"/> is outside zero through three.</exception>
     public void Apply(SnesCgram cgram, int damageState)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)damageState >= MotherBrainHealthPaletteFormat.StateCount)
             throw new ArgumentOutOfRangeException(nameof(damageState));
         for (int color = 0; color < MotherBrainRainbowPaletteRomData.ColorCount; color++)

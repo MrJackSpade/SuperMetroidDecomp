@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +20,7 @@ public static class IntroFontAtlasExtractor
     /// <exception cref="InvalidDataException">The compressed resource is invalid or expands to fewer than the required glyph bytes.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte[] decoded = RomDataReader.Decompress(
             CartridgeImportSource.Require(bus),
             IntroCinematicRomData.Assets.FontOne,

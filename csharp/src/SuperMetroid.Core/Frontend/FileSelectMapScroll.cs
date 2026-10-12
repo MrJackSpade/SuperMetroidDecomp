@@ -44,9 +44,9 @@ public sealed class FileSelectMapScroll
     public FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
         Bank80SystemState system, Position16<MapPixels> player)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(map);
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(map);
+        Ensure.NotNull(system);
         // Native selects one plane, not the union: a downloaded map uses its station
         // mask even if an explored secret cell lies outside that mask.
         bool Visible(int x, int y) => system.HasAreaMap(map.Area)

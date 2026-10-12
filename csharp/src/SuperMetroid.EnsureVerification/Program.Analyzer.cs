@@ -63,11 +63,11 @@ internal static partial class Program
             return;
         }
         if (diagnostics.Length != 1 || diagnostics[0].Id != expectedId ||
-            diagnostics[0].Severity != DiagnosticSeverity.Warning ||
+            diagnostics[0].Severity != diagnostics[0].Descriptor.DefaultSeverity ||
             (expectedMessage is not null && !diagnostics[0].GetMessage().Contains(expectedMessage, StringComparison.Ordinal)))
         {
             throw new InvalidOperationException(
-                $"Expected one {expectedId} warning containing '{expectedMessage}', got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in {source}");
+                $"Expected one {expectedId} diagnostic containing '{expectedMessage}', got [{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in {source}");
         }
     }
 

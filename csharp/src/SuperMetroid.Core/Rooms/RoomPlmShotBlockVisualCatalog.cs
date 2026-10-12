@@ -40,7 +40,7 @@ public sealed class RoomPlmShotBlockVisualCatalog
     /// <exception cref="InvalidDataException">An entry/run is null, a draw identity is unknown/duplicated/missing, the run shape differs, or a word sets a collision/type bit.</exception>
     public RoomPlmShotBlockVisualCatalog(IEnumerable<RoomPlmShotBlockVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[][]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmShotBlockVisualEntry entry in entries)

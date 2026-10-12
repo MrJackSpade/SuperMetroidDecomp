@@ -50,7 +50,7 @@ public sealed class CreditsPresentation
     /// <returns>The compiled credits presentation.</returns>
     public static CreditsPresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] source;
         using (var buffer = new MemoryStream())
         {
@@ -119,7 +119,7 @@ public sealed class CreditsPresentation
     /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream output, CreditsPresentationDocument document)
     {
-        ArgumentNullException.ThrowIfNull(output);
+        Ensure.NotNull(output);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
             document, MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

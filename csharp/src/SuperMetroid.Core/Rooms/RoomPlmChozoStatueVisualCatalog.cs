@@ -40,7 +40,7 @@ public sealed class RoomPlmChozoStatueVisualCatalog
     public RoomPlmChozoStatueVisualCatalog(
         IEnumerable<RoomPlmChozoStatueVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmChozoStatueVisualEntry entry in entries)

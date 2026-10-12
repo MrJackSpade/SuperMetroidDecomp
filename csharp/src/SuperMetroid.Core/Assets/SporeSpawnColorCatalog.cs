@@ -217,7 +217,7 @@ public sealed class SporeSpawnColorCatalog
     /// <returns>Compiled colors retaining independent edits and using calculated shared colors or fade samples only where supplied values agree.</returns>
     public static SporeSpawnColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         SporeSpawnColorDocument document;
         try
         {

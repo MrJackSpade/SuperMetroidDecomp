@@ -25,7 +25,7 @@ public sealed class FileSelectMapWindow
     internal FileSelectMapWindow(ISnesAddressSpace bus, int area, FileSelectMapWindowMotion motion,
         SuperMetroid.Core.Assets.WorldMapLabelLayout? labels = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if ((uint)area >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         var installedLabels = labels ?? throw new InvalidOperationException(

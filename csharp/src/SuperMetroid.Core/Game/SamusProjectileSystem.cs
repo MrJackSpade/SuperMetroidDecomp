@@ -120,9 +120,9 @@ public sealed partial class SamusProjectileSystem
         ushort equippedBeams,
         Assets.BeamTileCatalog? artwork = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
 
         SamusBeamCombination beamType = SelectedCombination(equippedBeams);
         LoadBeamTiles(bus, vram, equippedBeams, artwork);
@@ -165,8 +165,8 @@ public sealed partial class SamusProjectileSystem
     public static void LoadBeamTiles(ISnesAddressSpace bus, SnesVram vram,
         ushort equippedBeams, Assets.BeamTileCatalog? artwork = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(vram);
         SamusBeamCombination beamType = SelectedCombination(equippedBeams);
         Assets.BeamTileCatalog installed = artwork ?? throw new InvalidOperationException(
             "Beam tiles require installed artwork.");
@@ -185,9 +185,9 @@ public sealed partial class SamusProjectileSystem
         Assets.BeamTileCatalog? artwork = null,
         Assets.BeamPaletteCatalog? palettes = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(writes);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(writes);
+        Ensure.NotNull(cgram);
 
         SamusBeamCombination beamType = SelectedCombination(equippedBeams);
 
@@ -220,9 +220,9 @@ public sealed partial class SamusProjectileSystem
         LayerBlendingConfiguration layerBlendingDefaultConfig =
             LayerBlendingConfiguration.NormalGameplay)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(samus);
         LastVisorPaletteStep = default;
 
         ushort timerBefore = ChargedShotGlowTimer;
@@ -362,10 +362,10 @@ public sealed partial class SamusProjectileSystem
     /// <param name="producerSoundSuppressed">Optional captured sound-suppression decision at production; null uses the shared Power Bomb owner's current active state.</param>
     public SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> layer1, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled = true, bool? producerSoundSuppressed = null)
     {
-        ArgumentNullException.ThrowIfNull(terrain.Bus);
-        ArgumentNullException.ThrowIfNull(terrain.Level);
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        Ensure.NotNull(terrain.Bus);
+        Ensure.NotNull(terrain.Level);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(sharedProjectiles);
 
         int? firedSlot = null;
         ushort queuedSound = 0;
@@ -592,9 +592,9 @@ public sealed partial class SamusProjectileSystem
         Assets.ChargeFlarePlacementCatalog? placement = null,
         Assets.ChargeFlareSpriteCatalog? compositions = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
+        Ensure.NotNull(samus);
 
         if (FlareCounter == 0)
             return;
@@ -657,8 +657,8 @@ public sealed partial class SamusProjectileSystem
         ushort nmiFrameCounter,
         Assets.ProjectileSpriteCatalog? compositions = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
@@ -713,8 +713,8 @@ public sealed partial class SamusProjectileSystem
         bool timeIsFrozen,
         Assets.ProjectileTrailCatalog? artwork = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
 
         // Native Y starts at byte index $22, so the most recently preferred allocation slot
         // is also handled first. Preserve that order because overlapping 8x8 OBJs reveal it.
@@ -735,8 +735,8 @@ public sealed partial class SamusProjectileSystem
         Position16<RoomPixels> layer1,
         Assets.ProjectileSpriteCatalog? compositions = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {

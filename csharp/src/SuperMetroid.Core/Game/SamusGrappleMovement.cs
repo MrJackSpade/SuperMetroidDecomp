@@ -52,8 +52,8 @@ public static partial class SamusGrappleMovement
     /// </summary>
     public static void BeginFiring(ISnesAddressSpace bus, SamusState samus, ushort controllerInput = 0)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.Inactive)
             throw new InvalidOperationException("A grapple state is already active.");
@@ -182,9 +182,9 @@ public static partial class SamusGrappleMovement
         Position16<RoomPixels> layer1,
         Assets.ChargeFlareSpriteCatalog? compositions = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
+        Ensure.NotNull(oam);
 
         SamusGrappleState grapple = samus.Grapple;
         if (!UsesBeamSpecificDrawingPath(grapple.Phase) || grapple.FlareCounter == 0)
@@ -262,9 +262,9 @@ public static partial class SamusGrappleMovement
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
         bool deferConnectionPoseChange = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.Firing)
             throw new InvalidOperationException("Grapple firing is not active.");
@@ -389,7 +389,7 @@ public static partial class SamusGrappleMovement
     /// </remarks>
     public static void RefreshLiquidPhysicsFlag(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         bool functionCanRetainLiquid = samus.Grapple.Phase is
             GrapplePhase.Firing or GrapplePhase.ConnectedSwinging or
             GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
@@ -404,9 +404,9 @@ public static partial class SamusGrappleMovement
     /// </summary>
     public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, ushort controllerInput, ushort newlyPressedInput, ushort nmiFrameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, bool deferDropPoseChange = false)
     {
-        ArgumentNullException.ThrowIfNull(terrain.Bus);
-        ArgumentNullException.ThrowIfNull(terrain.Level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(terrain.Bus);
+        Ensure.NotNull(terrain.Level);
+        Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
 
         if (grapple.Phase == GrapplePhase.ReleaseFromSwing)

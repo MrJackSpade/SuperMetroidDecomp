@@ -111,7 +111,7 @@ public sealed class DraygonColorCatalog
             tableByteIndex / Bgr555.ByteCount >= DraygonColorRomData.HealthBandCount)
             throw new InvalidDataException(
                 $"Draygon health palette byte index ${tableByteIndex:X4} is not authored.");
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
             new BossPalettes(cgram).DraygonHealth.Write(color,
                 ResolveHealthBand(tableByteIndex / Bgr555.ByteCount, color));
@@ -120,7 +120,7 @@ public sealed class DraygonColorCatalog
     /// <summary>Loads and validates the editable Draygon RGB5 color document.</summary>
     public static DraygonColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         DraygonColorDocument document;
         try
         {

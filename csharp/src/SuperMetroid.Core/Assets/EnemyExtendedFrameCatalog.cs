@@ -98,7 +98,7 @@ public sealed class EnemyExtendedFrameCatalog
     public static EnemyExtendedFrameCatalog Load(Stream json,
         EnemyExtendedFrameCatalog? stockForLegacyOverride = null)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EnemyExtendedFrameDocument document;
         try
         {

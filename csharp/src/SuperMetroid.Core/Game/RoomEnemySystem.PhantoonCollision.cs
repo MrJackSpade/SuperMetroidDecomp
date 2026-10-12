@@ -22,9 +22,9 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(projectiles);
-        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(projectiles);
+        Ensure.NotNull(sharedProjectiles);
         EnsureLoaded();
 
         if (Phantoon is not { } state)

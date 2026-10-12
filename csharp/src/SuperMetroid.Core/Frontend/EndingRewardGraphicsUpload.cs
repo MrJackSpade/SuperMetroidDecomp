@@ -12,7 +12,7 @@ internal sealed class EndingRewardGraphicsUpload
     public EndingRewardGraphicsUpload(ISnesAddressSpace bus,
         EndingRewardIconArtwork? artwork = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         graphics = (artwork ?? throw new InvalidOperationException(
             "Ending reward requires installed icon artwork.")).Transfer.ToArray();
         if (graphics.Length < EndingRewardGraphicsUploadDefinitions.SourceBytes)
@@ -30,7 +30,7 @@ internal sealed class EndingRewardGraphicsUpload
     /// <summary>Restores already-queued chunks without advancing the native actor.</summary>
     public void BindArtwork(EndingRewardIconArtwork artwork, SnesVram vram)
     {
-        graphics = artwork?.Transfer.ToArray() ?? throw new ArgumentNullException(nameof(artwork));
+        graphics = Ensure.NotNull(artwork).Transfer.ToArray();
         for (int index = 0; index < completedChunks; index++)
             UploadChunk(vram, index);
     }

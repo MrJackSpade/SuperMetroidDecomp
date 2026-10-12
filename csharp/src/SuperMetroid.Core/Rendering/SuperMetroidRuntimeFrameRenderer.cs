@@ -20,7 +20,7 @@ public static class SuperMetroidRuntimeFrameRenderer
     [PpuLayoutBoundary("backend: gameplay software PPU register setup")]
     public static Rgba32[] Render(SuperMetroidRuntime runtime)
     {
-        ArgumentNullException.ThrowIfNull(runtime);
+        Ensure.NotNull(runtime);
         if (runtime.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before rendering gameplay.");
         // X-ray needs layer/palette identity until the final color-math operation.

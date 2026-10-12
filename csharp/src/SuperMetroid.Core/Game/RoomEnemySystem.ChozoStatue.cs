@@ -196,7 +196,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     public void ActivateChozoStatueHandTrigger(RoomLevelData level, int? collisionBlockIndex = null)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         EnsureLoaded();
         RoomEnemySlot statue = _slots[0];
         if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo)

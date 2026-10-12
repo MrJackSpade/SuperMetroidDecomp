@@ -23,7 +23,7 @@ public static class IndexedPng
     /// <exception cref="InvalidDataException">The PNG is malformed, truncated, oversized, has different dimensions, or uses unsupported truecolor, animation, or interlace.</exception>
     public static IndexedPngImage Read(Stream input, Extent16<ImagePixels> expectedSize)
     {
-        ArgumentNullException.ThrowIfNull(input);
+        Ensure.NotNull(input);
         ValidateDimensions(expectedSize);
         try { return ReadCore(input, expectedSize); }
         catch (EndOfStreamException error) { throw new InvalidDataException("Indexed PNG is truncated.", error); }
@@ -156,8 +156,8 @@ public static class IndexedPng
     /// <exception cref="ArgumentException">Pixel count, palette count, or a pixel's palette index is invalid.</exception>
     public static void Write(Stream output, Extent16<ImagePixels> size, ReadOnlySpan<byte> pixels, IReadOnlyList<Rgba32> palette)
     {
-        ArgumentNullException.ThrowIfNull(output);
-        ArgumentNullException.ThrowIfNull(palette);
+        Ensure.NotNull(output);
+        Ensure.NotNull(palette);
         ValidateDimensions(size);
         if (pixels.Length != size.Area || palette.Count is < 1 or > 256)
             throw new ArgumentException("Indexed PNG pixels or palette do not match its dimensions.");

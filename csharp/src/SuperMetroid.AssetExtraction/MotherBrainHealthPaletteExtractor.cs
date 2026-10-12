@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -10,7 +11,7 @@ internal static class MotherBrainHealthPaletteExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         using var json = new MemoryStream();
         MotherBrainHealthPalettePresentation.Write(json, new MotherBrainHealthPaletteDocument
         {

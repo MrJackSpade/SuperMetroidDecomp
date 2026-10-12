@@ -40,7 +40,7 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
     public RoomPlmDraygonCannonVisualCatalog(
         IEnumerable<RoomPlmDraygonCannonVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmDraygonCannonVisualEntry entry in entries)

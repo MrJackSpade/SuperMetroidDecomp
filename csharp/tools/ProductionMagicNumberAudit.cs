@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -136,7 +137,7 @@ internal static partial class ProductionMagicNumberAudit
         string source)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(relativePath);
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         var findings = new List<MagicNumberFinding>();
         AuditLines(relativePath.Replace('\\', '/'), source.Split('\n'), findings);
         return findings;

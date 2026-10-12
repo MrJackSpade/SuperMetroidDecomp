@@ -16,7 +16,7 @@ public sealed partial class SamusState
     /// </summary>
     public void RefreshCollisionRadii(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         Kinematics.Radius = new(5, ReadPoseYRadius(Pose));
     }
 
@@ -27,7 +27,7 @@ public sealed partial class SamusState
     /// <summary>Reads pose-definition byte zero, the direction consumed by camera tracking.</summary>
     public byte ReadPoseXDirection(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return ReadPoseXDirection(bus, InitializedPose);
     }
 
@@ -38,7 +38,7 @@ public sealed partial class SamusState
     /// </summary>
     public static byte ReadPoseXDirection(ISnesAddressSpace bus, SamusPoseId pose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return SamusPoseDispatchDefinitions.ReadFacing(pose);
     }
 
@@ -71,7 +71,7 @@ public sealed partial class SamusState
     /// </summary>
     public SamusMovementType ReadMovementType(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return ReadMovementType(bus, InitializedPose);
     }
 
@@ -89,7 +89,7 @@ public sealed partial class SamusState
     /// </summary>
     public static SamusMovementType ReadMovementType(ISnesAddressSpace bus, SamusPoseId pose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte rawMovementType = SamusPoseDispatchDefinitions.ReadMovement(pose);
         if (rawMovementType > (byte)SamusMovementType.Special)
         {
@@ -111,7 +111,7 @@ public sealed partial class SamusState
     /// </summary>
     public SamusPoseId ReadNoInputFallbackPose(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return SamusPoseDispatchDefinitions.ReadNoInputPose(Pose);
     }
 
@@ -121,14 +121,14 @@ public sealed partial class SamusState
     /// </summary>
     public byte ReadShotDirection(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return ReadShotDirection(bus, Pose);
     }
 
     /// <summary>Reads pose-definition byte three for a current or prospective pose.</summary>
     public static byte ReadShotDirection(ISnesAddressSpace bus, SamusPoseId pose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return SamusPoseAimDefinitions.Read(pose);
     }
 
@@ -139,7 +139,7 @@ public sealed partial class SamusState
     /// </summary>
     public sbyte ReadGraphicsYOffset(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return (TileTransfers.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork."))
             .GraphicsYOffset(Pose);
@@ -187,7 +187,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyZebesStartPoseSetup(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         SelectForwardFacingPose();
         InitializeAnimation(bus, initialFrame: 0);
     }
@@ -228,7 +228,7 @@ public sealed partial class SamusState
     /// </remarks>
     public void ApplyForwardFacingPoseSetup(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         SelectForwardFacingPose();
         InitializeAnimation(bus, initialFrame: 0);
 
@@ -323,7 +323,7 @@ public sealed partial class SamusState
     /// </summary>
     public void ApplyDraygonGrabbedPoseChange(ISnesAddressSpace bus, SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         bool leftFamily = IsLeftFacingDraygonGrabbedPose(Pose) &&
             IsLeftFacingDraygonGrabbedPose(targetPose);
@@ -705,8 +705,8 @@ public sealed partial class SamusState
         ushort controllerNewInput,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
         if (RejectUnsupportedPublishedBombJump(bus, timeIsFrozen) ||
             BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
             return false;

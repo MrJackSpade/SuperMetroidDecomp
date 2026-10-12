@@ -199,7 +199,7 @@ public sealed class SamusFullBodyCycleColorCatalog
     /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
     public void Apply(SnesCgram cgram, ushort pointer)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int index = 0; index < SamusFullBodyCycleColorFormat.ColorsPerPalette; index++)
             new SamusPalettes(cgram).Suit.Write(index,
                 Resolve(pointer, index));
@@ -208,7 +208,7 @@ public sealed class SamusFullBodyCycleColorCatalog
     /// <summary>Loads and validates all 48 full-body cycle palettes for three suits and four families.</summary>
     public static SamusFullBodyCycleColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         SamusFullBodyCycleColorDocument document;
         try
         {

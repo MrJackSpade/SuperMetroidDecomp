@@ -32,7 +32,7 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     internal void InitializeAttractDemo(AttractDemoScene scene)
     {
-        ArgumentNullException.ThrowIfNull(scene);
+        Ensure.NotNull(scene);
         byte[] itemBits = new byte[Bank80SystemState.ItemBitByteCount];
         Array.Fill(itemBits, byte.MaxValue);
         System.LoadCollectedItemBytes(itemBits);

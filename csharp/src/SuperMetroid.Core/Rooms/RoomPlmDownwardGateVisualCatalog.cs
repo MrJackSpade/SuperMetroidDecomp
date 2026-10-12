@@ -39,7 +39,7 @@ public sealed class RoomPlmDownwardGateVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmDownwardGateVisualCatalog(IEnumerable<RoomPlmDownwardGateVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[][]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmDownwardGateVisualEntry entry in entries)

@@ -52,7 +52,7 @@ public sealed partial class SamusProjectileSystem
     /// </summary>
     public void ReflectFromEnemy(ISnesAddressSpace bus, int slotIndex)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if ((uint)slotIndex >= SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
@@ -146,8 +146,8 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(sharedProjectiles);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
@@ -176,8 +176,8 @@ public sealed partial class SamusProjectileSystem
         int slotIndex,
         bool blocksPlasmaBeam = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(sharedProjectiles);
         if ((uint)slotIndex >= SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 

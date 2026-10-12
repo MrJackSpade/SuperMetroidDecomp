@@ -41,7 +41,7 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
     public RoomPlmElevatorPlatformVisualCatalog(
         IEnumerable<RoomPlmElevatorPlatformVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[][]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmElevatorPlatformVisualEntry entry in entries)

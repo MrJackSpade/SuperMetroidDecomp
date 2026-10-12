@@ -95,8 +95,8 @@ public sealed class SamusAtmosphericEffectsState
         SamusSpritemapArtworkCatalog? artwork = null,
         SamusAtmosphericArtworkCatalog? directArtwork = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(oam);
 
         // Native Y begins at byte offset six and decrements by two. Slot three therefore
         // receives the earlier/lower OAM index whenever multiple effects overlap.

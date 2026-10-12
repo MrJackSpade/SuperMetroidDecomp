@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -54,8 +55,8 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     /// <summary>Resource-lookup seam for strict missing-shader startup verification.</summary>
     internal D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
     {
-        this.owner = owner ?? throw new ArgumentNullException(nameof(owner));
-        this.openShaderResource = openShaderResource ?? throw new ArgumentNullException(nameof(openShaderResource));
+        this.owner = Ensure.NotNull(owner);
+        this.openShaderResource = Ensure.NotNull(openShaderResource);
         owner.VerifyOwner();
         try
         {
@@ -83,7 +84,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     public void Render(RenderFrameSnapshot packet)
     {
         owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
-        ArgumentNullException.ThrowIfNull(packet);
+        Ensure.NotNull(packet);
         renderedIdentity = null;
         RenderCore(packet);
         renderedIdentity = packet.Identity;

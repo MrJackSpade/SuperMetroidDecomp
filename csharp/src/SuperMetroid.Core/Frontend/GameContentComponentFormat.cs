@@ -13,7 +13,7 @@ public static class GameContentComponentFormat
     /// <summary>Validates before any output is written, including duplicate normalized names.</summary>
     public static void Validate(IReadOnlyDictionary<string, byte[]> components)
     {
-        ArgumentNullException.ThrowIfNull(components);
+        Ensure.NotNull(components);
         if (components.Count > MaximumComponentCount)
             throw new InvalidDataException("Content identity has too many named components.");
         foreach ((string name, byte[] digest) in components)
@@ -27,7 +27,7 @@ public static class GameContentComponentFormat
     /// <summary>Writes a canonical, bounded table. Only catalog IDs and hashes are included.</summary>
     public static void Write(Stream destination, IReadOnlyDictionary<string, byte[]> components)
     {
-        ArgumentNullException.ThrowIfNull(destination);
+        Ensure.NotNull(destination);
         Validate(components);
         using var writer = new BinaryWriter(destination, System.Text.Encoding.ASCII, leaveOpen: true);
         writer.Write(components.Count);
@@ -43,7 +43,7 @@ public static class GameContentComponentFormat
     /// <summary>Reads without allocating from untrusted counts or unrestricted string lengths.</summary>
     public static IReadOnlyDictionary<string, byte[]> Read(Stream source)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         using var reader = new BinaryReader(source, System.Text.Encoding.ASCII, leaveOpen: true);
         int count = reader.ReadInt32();
         if ((uint)count > MaximumComponentCount)

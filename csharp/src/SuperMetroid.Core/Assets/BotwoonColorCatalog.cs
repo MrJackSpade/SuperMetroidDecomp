@@ -51,7 +51,7 @@ public sealed class BotwoonColorCatalog
     /// <exception cref="InvalidDataException">The JSON, version, palette dimensions, or RGB5 channels are invalid.</exception>
     public static BotwoonColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         BotwoonColorDocument document;
         try
         {

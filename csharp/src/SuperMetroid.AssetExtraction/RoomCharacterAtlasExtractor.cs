@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -18,7 +19,7 @@ public static class RoomCharacterAtlasExtractor
     /// <exception cref="InvalidDataException">A source is invalid, has an unsupported character count, or fails the PNG-to-planar roundtrip.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
         Add(RoomCharacterAtlasFormat.CreFileName,
             RoomAssetRomData.Tilesets.CreCharactersAddress);

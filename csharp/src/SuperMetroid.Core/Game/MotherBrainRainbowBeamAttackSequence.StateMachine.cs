@@ -13,8 +13,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// <summary>Executes one call through the current Mother Brain body function.</summary>
     public MotherBrainRainbowBeamAttackStepResult Step(ISnesAddressSpace bus, SamusState samus, RainbowBeamAttackFrame frame)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         if (Phase == MotherBrainRainbowBeamAttackPhase.Inactive)
             throw new InvalidOperationException("The active rainbow-beam sequence has not started.");
 

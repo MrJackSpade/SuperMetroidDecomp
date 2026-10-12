@@ -22,7 +22,7 @@ public static class SamusInsideBlockSamplePoints
     /// <summary>Invokes <paramref name="visit"/> for each sampled point in native order.</summary>
     public static void Visit(ushort yPosition, ushort yRadius, Action<ushort, SamusInsideBlockPoint> visit)
     {
-        ArgumentNullException.ThrowIfNull(visit);
+        Ensure.NotNull(visit);
         ushort bottom = unchecked((ushort)(yPosition + yRadius - 1));
         ushort top = unchecked((ushort)(yPosition - yRadius));
         visit(bottom, SamusInsideBlockPoint.Bottom);

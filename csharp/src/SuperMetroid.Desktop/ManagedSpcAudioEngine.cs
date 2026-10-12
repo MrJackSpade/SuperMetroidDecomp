@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Desktop;
@@ -18,7 +19,7 @@ internal sealed class SpcAudioEngine : IDisposable
 
     internal SpcAudioEngine(ExtractedAudioAssetCatalog assets, ManagedSpcPlayer player)
     {
-        renderer = new CartridgeAudioRenderer(assets, player ?? throw new ArgumentNullException(nameof(player)));
+        renderer = new CartridgeAudioRenderer(assets, Ensure.NotNull(player));
     }
 
     /// <summary>The exact managed APU state persisted with debugger save states.</summary>
@@ -28,7 +29,7 @@ internal sealed class SpcAudioEngine : IDisposable
     public ReadOnlySpan<short> RenderFrame(IReadOnlyList<CartridgeAudioCommand> commands)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
-        ArgumentNullException.ThrowIfNull(commands);
+        Ensure.NotNull(commands);
         return renderer.RenderFrame(commands);
     }
 

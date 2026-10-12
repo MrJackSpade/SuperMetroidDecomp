@@ -480,7 +480,7 @@ public sealed partial class RoomEnemySystem
     {
         EnsureLoaded();
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        ArgumentOutOfRangeException.ThrowIfNegative(plmBlockIndex);
+        Ensure.AtLeastZero(plmBlockIndex);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -533,9 +533,9 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(projectiles);
-        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(projectiles);
+        Ensure.NotNull(sharedProjectiles);
         EnsureLoaded();
 
         int hitCount = 0;
@@ -613,7 +613,7 @@ public sealed partial class RoomEnemySystem
         BackgroundScrollState? backgroundScroll = null,
         ushort? nmiFrameCounter = null)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
         _enemyProjectileBackgroundScroll = backgroundScroll;
@@ -707,7 +707,7 @@ public sealed partial class RoomEnemySystem
         Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
     {
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(oam);
         EnsureLoaded();
 
         // Sprite objects precede only the high pass. Repeating them in the low pass would
@@ -725,7 +725,7 @@ public sealed partial class RoomEnemySystem
         Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
     {
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(oam);
         EnsureLoaded();
 
         DrawEnemyProjectilePass(

@@ -41,7 +41,7 @@ public sealed class MotherBrainRoomColorPresentation
         int stride = MotherBrainRoomColorRomData.TimedEntryByteCount;
         if (offset < 0 || offset % stride != 0 || (uint)(offset / stride) >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException($"Mother Brain room-flash entry $A9:{timedEntryPointer:X4} is not authored.");
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         int frame = offset / stride;
         for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors; color++)
         {
@@ -62,7 +62,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     public void ApplyPhaseTwoInitial(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.PhaseTwoColors; index++)
         {
             new MotherBrainPalettes(cgram).PhaseTwoAttack.Write(index,
@@ -77,7 +77,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     public void ApplyRoomEntry(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.InitialColors; index++)
         {
             new MotherBrainPalettes(cgram).GlassShards.Write(index,
@@ -108,7 +108,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the seven authored images.</exception>
     public void ApplyRecoveryLights(SnesCgram cgram, int frame)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)frame >= MotherBrainRoomColorRomData.RecoveryLightsFrames)
             throw new InvalidDataException($"Mother Brain room-light recovery frame {frame} is not authored.");
 
@@ -124,7 +124,7 @@ public sealed class MotherBrainRoomColorPresentation
 
     private static void ApplyRoom(SnesCgram cgram, FinalRoomPalette colors)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.SliceColors; index++)
         {
             new MotherBrainPalettes(cgram).RoomFirst.Write(index, colors[index]);

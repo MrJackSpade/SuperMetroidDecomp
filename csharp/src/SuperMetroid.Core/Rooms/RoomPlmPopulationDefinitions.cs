@@ -13,7 +13,7 @@ internal static partial class RoomPlmPopulationDefinitions
 
     internal static void Place(ushort pointer, Action<PlmHeaderId, byte, byte, ushort> place)
     {
-        ArgumentNullException.ThrowIfNull(place);
+        Ensure.NotNull(place);
         if (!TryPlace(pointer, place))
             throw new InvalidDataException($"Compiled room PLM populations lack retail source $8F:{pointer:X4}.");
     }

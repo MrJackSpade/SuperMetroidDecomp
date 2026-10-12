@@ -25,7 +25,7 @@ internal sealed class IntroBabyDiscoveryState
     public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         SamusState? existingSamus = null, Func<ushort, ushort>? demoWordReader = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.demoWordReader = demoWordReader ?? IntroBabyDiscoveryInputDefinitions.ReadWord;
 

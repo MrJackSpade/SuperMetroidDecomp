@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using System.Text;
@@ -16,7 +17,7 @@ public static class IntroNarrationExtractor
     /// <exception cref="InvalidDataException">A script opcode, marker, timing, glyph payload, coordinate sequence, or bounded termination differs from the supported format.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var pages = new Dictionary<string, IntroNarrationPage>(StringComparer.Ordinal);
         foreach (IntroNarrationNativePage source in IntroNarrationDefinitions.Pages)
             pages.Add(source.Id.ToString(), ExtractPage(bus, source));

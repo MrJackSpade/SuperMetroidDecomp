@@ -131,7 +131,7 @@ public sealed class SamusHyperBeamColorCatalog
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, dimensions other than ten rows of sixteen colors, null colors, or channels outside 0..31.</exception>
     public static SamusHyperBeamColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         SamusHyperBeamColorDocument document;
         try
         {

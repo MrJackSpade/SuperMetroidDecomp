@@ -23,7 +23,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
     public static RoomFxAnimatedTileAtlas Load(Stream png,
         RoomFxAnimatedTileAtlas? stockForLegacyOverride = null)
     {
-        ArgumentNullException.ThrowIfNull(png);
+        Ensure.NotNull(png);
         long start = png.CanSeek ? png.Position : 0;
         try
         {
@@ -102,7 +102,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
     public void LoadFrame(SnesVram vram, int sourceAddress, ushort byteCount,
         ushort encodedVramDestination)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         if (!TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data))
             throw new InvalidDataException(
                 $"Room-FX frame ${sourceAddress:X6} is missing from installed artwork.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,7 +15,7 @@ public static class CeresRidleyMode7ColorExtractor
     /// <returns>UTF-8 JSON bytes for the versioned zoom-color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var rows = new PaletteRgb5[CeresRidleyPaletteRomData.Mode7ZoomRowCount][];
         for (int row = 0; row < rows.Length; row++)
         {

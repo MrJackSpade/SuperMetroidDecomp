@@ -34,7 +34,7 @@ public sealed class DoorTransitionState
     /// <param name="runtime">The runtime whose pending door, player, palette, and enemy state are prepared.</param>
     public void Begin(SuperMetroidRuntime runtime)
     {
-        ArgumentNullException.ThrowIfNull(runtime);
+        Ensure.NotNull(runtime);
         if (runtime.PendingDoorTransition is null || runtime.Samus is null)
             throw new InvalidOperationException("A door transition requires a pending door and Samus.");
         if (IsActive)
@@ -65,9 +65,9 @@ public sealed class DoorTransitionState
         IDoorLoaderProgressSource loaderProgress,
         Action? publishSoundWaitAudio = null)
     {
-        ArgumentNullException.ThrowIfNull(runtime);
-        ArgumentNullException.ThrowIfNull(audio);
-        ArgumentNullException.ThrowIfNull(loaderProgress);
+        Ensure.NotNull(runtime);
+        Ensure.NotNull(audio);
+        Ensure.NotNull(loaderProgress);
         if (!IsActive)
             throw new InvalidOperationException("Door transition has not begun.");
 

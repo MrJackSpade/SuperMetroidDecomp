@@ -52,9 +52,9 @@ public sealed class CartridgeRoomAssets
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
     public static CartridgeRoomAssets Load(ISnesAddressSpace bus, CartridgeRoomHeader header, RoomAssetCatalogs catalogs)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(header);
-        ArgumentNullException.ThrowIfNull(catalogs);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(header);
+        Ensure.NotNull(catalogs);
         RoomCharacterAtlasCatalog characterArt = catalogs.Characters;
         RoomStaticPaletteCatalog paletteArt = catalogs.Palettes;
         RoomMetatileCatalog metatileArt = catalogs.Metatiles;
@@ -105,8 +105,8 @@ public sealed class CartridgeRoomAssets
     /// <summary>Installs the room's two character regions and its first 128 CGRAM colors.</summary>
     public void LoadGraphics(SnesVram vram, SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
 
         // Preserve $82:E783's transfer order, not merely its two destinations. Ordinary
         // area art ends at byte $5000, but Ceres tileset $11 expands to the full $8000-byte

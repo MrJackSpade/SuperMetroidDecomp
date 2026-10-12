@@ -66,7 +66,7 @@ public sealed class EnemySpritemapCatalog
     public static EnemySpritemapCatalog Load(Stream json,
         EnemySpritemapCatalog? stockForLegacyOverride = null)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EnemySpritemapDocument document;
         try
         {

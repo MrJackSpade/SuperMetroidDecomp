@@ -87,7 +87,7 @@ public sealed partial class SuperMetroidRuntime
     /// </remarks>
     public InitialViewportResult InitializeSavedGame(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
     {
-        ArgumentNullException.ThrowIfNull(slot);
+        Ensure.NotNull(slot);
         if (slot.Area > byte.MaxValue || slot.SaveStation > byte.MaxValue)
         {
             throw new InvalidDataException(
@@ -171,7 +171,7 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
     {
-        ArgumentNullException.ThrowIfNull(slot);
+        Ensure.NotNull(slot);
         Samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,

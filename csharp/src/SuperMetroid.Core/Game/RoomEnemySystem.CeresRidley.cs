@@ -15,9 +15,9 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(projectiles);
-        ArgumentNullException.ThrowIfNull(sharedProjectiles);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(projectiles);
+        Ensure.NotNull(sharedProjectiles);
 
         if (Ridley is null || CeresStatus != 0)
             return 0;

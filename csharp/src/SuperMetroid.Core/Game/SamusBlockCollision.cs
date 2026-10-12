@@ -26,7 +26,7 @@ public static partial class SamusBlockCollision
         int signedDistance,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(state);
+        Ensure.NotNull(state);
         SamusKinematicsState probe = state.CreateCollisionProbe();
 
         // Reusing the translated horizontal dispatcher also preserves square-slope and
@@ -67,9 +67,9 @@ public static partial class SamusBlockCollision
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
     public static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, HorizontalBlockMove move)
     {
-        ArgumentNullException.ThrowIfNull(terrain.Bus);
-        ArgumentNullException.ThrowIfNull(terrain.Level);
-        ArgumentNullException.ThrowIfNull(state);
+        Ensure.NotNull(terrain.Bus);
+        Ensure.NotNull(terrain.Level);
+        Ensure.NotNull(state);
 
         if (move.CollisionMovementDirection is { } storedDirection &&
             storedDirection is not (SamusCollisionDirection.Left or SamusCollisionDirection.Right))
@@ -386,9 +386,9 @@ public static partial class SamusBlockCollision
     /// </summary>
     public static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, VerticalBlockMove move)
     {
-        ArgumentNullException.ThrowIfNull(terrain.Bus);
-        ArgumentNullException.ThrowIfNull(terrain.Level);
-        ArgumentNullException.ThrowIfNull(state);
+        Ensure.NotNull(terrain.Bus);
+        Ensure.NotNull(terrain.Level);
+        Ensure.NotNull(state);
 
         int acceptedDisplacement = move.Displacement;
         bool collided = false;
@@ -751,9 +751,9 @@ public static partial class SamusBlockCollision
         bool scanLeftToRight,
         RoomPlmSystem? plms)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(state);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(state);
         VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         state.Position = state.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(scan.AcceptedDisplacement));
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);

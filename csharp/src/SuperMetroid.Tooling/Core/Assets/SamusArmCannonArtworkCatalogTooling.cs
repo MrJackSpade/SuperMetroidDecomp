@@ -10,8 +10,8 @@ internal static class SamusArmCannonArtworkCatalogTooling
 {
     public static SamusArmCannonArtworkCatalog Load(Stream json, Stream tilePng)
     {
-        ArgumentNullException.ThrowIfNull(json);
-        ArgumentNullException.ThrowIfNull(tilePng);
+        Ensure.NotNull(json);
+        Ensure.NotNull(tilePng);
         SamusArmCannonArtworkCatalog.Placement placement = SamusArmCannonArtworkCatalog.LoadPlacement(json);
         RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
             SamusArmCannonArtworkFormat.TileSourcePointers.Length *

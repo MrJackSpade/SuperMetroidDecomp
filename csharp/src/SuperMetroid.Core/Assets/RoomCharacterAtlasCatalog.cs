@@ -18,8 +18,8 @@ public sealed class RoomCharacterAtlasCatalog
     public RoomCharacterAtlasCatalog(RoomCharacterAtlas cre,
         IReadOnlyDictionary<int, RoomCharacterAtlas> bySource)
     {
-        Cre = cre ?? throw new ArgumentNullException(nameof(cre));
-        ArgumentNullException.ThrowIfNull(bySource);
+        Cre = Ensure.NotNull(cre);
+        Ensure.NotNull(bySource);
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             int source = RoomTilesetDefinitions.Get(graphicsSet).CharacterAddress;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
@@ -13,7 +14,7 @@ internal static class LibraryBackgroundProgramImporter
 {
     public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer)
     {
-        ArgumentNullException.ThrowIfNull(source);
+        Ensure.NotNull(source);
         if ((short)pointer >= 0) throw new ArgumentOutOfRangeException(nameof(pointer));
         ushort cursor = pointer;
         var instructions = new List<LibraryBackgroundInstruction>();

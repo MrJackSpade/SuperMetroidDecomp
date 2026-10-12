@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
@@ -24,7 +25,7 @@ public static class GameplayPresentationIdentity
     /// <summary>Loads the same selected domains for installed diagnostic-artifact import.</summary>
     public static IReadOnlyDictionary<string, string> Load(GameInstallation installation)
     {
-        ArgumentNullException.ThrowIfNull(installation);
+        Ensure.NotNull(installation);
         return Create(installation.LoadGameplayBasePalettes(), installation.LoadStandardObjects(),
             installation.LoadXrayRevealVisuals());
     }

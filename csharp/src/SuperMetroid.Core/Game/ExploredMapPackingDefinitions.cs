@@ -29,7 +29,7 @@ internal static class ExploredMapPackingDefinitions
     {
         if ((uint)area >= SaveRamLayout.PackedMapAreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ArgumentNullException.ThrowIfNull(maps);
+        Ensure.NotNull(maps);
         int offset = 0;
         for (int previous = 0; previous < area; previous++)
             offset += new OccupiedByteIndexes(maps.Get((AreaId)previous)).Count;
@@ -67,7 +67,7 @@ internal static class ExploredMapPackingDefinitions
         {
             get
             {
-                ArgumentOutOfRangeException.ThrowIfNegative(index);
+                Ensure.AtLeastZero(index);
                 for (int candidate = 0; candidate < Bank80SystemState.ExploredMapBytesPerArea; candidate++)
                     if (Contains(candidate) && index-- == 0) return checked((byte)candidate);
                 throw new ArgumentOutOfRangeException(nameof(index));

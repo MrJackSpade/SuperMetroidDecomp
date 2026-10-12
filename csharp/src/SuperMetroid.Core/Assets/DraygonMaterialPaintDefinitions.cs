@@ -41,7 +41,7 @@ internal sealed class DraygonMaterialPaintDefinitions
 
     internal DraygonMaterialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
-        if (colors.Length != 16) throw new ArgumentException("Draygon material requires sixteen colors.", nameof(colors));
+        Ensure.LengthEqual(colors, 16);
         for (int color = 0; color < colors.Length; color++)
             if (colors[color] != StockColor(color)) edits.Add(color, colors[color]);
     }

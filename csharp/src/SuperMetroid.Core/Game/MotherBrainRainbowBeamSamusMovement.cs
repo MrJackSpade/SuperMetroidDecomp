@@ -40,8 +40,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         ISnesAddressSpace bus,
         SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         FixedPosition<RoomPixels> before = Capture(samus);
         bool reachedWall = MoveHorizontallyTowardWall(samus, velocity: 0x1000);
@@ -71,7 +71,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// </summary>
     public static MotherBrainForcedSamusMovementResult MoveTowardMiddleOfWall(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
@@ -102,7 +102,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// </summary>
     public MotherBrainForcedSamusMovementResult StepFallingAfterRainbowBeam(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
 
         FixedPosition<RoomPixels> before = Capture(samus);
 

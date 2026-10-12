@@ -17,7 +17,7 @@ public sealed partial class RoomPlmSystem
     /// <returns>False only when all 40 native PLM slots are occupied.</returns>
     public bool TrySpawnOldTourianEscapeShaftWall(RoomLevelData level)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         int blockIndex = level.GetBlockIndex(
             new(OldTourianEscapeShaftWallPlmDefinitions.BlockX, OldTourianEscapeShaftWallPlmDefinitions.BlockY));
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)

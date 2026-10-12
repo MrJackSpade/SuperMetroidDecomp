@@ -28,10 +28,10 @@ public sealed partial class RoomPlmSystem
         CartridgeDoorHeader door,
         Bank80SystemState system)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(door);
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(door);
+        Ensure.NotNull(system);
 
         int blockIndex = level.GetBlockIndex(door.PlmBlock);
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)

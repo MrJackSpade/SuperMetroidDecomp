@@ -35,8 +35,8 @@ public static class SamusSolidEnemyCollision
         ushort distance,
         ushort distanceSubposition)
     {
-        ArgumentNullException.ThrowIfNull(state);
-        ArgumentNullException.ThrowIfNull(interactiveEnemies);
+        Ensure.NotNull(state);
+        Ensure.NotNull(interactiveEnemies);
 
         if ((uint)direction > (uint)SamusCollisionDirection.Down)
             throw new ArgumentOutOfRangeException(nameof(direction));

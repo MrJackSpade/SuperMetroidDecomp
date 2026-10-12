@@ -13,9 +13,9 @@ public static class EscapeTimerRenderer
     public static void Draw(EscapeTimer timer, OamBuffer oam,
         EscapeTimerPresentation presentation)
     {
-        ArgumentNullException.ThrowIfNull(timer);
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(presentation);
+        Ensure.NotNull(timer);
+        Ensure.NotNull(oam);
+        Ensure.NotNull(presentation);
         presentation.Draw(timer, oam);
     }
 }

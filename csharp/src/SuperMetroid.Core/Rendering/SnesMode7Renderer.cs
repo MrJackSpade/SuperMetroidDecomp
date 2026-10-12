@@ -26,19 +26,14 @@ public static class SnesMode7Renderer
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Mode7RenderRegisters registers, Extent16<ScreenPixels>? size = null)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         Extent16<ScreenPixels> viewport = size ?? SnesPpuLayout.ScreenSize;
         int width = viewport.X;
         int height = viewport.Y;
         if (width == 0 || height == 0)
             throw new ArgumentOutOfRangeException(nameof(size), viewport, "A Mode 7 viewport must have positive dimensions.");
-        if (output.Length != width * height)
-        {
-            throw new ArgumentException(
-                "A Mode 7 destination must contain exactly width*height pixels.",
-                nameof(output));
-        }
+        Ensure.LengthEqual(output, width * height);
 
         // VRAM and CGRAM cannot change during a software scanout. Reading their backing
         // spans once removes two bounds-checking method calls and one BGR555 conversion

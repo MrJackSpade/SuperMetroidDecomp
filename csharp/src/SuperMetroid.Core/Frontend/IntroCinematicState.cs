@@ -182,7 +182,7 @@ public sealed partial class IntroCinematicState
         SamusBodyArtworkCatalog? samusBodyArtwork = null,
         bool japaneseText = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         this.bus = bus;
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = audio;

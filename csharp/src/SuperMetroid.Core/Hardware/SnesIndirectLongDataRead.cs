@@ -23,7 +23,7 @@ public static class SnesIndirectLongDataRead
     public static ushort ReadWord(ISnesAddressSpace bus, byte pointerBank, ushort pointer, ushort y,
         ReadOnlySpan<byte> cartridgeDefinition = default, int definitionAddress = 0)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int address = ((pointerBank << 16) + pointer + y) & SnesCpuAddressLayout.AddressMask;
         byte low = ReadDataByte(bus, address, pointerBank, cartridgeDefinition, definitionAddress);
         byte high = ReadDataByte(bus, (address + 1) & SnesCpuAddressLayout.AddressMask, low, cartridgeDefinition, definitionAddress);

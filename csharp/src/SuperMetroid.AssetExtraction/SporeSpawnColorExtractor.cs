@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ public static class SporeSpawnColorExtractor
     /// <exception cref="InvalidDataException">A source color sets unrepresentable bit 15.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return SporeSpawnColorCatalog.Write(new SporeSpawnColorDocument
         {
             Version = SporeSpawnColorFormat.Version,

@@ -38,7 +38,7 @@ internal sealed class IntroMotherBrainExplosionSystem
     /// <summary>Advances every allocated object through the exact bank-$8B list format.</summary>
     public void Step(ISnesAddressSpace bus, ushort introCrossfadeTimer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         foreach (ExplosionActor actor in actors)
             actor.Step(introCrossfadeTimer);
     }
@@ -46,8 +46,8 @@ internal sealed class IntroMotherBrainExplosionSystem
     /// <summary>Adds each visible spritemap in native actor order to cinematic OAM.</summary>
     public void Draw(OamBuffer oam, IntroMotherBrainExplosionSpritePresentation installedArt)
     {
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(installedArt);
+        Ensure.NotNull(oam);
+        Ensure.NotNull(installedArt);
         foreach (ExplosionActor actor in actors)
         {
             if (!actor.IsActive || actor.SpriteMapPointer == 0)

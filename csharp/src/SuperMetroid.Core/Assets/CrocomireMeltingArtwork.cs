@@ -39,10 +39,10 @@ public sealed class CrocomireMeltingArtwork
     public static CrocomireMeltingArtwork Load(Stream firstPng, Stream secondPng,
         Stream firstTilemapJson, Stream secondTilemapJson)
     {
-        ArgumentNullException.ThrowIfNull(firstPng);
-        ArgumentNullException.ThrowIfNull(secondPng);
-        ArgumentNullException.ThrowIfNull(firstTilemapJson);
-        ArgumentNullException.ThrowIfNull(secondTilemapJson);
+        Ensure.NotNull(firstPng);
+        Ensure.NotNull(secondPng);
+        Ensure.NotNull(firstTilemapJson);
+        Ensure.NotNull(secondTilemapJson);
         RoomCharacterAtlas first = RoomCharacterAtlas.Load(firstPng,
             CrocomireMeltingArtworkFormat.FirstByteCount);
         RoomCharacterAtlas second = RoomCharacterAtlas.Load(secondPng,
@@ -80,7 +80,7 @@ public sealed class CrocomireMeltingArtwork
     /// <summary>Writes a validated, human-editable tile-layout document.</summary>
     public static void WriteTilemap(Stream json, CrocomireMeltingTilemapDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, TilemapJsonOptions);
         _ = ReadTilemap(new MemoryStream(bytes, writable: false));
         json.Write(bytes);

@@ -34,7 +34,7 @@ public sealed class RoomPlmColoredDoorVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmColoredDoorVisualCatalog(IEnumerable<RoomPlmColoredDoorVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmColoredDoorVisualEntry entry in entries)

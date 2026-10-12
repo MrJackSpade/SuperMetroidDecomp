@@ -18,9 +18,8 @@ internal sealed class CartridgePaletteTransition
     /// <param name="numerator">The shared <c>$7E:C400</c> transition number this fade advances.</param>
     public CartridgePaletteTransition(ReadOnlySpan<Bgr555> target, int denominator, GradualColorChangeCounter numerator)
     {
-        ArgumentNullException.ThrowIfNull(numerator);
-        if (target.Length != CgramPalettes.ColorCount)
-            throw new ArgumentException("A global palette transition requires 256 target colors.", nameof(target));
+        Ensure.NotNull(numerator);
+        Ensure.LengthEqual(target, CgramPalettes.ColorCount);
         if (denominator is <= 0 or > (ushort.MaxValue - 1))
             throw new ArgumentOutOfRangeException(nameof(denominator));
         this.target = target.ToArray();
@@ -35,7 +34,7 @@ internal sealed class CartridgePaletteTransition
     /// </summary>
     public bool Step(SnesCgram cgram, ushort paletteMask = ushort.MaxValue)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         int transitionNumber = numerator.Numerator;
         if (transitionNumber > denominator + 1)
         {

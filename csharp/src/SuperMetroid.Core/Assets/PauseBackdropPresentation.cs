@@ -79,8 +79,8 @@ public sealed class PauseBackdropPresentation
     /// </summary>
     internal static PauseBackdropPresentation FromTilemaps(byte[][] areaTilemaps, byte[] buttonTilemap)
     {
-        ArgumentNullException.ThrowIfNull(areaTilemaps);
-        ArgumentNullException.ThrowIfNull(buttonTilemap);
+        Ensure.NotNull(areaTilemaps);
+        Ensure.NotNull(buttonTilemap);
         if (areaTilemaps.Length != AreaIds.RetailCount)
             throw new InvalidDataException("Pause backdrops require one tilemap per retail area.");
         if (buttonTilemap.Length != PauseBackdropDefinitions.ButtonCells * sizeof(ushort))

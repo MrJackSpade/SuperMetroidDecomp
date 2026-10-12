@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -15,7 +16,7 @@ public static class RoomEnemyDefinitionImporter
     /// <returns>The decoded enemy definition.</returns>
     public static RoomEnemyDefinition Load(ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         ushort Word(int offset) => RomDataReader.ReadWordFixedBank(cartridge,
             RoomEnemyRomLayout.DefinitionBank | unchecked((ushort)((ushort)pointer + offset)));

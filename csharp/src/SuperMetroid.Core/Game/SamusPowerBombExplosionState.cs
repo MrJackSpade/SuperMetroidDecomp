@@ -166,7 +166,7 @@ public sealed class SamusPowerBombExplosionState
     /// <returns>True only on the frame that $88:8B4E completes cleanup.</returns>
     public bool StepFrame(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (!IsActive)
             return false;
 

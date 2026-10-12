@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Desktop;
@@ -128,8 +129,8 @@ internal static class HostInputDiscontinuity
         HostKeyboardInputState keyboard,
         HostInputActivationGate activation)
     {
-        ArgumentNullException.ThrowIfNull(keyboard);
-        ArgumentNullException.ThrowIfNull(activation);
+        Ensure.NotNull(keyboard);
+        Ensure.NotNull(activation);
         keyboard.Clear();
         activation.SuppressUntilNeutral();
     }

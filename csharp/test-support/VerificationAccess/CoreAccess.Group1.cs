@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -20,7 +21,7 @@ internal sealed class SamusProjectileSlotObservation
 
     internal SamusProjectileSlotObservation(SamusProjectileSystem projectiles)
     {
-        ArgumentNullException.ThrowIfNull(projectiles);
+        Ensure.NotNull(projectiles);
         int count = projectiles.Slots.Count;
         _occupied = new bool[count];
         _explosion = new bool[count];
@@ -61,7 +62,7 @@ internal sealed class SamusProjectileSlotObservation
 
     private void RequireSameSlots(SamusProjectileSystem projectiles)
     {
-        ArgumentNullException.ThrowIfNull(projectiles);
+        Ensure.NotNull(projectiles);
         if (projectiles.Slots.Count != _occupied.Length)
             throw new InvalidOperationException(
                 $"Projectile observation captured {_occupied.Length} slots but the system has " +

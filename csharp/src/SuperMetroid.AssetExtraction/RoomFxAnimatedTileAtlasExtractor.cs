@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ public static class RoomFxAnimatedTileAtlasExtractor
     /// <exception cref="InvalidDataException">The imported segments do not total the required planar byte count.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         using var planar = new MemoryStream();
         foreach (RoomFxAtlasSegment segment in RoomFxAnimatedTileAtlasFormat.Segments)
             planar.Write(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

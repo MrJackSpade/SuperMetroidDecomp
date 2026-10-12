@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ public static class ShitroidColorExtractor
     /// <exception cref="InvalidDataException">A source color sets bit 15, which the RGB5 document cannot represent.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var normal = new PaletteRgb5[ShitroidColorRomData.NormalFrameCount][];
         for (int frame = 0; frame < normal.Length; frame++)
             normal[frame] = Read(ShitroidColorRomData.NormalCycle +

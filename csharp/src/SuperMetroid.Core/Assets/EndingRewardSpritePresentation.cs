@@ -36,7 +36,7 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     /// <summary>Loads and validates all 37 named post-credits Samus visual frames.</summary>
     public static EndingRewardSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EndingRewardSpriteDocument document;
         try
         {
@@ -81,7 +81,7 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     /// <summary>Validates and writes an ending-reward sprite document as JSON.</summary>
     public static void Write(Stream json, EndingRewardSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

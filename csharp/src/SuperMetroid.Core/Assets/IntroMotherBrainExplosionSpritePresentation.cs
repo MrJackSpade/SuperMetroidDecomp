@@ -34,7 +34,7 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
     /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
     public static IntroMotherBrainExplosionSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         IntroMotherBrainExplosionSpriteDocument document;
         try
         {
@@ -73,7 +73,7 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
     /// <param name="document">The twelve-frame sprite document to validate and serialize.</param>
     public static void Write(Stream json, IntroMotherBrainExplosionSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

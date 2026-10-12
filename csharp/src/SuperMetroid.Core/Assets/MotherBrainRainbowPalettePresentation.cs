@@ -144,7 +144,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <summary>Changes only the three brain colors during the fake-death descent.</summary>
     public void ApplyFakeDeathToGrey(SnesCgram cgram, int frame)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)frame >= fakeDeathToGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death grey frame {frame} is outside the authored sequence.");
         for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
@@ -155,7 +155,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <summary>Restores only those three colors, reusing the cartridge's revival source table.</summary>
     public void ApplyFakeDeathFromGrey(SnesCgram cgram, int frame)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)frame >= fromGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death revival frame {frame} is outside the authored sequence.");
         for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
@@ -164,7 +164,7 @@ public sealed class MotherBrainRainbowPalettePresentation
 
     private static void ApplyFull(SnesCgram cgram, PaletteFrame[] frames, int frame)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)frame >= frames.Length)
             throw new InvalidDataException($"Mother Brain rainbow frame {frame} is outside the authored loop.");
         ApplyColors(cgram, frames[frame]);
@@ -173,8 +173,8 @@ public sealed class MotherBrainRainbowPalettePresentation
     private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
         IPaletteFade frames, int frame)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
         if ((uint)frame >= frames.Length)
             throw new InvalidDataException($"Mother Brain grey-transition frame {frame} is outside the authored sequence.");
         for (int color = 0; color < frames.BodyCount; color++)

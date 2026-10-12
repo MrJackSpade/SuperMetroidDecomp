@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
@@ -104,8 +105,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         ThrowWorkerFailure();
-        if (samples.Length != slots[0].Samples.Length)
-            throw new ArgumentException("PCM block does not match the device buffer size.", nameof(samples));
+        Ensure.LengthEqual(samples, slots[0].Samples.Length);
 
         short[] copy = ArrayPool<short>.Shared.Rent(samples.Length);
         samples.CopyTo(copy);

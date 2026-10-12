@@ -38,7 +38,7 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
     /// <returns>The compiled ending-explosion presentation.</returns>
     public static EndingExplosionSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         EndingExplosionSpriteDocument document;
         try
         {
@@ -80,7 +80,7 @@ public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePre
     /// <param name="document">Document to validate and serialize.</param>
     public static void Write(Stream json, EndingExplosionSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

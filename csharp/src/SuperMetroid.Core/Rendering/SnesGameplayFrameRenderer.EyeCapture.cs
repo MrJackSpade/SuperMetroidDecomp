@@ -9,7 +9,7 @@ public static partial class SnesGameplayFrameRenderer
     public static ScanlineColorAddRenderLayer? CaptureMorphBallEyeBeam(ISnesAddressSpace bus,
         MorphBallEyeBeamRenderSnapshot beam, Position16<RoomPixels> layer1)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
         Offset16<ScreenPixels> origin = beam.WorldPosition.RelativeToCamera(layer1);

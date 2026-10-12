@@ -16,7 +16,7 @@ public static class SamusNormalSuitPalette
     public static ushort Load(SnesCgram cgram, ushort equippedItems,
         SamusSuitColorCatalog? colors)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if (colors is null)
             throw new InvalidOperationException(
                 "Normal suit palette requires installed Samus suit colors.");
@@ -33,7 +33,7 @@ public static class SamusNormalSuitPalette
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
     public static void LoadPower(SnesCgram cgram, SamusSuitColorCatalog? colors)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if (colors is null)
             throw new InvalidOperationException(
                 "Power suit palette requires installed Samus suit colors.");

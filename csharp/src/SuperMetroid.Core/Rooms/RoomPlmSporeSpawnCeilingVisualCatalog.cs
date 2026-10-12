@@ -38,7 +38,7 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
     public RoomPlmSporeSpawnCeilingVisualCatalog(
         IEnumerable<RoomPlmSporeSpawnCeilingVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmSporeSpawnCeilingVisualEntry entry in entries)

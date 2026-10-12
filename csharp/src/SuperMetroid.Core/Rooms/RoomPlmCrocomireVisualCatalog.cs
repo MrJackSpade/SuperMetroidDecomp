@@ -39,7 +39,7 @@ public sealed class RoomPlmCrocomireVisualCatalog
     public RoomPlmCrocomireVisualCatalog(
         IEnumerable<RoomPlmCrocomireVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmCrocomireVisualEntry entry in entries)

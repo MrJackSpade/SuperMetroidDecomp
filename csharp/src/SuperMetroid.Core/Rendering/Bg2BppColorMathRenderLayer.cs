@@ -47,8 +47,7 @@ public sealed record Bg2BppColorMathRenderLayer : RenderLayer
             throw new ArgumentOutOfRangeException(nameof(firstScanline));
         if (operation is not (ExpandedColorMathOperation.Add or ExpandedColorMathOperation.Subtract))
             throw new ArgumentOutOfRangeException(nameof(operation));
-        if (scrolls.Length != SnesPpuLayout.ScreenHeightPixels)
-            throw new ArgumentException("BG color math needs 224 physical-line register pairs.", nameof(scrolls));
+        Ensure.LengthEqual(scrolls, SnesPpuLayout.ScreenHeightPixels);
         TilemapWord = tilemapWord;
         CharacterWord = characterWord;
         MapHeightTiles = mapHeightTiles;

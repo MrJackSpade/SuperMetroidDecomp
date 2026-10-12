@@ -43,7 +43,7 @@ public sealed class RoomPlmPopulationDefinition
     /// <exception cref="InvalidDataException">The record limit is exceeded, a header is the zero terminator, or a setup-specific payload is invalid.</exception>
     public RoomPlmPopulationDefinition(ushort pointer, IEnumerable<RoomPlmPlacement> records)
     {
-        ArgumentNullException.ThrowIfNull(records);
+        Ensure.NotNull(records);
         Pointer = pointer;
         // A native population is bounded by its 256-record parser. Never enumerate
         // an unbounded caller sequence before enforcing that same upper limit.
@@ -69,7 +69,7 @@ public sealed class RoomPlmPopulationDefinition
 
     private static RoomPlmPlacement CopyPlacement(RoomPlmPlacement placement)
     {
-        ArgumentNullException.ThrowIfNull(placement);
+        Ensure.NotNull(placement);
         if (placement.Header.Header == 0)
             throw new InvalidDataException("A decoded PLM placement cannot contain the native zero terminator.");
         byte[] program = placement.ScrollProgram.ToArray();

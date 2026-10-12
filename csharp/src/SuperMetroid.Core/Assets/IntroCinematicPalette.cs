@@ -58,7 +58,7 @@ public sealed class IntroCinematicPalette
     [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
     public void LoadTo(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         new CgramPalettes(cgram).All.LoadPortBytes(Transfer.Span);
     }
 
@@ -152,7 +152,7 @@ public sealed class IntroCinematicPalette
     /// <param name="document">Complete ordered RGB5 palette to validate and serialize.</param>
     public static void Write(Stream json, IntroCinematicPaletteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

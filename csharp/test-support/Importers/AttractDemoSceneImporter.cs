@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -11,8 +12,8 @@ internal static class AttractDemoSceneImporter
 {
     public static AttractDemoScene? Read(ISnesAddressSpace bus, int set, int scene)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentOutOfRangeException.ThrowIfNegative(scene);
+        Ensure.NotNull(bus);
+        Ensure.AtLeastZero(scene);
         if ((uint)set >= AttractDemoRomData.SetCount)
             throw new ArgumentOutOfRangeException(nameof(set));
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);

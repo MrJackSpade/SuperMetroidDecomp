@@ -15,7 +15,7 @@ public static class SoftwareLayeredSnapshotRenderer
     /// <exception cref="InvalidDataException">A captured layer is not supported by this software consumer.</exception>
     public static Rgba32[] Render(LayeredRenderSnapshot snapshot, Rgba32[]? gameplayOutputBuffer = null)
     {
-        ArgumentNullException.ThrowIfNull(snapshot);
+        Ensure.NotNull(snapshot);
         using var scratch = new RenderScratch();
         SoftwarePpuSnapshotMemory memory = scratch.Memory(snapshot.Memory);
         // The fused ordinary/X-ray gameplay base owns and fills its output. Creating a

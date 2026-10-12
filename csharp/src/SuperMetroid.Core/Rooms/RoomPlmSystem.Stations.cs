@@ -51,9 +51,9 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public SaveStationConfirmationResult ResolveSaveStationConfirmation(ISnesAddressSpace bus, StationActivationEvent activation, bool accepted, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(streamer);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(streamer);
         StationPlmState station = FindSaveStation(activation);
         if (station.SavePhase != SaveStationPhase.AwaitingConfirmation)
         {

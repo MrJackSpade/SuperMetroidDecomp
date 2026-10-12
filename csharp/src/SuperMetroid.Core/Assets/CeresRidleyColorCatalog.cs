@@ -61,7 +61,7 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>
     public void ApplyStart(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.StartColorCount; color++)
             new RidleyPalettes(cgram).CeresStart.Write(color, start.Resolve(color));
     }
@@ -70,7 +70,7 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyEyeFade(SnesCgram cgram, int row)
     {
         eyeFade.ValidateRow(row);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.EyeFadeColorCount; color++)
             new RidleyPalettes(cgram).CeresEyeFade.Write(color, eyeFade.Resolve(row, color));
     }
@@ -79,7 +79,7 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyBodyFade(SnesCgram cgram, int row)
     {
         bodyFade.ValidateRow(row);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
             new RidleyPalettes(cgram).CeresBodyFadeShadow.Write(color, bodyFade.Resolve(row, color));
         for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
@@ -89,7 +89,7 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyHealth(SnesCgram cgram, int row)
     {
         _ = health.Resolve(row, 0);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.HealthColorCount; color++)
             new RidleyPalettes(cgram).Health.Write(color, health.Resolve(row, color));
     }
@@ -98,7 +98,7 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyAlarm(SnesCgram cgram, int row)
     {
         _ = CeresRidleyAlarmColorDefinitions.SourceRow(row);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.AlarmColorCount; color++)
             new RidleyPalettes(cgram).CeresAlarm.Write(color, alarm.Resolve(row, color));
     }
@@ -106,7 +106,7 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>Installs the retreat's fifteen BG colors at CGRAM 81..95 and eight shared colors at both BG 33..40 and OBJ 241..248, matching $A6:A9E3/$AA01.</summary>
     public void ApplyRetreat(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.RetreatBgColorCount; color++)
             new RidleyPalettes(cgram).CeresRetreatBackground.Write(color, ResolveRetreatBg(color));
         for (int color = 0; color < CeresRidleyPaletteRomData.RetreatSharedColorCount; color++)
@@ -121,7 +121,7 @@ public sealed class CeresRidleyColorCatalog
     public void ApplyBaby(SnesCgram cgram, int row)
     {
         _ = baby.Resolve(row, 0);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.BabyColorCount; color++)
             new RidleyPalettes(cgram).CeresBaby.Write(color, baby.Resolve(row, color));
     }
@@ -133,7 +133,7 @@ public sealed class CeresRidleyColorCatalog
     public static CeresRidleyColorCatalog Load(Stream json,
         CeresRidleyColorCatalog? stockForLegacyOverride = null)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CeresRidleyColorDocument document;
         try
         {

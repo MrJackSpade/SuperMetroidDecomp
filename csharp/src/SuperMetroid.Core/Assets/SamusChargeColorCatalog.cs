@@ -65,7 +65,7 @@ public sealed class SamusChargeColorCatalog
     /// <summary>Installs all sixteen Hyper-shot inks at CGRAM 192–207 for playback frame 0–9; shot-glow timing and the native decrementing palette cursor remain engine-owned.</summary>
     public void ApplyHyper(SnesCgram cgram, int frame)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
             new SamusPalettes(cgram).Suit.Write(color, ResolveHyper(frame, color));
@@ -76,7 +76,7 @@ public sealed class SamusChargeColorCatalog
     /// <returns>Compiled selected colors, sharing stock repeated phases and calculated fades only when supplied values agree.</returns>
     public static SamusChargeColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         SamusChargeColorDocument document;
         try
         {
@@ -172,7 +172,7 @@ public sealed class SamusChargeColorCatalog
 
     private static void Apply(SnesCgram cgram, ChargeInputs source, int suit, int phase)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
             new SamusPalettes(cgram).Suit.Write(color,
                 source.Resolve(suit, phase, color));

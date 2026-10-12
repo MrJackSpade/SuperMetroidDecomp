@@ -67,7 +67,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// </summary>
     public void Start(ISnesAddressSpace bus, WreckedShipTreadmillDirection direction)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         WreckedShipTreadmillObjectDefinition definition =
             WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
         StartDefinition(bus, direction, definition.ObjectPointer);
@@ -82,7 +82,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         WreckedShipTreadmillDirection direction,
         AnimatedTileObject objectPointer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         IsActive = true;
         Direction = direction;
@@ -116,8 +116,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         bool areaBossDefeated,
         VramWriteQueue writes)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(writes);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(writes);
         LastSourceAddress = null;
         if (!IsActive)
             return;

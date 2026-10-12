@@ -60,8 +60,8 @@ public sealed class SamusDraygonGrabbedState
     /// </summary>
     public void Begin(ISnesAddressSpace bus, SamusState samus, bool draygonFacingRight)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         samus.Pose = draygonFacingRight
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
@@ -94,7 +94,7 @@ public sealed class SamusDraygonGrabbedState
         Position16<RoomPixels> ownerPosition,
         bool draygonFacingRight)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (!IsActive && !ReleasePublishedToOwner)
         {
             throw new InvalidOperationException(
@@ -119,7 +119,7 @@ public sealed class SamusDraygonGrabbedState
     /// </summary>
     public static DraygonGrabbedMovementResult StepMovement(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         EnsureGrabbedPose(samus);
 
         ushort previousResult = samus.SolidVerticalCollisionResult;
@@ -138,8 +138,8 @@ public sealed class SamusDraygonGrabbedState
         ushort newlyPressedInput,
         bool grappleLockedInPlace)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         EnsureActiveGrabbedPose();
 
         SnesButton newlyPressed = SnesButtons.FromRaw(
@@ -172,8 +172,8 @@ public sealed class SamusDraygonGrabbedState
     /// </summary>
     public void Release(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft

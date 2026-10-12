@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -14,7 +15,7 @@ public static class PhantoonColorExtractor
     /// <returns>UTF-8 JSON bytes for the versioned Phantoon color catalog.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var bands = new PaletteRgb5[PhantoonColorRomData.HealthBandCount][];
         for (int band = 0; band < bands.Length; band++)
             bands[band] = Read(PhantoonColorRomData.HealthBandsSource +

@@ -36,8 +36,8 @@ public static class SamusKnockbackMovement
         ushort nmiFrameCounter = 0,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         // `$90:DDEC-$DE09` requires a live producer timer, unfrozen time, and zero in the
         // installed direction word. A nonzero direction means a previous request already
@@ -70,8 +70,8 @@ public static class SamusKnockbackMovement
     /// </returns>
     public static bool Start(ISnesAddressSpace bus, SamusState samus, ushort controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         if (launch.KnockbackXDirection > 1)
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackXDirection));
         if (launch.KnockbackTimer == 0)
@@ -220,9 +220,9 @@ public static class SamusKnockbackMovement
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (!samus.KnockbackActive)
             throw new InvalidOperationException("Knockback movement requires the special handler to be active.");
         if (samus.KnockbackDirection is not (1 or 2 or 4 or 5))
@@ -282,8 +282,8 @@ public static class SamusKnockbackMovement
         SamusPoseId sourcePose,
         SamusPoseId targetPose)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         // Alpha selects a prospective pose; it does not mutate the live movement type.
         // The owning transition dispatcher must resolve higher-priority expiry first.
         bool valid = (sourcePose, targetPose) is
@@ -315,8 +315,8 @@ public static class SamusKnockbackMovement
         SamusPoseId targetPose,
         ushort controllerNewInput)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         bool valid = (samus.Pose, targetPose) is
             (SamusPoseId.DamageBoostLeftPose,
                 SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpForwardLeftPose) or
@@ -345,8 +345,8 @@ public static class SamusKnockbackMovement
     /// </summary>
     public static bool TryFinishExpiredHitInterruption(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         if (!IsExpiredHitInterruptionPending(samus))
             return false;
 
@@ -361,7 +361,7 @@ public static class SamusKnockbackMovement
     /// </summary>
     public static bool IsExpiredHitInterruptionPending(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         return samus.KnockbackTimer == 0 && samus.KnockbackDirection != 0;
     }
 
@@ -372,8 +372,8 @@ public static class SamusKnockbackMovement
     /// </summary>
     public static void FinishExpiredHitInterruption(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         // Command one always calls `$90:EC7E`, even when command eight first installed
         // an animation-owned pose. That overlap is observable: a turn from radius 19 to

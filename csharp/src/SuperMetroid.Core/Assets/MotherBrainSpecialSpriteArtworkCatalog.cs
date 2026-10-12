@@ -16,7 +16,7 @@ public sealed class MotherBrainSpecialSpriteArtworkCatalog
     public MotherBrainSpecialSpriteArtworkCatalog(
         IReadOnlyDictionary<int, RoomCharacterAtlas> sheets)
     {
-        ArgumentNullException.ThrowIfNull(sheets);
+        Ensure.NotNull(sheets);
         this.sheets = new Dictionary<int, RoomCharacterAtlas>(sheets);
         if (this.sheets.Count != MotherBrainSpecialSpriteArtworkDefinitions.All.Count ||
             MotherBrainSpecialSpriteArtworkDefinitions.All.Any(definition =>

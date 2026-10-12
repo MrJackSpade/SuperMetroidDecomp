@@ -68,9 +68,9 @@ public sealed class PpuMemorySnapshot
     /// <summary>Captures currently published memories without changing their owners.</summary>
     public static PpuMemorySnapshot Capture(SnesVram vram, SnesCgram cgram, OamBuffer oam)
     {
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(oam);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
+        Ensure.NotNull(oam);
         Span<byte> payload = stackalloc byte[SnesPpuLayout.OamUploadByteCount];
         oam.LowTable.CopyTo(payload);
         oam.HighTable.CopyTo(payload[SnesPpuLayout.OamLowTableByteCount..]);

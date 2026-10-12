@@ -5,7 +5,7 @@ public sealed partial class RoomPlmSystem
     /// <summary>Spawn_PLM and $84:B3D4: clear collision immediately, retain artwork until the PLM draws.</summary>
     public bool TrySpawnEnemyBreakableBlock(RoomLevelData level, int blockIndex)
     {
-        ArgumentNullException.ThrowIfNull(level);
+        Ensure.NotNull(level);
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         for (int index = _slots.Length - 1; index >= 0; index--)
         {

@@ -41,7 +41,7 @@ public sealed class RoomPlmStationVisualCatalog
     public RoomPlmStationVisualCatalog(
         IEnumerable<RoomPlmStationVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[][]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmStationVisualEntry entry in entries)

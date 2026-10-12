@@ -13,8 +13,8 @@ public static class AreaMapTilemapBuilder
     public static byte[] Build(IAreaMapView map, Bank80SystemState system,
         MapTileWord hiddenCell, MapRevealMode revealMode = MapRevealMode.None)
     {
-        ArgumentNullException.ThrowIfNull(map);
-        ArgumentNullException.ThrowIfNull(system);
+        Ensure.NotNull(map);
+        Ensure.NotNull(system);
         var bytes = new byte[AreaMapRomData.TilemapByteCount];
         bool downloaded = system.HasAreaMap(map.Area);
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)

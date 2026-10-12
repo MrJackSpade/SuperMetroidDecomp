@@ -19,7 +19,7 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
 
     internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
-        if (colors.Length != 6) throw new ArgumentException("Warm target paint requires six colors.", nameof(colors));
+        Ensure.LengthEqual(colors, 6);
         highlightBlue = colors[0].Blue;
         amberRed = colors[1].Red;
         amberGreen = colors[1].Green;

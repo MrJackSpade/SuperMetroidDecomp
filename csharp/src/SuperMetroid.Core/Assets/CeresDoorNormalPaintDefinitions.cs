@@ -22,7 +22,7 @@ internal sealed class CeresDoorNormalPaintDefinitions
 
     internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
-        if (colors.Length != 15) throw new ArgumentException("Normal door paint requires fifteen colors.", nameof(colors));
+        Ensure.LengthEqual(colors, 15);
         WarmTargets = new(colors.Slice(8, 6));
         for (int slot = 1; slot <= colors.Length; slot++)
             foreach (ColorChannel channel in Enum.GetValues<ColorChannel>())

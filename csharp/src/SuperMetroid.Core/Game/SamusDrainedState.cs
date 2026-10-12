@@ -97,7 +97,7 @@ public sealed class SamusDrainedState
     /// </summary>
     public bool StepGetUpHandler(SamusState samus, ushort newlyPressedInput)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         SnesButton newlyPressed = SnesButtons.FromRaw(
             newlyPressedInput,
             "drained-Samus get-up input");
@@ -133,7 +133,7 @@ public sealed class SamusDrainedState
     /// <remarks>The command returns carry set, which cancels the pending pose transition.</remarks>
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         samus.SetAnimationFrameFromSpecialHandler(frame: 28, timer: 1);
         samus.CancelPendingPoseTransition();
     }
@@ -141,7 +141,7 @@ public sealed class SamusDrainedState
     /// <summary>Ports Samus command <c>$16</c> at <c>$90:F3C9</c>.</summary>
     public void EnableRainbow(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         RainbowPaletteEnabled = true;
         SpecialPaletteFrame = 1;
         CommonPaletteTimer = 1;
@@ -165,7 +165,7 @@ public sealed class SamusDrainedState
     /// </summary>
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         RainbowPaletteEnabled = false;
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = 0;
@@ -190,8 +190,8 @@ public sealed class SamusDrainedState
     public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
 
         if (_suitPaletteRestoreRequested)
         {
@@ -233,8 +233,8 @@ public sealed class SamusDrainedState
     /// </summary>
     public void LetFall(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         // Native computes 21-oldRadius and subtracts it from center Y before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
@@ -272,7 +272,7 @@ public sealed class SamusDrainedState
     /// </summary>
     internal void InstallFallingMovementHandler(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         if (samus.Pose is not (
             SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose))
         {
@@ -299,9 +299,9 @@ public sealed class SamusDrainedState
         SamusState samus,
         ushort nmiFrameCounter)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
             throw new InvalidOperationException("The drained falling movement handler is not installed.");
 
@@ -332,8 +332,8 @@ public sealed class SamusDrainedState
     /// <summary>Ports controller function one at <c>$91:E571</c>.</summary>
     public void PutStanding(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.SetPoseAndAnimationFromScriptedController(
             bus,
@@ -348,8 +348,8 @@ public sealed class SamusDrainedState
     /// <summary>Ports controller function four at <c>$91:E60C</c>.</summary>
     public void PutCrouchingOrFalling(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.SetPoseAndAnimationFromScriptedController(
             bus,
@@ -364,8 +364,8 @@ public sealed class SamusDrainedState
     /// <summary>Ports controller function two at <c>$91:E59B</c>.</summary>
     public void Release(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         // These are literal byte indices into the asymmetrical delay programs, not visual
         // frame counts. In particular, left `$E9` index 13 names an operand byte; native
@@ -387,7 +387,7 @@ public sealed class SamusDrainedState
     /// <summary>Ports controller function three at <c>$91:E5F0</c>.</summary>
     public void EnableHyperBeam(SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(samus);
         samus.EquippedBeams = (
             SamusBeamFlags.Charge |
             SamusBeamFlags.Wave |
@@ -401,8 +401,8 @@ public sealed class SamusDrainedState
 
     private void SetupForRainbowBeam(ISnesAddressSpace bus, SamusState samus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(samus);
 
         // Both commands unconditionally choose left-facing knockback pose `$54`, even when
         // Samus had faced right. This is why controller zero later selects drained pose `$E9`.

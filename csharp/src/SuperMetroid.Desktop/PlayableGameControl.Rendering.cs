@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
@@ -84,7 +85,7 @@ public sealed partial class PlayableGameControl
     /// <summary>Verification seam for a worker that genuinely fails asynchronous device/window startup.</summary>
     internal async Task InitializeRendererAsync(Func<nint, Extent16<DisplayPixels>, long, D3D11RenderWorker> createWorker)
     {
-        ArgumentNullException.ThrowIfNull(createWorker);
+        Ensure.NotNull(createWorker);
         ObjectDisposedException.ThrowIf(IsDisposed, this);
         if (rendererStopping) throw new InvalidOperationException("Renderer has already been stopped.");
         if (rendererStarted) throw new InvalidOperationException("Renderer already initialized.");

@@ -25,12 +25,7 @@ public sealed class CinematicPaletteFader
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
     public CinematicPaletteFader(ReadOnlySpan<Bgr555> targetPalette)
     {
-        if (targetPalette.Length != CgramPalettes.ColorCount)
-        {
-            throw new ArgumentException(
-                "A cinematic fade target must contain all 256 CGRAM colors.",
-                nameof(targetPalette));
-        }
+        Ensure.LengthEqual(targetPalette, CgramPalettes.ColorCount);
 
         for (int color = 0; color < targetPalette.Length; color++)
         {
@@ -97,7 +92,7 @@ public sealed class CinematicPaletteFader
     /// <summary>Ports <c>ComposeFadingPalettes</c> at $8B:8CEA into live CGRAM.</summary>
     public void ComposeInto(SnesCgram cgram)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
         for (int color = 0; color < image.Length; color++)
         {

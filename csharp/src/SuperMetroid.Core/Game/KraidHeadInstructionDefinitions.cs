@@ -143,7 +143,7 @@ internal static class KraidHeadInstructionDefinitions
     /// </summary>
     public static ushort ReadGrowthSelectionWord(ISnesAddressSpace bus, ushort pointer)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         foreach (KraidHeadInstructionDefinition definition in All)
         {
             if (definition.Pointer != pointer)

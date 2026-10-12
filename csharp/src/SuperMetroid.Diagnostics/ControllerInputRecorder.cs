@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
@@ -71,8 +72,8 @@ internal sealed class ControllerInputRecorder : IDisposable
         GameContentIdentity contentIdentity)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dataDirectory);
-        ArgumentNullException.ThrowIfNull(gameOptions);
-        ArgumentNullException.ThrowIfNull(contentIdentity);
+        Ensure.NotNull(gameOptions);
+        Ensure.NotNull(contentIdentity);
         if (!contentIdentity.SourceCartridgeSha256.Equals(
                 SupportedCartridge.Sha256,
                 StringComparison.OrdinalIgnoreCase))
@@ -80,8 +81,7 @@ internal sealed class ControllerInputRecorder : IDisposable
             throw new InvalidDataException(
                 "Installed content identity does not name the supported source cartridge revision.");
         }
-        if (initialSaveRam.Length != SuperMetroidAddressSpace.SaveRamByteCount)
-            throw new ArgumentException("Recorder startup requires a complete 8 KiB SRAM image.", nameof(initialSaveRam));
+        Ensure.LengthEqual(initialSaveRam, SuperMetroidAddressSpace.SaveRamByteCount);
         return StartCore(
             System.IO.Path.Combine(System.IO.Path.GetFullPath(dataDirectory), RecordingDirectoryName),
             SupportedCartridge.CreateSha256Digest(),

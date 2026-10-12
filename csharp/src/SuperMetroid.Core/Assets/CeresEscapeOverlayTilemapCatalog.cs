@@ -134,7 +134,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
     }
     internal static CeresEscapeOverlayTilemapCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CeresEscapeOverlayTilemapDocument document = JsonAssetDocument.Read<CeresEscapeOverlayTilemapDocument>(
             json, Options, "Ceres escape overlay tilemap");
         return new(Compile(document));
@@ -162,7 +162,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
     private static Dictionary<int, ushort> Compile(
         CeresEscapeOverlayTilemapDocument document)
     {
-        ArgumentNullException.ThrowIfNull(document);
+        Ensure.NotNull(document);
         if (document.Version != CeresEscapeOverlayTilemapDefinitions.Version ||
             document.Pages is null ||
             document.Pages.Count != CeresEscapeOverlayTilemapDefinitions.All.Length)

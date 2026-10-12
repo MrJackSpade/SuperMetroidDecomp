@@ -44,7 +44,7 @@ public sealed class SamusKinematicsState
     /// <summary>Constructs the live collision child owned by one <see cref="SamusState"/>.</summary>
     internal SamusKinematicsState(SamusState samusOwner)
     {
-        SamusOwner = samusOwner ?? throw new ArgumentNullException(nameof(samusOwner));
+        SamusOwner = Ensure.NotNull(samusOwner);
     }
 
     /// <summary>

@@ -38,7 +38,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
     /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
     public static IntroDiscoveryActorSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         IntroDiscoveryActorSpriteDocument document;
         try
         {
@@ -80,7 +80,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
     /// <param name="document">The twenty-frame sprite document to validate and serialize.</param>
     public static void Write(Stream json, IntroDiscoveryActorSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

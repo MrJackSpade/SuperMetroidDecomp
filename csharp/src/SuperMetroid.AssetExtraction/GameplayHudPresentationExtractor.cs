@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -16,7 +17,7 @@ public static class GameplayHudPresentationExtractor
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var icons = new Dictionary<string, GameplayHudIconDocument>(StringComparer.Ordinal);
         int sourceWord = 0;
         for (int item = 0; item < GameplayHudDefinitions.IconNames.Length; item++)

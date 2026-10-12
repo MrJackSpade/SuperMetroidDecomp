@@ -23,7 +23,7 @@ public sealed class EscapeTypewriterState
     /// <param name="tileBase">Complete tilemap word for the letter A, including tile index and presentation attributes.</param>
     /// <exception cref="ArgumentNullException"><paramref name="program"/> is null.</exception>
     public EscapeTypewriterState(EscapeTypewriterProgram program, ushort tileBase)
-        : this(program?.SourceAddress ?? throw new ArgumentNullException(nameof(program)), tileBase)
+        : this(Ensure.NotNull(program).SourceAddress, tileBase)
     {
         ProgramId = program.Id;
         BindProgram(program);
@@ -55,7 +55,7 @@ public sealed class EscapeTypewriterState
     /// <summary>Reattaches host content after debugger-state restoration.</summary>
     public void BindProgram(EscapeTypewriterProgram program)
     {
-        ArgumentNullException.ThrowIfNull(program);
+        Ensure.NotNull(program);
         if (ProgramId != EscapeTypewriterProgramId.None && ProgramId != program.Id)
             throw new InvalidDataException(
                 $"Cannot bind escape typewriter program {program.Id} to saved {ProgramId} state.");

@@ -63,11 +63,10 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
     /// <param name="subscreenUsesBg2">Whether gameplay BG2 also competes on the subscreen.</param>
     public GameplayColorMathRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines, bool revealBlocks, ColorMathRegisters math, Bg2BppColorMathRenderLayer? subscreen = null, bool subscreenUsesBg2 = false)
     {
-        ArgumentNullException.ThrowIfNull(gameplay);
+        Ensure.NotNull(gameplay);
         if (subscreenUsesBg2 && !math.AddSubscreen)
             throw new ArgumentException("BG2 subscreen requires subscreen arithmetic.", nameof(subscreenUsesBg2));
-        if (lines.Length != SnesPpuLayout.ScreenHeightPixels)
-            throw new ArgumentException("Gameplay color math requires one interval for each physical scanline.", nameof(lines));
+        Ensure.LengthEqual(lines, SnesPpuLayout.ScreenHeightPixels);
         if (math.FixedRed > 31 || math.FixedGreen > 31 || math.FixedBlue > 31)
             throw new ArgumentOutOfRangeException(nameof(math.FixedRed), "COLDATA components must be five-bit values.");
         Gameplay = gameplay;

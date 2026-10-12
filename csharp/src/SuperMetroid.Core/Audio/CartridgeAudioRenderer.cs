@@ -22,7 +22,7 @@ public sealed class CartridgeAudioRenderer
     /// <exception cref="ArgumentNullException"><paramref name="assets"/> is null.</exception>
     public CartridgeAudioRenderer(ExtractedAudioAssetCatalog assets, ManagedSpcPlayer? player = null)
     {
-        this.assets = assets ?? throw new ArgumentNullException(nameof(assets));
+        this.assets = Ensure.NotNull(assets);
         Player = player ?? new ManagedSpcPlayer();
     }
 

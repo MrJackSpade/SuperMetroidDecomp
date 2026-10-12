@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 namespace SuperMetroid.Desktop;
 
 /// <summary>Fixed geometry shared by the playable host and its layout regression.</summary>
@@ -29,7 +30,7 @@ internal static class HostToolbarLayout
     /// </summary>
     public static void ConfigureGameplayColumn(TableLayoutPanel layout)
     {
-        ArgumentNullException.ThrowIfNull(layout);
+        Ensure.NotNull(layout);
         layout.ColumnStyles.Clear();
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
     }

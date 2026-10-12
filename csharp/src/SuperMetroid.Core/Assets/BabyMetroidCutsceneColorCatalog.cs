@@ -97,7 +97,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// <exception cref="InvalidDataException">The JSON is malformed, null, contains duplicate or unknown properties, uses an unsupported version, or lacks fifteen initial colors and six fourteen-color fade rows with RGB channels from zero through 31.</exception>
     public static BabyMetroidCutsceneColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         BabyMetroidCutsceneColorDocument document;
         try
         {

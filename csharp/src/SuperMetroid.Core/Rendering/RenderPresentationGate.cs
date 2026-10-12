@@ -25,7 +25,7 @@ public sealed class RenderPresentationGate
     /// <summary>Checks and submits atomically relative to AdvanceGeneration; stale work is rejected.</summary>
     public bool TryPresent(RenderFrameIdentity identity, Action present)
     {
-        ArgumentNullException.ThrowIfNull(present);
+        Ensure.NotNull(present);
         RejectReentrancy();
         sync.Wait();
         try

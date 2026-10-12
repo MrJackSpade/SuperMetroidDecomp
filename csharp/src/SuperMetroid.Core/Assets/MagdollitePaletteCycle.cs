@@ -72,7 +72,7 @@ public sealed class MagdollitePaletteCycle
     [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
     public void ApplyFrame(SnesCgram cgram, int frame, int destination)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if (destination < 0 ||
             destination + MagdollitePaletteRomData.AnimatedColorCount > CgramPalettes.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(destination));
@@ -87,7 +87,7 @@ public sealed class MagdollitePaletteCycle
     /// <exception cref="InvalidDataException">The JSON contains duplicate or unknown properties, an unsupported version, dimensions other than four rows of four colors, null colors, or channels outside 0..31.</exception>
     public static MagdollitePaletteCycle Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         MagdollitePaletteCycleDocument document;
         try
         {

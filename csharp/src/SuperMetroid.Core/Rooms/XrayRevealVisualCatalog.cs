@@ -64,8 +64,8 @@ public sealed class XrayOverlayVisualCatalog
         IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
         bool requireCompleteInstallation)
     {
-        ArgumentNullException.ThrowIfNull(itemMetatiles);
-        ArgumentNullException.ThrowIfNull(rooms);
+        Ensure.NotNull(itemMetatiles);
+        Ensure.NotNull(rooms);
         this.itemMetatiles = itemMetatiles.ToArray();
         if (this.itemMetatiles.Length != XrayOverlayRomData.DynamicGraphicsSlots * 2 ||
             this.itemMetatiles.Any(word => word > 0x0fff))
@@ -146,7 +146,7 @@ public sealed class XrayRevealVisualCatalog
     public XrayRevealVisualCatalog(IEnumerable<(RoomCollisionType Type, byte Bts,
         XrayRevealVisualWords Visual)> entries, XrayOverlayVisualCatalog? overlays = null)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         Overlays = overlays;
         foreach ((RoomCollisionType type, byte bts, XrayRevealVisualWords visual) in entries)
         {

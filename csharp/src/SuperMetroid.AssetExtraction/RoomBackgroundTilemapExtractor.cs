@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ public static class RoomBackgroundTilemapExtractor
     /// <exception cref="InvalidDataException">Source coverage, decompression, page size, or tilemap roundtrip validation fails.</exception>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         IReadOnlyList<int> addresses = RoomBackgroundTilemapSources.All;
         if (addresses.Count != RoomBackgroundTilemapFormat.RetailCompressedSourceCount)
             throw new InvalidDataException(

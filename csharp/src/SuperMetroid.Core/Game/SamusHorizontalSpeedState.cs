@@ -271,7 +271,7 @@ public sealed class SamusHorizontalSpeedState
         out ushort animationFrameTimer,
         Func<ushort>? queueEchoSound = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         animationFrameTimer = 0;
         const SnesButton dashButton = SnesButton.B;
         SnesButton heldButtons = SnesButtons.FromRaw(controllerInput, "speed-boost animation input");
@@ -324,7 +324,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
     public byte ReadSpeedBoosterAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte stage = unchecked((byte)(SpeedBoostCounter >> 8));
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
         return SamusRunningCadenceDefinitions.ReadAnimationByte(bus, delayList, byteIndex);
@@ -337,8 +337,8 @@ public sealed class SamusHorizontalSpeedState
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
     public bool UpdateSpeedBoosterPalette(ISnesAddressSpace bus, SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
 
         bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(bus, cgram, frame.EquippedItems, suitColors);
         ushort suitTableOffset = frame.EquippedItems.GetSuitPaletteTableOffset();
@@ -441,8 +441,8 @@ public sealed class SamusHorizontalSpeedState
         ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(cgram);
         if (!NormalSuitPaletteRestoreRequested)
             return false;
 
@@ -758,7 +758,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public SpeedTableEntry ReadEntry(ISnesAddressSpace bus, SamusMovementType movementType)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         int address = ResolveEntryAddress(movementType);
         return ReadEntryAtAddress(bus, address);
     }
@@ -800,7 +800,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public uint CalculateBaseSpeedAtAddress(ISnesAddressSpace bus, int address)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         return CalculateBaseSpeed(ReadEntryAtAddress(bus, address));
     }
 

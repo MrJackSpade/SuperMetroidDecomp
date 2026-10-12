@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Assets;
@@ -19,7 +20,7 @@ public static class CeresDoorVisualFiles
     public static (string TileHash, string ColorHash) Extract(ISnesAddressSpace bus,
         string directory)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
             CeresDoorVisualRomData.TileSource, CeresDoorVisualRomData.TileByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,

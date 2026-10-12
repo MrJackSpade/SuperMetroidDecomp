@@ -25,9 +25,9 @@ public static class SamusTerrainHazardCollision
         AreaId area,
         bool areaBossDefeated)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(samus);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(level);
+        Ensure.NotNull(samus);
 
         // `$94:8E83` makes Wrecked Ship's BTS-zero spike blocks harmless until Phantoon's
         // area-boss bit is set. Every other area admits that table entry unconditionally.

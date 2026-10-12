@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -16,7 +17,7 @@ public static class EscapeTimerPresentationExtractor
     /// <exception cref="InvalidDataException">A spritemap exceeds the bounded OAM part capacity or the presentation fails validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var frames = new Dictionary<string, EscapeTimerVisualPart[]>(StringComparer.Ordinal)
         {
             [EscapeTimerPresentationDefinitions.LabelFrame] =

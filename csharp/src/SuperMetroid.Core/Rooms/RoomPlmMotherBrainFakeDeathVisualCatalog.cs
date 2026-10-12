@@ -41,7 +41,7 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
     public RoomPlmMotherBrainFakeDeathVisualCatalog(
         IEnumerable<RoomPlmMotherBrainFakeDeathVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         var selected = new Dictionary<ushort, ushort[]>();
         var seen = new HashSet<ushort>();
         foreach (RoomPlmMotherBrainFakeDeathVisualEntry entry in entries)

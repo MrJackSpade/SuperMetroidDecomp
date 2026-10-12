@@ -35,7 +35,7 @@ public static class SamusPoseTransitionTable
         ushort canonicalHeldInput,
         ushort canonicalNewInput)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         // $91:81A9 branches directly to lookup-failure handling when the raw controller
         // word is zero, before it reads this table at all.

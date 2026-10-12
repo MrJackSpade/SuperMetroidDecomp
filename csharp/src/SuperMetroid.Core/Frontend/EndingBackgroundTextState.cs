@@ -30,10 +30,9 @@ internal sealed class EndingBackgroundTextState
 
     public EndingBackgroundTextState(ISnesAddressSpace bus, EndingBackgroundTextSetup setup)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.tilemap = setup.Tilemap ?? throw new ArgumentNullException(nameof(setup.Tilemap));
-        if (setup.Tilemap.Length != EndingCreditsRomData.Rendering.TilemapWords)
-            throw new ArgumentException("Ending BG tilemap must contain exactly $400 words.", nameof(setup.Tilemap));
+        this.bus = Ensure.NotNull(bus);
+        this.tilemap = Ensure.NotNull(setup.Tilemap);
+        Ensure.LengthEqual(setup.Tilemap, EndingCreditsRomData.Rendering.TilemapWords);
         this.instructionPointer = setup.InstructionPointer;
         this.inventory = setup.Inventory;
         this.japaneseText = setup.JapaneseText;
@@ -52,7 +51,7 @@ internal sealed class EndingBackgroundTextState
 
     public void Step(SnesVram vram)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         if (installedProgram is null)
             throw new InvalidOperationException(
                 "Ending text host content must be rebound after state restoration.");

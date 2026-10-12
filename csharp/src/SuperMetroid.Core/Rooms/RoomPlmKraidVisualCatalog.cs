@@ -68,7 +68,7 @@ public sealed class RoomPlmKraidVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats a role, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmKraidVisualCatalog(IEnumerable<RoomPlmKraidVisualEntry> entries)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        Ensure.NotNull(entries);
         int count = 0;
         foreach (RoomPlmKraidVisualEntry entry in entries)
         {

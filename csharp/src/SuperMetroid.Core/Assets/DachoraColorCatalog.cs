@@ -109,7 +109,7 @@ public sealed class DachoraColorCatalog
     /// <exception cref="InvalidDataException">The JSON, schema version, palette dimensions, or color values are invalid.</exception>
     public static DachoraColorCatalog Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         DachoraColorDocument document;
         try
         {

@@ -47,9 +47,8 @@ public sealed class ManagedSnesDsp
     /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
     public ManagedSnesDsp(byte[] apuRam)
     {
-        ArgumentNullException.ThrowIfNull(apuRam);
-        if (apuRam.Length != 0x10000)
-            throw new ArgumentException("S-DSP requires exactly 64 KiB of APU RAM.", nameof(apuRam));
+        Ensure.NotNull(apuRam);
+        Ensure.LengthEqual(apuRam, 0x10000);
         this.apuRam = apuRam;
         Reset();
     }
@@ -93,7 +92,7 @@ public sealed class ManagedSnesDsp
     /// resolve through this bank.
     /// </summary>
     public void SetSampleBank(ManagedPcmSampleBank bank) =>
-        sampleBank = bank ?? throw new ArgumentNullException(nameof(bank));
+        sampleBank = Ensure.NotNull(bank);
 
     /// <summary>Applies one SPC write to the mirrored S-DSP register file.</summary>
     [DspRegisterAccess]

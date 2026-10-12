@@ -15,8 +15,7 @@ public sealed class PauseWireframePresentation
     public void ApplyTo(Span<byte> equipmentPage, PauseWireframeKind kind)
     {
         if ((uint)kind >= PauseWireframeDefinitions.Count) throw new ArgumentOutOfRangeException(nameof(kind));
-        if (equipmentPage.Length != PauseWireframeDefinitions.DestinationSize)
-            throw new ArgumentException("Wireframe requires the complete equipment tilemap.", nameof(equipmentPage));
+        Ensure.LengthEqual(equipmentPage, PauseWireframeDefinitions.DestinationSize);
         Wireframe source = frames[(int)kind];
         for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
         for (int column = 0; column < PauseWireframeDefinitions.Columns; column++)

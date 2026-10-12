@@ -59,8 +59,8 @@ public sealed class CeresDoorVisualCatalog
     /// <returns>The compiled visual snapshot; streams are consumed from their current positions and left open.</returns>
     public static CeresDoorVisualCatalog Load(Stream tilePng, Stream paletteJson)
     {
-        ArgumentNullException.ThrowIfNull(tilePng);
-        ArgumentNullException.ThrowIfNull(paletteJson);
+        Ensure.NotNull(tilePng);
+        Ensure.NotNull(paletteJson);
         RoomCharacterAtlas tiles = RoomCharacterAtlas.Load(tilePng,
             CeresDoorVisualRomData.TileByteCount);
         CeresDoorVisualDocument document;
@@ -140,7 +140,7 @@ public sealed class CeresDoorVisualCatalog
     /// <summary>Installs six selected inks at CGRAM 41–46 from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
     public void LoadAnimationColors(SnesCgram cgram, int row)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         if ((uint)row >= CeresDoorVisualRomData.AnimationRowCount) throw new IndexOutOfRangeException();
         for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
             new BossPalettes(cgram).CeresDoorAnimation.Write(color, AnimationColor(row, color));
@@ -158,7 +158,7 @@ public sealed class CeresDoorVisualCatalog
     /// <summary>Writes selected light/dark platform frame 0 or 1 as four eight-bit Mode 7 map-lane cells at VRAM word $060E, preserving the native $A6:F918/$F91C strip width.</summary>
     public void LoadMode7DoorFrame(SnesVram vram, int frame)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         Span<byte> transfer = stackalloc byte[CeresDoorVisualRomData.Mode7FrameByteCount];
         for (int index = 0; index < transfer.Length; index++) transfer[index] = PlatformTile(frame, index);
         new Mode7Vram(vram).LoadMap(transfer, CeresDoorVisualRomData.Mode7DestinationWord);

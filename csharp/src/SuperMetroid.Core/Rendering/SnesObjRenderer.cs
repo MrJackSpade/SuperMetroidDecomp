@@ -41,12 +41,11 @@ public static class SnesObjRenderer
         Extent16<ScreenPixels>? size = null,
         int? priority = null)
     {
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(oam);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         Extent16<ScreenPixels> frame = RequireFrame(size);
-        if (output.Length != frame.X * frame.Y)
-            throw new ArgumentException("OBJ output buffer has the wrong size.", nameof(output));
+        Ensure.LengthEqual(output, frame.X * frame.Y);
         output.Clear();
 
         // A lower OAM number wins an OBJ-vs-OBJ overlap on the normal SNES priority
@@ -77,9 +76,9 @@ public static class SnesObjRenderer
         byte obsel, Span<Rgba32> pixels, Span<byte> palettes = default,
         Extent16<ScreenPixels>? size = null)
     {
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(oam);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         Extent16<ScreenPixels> frame = RequireFrame(size);
         if (pixels.Length != frame.X * frame.Y || (!palettes.IsEmpty && palettes.Length != pixels.Length))
             throw new ArgumentException("Unexpected OBJ composition buffer dimensions.");
@@ -106,9 +105,9 @@ public static class SnesObjRenderer
         Span<Rgba32> pixels = targets.Pixels;
         Span<byte> priorities = targets.Priorities;
         Span<byte> palettes = targets.Palettes;
-        ArgumentNullException.ThrowIfNull(oam);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(oam);
+        Ensure.NotNull(vram);
+        Ensure.NotNull(cgram);
         Extent16<ScreenPixels> frame = RequireFrame(size);
         int pixelCount = frame.X * frame.Y;
         if (pixels.Length != pixelCount)

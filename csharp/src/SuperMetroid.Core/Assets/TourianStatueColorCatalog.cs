@@ -68,7 +68,7 @@ public sealed class TourianStatueColorCatalog
     {
         if (doubledBossParameter > 6 || (doubledBossParameter & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(doubledBossParameter));
-        ArgumentNullException.ThrowIfNull(cgram);
+        Ensure.NotNull(cgram);
         for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
             new BossPalettes(cgram).TourianStatueEye.Write(color, ResolveEye(doubledBossParameter >> 1, color));
     }

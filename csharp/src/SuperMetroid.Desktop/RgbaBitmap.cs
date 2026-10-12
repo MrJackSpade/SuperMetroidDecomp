@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Assets;
@@ -18,7 +19,7 @@ public static class RgbaBitmap
         Extent16<ScreenPixels> size,
         ReadOnlySpan<Rgba32> pixels)
     {
-        ArgumentNullException.ThrowIfNull(bitmap);
+        Ensure.NotNull(bitmap);
         int width = size.X, height = size.Y;
         ArgumentOutOfRangeException.ThrowIfZero(width, nameof(size));
         ArgumentOutOfRangeException.ThrowIfZero(height, nameof(size));
@@ -29,8 +30,7 @@ public static class RgbaBitmap
                 "Destination bitmap must be a matching 32-bpp ARGB raster.",
                 nameof(bitmap));
         }
-        if (pixels.Length != width * height)
-            throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
+        Ensure.LengthEqual(pixels, width * height);
 
         var bounds = new Rectangle(0, 0, width, height);
         BitmapData data = bitmap.LockBits(bounds, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);

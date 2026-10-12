@@ -26,7 +26,7 @@ public static class TourianStatueAnimatedTileArtworkDefinitions
     public static int SourceAddress(TourianStatueAnimatedTileProgramDefinition definition,
         ushort operandPointer)
     {
-        ArgumentNullException.ThrowIfNull(definition);
+        Ensure.NotNull(definition);
         (int first, int width, int released) = definition.ObjectPointer switch
         {
             AnimatedTileObject.TourianStatuePhantoon => (0x9364, 0x80, 0x97e4),

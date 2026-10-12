@@ -13,8 +13,7 @@ public static class XrayRevealOverlays
         ushort specialPointer, Position16<RoomPixels> layer1Position,
         XrayRevealVisualCatalog? visuals = null)
     {
-        if (tilemap.Length != XrayTilemapLayout.BufferWords)
-            throw new ArgumentException("X-ray overlays require both native tilemap screens.", nameof(tilemap));
+        Ensure.LengthEqual(tilemap, XrayTilemapLayout.BufferWords);
         if (visuals is null)
             throw new InvalidOperationException("X-ray reveal requires installed overlay visuals.");
         XrayOverlayVisualCatalog overlays = visuals.Overlays ?? throw new InvalidOperationException(

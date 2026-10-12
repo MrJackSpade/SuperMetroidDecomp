@@ -15,7 +15,7 @@ internal sealed class SoftwarePpuSnapshotMemory
     /// <summary>Replaces every modeled byte, so a pooled reader carries nothing between frames.</summary>
     internal void Load(PpuMemorySnapshot snapshot)
     {
-        ArgumentNullException.ThrowIfNull(snapshot);
+        Ensure.NotNull(snapshot);
         Vram.LoadBytes(0, snapshot.Vram);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             Cgram.SetColor(index, snapshot.Cgram[index]);

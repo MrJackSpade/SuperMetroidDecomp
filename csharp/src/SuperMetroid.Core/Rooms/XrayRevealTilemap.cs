@@ -15,8 +15,8 @@ public static class XrayRevealTilemap
         Position16<RoomPixels> bg1Scroll, Position16<RoomPixels> layer1Position,
         byte area, XrayRevealVisualCatalog? visuals = null)
     {
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(level);
+        Ensure.NotNull(vram);
         var result = new ushort[XrayTilemapLayout.BufferWords];
         for (int row = 0; row < XrayTilemapLayout.MetatileRows; row++)
         for (int col = 0; col < XrayTilemapLayout.MetatileColumns; col++)

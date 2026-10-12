@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -11,7 +12,7 @@ internal static class RoomPaletteFxPresentationExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         using var json = new MemoryStream();
         RoomPaletteFxPresentation.Write(json, new RoomPaletteFxPresentationDocument
         {

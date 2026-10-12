@@ -42,7 +42,7 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
     /// <returns>The immutable bank-$8C-keyed presentation shared by approach and destruction scenes.</returns>
     public static CeresFlightSpritePresentation Load(Stream json)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         CeresFlightSpriteDocument document;
         try
         {
@@ -84,7 +84,7 @@ public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresent
     /// <param name="document">Document containing all six required named visual frames.</param>
     public static void Write(Stream json, CeresFlightSpriteDocument document)
     {
-        ArgumentNullException.ThrowIfNull(json);
+        Ensure.NotNull(json);
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
             MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false));

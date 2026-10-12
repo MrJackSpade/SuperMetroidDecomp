@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -55,7 +56,7 @@ public sealed class GitHubErrorReporter : IDisposable
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repository);
         this.repository = repository;
-        this.issueClient = issueClient ?? throw new ArgumentNullException(nameof(issueClient));
+        this.issueClient = Ensure.NotNull(issueClient);
         worker = ProcessQueueAsync();
     }
 
@@ -65,8 +66,8 @@ public sealed class GitHubErrorReporter : IDisposable
     /// </summary>
     public string Report(Exception exception, GitHubErrorContext context)
     {
-        ArgumentNullException.ThrowIfNull(exception);
-        ArgumentNullException.ThrowIfNull(context);
+        Ensure.NotNull(exception);
+        Ensure.NotNull(context);
         ObjectDisposedException.ThrowIf(Volatile.Read(ref disposed) != 0, this);
 
         string fingerprint = CreateFingerprint(exception, context);
@@ -125,7 +126,7 @@ public sealed class GitHubErrorReporter : IDisposable
 
     internal static string CreateFingerprint(Exception exception, GitHubErrorContext? context = null)
     {
-        ArgumentNullException.ThrowIfNull(exception);
+        Ensure.NotNull(exception);
         var identity = new StringBuilder();
         AppendExceptionIdentity(identity, exception);
         // Unknown failures are conservatively room-scoped. Only an explicit cartridge

@@ -11,7 +11,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     internal void ConsumeTargetPaletteWrites(Action<int, Bgr555> write)
     {
-        ArgumentNullException.ThrowIfNull(write);
+        Ensure.NotNull(write);
         _sporeSpawn?.ConsumeTargetColors(write);
     }
 }

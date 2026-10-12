@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -18,7 +19,7 @@ public static class TourianStatueColorExtractor
     /// <exception cref="InvalidDataException">A source color sets bit 15.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
         var eye = new PaletteRgb5[TourianStatuePaletteRomData.EyeRowCount][];
         for (int row = 0; row < eye.Length; row++)
             eye[row] = Read(bus,

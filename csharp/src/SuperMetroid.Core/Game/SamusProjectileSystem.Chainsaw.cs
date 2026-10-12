@@ -14,7 +14,7 @@ public sealed partial class SamusProjectileSystem
     /// Chainsaw store invisible to the actual displayed frame.
     /// </summary>
     internal void BindGameplayWindowRegisters(GameplayWindowRegisterCache registers) =>
-        ChainsawWindowRegisters = registers ?? throw new ArgumentNullException(nameof(registers));
+        ChainsawWindowRegisters = Ensure.NotNull(registers);
 
     /// <summary>
     /// Literal cached PPU-register owner corrupted by the misaligned Chainsaw callback.

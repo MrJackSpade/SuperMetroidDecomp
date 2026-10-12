@@ -288,7 +288,7 @@ public sealed record PlmTilemapUpdate(
     [PpuLayoutBoundary("codec: DrawPLM two-row BG1 tilemap DMA (VMADD)")]
     public void ExecuteTo(SnesVram vram)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         vram.ExecuteWordTransfer(TopRow, TopRowDestination, 1);
         vram.ExecuteWordTransfer(
             BottomRow,
@@ -308,7 +308,7 @@ public sealed record TilemapStreamUpdate(
     /// </summary>
     public void ExecuteTo(SnesVram vram)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         foreach (TilemapDmaSegment segment in Segments)
             segment.ExecuteTo(vram);
     }
@@ -336,7 +336,7 @@ public sealed record TilemapDmaSegment(
     [PpuLayoutBoundary("codec: one BG tilemap stream DMA segment (VMADD, VMAIN increment)")]
     public void ExecuteTo(SnesVram vram)
     {
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(vram);
         if (SourceWordOffset < 0 || WordCount < 0 || SourceWordOffset + WordCount > SourceWords.Length)
             throw new InvalidDataException("Tilemap DMA segment exceeds its staging array.");
 

@@ -48,7 +48,7 @@ public sealed partial class FileSelectMenuState
     public FileSelectMenuState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         AreaMapPresentationCatalog? mapPresentation = null)
     {
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.mapPresentation = mapPresentation;
         ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes,

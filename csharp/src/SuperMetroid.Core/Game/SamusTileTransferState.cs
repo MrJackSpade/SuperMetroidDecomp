@@ -39,7 +39,7 @@ public sealed class SamusTileTransferState
     /// </summary>
     public void SelectForPoseFrame(ISnesAddressSpace bus, SamusPoseId pose, ushort animationFrame)
     {
-        ArgumentNullException.ThrowIfNull(bus);
+        Ensure.NotNull(bus);
 
         SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(
             "Samus tile transfer requires installed body artwork.");
@@ -59,8 +59,8 @@ public sealed class SamusTileTransferState
     /// </summary>
     public void TransferToVram(ISnesAddressSpace bus, SnesVram vram)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
+        Ensure.NotNull(bus);
+        Ensure.NotNull(vram);
 
         // Samus has a dedicated DMA path instead of using the ordinary seven-byte VRAM
         // queue. The four destinations form two interleaved character regions selected by

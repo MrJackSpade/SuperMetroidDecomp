@@ -46,7 +46,7 @@ internal static partial class Program
             byte high = bus.ReadCartridgeByte((int)new SnesAddress(
                 0x84,
                 checked((ushort)(pointer + 1))));
-            ushort firstWord = unchecked((ushort)(low | (high << 8)));
+            ushort firstWord = unchecked((ushort)(SnesLittleEndian.Word(low, high)));
             AssertTrue(firstWord is not (0x0000 or 0xffff),
                 $"PLM instruction list {field.Name} begins with readable retail data");
         }

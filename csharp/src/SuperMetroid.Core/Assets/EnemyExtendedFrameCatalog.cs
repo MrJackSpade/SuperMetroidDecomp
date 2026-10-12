@@ -61,7 +61,7 @@ public sealed class EnemyExtendedFrameCatalog
             components = ReadOnlyMemory<EnemyExtendedDrawComponent>.Empty;
             return true;
         }
-        if (frames.TryGetValue((bank << 16) | pointer,
+        if (frames.TryGetValue(((int)new SnesAddress(bank, pointer)),
                 out EnemyExtendedDrawComponent[]? found))
         {
             components = found;
@@ -75,7 +75,7 @@ public sealed class EnemyExtendedFrameCatalog
     internal bool TryGetDisplay(byte bank, ushort nativePointer,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {
-        int identity = (bank << 16) | nativePointer;
+        int identity = ((int)new SnesAddress(bank, nativePointer));
         if (displayFrames.TryGetValue(identity, out int selected) &&
             frames.TryGetValue(selected, out EnemyExtendedDrawComponent[]? found))
         {
@@ -87,7 +87,7 @@ public sealed class EnemyExtendedFrameCatalog
 
     /// <summary>Resolves the matching BG2 half of a display frame without mutating its physical selector.</summary>
     internal ushort GetDisplayPointer(byte bank, ushort nativePointer) =>
-        displayFrames.TryGetValue((bank << 16) | nativePointer, out int selected)
+        displayFrames.TryGetValue(((int)new SnesAddress(bank, nativePointer)), out int selected)
             ? unchecked((ushort)selected) : nativePointer;
 
     /// <summary>
@@ -225,15 +225,15 @@ public sealed class EnemyExtendedFrameCatalog
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
                     new((short)component.OffsetX, (short)component.OffsetY),
-                    GoldenTorizoStrideGeometryDefinitions.Compile((definition.Bank << 16) | definition.Pointer,
+                    GoldenTorizoStrideGeometryDefinitions.Compile(((int)new SnesAddress(definition.Bank, definition.Pointer)),
                         index, EnemySpritemapParts.FromOwnedArray(parts)));
             }
-            if (!frames.TryAdd((definition.Bank << 16) | definition.Pointer,
+            if (!frames.TryAdd(((int)new SnesAddress(definition.Bank, definition.Pointer)),
                     compiled))
                 throw new InvalidDataException(
                     $"Extended enemy frame {definition.Name} repeats a visual identity.");
             identities.Add(authoredName,
-                (definition.Bank << 16) | definition.Pointer);
+                ((int)new SnesAddress(definition.Bank, definition.Pointer)));
         }
         var displayFrames = new Dictionary<int, int>();
         if (!legacyOverride)

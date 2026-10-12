@@ -28,7 +28,7 @@ internal static partial class Program
                 AssertEqual(movement, (byte)samus.ReadMovementType(source), "Live movement discriminator matches native");
                 AssertEqual(movement, (byte)SamusState.ReadMovementType(source, (SamusPoseId)pose), "Prospective movement discriminator matches native");
                 commit(samus, source);
-                AssertEqual((ushort)(facing | movement << 8), samus.PoseHistory.PreviousDirectionAndMovement,
+                AssertEqual((ushort)(SnesLittleEndian.Word(facing, movement)), samus.PoseHistory.PreviousDirectionAndMovement,
                     "Actual history publisher retains native facing/movement word");
             }
             else

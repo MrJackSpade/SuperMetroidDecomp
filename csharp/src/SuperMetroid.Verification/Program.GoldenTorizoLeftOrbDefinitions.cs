@@ -26,10 +26,9 @@ internal static partial class Program
                        selected == word.Value,
                 $"Golden Torizo left-orb control $AA:{word.Address:X4} lookup");
             AssertTrue(GoldenTorizoLeftOrbInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoLeftOrbInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo left-orb control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(46, controls.Count,
@@ -114,9 +113,8 @@ internal static partial class Program
             "12 physical frames and eight hitbox lists match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(GoldenTorizoLeftOrbDefinitionsRomByte(rom, (bank << 16) | address) |
-                GoldenTorizoLeftOrbDefinitionsRomByte(rom, (bank << 16) |
-                    unchecked((ushort)(address + 1))) << 8);
+            (ushort)(SnesLittleEndian.Word(GoldenTorizoLeftOrbDefinitionsRomByte(rom, (bank << 16) | address), GoldenTorizoLeftOrbDefinitionsRomByte(rom, (bank << 16) |
+                    unchecked((ushort)(address + 1)))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo left orb definitions")]

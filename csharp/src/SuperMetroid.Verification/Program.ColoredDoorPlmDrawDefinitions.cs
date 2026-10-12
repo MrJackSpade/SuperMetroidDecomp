@@ -64,7 +64,7 @@ internal static partial class Program
             const ushort population = 0x9000;
             bus.WriteBytes(0x8f0000 | population,
             [
-                unchecked((byte)(ushort)header), unchecked((byte)((ushort)header >> 8)),
+                unchecked((byte)(ushort)header), SnesLittleEndian.HighByte((ushort)header),
                 4, 4, 0, 0,
                 0, 0,
             ]);

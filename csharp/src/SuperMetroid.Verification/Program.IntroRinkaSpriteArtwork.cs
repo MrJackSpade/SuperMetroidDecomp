@@ -15,7 +15,7 @@ internal static partial class Program
         ushort y = actor.WholePosition.Y;
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
         DrawImportedSpritemap(bus, oam,
-            IntroCinematicRomData.Banks.Spritemaps << 16 | actor.SpriteMapPointer,
+            ((int)new SnesAddress(            IntroCinematicRomData.Banks.Spritemaps, actor.SpriteMapPointer)),
             new(actor.WholePosition.X, y), actor.PaletteBits,
             originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
     }

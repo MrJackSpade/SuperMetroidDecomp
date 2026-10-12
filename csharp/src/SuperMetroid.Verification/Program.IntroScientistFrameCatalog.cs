@@ -13,7 +13,7 @@ internal static partial class Program
         int pointer = 0x8ccf;
         for (int index = 0; index < 10; index++)
         {
-            int count = IntroScientistFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroScientistFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8;
+            int count = SnesLittleEndian.Word(IntroScientistFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroScientistFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual((ushort)pointer, frames[index].Pointer, "scientist frame follows original record chain");
             AssertEqual(count, frames[index].StockPartCount, "original scientist part count");
             AssertEqual(names[index], frames[index].Name, "published scientist asset key");

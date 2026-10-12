@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Pinned bank-$90 horizontal mechanics, separate from animation and palette definitions.</summary>
@@ -76,8 +77,8 @@ internal static class SamusHorizontalMotionDefinitions
                 SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => 0xc000u,
             _ => throw new InvalidOperationException($"Undefined SamusMovementType {(SamusMovementType)row}."),
         };
-        entry = new((ushort)(acceleration >> 16), (ushort)acceleration,
-            (ushort)(maximum >> 16), (ushort)maximum, 0, deceleration);
+        entry = new(SnesFixedPosition.WholeOf(unchecked((int)acceleration)), (ushort)acceleration,
+            SnesFixedPosition.WholeOf(unchecked((int)maximum)), (ushort)maximum, 0, deceleration);
         return true;
     }
 

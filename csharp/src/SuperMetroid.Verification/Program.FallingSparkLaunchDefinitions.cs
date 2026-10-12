@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(FallingSparkLaunchDefinitionsRomByte(rom, address) | FallingSparkLaunchDefinitionsRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CartridgeReadGuard(rom)
@@ -44,9 +44,9 @@ internal static partial class Program
             AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");
             AssertEqual(whole, projectile.Variable1, "Actual spark whole launch field");
             AssertEqual(fraction, projectile.Variable0, "Actual spark fractional launch field");
-            uint expected = unchecked(((uint)source.Position.X.Whole << 16 | source.Position.X.Fraction) + ((uint)whole << 16 | fraction));
+            uint expected = unchecked((new SnesFixedPosition(source.Position.X.Whole, source.Position.X.Fraction).RawValue) + ((uint)whole << 16 | fraction));
             move(projectile);
-            AssertEqual((ushort)(expected >> 16), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
         foreach (var occupied in enemies.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.FallingSpark;

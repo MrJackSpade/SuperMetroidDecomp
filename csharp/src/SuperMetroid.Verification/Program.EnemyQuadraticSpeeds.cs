@@ -30,7 +30,7 @@ internal static partial class Program
         {
             int offset = index * 8 + (negative ? 4 : 0);
             uint expected = unchecked(origin + ((uint)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)) << 16 | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset)));
-            rock.Position = rock.Position.WithY(new((ushort)(origin >> 16), unchecked((ushort)origin)));
+            rock.Position = rock.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
             rock.Variable1 = 0xdead;
             addRock(rock, index, negative);
             AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
@@ -78,12 +78,12 @@ internal static partial class Program
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int offset = 0; offset <= 756; offset++)
         {
-            maw.ExtensionWhole = (ushort)(start >> 16);
+            maw.ExtensionWhole = SnesFixedPosition.WholeOf(unchecked((int)start));
             maw.ExtensionFraction = unchecked((ushort)start);
             maw.QuadraticSpeedByteOffset = (ushort)offset;
             uint expected = unchecked(start + ((uint)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)) << 16 | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset)));
             addMaw(maw);
-            AssertEqual(expected, ((uint)maw.ExtensionWhole << 16) | maw.ExtensionFraction, "Yapping Maw real split-word integration");
+            AssertEqual(expected, new SnesFixedPosition(maw.ExtensionWhole, maw.ExtensionFraction).RawValue, "Yapping Maw real split-word integration");
             AssertEqual(offset + 8, maw.QuadraticSpeedByteOffset, "Yapping Maw byte offset advance");
         }
         Console.WriteLine("Compiled quadratic speeds: all 759 word windows and 757 displacement windows match the authored NTSC bytes, including odd offsets and native discontinuities.");

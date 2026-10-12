@@ -76,14 +76,13 @@ internal static partial class Program
         ushort ReadWord(ushort pointer)
         {
             int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-            return unchecked((ushort)(CompiledLibraryBackgroundProgramsRomByte(bus, address) |
-                (CompiledLibraryBackgroundProgramsRomByte(bus, address + 1) << 8)));
+            return unchecked((ushort)(SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1))));
         }
 
         int ReadLong(ushort pointer)
         {
             int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-            return CompiledLibraryBackgroundProgramsRomByte(bus, address) | (CompiledLibraryBackgroundProgramsRomByte(bus, address + 1) << 8) |
+            return SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)) |
                 (CompiledLibraryBackgroundProgramsRomByte(bus, address + 2) << 16);
         }
     }

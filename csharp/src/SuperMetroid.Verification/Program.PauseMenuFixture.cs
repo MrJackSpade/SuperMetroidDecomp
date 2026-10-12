@@ -33,7 +33,7 @@ internal static partial class Program
         var pauseColors = new Bgr555[SnesCgram.ColorCount];
         byte[] paletteBytes = Read(0xb6f000, CgramPalettes.ByteCount);
         for (int i = 0; i < pauseColors.Length; i++)
-            pauseColors[i] = Bgr555.FromCgramPortWord((ushort)(paletteBytes[i * 2] | paletteBytes[i * 2 + 1] << 8));
+            pauseColors[i] = Bgr555.FromCgramPortWord((ushort)(SnesLittleEndian.Word(paletteBytes[i * 2], paletteBytes[i * 2 + 1])));
         var palettes = Construct<MapStaticPalettes>(pauseColors, stock.Palettes.FileSelect.ToArray(),
             Enum.GetValues<AreaId>().Where(area => area != AreaId.Ceres)
                 .ToDictionary(area => area, area => stock.Palettes.World(area).ToArray()));

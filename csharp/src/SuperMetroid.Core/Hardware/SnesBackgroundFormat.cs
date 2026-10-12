@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Hardware;
 
 /// <summary>VRAM address arithmetic (#223): 15-bit word addresses over 64 KiB of byte storage.</summary>
 [PpuLayoutAccess]
+[SnesEncodingOwner]
 public static class SnesVramAddressing
 {
     /// <summary>Bytes in one VRAM word; the PPU addresses VRAM in 16-bit words.</summary>
@@ -27,6 +28,7 @@ public static class SnesVramAddressing
 }
 
 /// <summary>Converts background pixel coordinates to the 8×8 characters that cover them (#223).</summary>
+[SnesEncodingOwner]
 public static class BgCharacterGrid
 {
     /// <summary>The character (tile) column or row containing a non-negative pixel coordinate.</summary>
@@ -49,6 +51,7 @@ public static class BgCharacterGrid
 /// block stored row by row; screens are ordered left to right, then top to bottom.
 /// </summary>
 [PpuLayoutAccess]
+[SnesEncodingOwner]
 public readonly record struct BgTilemapGeometry
 {
     /// <summary>Validates a tilemap of 32 or 64 characters on each axis.</summary>
@@ -96,6 +99,7 @@ public readonly record struct BgTilemapGeometry
 /// leftmost pixel in each byte's most significant bit, plane <c>n</c> contributing <c>2^n</c>.
 /// </summary>
 [PpuLayoutAccess]
+[SnesEncodingOwner]
 public sealed class BgCharacterFormat
 {
     /// <summary>The color index every background treats as transparent.</summary>
@@ -104,9 +108,14 @@ public sealed class BgCharacterFormat
     /// <summary>Palettes a tilemap entry's three-bit palette field can select.</summary>
     public const int PaletteCount = 8;
 
-    private const int PlanesPerPair = 2;
-    private const int BytesPerPlanePairRow = PlanesPerPair;
-    private const int BytesPerPlanePair = SnesPpuLayout.BackgroundTileSizePixels * BytesPerPlanePairRow;
+    /// <summary>Bit planes interleaved in one row word: the pair's even plane in the low byte, its odd plane in the high byte.</summary>
+    public const int PlanesPerPair = 2;
+
+    /// <summary>Bytes one character row of a plane pair occupies: one byte per plane.</summary>
+    public const int BytesPerPlanePairRow = PlanesPerPair;
+
+    /// <summary>Bytes of one plane pair across the character's eight rows; the next pair starts this far on.</summary>
+    public const int BytesPerPlanePair = SnesPpuLayout.BackgroundTileSizePixels * BytesPerPlanePairRow;
 
     private BgCharacterFormat(int bitsPerPixel) => BitsPerPixel = bitsPerPixel;
 

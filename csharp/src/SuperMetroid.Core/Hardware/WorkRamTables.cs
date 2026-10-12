@@ -43,13 +43,13 @@ public readonly struct WorkRamByteTable
 
     /// <summary>Reads the little-endian word whose low byte is at <paramref name="byteOffset"/>, low byte first.</summary>
     public ushort ReadWord(int byteOffset) =>
-        (ushort)(bytes.Read(byteOffset) | bytes.Read(byteOffset + 1) << 8);
+        (ushort)(SnesLittleEndian.Word(bytes.Read(byteOffset), bytes.Read(byteOffset + 1)));
 
     /// <summary>Writes the little-endian word whose low byte is at <paramref name="byteOffset"/>, low byte first.</summary>
     public void WriteWord(int byteOffset, ushort value)
     {
         bytes.Write(byteOffset, (byte)value);
-        bytes.Write(byteOffset + 1, (byte)(value >> 8));
+        bytes.Write(byteOffset + 1, SnesLittleEndian.HighByte(value));
     }
 }
 

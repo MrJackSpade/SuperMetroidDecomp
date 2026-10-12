@@ -169,9 +169,9 @@ public sealed partial class RoomEnemySystem
         // not lose their subpixel motion.
         int xMagnitude = ReadUnsignedSineMagnitudeProduct(angle, speed, 0x40);
         int yMagnitude = ReadUnsignedSineMagnitudeProduct(angle, speed, 0x80);
-        spit.Velocity = spit.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xMagnitude >> 16))));
+        spit.Velocity = spit.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
         spit.Variable0 = unchecked((ushort)xMagnitude);
-        spit.Velocity = spit.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(yMagnitude >> 16))));
+        spit.Velocity = spit.Velocity.WithY(new SnesSignedEightEight(SnesFixedPosition.WholeOf(yMagnitude)));
         spit.Variable1 = unchecked((ushort)yMagnitude);
     }
 

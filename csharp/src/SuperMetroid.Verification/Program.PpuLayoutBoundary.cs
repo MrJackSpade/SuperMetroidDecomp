@@ -162,7 +162,7 @@ internal static partial class Program
         bg1.Write(0x41, tile);
         AssertEqual(tile, (SnesBgTilemapWord)bg1.ReadWord(0x41), "a tilemap word round-trips through the BG1 view");
         AssertEqual((byte)(tile.Raw & 0xff), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
-        AssertEqual((byte)(tile.Raw >> 8), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2 + 1), "and the high byte after it");
+        AssertEqual(SnesLittleEndian.HighByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2 + 1), "and the high byte after it");
 
         var cgram = new SnesCgram();
         CgramPalette row = new CgramPalettes(cgram).ObjectRow(7);
@@ -280,7 +280,7 @@ internal static partial class Program
         AssertEqual((byte)0x10, low[0], "OBJ 0 X low byte");
         AssertEqual((byte)0x20, low[1], "OBJ 0 Y");
         AssertEqual((byte)(attributes.Raw & 0xff), low[2], "OBJ 0 attribute low byte");
-        AssertEqual((byte)(attributes.Raw >> 8), low[3], "OBJ 0 attribute high byte");
+        AssertEqual(SnesLittleEndian.HighByte(attributes.Raw), low[3], "OBJ 0 attribute high byte");
         AssertEqual((byte)0x80, low[4], "OBJ 1 keeps only X's low byte in the low table");
 
         ReadOnlySpan<byte> high = oam.HighTable;

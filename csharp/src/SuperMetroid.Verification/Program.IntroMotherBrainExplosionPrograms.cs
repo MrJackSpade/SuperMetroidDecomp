@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyIntroMotherBrainExplosionPrograms(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(IntroMotherBrainExplosionProgramsRomByte(rom, address) | IntroMotherBrainExplosionProgramsRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(IntroMotherBrainExplosionProgramsRomByte(rom, address), IntroMotherBrainExplosionProgramsRomByte(rom, address + 1)));
         for (int pointer = 0xcdab; pointer < 0xcdeb; pointer++)
         {
             AssertEqual(IntroMotherBrainExplosionProgramsRomByte(rom, 0x8b0000 + pointer), IntroMotherBrainExplosionInstructionDefinitions.ReadByte((ushort)pointer), "original explosion program byte");
@@ -37,8 +37,8 @@ internal static partial class Program
         for (int index = 0; index < frames.Count; index++)
         {
             int operand = (index < 6 ? 0x8bcdcd : 0x8bcdad) + 4 * (index % 6);
-            ushort pointer = (ushort)(IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand) | IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand + 1) << 8);
-            int count = IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8;
+            ushort pointer = (ushort)(SnesLittleEndian.Word(IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand), IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand + 1)));
+            int count = SnesLittleEndian.Word(IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual(pointer, frames[index].Pointer, "original explosion frame operand");
             AssertEqual(count, frames[index].StockPartCount, "original explosion part count");
             AssertEqual(names[index], frames[index].Name, "stable explosion asset name");

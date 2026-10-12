@@ -96,7 +96,7 @@ internal static partial class Program
         level.SetForegroundEntry(4 * 16 + 5, RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw);
         var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = 20 << 16 });
         AssertTrue(clipped.Collided, "Inheritance fixture actually reaches its solid wall");
-        AssertEqual(unchecked((ushort)(clipped.AcceptedDisplacement >> 16)),
+        AssertEqual(SnesFixedPosition.WholeOf(clipped.AcceptedDisplacement),
             records.DistanceInteger(SamusCollisionDirection.Right),
             "Collision publishes clipped displacement, not the twenty-pixel request");
         SamusProjectileInheritance.PublishCameraYSubspeed(bus, 0xabcd);

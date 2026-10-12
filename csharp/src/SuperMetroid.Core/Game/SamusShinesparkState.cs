@@ -596,7 +596,7 @@ false);
         // offsets. Both additions below deliberately retain that unsigned WRAM wrapping.
         Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, CrashRadius);
         Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, CrashRadius);
-        ushort encodedIndex = unchecked((ushort)((CrashSubphase << 8) | CrashRadius));
+        ushort encodedIndex = unchecked((ushort)(SnesLittleEndian.Word(CrashRadius, CrashSubphase)));
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
             encodedIndex,
             samus.Position.Whole + firstOffset,
@@ -800,7 +800,7 @@ false,             CrashSequenceFinished: true);
             samus.HorizontalSpeed.ExtraRunSubspeed) + Compose(
                 samus.Kinematics.YAcceleration,
                 samus.Kinematics.YSubacceleration));
-        samus.HorizontalSpeed.ExtraRunSpeed = unchecked((ushort)(accelerated >> 16));
+        samus.HorizontalSpeed.ExtraRunSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
         samus.HorizontalSpeed.ExtraRunSubspeed = unchecked((ushort)accelerated);
         if (unchecked((short)(samus.HorizontalSpeed.ExtraRunSpeed - 15)) >= 0)
         {
@@ -825,7 +825,7 @@ false,             CrashSequenceFinished: true);
             VerticalAccelerationSubspeed) + Compose(
                 samus.Kinematics.YAcceleration,
                 samus.Kinematics.YSubacceleration));
-        VerticalAccelerationSpeed = unchecked((ushort)(acceleration >> 16));
+        VerticalAccelerationSpeed = SnesFixedPosition.WholeOf(unchecked((int)acceleration));
         VerticalAccelerationSubspeed = unchecked((ushort)acceleration);
 
         uint speed = unchecked(Compose(
@@ -861,7 +861,7 @@ false,             CrashSequenceFinished: true);
         // to the enemy boundary; using it here shifts the entire crash/recovery anchor.
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
             samus.Kinematics, samus.Kinematics.InteractiveEnemies, SamusCollisionDirection.Up,
-            unchecked((ushort)(collisionMagnitude >> 16)), unchecked((ushort)collisionMagnitude));
+            SnesFixedPosition.WholeOf(collisionMagnitude), unchecked((ushort)collisionMagnitude));
         samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemyIndex);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);

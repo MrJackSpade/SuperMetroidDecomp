@@ -20,7 +20,7 @@ public sealed partial class D3D11FrameRenderer
         data[D3D11ShaderLayout.WindowSelectionWord] = (uint)(selection >> ((index & 1) * 4)) & 15;
         data[D3D11ShaderLayout.WindowLogicWord] = (uint)(target == SnesWindowTarget.Obj
             ? windows.ObjectColorLogic : windows.BackgroundLogic >> (index * 2)) & 3;
-        data[D3D11ShaderLayout.WindowEdgesWord] = (uint)(windows.FirstLeft | windows.FirstRight << 8 |
+        data[D3D11ShaderLayout.WindowEdgesWord] = (uint)(SnesLittleEndian.Word(windows.FirstLeft, windows.FirstRight) |
             windows.SecondLeft << 16 | windows.SecondRight << 24);
         data[D3D11ShaderLayout.WindowEnabledWord] = 1;
     }

@@ -236,7 +236,7 @@ static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort 
 {
     int offset = block * 8 + tile * 2;
     definitions[offset] = unchecked((byte)value);
-    definitions[offset + 1] = unchecked((byte)(value >> 8));
+    definitions[offset + 1] = SnesLittleEndian.HighByte(value);
 }
 
 static void VerifySamusPostureMovement()
@@ -625,12 +625,12 @@ static void SeedBombBlockPlmPrograms(TestAddressSpace bus)
     {
         fixtureBus.WriteBytes(address, [
             0x02, 0x00,
-            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
-            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
+            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
             0x00, 0x01,
             0x02, 0x00,
-            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
-            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
+            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
             0x00, 0x00,
         ]);
     }
@@ -651,8 +651,8 @@ static void SeedBombBlockPlmPrograms(TestAddressSpace bus)
     {
         fixtureBus.WriteBytes(address, [
             0x02, 0x80,
-            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
-            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
+            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
             0x00, 0x00,
         ]);
     }

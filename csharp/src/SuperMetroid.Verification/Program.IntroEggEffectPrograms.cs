@@ -12,7 +12,7 @@ internal static partial class Program
             {
                 AssertEqual(IntroEggEffectProgramsRomByte(rom, 0x8b0000 + pointer), IntroEggEffectInstructionDefinitions.ReadByte((ushort)pointer), "original egg-effect byte");
                 if (pointer < end - 1)
-                    AssertEqual((ushort)(IntroEggEffectProgramsRomByte(rom, 0x8b0000 + pointer) | IntroEggEffectProgramsRomByte(rom, 0x8b0001 + pointer) << 8),
+                    AssertEqual((ushort)(SnesLittleEndian.Word(IntroEggEffectProgramsRomByte(rom, 0x8b0000 + pointer), IntroEggEffectProgramsRomByte(rom, 0x8b0001 + pointer))),
                         IntroEggEffectInstructionDefinitions.ReadWord((ushort)pointer), "original egg-effect overlapping word");
             }
             AssertThrows<InvalidDataException>(() => IntroEggEffectInstructionDefinitions.ReadWord((ushort)(end - 1)), "egg-effect terminal word crossing");
@@ -35,11 +35,11 @@ internal static partial class Program
         for (int index = 0; index < 11; index++)
         {
             int operand = index < 7 ? 0x8bcd3b + 8 * index : 0x8bcd73 + 4 * (index - 7);
-            ushort pointer = (ushort)(IntroEggEffectFrameCatalogRomByte(rom, operand) | IntroEggEffectFrameCatalogRomByte(rom, operand + 1) << 8);
+            ushort pointer = (ushort)(SnesLittleEndian.Word(IntroEggEffectFrameCatalogRomByte(rom, operand), IntroEggEffectFrameCatalogRomByte(rom, operand + 1)));
             AssertEqual(pointer, frames[index].Pointer, "original egg-effect frame operand");
             AssertEqual(names[index], frames[index].Name, "published egg-effect name");
             AssertEqual(IntroEggEffectSpriteDefinitions.StockPartCount,
-                IntroEggEffectFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroEggEffectFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8, "original one-part egg-effect record");
+                SnesLittleEndian.Word(IntroEggEffectFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroEggEffectFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "original one-part egg-effect record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 11, int.MaxValue })
         {

@@ -20,7 +20,7 @@ internal static partial class Program
         {
             ushort address = SporeSpawnInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            sporePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord(((DraygonBg2FrameDefinitions.Bank << 16) | address)));
+            sporePointers.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, address)))));
         }
 
         var enemies = new RoomEnemySystem();
@@ -67,7 +67,7 @@ internal static partial class Program
             AssertEqual(0,
                 DraygonCollisionDefinitions.ComponentsAt(frame.Pointer).Length,
                 $"Draygon OAM frame {frame.Name} has no collision components");
-            int root = (frame.Bank << 16) | frame.Pointer;
+            int root = ((int)new SnesAddress(frame.Bank, frame.Pointer));
             int componentCount = rom.ReadCartridgeByte(root);
             AssertTrue(componentCount is > 0 and <= 8,
                 $"Draygon OAM frame {frame.Name} has bounded components");
@@ -79,7 +79,7 @@ internal static partial class Program
                     DraygonHitboxList.OtherEmpty,
                     $"Draygon OAM frame {frame.Name} component {component} has a native empty list");
                 AssertEqual((ushort)0,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord(((frame.Bank << 16) | listPointer)),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(frame.Bank, listPointer)))),
                     $"Draygon OAM frame {frame.Name} component {component} native hitbox count");
                 componentsChecked++;
             }

@@ -302,7 +302,7 @@ public static class XrayRevealVisualFiles
                 throw new InvalidDataException(
                     $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");
             tiles.Add(new XrayRoomOverlayTileDocument((byte)coordinate,
-                (byte)(coordinate >> 8), word));
+                SnesLittleEndian.HighByte(coordinate), word));
         }
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }

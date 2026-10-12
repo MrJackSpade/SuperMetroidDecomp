@@ -61,7 +61,7 @@ internal static partial class Program
             {
                 allArrowParts = expectedBytes / 4;
                 for (int offset = 2; offset < expectedBytes; offset += 4)
-                    arrowAttributes.Add((ushort)(expected.LowTable[offset] | expected.LowTable[offset + 1] << 8));
+                    arrowAttributes.Add((ushort)(SnesLittleEndian.Word(expected.LowTable[offset], expected.LowTable[offset + 1])));
             }
             var pixels = pause.Render();
             var actual = Get<OamBuffer>("oam");
@@ -69,7 +69,7 @@ internal static partial class Program
                 $"pause arrows match raw cartridge OAM coordinates/shape/palette at scroll {x},{y}");
             int drawnArrowParts = 0;
             for (int offset = 2; offset < actual.LastFinalizedSpriteCount * 4; offset += 4)
-                if (arrowAttributes.Contains((ushort)(actual.LowTable[offset] | actual.LowTable[offset + 1] << 8))) drawnArrowParts++;
+                if (arrowAttributes.Contains((ushort)(SnesLittleEndian.Word(actual.LowTable[offset], actual.LowTable[offset + 1])))) drawnArrowParts++;
             AssertEqual(expectedBytes / 4, drawnArrowParts, "unavailable arrows emit no leftover OAM parts");
             // The raw cartridge OBJ tiles form an independent pixel oracle. Require
             // every opaque arrow pixel to survive the complete pause compositor.

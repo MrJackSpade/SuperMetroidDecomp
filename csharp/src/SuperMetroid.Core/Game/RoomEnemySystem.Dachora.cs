@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -602,6 +603,6 @@ public sealed partial class RoomEnemySystem
         uint value = ((uint)whole << 16) | fraction;
         uint increment = ((uint)wholeIncrement << 16) | fractionIncrement;
         value = unchecked(value + increment);
-        return (unchecked((ushort)(value >> 16)), unchecked((ushort)value));
+        return (SnesFixedPosition.WholeOf(unchecked((int)value)), unchecked((ushort)value));
     }
 }

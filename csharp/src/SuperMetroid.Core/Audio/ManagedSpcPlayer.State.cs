@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>Per-music-voice state from Super Metroid's SPC driver work RAM.</summary>
@@ -325,13 +326,13 @@ public sealed partial class ManagedSpcPlayer
         {
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload stream ended before its record length.");
-            ushort length = unchecked((ushort)(stream[offset] | (stream[offset + 1] << 8)));
+            ushort length = unchecked((ushort)(SnesLittleEndian.Word(stream[offset], stream[offset + 1])));
             offset += 2;
             if (length == 0)
                 break;
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload stream ended before its destination word.");
-            ushort target = unchecked((ushort)(stream[offset] | (stream[offset + 1] << 8)));
+            ushort target = unchecked((ushort)(SnesLittleEndian.Word(stream[offset], stream[offset + 1])));
             offset += 2;
             if (length > stream.Length - offset)
                 throw new InvalidDataException(
@@ -398,7 +399,7 @@ public sealed partial class ManagedSpcPlayer
         Dsp.Global.WriteMasterVolume(DspStereoSide.Left, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
         Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60); // allow(HardwareMagnitude): cartridge reset master volume
         Dsp.Global.WriteSourceDirectory(0x6d); // allow(HardwareAddress): cartridge BRR directory page
-        SetHighByte(ref tempo, SpcDriverData.Music.InitialTempo);
+        tempo = SpcFixedPoint.WithWhole(tempo, SpcDriverData.Music.InitialTempo);
         timerCycles = 0;
         LoopPartOne();
     }
@@ -423,8 +424,8 @@ public sealed partial class ManagedSpcPlayer
             {
                 Dsp.Global.WriteEchoEnable(new DspVoiceMask(echoEnable));
                 Dsp.Global.WriteEchoFeedback(unchecked((sbyte)echoFeedback));
-                Dsp.Global.WriteEchoVolume(DspStereoSide.Right, unchecked((sbyte)HighByte(echoVolumeRight)));
-                Dsp.Global.WriteEchoVolume(DspStereoSide.Left, unchecked((sbyte)HighByte(echoVolumeLeft)));
+                Dsp.Global.WriteEchoVolume(DspStereoSide.Right, unchecked((sbyte)SpcFixedPoint.Whole(echoVolumeRight)));
+                Dsp.Global.WriteEchoVolume(DspStereoSide.Left, unchecked((sbyte)SpcFixedPoint.Whole(echoVolumeLeft)));
             }
         }
         keyOff = keyOn = 0;
@@ -443,7 +444,7 @@ public sealed partial class ManagedSpcPlayer
                 echoStoredTime++;
         }
 
-        int musicAccumulator = mainTempoAccumulator + unchecked((byte)(ticks * HighByte(tempo)));
+        int musicAccumulator = mainTempoAccumulator + unchecked((byte)(ticks * SpcFixedPoint.Whole(tempo)));
         mainTempoAccumulator = unchecked((byte)musicAccumulator);
         if (musicAccumulator >= 0x100) // allow(HardwareMagnitude): eight-bit timer carry
         {
@@ -461,7 +462,7 @@ public sealed partial class ManagedSpcPlayer
             for (int index = 0, bit = 1; index < channels.Length; index++, bit <<= 1)
             {
                 currentChannelBit = unchecked((byte)bit);
-                if (HighByte(channels[index].PatternOrderPointer) != 0)
+                if (SnesLittleEndian.HighByte(channels[index].PatternOrderPointer) != 0)
                     HandlePanAndSweep(channels[index]);
             }
             currentChannelBit = 0;
@@ -503,14 +504,9 @@ public sealed partial class ManagedSpcPlayer
     private void WriteSoundEffectAdsr(byte voiceIndexTimesEight, ushort adsr)
     {
         dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterMap.Voice.Adsr1)), unchecked((byte)adsr));
-        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterMap.Voice.Adsr2)), unchecked((byte)(adsr >> 8)));
+        dsp.WriteRegister(unchecked((byte)(voiceIndexTimesEight + SnesDspRegisterMap.Voice.Adsr2)), SnesLittleEndian.HighByte(adsr));
     }
 
-
-    private static byte HighByte(ushort value) => unchecked((byte)(value >> 8));
-
-    private static void SetHighByte(ref ushort target, byte value) =>
-        target = unchecked((ushort)((target & byte.MaxValue) | (value << 8)));
 
     private static ushort AddWord(ushort left, int right) => unchecked((ushort)(left + right));
 }

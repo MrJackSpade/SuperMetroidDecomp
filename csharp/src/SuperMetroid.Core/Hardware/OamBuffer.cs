@@ -322,8 +322,7 @@ public sealed class OamBuffer
         var highPair = new SnesOamHighTablePair(unchecked((byte)(
             (_highTable[spriteIndex >> 2] >> highShift) & 3)));
         SnesObjAttributeWord attributes = (ushort)(
-            _lowTable[lowOffset + 2] |
-            (_lowTable[lowOffset + 3] << 8));
+            SnesLittleEndian.Word(_lowTable[lowOffset + 2], _lowTable[lowOffset + 3]));
 
         return new OamEntry(
             X: _lowTable[lowOffset] | (highPair.XHigh ? 0x0100 : 0),
@@ -392,7 +391,7 @@ public sealed class OamBuffer
     private void WriteAttributes(int lowOffset, SnesObjAttributeWord attributes)
     {
         _lowTable[lowOffset + 2] = unchecked((byte)attributes.Raw);
-        _lowTable[lowOffset + 3] = unchecked((byte)(attributes.Raw >> 8));
+        _lowTable[lowOffset + 3] = SnesLittleEndian.HighByte(attributes.Raw);
     }
 
     private static bool ShouldHideForOnScreenOrigin(int unsignedYSum, bool offsetIsNegative)

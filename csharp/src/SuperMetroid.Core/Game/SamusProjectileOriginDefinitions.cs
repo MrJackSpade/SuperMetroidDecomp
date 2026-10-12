@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical beam/missile muzzle positions, independent of charge-flare artwork.</summary>
@@ -49,7 +50,6 @@ internal static class SamusProjectileOriginDefinitions
         }
         // Resolve addresses before table ownership: low-nibble directions ten through
         // fifteen cross into adjacent rows, and running Y eventually reaches cooldowns.
-        return unchecked((short)(SamusProjectileCooldownDefinitions.ReadByte(address) |
-            (SamusProjectileCooldownDefinitions.ReadByte(address + 1) << 8)));
+        return unchecked((short)(SnesLittleEndian.Word(SamusProjectileCooldownDefinitions.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address + 1))));
     }
 }

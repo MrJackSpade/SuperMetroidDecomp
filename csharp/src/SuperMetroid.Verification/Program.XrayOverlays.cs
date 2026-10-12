@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
@@ -25,7 +26,7 @@ internal static partial class Program
         for (int i = 0; i < definitions.Length / 2; i++)
         {
             definitions[i * 2] = (byte)i;
-            definitions[i * 2 + 1] = (byte)(i >> 8);
+            definitions[i * 2 + 1] = SnesLittleEndian.HighByte(unchecked((ushort)i));
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), definitions);
         var system = new Bank80SystemState();

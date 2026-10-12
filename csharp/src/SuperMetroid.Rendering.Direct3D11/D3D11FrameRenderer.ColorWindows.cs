@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Rendering.Direct3D11;
@@ -31,7 +32,7 @@ public sealed partial class D3D11FrameRenderer
         {
             ColorAddWindow line = layer.Windows[y];
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = (uint)(line.Left | line.Right << 8);
+            data[offset] = (uint)(SnesLittleEndian.Word(line.Left, line.Right));
             data[offset + 1] = line.Red;
             data[offset + 2] = line.Green;
             data[offset + 3] = line.Blue;

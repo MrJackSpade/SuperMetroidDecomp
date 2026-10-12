@@ -295,10 +295,10 @@ public sealed partial class SamusProjectileSystem
         // operand-driven open bus there instead of changing trail timing or hiding
         // every unsupported hardware read behind a zero fallback.
         ushort y = (ushort)offsets;
-        byte leftY = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, y) >> 8);
-        byte leftX = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, unchecked((ushort)(y - 1))) >> 8);
-        byte rightY = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 2, y) >> 8);
-        byte rightX = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 1, y) >> 8);
+        byte leftY = SnesLittleEndian.HighByte(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, y));
+        byte leftX = SnesLittleEndian.HighByte(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, unchecked((ushort)(y - 1))));
+        byte rightY = SnesLittleEndian.HighByte(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 2, y));
+        byte rightX = SnesLittleEndian.HighByte(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 1, y));
         trail.Left.Position = trail.Left.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, leftX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, leftY, -4));
         trail.Right.Position = trail.Right.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, rightX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, rightY, -4));
     }

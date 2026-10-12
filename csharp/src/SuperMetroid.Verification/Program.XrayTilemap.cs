@@ -16,7 +16,7 @@ internal static partial class Program
         for (int i = 0; i < definitions.Length / 2; i++)
         {
             definitions[i * 2] = (byte)i;
-            definitions[i * 2 + 1] = (byte)(i >> 8);
+            definitions[i * 2 + 1] = SnesLittleEndian.HighByte(unchecked((ushort)i));
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
         ushort[] Build(byte area = (byte)AreaId.Brinstar) => XrayRevealTilemap.Build(level, vram, new(248, 248), new(16, 16), area);

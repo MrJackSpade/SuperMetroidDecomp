@@ -18,8 +18,7 @@ internal static partial class Program
             for (int word = 0; word < list.Words; word++)
             {
                 ushort address = (ushort)(list.Start + word * 2);
-                expected.Add(address, (ushort)(KraidRoomProgramMappingRomByte(rom, 0x840000 | address) |
-                    KraidRoomProgramMappingRomByte(rom, 0x840000 | (address + 1)) << 8));
+                expected.Add(address, (ushort)(SnesLittleEndian.Word(KraidRoomProgramMappingRomByte(rom, 0x840000 | address), KraidRoomProgramMappingRomByte(rom, 0x840000 | (address + 1)))));
             }
         ushort[] enumerated = KraidRoomPlmProgramDefinitions.NativeWordAddresses().ToArray();
         AssertEqual(55, enumerated.Length, "Kraid room program word count");

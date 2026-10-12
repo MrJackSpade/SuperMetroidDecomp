@@ -36,7 +36,7 @@ internal static partial class Program
                 continue;
             }
             ushort expected = offset == 19
-                ? (ushort)(KraidSinkPlmFieldRomByte(rom, code + offset) | KraidSinkPlmFieldRomByte(rom, code + offset + 1) << 8)
+                ? (ushort)(SnesLittleEndian.Word(KraidSinkPlmFieldRomByte(rom, code + offset), KraidSinkPlmFieldRomByte(rom, code + offset + 1)))
                 : KraidSinkPlmFieldRomByte(rom, code + offset);
             AssertEqual(expected, field(request!.Value), "Native sink callback inline field");
             count++;
@@ -74,7 +74,7 @@ internal static partial class Program
             AssertEqual(empty ? 0 : 1, enemies.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None),
                 "Sinking callback rock count");
             if (empty) continue;
-            ushort expectedX = (ushort)(KraidSinkRockPlacementRomByte(rom, code + 1) | KraidSinkRockPlacementRomByte(rom, code + 2) << 8);
+            ushort expectedX = (ushort)(SnesLittleEndian.Word(KraidSinkRockPlacementRomByte(rom, code + 1), KraidSinkRockPlacementRomByte(rom, code + 2)));
             AssertEqual(expectedX, enemies.EnemyProjectiles[^1].Position.X.Whole, "Production sinking rock matches native immediate");
         }
     }
@@ -84,7 +84,7 @@ internal static partial class Program
 
     private static void VerifyKraidSinkSchedule(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int a) => (ushort)(KraidSinkScheduleRomByte(rom, a) | KraidSinkScheduleRomByte(rom, a + 1) << 8);
+        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidSinkScheduleRomByte(rom, a), KraidSinkScheduleRomByte(rom, a + 1)));
         var callbacks = new Dictionary<ushort, ushort>();
         for (int address = 0xa7c5e7; ; address += 6)
         {

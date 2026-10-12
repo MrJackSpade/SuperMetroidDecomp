@@ -21,7 +21,7 @@ public static partial class SnesGameplayFrameRenderer
         for (int y = HudHeight; y < Height; y++)
         {
             ushort word = beam.Windows[y];
-            byte left = (byte)word, right = (byte)(word >> 8);
+            byte left = (byte)word, right = SnesLittleEndian.HighByte(word);
             if (left <= right) windows[y] = new(left, right, red, green, blue);
         }
         return new(windows);

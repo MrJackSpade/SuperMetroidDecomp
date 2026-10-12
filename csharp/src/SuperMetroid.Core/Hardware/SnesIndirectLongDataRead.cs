@@ -24,10 +24,10 @@ public static class SnesIndirectLongDataRead
         ReadOnlySpan<byte> cartridgeDefinition = default, int definitionAddress = 0)
     {
         Ensure.NotNull(bus);
-        int address = ((pointerBank << 16) + pointer + y) & SnesCpuAddressLayout.AddressMask;
+        int address = (((int)new SnesAddress(pointerBank, pointer)) + y) & SnesCpuAddressLayout.AddressMask;
         byte low = ReadDataByte(bus, address, pointerBank, cartridgeDefinition, definitionAddress);
         byte high = ReadDataByte(bus, (address + 1) & SnesCpuAddressLayout.AddressMask, low, cartridgeDefinition, definitionAddress);
-        return (ushort)(low | high << 8);
+        return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
     private static byte ReadDataByte(ISnesAddressSpace bus, int address, byte busLatch,

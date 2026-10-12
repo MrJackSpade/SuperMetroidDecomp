@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Hardware;
 /// <see cref="CartridgeWordReads"/>.
 /// </summary>
 [CpuBusAccess]
+[SnesEncodingOwner]
 internal static class CartridgeLongReads
 {
     extension(IImportCartridgeSource cartridge)

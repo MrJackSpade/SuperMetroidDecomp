@@ -9,7 +9,7 @@ internal static partial class Program
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             int address = 0xa7bc65 + (raw & 14);
-            ushort expected = (ushort)(KraidRockLaunchSpeedSelectionRomByte(rom, address) | KraidRockLaunchSpeedSelectionRomByte(rom, address + 1) << 8);
+            ushort expected = (ushort)(SnesLittleEndian.Word(KraidRockLaunchSpeedSelectionRomByte(rom, address), KraidRockLaunchSpeedSelectionRomByte(rom, address + 1)));
             AssertEqual(expected, KraidRockLaunchDefinitions.FromRandom((ushort)raw),
                 "Every native Kraid rock velocity selection");
         }
@@ -26,7 +26,7 @@ internal static partial class Program
             Console.WriteLine("Kraid spit speeds: all65536 RNG words match the eight native signed8.8 choices.");
             return;
         }
-        ushort Word(int address) => (ushort)(KraidRockLaunchDefinitionsRomByte(rom, address) | KraidRockLaunchDefinitionsRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KraidRockLaunchDefinitionsRomByte(rom, address), KraidRockLaunchDefinitionsRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidRockGuard(rom));

@@ -21,7 +21,7 @@ internal static partial class Program
         ushort nativeArrowPalette = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapAnimationRomData.AnimatedSpritePalette);
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
-            AssertEqual((byte)(nativeArrowPalette >> 8), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
+            AssertEqual(SnesLittleEndian.HighByte(nativeArrowPalette), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
         var native = new MapPaletteAnimation(bus);
         native.Bind(original.HighlightCycle);
         var installed = new MapPaletteAnimation(NewForbiddenMapBus());

@@ -172,7 +172,7 @@ internal static partial class Program
             foreach (FieldInfo field in GetUshortConstants(catalog))
             {
                 ushort pointer = (ushort)field.GetRawConstantValue()!;
-                _ = bus.ReadCartridgeByte((bank << 16) | pointer);
+                _ = bus.ReadCartridgeByte(((int)new SnesAddress(bank, pointer)));
                 readableEntries++;
             }
         }

@@ -12,7 +12,7 @@ internal static partial class Program
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
-            short original = unchecked((short)(SignedSixteenBitSineDefinitionsRomByte(rom, address) | SignedSixteenBitSineDefinitionsRomByte(rom, address + 1) << 8));
+            short original = unchecked((short)(SnesLittleEndian.Word(SignedSixteenBitSineDefinitionsRomByte(rom, address), SignedSixteenBitSineDefinitionsRomByte(rom, address + 1))));
             AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine((byte)angle), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
@@ -23,7 +23,7 @@ internal static partial class Program
 
     private static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
     {
-        short Read(int address) => unchecked((short)(CompiledFamilyTrigonometryRomByte(rom, address) | CompiledFamilyTrigonometryRomByte(rom, address + 1) << 8));
+        short Read(int address) => unchecked((short)(SnesLittleEndian.Word(CompiledFamilyTrigonometryRomByte(rom, address), CompiledFamilyTrigonometryRomByte(rom, address + 1))));
         short[] native = Enumerable.Range(0, 256)
             .Select(i => Read(EnemyMathReferenceData.SignedSixteenBitSine + i * 2)).ToArray();
         short[] orbit = Enumerable.Range(0, 320)
@@ -71,7 +71,7 @@ internal static partial class Program
         for (int angle = 0; angle < 256; angle++)
         foreach (int speed in WordBoundarySamples())
         {
-            bull.Position = new(new((ushort)(initial >> 16), unchecked((ushort)initial)), new((ushort)(initial >> 16), unchecked((ushort)initial)));
+            bull.Position = new(new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
             bullState.Angle = (ushort)(65280 | angle);
             bullState.Speed = (ushort)speed;
             bullMove(bull, bullState);
@@ -95,7 +95,7 @@ internal static partial class Program
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-            previous.Position = new(new((ushort)(initial >> 16), unchecked((ushort)initial)), new((ushort)(initial >> 16), unchecked((ushort)initial)));
+            previous.Position = new(new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
             segmentState.OrbitAngle = (ushort)angle;
             place(segment, segmentState);
             uint expectedX = unchecked(initial + (uint)(orbit[(angle >> 8) + 64] << 8));

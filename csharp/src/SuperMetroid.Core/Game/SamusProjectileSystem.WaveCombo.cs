@@ -32,12 +32,12 @@ public sealed partial class SamusProjectileSystem
             SpawnTrail(bus, slot);
         }
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)))));
-        uint x = unchecked(((uint)slot.Position.X.Whole << 16) + slot.Position.X.Fraction + (uint)(slot.Velocity.X.SignedRawValue << 8));
-        slot.Position = slot.Position.WithWholeX((ushort)(x >> 16)).WithFractionX(unchecked((ushort)x));
+        uint x = unchecked(new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction).RawValue + (uint)(slot.Velocity.X.SignedRawValue << 8));
+        slot.Position = slot.Position.WithWholeX(SnesFixedPosition.WholeOf(unchecked((int)x))).WithFractionX(unchecked((ushort)x));
         short ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)));
         slot.Variable = unchecked((ushort)ySpeed);
-        uint y = unchecked(((uint)slot.Position.Y.Whole << 16) + slot.Position.Y.Fraction + (uint)(ySpeed << 8));
-        slot.Position = slot.Position.WithWholeY((ushort)(y >> 16)).WithFractionY(unchecked((ushort)y));
+        uint y = unchecked(new SnesFixedPosition(slot.Position.Y.Whole, slot.Position.Y.Fraction).RawValue + (uint)(ySpeed << 8));
+        slot.Position = slot.Position.WithWholeY(SnesFixedPosition.WholeOf(unchecked((int)y))).WithFractionY(unchecked((ushort)y));
         shared.SetSharedCooldown(2);
         FlareCounter = 0;
         return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.Velocity.X.SignedRawValue < 0) ? SamusComboRomData.WavePulseSound : (ushort)0;

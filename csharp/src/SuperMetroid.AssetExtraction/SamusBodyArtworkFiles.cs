@@ -188,7 +188,7 @@ public static class SamusBodyArtworkFiles
                     SamusBodyArtworkCatalog.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
                     sourceOffset + byteCount > 0x10000)
                     throw new InvalidDataException($"Invalid Samus body DMA at ${definitionAddress:X6}.");
-                int sourceAddress = sourceBank << 16 | sourceOffset;
+                int sourceAddress = ((int)new SnesAddress(sourceBank, sourceOffset));
                 for (int i = 0; i < byteCount; i++)
                     planar[position * SamusBodyArtworkCatalog.BytesPerDefinitionSlot + i] =
                         bus.ReadCartridgeByte(sourceAddress + i);

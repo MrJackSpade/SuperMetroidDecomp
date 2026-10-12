@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 
 internal static partial class Program
@@ -35,8 +36,7 @@ internal static partial class Program
                     AudioSoundProgramMetadata program = programs[effect.ChannelPrograms[channel]];
                     int pointer = effect.StreamPointer + channel * 2;
                     ushort address = unchecked((ushort)(
-                        rawPlayer.ReadApuByteForVerification(pointer) |
-                        (rawPlayer.ReadApuByteForVerification(pointer + 1) << 8)));
+                        SnesLittleEndian.Word(rawPlayer.ReadApuByteForVerification(pointer), rawPlayer.ReadApuByteForVerification(pointer + 1))));
                     AssertEqual(program.Address, address, $"{effect.Id} channel {channel} routing");
                 }
             }

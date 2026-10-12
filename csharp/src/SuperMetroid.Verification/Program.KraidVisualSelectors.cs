@@ -39,14 +39,14 @@ internal static partial class Program
             {
                 AssertThrows<InvalidDataException>(() => KraidVisualDefinitions.FrameAt(enemy, selected),
                     "Nonvisual instruction bytes and unused program gap rejected");
-                AssertTrue(!CompiledEnemyVisualSelectors.TryGet((byte)(bank >> 16), selected, out ushort missing),
+                AssertTrue(!CompiledEnemyVisualSelectors.TryGet(SnesLittleEndian.BankByte(bank), selected, out ushort missing),
                     "Kraid-family shared selector rejects holes");
                 AssertEqual((ushort)0, missing, "Kraid-family missing shared selector clears output");
                 continue;
             }
-            ushort expected = (ushort)(KraidVisualSelectorDomainRomByte(rom, bank | address) | KraidVisualSelectorDomainRomByte(rom, bank | (address + 1)) << 8);
+            ushort expected = (ushort)(SnesLittleEndian.Word(KraidVisualSelectorDomainRomByte(rom, bank | address), KraidVisualSelectorDomainRomByte(rom, bank | (address + 1))));
             AssertEqual(expected, KraidVisualDefinitions.FrameAt(enemy, selected), "Original native visual selector word");
-            AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)(bank >> 16), selected, out ushort shared),
+            AssertTrue(CompiledEnemyVisualSelectors.TryGet(SnesLittleEndian.BankByte(bank), selected, out ushort shared),
                 "Kraid-family shared calculated selector");
             AssertEqual(expected, shared, "Kraid-family shared native visual value");
         }

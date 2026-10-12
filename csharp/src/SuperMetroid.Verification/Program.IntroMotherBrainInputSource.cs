@@ -11,7 +11,7 @@ internal static partial class Program
             {
                 AssertEqual(IntroMotherBrainInputSourceRomByte(rom, 0x910000 + pointer), IntroMotherBrainInputDefinitions.ReadByte((ushort)pointer), "original Mother Brain input byte");
                 if (pointer == end - 1) continue;
-                AssertEqual((ushort)(IntroMotherBrainInputSourceRomByte(rom, 0x910000 + pointer) | IntroMotherBrainInputSourceRomByte(rom, 0x910001 + pointer) << 8),
+                AssertEqual((ushort)(SnesLittleEndian.Word(IntroMotherBrainInputSourceRomByte(rom, 0x910000 + pointer), IntroMotherBrainInputSourceRomByte(rom, 0x910001 + pointer))),
                     IntroMotherBrainInputDefinitions.ReadWord((ushort)pointer), "original Mother Brain aligned or overlapping word");
             }
             AssertThrows<InvalidDataException>(() => IntroMotherBrainInputDefinitions.ReadWord((ushort)(end - 1)), "Mother Brain word cannot cross source-region boundary");

@@ -70,6 +70,12 @@ internal static class EncodingInventory
                 [nameof(CartridgeEncodingRule.CatalogHexLiteral)] = "hexadecimal literal owned by a named definition catalog (inventoried)",
                 [nameof(CartridgeEncodingRule.JustifiedHexLiteral)] =
                     "functional hexadecimal literal with a reviewed same-line allowance (inventoried)",
+                [nameof(CartridgeEncodingRule.RawWidthOperation)] =
+                    "SME6345: shift by a byte/word/bank width or byte/word/bank mask in functional code (ratcheted, #223)",
+                [nameof(CartridgeEncodingRule.OwnedWidthOperation)] =
+                    "width operation inside a catalog or [SnesEncodingOwner] type that documents it (inventoried)",
+                [nameof(CartridgeEncodingRule.JustifiedWidthOperation)] =
+                    "functional width operation with a reviewed same-line allowance (inventoried)",
             },
             classes = new Dictionary<string, string>
             {

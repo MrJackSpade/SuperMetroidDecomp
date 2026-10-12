@@ -105,7 +105,7 @@ internal static partial class Program
                 continue;
             }
             var history = after.PoseHistory;
-            ushort metadata = (ushort)(after.ReadPoseXDirection(bus) | ((byte)after.ReadMovementType(bus) << 8));
+            ushort metadata = (ushort)(SnesLittleEndian.Word(after.ReadPoseXDirection(bus), (byte)after.ReadMovementType(bus)));
             if (history.LastDifferentPose != priorPose || history.LastDifferentDirectionAndMovement != priorMetadata ||
                 history.PreviousPose != after.Pose || history.PreviousDirectionAndMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");

@@ -125,8 +125,8 @@ internal static partial class Program
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
         {
             var nativeOam = new OamBuffer(); var installedOam = new OamBuffer();
-            int address = TitleSequenceRomData.Sprites.Bank << 16 | frame.Pointer;
-            ushort Word(int at) => (ushort)(CpuBusRegionRead.Read(bus, at) | CpuBusRegionRead.Read(bus, at + 1) << 8);
+            int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, checked((ushort)frame.Pointer)));
+            ushort Word(int at) => (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1)));
             int count = Word(address);
             for (int part = 0; part < count; part++)
             {

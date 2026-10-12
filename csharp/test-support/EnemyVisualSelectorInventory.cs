@@ -39,7 +39,7 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
             byte[] banks = declaredBank.HasValue
                 ? [checked((byte)declaredBank.Value)]
                 : Enumerable.Range(0x80, 0x60)
-                    .Where(bank => catalog.CompiledMechanicsByteProbe!((bank << 16) | firstAddress))
+                    .Where(bank => catalog.CompiledMechanicsByteProbe!(((int)new SnesAddress(checked((byte)bank), firstAddress))))
                     .Select(bank => (byte)bank).ToArray();
             if (banks.Length != 1)
             {
@@ -49,7 +49,7 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
             IReadOnlyList<ushort> presentation = catalog.PresentationOperands ?? [catalog.SinglePresentationOperand!.Value];
             foreach (ushort address in presentation)
             {
-                int source = (banks[0] << 16) | address;
+                int source = ((int)new SnesAddress(banks[0], address));
                 ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(source);
                 if (keyed.TryGetValue(source, out ushort previous) &&
                     previous != pointer)
@@ -68,14 +68,14 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
         {
             ushort address = CeresBabyInstructionProgramDefinitions
                 .SpritemapOperandAddress(index);
-            int source = (CeresBabyInstructionProgramDefinitions.Bank << 16) | address;
+            int source = ((int)new SnesAddress(CeresBabyInstructionProgramDefinitions.Bank, address));
             ushort pointer = CeresBabyInstructionProgramDefinitions
                 .ReadSpritemapOperand(address);
             if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(source) != pointer)
                 throw new InvalidDataException(
                     $"Ceres Baby sprite selector ${source:X6} does not match its typed owner.");
             int frameAddress =
-                (CeresBabyInstructionProgramDefinitions.Bank << 16) | pointer;
+                ((int)new SnesAddress(CeresBabyInstructionProgramDefinitions.Bank, pointer));
             ushort partCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(frameAddress);
             if (partCount is not (> 0 and <= 128) || pointer + 2 + partCount * 5 > 0x10000)
                 throw new InvalidDataException(

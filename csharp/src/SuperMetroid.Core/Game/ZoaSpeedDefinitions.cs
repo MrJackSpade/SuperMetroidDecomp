@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>NTSC Zoa horizontal velocities, retaining the native byte-offset selector.</summary>
@@ -21,7 +22,7 @@ public static class ZoaSpeedDefinitions
     {
         if (byteOffset > 16)
             throw new ArgumentOutOfRangeException(nameof(byteOffset));
-        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         return unchecked((Word(byteOffset) << 16) | Word(byteOffset + 2));
     }
 

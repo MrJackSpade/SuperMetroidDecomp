@@ -20,9 +20,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 GunshipDustInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                GunshipDustInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address) |
-                GunshipDustInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
+                SnesLittleEndian.Word(GunshipDustInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address), GunshipDustInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
+                    unchecked((ushort)(definition.Address + 1))))));
             AssertEqual(definition.Value, native,
                 $"Gunship dust mechanics word $86:{definition.Address:X4}");
         }

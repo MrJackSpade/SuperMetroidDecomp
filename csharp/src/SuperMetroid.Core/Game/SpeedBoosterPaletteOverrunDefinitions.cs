@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The two instruction words past the Gravity list that Speed Booster reads as bank-$9B palette pointers, valued by the word.</summary>
@@ -35,6 +36,6 @@ internal static class SpeedBoosterPaletteOverrunDefinitions
             0x29, 0xff,             // Start of AND #$00FF
         ];
         if ((uint)index >= code.Length / 2) throw new ArgumentOutOfRangeException(nameof(index));
-        return (ushort)(code[index * 2] | code[index * 2 + 1] << 8);
+        return (ushort)(SnesLittleEndian.Word(code[index * 2], code[index * 2 + 1]));
     }
 }

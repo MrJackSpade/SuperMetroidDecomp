@@ -126,8 +126,7 @@ internal static class RoomPlmDoorVisualFileCodec
                 ushort nativeOffset = ReadWord(bus,
                     checked((ushort)(cursor + 2 + run.LevelWords.Length * 2)));
                 ushort compiledOffset = (ushort)(
-                    unchecked((byte)run.Next.X) |
-                    unchecked((byte)run.Next.Y) << 8);
+                    SnesLittleEndian.Word(unchecked((byte)run.Next.X), unchecked((byte)run.Next.Y)));
                 if (nativeOffset != compiledOffset ||
                     (runIndex == draw.Runs.Length - 1) != (nativeOffset == 0))
                     throw new InvalidDataException(

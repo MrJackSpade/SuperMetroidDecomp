@@ -25,10 +25,9 @@ internal static partial class Program
                        selected == word.Value,
                 $"Golden Torizo stunned control $AA:{word.Address:X4} lookup");
             AssertTrue(GoldenTorizoStunnedInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoStunnedInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo stunned control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(28, addresses.Count,
@@ -44,9 +43,8 @@ internal static partial class Program
             AssertEqual(descriptor.ByteCount,
                 ReadWord(unchecked((ushort)(transfer + 2))),
                 $"Golden Torizo stunned transfer $AA:{transfer:X4} length");
-            int source = GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 4)) |
-                GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 5)) << 8 |
-                GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 6)) << 16;
+            int source = ((int)new SnesAddress(                GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 6)), checked((ushort)(GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 4)) |
+                GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | (transfer + 5)) << 8))));
             AssertEqual(descriptor.SourceAddress, source,
                 $"Golden Torizo stunned transfer $AA:{transfer:X4} source");
             AssertEqual(descriptor.DestinationWord,
@@ -54,7 +52,7 @@ internal static partial class Program
                 $"Golden Torizo stunned transfer $AA:{transfer:X4} destination");
             for (int byteOffset = 2; byteOffset < 9; byteOffset++)
                 AssertTrue(!GoldenTorizoStunnedInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) | (transfer + byteOffset)),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, checked((ushort)(transfer + byteOffset))))),
                     $"Golden Torizo stunned transfer $AA:{transfer:X4} descriptor is not an opcode");
         }
         Console.WriteLine(
@@ -62,9 +60,8 @@ internal static partial class Program
             "VRAM descriptors match the pinned cartridge; no spritemap selectors.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | address) |
-                GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) |
-                    unchecked((ushort)(address + 1))) << 8);
+            (ushort)(SnesLittleEndian.Word(GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) | address), GoldenTorizoStunnedDefinitionsRomByte(rom, (bank << 16) |
+                    unchecked((ushort)(address + 1)))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo stunned definitions")]

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>Which output channel a stereo volume register drives.</summary>
@@ -126,7 +127,7 @@ internal readonly struct SnesDspVoiceControls
     public void WritePitch(ushort pitch)
     {
         Write(DspVoiceRegister.PitchLow, unchecked((byte)pitch));
-        Write(DspVoiceRegister.PitchHigh, unchecked((byte)(pitch >> 8)));
+        Write(DspVoiceRegister.PitchHigh, SnesLittleEndian.HighByte(pitch));
     }
 
     /// <summary>VxSRCN ($x4): the sample directory entry the voice plays.</summary>

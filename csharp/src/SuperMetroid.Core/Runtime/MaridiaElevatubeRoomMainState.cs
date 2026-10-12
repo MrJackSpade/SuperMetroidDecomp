@@ -93,7 +93,7 @@ public sealed class MaridiaElevatubeRoomMainState
         int displacement = unchecked((short)Velocity) << 8;
         uint trackedPosition = ((uint)Position << 16) | scratch.Var1;
         trackedPosition = unchecked(trackedPosition + (uint)displacement);
-        Position = unchecked((ushort)(trackedPosition >> 16));
+        Position = SnesFixedPosition.WholeOf(unchecked((int)trackedPosition));
         scratch.Var1 = unchecked((ushort)trackedPosition);
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, activeSamus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false });

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -126,7 +127,7 @@ public sealed partial class RoomEnemySystem
         rotationDelta = unchecked((sbyte)-rotationDelta);
         byte reversedDirection = unchecked((byte)(currentDirection + rotationDelta));
         turret.Position = turret.Position.WithFractionY(unchecked((ushort)(
-            (unchecked((byte)rotationDelta) << 8) | reversedDirection)));
+            SnesLittleEndian.Word(reversedDirection, unchecked((byte)rotationDelta)))));
     }
 
     private void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)

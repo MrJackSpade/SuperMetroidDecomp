@@ -84,7 +84,7 @@ internal static partial class Program
             ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), family + (type & 15) * 2);
             ushort offsets = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
             ushort y = unchecked((ushort)(offsets + frame * 4));
-            byte Read(ushort operand, ushort index) => (byte)(ReadNativeTrailOperandWord(bus, operand, index) >> 8);
+            byte Read(ushort operand, ushort index) => SnesLittleEndian.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
             ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));
             var expected = (Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
             system.Reset();
@@ -116,7 +116,7 @@ internal static partial class Program
             if (directions < 0x8000) continue;
             ushort offsets = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
             ushort y = unchecked((ushort)(offsets + frame * 4));
-            byte Read(ushort operand, ushort index) => (byte)(ReadNativeTrailOperandWord(bus, operand, index) >> 8);
+            byte Read(ushort operand, ushort index) => SnesLittleEndian.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
             ushort Position(byte offset) => unchecked((ushort)(0x0100 + (sbyte)offset - 4));
             system.Reset();
             var shot = new SamusProjectileSlot(0)
@@ -223,9 +223,9 @@ internal static partial class Program
             };
         }
 
-        byte low = ReadData(address, (byte)(operand >> 8));
+        byte low = ReadData(address, SnesLittleEndian.HighByte(operand));
         byte high = ReadData((address + 1) & SnesCpuAddressLayout.AddressMask, low);
-        return (ushort)(low | high << 8);
+        return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
     private static MutableCartridgeReadGuard NewTrailCoordinateGuard(ISnesAddressSpace source)

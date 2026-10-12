@@ -75,7 +75,7 @@ internal static partial class Program
             {
                 var rotation = new RoomEnemyProjectileSlot(0)
                 {
-                    Position = new(new(0, definition.AllowedRotationPointer), new(0, unchecked((ushort)(unchecked((byte)delta) << 8 | current)))),
+                    Position = new(new(0, definition.AllowedRotationPointer), new(0, unchecked((ushort)(SnesLittleEndian.Word(current, unchecked((byte)delta)))))),
                 };
                 byte candidate = unchecked((byte)((current + delta) & 7));
                 bool allowed = rom.ReadCartridgeByte(
@@ -87,7 +87,7 @@ internal static partial class Program
 
                 selectDirection.Invoke(null, [rotation]);
                 AssertEqual(unchecked((ushort)(
-                        unchecked((byte)expectedDelta) << 8 | expectedDirection)),
+                        SnesLittleEndian.Word(expectedDirection, unchecked((byte)expectedDelta)))),
                     rotation.Position.Y.Fraction,
                     $"production Mother Brain turret rotation {parameter}/{current}/{delta}");
             }

@@ -112,7 +112,7 @@ internal static partial class Program
     static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
     {
         WriteTestByte(bus, address, (byte)value);
-        WriteTestByte(bus, address + 1, (byte)(value >> 8));
+        WriteTestByte(bus, address + 1, SnesLittleEndian.HighByte(value));
     }
 
     /// <summary>

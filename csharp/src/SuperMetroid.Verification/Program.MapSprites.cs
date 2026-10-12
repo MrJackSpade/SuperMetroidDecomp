@@ -52,7 +52,7 @@ internal static partial class Program
             installed.BeginFrame(); edited.Sprites.Draw(MapSpriteId.MarkerBoss, installed, new(100, 100), (ushort)(palette << 9));
             AssertEqual((byte)112, installed.LowTable[0], "authored horizontal offset reaches OAM");
             AssertEqual((byte)96, installed.LowTable[1], "authored vertical offset reaches OAM");
-            var attributes = new SnesObjAttributeWord((ushort)(installed.LowTable[2] | installed.LowTable[3] << 8));
+            var attributes = new SnesObjAttributeWord((ushort)(SnesLittleEndian.Word(installed.LowTable[2], installed.LowTable[3])));
             AssertEqual(50, (int)attributes.TileNumber, "authored tile region reaches OAM");
             AssertEqual(5, (int)attributes.PaletteIndex, "explicit palette overrides caller blink palette");
             AssertEqual(3, (int)attributes.Priority, "authored priority reaches OAM");

@@ -17,7 +17,7 @@ internal static partial class Program
         {
             ushort address = SporeSpawnInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            selected.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord(((DraygonBg2FrameDefinitions.Bank << 16) | address)));
+            selected.Add(CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, address)))));
         }
 
         var installed = new RoomEnemySystem();
@@ -50,7 +50,7 @@ internal static partial class Program
                 $"Spore Spawn program selects native frame {frame.Pointer:X4}");
             installedSlot.SpritemapPointer =
                 frame.Pointer;
-            int root = (frame.Bank << 16) | frame.Pointer;
+            int root = ((int)new SnesAddress(frame.Bank, frame.Pointer));
             SporeSpawnCollisionDefinitions.ComponentSequence components =
                 SporeSpawnCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual((int)rom.ReadCartridgeByte(root), components.Length,
@@ -93,7 +93,7 @@ internal static partial class Program
             "all compiled Spore Spawn hitbox lists are referenced");
         foreach (ushort pointer in seenLists)
         {
-            int list = (DraygonBg2FrameDefinitions.Bank << 16) | pointer;
+            int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
             ReadOnlySpan<SporeSpawnCollisionHitbox> hitboxes =
                 SporeSpawnCollisionDefinitions.HitboxesAt(pointer);
             AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Length,

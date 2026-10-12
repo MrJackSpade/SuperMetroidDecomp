@@ -17,7 +17,7 @@ internal static partial class Program
             for (int projectile = 0; projectile < 2; projectile++)
             {
                 int address = 0xa69a48 + (right ? 8 : 0) + projectile * 4 + fieldOffset;
-                ushort expected = (ushort)(FakeKraidSpitVelocityFieldRomByte(rom, address) | FakeKraidSpitVelocityFieldRomByte(rom, address + 1) << 8);
+                ushort expected = (ushort)(SnesLittleEndian.Word(FakeKraidSpitVelocityFieldRomByte(rom, address), FakeKraidSpitVelocityFieldRomByte(rom, address + 1)));
                 AssertEqual(expected, select(FakeKraidProjectileDefinitions.SpitLaunch(right, projectile)),
                     $"Fake Kraid spit field {fieldOffset}, facing {right}, projectile {projectile}");
             }

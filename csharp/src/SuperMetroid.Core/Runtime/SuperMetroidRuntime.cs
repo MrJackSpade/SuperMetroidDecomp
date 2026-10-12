@@ -3498,7 +3498,7 @@ Landed: true, HitCeiling: false);
                 Enemies.ResolveOrdinaryPowerBombHits(
                     _addressSpace,
                     powerBomb.Position,
-                    unchecked((byte)(powerBomb.ExplosionRadius >> 8)),
+                    SnesUnsignedEightEight.Whole(powerBomb.ExplosionRadius),
                     Samus);
             }
 

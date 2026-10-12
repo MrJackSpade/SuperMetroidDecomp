@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
@@ -243,9 +244,9 @@ internal sealed partial class CeresDestructionCinematicState
     {
         // The bank-$8B pre-instructions use XBA to split an unsigned 8.8 velocity into
         // whole/subposition words before a 16-bit subtraction with borrow.
-        uint fixedPosition = ((uint)actor.Position.Y.Whole << 16) | actor.Position.Y.Fraction;
+        uint fixedPosition = new SnesFixedPosition(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
         uint fixedVelocity = (uint)velocity << 8;
         fixedPosition = unchecked(fixedPosition - fixedVelocity);
-        actor.Position = actor.Position.WithY(new(unchecked((ushort)(fixedPosition >> 16)), unchecked((ushort)fixedPosition)));
+        actor.Position = actor.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
     }
 }

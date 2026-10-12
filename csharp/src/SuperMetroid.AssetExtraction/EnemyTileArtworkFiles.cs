@@ -68,7 +68,7 @@ public static class EnemyTileArtworkFiles
 
                 File.WriteAllBytes(Path.Combine(directory, EnemyTileArtworkFormat.FileName(definitionPointer)), encoded);
                 byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                    (definition.Bank << 16) | definition.PalettePointer,
+                    ((int)new SnesAddress(definition.Bank, definition.PalettePointer)),
                     EnemyPaletteSheet.ColorCount * sizeof(ushort));
                 var colors = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
                 for (int color = 0; color < colors.Length; color++)
@@ -1164,7 +1164,7 @@ public static class EnemyTileArtworkFiles
             for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
             {
                 planar[destination + index] = bus.ReadCartridgeByte(
-                    (pass.SourceBank << 16) | unchecked((ushort)(copy.SourceWord + index)));
+                    ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
             }
         }
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(encodedByteCount);

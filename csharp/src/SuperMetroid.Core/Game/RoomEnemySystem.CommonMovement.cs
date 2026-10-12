@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -50,7 +51,7 @@ public sealed partial class RoomEnemySystem
 
         uint oldPosition = slot.Position.X.RawValue;
         uint newPosition = unchecked(oldPosition + (uint)displacement);
-        ushort targetCenter = unchecked((ushort)(newPosition >> 16));
+        ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)newPosition));
         bool movingLeft = displacement < 0;
         ushort targetEdge = movingLeft
             ? unchecked((ushort)(targetCenter - slot.Radius.X))
@@ -116,7 +117,7 @@ public sealed partial class RoomEnemySystem
 
         uint oldPosition = slot.Position.Y.RawValue;
         uint newPosition = unchecked(oldPosition + (uint)displacement);
-        ushort targetCenter = unchecked((ushort)(newPosition >> 16));
+        ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)newPosition));
         bool movingUp = displacement < 0;
         ushort targetEdge = movingUp
             ? unchecked((ushort)(targetCenter - slot.Radius.Y))
@@ -178,7 +179,7 @@ public sealed partial class RoomEnemySystem
         uint target = movingDown
             ? unchecked(position + (uint)unsignedDistance)
             : unchecked(position - (uint)unsignedDistance);
-        ushort targetCenter = unchecked((ushort)(target >> 16));
+        ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)target));
         ushort targetEdge = movingDown
             ? unchecked((ushort)(targetCenter + slot.Radius.Y - 1))
             : unchecked((ushort)(targetCenter - slot.Radius.Y));
@@ -208,7 +209,7 @@ public sealed partial class RoomEnemySystem
         int displacement)
     {
         uint position = slot.Position.X.RawValue;
-        ushort targetCenter = unchecked((ushort)((position + (uint)displacement) >> 16));
+        ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)(position + (uint)displacement)));
         bool movingLeft = displacement < 0;
         ushort targetEdge = movingLeft
             ? unchecked((ushort)(targetCenter - slot.Radius.X))
@@ -239,7 +240,7 @@ public sealed partial class RoomEnemySystem
     private static bool EnemyHasSolidHighBitVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
     {
         uint position = slot.Position.Y.RawValue;
-        ushort center = unchecked((ushort)((position + (uint)displacement) >> 16));
+        ushort center = SnesFixedPosition.WholeOf(unchecked((int)(position + (uint)displacement)));
         ushort edge = displacement < 0
             ? unchecked((ushort)(center - slot.Radius.Y))
             : unchecked((ushort)(center + slot.Radius.Y - 1));

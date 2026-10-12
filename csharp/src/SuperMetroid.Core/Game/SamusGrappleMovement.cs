@@ -141,7 +141,7 @@ public static partial class SamusGrappleMovement
             ((uint)(ushort)velocity << 8) |
             (uint)(previous.Fraction & 0x00ff);
         uint rotated = (pair >> 2) | ((pair & 1) << 31);
-        ushort whole = unchecked((ushort)(rotated >> 16));
+        ushort whole = SnesFixedPosition.WholeOf(unchecked((int)rotated));
         if (velocity < 0)
             whole |= 0xffc0;
         return SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), unchecked((ushort)rotated));

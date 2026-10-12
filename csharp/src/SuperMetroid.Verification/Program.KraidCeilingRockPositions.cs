@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => (ushort)(KraidCeilingRockCoordinatesRomByte(rom, a) | KraidCeilingRockCoordinatesRomByte(rom, a + 1) << 8);
+        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1)));
         for (int offset = 0; offset <= 18; offset++)
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + offset),
                 KraidCeilingRockPositions.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
@@ -21,7 +21,7 @@ internal static partial class Program
     private static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
-        ushort Word(int a) => (ushort)(KraidCeilingRockPositionsRomByte(rom, a) | KraidCeilingRockPositionsRomByte(rom, a + 1) << 8);
+        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1)));
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

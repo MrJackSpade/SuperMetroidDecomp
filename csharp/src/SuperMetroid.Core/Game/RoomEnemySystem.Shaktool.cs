@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -183,7 +184,7 @@ public sealed partial class RoomEnemySystem
         // prebuilt active list. Their final orbit uses the cleared coordinates.
 
         (int xDisplacement, int yDisplacement) = ShaktoolOrbitTables.Displacement(
-            unchecked((byte)(state.OrbitAngle >> 8)));
+            SnesAngle.FromRaw(state.OrbitAngle).TableIndex);
         slot.Position = previous.Position.Advance(new(
             SnesSignedSixteenSixteen.FromRaw(xDisplacement),
             SnesSignedSixteenSixteen.FromRaw(yDisplacement)));
@@ -487,7 +488,7 @@ public sealed partial class RoomEnemySystem
             case ShaktoolInstruction.Instruction_Shaktool_Lower1Pixel:
             case ShaktoolInstruction.Instruction_Shaktool_Raise1Pixel:
             {
-                byte targetDirection = unchecked((byte)(state.TargetAngle >> 8));
+                byte targetDirection = SnesAngle.FromRaw(state.TargetAngle).TableIndex;
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     opcode == (ushort)ShaktoolInstruction.Instruction_Shaktool_Lower1Pixel

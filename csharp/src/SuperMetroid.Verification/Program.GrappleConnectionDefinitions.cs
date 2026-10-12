@@ -10,7 +10,7 @@ internal static partial class Program
 
     private static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(GrappleConnectionDefinitionsRomByte(rom, address) | GrappleConnectionDefinitionsRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleConnectionDefinitionsRomByte(rom, address), GrappleConnectionDefinitionsRomByte(rom, address + 1)));
         var guard = NewGrappleConnectionReadGuard(rom);
         // All three table bases and every serialized direction byte, including native
         // reads into the next authored table. Other addresses fail explicitly.
@@ -47,7 +47,7 @@ internal static partial class Program
 
     private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(GrappleConnectionDispatchRomByte(rom, address) | GrappleConnectionDispatchRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleConnectionDispatchRomByte(rom, address), GrappleConnectionDispatchRomByte(rom, address + 1)));
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect =
             SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
@@ -102,7 +102,7 @@ internal static partial class Program
 
     private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom, ISnesAddressSpace guard)
     {
-        ushort Word(int address) => (ushort)(GrappleSpecialConnectionsRomByte(rom, address) | GrappleSpecialConnectionsRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleSpecialConnectionsRomByte(rom, address), GrappleSpecialConnectionsRomByte(rom, address + 1)));
         var special = typeof(SamusGrappleMovement).GetMethod("TryHandleSpecialAngle", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<SpecialGrappleHandler>();
         var native = Enumerable.Range(0, 8).Select(i =>

@@ -10,9 +10,9 @@ internal static partial class Program
         for (int frame = 0; frame < 3; frame++)
         {
             int operand = 0x8bcb07 + 4 * frame;
-            ushort pointer = (ushort)(IntroMotherBrainFrameCatalogRomByte(rom, operand) | IntroMotherBrainFrameCatalogRomByte(rom, operand + 1) << 8);
+            ushort pointer = (ushort)(SnesLittleEndian.Word(IntroMotherBrainFrameCatalogRomByte(rom, operand), IntroMotherBrainFrameCatalogRomByte(rom, operand + 1)));
             AssertEqual(pointer, frames[frame].Pointer, "original Mother Brain frame operand");
-            int count = IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8;
+            int count = SnesLittleEndian.Word(IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual(count, IntroMotherBrainSpriteDefinitions.StockPartCount, "original nine-part frame");
             AssertEqual($"mother-brain-frame-{frame}", frames[frame].Name, "published frame key");
         }

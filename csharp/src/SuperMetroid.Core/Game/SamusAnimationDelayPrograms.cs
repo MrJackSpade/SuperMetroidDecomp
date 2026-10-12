@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Bank-$91 animation control commands, as interpreted by <c>$90:8324-$84DB</c>.</summary>
@@ -108,7 +109,7 @@ internal sealed class SamusAnimationSegment
                 SamusAnimationCommand.Loop => operand switch
             {
                 1 => unchecked((byte)Item),
-                2 => (byte)((ushort)Item >> 8),
+                2 => SnesLittleEndian.HighByte((ushort)Item),
                 3 => (byte)UnequippedGrounded,
                 // $FC's equipped pose immediately follows its unequipped pose.
                 4 => (byte)(Command == SamusAnimationCommand.ItemTransition ? EquippedGrounded : UnequippedAirborne),
@@ -138,7 +139,7 @@ internal static class SamusAnimationDelayPrograms
     // Native segments are contiguous from $91:B20A: each starts where the previous one ends,
     // so start addresses are laid out from the stream start rather than stored.
     private static readonly SamusAnimationSegment[] segments = Layout(
-        (ushort)(SamusAnimationDelayDefinitions.DelayStreamsAddress & ushort.MaxValue),
+        SnesLittleEndian.LowWord(SamusAnimationDelayDefinitions.DelayStreamsAddress),
     [
         Loop([2, 3, 2, 3, 2, 3, 2, 3, 2, 3]),
         Loop([..Repeat(4, 6), 3, 4, 4, 3]),

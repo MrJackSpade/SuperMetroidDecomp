@@ -24,13 +24,12 @@ internal static partial class Program
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Phantoon BG2 frame {frame.Name} exists");
             var native = new List<(ushort Destination, ushort[] Tiles)>();
-            int root = (PhantoonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
+            int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, frame.Pointer));
             int componentCount = rom.ReadCartridgeByte(root);
             for (int component = 0; component < componentCount; component++)
             {
                 ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2 + component * 8 + 4));
-                int cursor = (PhantoonBg2FrameDefinitions.Bank << 16) |
-                    unchecked((ushort)(stream + 2));
+                int cursor = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank ,                    unchecked((ushort)(stream + 2))));
                 for (int command = 0; command < 128; command++)
                 {
                     ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
@@ -141,7 +140,7 @@ internal static partial class Program
         var checkedLists = new HashSet<ushort>();
         foreach (EnemyBg2FrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
-            int root = (PhantoonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
+            int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, frame.Pointer));
             PhantoonCollisionDefinitions.ComponentSequence components =
                 PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), (byte)components.Length,
@@ -158,8 +157,7 @@ internal static partial class Program
                     $"Phantoon {frame.Name} engine hitbox list");
                 if (!checkedLists.Add(component.HitboxPointer))
                     continue;
-                int listAddress = (PhantoonBg2FrameDefinitions.Bank << 16) |
-                    component.HitboxPointer;
+                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank ,                    component.HitboxPointer));
                 PhantoonCollisionDefinitions.HitboxSequence hitboxes =
                     PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), (ushort)hitboxes.Length,

@@ -27,6 +27,9 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     /// <summary>An integral array or collection literal holding hexadecimal words.</summary>
     public const string OpaqueWordArrayId = "SME6342";
 
+    /// <summary>A raw storage-width or layout shift or mask in functional code (#223).</summary>
+    public const string RawWidthId = "SME6345";
+
     /// <summary>A file holds fewer occurrences than its baseline: lower the reviewed count.</summary>
     public const string StaleCountId = "SME6343";
 
@@ -66,6 +69,19 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         description: "Integral arrays of hexadecimal words carry encoded instructions or packed tables. Express them " +
             "as records, timelines or state transitions with named fields.");
 
+    private static readonly DiagnosticDescriptor RawWidthRule = new(
+        RawWidthId,
+        "Raw storage-width or layout operation",
+        "{0}; name what it means: a byte lane (SnesLittleEndian), an 8.8 or 16.16 fixed-point part (SnesSignedEightEight, " +
+            "SnesSignedSixteenSixteen, SnesFixedPosition), a bank and offset (SnesAddress), a packed field, a screen or tile " +
+            "conversion, or a fraction scale; the same shift can mean any of these, so choose the actual one ({1})",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A shift by 8, 16 or 24 or a byte/word/bank mask does not say why the width exists. Call a named " +
+            "operation on the type that owns the encoding ([SnesEncodingOwner]) instead; an intrinsic exception carries a " +
+            "same-line '// cartridge-encoding: allow(Class) - reason' review.");
+
     private static readonly DiagnosticDescriptor StaleCountRule = new(
         StaleCountId,
         "Cartridge-encoding baseline is stale",
@@ -85,7 +101,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        [RawHexRule, PointerDispatchRule, OpaqueWordArrayRule, StaleCountRule, StaleFileRule];
+        [RawHexRule, PointerDispatchRule, OpaqueWordArrayRule, RawWidthRule, StaleCountRule, StaleFileRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -138,6 +154,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
                 RawHexId => RawHexRule,
                 PointerDispatchId => PointerDispatchRule,
                 OpaqueWordArrayId => OpaqueWordArrayRule,
+                RawWidthId => RawWidthRule,
                 null => null,
                 var id => throw new InvalidOperationException($"Unmapped cartridge-encoding rule id {id}."),
             };

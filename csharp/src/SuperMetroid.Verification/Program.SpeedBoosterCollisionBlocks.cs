@@ -201,9 +201,9 @@ internal static partial class Program
                  { crumbleDelay, crumbleDelay, crumbleDelay, 48, 4, 4, 4 })
         {
             bytes.Add(unchecked((byte)duration));
-            bytes.Add(unchecked((byte)(duration >> 8)));
+            bytes.Add(SnesLittleEndian.HighByte(duration));
             bytes.Add(unchecked((byte)drawPointer));
-            bytes.Add(unchecked((byte)(drawPointer >> 8)));
+            bytes.Add(SnesLittleEndian.HighByte(drawPointer));
         }
         bytes.Add(0x17);
         bytes.Add(0x8b);
@@ -219,9 +219,9 @@ internal static partial class Program
                  { crumbleDelay, crumbleDelay, crumbleDelay, 1 })
         {
             bytes.Add(unchecked((byte)duration));
-            bytes.Add(unchecked((byte)(duration >> 8)));
+            bytes.Add(SnesLittleEndian.HighByte(duration));
             bytes.Add(unchecked((byte)drawPointer));
-            bytes.Add(unchecked((byte)(drawPointer >> 8)));
+            bytes.Add(SnesLittleEndian.HighByte(drawPointer));
         }
         bytes.Add(0xbc);
         bytes.Add(0x86);

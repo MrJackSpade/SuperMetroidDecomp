@@ -188,7 +188,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(0x0308, samus.PoseHistory.LastDifferentDirectionAndMovement,
         "forward setup shifts packed direction/movement metadata");
     AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "forward setup commits new pose");
-    AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
+    AssertEqual(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)),
         samus.PoseHistory.PreviousDirectionAndMovement, "forward setup commits new metadata");
     samus.ApplyForwardFacingPoseSetup(bus);
     AssertEqual(samus.Pose, samus.PoseHistory.LastDifferentPose,

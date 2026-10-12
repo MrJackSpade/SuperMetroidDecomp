@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -202,7 +203,7 @@ public sealed partial class RoomEnemySystem
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
                     state.UndergroundTimer = OwtchMovementDefinitions.UndergroundTimer(
-                        unchecked((byte)(slot.Parameter1 >> 8)));
+                        SnesLittleEndian.HighByte(slot.Parameter1));
                 }
                 return;
 

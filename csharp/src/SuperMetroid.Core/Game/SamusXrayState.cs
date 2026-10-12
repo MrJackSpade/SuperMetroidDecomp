@@ -454,12 +454,12 @@ public sealed class SamusXrayState
                 // carry into their whole components before the ten-unit clamp.
                 uint delta = ((uint)AngularWidthDelta << 16) | AngularSubwidthDelta;
                 delta = unchecked(delta + SamusXrayRomData.Window.WideningStep);
-                AngularWidthDelta = unchecked((ushort)(delta >> 16));
+                AngularWidthDelta = SnesFixedPosition.WholeOf(unchecked((int)delta));
                 AngularSubwidthDelta = unchecked((ushort)delta);
 
                 uint width = ((uint)AngularWidth << 16) | AngularSubwidth;
                 width = unchecked(width + delta);
-                AngularWidth = unchecked((ushort)(width >> 16));
+                AngularWidth = SnesFixedPosition.WholeOf(unchecked((int)width));
                 AngularSubwidth = unchecked((ushort)width);
                 if (AngularWidth >= 11)
                 {

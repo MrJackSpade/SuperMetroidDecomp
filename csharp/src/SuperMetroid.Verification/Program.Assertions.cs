@@ -16,14 +16,14 @@ static ushort ReferenceNextRandom(ushort seed)
 {
     int hardwareProductLow = (seed & 0xff) * 5;
     byte stackLow = (byte)hardwareProductLow;
-    byte stackHigh = (byte)(hardwareProductLow >> 8);
+    byte stackHigh = SnesLittleEndian.HighByte(unchecked((ushort)hardwareProductLow));
 
     int hardwareProductHigh = ((seed >> 8) & 0xff) * 5;
     int eightBitAdc = stackHigh + (hardwareProductHigh & 0xff) + 1;
     stackHigh = (byte)eightBitAdc;
     int carry = eightBitAdc > 0xff ? 1 : 0;
 
-    int restoredAccumulator = stackLow | (stackHigh << 8);
+    int restoredAccumulator = SnesLittleEndian.Word(stackLow, stackHigh);
     return unchecked((ushort)(restoredAccumulator + 0x0011 + carry));
 }
 

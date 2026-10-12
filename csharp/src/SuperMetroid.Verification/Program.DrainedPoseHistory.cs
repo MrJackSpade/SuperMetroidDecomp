@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 internal static partial class Program
@@ -10,7 +11,7 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             var history = samus.PoseHistory;
             history.PreviousPose = source;
-            history.PreviousDirectionAndMovement = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
+            history.PreviousDirectionAndMovement = (ushort)(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)));
             history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
             history.LastDifferentDirectionAndMovement = 0x0308;
             (string Name, Action Apply)[] commands =
@@ -30,7 +31,7 @@ internal static partial class Program
                 AssertEqual(previousPose, history.LastDifferentPose, $"drain {command.Name} shifts previous pose");
                 AssertEqual(previousMetadata, history.LastDifferentDirectionAndMovement, $"drain {command.Name} shifts metadata");
                 AssertEqual(samus.Pose, history.PreviousPose, $"drain {command.Name} publishes current pose");
-                AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
+                AssertEqual(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)),
                     history.PreviousDirectionAndMovement, $"drain {command.Name} publishes current metadata");
             }
             SamusPoseId olderPose = history.LastDifferentPose;

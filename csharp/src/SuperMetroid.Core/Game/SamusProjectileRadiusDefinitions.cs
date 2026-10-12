@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical collision extents from bank-$93 timed projectile records, separate from spritemap artwork.</summary>
@@ -237,7 +238,7 @@ internal static class SamusProjectileRadiusDefinitions
         if (SamusProjectileInstructionDefinitions.TryTimedFrame(unchecked(address - 4), out var frame) &&
             TryCalculatedPair(frame, out ushort calculated)) return (byte)calculated;
         if (SamusProjectileInstructionDefinitions.TryTimedFrame(unchecked(address - 5), out frame) &&
-            TryCalculatedPair(frame, out calculated)) return (byte)(calculated >> 8);
+            TryCalculatedPair(frame, out calculated)) return SnesLittleEndian.HighByte(calculated);
 
         throw new InvalidDataException(
             $"Projectile radius byte ${address:X6} is outside the compiled timed-frame definitions.");

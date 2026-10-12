@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 
 internal static partial class Program
@@ -33,8 +34,7 @@ internal static partial class Program
             {
                 int pointer = SpcDriverData.Ram.DefaultMusicPointer + track * 2;
                 ushort actual = unchecked((ushort)(
-                    raw.ReadApuByteForVerification(pointer) |
-                    (raw.ReadApuByteForVerification(pointer + 1) << 8)));
+                    SnesLittleEndian.Word(raw.ReadApuByteForVerification(pointer), raw.ReadApuByteForVerification(pointer + 1))));
                 AssertEqual(bank.MusicTracks[track].Address, actual, $"{bank.Name} track {track} route");
             }
         }

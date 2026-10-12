@@ -73,7 +73,7 @@ public sealed class GameplayHudPresentation
                 ushort word = topRowOverrides.TryGetValue(column, out ushort edited)
                     ? edited : GameplayHudDefinitions.TopRowWord(column);
                 transfer[column * 2] = (byte)word;
-                transfer[column * 2 + 1] = (byte)(word >> 8);
+                transfer[column * 2 + 1] = SnesLittleEndian.HighByte(word);
             }
             return transfer;
         }

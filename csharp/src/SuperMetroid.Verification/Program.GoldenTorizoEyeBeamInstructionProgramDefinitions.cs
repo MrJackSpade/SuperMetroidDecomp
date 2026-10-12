@@ -21,9 +21,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address) |
-                GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
+                SnesLittleEndian.Word(GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address), GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
+                    unchecked((ushort)(definition.Address + 1))))));
             AssertEqual(definition.Value, native,
                 $"Golden Torizo eye-beam mechanics word $86:{definition.Address:X4}");
         }

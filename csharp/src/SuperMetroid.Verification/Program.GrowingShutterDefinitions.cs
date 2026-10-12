@@ -9,7 +9,7 @@ internal static partial class Program
         Suite(nameof(VerifyGrowingShutterInitialSelection), () => VerifyGrowingShutterInitialSelection(rom));
         Suite(nameof(VerifyGrowingShutterWholeSpeed), () => VerifyGrowingShutterWholeSpeed(rom));
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
-        ushort Word(int address) => (ushort)(CompiledGrowingShuttersRomByte(rom, address) | CompiledGrowingShuttersRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeGrowingShutter", BindingFlags.NonPublic | BindingFlags.Instance)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
@@ -50,7 +50,7 @@ internal static partial class Program
         for (int index = 0; index < 4; index++)
         {
             int address = 0xa2ea4e + 2 * index;
-            ushort native = (ushort)(GrowingShutterInitialSelectionRomByte(rom, address) | GrowingShutterInitialSelectionRomByte(rom, address + 1) << 8);
+            ushort native = (ushort)(SnesLittleEndian.Word(GrowingShutterInitialSelectionRomByte(rom, address), GrowingShutterInitialSelectionRomByte(rom, address + 1)));
             AssertEqual(native, (ushort)GrowingShutterDefinitions.InitialFunction(index),
                 "growing shutter named initial case matches original pointer");
         }
@@ -73,7 +73,7 @@ internal static partial class Program
         for (int index = 0; index < 24; index++)
         {
             int address = 0xa2ea56 + 4 * index + (fractional ? 2 : 0);
-            ushort native = (ushort)(GrowingShutterSpeedFieldRomByte(rom, address) | GrowingShutterSpeedFieldRomByte(rom, address + 1) << 8);
+            ushort native = (ushort)(SnesLittleEndian.Word(GrowingShutterSpeedFieldRomByte(rom, address), GrowingShutterSpeedFieldRomByte(rom, address + 1)));
             for (int high = 0; high < 256; high++)
             {
                 var speed = GrowingShutterDefinitions.Speed((ushort)((high << 8) | index));

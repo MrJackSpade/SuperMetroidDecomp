@@ -8,10 +8,9 @@ internal static partial class Program
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
         Suite(nameof(VerifyKraidLowHalfBoundaryMapping), () => VerifyKraidLowHalfBoundaryMapping(rom));
-        ushort Word(int a) => (ushort)(KraidMouthHitboxesBusByte(rom, a) | KraidMouthHitboxesBusByte(rom, a + 1) << 8);
+        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidMouthHitboxesBusByte(rom, a), KraidMouthHitboxesBusByte(rom, a + 1)));
         ushort PointerWord(ushort pointer) => (ushort)(
-            KraidMouthHitboxesBusByte(rom, 0xa70000 | pointer) |
-            KraidMouthHitboxesBusByte(rom, 0xa70000 | unchecked((ushort)(pointer + 1))) << 8);
+            SnesLittleEndian.Word(KraidMouthHitboxesBusByte(rom, 0xa70000 | pointer), KraidMouthHitboxesBusByte(rom, 0xa70000 | unchecked((ushort)(pointer + 1)))));
         for (int cursor = 0x96d2; cursor < 0x9788;)
         {
             ushort command = Word(0xa70000 | cursor);

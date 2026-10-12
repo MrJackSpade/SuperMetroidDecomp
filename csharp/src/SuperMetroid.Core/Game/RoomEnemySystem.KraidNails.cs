@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -140,6 +141,6 @@ public sealed partial class RoomEnemySystem
         int negated = unchecked(-CombineKraidVelocity(low, high));
         return (
             unchecked((ushort)negated),
-            unchecked((ushort)((uint)negated >> 16)));
+            SnesFixedPosition.WholeOf(unchecked((int)((uint)negated))));
     }
 }

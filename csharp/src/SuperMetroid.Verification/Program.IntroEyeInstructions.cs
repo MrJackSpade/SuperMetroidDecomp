@@ -10,7 +10,7 @@ internal static partial class Program
             AssertEqual(IntroEyeInstructionsRomByte(rom, 0x8c0000 + pointer), IntroEyeAnimationDefinitions.ReadByte((ushort)pointer), "original eye program byte");
             if (pointer == 0xd628) continue;
             AssertTrue(IntroEyeAnimationDefinitions.TryReadWord((ushort)pointer, out ushort word), "eye word admitted");
-            AssertEqual((ushort)(IntroEyeInstructionsRomByte(rom, 0x8c0000 + pointer) | IntroEyeInstructionsRomByte(rom, 0x8c0001 + pointer) << 8), word,
+            AssertEqual((ushort)(SnesLittleEndian.Word(IntroEyeInstructionsRomByte(rom, 0x8c0000 + pointer), IntroEyeInstructionsRomByte(rom, 0x8c0001 + pointer))), word,
                 "original eye aligned or overlapping word");
         }
         foreach (ushort pointer in new ushort[] { 0, 0xd5de, 0xd629, ushort.MaxValue })

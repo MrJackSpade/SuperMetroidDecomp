@@ -20,7 +20,7 @@ internal static partial class Program
              index++)
         {
             ushort operand = YardInstructionProgramDefinitions.PresentationWordAddress(index);
-            int selectorAddress = (YardVisualDefinitions.Bank << 16) | operand;
+            int selectorAddress = ((int)new SnesAddress(YardVisualDefinitions.Bank, operand));
             ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer, YardVisualDefinitions.FrameAt(operand),
                 $"Yard visual selector {index} matches pinned cartridge");

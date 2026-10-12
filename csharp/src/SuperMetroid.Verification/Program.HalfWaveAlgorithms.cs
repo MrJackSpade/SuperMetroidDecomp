@@ -28,7 +28,7 @@ internal static partial class Program
         for (int index = 0; index < 128; index++)
         {
             int address = EnemyMathReferenceData.UnsignedSine + index * 2;
-            ushort original = (ushort)(UnsignedHalfWaveAlgorithmRomByte(rom, address) | (UnsignedHalfWaveAlgorithmRomByte(rom, address + 1) << 8));
+            ushort original = (ushort)(SnesLittleEndian.Word(UnsignedHalfWaveAlgorithmRomByte(rom, address), UnsignedHalfWaveAlgorithmRomByte(rom, address + 1)));
             AssertEqual(original, EnemyTrigonometryTables.UnsignedHalfWave(index), $"Original unsigned sine {index}");
             if (index is 0 or 64) continue;
             decimal value = 65535 * EnemyTrigonometryTables.UnitHalfWave(index);

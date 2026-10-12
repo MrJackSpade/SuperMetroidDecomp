@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -18,7 +19,7 @@ internal readonly record struct EnemyProjectileDefinition(
     ushort ShotInstructionList)
 {
     /// <summary>The collision half-extents decoded from the packed radius word (X low byte, Y high byte).</summary>
-    internal Extent16<RoomPixels> Radius => new(unchecked((byte)RadiusWord), unchecked((byte)(RadiusWord >> 8)));
+    internal Extent16<RoomPixels> Radius => new(unchecked((byte)RadiusWord), SnesLittleEndian.HighByte(RadiusWord));
     internal ushort Damage => unchecked((ushort)(Properties & 0x0fff));
     internal EnemyProjectileDrawPriority DrawPriority =>
         (Properties & 0x1000) != 0

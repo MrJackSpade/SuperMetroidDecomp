@@ -15,7 +15,7 @@ internal static partial class Program
     private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, RoomEnemyDefinition definition)
     {
         var cgram = new SnesCgram();
-        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, (definition.Bank << 16) | definition.PalettePointer,
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, ((int)new SnesAddress(definition.Bank, definition.PalettePointer)),
             EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
         return cgram;
     }
@@ -30,8 +30,7 @@ internal static partial class Program
             int destination = copy.DestinationWord - 0x4000;
             for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
                 expected[destination + index] = rom.ReadCartridgeByte(
-                    (pass.SourceBank << 16) |
-                    unchecked((ushort)(copy.SourceWord + index)));
+                    ((int)new SnesAddress(pass.SourceBank ,                    unchecked((ushort)(copy.SourceWord + index)))));
         }
         return expected;
     }

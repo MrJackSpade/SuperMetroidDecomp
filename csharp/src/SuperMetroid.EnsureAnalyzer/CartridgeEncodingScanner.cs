@@ -26,6 +26,15 @@ internal enum CartridgeEncodingRule
     CatalogHexLiteral,
     /// <summary>A functional hexadecimal literal carrying a reviewed same-line allowance. Inventoried, not ratcheted.</summary>
     JustifiedHexLiteral,
+    /// <summary>
+    /// A raw storage-width or layout operation in functional code (#223): a shift by a byte, word or bank width,
+    /// or a byte/word/bank mask. Ratcheted by SME6345.
+    /// </summary>
+    RawWidthOperation,
+    /// <summary>A width operation inside a catalog or a <c>[SnesEncodingOwner]</c> type that documents it. Inventoried.</summary>
+    OwnedWidthOperation,
+    /// <summary>A functional width operation carrying a reviewed same-line allowance. Inventoried, not ratcheted.</summary>
+    JustifiedWidthOperation,
 }
 
 /// <summary>The six #641 audit classes. The scanner proposes one per occurrence and names its basis.</summary>
@@ -74,7 +83,19 @@ internal static class CartridgeEncodingScanner
     ];
 
     /// <summary>The ratcheted diagnostic ids, in rule order.</summary>
-    internal static readonly string[] RatchetedRuleIds = ["SME6340", "SME6341", "SME6342"];
+    internal static readonly string[] RatchetedRuleIds = ["SME6340", "SME6341", "SME6342", "SME6345"];
+
+    /// <summary>
+    /// The attribute (#223) marking a type that owns and documents an encoding: its literals and width
+    /// operations are definitions, not functional code.
+    /// </summary>
+    internal const string EncodingOwnerAttribute = "SnesEncodingOwnerAttribute";
+
+    /// <summary>Shift counts that move a value by a byte, a word or a bank.</summary>
+    private static readonly long[] StorageWidthShifts = [8, 16, 24];
+
+    /// <summary>Masks that keep a byte lane, a word, a bank byte or a 24-bit address.</summary>
+    private static readonly long[] StorageWidthMasks = [0xff, 0xff00, 0xffff, 0xff0000, 0xffffff, 0xffff0000];
 
     /// <summary>The diagnostic id that ratchets <paramref name="rule"/>, or null when the rule is inventory-only.</summary>
     internal static string? RuleId(CartridgeEncodingRule rule) => rule switch
@@ -82,7 +103,9 @@ internal static class CartridgeEncodingScanner
         CartridgeEncodingRule.RawHexLiteral => "SME6340",
         CartridgeEncodingRule.PointerDispatch => "SME6341",
         CartridgeEncodingRule.OpaqueWordArray => "SME6342",
-        CartridgeEncodingRule.CatalogHexLiteral or CartridgeEncodingRule.JustifiedHexLiteral => null,
+        CartridgeEncodingRule.RawWidthOperation => "SME6345",
+        CartridgeEncodingRule.CatalogHexLiteral or CartridgeEncodingRule.JustifiedHexLiteral or
+            CartridgeEncodingRule.OwnedWidthOperation or CartridgeEncodingRule.JustifiedWidthOperation => null,
         _ => throw new InvalidOperationException($"Undefined {nameof(CartridgeEncodingRule)} {rule}."),
     };
 
@@ -138,7 +161,8 @@ internal static class CartridgeEncodingScanner
             if (!token.IsKind(SyntaxKind.NumericLiteralToken) || !IsHex(token.Text))
                 continue;
             string line = text.Lines.GetLineFromPosition(token.SpanStart).ToString();
-            CartridgeEncodingRule rule = catalog ? CartridgeEncodingRule.CatalogHexLiteral
+            CartridgeEncodingRule rule = catalog || IsInEncodingOwner(token.Parent, model, cancellationToken)
+                ? CartridgeEncodingRule.CatalogHexLiteral
                 : AllowanceMarkers.Any(marker => HasAllowance(line, marker)) ? CartridgeEncodingRule.JustifiedHexLiteral
                 : CartridgeEncodingRule.RawHexLiteral;
             (CartridgeEncodingClass cls, string basis) = ClassifyHex(token);
@@ -150,6 +174,17 @@ internal static class CartridgeEncodingScanner
             cancellationToken.ThrowIfCancellationRequested();
             switch (node)
             {
+                case BinaryExpressionSyntax width when IsWidthOperation(width, model, cancellationToken) &&
+                    !IsInsideWidthOperation(width, model, cancellationToken):
+                {
+                    string line = text.Lines.GetLineFromPosition(width.SpanStart).ToString();
+                    CartridgeEncodingRule rule = catalog || IsInEncodingOwner(width, model, cancellationToken)
+                        ? CartridgeEncodingRule.OwnedWidthOperation
+                        : AllowanceMarkers.Any(marker => HasAllowance(line, marker)) ? CartridgeEncodingRule.JustifiedWidthOperation
+                        : CartridgeEncodingRule.RawWidthOperation;
+                    occurrences.Add(new(rule, CartridgeEncodingClass.ComposableBits, WidthBasis(width), width.OperatorToken.GetLocation()));
+                    break;
+                }
                 case BinaryExpressionSyntax binary when IsDispatchOperator(binary.Kind()):
                     if (IsPointerDispatch(binary.Left, binary.Right, model, cancellationToken) ||
                         IsPointerDispatch(binary.Right, binary.Left, model, cancellationToken))
@@ -194,6 +229,54 @@ internal static class CartridgeEncodingScanner
             }
         }
         return occurrences;
+    }
+
+    /// <summary>
+    /// A shift by a byte, word or bank width, or a byte/word/bank mask, that the compiler does not fold to a
+    /// constant: the operation encodes a storage width or a layout whose meaning the call site must name.
+    /// </summary>
+    internal static bool IsWidthOperation(BinaryExpressionSyntax binary, SemanticModel model, CancellationToken cancellationToken)
+    {
+        bool mask = binary.IsKind(SyntaxKind.BitwiseAndExpression);
+        if (!mask && !binary.IsKind(SyntaxKind.LeftShiftExpression) && !binary.IsKind(SyntaxKind.RightShiftExpression) &&
+            !binary.IsKind(SyntaxKind.UnsignedRightShiftExpression))
+            return false;
+        if (model.GetConstantValue(binary, cancellationToken).HasValue)
+            return false;
+        object? value = model.GetConstantValue(binary.Right, cancellationToken).Value ??
+            (mask ? model.GetConstantValue(binary.Left, cancellationToken).Value : null);
+        if (value is null or bool or string or char)
+            return false;
+        long constant = Convert.ToInt64(value, CultureInfo.InvariantCulture);
+        return mask ? StorageWidthMasks.Contains(constant) : StorageWidthShifts.Contains(constant);
+    }
+
+    // (x >> 8) & 0xff is one operation: only the outermost of a nested width chain is counted.
+    private static bool IsInsideWidthOperation(BinaryExpressionSyntax binary, SemanticModel model, CancellationToken cancellationToken)
+    {
+        SyntaxNode? parent = binary.Parent;
+        while (parent is ParenthesizedExpressionSyntax or CastExpressionSyntax or CheckedExpressionSyntax)
+            parent = parent.Parent;
+        return parent is BinaryExpressionSyntax outer && IsWidthOperation(outer, model, cancellationToken);
+    }
+
+    private static string WidthBasis(BinaryExpressionSyntax binary) => binary.Kind() switch
+    {
+        SyntaxKind.BitwiseAndExpression => $"'{binary}' keeps a byte, word or bank lane",
+        SyntaxKind.LeftShiftExpression => $"'{binary}' moves a value up by a byte, word or bank width",
+        _ => $"'{binary}' moves a value down by a byte, word or bank width",
+    };
+
+    private static bool IsInEncodingOwner(SyntaxNode? node, SemanticModel model, CancellationToken cancellationToken)
+    {
+        for (SyntaxNode? current = node; current is not null; current = current.Parent)
+        {
+            if (current is BaseTypeDeclarationSyntax declaration &&
+                model.GetDeclaredSymbol(declaration, cancellationToken) is { } type &&
+                type.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == EncodingOwnerAttribute))
+                return true;
+        }
+        return false;
     }
 
     private static bool IsHex(string text) =>

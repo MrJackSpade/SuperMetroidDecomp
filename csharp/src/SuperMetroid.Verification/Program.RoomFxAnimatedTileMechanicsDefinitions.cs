@@ -84,7 +84,7 @@ internal static partial class Program
         ISnesAddressSpace inner, RoomFxAnimatedTileObjectDefinition definition, Action presentationRead)
     {
         bool InAnimatedTileBank(int address) =>
-            SnesAddress.FromBusAddress(address).Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16);
+            SnesAddress.FromBusAddress(address).Bank == SnesLittleEndian.BankByte(RoomFxRomData.Banks.AnimatedTiles);
         return new CartridgeReadGuard(inner)
             .Forbid(address =>
                 {

@@ -78,8 +78,7 @@ internal static partial class Program
         }
         AssertEqual(63, cells, "Mother Brain regular sixty-three original physical cells");
 
-        ushort ReadWord(int address) => (ushort)(MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | address) |
-            MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | (address + 1)) << 8);
+        ushort ReadWord(int address) => (ushort)(SnesLittleEndian.Word(MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | address), MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | (address + 1))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain regular draw mapping")]

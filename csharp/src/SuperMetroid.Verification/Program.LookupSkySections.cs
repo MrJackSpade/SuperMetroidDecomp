@@ -42,7 +42,7 @@ internal static partial class Program
                 ushort next = index + 1 < originalCount ? ReadVerificationWord(rom, source + 8) : end;
                 if (worldY < top || worldY >= next) continue;
                 int slot = (ReadVerificationWord(rom, source + 6) - 0x9f80) / 4;
-                expected = (ushort)(expectedSlots[slot] >> 16);
+                expected = SnesFixedPosition.WholeOf(unchecked((int)expectedSlots[slot]));
                 break;
             }
             ushort actual = sky.BuildGameplayHorizontalScrolls(unchecked((ushort)(worldY - 32)), 1)[0];

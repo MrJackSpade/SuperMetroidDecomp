@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => (ushort)(KraidNailContourRomByte(rom, a) | KraidNailContourRomByte(rom, a + 1) << 8);
+        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1)));
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         var enemies = new RoomEnemySystem();

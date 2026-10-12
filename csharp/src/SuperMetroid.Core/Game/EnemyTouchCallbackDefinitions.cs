@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -52,7 +53,7 @@ public static class EnemyTouchCallbackDefinitions
     public const int BankB3NoOp = 0xb3804c;
 
     /// <summary>Classifies the fifteen literal RTL touch callbacks in the pinned retail inventory.</summary>
-    public static bool IsLiteralNoOp(byte bank, ushort pointer) => ((bank << 16) | pointer) is
+    public static bool IsLiteralNoOp(byte bank, ushort pointer) => (((int)new SnesAddress(bank, pointer))) is
         BankA2NoOp or
         BankA3NoOp or
         TripperPlatformNoOp or

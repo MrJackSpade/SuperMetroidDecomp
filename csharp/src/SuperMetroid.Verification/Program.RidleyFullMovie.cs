@@ -1033,7 +1033,7 @@ internal static partial class Program
                             $"update {frame}: cannon upload source");
                     }
                 }
-                Check("Cannon flags", (ushort)(samus.ArmCannon.OpenFlag | samus.ArmCannon.CloseFlag << 8), NativeSnapshotMemory.CannonFlags);
+                Check("Cannon flags", (ushort)(SnesLittleEndian.Word(samus.ArmCannon.OpenFlag, samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);
                 Check("Cannon frame", samus.ArmCannon.Frame, NativeSnapshotMemory.CannonFrame);
                 Check("Cannon toggle", samus.ArmCannon.ToggleFlag, NativeSnapshotMemory.CannonToggle);
                 Check("Cannon drawing mode", samus.ArmCannon.DrawingMode, NativeSnapshotMemory.CannonDrawingMode);

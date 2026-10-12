@@ -95,7 +95,7 @@ internal static partial class Program
                 KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
             ReadOnlySpan<ushort> installed = stock.KraidBackground!.HeadWords(pointer);
             for (int word = 0; word < installed.Length; word++)
-                AssertEqual((ushort)(native[word * 2] | native[word * 2 + 1] << 8),
+                AssertEqual((ushort)(SnesLittleEndian.Word(native[word * 2], native[word * 2 + 1])),
                     installed[word], $"Kraid head ${pointer:X4} word {word}");
 
             (KraidEnemyState baseline, SnesVram nativeVram) = ReadImportedKraidHeadFrame(rom, pointer);

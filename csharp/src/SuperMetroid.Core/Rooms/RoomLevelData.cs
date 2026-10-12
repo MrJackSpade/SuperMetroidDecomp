@@ -478,7 +478,7 @@ public sealed class RoomLevelData
             throw new ArgumentOutOfRangeException(nameof(wordIndex));
 
         _blockDefinitions[byteOffset] = unchecked((byte)tilemapWord);
-        _blockDefinitions[byteOffset + 1] = unchecked((byte)(tilemapWord >> 8));
+        _blockDefinitions[byteOffset + 1] = SnesLittleEndian.HighByte(tilemapWord);
     }
 
     /// <summary>

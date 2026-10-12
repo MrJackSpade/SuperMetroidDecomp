@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Frontend;
 internal static class IntroCinematicMotion
 {
     /// <summary>One axis as the native 32-bit whole:fraction value (whole word in the high half).</summary>
-    public static uint Packed(SnesFixedPosition position) => ((uint)position.Whole << 16) | position.Fraction;
+    public static uint Packed(SnesFixedPosition position) => new SnesFixedPosition(position.Whole, position.Fraction).RawValue;
 
     /// <summary>One axis from a native 32-bit whole:fraction value.</summary>
-    public static SnesFixedPosition Unpacked(uint value) => new(unchecked((ushort)(value >> 16)), unchecked((ushort)value));
+    public static SnesFixedPosition Unpacked(uint value) => new(SnesFixedPosition.WholeOf(unchecked((int)value)), unchecked((ushort)value));
 
     /// <summary>Adds a native whole/fraction velocity pair to one axis.</summary>
     public static SnesFixedPosition AddSixteenSixteen(
@@ -24,7 +24,7 @@ internal static class IntroCinematicMotion
 
     /// <summary>Adds a packed signed 16.16 delta (whole word in the high half) to one axis.</summary>
     public static SnesFixedPosition AddSignedSixteenSixteen(SnesFixedPosition position, int fixedDelta) =>
-        AddSixteenSixteen(position, unchecked((ushort)(fixedDelta >> 16)), unchecked((ushort)fixedDelta));
+        AddSixteenSixteen(position, SnesFixedPosition.WholeOf(fixedDelta), unchecked((ushort)fixedDelta));
 
     /// <summary>Adds a signed 8.8 velocity to one axis.</summary>
     public static SnesFixedPosition AddEightEight(

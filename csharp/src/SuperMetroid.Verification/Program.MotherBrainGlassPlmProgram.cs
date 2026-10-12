@@ -31,7 +31,7 @@ internal static partial class Program
         source.WriteBytes(0x8f9000,
         [
             unchecked((byte)PlmHeaderId.MotherBrainGlass),
-            unchecked((byte)((ushort)PlmHeaderId.MotherBrainGlass >> 8)),
+            SnesLittleEndian.HighByte((ushort)PlmHeaderId.MotherBrainGlass),
             9, 5, 0, 0x80, 0, 0,
         ]);
         var guarded = NewMotherBrainGlassProgramReadGuard(source);

@@ -32,7 +32,7 @@ public sealed class SnesCgram
 
         for (int color = 0; color < colorCount; color++)
         {
-            ushort word = (ushort)(bytes[color * 2] | (bytes[color * 2 + 1] << 8));
+            ushort word = (ushort)(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
             _colors[destinationIndex + color] = Bgr555.FromCgramPortWord(word);
         }
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
@@ -21,7 +22,7 @@ public static class SamusSuitPickupRenderer
         for (int y = 0; y < Height; y++)
         {
             ushort endpoints = pickup.WindowTable[y];
-            windows[y] = new(unchecked((byte)endpoints), (byte)(endpoints >> 8), red, green, blue);
+            windows[y] = new(unchecked((byte)endpoints), SnesLittleEndian.HighByte(endpoints), red, green, blue);
         }
         return new(windows);
     }
@@ -50,7 +51,7 @@ public static class SamusSuitPickupRenderer
         {
             ushort endpoints = windows[y];
             int left = unchecked((byte)endpoints);
-            int right = unchecked((byte)(endpoints >> 8));
+            int right = SnesLittleEndian.HighByte(endpoints);
             if (left > right)
                 continue;
 

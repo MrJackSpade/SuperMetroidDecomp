@@ -201,7 +201,7 @@ internal static partial class Program
                 for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
                 {
                     expectedGraphics[destination + index] = rom.ReadCartridgeByte(
-                        (pass.SourceBank << 16) | unchecked((ushort)(copy.SourceWord + index)));
+                        ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
                 }
             }
             AssertTrue(death.MeltingGraphics.SequenceEqual(expectedGraphics),
@@ -378,7 +378,7 @@ internal static partial class Program
             int vramByte = (0x4800 + 32 + index) * 2;
             AssertEqual((byte)result[index], vram.ReadByte(vramByte),
                 $"installed Crocomire tilemap ${sourceAddress:X6} VRAM low {index}");
-            AssertEqual((byte)(result[index] >> 8), vram.ReadByte(vramByte + 1),
+            AssertEqual(SnesLittleEndian.HighByte(result[index]), vram.ReadByte(vramByte + 1),
                 $"installed Crocomire tilemap ${sourceAddress:X6} VRAM high {index}");
         }
         return result;
@@ -407,7 +407,7 @@ internal static partial class Program
                     foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
                     foreach (CrocomireMeltingCopy copy in pass.Copies)
                     {
-                        int start = (pass.SourceBank << 16) | copy.SourceWord;
+                        int start = ((int)new SnesAddress(pass.SourceBank, copy.SourceWord));
                         if (address >= start && address < start + (pass.WordsToCopy + 1) * 2)
                             return true;
                     }

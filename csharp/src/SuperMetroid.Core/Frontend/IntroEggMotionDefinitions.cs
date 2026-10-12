@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
@@ -132,5 +133,5 @@ internal static class IntroEggMotionDefinitions
     }
 
     private static (ushort Whole, ushort Fraction) Split(int value) =>
-        (unchecked((ushort)(value >> 16)), unchecked((ushort)value));
+        (SnesFixedPosition.WholeOf(value), unchecked((ushort)value));
 }

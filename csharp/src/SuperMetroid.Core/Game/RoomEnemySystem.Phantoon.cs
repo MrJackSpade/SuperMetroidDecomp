@@ -484,7 +484,7 @@ public sealed partial class RoomEnemySystem
         uint value = ((uint)body.VariableC << 16) | body.VariableB;
         value = unchecked(value + (((uint)high << 16) | low));
         body.VariableB = unchecked((ushort)value);
-        body.VariableC = unchecked((ushort)(value >> 16));
+        body.VariableC = SnesFixedPosition.WholeOf(unchecked((int)value));
     }
 
     private static void SubtractPhantoonSpeed(RoomEnemySlot body, ushort low, ushort high)
@@ -492,7 +492,7 @@ public sealed partial class RoomEnemySystem
         uint value = ((uint)body.VariableC << 16) | body.VariableB;
         value = unchecked(value - (((uint)high << 16) | low));
         body.VariableB = unchecked((ushort)value);
-        body.VariableC = unchecked((ushort)(value >> 16));
+        body.VariableC = SnesFixedPosition.WholeOf(unchecked((int)value));
     }
 
     private void StepPhantoonCasualFlameSchedule(RoomEnemySlot mouth)

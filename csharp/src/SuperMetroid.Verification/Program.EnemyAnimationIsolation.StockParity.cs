@@ -17,19 +17,19 @@ internal static partial class Program
         for (int index = 0; index < BoyonInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
         {
             InstructionMechanicsWord word = BoyonInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(source.ReadCartridgeWordFixedBank((EnemySpritemapDefinitions.BoyonBank << 16) | word.Address), word.Value,
+            AssertEqual(source.ReadCartridgeWordFixedBank(((int)new SnesAddress(EnemySpritemapDefinitions.BoyonBank, word.Address))), word.Value,
                 $"stock Boyon control/timing word {word.Address:X4}");
         }
         for (int index = 0; index < BoyonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
             ushort address = BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertEqual(source.ReadCartridgeWordFixedBank((EnemySpritemapDefinitions.BoyonBank << 16) | address), EnemySpritemapDefinitions.BoyonFrameAt(address),
+            AssertEqual(source.ReadCartridgeWordFixedBank(((int)new SnesAddress(EnemySpritemapDefinitions.BoyonBank, address))), EnemySpritemapDefinitions.BoyonFrameAt(address),
                 $"stock Boyon native visual identity {address:X4}");
         }
         for (int index = 0; index < TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
         {
             InstructionMechanicsWord word = TorizoInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            AssertEqual(source.ReadCartridgeWordFixedBank((TorizoInstructionProgramDefinitions.Bank << 16) | word.Address), word.Value,
+            AssertEqual(source.ReadCartridgeWordFixedBank(((int)new SnesAddress(TorizoInstructionProgramDefinitions.Bank, word.Address))), word.Value,
                 $"stock Torizo control/timing word {word.Address:X4}");
         }
         for (int index = 0; index < TorizoInstructionProgramDefinitions.PresentationWordCount; index++)
@@ -37,7 +37,7 @@ internal static partial class Program
             ushort address = TorizoInstructionProgramDefinitions.PresentationWordAddress(index);
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(TorizoInstructionProgramDefinitions.Bank, address, out ushort selected),
                 $"declared Torizo visual identity {address:X4} has a compiled selector");
-            AssertEqual(source.ReadCartridgeWordFixedBank((TorizoInstructionProgramDefinitions.Bank << 16) | address), selected,
+            AssertEqual(source.ReadCartridgeWordFixedBank(((int)new SnesAddress(TorizoInstructionProgramDefinitions.Bank, address))), selected,
                 $"stock Torizo native visual identity {address:X4}");
         }
         Suite(nameof(VerifyGoldenTorizoRightOrbDefinitions), () => VerifyGoldenTorizoRightOrbDefinitions(source));

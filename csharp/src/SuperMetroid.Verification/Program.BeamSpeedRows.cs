@@ -82,8 +82,8 @@ internal static partial class Program
                     // Anchor the trajectory at the spawn origin: the fire-frame position less
                     // that frame's unaccelerated ignition step, which the update below re-adds.
                     var fired = projectiles.Slots[0];
-                    x = unchecked((((uint)fired.Position.X.Whole << 16) | fired.Position.X.Fraction) - (uint)(vx << 8));
-                    y = unchecked((((uint)fired.Position.Y.Whole << 16) | fired.Position.Y.Fraction) - (uint)(vy << 8));
+                    x = unchecked((new SnesFixedPosition(fired.Position.X.Whole, fired.Position.X.Fraction).RawValue) - (uint)(vx << 8));
+                    y = unchecked((new SnesFixedPosition(fired.Position.Y.Whole, fired.Position.Y.Fraction).RawValue) - (uint)(vy << 8));
                 }
                 else
                 {
@@ -99,8 +99,8 @@ internal static partial class Program
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
                 AssertEqual((short)vx, owner.Velocity.X.SignedRawValue, "Native missile acceleration X across ignition and movement");
                 AssertEqual((short)vy, owner.Velocity.Y.SignedRawValue, "Native missile acceleration Y across ignition and movement");
-                AssertEqual(x, ((uint)owner.Position.X.Whole << 16) | owner.Position.X.Fraction, "Missile X trajectory retains fixed-point carry");
-                AssertEqual(y, ((uint)owner.Position.Y.Whole << 16) | owner.Position.Y.Fraction, "Missile Y trajectory retains fixed-point carry");
+                AssertEqual(x, new SnesFixedPosition(owner.Position.X.Whole, owner.Position.X.Fraction).RawValue, "Missile X trajectory retains fixed-point carry");
+                AssertEqual(y, new SnesFixedPosition(owner.Position.Y.Whole, owner.Position.Y.Fraction).RawValue, "Missile Y trajectory retains fixed-point carry");
             }
         }
         Console.WriteLine("Projectile motion definitions: 85 native words, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
@@ -126,7 +126,7 @@ internal static partial class Program
         public void SetWord(int address, ushort value)
         {
             WriteByte(address, (byte)value);
-            WriteByte(address + 1, (byte)(value >> 8));
+            WriteByte(address + 1, SnesLittleEndian.HighByte(value));
         }
     }
 }

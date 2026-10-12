@@ -1319,7 +1319,7 @@ public sealed partial class RoomEnemySystem
         short velocity = unchecked((short)(horizontal ? projectile.Velocity.X.RawValue : projectile.Velocity.Y.RawValue));
         int fixedPosition = (position << 16) | subposition;
         fixedPosition = unchecked(fixedPosition + (velocity << 8));
-        ushort nextPosition = unchecked((ushort)(fixedPosition >> 16));
+        ushort nextPosition = SnesFixedPosition.WholeOf(fixedPosition);
         ushort nextSubposition = unchecked((ushort)fixedPosition);
 
         ushort movementRadius = horizontal ? projectile.Radius.X : projectile.Radius.Y;
@@ -1670,7 +1670,7 @@ public sealed partial class RoomEnemySystem
                     ushort radii = ReadEnemyProjectileInstructionMechanicsWord(
                         projectile,
                         unchecked((ushort)(cursor + 2)));
-                    projectile.Radius = new(unchecked((byte)radii), unchecked((byte)(radii >> 8)));
+                    projectile.Radius = new(unchecked((byte)radii), SnesLittleEndian.HighByte(radii));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 }
@@ -1820,11 +1820,11 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle:
-                    projectile.Velocity = new(new SnesSignedEightEight(unchecked((byte)(EnemyRandom.Generate() >> 8))), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));
+                    projectile.Velocity = new(new SnesSignedEightEight(SnesLittleEndian.HighByte(EnemyRandom.Generate())), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle:
-                    projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((byte)(EnemyRandom.Generate() >> 8))));
+                    projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesLittleEndian.HighByte(EnemyRandom.Generate())));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.NoobTubeShardReflectFlicker:
@@ -2090,7 +2090,7 @@ public sealed partial class RoomEnemySystem
         projectile.SpritemapPointer =
             SkreeMetareeParticleInstructionProgramDefinitions.Owns(projectile.Kind)
                 ? SkreeMetareeParticleVisualDefinitions.Resolve(operandAddress)
-                : CompiledEnemyVisualSelectors.TryGet((byte)(EnemyProjectileCodePointers.BankBase >> 16),
+                : CompiledEnemyVisualSelectors.TryGet(SnesLittleEndian.BankByte(EnemyProjectileCodePointers.BankBase),
                     operandAddress, out ushort selector)
                     ? selector
                     : throw new InvalidDataException(
@@ -2428,9 +2428,9 @@ public sealed partial class RoomEnemySystem
             projectile,
             unchecked((ushort)(instructionPointer + 4)));
         byte xMask = unchecked((byte)xParameters);
-        byte xCenter = unchecked((byte)(xParameters >> 8));
+        byte xCenter = SnesLittleEndian.HighByte(xParameters);
         byte yMask = unchecked((byte)yParameters);
-        byte yCenter = unchecked((byte)(yParameters >> 8));
+        byte yCenter = SnesLittleEndian.HighByte(yParameters);
         ushort signSample = EnemyRandom.Generate();
 
         int xOffset;

@@ -12,10 +12,10 @@ public static class SnesCpuOperandRead
     /// </summary>
     public static ushort ReadAbsoluteIndexedWord(ISnesAddressSpace bus, byte bank, ushort operand, ushort index)
     {
-        int address = ((bank << 16) + operand + index) & SnesCpuAddressLayout.AddressMask;
-        byte low = ReadData(bus, address, (byte)(operand >> 8));
+        int address = (((int)new SnesAddress(bank, operand)) + index) & SnesCpuAddressLayout.AddressMask;
+        byte low = ReadData(bus, address, SnesLittleEndian.HighByte(operand));
         byte high = ReadData(bus, (address + 1) & SnesCpuAddressLayout.AddressMask, low);
-        return (ushort)(low | high << 8);
+        return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
     private static byte ReadData(ISnesAddressSpace bus, int address, byte memoryDataRegister)

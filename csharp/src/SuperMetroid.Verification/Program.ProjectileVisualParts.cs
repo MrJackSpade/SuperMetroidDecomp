@@ -25,7 +25,7 @@ internal static partial class Program
             AssertEqual((byte)expectedX, parts.LowTable[offset], "Projectile X wraps without clipping");
             AssertEqual(unchecked((byte)(origin + yOffset)), parts.LowTable[offset + 1], "Projectile Y wraps rather than parking");
             AssertEqual((byte)attribute, parts.LowTable[offset + 2], "Projectile attributes preserve low byte");
-            AssertEqual((byte)(attribute >> 8), parts.LowTable[offset + 3], "Projectile attributes preserve palette/priority/flip bits");
+            AssertEqual(SnesLittleEndian.HighByte(attribute), parts.LowTable[offset + 3], "Projectile attributes preserve palette/priority/flip bits");
             int expectedPair = ((expectedX >> 8) & 1) | ((rawX & 0x8000) != 0 ? 2 : 0);
             AssertEqual(expectedPair, (parts.HighTable[index / 4] >> ((index % 4) * 2)) & 3, "Projectile high OAM preserves size and X bit eight");
             AssertEqual(((index + 1) * 4) & 0x1ff, parts.NextByteOffset, "Projectile OAM write pointer wraps at 128 parts");

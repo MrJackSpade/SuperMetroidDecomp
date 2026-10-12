@@ -64,13 +64,13 @@ internal static partial class Program
                 {
                     AssertEqual((ushort)count, header, "Cannon layout native direction");
                     AssertEqual(count, shape.WordCount(run), "Cannon layout native calculated count");
-                    AssertEqual((ushort)((byte)shape.NextX(run) | (byte)shape.NextY(run) << 8), offset, "Cannon layout native calculated continuation");
+                    AssertEqual((ushort)(SnesLittleEndian.Word((byte)shape.NextX(run), (byte)shape.NextY(run))), offset, "Cannon layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "Cannon layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Cannon layout native DTO count");
-                        AssertEqual(offset, (ushort)((byte)part.Next.X | (byte)part.Next.Y << 8), "Cannon layout native DTO offset");
+                        AssertEqual(offset, (ushort)(SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y)), "Cannon layout native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})

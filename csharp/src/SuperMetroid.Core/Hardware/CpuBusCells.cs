@@ -63,7 +63,7 @@ public readonly struct WramWord
     public void Write(ushort value)
     {
         bus.WriteByte(address, (byte)value);
-        bus.WriteByte(SnesAddressMath.AddWithinBank(address, 1), (byte)(value >> 8));
+        bus.WriteByte(SnesAddressMath.AddWithinBank(address, 1), SnesLittleEndian.HighByte(value));
     }
 }
 
@@ -179,13 +179,13 @@ public readonly struct SramBytes
     public void Write(int index, byte value) => bus.WriteByte(Address(index), value);
 
     /// <summary>Reads the little-endian word at byte <paramref name="index"/>.</summary>
-    public ushort ReadWord(int index) => (ushort)(Read(index) | Read(index + 1) << 8);
+    public ushort ReadWord(int index) => (ushort)(SnesLittleEndian.Word(Read(index), Read(index + 1)));
 
     /// <summary>Writes the little-endian word at byte <paramref name="index"/>, low byte first.</summary>
     public void WriteWord(int index, ushort value)
     {
         Write(index, (byte)value);
-        Write(index + 1, (byte)(value >> 8));
+        Write(index + 1, SnesLittleEndian.HighByte(value));
     }
 
     private int Address(int index)

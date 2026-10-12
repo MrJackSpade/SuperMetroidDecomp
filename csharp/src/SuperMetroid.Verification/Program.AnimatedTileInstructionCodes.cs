@@ -168,7 +168,7 @@ internal static partial class Program
         var reads = new StrongBox<int>();
         presentationReads = reads;
         bool InTreadmillBank(int address) =>
-            SnesAddress.FromBusAddress(address).Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16);
+            SnesAddress.FromBusAddress(address).Bank == SnesLittleEndian.BankByte(RoomFxRomData.Banks.AnimatedTiles);
         return new CartridgeReadGuard(inner)
             .Forbid(address =>
                 {

@@ -30,7 +30,7 @@ public static partial class GameplayDisplayCapture
             for (int i = 0; i < map.Length; i++)
             {
                 int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
-                bytes[offset] = (byte)map[i]; bytes[offset + 1] = (byte)(map[i] >> 8);
+                bytes[offset] = (byte)map[i]; bytes[offset + 1] = SnesLittleEndian.HighByte(map[i]);
             }
             registers = registers with
             {

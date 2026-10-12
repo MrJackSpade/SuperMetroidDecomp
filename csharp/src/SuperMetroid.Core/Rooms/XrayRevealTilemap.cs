@@ -89,7 +89,7 @@ public static class XrayRevealTilemap
                 throw new InvalidDataException($"X-ray metatile ${metatile:X4} is outside the room definition table.");
             Write(destination, Word(offset)); Write(destination + 1, Word(offset + 2));
             Write(destination + 32, Word(offset + 4)); Write(destination + 33, Word(offset + 6));
-            ushort Word(int position) => (ushort)(level.BlockDefinitions.Span[position] | level.BlockDefinitions.Span[position + 1] << 8);
+            ushort Word(int position) => (ushort)(SnesLittleEndian.Word(level.BlockDefinitions.Span[position], level.BlockDefinitions.Span[position + 1]));
         }
         void Write(int index, ushort value)
         {

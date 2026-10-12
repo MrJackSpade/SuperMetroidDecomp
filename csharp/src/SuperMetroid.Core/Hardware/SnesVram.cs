@@ -58,7 +58,7 @@ public sealed class SnesVram
         if ((uint)wordAddress >= WordCount)
             throw new ArgumentOutOfRangeException(nameof(wordAddress));
         int byteOffset = wordAddress * 2;
-        return (ushort)(_bytes[byteOffset] | (_bytes[byteOffset + 1] << 8));
+        return (ushort)(SnesLittleEndian.Word(_bytes[byteOffset], _bytes[byteOffset + 1]));
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public sealed class SnesVram
         {
             int byteOffset = destination * 2;
             _bytes[byteOffset] = (byte)word;
-            _bytes[byteOffset + 1] = (byte)(word >> 8);
+            _bytes[byteOffset + 1] = SnesLittleEndian.HighByte(word);
             destination = (destination + wordIncrement) & 0x7fff;
         }
     }

@@ -178,7 +178,7 @@ internal static class EnemySpritemapCatalogAccess
         /// <summary>Returns a known installed frame; callers must reject missing artwork.</summary>
         internal bool TryGet(byte bank, ushort pointer, out EnemySpritemapParts parts)
         {
-            if (PrivateState.Field<Dictionary<int, EnemySpritemapParts>>(self, "frames").TryGetValue((bank << 16) | pointer, out EnemySpritemapParts? found))
+            if (PrivateState.Field<Dictionary<int, EnemySpritemapParts>>(self, "frames").TryGetValue(((int)new SnesAddress(bank, pointer)), out EnemySpritemapParts? found))
             {
                 parts = found;
                 return true;

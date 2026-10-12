@@ -56,6 +56,8 @@ internal static class SpcDriverData
 
     internal static class Music
     {
+        /// <summary>The seven bits of a note byte or pitch whole byte that hold the note number; bit 7 is not part of it.</summary>
+        internal const byte NoteNumberMask = 0x7f;
         internal const byte InitialTempo = 0x10;
         internal const byte DefaultTrackTempo = 0x20;
         internal const byte DefaultMasterVolume = 0xc0;

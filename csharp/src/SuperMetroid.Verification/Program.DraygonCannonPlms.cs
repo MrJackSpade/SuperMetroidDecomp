@@ -108,20 +108,20 @@ internal static partial class Program
     private static void SeedShieldedCannonList(TestAddressSpace bus, ShieldedCannonLists lists)
     {
         SeedPlmProgramBytes(bus, lists.List, [
-            0x24, 0x8a, unchecked((byte)lists.HitList), unchecked((byte)(lists.HitList >> 8)),
+            0x24, 0x8a, unchecked((byte)lists.HitList), SnesLittleEndian.HighByte(lists.HitList),
             0xc1, 0x86, 0x64, 0xdb,
-            0x01, 0x00, unchecked((byte)lists.IdleDraw), unchecked((byte)(lists.IdleDraw >> 8)),
+            0x01, 0x00, unchecked((byte)lists.IdleDraw), SnesLittleEndian.HighByte(lists.IdleDraw),
             0xb4, 0x86,
         ]);
         SeedPlmProgramBytes(bus, lists.HitList, [
             0xcd, 0x8a, 0x03,
-                unchecked((byte)lists.DestroyedList), unchecked((byte)(lists.DestroyedList >> 8)),
-            0x01, 0x00, unchecked((byte)lists.HitDraw), unchecked((byte)(lists.HitDraw >> 8)),
-            0x24, 0x87, unchecked((byte)lists.List), unchecked((byte)(lists.List >> 8)),
+                unchecked((byte)lists.DestroyedList), SnesLittleEndian.HighByte(lists.DestroyedList),
+            0x01, 0x00, unchecked((byte)lists.HitDraw), SnesLittleEndian.HighByte(lists.HitDraw),
+            0x24, 0x87, unchecked((byte)lists.List), SnesLittleEndian.HighByte(lists.List),
         ]);
         SeedPlmProgramWords(bus, lists.DestroyedList, lists.DamageInstruction);
         SeedPlmProgramBytes(bus, unchecked((ushort)(lists.DestroyedList + 2)), [
-            0x01, 0x00, unchecked((byte)lists.DestroyedDraw), unchecked((byte)(lists.DestroyedDraw >> 8)),
+            0x01, 0x00, unchecked((byte)lists.DestroyedDraw), SnesLittleEndian.HighByte(lists.DestroyedDraw),
             0xb4, 0x86,
         ]);
         WriteOneBlockDraw(bus, lists.IdleDraw, 0xc044);

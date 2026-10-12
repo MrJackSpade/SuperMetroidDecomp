@@ -758,7 +758,7 @@ internal static class ProjectileTrailCoordinateDefinitions
     {
         int next = (address & 0xff0000) | ((address + 1) & 0xffff);
         if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
-            return (ushort)(low | high << 8);
+            return (ushort)(SnesLittleEndian.Word(low, high));
 
         throw new InvalidDataException(
             $"Projectile trail pointer word ${address:X6} is outside the compiled coordinate catalog.");
@@ -775,7 +775,7 @@ internal static class ProjectileTrailCoordinateDefinitions
     {
         int next = (address & 0xff0000) | ((address + 1) & 0xffff);
         if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
-            return (ushort)(low | high << 8);
+            return (ushort)(SnesLittleEndian.Word(low, high));
 
         SnesAddress source = SnesAddress.FromBusAddress(address);
         SnesAddress following = SnesAddress.FromBusAddress(next);
@@ -783,7 +783,7 @@ internal static class ProjectileTrailCoordinateDefinitions
             following.Bank == 0x9b && !following.IsUpperLoRomWindow)
         {
             var live = new SamusOverreadMemory(bus);
-            return (ushort)(live.TrailDirectionByte(address) | live.TrailDirectionByte(next) << 8);
+            return (ushort)(SnesLittleEndian.Word(live.TrailDirectionByte(address), live.TrailDirectionByte(next)));
         }
 
         throw new InvalidDataException(
@@ -797,14 +797,14 @@ internal static class ProjectileTrailCoordinateDefinitions
         int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
         if (TryReadByte(address, out byte compiledLow) &&
             TryReadByte(next, out byte compiledHigh))
-            return (ushort)(compiledLow | compiledHigh << 8);
+            return (ushort)(SnesLittleEndian.Word(compiledLow, compiledHigh));
 
         // A native absolute-indexed word may straddle compiled bank-$9B data and
         // the following bank's mutable mirror. Resolve each byte separately; the
         // low byte drives MDR for an undriven high-byte read.
-        byte low = ReadCoordinateOperandByte(bus, address, (byte)(operand >> 8));
+        byte low = ReadCoordinateOperandByte(bus, address, SnesLittleEndian.HighByte(operand));
         byte high = ReadCoordinateOperandByte(bus, next, low);
-        return (ushort)(low | high << 8);
+        return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
     private static byte ReadCoordinateOperandByte(

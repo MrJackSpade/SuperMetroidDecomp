@@ -53,7 +53,7 @@ public static class SpcUploadStreamReader
     {
         byte low = ReadByte(cartridge, ref cursor, bytes);
         byte high = ReadByte(cartridge, ref cursor, bytes);
-        return unchecked((ushort)(low | (high << 8)));
+        return unchecked((ushort)(SnesLittleEndian.Word(low, high)));
     }
 
     private static byte ReadByte(IImportCartridgeSource cartridge, ref int cursor,
@@ -75,8 +75,7 @@ public static class SpcUploadStreamReader
         int bank = (address >> 16) & AudioRomData.SpcUpload.AddressBankMask;
         int offset = address & AudioRomData.SpcUpload.AddressOffsetMask;
         return offset == AudioRomData.SpcUpload.LastBankOffset
-            ? (((bank + 1) & AudioRomData.SpcUpload.AddressBankMask) << 16) |
-                AudioRomData.SpcUpload.FirstMappedBankOffset
+            ? ((int)new SnesAddress(checked((byte)((bank + 1) & AudioRomData.SpcUpload.AddressBankMask)), checked((ushort)AudioRomData.SpcUpload.FirstMappedBankOffset)))
             : address + 1;
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The literal bank-$A8 function word stored by Bull in common enemy variable A.</summary>
@@ -324,10 +325,10 @@ public sealed partial class RoomEnemySystem
         // components use $A8:DAF6, whose zero-fraction path is deliberately one subpixel more
         // negative than a conventional two's-complement negation.
         ushort magnitude = unchecked((ushort)Math.Abs((int)sine));
-        byte sineHighByte = unchecked((byte)(magnitude >> 8));
+        byte sineHighByte = SnesLittleEndian.HighByte(magnitude);
         uint product = (uint)sineHighByte * speed;
         ushort fraction = unchecked((ushort)product);
-        ushort whole = unchecked((ushort)(product >> 16));
+        ushort whole = SnesFixedPosition.WholeOf(unchecked((int)product));
         if (sine < 0 && (whole != 0 || fraction != 0))
         {
             if (fraction == 0)

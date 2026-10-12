@@ -37,7 +37,7 @@ internal readonly struct ProjectileInheritanceMemory(ISnesMemoryBus bus)
     internal void Record(SamusCollisionDirection direction, int signedDisplacement)
     {
         int offset = RecordOffset(direction);
-        Records.WriteWord(offset, unchecked((ushort)(signedDisplacement >> 16)));
+        Records.WriteWord(offset, SnesFixedPosition.WholeOf(signedDisplacement));
         Records.WriteWord(offset + 2, unchecked((ushort)signedDisplacement));
     }
 

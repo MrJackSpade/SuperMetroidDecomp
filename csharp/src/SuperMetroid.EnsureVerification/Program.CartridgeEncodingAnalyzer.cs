@@ -68,6 +68,28 @@ internal static partial class Program
             (CartridgeEncodingAnalyzer.OpaqueWordArrayId, "collection literal"));
         ExpectEncoding("", [(catalog, "static class WalkerInstructionLists { static readonly ushort[] Words = { 1, 2, 3, 4 }; }")]);
         ExpectEncoding("", [(catalog, "static class WalkerInstructionLists { static readonly ushort[] Words = { 0x812f, 0x0001, 0xe329 }; }")]);
+
+        // SME6345 (#223): a shift by a byte, word or bank width or a byte/word/bank mask must name its meaning.
+        ExpectEncoding("", [(functional, "class C { byte M(ushort word) => (byte)(word >> 8); }")],
+            (CartridgeEncodingAnalyzer.RawWidthId, "moves a value down"));
+        ExpectEncoding("", [(functional, "class C { int M(int bank, ushort offset) => bank << 16 | offset; }")],
+            (CartridgeEncodingAnalyzer.RawWidthId, "moves a value up"));
+        ExpectEncoding("", [(functional, "class C { int M(int value) => value & 255; }")],
+            (CartridgeEncodingAnalyzer.RawWidthId, "keeps a byte, word or bank lane"));
+        // A nested chain is one operation.
+        ExpectEncoding("", [(functional, "class C { int M(int value) => (value >> 8) & 255; }")],
+            (CartridgeEncodingAnalyzer.RawWidthId, "'(value >> 8) & 255'"));
+        // Shifts and masks of other widths, constant folding, catalogs, owners and reviewed allowances are not reported.
+        ExpectEncoding("", [(functional, "class C { int M(int value) => (value >> 3) + (value & 7) + (value << 4); }")]);
+        ExpectEncoding("", [(functional, "class C { const int Bank = 126 << 16; int M() => Bank; }")]);
+        ExpectEncoding("", [(catalog, "static class WalkerInstructionLists { static int M(int pointer) => pointer >> 16; }")]);
+        ExpectEncoding("", [(functional,
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " +
+            "[SnesEncodingOwner] readonly struct Word(ushort raw) { public byte High => (byte)(raw >> 8); }")]);
+        ExpectEncoding("", [(functional, "class C { int M(int value) => value >> 8; // cartridge-encoding: allow(ByteLane) - DSP register high byte\n }")]);
+        ExpectEncoding($"{functional}\tSME6345\t1\n", [(functional, "class C { int M(int value) => value >> 8; }")]);
+        ExpectEncoding($"{functional}\tSME6345\t2\n", [(functional, "class C { int M(int value) => value >> 8; }")],
+            (CartridgeEncodingAnalyzer.StaleCountId, "now holds 1 SME6345 occurrence(s) but the baseline allows 2"));
     }
 
     /// <summary>

@@ -41,8 +41,7 @@ internal static partial class Program
             AssertEqual(tableByteOffset, enemies.ElevatorStates[0]!.DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
-            ushort opposite = (ushort)(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)) |
-                rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1)) << 8);
+            ushort opposite = (ushort)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
             ElevatorActorStatus before = enemies.ElevatorStatus;
             enemies.PublishElevatorDoorContact();
             wait(slot, enemies.ElevatorStates[0]!, samus, opposite, null);

@@ -115,7 +115,7 @@ internal static partial class Program
         int tx = x / 8, ty = y / 8;
         int word = map + ((ty / 32) * (width / 32) + tx / 32) * 1024 + ty % 32 * 32 + tx % 32;
         int address = (word & 32767) * 2;
-        int entry = memory.Vram[address] | memory.Vram[address + 1] << 8;
+        int entry = SnesLittleEndian.Word(memory.Vram[address], memory.Vram[address + 1]);
         int px = (entry & 0x4000) != 0 ? 7 - x % 8 : x % 8;
         int py = (entry & 0x8000) != 0 ? 7 - y % 8 : y % 8;
         int start = (characters + (entry & 1023) * 16) * 2 + py * 2;

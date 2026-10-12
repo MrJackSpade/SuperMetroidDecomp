@@ -39,7 +39,7 @@ public sealed class GameplayWindowRegisterCache
         if (index == _bytes.Length - 1)
             throw new ArgumentOutOfRangeException(nameof(address), "Word store crosses the modeled window cache.");
         _bytes[index] = (byte)value;
-        _bytes[index + 1] = (byte)(value >> 8);
+        _bytes[index + 1] = SnesLittleEndian.HighByte(value);
     }
 
     /// <summary>The main-loop-owned cached value of <paramref name="register"/>.</summary>

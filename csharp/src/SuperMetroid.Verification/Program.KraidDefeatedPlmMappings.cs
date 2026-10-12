@@ -24,7 +24,7 @@ internal static partial class Program
         {
             int address = arguments[index] + offset;
             ushort expected = offset == 2
-                ? (ushort)(KraidDefeatedPlmFieldRomByte(rom, address) | KraidDefeatedPlmFieldRomByte(rom, address + 1) << 8)
+                ? (ushort)(SnesLittleEndian.Word(KraidDefeatedPlmFieldRomByte(rom, address), KraidDefeatedPlmFieldRomByte(rom, address + 1)))
                 : KraidDefeatedPlmFieldRomByte(rom, address);
             AssertEqual(expected, field(requests[index]), "Native defeated-room inline field");
             AssertEqual(expected, field(enumerated[index]), "Native defeated-room operation order");

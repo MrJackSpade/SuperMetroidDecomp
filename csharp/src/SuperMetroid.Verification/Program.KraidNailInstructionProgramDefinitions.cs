@@ -29,10 +29,8 @@ internal static partial class Program
                  })
         {
             int record = EnemyRomTablePointers.Kraid.PopulationRecords + slotIndex * 16;
-            EnemyDefinitionId definition = EnemyDefinitionIds.FromHeaderPointer((ushort)(KraidNailInstructionProgramDefinitionsRomByte(rom, record) |
-                KraidNailInstructionProgramDefinitionsRomByte(rom, record + 1) << 8));
-            ushort extraProperties = (ushort)(KraidNailInstructionProgramDefinitionsRomByte(rom, record + 10) |
-                KraidNailInstructionProgramDefinitionsRomByte(rom, record + 11) << 8);
+            EnemyDefinitionId definition = EnemyDefinitionIds.FromHeaderPointer((ushort)(SnesLittleEndian.Word(KraidNailInstructionProgramDefinitionsRomByte(rom, record), KraidNailInstructionProgramDefinitionsRomByte(rom, record + 1))));
+            ushort extraProperties = (ushort)(SnesLittleEndian.Word(KraidNailInstructionProgramDefinitionsRomByte(rom, record + 10), KraidNailInstructionProgramDefinitionsRomByte(rom, record + 11)));
             AssertEqual(expectedDefinition, definition,
                 $"retail Kraid nail slot {slotIndex} matches the visual family");
             AssertTrue((extraProperties &

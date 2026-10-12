@@ -57,7 +57,7 @@ public static class CeresRidleyColorExtractor
             var result = new PaletteRgb5[count];
             for (int color = 0; color < count; color++)
             {
-                ushort word = (ushort)(bytes[color * 2] | bytes[color * 2 + 1] << 8);
+                ushort word = (ushort)(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
                 result[color] = new PaletteRgb5
                 {
                     Red = word & 31,

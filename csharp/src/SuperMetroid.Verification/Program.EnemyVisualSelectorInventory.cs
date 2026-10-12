@@ -65,7 +65,7 @@ internal static partial class Program
             AssertEqual(native, entry.Pointer,
                 $"compiled visual selector ${entry.Address:X6}");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(
-                    unchecked((byte)(entry.Address >> 16)),
+                    SnesLittleEndian.BankByte(entry.Address),
                     unchecked((ushort)entry.Address), out ushort selected),
                 $"compiled visual selector lookup ${entry.Address:X6}");
             AssertEqual(native, selected,

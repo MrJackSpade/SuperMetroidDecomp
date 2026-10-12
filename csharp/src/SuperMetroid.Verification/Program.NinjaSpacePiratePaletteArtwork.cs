@@ -16,7 +16,7 @@ internal static partial class Program
         RoomEnemyDefinition shared = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus,
             EnemyDefinitionId.PirateGoldWall);
         AssertEqual(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
-            shared.Bank << 16 | shared.PalettePointer,
+            ((int)new SnesAddress(            shared.Bank, shared.PalettePointer)),
             "Installed gold-Pirate sheet owns the native ninja target-palette source");
 
         // $B2:F5DE copies sixteen raw gold-Pirate colors into target palette seven.

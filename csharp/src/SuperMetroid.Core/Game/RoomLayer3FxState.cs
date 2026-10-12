@@ -654,7 +654,7 @@ public sealed class RoomLayer3FxState
         int delta = velocity << 8;
         uint fixedPosition = ((uint)BaseYPosition << 16) | baseYSubposition;
         fixedPosition = unchecked(fixedPosition + (uint)delta);
-        ushort candidate = unchecked((ushort)(fixedPosition >> 16));
+        ushort candidate = SnesFixedPosition.WholeOf(unchecked((int)fixedPosition));
         baseYSubposition = unchecked((ushort)fixedPosition);
 
         if (velocity >= 0)
@@ -717,7 +717,7 @@ public sealed class RoomLayer3FxState
     private ushort ComputeTidalYPosition()
     {
         uint baseFixed = ((uint)BaseYPosition << 16) | baseYSubposition;
-        return unchecked((ushort)((baseFixed + (uint)tideFixedOffset) >> 16));
+        return SnesFixedPosition.WholeOf(unchecked((int)(baseFixed + (uint)tideFixedOffset)));
     }
 
     private bool UsesLavaAcidVerticalWave =>

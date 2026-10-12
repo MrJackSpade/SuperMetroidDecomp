@@ -111,7 +111,7 @@ internal static class KraidMouthHitboxes
     {
         byte low = ReadLiveByte(bus, pointer);
         byte high = ReadLiveByte(bus, AddWithinBank(pointer, 1));
-        return (ushort)(low | high << 8);
+        return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)

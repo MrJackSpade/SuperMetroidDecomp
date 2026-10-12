@@ -307,7 +307,7 @@ public sealed class SamusHorizontalSpeedState
             }
         }
 
-        byte stage = unchecked((byte)(tableSelection >> 8));
+        byte stage = SnesLittleEndian.HighByte(tableSelection);
         ushort nextLowByte = SamusRunningCadenceDefinitions.ReadResetWord(stage);
         SpeedBoostCounter = unchecked((ushort)((SpeedBoostCounter & 0xff00) | nextLowByte));
 
@@ -556,7 +556,7 @@ public sealed class SamusHorizontalSpeedState
     private void AddExtraRunAcceleration()
     {
         uint accelerated = unchecked(Compose(ExtraRunSpeed, ExtraRunSubspeed) + 0x00001000u);
-        ExtraRunSpeed = unchecked((ushort)(accelerated >> 16));
+        ExtraRunSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
         ExtraRunSubspeed = unchecked((ushort)accelerated);
     }
 
@@ -773,7 +773,7 @@ public sealed class SamusHorizontalSpeedState
         // Retain that native indirection for deliberately restored/corrupted pointer state,
         // but never reinterpret unrelated high-bank code or presentation bytes as physics.
         SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
-        if (sourceAddress.Bank != (byte)(SamusMovementRomData.Banks.Movement >> 16) ||
+        if (sourceAddress.Bank != SnesLittleEndian.BankByte(SamusMovementRomData.Banks.Movement) ||
             sourceAddress.IsUpperLoRomWindow)
         {
             throw new InvalidDataException(
@@ -931,7 +931,7 @@ public sealed class SamusHorizontalSpeedState
         uint total = unchecked(baseSpeed + Compose(ExtraRunSpeed, ExtraRunSubspeed));
         int shift = Math.Min(SpeedDivisor, (ushort)4);
         total >>= shift;
-        TotalSpeed = unchecked((ushort)(total >> 16));
+        TotalSpeed = SnesFixedPosition.WholeOf(unchecked((int)total));
         TotalSubspeed = unchecked((ushort)total);
         return total;
     }
@@ -956,7 +956,7 @@ public sealed class SamusHorizontalSpeedState
 
     private void SetBaseFixed(uint value)
     {
-        BaseSpeed = unchecked((ushort)(value >> 16));
+        BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)value));
         BaseSubspeed = unchecked((ushort)value);
     }
 

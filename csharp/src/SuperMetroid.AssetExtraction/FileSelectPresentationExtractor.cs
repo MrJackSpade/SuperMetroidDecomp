@@ -285,7 +285,7 @@ public static class FileSelectPresentationExtractor
             throw new InvalidDataException("File-select page contains a partial word.");
         var words = new ushort[bytes.Length / sizeof(ushort)];
         for (int index = 0; index < words.Length; index++)
-            words[index] = unchecked((ushort)(bytes[index * 2] | bytes[index * 2 + 1] << 8));
+            words[index] = unchecked((ushort)(SnesLittleEndian.Word(bytes[index * 2], bytes[index * 2 + 1])));
         return Cells(words);
     }
 

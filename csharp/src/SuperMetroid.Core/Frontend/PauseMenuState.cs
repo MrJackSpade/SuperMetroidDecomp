@@ -688,11 +688,10 @@ internal sealed partial class PauseMenuState
             {
                 int byteOffset = (localWordIndex + word) * 2;
                 ushort tile = unchecked((ushort)(
-                    pauseButtonTilemap[byteOffset] |
-                    (pauseButtonTilemap[byteOffset + 1] << 8)));
+                    SnesLittleEndian.Word(pauseButtonTilemap[byteOffset], pauseButtonTilemap[byteOffset + 1])));
                 tile = unchecked((ushort)((tile & 0xe3ff) | paletteBits));
                 pauseButtonTilemap[byteOffset] = unchecked((byte)tile);
-                pauseButtonTilemap[byteOffset + 1] = unchecked((byte)(tile >> 8));
+                pauseButtonTilemap[byteOffset + 1] = SnesLittleEndian.HighByte(tile);
             }
         }
 

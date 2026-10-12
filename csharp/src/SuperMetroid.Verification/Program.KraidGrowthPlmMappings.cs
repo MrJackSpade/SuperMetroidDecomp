@@ -15,7 +15,7 @@ internal static partial class Program
     private static void VerifyKraidGrowthPlmField(SuperMetroidAddressSpace rom, int offset,
         Func<KraidPlmRequest, ushort> field)
     {
-        ushort Word(int address) => (ushort)(KraidGrowthPlmFieldRomByte(rom, address) | KraidGrowthPlmFieldRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KraidGrowthPlmFieldRomByte(rom, address), KraidGrowthPlmFieldRomByte(rom, address + 1)));
         var requests = KraidPlmDefinitions.GrowthCeiling;
         var enumerated = requests.ToArray();
         AssertEqual(9, requests.Count, "Nine native growth callbacks");

@@ -26,10 +26,9 @@ internal static partial class Program
                        selected == word.Value,
                 $"Golden Torizo walking control $AA:{word.Address:X4} lookup");
             AssertTrue(GoldenTorizoWalkingInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoWalkingInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo walking control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(70, mechanicsAddresses.Count,
@@ -114,9 +113,8 @@ internal static partial class Program
             "ten physical frames and eleven hitbox lists match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(GoldenTorizoWalkingDefinitionsRomByte(rom, (bank << 16) | address) |
-                GoldenTorizoWalkingDefinitionsRomByte(rom, (bank << 16) |
-                    unchecked((ushort)(address + 1))) << 8);
+            (ushort)(SnesLittleEndian.Word(GoldenTorizoWalkingDefinitionsRomByte(rom, (bank << 16) | address), GoldenTorizoWalkingDefinitionsRomByte(rom, (bank << 16) |
+                    unchecked((ushort)(address + 1)))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo walking definitions")]

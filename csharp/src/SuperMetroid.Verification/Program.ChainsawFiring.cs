@@ -118,7 +118,7 @@ internal static partial class Program
             AssertEqual(yRadii[update], slot.Radius.Y, $"active Chainsaw Y radius {update}");
             AssertEqual((byte)inheritedY[update], activeProjectiles.ChainsawWindowRegisters.ReadByte(
                 GameplayWindowRegisterAddresses.Window12Selection), $"active Chainsaw inherited Y low {update}");
-            AssertEqual((byte)(inheritedY[update] >> 8), activeProjectiles.ChainsawWindowRegisters.ReadByte(
+            AssertEqual(SnesLittleEndian.HighByte(inheritedY[update]), activeProjectiles.ChainsawWindowRegisters.ReadByte(
                 GameplayWindowRegisterAddresses.Window34Selection), $"active Chainsaw inherited Y high {update}");
         }
 

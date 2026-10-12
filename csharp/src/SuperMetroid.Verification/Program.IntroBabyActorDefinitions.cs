@@ -27,8 +27,7 @@ internal static partial class Program
         compiledInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart,
             definitionWord: IntroBabyDiscoveryInputDefinitions.ReadWord);
         ushort NativeInputWord(ushort pointer) => (ushort)(
-            IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer) |
-            IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))) << 8);
+            SnesLittleEndian.Word(IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1)))));
         cartridgeInput.LoadObject(retail, IntroBabyDiscoveryInputDefinitions.HeaderStart,
             definitionWord: NativeInputWord);
         for (int frame = 0; frame < 128; frame++)
@@ -85,13 +84,12 @@ internal static partial class Program
         var reference = new IntroBabyDiscoveryState(referenceBus,
             existingSamus: PrepareRetailSamusFixture(new SuperMetroid.Core.Game.SamusState()),
             demoWordReader: pointer => (ushort)(
-                IntroBabyActorDefinitionsRomByte(referenceBus, DemoInputRomData.BankBase | pointer) |
-                IntroBabyActorDefinitionsRomByte(referenceBus, DemoInputRomData.BankBase |
-                    unchecked((ushort)(pointer + 1))) << 8));
+                SnesLittleEndian.Word(IntroBabyActorDefinitionsRomByte(referenceBus, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(referenceBus, DemoInputRomData.BankBase |
+                    unchecked((ushort)(pointer + 1))))));
         for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
         {
             ushort expected = block * sizeof(ushort) < nativeCollision.Length
-                ? (ushort)(nativeCollision[block * 2] | nativeCollision[block * 2 + 1] << 8)
+                ? (ushort)(SnesLittleEndian.Word(nativeCollision[block * 2], nativeCollision[block * 2 + 1]))
                 : (ushort)0;
             AssertEqual(expected, discovery.Level.ForegroundEntries.Span[block],
                 $"SR388 discovery physical block {block} preserves native word");

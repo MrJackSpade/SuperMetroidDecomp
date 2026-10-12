@@ -220,7 +220,7 @@ internal static partial class Program
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
         {
             ushort packed = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (byte)(packed >> 8), (byte)packed,
+            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, SnesLittleEndian.HighByte(packed), (byte)packed,
                 W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
                 new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }

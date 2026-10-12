@@ -42,7 +42,7 @@ internal readonly struct SpacetimeBeamCorruptionMemory(ISnesMemoryBus bus)
     internal bool CopyPaletteWord(ushort destinationIndex, ushort sourceIndex)
     {
         var pointer = new WramBytes(bus, SpacetimeBeamCorruptionLayout.SourceLongPointer);
-        int sourcePointer = pointer.Read(0) | pointer.Read(1) << 8 | pointer.Read(2) << 16;
+        int sourcePointer = SnesLittleEndian.Word(pointer.Read(0), pointer.Read(1)) | pointer.Read(2) << 16;
         int sourceAddress = (sourcePointer + sourceIndex) & SnesCpuAddressLayout.AddressMask;
         int destinationAddress = (SpacetimeBeamCorruptionLayout.SpritePaletteSix.Address + destinationIndex) & SnesCpuAddressLayout.AddressMask;
 

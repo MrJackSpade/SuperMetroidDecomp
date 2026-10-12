@@ -39,7 +39,7 @@ internal static partial class Program
             int table = SamusProjectileRomData.Beams.PalettePointers + beam * 2;
             int source = 0x900000 | CpuBusRegionRead.Read(bus, table) | CpuBusRegionRead.Read(bus, table + 1) << 8;
             for (int color = 0; color < 16; color++)
-                AssertEqual((CpuBusRegionRead.Read(bus, source + color * 2) | CpuBusRegionRead.Read(bus, source + color * 2 + 1) << 8) & 0x7fff,
+                AssertEqual((SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source + color * 2), CpuBusRegionRead.Read(bus, source + color * 2 + 1))) & 0x7fff,
                     ordinary.Colors[0xe0 + color], $"ordinary beam {beam} palette remains unchanged");
         }
         // Independent AC8D/ACCD CPU trace with bus-latch tracking, recorded in the

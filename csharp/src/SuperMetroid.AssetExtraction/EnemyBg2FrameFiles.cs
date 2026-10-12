@@ -22,7 +22,7 @@ internal static class EnemyBg2FrameFiles
         var frames = new Dictionary<string, EnemyBg2WriteDocument[]>(StringComparer.Ordinal);
         foreach (EnemyBg2FrameDefinition frame in definitions)
         {
-            int root = (bank << 16) | frame.Pointer;
+            int root = ((int)new SnesAddress(bank, frame.Pointer));
             int componentCount = bus.ReadCartridgeByte(root);
             if (componentCount < 1 ||
                 componentCount > maximumComponents ||
@@ -35,7 +35,7 @@ internal static class EnemyBg2FrameFiles
             {
                 int record = root + 2 + component * 8;
                 ushort stream = CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 4));
-                if (CartridgeImportSource.Require(bus).ReadCartridgeWord(((bank << 16) | stream)) !=
+                if (CartridgeImportSource.Require(bus).ReadCartridgeWord((((int)new SnesAddress(bank, stream)))) !=
                     EnemyBg2FrameLayout.StreamMarker)
                 {
                     if (allowMixedOam)
@@ -54,7 +54,7 @@ internal static class EnemyBg2FrameFiles
                 for (int command = 0;
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                 {
-                    int address = (bank << 16) | cursor;
+                    int address = ((int)new SnesAddress(bank, cursor));
                     ushort destination = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
                     if (destination == 0xffff)
                     {

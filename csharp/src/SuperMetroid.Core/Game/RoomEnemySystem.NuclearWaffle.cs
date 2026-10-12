@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -123,9 +124,9 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
 
         state.AngularSpeedIndex = unchecked((byte)slot.Parameter1);
-        state.OrbitRadius = unchecked((byte)(slot.Parameter1 >> 8));
+        state.OrbitRadius = SnesLittleEndian.HighByte(slot.Parameter1);
         state.Direction = unchecked((byte)slot.Parameter2);
-        state.WaitingTimerReset = unchecked((byte)(slot.Parameter2 >> 8));
+        state.WaitingTimerReset = SnesLittleEndian.HighByte(slot.Parameter2);
         state.WaitingTimer = state.WaitingTimerReset;
         state.Function = NuclearWaffleEnemyFunction.Waiting;
 

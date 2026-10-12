@@ -50,7 +50,7 @@ internal static partial class Program
         for (int index = 0; index < expected.Length; index++)
         {
             AssertEqual(expected[index], actual(index), "original selected OAM root");
-            int address = bank << 16 | expected[index];
+            int address = ((int)new SnesAddress(bank, expected[index]));
             int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(componentCount(index), count, "native component count explains record geometry");
         }

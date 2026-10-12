@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
@@ -33,7 +34,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 DestinationRoomPointer: roomPointer,
                 Orientation: new(DoorDirection.Right, DoorClosingBehavior.None),
                 PlmBlock: default,
-                DestinationScreen: new(unchecked((byte)(camera.X >> 8)), unchecked((byte)(camera.Y >> 8))),
+                DestinationScreen: camera.ToRoomScreen(),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
 

@@ -30,7 +30,7 @@ public static partial class GameSaveJsonCodec
             resources["reserveMissiles"] = Word(SaveRamLayout.ReserveMissilesOffset);
             slot["japaneseText"] = Word(SaveRamLayout.JapaneseTextOffset) != 0;
             slot["loadedItemCount"] = Word(SaveRamLayout.LoadedItemCountOffset);
-            ushort Word(int offset) => (ushort)(sram[origin + offset] | sram[origin + offset + 1] << 8);
+            ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(sram[origin + offset], sram[origin + offset + 1]));
         }
         root["gameCompleted"] = sram.AsSpan(SaveRamLayout.CompletionMarkerOffset,
             SaveRamLayout.CompletionMarker.Length).SequenceEqual(SaveRamLayout.CompletionMarker);

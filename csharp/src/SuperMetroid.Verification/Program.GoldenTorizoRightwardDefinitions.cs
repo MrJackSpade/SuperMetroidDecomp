@@ -26,10 +26,9 @@ internal static partial class Program
                        selected == word.Value,
                 $"Golden Torizo rightward control $AA:{word.Address:X4} lookup");
             AssertTrue(GoldenTorizoRightwardInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoRightwardInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo rightward control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(82, mechanicsAddresses.Count,
@@ -118,9 +117,8 @@ internal static partial class Program
             "match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(GoldenTorizoRightwardDefinitionsRomByte(rom, (bank << 16) | address) |
-                GoldenTorizoRightwardDefinitionsRomByte(rom, (bank << 16) |
-                    unchecked((ushort)(address + 1))) << 8);
+            (ushort)(SnesLittleEndian.Word(GoldenTorizoRightwardDefinitionsRomByte(rom, (bank << 16) | address), GoldenTorizoRightwardDefinitionsRomByte(rom, (bank << 16) |
+                    unchecked((ushort)(address + 1)))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo rightward definitions")]

@@ -498,7 +498,7 @@ public sealed partial class SamusState
             uint combined = unchecked(HorizontalSpeed.BaseFixed +
                 ((uint)HorizontalSpeed.ExtraRunSpeed << 16) +
                 HorizontalSpeed.ExtraRunSubspeed);
-            HorizontalSpeed.BaseSpeed = unchecked((ushort)(combined >> 16));
+            HorizontalSpeed.BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)combined));
             HorizontalSpeed.BaseSubspeed = unchecked((ushort)combined);
             // `$91:FA4C` invokes `Samus_CancelSpeedBoost` between the 16.16 fold and the
             // explicit extra-word clear. Preserve that ordering even for ordinary Dash.

@@ -19,7 +19,7 @@ public sealed partial class SamusState
     /// </summary>
     internal void CommitPoseHistory(ISnesAddressSpace bus)
     {
-        ushort metadata = (ushort)(ReadPoseXDirection(bus) | ((byte)ReadMovementType(bus) << 8));
+        ushort metadata = (ushort)(SnesLittleEndian.Word(ReadPoseXDirection(bus), (byte)ReadMovementType(bus)));
         PoseHistory.CommitTransition(Pose, metadata);
     }
 }

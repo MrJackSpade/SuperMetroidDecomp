@@ -1118,7 +1118,7 @@ public sealed partial class IntroCinematicState
         for (int byteOffset = 0; byteOffset < source.Length; byteOffset += 2)
         {
             foreground[byteOffset / 2] = unchecked((ushort)(
-                source[byteOffset] | (source[byteOffset + 1] << 8)));
+                SnesLittleEndian.Word(source[byteOffset], source[byteOffset + 1])));
         }
 
         // $8B:AF30 clears the complete 512-byte word-addressable BTS allocation. BG2 and

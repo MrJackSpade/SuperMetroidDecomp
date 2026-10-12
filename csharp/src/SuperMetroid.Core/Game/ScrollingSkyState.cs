@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -41,7 +42,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
     {
         if ((uint)slot >= _fixedHorizontalScrolls.Length)
             throw new ArgumentOutOfRangeException(nameof(slot));
-        return (ushort)(_fixedHorizontalScrolls[slot] >> 16);
+        return SnesFixedPosition.WholeOf(unchecked((int)_fixedHorizontalScrolls[slot]));
     }
 
     /// <summary>

@@ -87,7 +87,7 @@ internal static partial class Program
         for (int i = 0; i < frozenMap.Length; i++)
         {
             int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
-            AssertEqual(frozenMap[i], (ushort)(captured.Memory.Vram[offset] | captured.Memory.Vram[offset + 1] << 8), "captured BG2 is the setup-owned reveal map");
+            AssertEqual(frozenMap[i], (ushort)(SnesLittleEndian.Word(captured.Memory.Vram[offset], captured.Memory.Vram[offset + 1])), "captured BG2 is the setup-owned reveal map");
         }
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
             PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", new Extent16<ScreenPixels>(256, 224), pixels);

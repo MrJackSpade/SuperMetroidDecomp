@@ -18,8 +18,7 @@ internal static partial class Program
             AssertTrue(word.Address >= GoldenTorizoJumpLandingInstructionProgramDefinitions.Start &&
                        word.Address < GoldenTorizoJumpLandingInstructionProgramDefinitions.End,
                 $"Golden Torizo landing control $AA:{word.Address:X4} is bounded");
-            ushort native = (ushort)(GoldenTorizoJumpLandingDefinitionsRomByte(rom, bank | word.Address) |
-                GoldenTorizoJumpLandingDefinitionsRomByte(rom, bank | unchecked((ushort)(word.Address + 1))) << 8);
+            ushort native = (ushort)(SnesLittleEndian.Word(GoldenTorizoJumpLandingDefinitionsRomByte(rom, bank | word.Address), GoldenTorizoJumpLandingDefinitionsRomByte(rom, bank | unchecked((ushort)(word.Address + 1)))));
             AssertEqual(native, word.Value,
                 $"Golden Torizo landing control $AA:{word.Address:X4}");
             AssertTrue(GoldenTorizoJumpLandingInstructionProgramDefinitions

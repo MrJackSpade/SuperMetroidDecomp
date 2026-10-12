@@ -28,7 +28,7 @@ internal static partial class Program
             var body = enemies.Slots[0];
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = ClosedNativeWords.Decode<PhantoonFlameSpawnType>(
-                (byte)(parameter >> 8), "Phantoon flame spawn type");
+                SnesLittleEndian.HighByte(parameter), "Phantoon flame spawn type");
             int index = parameter & 255;
             AssertTrue(spawn(body, type, (byte)parameter), "Real Phantoon flame allocation succeeds");
             var flame = enemies.EnemyProjectiles.Single(p => p.IsActive);

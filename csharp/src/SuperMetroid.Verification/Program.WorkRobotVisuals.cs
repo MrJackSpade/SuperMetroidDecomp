@@ -21,7 +21,7 @@ internal static partial class Program
         {
             ushort operand = WorkRobotInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            int selectorAddress = (WorkRobotVisualDefinitions.Bank << 16) | operand;
+            int selectorAddress = ((int)new SnesAddress(WorkRobotVisualDefinitions.Bank, operand));
             ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer, WorkRobotVisualDefinitions.FrameAt(operand),
                 $"Work Robot visual selector {index} matches pinned cartridge");

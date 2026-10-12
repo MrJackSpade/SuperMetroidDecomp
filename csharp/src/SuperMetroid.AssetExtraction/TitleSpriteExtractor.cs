@@ -54,7 +54,7 @@ internal static class TitleSpriteExtractor
 
     private static SpriteVisualPart[] ReadParts(ISnesAddressSpace bus, ushort pointer)
     {
-        int address = (TitleSequenceRomData.Sprites.Bank << 16) | pointer;
+        int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, pointer));
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
         if (count > TitleGraphicsFormat.MaximumSpriteParts)
             throw new InvalidDataException($"Title sprite $8C:{pointer:X4} exceeds OAM capacity.");

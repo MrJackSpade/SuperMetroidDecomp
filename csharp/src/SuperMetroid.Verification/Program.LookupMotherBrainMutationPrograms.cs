@@ -29,7 +29,7 @@ internal static partial class Program
             if (!owned) AssertEqual((ushort)0, actual, "Mother Brain mutation missing word is zero");
             else if ((draw ? operands : controls).Contains(address))
             {
-                ushort expected = (ushort)(MotherBrainMutationProgramFieldRomByte(rom, 0x840000 | raw) | MotherBrainMutationProgramFieldRomByte(rom, 0x840000 | (raw + 1)) << 8);
+                ushort expected = (ushort)(SnesLittleEndian.Word(MotherBrainMutationProgramFieldRomByte(rom, 0x840000 | raw), MotherBrainMutationProgramFieldRomByte(rom, 0x840000 | (raw + 1))));
                 AssertEqual(expected, actual, "Mother Brain mutation original field");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "Mother Brain shared reader ownership");
                 AssertEqual(expected, shared, "Mother Brain shared reader original field");

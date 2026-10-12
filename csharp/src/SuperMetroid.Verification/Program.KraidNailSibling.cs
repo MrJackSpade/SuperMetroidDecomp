@@ -19,7 +19,7 @@ internal static partial class Program
     private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
         Func<(ushort XFraction, ushort XWhole, ushort YFraction, ushort YWhole), ushort> field)
     {
-        ushort Word(int address) => (ushort)(KraidNailLaunchFieldRomByte(rom, address) | KraidNailLaunchFieldRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KraidNailLaunchFieldRomByte(rom, address), KraidNailLaunchFieldRomByte(rom, address + 1)));
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             // Native CMP #0 / BPL and RNG & 6 select independently. Cover their
@@ -44,7 +44,7 @@ internal static partial class Program
         Suite(nameof(VerifyKraidNailLaunchXWhole), () => VerifyKraidNailLaunchXWhole(rom));
         Suite(nameof(VerifyKraidNailLaunchYFraction), () => VerifyKraidNailLaunchYFraction(rom));
         Suite(nameof(VerifyKraidNailLaunchYWhole), () => VerifyKraidNailLaunchYWhole(rom));
-        ushort Word(int a) => (ushort)(KraidNailSiblingRomByte(rom, a) | KraidNailSiblingRomByte(rom, a + 1) << 8);
+        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidNailSiblingRomByte(rom, a), KraidNailSiblingRomByte(rom, a + 1)));
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

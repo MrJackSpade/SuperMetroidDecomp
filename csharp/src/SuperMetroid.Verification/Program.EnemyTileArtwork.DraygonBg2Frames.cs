@@ -22,7 +22,7 @@ internal static partial class Program
             AssertTrue(stock.DraygonBg2Frames!.TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Draygon BG2 frame {frame.Name} exists");
-            int root = (DraygonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
+            int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
             AssertEqual((byte)1, rom.ReadCartridgeByte(root),
                 $"Draygon {frame.Name} has one BG2 component");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2)),
@@ -31,10 +31,9 @@ internal static partial class Program
                 $"Draygon {frame.Name} BG2 component Y offset");
             ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6));
             AssertEqual(EnemyBg2FrameLayout.StreamMarker,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(((DraygonBg2FrameDefinitions.Bank << 16) | stream)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, stream)))),
                 $"Draygon {frame.Name} selects a BG2 command stream");
-            int cursor = (DraygonBg2FrameDefinitions.Bank << 16) |
-                unchecked((ushort)(stream + 2));
+            int cursor = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank ,                unchecked((ushort)(stream + 2))));
             var native = new List<(ushort Destination, ushort[] Tiles)>();
             for (int command = 0;
                  command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
@@ -133,7 +132,7 @@ internal static partial class Program
         var nativeLists = new HashSet<ushort>();
         foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
-            int root = (DraygonBg2FrameDefinitions.Bank << 16) | frame.Pointer;
+            int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
             DraygonCollisionComponent[] components =
                 [.. DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)];
             AssertEqual((int)rom.ReadCartridgeByte(root), components.Length,
@@ -155,7 +154,7 @@ internal static partial class Program
             "Draygon BG2 frames have three distinct native hitbox lists");
         foreach (ushort pointer in nativeLists)
         {
-            int list = (DraygonBg2FrameDefinitions.Bank << 16) | pointer;
+            int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
             ReadOnlySpan<DraygonCollisionHitbox> hitboxes =
                 DraygonCollisionDefinitions.HitboxesAt(
                 ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"));

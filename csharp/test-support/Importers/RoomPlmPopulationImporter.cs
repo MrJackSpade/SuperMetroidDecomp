@@ -52,9 +52,9 @@ internal static class RoomPlmPopulationImporter
         // is not accepted merely because the importer could keep reading.
         throw new InvalidDataException($"Imported PLM population $8F:{pointer:X4} has no bounded zero terminator.");
 
-        byte Byte(byte bank, ushort offset) => cartridge.ReadCartridgeByte(bank << 16 | offset);
+        byte Byte(byte bank, ushort offset) => cartridge.ReadCartridgeByte(((int)new SnesAddress(bank, offset)));
         ushort Word(byte bank, ushort offset) =>
-            (ushort)(Byte(bank, offset) | Byte(bank, unchecked((ushort)(offset + 1))) << 8);
+            (ushort)(SnesLittleEndian.Word(Byte(bank, offset), Byte(bank, unchecked((ushort)(offset + 1)))));
         byte[] Scroll(ushort argument)
         {
             var pairs = new List<byte>();

@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyKiHunterMotionDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(KiHunterMotionDefinitionsRomByte(rom, address) | KiHunterMotionDefinitionsRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KiHunterMotionDefinitionsRomByte(rom, address), KiHunterMotionDefinitionsRomByte(rom, address + 1)));
         AssertEqual(Word(0xa8f180), KiHunterMotionDefinitions.SwoopTriggerDistance, "Native KiHunter proximity");
         ushort low = Word(0xa8f182), high = Word(0xa8f184);
         byte radius = KiHunterMotionDefinitionsRomByte(rom, 0xa8f186);
@@ -40,7 +40,7 @@ internal static partial class Program
             SnesSignedSixteenSixteen actual = SnesSignedSixteenSixteen.FromParts(
                 unchecked((short)(ushort.MaxValue - raw)), (ushort)raw) + gravity;
             uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + ((uint)high << 16 | low));
-            AssertEqual((ushort)(expected >> 16), actual.WholeWord, "Native gravity whole carry");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), actual.WholeWord, "Native gravity whole carry");
             AssertEqual((ushort)expected, actual.Fraction, "Native gravity fraction wrap");
         }
         Console.WriteLine("KiHunter motion: native constants, 65536 bus-free orbit placements and all gravity fractional carries pass.");

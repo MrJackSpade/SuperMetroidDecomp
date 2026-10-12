@@ -11,7 +11,7 @@ internal static partial class Program
             {
                 AssertEqual(IntroBabyDiscoveryInputRomByte(rom, 0x910000 + pointer), IntroBabyDiscoveryInputDefinitions.ReadByte((ushort)pointer), "original discovery input byte");
                 if (pointer == end - 1) continue;
-                AssertEqual((ushort)(IntroBabyDiscoveryInputRomByte(rom, 0x910000 + pointer) | IntroBabyDiscoveryInputRomByte(rom, 0x910001 + pointer) << 8),
+                AssertEqual((ushort)(SnesLittleEndian.Word(IntroBabyDiscoveryInputRomByte(rom, 0x910000 + pointer), IntroBabyDiscoveryInputRomByte(rom, 0x910001 + pointer))),
                     IntroBabyDiscoveryInputDefinitions.ReadWord((ushort)pointer), "original discovery aligned or overlapping word");
             }
             AssertThrows<InvalidDataException>(() => IntroBabyDiscoveryInputDefinitions.ReadWord((ushort)(end - 1)), "discovery word cannot cross source-region boundary");

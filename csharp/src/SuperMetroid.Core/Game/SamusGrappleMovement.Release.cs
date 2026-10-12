@@ -59,7 +59,7 @@ public static partial class SamusGrappleMovement
             grapple.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
 
         uint verticalFixed = unchecked((uint)(Math.Abs(cosine) * doubledVelocity));
-        samus.Kinematics.YSpeed = unchecked((ushort)(verticalFixed >> 16));
+        samus.Kinematics.YSpeed = SnesFixedPosition.WholeOf(unchecked((int)verticalFixed));
         samus.Kinematics.YSubspeed = unchecked((ushort)verticalFixed);
 
         // $9B:CA65 selects Y direction from both angular-velocity sign and cosine sign.
@@ -72,7 +72,7 @@ public static partial class SamusGrappleMovement
         byte horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
         int horizontalSine = Math.Abs(ReadSignedSine(horizontalAngle + 64));
         uint horizontalFixed = unchecked((uint)(horizontalSine * doubledVelocity));
-        samus.HorizontalSpeed.BaseSpeed = unchecked((ushort)(horizontalFixed >> 16));
+        samus.HorizontalSpeed.BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)horizontalFixed));
         samus.HorizontalSpeed.BaseSubspeed = unchecked((ushort)horizontalFixed);
     }
 

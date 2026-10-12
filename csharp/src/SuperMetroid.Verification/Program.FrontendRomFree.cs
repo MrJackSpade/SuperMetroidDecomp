@@ -794,7 +794,7 @@ internal static partial class Program
     {
         foreach (EnemyBg2FrameDefinition frame in frames)
         {
-            int root = (bank << 16) | frame.Pointer;
+            int root = ((int)new SnesAddress(bank, frame.Pointer));
             int components = catalogueSource.ReadCartridgeByte(root);
             for (int component = 0; component < components; component++)
             {
@@ -804,7 +804,7 @@ internal static partial class Program
                 for (int command = 0;
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
                 {
-                    int address = (bank << 16) | cursor;
+                    int address = ((int)new SnesAddress(bank, cursor));
                     ushort first = CartridgeImportSource.Require(catalogueSource).ReadCartridgeWord(address);
                     if (command == 0)
                     {

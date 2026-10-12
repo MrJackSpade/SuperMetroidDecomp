@@ -1386,7 +1386,7 @@ internal static partial class Program
     private static OamBuffer DrawReferenceExtendedFrame(
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin)
     {
-        byte ReadByte(int address) => bus.ReadCartridgeByte((bank << 16) | (address & 0xffff));
+        byte ReadByte(int address) => bus.ReadCartridgeByte(((int)new SnesAddress(bank, checked((ushort)(address & 0xffff)))));
         ushort ReadWord(int address) => SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
         var oam = new OamBuffer();
         int count = ReadByte(pointer); // The high header byte is draw metadata.
@@ -1506,18 +1506,16 @@ internal static partial class Program
     private static void BlockExtendedVisualFrame(
         HashSet<int> blocked, ISnesAddressSpace source, byte bank, ushort pointer)
     {
-        int root = (bank << 16) | pointer;
+        int root = ((int)new SnesAddress(bank, pointer));
         int count = source.ReadCartridgeByte(root);
         Block(bank, pointer, 2 + count * 8);
         for (int index = 0; index < count; index++)
         {
             ushort component = unchecked((ushort)(pointer + 2 + index * 8));
-            ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((bank << 16) |
-                    unchecked((ushort)(component + 4)));
-            int spriteAddress = (bank << 16) | sprite;
-            int parts = source.ReadCartridgeByte(spriteAddress) |
-                source.ReadCartridgeByte((bank << 16) |
-                    unchecked((ushort)(sprite + 1))) << 8;
+            ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank ,                    unchecked((ushort)(component + 4)))));
+            int spriteAddress = ((int)new SnesAddress(bank, sprite));
+            int parts = SnesLittleEndian.Word(source.ReadCartridgeByte(spriteAddress), source.ReadCartridgeByte((bank << 16) |
+                    unchecked((ushort)(sprite + 1))));
             if (parts == EnemyBg2FrameLayout.StreamMarker)
             {
                 Block(bank, sprite, 2);
@@ -1527,14 +1525,14 @@ internal static partial class Program
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
                      command++)
                 {
-                    ushort destination = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((bank << 16) | cursor);
+                    ushort destination = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, cursor)));
                     if (destination == 0xffff)
                     {
                         Block(bank, cursor, 2);
                         terminated = true;
                         break;
                     }
-                    ushort wordCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(cursor + 2))));
+                    ushort wordCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(cursor + 2)))));
                     int length = 4 + wordCount * 2;
                     Block(bank, cursor, length);
                     cursor = unchecked((ushort)(cursor + length));
@@ -1550,7 +1548,7 @@ internal static partial class Program
         void Block(byte blockBank, ushort blockPointer, int length)
         {
             for (int index = 0; index < length; index++)
-                blocked.Add((blockBank << 16) | unchecked((ushort)(blockPointer + index)));
+                blocked.Add(((int)new SnesAddress(blockBank, unchecked((ushort)(blockPointer + index)))));
         }
     }
 }

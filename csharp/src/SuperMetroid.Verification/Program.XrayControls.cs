@@ -57,7 +57,7 @@ internal static partial class Program
             AssertTrue(samus.Xray.IsActive && runtime.TimeIsFrozen,
                 "configured Run takes priority over Shoot and activates scanning");
             AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "X-ray activation commits interrupted pose");
-            AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
+            AssertEqual(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)),
                 samus.PoseHistory.PreviousDirectionAndMovement, "X-ray activation commits interrupted metadata");
             AssertEqual(poseBeforeActivation, samus.PoseHistory.LastDifferentPose, "X-ray activation shifts prior pose exactly once");
             AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentDirectionAndMovement,

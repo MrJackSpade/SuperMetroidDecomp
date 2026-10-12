@@ -13,8 +13,10 @@
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
-  <!-- #641: production projects carry the cartridge-encoding ratchet baseline, which activates SME6340-SME6344. -->
-  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SuperMetroid.Core' or '$(MSBuildProjectName)' == 'SuperMetroid.AssetExtraction' or '$(MSBuildProjectName)' == 'SuperMetroid.Diagnostics' or '$(MSBuildProjectName)' == 'SuperMetroid.Desktop' or '$(MSBuildProjectName)' == 'SuperMetroid.Rendering.Direct3D11' or '$(MSBuildProjectName)' == 'SuperMetroid.Game' or '$(MSBuildProjectName)' == 'SuperMetroid.Android'">
+  <!-- #641/#223: every maintained project (production, verification and tooling) carries the cartridge-encoding
+       ratchet baseline, which activates SME6340-SME6345. The analyzers and the audit that writes the baseline
+       compile the detector's own sources and are not ratcheted: the audit must build before a baseline exists. -->
+  <ItemGroup Condition="!$(MSBuildProjectName.StartsWith('SuperMetroid.EnsureAnalyzer')) and '$(MSBuildProjectName)' != 'SuperMetroid.CartridgeEncodingAudit'">
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)cartridge-encoding-baseline.txt" />
   </ItemGroup>
 </Project>

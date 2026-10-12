@@ -70,7 +70,7 @@ internal static partial class Program
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "Tube native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Tube native DTO count");
-                        AssertEqual(offset, (ushort)((byte)part.Next.X | (byte)part.Next.Y << 8), "Tube native DTO offset");
+                        AssertEqual(offset, (ushort)(SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y)), "Tube native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})

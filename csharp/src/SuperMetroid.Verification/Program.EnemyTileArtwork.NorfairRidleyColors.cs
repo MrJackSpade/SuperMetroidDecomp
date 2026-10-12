@@ -185,7 +185,7 @@ internal static partial class Program
         }
 
         ushort ReadReferenceWord(int address) =>
-            (ushort)(CpuBusRegionRead.Read(bus, address) | CpuBusRegionRead.Read(bus, address + 1) << 8);
+            (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1)));
 
         static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)

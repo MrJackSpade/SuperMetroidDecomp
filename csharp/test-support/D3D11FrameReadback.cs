@@ -41,7 +41,7 @@ internal static class D3D11FrameReadback
                     for (int x = 0; x < width; x++)
                     {
                         uint packed = row[x];
-                        pixels[y * width + x] = new((byte)packed, (byte)(packed >> 8), (byte)(packed >> 16), (byte)(packed >> 24));
+                        pixels[y * width + x] = new((byte)packed, SnesLittleEndian.HighByte(unchecked((ushort)packed)), (byte)(packed >> 16), (byte)(packed >> 24));
                     }
                 }
                 return pixels;

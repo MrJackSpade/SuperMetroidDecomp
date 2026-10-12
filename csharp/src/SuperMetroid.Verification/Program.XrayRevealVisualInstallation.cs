@@ -46,7 +46,7 @@ internal static partial class Program
             for (int index = 0; index < tiles.Count; index++)
             {
                 ushort coordinates = NativeWord(XrayOverlayRomData.RoomBank | (pointer + index * 4));
-                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, (byte)(coordinates >> 8)), NativeWord(XrayOverlayRomData.RoomBank |
+                AssertEqual(new XrayRoomOverlayVisual(new((byte)coordinates, SnesLittleEndian.HighByte(coordinates)), NativeWord(XrayOverlayRomData.RoomBank |
                         (pointer + index * 4 + 2))), tiles[index],
                     $"stock X-ray room overlay ${pointer:X4} record {index}");
                 specialRecords++;
@@ -92,7 +92,7 @@ internal static partial class Program
         for (int i = 0; i < definitions.Length / 2; i++)
         {
             definitions[i * 2] = (byte)i;
-            definitions[i * 2 + 1] = (byte)(i >> 8);
+            definitions[i * 2 + 1] = SnesLittleEndian.HighByte(unchecked((ushort)i));
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
         level.SetPlmForegroundEntry(33, (ushort)((int)RoomCollisionType.ShootableBlock << 12));

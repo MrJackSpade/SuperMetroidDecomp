@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -124,7 +125,7 @@ public sealed partial class RoomEnemySystem
         state.SpeedTableIndex = speedTableIndex;
         (state.AngleDelta, state.SubAngleDelta) = ReadLinearEnemySpeed(speedTableIndex);
 
-        byte radiusIndex = (byte)(slot.Parameter2 >> 8);
+        byte radiusIndex = SnesLittleEndian.HighByte(slot.Parameter2);
         state.Radius = FirefleaMovementDefinitions.Radius(radiusIndex);
 
         if (state.UsesCircularMovement)

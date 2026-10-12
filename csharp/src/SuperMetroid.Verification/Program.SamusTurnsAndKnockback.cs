@@ -182,14 +182,14 @@ static void VerifySamusAerialTurnsAndWallJump()
         endpoint.InitializeAnimation(bus);
         endpoint.HorizontalSpeed.BaseSubspeed = 0x4800;
         endpoint.HorizontalSpeed.AccelerationMode = 1;
-        endpoint.HorizontalSpeed.ExtraRunSpeed = (ushort)(extra >> 16);
+        endpoint.HorizontalSpeed.ExtraRunSpeed = SnesFixedPosition.WholeOf(unchecked((int)extra));
         endpoint.HorizontalSpeed.ExtraRunSubspeed = (ushort)extra;
         for (int tick = 0; tick < 6; tick++)
             endpoint.AnimateNoFx(bus, new SamusAnimationStep());
         AssertTrue(endpoint.ApplyPendingVerifiedAnimationTransition(bus), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? 0 : 2, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
-        AssertEqual((ushort)(extra >> 16), endpoint.HorizontalSpeed.ExtraRunSpeed, "turn endpoint retains whole dash speed");
+        AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)extra)), endpoint.HorizontalSpeed.ExtraRunSpeed, "turn endpoint retains whole dash speed");
         AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSubspeed, "turn endpoint retains fractional dash speed");
 
         endpoint.Pose = source;

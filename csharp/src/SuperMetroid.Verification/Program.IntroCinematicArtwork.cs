@@ -68,7 +68,7 @@ internal static partial class Program
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             {
                 int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
-                ushort nativeWord = (ushort)(CpuBusRegionRead.Read(bus, source) | CpuBusRegionRead.Read(bus, source + 1) << 8);
+                ushort nativeWord = (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source), CpuBusRegionRead.Read(bus, source + 1)));
                 AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
                     $"opening divider tile {index} matches cartridge source");
             }
@@ -81,8 +81,7 @@ internal static partial class Program
                 for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
                 {
                     int wordSource = source + 4 + cell * sizeof(ushort);
-                    ushort nativeWord = (ushort)(CpuBusRegionRead.Read(bus, wordSource) |
-                        CpuBusRegionRead.Read(bus, wordSource + 1) << 8);
+                    ushort nativeWord = (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, wordSource), CpuBusRegionRead.Read(bus, wordSource + 1)));
                     AssertEqual(nativeWord, stock.EyeFrames.FrameWords(frame)[cell],
                         $"opening eye frame {frame} cell {cell} matches cartridge");
                 }
@@ -629,10 +628,9 @@ internal static partial class Program
             "eye art rebind preserves blink timer");
         AssertEqual(pointer, (ushort)pointerField.GetValue(installed)!,
             "eye art rebind preserves blink script position");
-        int packedPosition = IntroEyeAnimationDefinitions.ReadByte(
-            (ushort)(IntroEyeAnimationDefinitions.StartPointer + 2)) |
-            IntroEyeAnimationDefinitions.ReadByte(
-                (ushort)(IntroEyeAnimationDefinitions.StartPointer + 3)) << 8;
+        int packedPosition = SnesLittleEndian.Word(IntroEyeAnimationDefinitions.ReadByte(
+            (ushort)(IntroEyeAnimationDefinitions.StartPointer + 2)),IntroEyeAnimationDefinitions.ReadByte(
+                (ushort)(IntroEyeAnimationDefinitions.StartPointer + 3)));
         int destination = IntroCinematicRomData.Layers.PortraitTilemapWord +
             (packedPosition >> 8) * IntroCinematicRomData.Layers.TilemapWidth +
             (packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask);
@@ -801,7 +799,7 @@ internal static partial class Program
         for (int index = 0; index < level.ForegroundEntries.Length; index++)
         {
             ushort expected = index * sizeof(ushort) < native.Length
-                ? (ushort)(native[index * 2] | native[index * 2 + 1] << 8)
+                ? (ushort)(SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1]))
                 : (ushort)0;
             AssertEqual(expected, level.ForegroundEntries.Span[index],
                 $"Mother Brain flashback collision block {index} preserves native level word");

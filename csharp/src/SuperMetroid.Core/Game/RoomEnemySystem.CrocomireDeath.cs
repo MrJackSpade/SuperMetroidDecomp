@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
@@ -228,18 +229,18 @@ public sealed partial class RoomEnemySystem
         byte accelerationFraction = (byte)state.StepCounter;
         int accelerationCarry = accelerationFraction + 0x80 > 0xff ? 1 : 0;
         accelerationFraction = unchecked((byte)(accelerationFraction + 0x80));
-        int accelerationWhole = (byte)(state.StepCounter >> 8) + 3 + accelerationCarry;
+        int accelerationWhole = SnesUnsignedEightEight.Whole(state.StepCounter) + 3 + accelerationCarry;
         accelerationWhole = Math.Min(accelerationWhole, 48);
         state.StepCounter = unchecked((ushort)((accelerationWhole << 8) | accelerationFraction));
 
         byte speedFraction = (byte)state.ReactionTimer;
         int speedCarry = speedFraction + accelerationWhole > 0xff ? 1 : 0;
         speedFraction = unchecked((byte)(speedFraction + accelerationWhole));
-        int speedWhole = (byte)(state.ReactionTimer >> 8) + speedCarry;
+        int speedWhole = SnesUnsignedEightEight.Whole(state.ReactionTimer) + speedCarry;
         speedWhole = Math.Min(speedWhole, 3);
         state.ReactionTimer = unchecked((ushort)((speedWhole << 8) | speedFraction));
 
-        byte subpositionHigh = (byte)(state.ProjectileCounter >> 8);
+        byte subpositionHigh = SnesLittleEndian.HighByte(state.ProjectileCounter);
         int subpositionSum = subpositionHigh + speedFraction;
         subpositionHigh = unchecked((byte)subpositionSum);
         state.ProjectileCounter = unchecked((ushort)(
@@ -268,7 +269,7 @@ public sealed partial class RoomEnemySystem
         byte speedFraction = (byte)state.ReactionTimer;
         bool speedBorrow = speedFraction < accelerationWhole;
         speedFraction = unchecked((byte)(speedFraction - accelerationWhole));
-        int speedWhole = (byte)(state.ReactionTimer >> 8) - (speedBorrow ? 1 : 0);
+        int speedWhole = SnesUnsignedEightEight.Whole(state.ReactionTimer) - (speedBorrow ? 1 : 0);
         if (speedWhole < 0)
         {
             speedFraction = 0xff;
@@ -276,7 +277,7 @@ public sealed partial class RoomEnemySystem
         }
         state.ReactionTimer = unchecked((ushort)((speedWhole << 8) | speedFraction));
 
-        byte subpositionHigh = (byte)(state.ProjectileCounter >> 8);
+        byte subpositionHigh = SnesLittleEndian.HighByte(state.ProjectileCounter);
         bool subpositionBorrow = subpositionHigh < speedFraction;
         subpositionHigh = unchecked((byte)(subpositionHigh - speedFraction));
         state.ProjectileCounter = unchecked((ushort)(
@@ -593,9 +594,9 @@ public sealed partial class RoomEnemySystem
     {
         uint fixedValue = ((uint)whole << 16) | fraction;
         fixedValue = unchecked(fixedValue + delta);
-        if ((ushort)(fixedValue >> 16) >= maximumWhole)
+        if (SnesFixedPosition.WholeOf(unchecked((int)fixedValue)) >= maximumWhole)
             fixedValue = (fixedValue & 0xffff) | ((uint)maximumWhole << 16);
-        return ((ushort)fixedValue, (ushort)(fixedValue >> 16));
+        return ((ushort)fixedValue, SnesFixedPosition.WholeOf(unchecked((int)fixedValue)));
     }
 
     private static SnesFixedPosition CalculateCrocomirePosition(

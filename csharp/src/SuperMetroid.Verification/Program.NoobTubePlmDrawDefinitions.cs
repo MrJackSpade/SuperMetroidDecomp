@@ -62,7 +62,7 @@ internal static partial class Program
         SeedRoomPlmPopulation(bus, 0x9400, 
         [
             unchecked((byte)PlmHeaderId.NoobTube),
-            unchecked((byte)((ushort)PlmHeaderId.NoobTube >> 8)),
+            SnesLittleEndian.HighByte((ushort)PlmHeaderId.NoobTube),
             originX, originY, 0, 0, 0, 0,
         ]);
         // The retail control stream is compiled and immutable. Draw each physical layout through

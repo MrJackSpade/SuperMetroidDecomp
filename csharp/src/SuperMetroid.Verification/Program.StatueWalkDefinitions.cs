@@ -46,9 +46,9 @@ internal static partial class Program
             carry(slot, statue, samus, level, offset);
             uint x = unchecked(start + (uint)(velocity << 8));
             uint y = start + (uint)(Math.Abs((int)velocity) << 8);
-            AssertEqual((ushort)(x >> 16), slot.Position.X.Whole, "Chozo real signed X movement");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)x)), slot.Position.X.Whole, "Chozo real signed X movement");
             AssertEqual((ushort)x, slot.Position.X.Fraction, "Chozo real fractional X");
-            AssertEqual((ushort)(y >> 16), slot.Position.Y.Whole, "Chozo real absolute Y movement");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)y)), slot.Position.Y.Whole, "Chozo real absolute Y movement");
             AssertEqual((ushort)y, slot.Position.Y.Fraction, "Chozo real fractional Y");
             AssertEqual(unchecked((ushort)(slot.Position.X.Whole + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
             AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");

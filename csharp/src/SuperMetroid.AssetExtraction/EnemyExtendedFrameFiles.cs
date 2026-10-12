@@ -48,10 +48,9 @@ internal static class EnemyExtendedFrameFiles
         Ensure.NotNull(bus);
         byte bank = definition.Bank;
         ushort pointer = definition.Pointer;
-        int baseAddress = (bank << 16) | pointer;
+        int baseAddress = ((int)new SnesAddress(bank, pointer));
         int count = bus.ReadCartridgeByte(baseAddress);
-        byte padding = bus.ReadCartridgeByte((bank << 16) |
-            unchecked((ushort)(pointer + 1)));
+        byte padding = bus.ReadCartridgeByte(((int)new SnesAddress(bank ,            unchecked((ushort)(pointer + 1)))));
         // Ceres steam's header is $1001: the generic drawing/collision
         // walkers consume its low byte as one component and retain the
         // high byte as native presentation metadata.
@@ -73,10 +72,10 @@ internal static class EnemyExtendedFrameFiles
         for (int index = 0; index < count; index++)
         {
             ushort record = unchecked((ushort)(pointer + 2 + index * 8));
-            short x = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | record));
-            short y = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(record + 2)))));
-            ushort spritePointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(record + 4))));
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((bank << 16) | spritePointer) ==
+            short x = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, record))));
+            short y = unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(record + 2))))));
+            ushort spritePointer = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(record + 4)))));
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, spritePointer))) ==
                 EnemyBg2FrameLayout.StreamMarker)
             {
                 // Multipart bodies combine ordinary OAM with BG2 streams

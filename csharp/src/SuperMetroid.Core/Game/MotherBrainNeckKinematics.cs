@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -157,8 +158,8 @@ internal static class MotherBrainNeckKinematics
         // below reduces it to body+($20,-$32), but retaining the two native stages makes the
         // individual segment equations auditable against the disassembly.
         Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-0x0050, 0x002e);
-        byte lower = unchecked((byte)(lowerAngle >> 8));
-        byte upper = unchecked((byte)(upperAngle >> 8));
+        byte lower = SnesAngle.FromRaw(lowerAngle).TableIndex;
+        byte upper = SnesAngle.FromRaw(upperAngle).TableIndex;
 
         Position16<RoomPixels> segment0 = CalculateLowerSegment(reference, lower, distances.Segment0Distance);
         Position16<RoomPixels> segment1 = CalculateLowerSegment(reference, lower, distances.Segment1Distance);

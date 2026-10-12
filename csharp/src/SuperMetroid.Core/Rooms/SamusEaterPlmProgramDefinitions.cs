@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -24,7 +25,7 @@ internal static class SamusEaterPlmProgramDefinitions
         if (TryReadMechanicsByte(address, out byte low) &&
             TryReadMechanicsByte(unchecked((ushort)(address + 1)), out byte high))
         {
-            value = (ushort)(low | high << 8);
+            value = (ushort)(SnesLittleEndian.Word(low, high));
             return true;
         }
         value = 0;

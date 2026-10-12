@@ -10,7 +10,7 @@ internal static partial class Program
         {
             AssertEqual(IntroRinkaProgramsRomByte(rom, 0x8b0000 + pointer), IntroRinkaInstructionDefinitions.ReadByte((ushort)pointer), "original Rinka program byte");
             if (pointer < 0xce1a)
-                AssertEqual((ushort)(IntroRinkaProgramsRomByte(rom, 0x8b0000 + pointer) | IntroRinkaProgramsRomByte(rom, 0x8b0001 + pointer) << 8),
+                AssertEqual((ushort)(SnesLittleEndian.Word(IntroRinkaProgramsRomByte(rom, 0x8b0000 + pointer), IntroRinkaProgramsRomByte(rom, 0x8b0001 + pointer))),
                     IntroRinkaInstructionDefinitions.ReadWord((ushort)pointer), "original Rinka overlapping word");
         }
         foreach (ushort pointer in new ushort[] { 0, 0xcdea, 0xce1b, ushort.MaxValue })
@@ -32,11 +32,11 @@ internal static partial class Program
         for (int index = 0; index < 3; index++)
         {
             int operand = 0x8bcded + 4 * index;
-            ushort pointer = (ushort)(IntroRinkaFrameCatalogRomByte(rom, operand) | IntroRinkaFrameCatalogRomByte(rom, operand + 1) << 8);
+            ushort pointer = (ushort)(SnesLittleEndian.Word(IntroRinkaFrameCatalogRomByte(rom, operand), IntroRinkaFrameCatalogRomByte(rom, operand + 1)));
             AssertEqual(pointer, frames[index].Pointer, "native Rinka frame operand");
             AssertEqual(names[index], frames[index].Name, "published Rinka asset key");
             AssertEqual(IntroRinkaSpriteDefinitions.StockPartCount,
-                IntroRinkaFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroRinkaFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8, "native four-part Rinka record");
+                SnesLittleEndian.Word(IntroRinkaFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroRinkaFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "native four-part Rinka record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {

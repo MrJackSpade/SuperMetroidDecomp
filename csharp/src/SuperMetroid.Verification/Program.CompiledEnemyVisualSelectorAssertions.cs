@@ -21,7 +21,7 @@ internal static partial class Program
         AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                 enemyDefinition, operandAddress, out ushort selector),
             $"{context}: compiled visual selector exists");
-        int address = (bank << 16) | operandAddress;
+        int address = ((int)new SnesAddress(bank, operandAddress));
         ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         AssertEqual(native, selector, $"{context}: compiled visual selector matches cartridge");
     }
@@ -37,7 +37,7 @@ internal static partial class Program
         AssertTrue(CompiledEnemyVisualSelectors.TryGet(bank, operandAddress,
                 out ushort selector),
             $"{context}: compiled visual selector exists");
-        int address = (bank << 16) | operandAddress;
+        int address = ((int)new SnesAddress(bank, operandAddress));
         ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         AssertEqual(native, selector, $"{context}: compiled visual selector matches cartridge");
     }

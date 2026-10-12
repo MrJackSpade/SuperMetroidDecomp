@@ -221,10 +221,10 @@ public sealed class SamusSuitPickupState
     {
         byte amount = unchecked((byte)(LightBeamWideningSpeed >> 8));
         byte left = unchecked((byte)LightBeamPosition);
-        byte right = unchecked((byte)(LightBeamPosition >> 8));
+        byte right = SnesLittleEndian.HighByte(LightBeamPosition);
         left = unchecked((byte)(left - amount));
         right = unchecked((byte)(right + amount));
-        LightBeamPosition = unchecked((ushort)(left | (right << 8)));
+        LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
         Array.Fill(_windowTable, LightBeamPosition);
 
         if (unchecked((sbyte)(left - 97)) < 0)
@@ -241,7 +241,7 @@ public sealed class SamusSuitPickupState
         byte amount = unchecked((byte)(LightBeamWideningSpeed >> 8));
         byte oldLeft = unchecked((byte)LightBeamPosition);
         byte left = unchecked((byte)(oldLeft - amount));
-        byte right = unchecked((byte)(LightBeamPosition >> 8));
+        byte right = SnesLittleEndian.HighByte(LightBeamPosition);
         // The native BEQ shares the negative-result clamp. Exact zero must also
         // force the right endpoint to 255 or the reveal is delayed by a frame.
         if (left == 0 || unchecked((sbyte)(oldLeft - amount)) < 0)
@@ -254,7 +254,7 @@ public sealed class SamusSuitPickupState
             int widenedRight = right + amount;
             right = widenedRight > byte.MaxValue ? byte.MaxValue : unchecked((byte)widenedRight);
         }
-        LightBeamPosition = unchecked((ushort)(left | (right << 8)));
+        LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
 
         // `$88:E13E-$E19C` walks the 128-byte ROM curve forward for the top half, then
         // backward for the bottom half. The signed left clamp and unsigned right carry
@@ -273,7 +273,7 @@ public sealed class SamusSuitPickupState
             byte curvedRight = candidateRight > byte.MaxValue
                 ? byte.MaxValue
                 : unchecked((byte)candidateRight);
-            _windowTable[scanline] = unchecked((ushort)(curvedLeft | (curvedRight << 8)));
+            _windowTable[scanline] = unchecked((ushort)(SnesLittleEndian.Word(curvedLeft, curvedRight)));
         }
 
         LightBeamWideningSpeed = unchecked((ushort)(
@@ -342,7 +342,7 @@ public sealed class SamusSuitPickupState
     {
         byte left = unchecked((byte)(LightBeamPosition + 8));
         byte right = unchecked((byte)((LightBeamPosition >> 8) - 8));
-        LightBeamPosition = unchecked((ushort)(left | (right << 8)));
+        LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
         _windowTable[128] = LightBeamPosition;
         if (unchecked((sbyte)(left - 112)) >= 0)
             Substate++;

@@ -43,7 +43,7 @@ public static class SamusFullBodyCycleColorExtractor
                     var colors = new PaletteRgb5[SamusFullBodyCycleColorFormat.ColorsPerPalette];
                     for (int index = 0; index < colors.Length; index++)
                     {
-                        ushort word = (ushort)(source[index * 2] | source[index * 2 + 1] << 8);
+                        ushort word = (ushort)(SnesLittleEndian.Word(source[index * 2], source[index * 2 + 1]));
                         colors[index] = new PaletteRgb5
                         {
                             Red = word & 31,

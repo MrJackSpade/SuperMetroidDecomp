@@ -14,7 +14,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyLookupDachoraColors(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(LookupDachoraColorsRomByte(rom, address) | LookupDachoraColorsRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupDachoraColorsRomByte(rom, address), LookupDachoraColorsRomByte(rom, address + 1)));
         ushort[] Row(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();
         ushort[] normal = Row(DachoraColorRomData.DefaultSource);
         ushort[][] speed = Enumerable.Range(0, 4).Select(frame => Row(DachoraColorRomData.SpeedSource + frame * 32)).ToArray();

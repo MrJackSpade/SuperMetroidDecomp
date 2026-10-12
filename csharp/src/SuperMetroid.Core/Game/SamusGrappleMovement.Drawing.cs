@@ -108,8 +108,8 @@ public static partial class SamusGrappleMovement
                 }
             }
 
-            ushort screenX = unchecked((ushort)(screenXFixed >> 16));
-            ushort screenY = unchecked((ushort)(screenYFixed >> 16));
+            ushort screenX = SnesFixedPosition.WholeOf(screenXFixed);
+            ushort screenY = SnesFixedPosition.WholeOf(screenYFixed);
             // Native ticks this slot before the visibility check, then abandons
             // the remaining rope slots entirely at the first off-screen segment.
             if (((screenX | screenY) & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)

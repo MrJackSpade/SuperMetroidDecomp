@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(CompiledIntroEggMotionRomByte(rom, address) | CompiledIntroEggMotionRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledIntroEggMotionRomByte(rom, address), CompiledIntroEggMotionRomByte(rom, address + 1)));
         void Compare(int address, int count, Func<int, (ushort Whole, ushort Fraction)> sample)
         {
             for (int index = 0; index < count; index++)
@@ -42,8 +42,8 @@ internal static partial class Program
                 object actor = fragment ? new IntroEggParticle(actorIndex) : new IntroEggSlimeDrop(new(128, 96), actorIndex);
                 var sprite = (IntroDiscoverySprite)actor.GetType().GetField("sprite", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(actor)!;
                 sprite.Position = new(sprite.Position.X.WithFraction(fraction), sprite.Position.Y.WithFraction(fraction));
-                uint x = ((uint)sprite.WholePosition.X << 16) | fraction;
-                uint y = ((uint)sprite.WholePosition.Y << 16) | fraction;
+                uint x = new SnesFixedPosition(sprite.WholePosition.X, fraction).RawValue;
+                uint y = new SnesFixedPosition(sprite.WholePosition.Y, fraction).RawValue;
                 bool motion = true;
                 int motionFrame = 0;
                 int frames = 0;
@@ -59,9 +59,9 @@ internal static partial class Program
                     }
                     if (actor is IntroEggParticle particle) particle.Step();
                     else ((IntroEggSlimeDrop)actor).Step();
-                    AssertEqual((ushort)(x >> 16), sprite.WholePosition.X, "Egg actor whole X each frame");
+                    AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)x)), sprite.WholePosition.X, "Egg actor whole X each frame");
                     AssertEqual((ushort)x, sprite.Position.X.Fraction, "Egg actor fraction X each frame");
-                    AssertEqual((ushort)(y >> 16), sprite.WholePosition.Y, "Egg actor whole Y each frame");
+                    AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)y)), sprite.WholePosition.Y, "Egg actor whole Y each frame");
                     AssertEqual((ushort)y, sprite.Position.Y.Fraction, "Egg actor fraction Y each frame");
                     checkedFrames++;
                 }

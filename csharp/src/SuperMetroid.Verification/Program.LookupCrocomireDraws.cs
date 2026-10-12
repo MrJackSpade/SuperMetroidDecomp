@@ -76,8 +76,7 @@ internal static partial class Program
         }
         AssertEqual(60, cells, "Crocomire sixty original physical cells");
 
-        ushort ReadWord(int address) => (ushort)(CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | address) |
-            CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | (address + 1)) << 8);
+        ushort ReadWord(int address) => (ushort)(SnesLittleEndian.Word(CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | address), CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | (address + 1))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire physical draw mapping")]

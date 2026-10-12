@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Hardware;
 /// those pieces typed prevents host integer addition from accidentally carrying into the
 /// bank when a 65C816 routine advances only its sixteen-bit pointer register.
 /// </remarks>
+[SnesEncodingOwner]
 public readonly record struct SnesAddress
 {
     private const int MaximumValue = 0x00ff_ffff;

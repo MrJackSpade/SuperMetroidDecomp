@@ -34,7 +34,7 @@ internal static partial class Program
 
     private static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int a) => (ushort)(KraidMovementChoicesRomByte(rom, a) | KraidMovementChoicesRomByte(rom, a + 1) << 8);
+        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1)));
         var positions = new ushort[6];
         var targets = new ushort[6, 5];
         var timers = new ushort[6, 5];

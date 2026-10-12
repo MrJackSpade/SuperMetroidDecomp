@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -127,7 +128,7 @@ public sealed partial class RoomEnemySystem
         state.PreviousYPosition = slot.Position.Y.Whole;
         state.PreviousYSubposition = slot.Position.Y.Fraction;
 
-        byte initialYOffset = unchecked((byte)(slot.Parameter2 >> 8));
+        byte initialYOffset = SnesLittleEndian.HighByte(slot.Parameter2);
         if (initialYOffset == 0)
         {
             // A zero high byte is not “no offset.” Native substitutes one pixel and sets
@@ -143,7 +144,7 @@ public sealed partial class RoomEnemySystem
         // before init AI ran. Boulder consumes only its low byte as the strict Samus-Y
         // trigger threshold, then replaces that word with the real animation list.
         state.VerticalTriggerLimit = unchecked((byte)slot.CurrentInstruction);
-        state.DirectionSelector = unchecked((byte)(slot.Parameter1 >> 8));
+        state.DirectionSelector = SnesLittleEndian.HighByte(slot.Parameter1);
         if (state.DirectionSelector == 0)
         {
             state.HorizontalTriggerLimit = unchecked((short)-state.HorizontalTriggerLimit);
@@ -342,7 +343,7 @@ public sealed partial class RoomEnemySystem
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, ushort accumulator, bool negative)
     {
         int displacement = ReadQuadraticEnemySpeed(
-            unchecked((byte)(accumulator >> 8)),
+            SnesLittleEndian.HighByte(accumulator),
             negative);
         uint position = slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);

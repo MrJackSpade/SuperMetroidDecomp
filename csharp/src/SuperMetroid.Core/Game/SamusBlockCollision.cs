@@ -99,7 +99,7 @@ public static partial class SamusBlockCollision
                 state,
                 state.InteractiveEnemies,
                 direction,
-                unchecked((ushort)(magnitude >> 16)),
+                SnesFixedPosition.WholeOf(unchecked((int)magnitude)),
                 unchecked((ushort)magnitude));
             state.RecordSolidEnemyCollision(direction, probe.EnemyIndex);
 
@@ -417,7 +417,7 @@ public static partial class SamusBlockCollision
                 state,
                 state.InteractiveEnemies,
                 direction,
-                unchecked((ushort)(magnitude >> 16)),
+                SnesFixedPosition.WholeOf(unchecked((int)magnitude)),
                 unchecked((ushort)magnitude));
             state.RecordSolidEnemyCollision(direction, probe.EnemyIndex);
 

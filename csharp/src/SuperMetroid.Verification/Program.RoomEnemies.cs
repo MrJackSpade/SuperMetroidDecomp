@@ -90,7 +90,7 @@ static void VerifyRoomEnemyLoading()
         var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
         for (int color = 0; color < palette.Length; color++)
         {
-            ushort word = (ushort)(paletteBytes[color * 2] | paletteBytes[color * 2 + 1] << 8);
+            ushort word = (ushort)(SnesLittleEndian.Word(paletteBytes[color * 2], paletteBytes[color * 2 + 1]));
             palette[color] = new PaletteRgb5
             {
                 Red = word & 31,
@@ -1415,8 +1415,7 @@ static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
 static (ushort[] PaletteWords, byte[] Planar) ReadCeresRidleyFixtureArtwork(TestAddressSpace bus)
 {
     ushort[] paletteWords = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
-        .Select(color => (ushort)(bus.ReadByte(0xa6e14f + color * 2) |
-            bus.ReadByte(0xa6e150 + color * 2) << 8))
+        .Select(color => (ushort)(SnesLittleEndian.Word(bus.ReadByte(0xa6e14f + color * 2), bus.ReadByte(0xa6e150 + color * 2))))
         .ToArray();
     byte[] planar = Enumerable.Range(0, 0x20)
         .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
@@ -1450,7 +1449,7 @@ static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definit
 static void WriteTestLong(TestAddressSpace bus, int address, int value)
 {
     WriteTestByte(bus, address, unchecked((byte)value));
-    WriteTestByte(bus, address + 1, unchecked((byte)(value >> 8)));
+    WriteTestByte(bus, address + 1, SnesLittleEndian.HighByte(unchecked((ushort)value)));
     WriteTestByte(bus, address + 2, unchecked((byte)(value >> 16)));
 }
 

@@ -33,11 +33,11 @@ internal static partial class Program
             int address = Convert.ToInt32(match.Groups[1].Value, 16);
             byte bank = rom.ReadCartridgeByte(address + 12);
             ushort callback = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 40);
-            bool expected = callback != 0 && rom.ReadCartridgeByte((bank << 16) | callback) == 0x6b;
+            bool expected = callback != 0 && rom.ReadCartridgeByte(((int)new SnesAddress(bank, callback))) == 0x6b;
             AssertEqual(expected, EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(bank, callback),
                 $"header {address:X6} native Power Bomb classification");
             if (expected)
-                literalCallbacks.Add((bank << 16) | callback);
+                literalCallbacks.Add(((int)new SnesAddress(bank, callback)));
             headers++;
         }
         AssertTrue(headers > 150, "all named native enemy headers enumerated");
@@ -46,7 +46,7 @@ internal static partial class Program
         // pointer is always common damage, regardless of the bank's bytes at offset zero.
         for (int bank = 0; bank <= byte.MaxValue; bank++)
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            AssertEqual(literalCallbacks.Contains((bank << 16) | pointer),
+            AssertEqual(literalCallbacks.Contains(((int)new SnesAddress(checked((byte)bank), checked((ushort)pointer)))),
                 EnemyPowerBombCallbackDefinitions.IsLiteralNoOp((byte)bank, (ushort)pointer),
                 "Power Bomb bank-qualified callback identity");
         Console.WriteLine($"Power Bomb callbacks: {headers} named headers match native opcode classification; all 16777216 bank/pointer pairs preserve the ten literal no-ops and zero/common distinction.");

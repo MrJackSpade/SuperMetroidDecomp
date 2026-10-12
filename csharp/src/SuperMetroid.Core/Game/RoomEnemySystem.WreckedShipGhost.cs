@@ -385,7 +385,7 @@ public sealed partial class RoomEnemySystem
         WreckedShipGhostEnemyState state)
     {
         uint position = slot.Position.Y.RawValue;
-        uint velocity = ((uint)state.VerticalVelocityWhole << 16) | state.VerticalVelocityFraction;
+        uint velocity = new SnesFixedPosition(state.VerticalVelocityWhole, state.VerticalVelocityFraction).RawValue;
         position = unchecked(position + velocity);
         slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
 

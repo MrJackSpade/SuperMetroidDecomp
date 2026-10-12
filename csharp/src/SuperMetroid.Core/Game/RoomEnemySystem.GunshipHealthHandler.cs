@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
@@ -14,7 +15,7 @@ public sealed partial class RoomEnemySystem
             for (int i = 0; i < EnemyCount; i++)
             {
                 var slot = _slots[i];
-                if (((slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer) != (int)EnemyAiRoutine.InitAI_ShipTop) continue;
+                if ((((int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer))) != (int)EnemyAiRoutine.InitAI_ShipTop) continue;
                 return (GunshipFunction)slot.VariableF is GunshipFunction.WaitForEntranceToOpen or GunshipFunction.LowerSamus
                     or GunshipFunction.WaitForEntranceToClose or GunshipFunction.BeginLiftoffOrRestoreSamus
                     or GunshipFunction.HandleSaveConfirmation or GunshipFunction.WaitForExitPadToOpen

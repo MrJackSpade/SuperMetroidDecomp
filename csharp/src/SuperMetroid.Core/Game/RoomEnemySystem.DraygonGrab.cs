@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -168,7 +169,7 @@ public sealed partial class RoomEnemySystem
 
         uint radius = ((uint)state.SpiralXRadius << 16) | state.SpiralXSubradius;
         radius = unchecked(radius + 0x00002000u);
-        state.SpiralXRadius = unchecked((ushort)(radius >> 16));
+        state.SpiralXRadius = SnesFixedPosition.WholeOf(unchecked((int)radius));
         state.SpiralXSubradius = unchecked((ushort)radius);
         if (unchecked((short)(state.SpiralXRadius - DraygonMaximumSpiralRadius)) >= 0)
         {

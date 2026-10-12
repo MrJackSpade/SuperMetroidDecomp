@@ -44,7 +44,7 @@ internal static partial class Program
                     actor.Position = new(new(128, (ushort)fraction), new(128, 123));
                     shoot(actor, state, Position16<RoomPixels>.Zero);
                     uint expected = unchecked(0x00800000u + (uint)fraction + (uint)displacement);
-                    AssertEqual((ushort)(expected >> 16), actor.Position.X.Whole, "Zoa real signed whole displacement");
+                    AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), actor.Position.X.Whole, "Zoa real signed whole displacement");
                     AssertEqual((ushort)expected, actor.Position.X.Fraction, "Zoa real fractional carry/borrow");
                     AssertEqual((ushort)128, actor.Position.Y.Whole, "Zoa shooting preserves Y");
                     AssertEqual((ushort)123, actor.Position.Y.Fraction, "Zoa shooting preserves sub-Y");

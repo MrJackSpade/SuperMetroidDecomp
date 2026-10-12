@@ -20,7 +20,7 @@ internal static partial class Program
         arguments[4] = (ushort)0;
         int bank = enemy.Definition.Bank << 16;
         byte Byte(int offset) => source.ReadCartridgeByte(bank | (ushort)offset);
-        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         static bool Negative(int value) => unchecked((short)value) < 0;
         ushort targetLeft = unchecked((ushort)(x - radiusX));
         ushort targetRight = unchecked((ushort)(x + radiusX));

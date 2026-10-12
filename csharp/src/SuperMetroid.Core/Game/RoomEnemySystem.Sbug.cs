@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -121,14 +122,14 @@ public sealed class SbugEnemyState
     /// <summary>
     /// Parameter one high byte. Zero points right, $40 up, $80 left, and $C0 down.
     /// </summary>
-    public byte InitialAngle => unchecked((byte)(_slot.Parameter1 >> 8));
+    public byte InitialAngle => SnesLittleEndian.HighByte(_slot.Parameter1);
 
     /// <summary>Parameter two low byte; both-axis proximity needed for activation.</summary>
     public byte ActivationRadius => unchecked((byte)_slot.Parameter2);
 
     /// <summary>Parameter two high byte; the activation-table selector.</summary>
     public SbugActivationBehavior ActivationBehavior =>
-        ClosedNativeWords.Decode<SbugActivationBehavior>(unchecked((byte)(_slot.Parameter2 >> 8)), "Sbug activation behavior");
+        ClosedNativeWords.Decode<SbugActivationBehavior>(SnesLittleEndian.HighByte(_slot.Parameter2), "Sbug activation behavior");
 
     /// <summary>Spawn-computed unsigned 16.16 horizontal magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public SbugVelocityWords ForwardXVelocity { get; internal set; }
@@ -180,7 +181,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
     private void InitializeSbug(RoomEnemySlot slot)
     {
-        byte behavior = unchecked((byte)(slot.Parameter2 >> 8));
+        byte behavior = SnesLittleEndian.HighByte(slot.Parameter2);
         if (behavior > (byte)SbugActivationBehavior.MoveAwayFromSamus)
         {
             throw new InvalidDataException(
@@ -520,7 +521,7 @@ public sealed partial class RoomEnemySystem
         int tableIndex = (angle + phase) & 0x7f;
         uint product = (uint)EnemyTrigonometryTables.UnsignedHalfWave(tableIndex) * speed;
         return new SbugVelocityWords(
-            unchecked((ushort)(product >> 16)),
+            SnesFixedPosition.WholeOf(unchecked((int)product)),
             unchecked((ushort)product));
     }
 

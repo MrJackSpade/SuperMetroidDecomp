@@ -735,7 +735,7 @@ static void SeedSamusDeathSequenceCartridge(TestAddressSpace bus, ushort[] shade
 static SamusDeathPaletteArtworkCatalog DecodeSamusDeathFixtureArtwork(TestAddressSpace bus, ushort[] shades)
 {
     ushort[] FixturePalette(int pointer) => Enumerable.Range(0, 16)
-        .Select(color => (ushort)(bus.ReadByte(pointer + color * 2) | bus.ReadByte(pointer + color * 2 + 1) << 8)).ToArray();
+        .Select(color => (ushort)(SnesLittleEndian.Word(bus.ReadByte(pointer + color * 2), bus.ReadByte(pointer + color * 2 + 1)))).ToArray();
     ushort[][] suitColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bc000 + palette * 0x20)).ToArray();
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
     ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)
@@ -784,7 +784,7 @@ static void VerifySamusDeathSequence()
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "death shifts prior pose");
     AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "death shifts prior metadata");
     AssertEqual(SamusPoseId.DeathSequenceRightPose, samus.PoseHistory.PreviousPose, "death commits right pose");
-    AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
+    AssertEqual(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)),
         samus.PoseHistory.PreviousDirectionAndMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
     AssertEqual(new Position16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
@@ -878,7 +878,7 @@ static void VerifySamusDeathSequence()
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
     AssertEqual(0x0404, morphedLeft.PoseHistory.LastDifferentDirectionAndMovement, "left death shifts prior metadata");
     AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.PoseHistory.PreviousPose, "death commits left pose");
-    AssertEqual(morphedLeft.ReadPoseXDirection(bus) | ((byte)morphedLeft.ReadMovementType(bus) << 8),
+    AssertEqual(SnesLittleEndian.Word(morphedLeft.ReadPoseXDirection(bus), (byte)morphedLeft.ReadMovementType(bus)),
         morphedLeft.PoseHistory.PreviousDirectionAndMovement, "death commits left metadata");
     AssertEqual(1, morphedLeft.AnimationFrame, "Morph death begins unmorph frame one");
 

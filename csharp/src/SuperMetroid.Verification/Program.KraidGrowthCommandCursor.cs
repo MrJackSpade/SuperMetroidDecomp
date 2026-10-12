@@ -51,7 +51,7 @@ internal static partial class Program
         foreach (var definition in KraidHeadInstructionDefinitions.All)
         {
             int address = 0xa70000 | (definition.Pointer + 2);
-            ushort expected = (ushort)(KraidGrowthCommandCursorRomByte(rom, address) | KraidGrowthCommandCursorRomByte(rom, address + 1) << 8);
+            ushort expected = (ushort)(SnesLittleEndian.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1)));
             AssertEqual(expected, KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(guard, definition.Pointer),
                 $"native growth selection word at ${definition.Pointer:X4}");
         }

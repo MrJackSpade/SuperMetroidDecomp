@@ -480,7 +480,7 @@ static void VerifySavedGameLoadAppearance()
     AssertEqual(appearancePose, appearanceHistory.LastDifferentPose, "appearance completion shifts prior pose");
     AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentDirectionAndMovement, "appearance completion shifts prior metadata");
     AssertEqual(runtime.Samus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(runtime.Samus.ReadPoseXDirection(bus) | ((byte)runtime.Samus.ReadMovementType(bus) << 8),
+    AssertEqual(SnesLittleEndian.Word(runtime.Samus.ReadPoseXDirection(bus), (byte)runtime.Samus.ReadMovementType(bus)),
         appearanceHistory.PreviousDirectionAndMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Samus is { InputLocked: false },
@@ -696,7 +696,7 @@ static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
     rom[offset] = unchecked((byte)value);
-    rom[offset + 1] = unchecked((byte)(value >> 8));
+    rom[offset + 1] = SnesLittleEndian.HighByte(value);
 }
 
 /// <summary>A demo owner whose one private routine ($8739) disables the object and continues (#633).</summary>

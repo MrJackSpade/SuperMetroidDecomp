@@ -9,5 +9,5 @@ internal static partial class Program
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy code bank's native visual-selector operand words")]
     private static ushort ReadNativeEnemyVisualSelector(ISnesAddressSpace rom, byte bank, ushort operand) =>
-        CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(bank << 16 | operand);
+        CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, operand)));
 }

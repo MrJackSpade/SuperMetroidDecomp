@@ -34,7 +34,7 @@ internal sealed class SyntheticCartridge : ISnesAddressSpace, IImportCartridgeSo
     internal void SetWord(int address, int value)
     {
         SetByte(address, unchecked((byte)value));
-        SetByte(address + 1, unchecked((byte)(value >> 8)));
+        SetByte(address + 1, SnesLittleEndian.HighByte(unchecked((ushort)value)));
     }
 
     /// <summary>Declares the <paramref name="count"/> bytes from <paramref name="start"/> readable as zero.</summary>

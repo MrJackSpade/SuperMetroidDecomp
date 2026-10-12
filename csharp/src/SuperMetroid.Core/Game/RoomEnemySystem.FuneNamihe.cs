@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -152,8 +153,8 @@ public sealed partial class RoomEnemySystem
             InstructionListPointerTableCursor = FuneNamiheDefinitions.FuneIdleLeftCursor,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
             VariantIndex = unchecked((ushort)(slot.Parameter1 & 0x000f)),
-            YProximity = unchecked((byte)(slot.Parameter2 >> 8)),
-            CooldownTime = unchecked((byte)(slot.Parameter1 >> 8)),
+            YProximity = SnesLittleEndian.HighByte(slot.Parameter2),
+            CooldownTime = SnesLittleEndian.HighByte(slot.Parameter1),
             CooldownTimer = 0,
         };
 

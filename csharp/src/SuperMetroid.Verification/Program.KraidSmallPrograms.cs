@@ -34,8 +34,8 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             ushort address = addresses[index];
-            int full = bank << 16 | address;
-            ushort expected = (ushort)(KraidSmallMechanicsRomByte(rom, full) | KraidSmallMechanicsRomByte(rom, full + 1) << 8);
+            int full = ((int)new SnesAddress(checked((byte)bank), address));
+            ushort expected = (ushort)(SnesLittleEndian.Word(KraidSmallMechanicsRomByte(rom, full), KraidSmallMechanicsRomByte(rom, full + 1)));
             AssertEqual((address, expected), indexed(index), "native small Kraid mechanics address/value");
             AssertEqual(expected, read(address), "native small Kraid mechanics read");
             bytes.Add(address);
@@ -43,8 +43,8 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "odd mechanics address rejected");
         }
         for (int address = 0; address <= ushort.MaxValue; address++)
-            AssertEqual(bytes.Contains(address), ownsByte(bank << 16 | address), "small Kraid mechanics byte domain");
-        AssertTrue(!ownsByte((bank ^ 1) << 16 | addresses[0]), "wrong mechanics bank rejected");
+            AssertEqual(bytes.Contains(address), ownsByte(((int)new SnesAddress(checked((byte)bank), checked((ushort)address)))), "small Kraid mechanics byte domain");
+        AssertTrue(!ownsByte(((int)new SnesAddress(checked((byte)(bank ^ 1)), addresses[0]))), "wrong mechanics bank rejected");
         AssertThrows<InvalidDataException>(() => read((ushort)(addresses[^1] + 2)), "adjacent program excluded");
         AssertThrows<IndexOutOfRangeException>(() => indexed(-1), "negative mechanics index");
         AssertThrows<IndexOutOfRangeException>(() => indexed(addresses.Length), "mechanics index past end");

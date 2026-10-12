@@ -12,7 +12,7 @@ internal static partial class Program
         for (int i = 0; i < native.Length; i++)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
-            native[i] = unchecked((short)(CompiledGrappleMathRomByte(rom, address) | CompiledGrappleMathRomByte(rom, address + 1) << 8));
+            native[i] = unchecked((short)(SnesLittleEndian.Word(CompiledGrappleMathRomByte(rom, address), CompiledGrappleMathRomByte(rom, address + 1))));
         }
 
         // No bus argument is accepted by either production delegate. This makes an

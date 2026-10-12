@@ -10,7 +10,7 @@ internal static partial class Program
     private static (EnemyExtendedDrawComponent[] Oam, EnemyBg2TilemapWrite[] Bg2) ReadBossDisplayOracle(
         CartridgeImportAddressSpace source, EnemyExtendedFrameDefinition frame, HashSet<int> checkedLists)
     {
-        int Address(ushort pointer) => frame.Bank << 16 | pointer;
+        int Address(ushort pointer) => ((int)new SnesAddress(frame.Bank, pointer));
         int root = Address(frame.Pointer), count = source.ReadCartridgeByte(root);
         var oam = new List<EnemyExtendedDrawComponent>();
         var bg2 = new List<EnemyBg2TilemapWrite>();

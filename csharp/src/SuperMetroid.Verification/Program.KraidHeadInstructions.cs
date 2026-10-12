@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
-            KraidHeadInstructionDefinitionsRomByte(rom, address) | KraidHeadInstructionDefinitionsRomByte(rom, address + 1) << 8));
+            SnesLittleEndian.Word(KraidHeadInstructionDefinitionsRomByte(rom, address), KraidHeadInstructionDefinitionsRomByte(rom, address + 1))));
 
         Suite(nameof(VerifyKraidHeadCommandMapping), () => VerifyKraidHeadCommandMapping(rom));
         Suite(nameof(VerifyKraidGrowthResumeCases), () => VerifyKraidGrowthResumeCases(rom));
@@ -199,7 +199,7 @@ internal static partial class Program
         public byte ReadWorkRamByte(int address) => address switch
         {
             0xa71002 => (byte)MutableTilemap,
-            0xa71003 => (byte)(MutableTilemap >> 8),
+            0xa71003 => SnesLittleEndian.HighByte(MutableTilemap),
             _ => (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address),
         };

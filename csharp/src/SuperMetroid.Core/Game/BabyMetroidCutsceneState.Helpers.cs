@@ -146,7 +146,7 @@ public sealed partial class BabyMetroidCutsceneState
                 : targetAngle;
         }
 
-        byte angleByte = unchecked((byte)(Angle >> 8));
+        byte angleByte = SnesLittleEndian.HighByte(Angle);
         Velocity = new(
             new SnesSignedEightEight(CalculateVelocityComponent(Speed, angleByte)),
             new SnesSignedEightEight(CalculateVelocityComponent(Speed, unchecked((byte)(angleByte + 0x40)))));

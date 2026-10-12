@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
@@ -33,7 +34,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
     {
         value = 0;
         if (address is < FirstAddress or >= LastAddress) return false;
-        value = (ushort)(ByteAt(address) | ByteAt(address + 1) << 8);
+        value = (ushort)(SnesLittleEndian.Word(ByteAt(address), ByteAt(address + 1)));
         return true;
     }
 

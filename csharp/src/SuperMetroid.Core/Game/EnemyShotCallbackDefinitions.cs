@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Shot/bomb callback identities, not interchangeable with multibox header shortcuts.</summary>
@@ -29,7 +30,7 @@ public static class EnemyShotCallbackDefinitions
     public const int BankB3NoOp = 0xb3804c;
 
     /// <summary>Classifies the inventoried header and extended-hitbox shot entry points.</summary>
-    public static bool IsLiteralNoOp(byte bank, ushort pointer) => ((bank << 16) | pointer) is
+    public static bool IsLiteralNoOp(byte bank, ushort pointer) => (((int)new SnesAddress(bank, pointer))) is
         BankA2NoOp or BankA3NoOp or BankA5NoOp or BankA6NoOp or CeresDoorNoOp or
         BankA7NoOp or KraidPrivateNoOp or BankA8NoOp or BankA9NoOp or BankAANoOp or
         ChozoNoOp or BankB3NoOp;

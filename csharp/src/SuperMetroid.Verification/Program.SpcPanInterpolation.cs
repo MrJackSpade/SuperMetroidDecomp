@@ -47,7 +47,7 @@ internal static partial class Program
             // Execute the original straight-line interpolation block, not a second
             // copy of the host expression. X=0 selects this fixture's first channel.
             ram[0x10] = (byte)pan;
-            ram[0x11] = (byte)(pan >> 8);
+            ram[0x11] = SnesLittleEndian.HighByte(pan);
             ram[0x321] = channel.FinalVolume;
             byte a = 0, y = 0;
             bool carry = false;
@@ -67,7 +67,7 @@ internal static partial class Program
                     case 0xcf: // MUL YA
                         int product = y * a;
                         a = unchecked((byte)product);
-                        y = (byte)(product >> 8);
+                        y = SnesLittleEndian.HighByte(unchecked((ushort)product));
                         break;
                     case 0xdd: a = y; break; // MOV A,Y
                     case 0x60: carry = false; break; // CLRC
@@ -84,7 +84,7 @@ internal static partial class Program
             AssertEqual(0x1c67, pc, "native interpolation block boundary");
             return y;
 
-            int Word() => Instruction(pc++) | Instruction(pc++) << 8;
+            int Word() => SnesLittleEndian.Word(Instruction(pc++), Instruction(pc++));
         }
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -980,11 +981,11 @@ internal static class EnemyInteractionCallbacks
     /// </summary>
     internal static EnemyInteractionCallback? TryDecode(byte bank, ushort pointer)
     {
-        var common = (EnemyInteractionCallback)(CommonPrologueBank << 16 | pointer);
+        var common = (EnemyInteractionCallback)(((int)new SnesAddress(checked((byte)CommonPrologueBank), pointer)));
         if (common is EnemyInteractionCallback.NormalEnemyTouch or EnemyInteractionCallback.NormalEnemyShot or
             EnemyInteractionCallback.DudShot or EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn)
             return common;
-        int local = bank << 16 | pointer;
+        int local = ((int)new SnesAddress(bank, pointer));
         return Enum.IsDefined((EnemyInteractionCallback)local) ? (EnemyInteractionCallback)local : null;
     }
 }

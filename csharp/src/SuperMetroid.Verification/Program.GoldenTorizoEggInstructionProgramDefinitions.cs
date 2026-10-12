@@ -21,9 +21,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 GoldenTorizoEggInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                GoldenTorizoEggInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address) |
-                GoldenTorizoEggInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
-                    unchecked((ushort)(definition.Address + 1))) << 8));
+                SnesLittleEndian.Word(GoldenTorizoEggInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address), GoldenTorizoEggInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
+                    unchecked((ushort)(definition.Address + 1))))));
             AssertEqual(definition.Value, native,
                 $"Golden Torizo egg mechanics word $86:{definition.Address:X4}");
         }

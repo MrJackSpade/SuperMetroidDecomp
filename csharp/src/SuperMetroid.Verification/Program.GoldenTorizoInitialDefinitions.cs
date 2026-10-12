@@ -19,10 +19,9 @@ internal static partial class Program
                        selected == word.Value,
                 $"Golden Torizo initial word $AA:{word.Address:X4} lookup");
             AssertTrue(GoldenTorizoInitialInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoInitialInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo initial word $AA:{word.Address:X4} owns both bytes");
         }
 
@@ -57,9 +56,8 @@ internal static partial class Program
         Suite(nameof(VerifyGoldenTorizoLeftFootOrbDefinitions), () => VerifyGoldenTorizoLeftFootOrbDefinitions(rom));
 
         ushort ReadWord(ushort address) =>
-            (ushort)(GoldenTorizoInitialDefinitionsRomByte(rom, (bank << 16) | address) |
-                GoldenTorizoInitialDefinitionsRomByte(rom, (bank << 16) |
-                    unchecked((ushort)(address + 1))) << 8);
+            (ushort)(SnesLittleEndian.Word(GoldenTorizoInitialDefinitionsRomByte(rom, (bank << 16) | address), GoldenTorizoInitialDefinitionsRomByte(rom, (bank << 16) |
+                    unchecked((ushort)(address + 1)))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo initial definitions")]
@@ -88,10 +86,9 @@ internal static partial class Program
                        selected == word.Value,
                 $"Golden Torizo awakening word $AA:{word.Address:X4} lookup");
             AssertTrue(GoldenTorizoAwakeningInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoAwakeningInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo awakening word $AA:{word.Address:X4} owns both bytes");
             if (word.Value == (ushort)CommonEnemyInstruction.CopyToVram)
                 transfers++;
@@ -171,9 +168,8 @@ internal static partial class Program
             "seven physical frames and nine hitbox lists match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(GoldenTorizoAwakeningDefinitionsRomByte(rom, (bank << 16) | address) |
-                GoldenTorizoAwakeningDefinitionsRomByte(rom, (bank << 16) |
-                    unchecked((ushort)(address + 1))) << 8);
+            (ushort)(SnesLittleEndian.Word(GoldenTorizoAwakeningDefinitionsRomByte(rom, (bank << 16) | address), GoldenTorizoAwakeningDefinitionsRomByte(rom, (bank << 16) |
+                    unchecked((ushort)(address + 1)))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo awakening definitions")]

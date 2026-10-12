@@ -46,8 +46,8 @@ internal static partial class Program
     {
         ushort referenceX = unchecked((ushort)(body.X - 0x0050));
         ushort referenceY = unchecked((ushort)(body.Y + 0x002e));
-        byte lower = unchecked((byte)(lowerAngle >> 8));
-        byte upper = unchecked((byte)(upperAngle >> 8));
+        byte lower = SnesAngle.FromRaw(lowerAngle).TableIndex;
+        byte upper = SnesAngle.FromRaw(upperAngle).TableIndex;
 
         Position16<RoomPixels> Lower(ushort distance) => new(
             unchecked((ushort)(referenceX + 0x0070 +

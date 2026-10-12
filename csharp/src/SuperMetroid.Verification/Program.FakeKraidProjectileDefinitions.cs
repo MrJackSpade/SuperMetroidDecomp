@@ -106,7 +106,7 @@ internal static partial class Program
         for (int row = 0; row < 3; row++)
         {
             int address = 0x869e7d + row * 2;
-            short expected = unchecked((short)(FakeKraidSpikeRowSelectionRomByte(rom, address) | FakeKraidSpikeRowSelectionRomByte(rom, address + 1) << 8));
+            short expected = unchecked((short)(SnesLittleEndian.Word(FakeKraidSpikeRowSelectionRomByte(rom, address), FakeKraidSpikeRowSelectionRomByte(rom, address + 1))));
             AssertEqual(expected, FakeKraidProjectileDefinitions.SpikeYOffset(row),
                 $"Fake Kraid original signed launch port {row}");
         }

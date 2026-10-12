@@ -1601,11 +1601,11 @@ internal static class RoomFxRecordDefinitionAccess
         internal byte ReadByte(int offset) => offset switch
         {
             0 => (byte)self.DoorPointer,
-            1 => (byte)(self.DoorPointer >> 8),
+            1 => SnesLittleEndian.HighByte(self.DoorPointer),
             2 => (byte)self.BaseYPosition,
-            3 => (byte)(self.BaseYPosition >> 8),
+            3 => SnesLittleEndian.HighByte(self.BaseYPosition),
             4 => (byte)self.TargetYPosition,
-            5 => (byte)(self.TargetYPosition >> 8),
+            5 => SnesLittleEndian.HighByte(self.TargetYPosition),
             6 => (byte)self.PackedYVelocity,
             7 => (byte)(self.PackedYVelocity >> 8),
             8 => self.Timer,

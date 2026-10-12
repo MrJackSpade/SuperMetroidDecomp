@@ -241,7 +241,7 @@ public sealed class CartridgeRoomAssets
         for (int index = 0; index < bytes.Length; index += 2)
         {
             bytes[index] = unchecked((byte)RoomLevelMemoryLayout.PrefilledLevelWord);
-            bytes[index + 1] = unchecked((byte)(RoomLevelMemoryLayout.PrefilledLevelWord >> 8));
+            bytes[index + 1] = SnesLittleEndian.HighByte(RoomLevelMemoryLayout.PrefilledLevelWord);
         }
         payload.CopyTo(bytes);
         return ReadWords(bytes);

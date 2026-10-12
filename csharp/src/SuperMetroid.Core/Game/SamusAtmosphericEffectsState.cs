@@ -58,7 +58,7 @@ public sealed class SamusAtmosphericEffectsState
             throw new ArgumentOutOfRangeException(nameof(type), type, "Atmospheric type must fit the native 0..7 table.");
 
         SamusAtmosphericEffectSlot slot = _slots[slotIndex];
-        slot.FrameAndType = unchecked((ushort)((type << 8) | animationFrame));
+        slot.FrameAndType = unchecked((ushort)(SnesLittleEndian.Word(animationFrame, type)));
         slot.AnimationTimer = animationTimer;
         slot.Position = anchor;
     }
@@ -252,7 +252,7 @@ public sealed class SamusAtmosphericEffectSlot
     public byte AnimationFrame => unchecked((byte)FrameAndType);
 
     /// <summary>High byte of the packed word: 1/2 footstep splashes, 3 diving splash, 4 lava spray, 5 bubbles, or 6/7 dust; zero is reserved for inactive state.</summary>
-    public byte Type => unchecked((byte)(FrameAndType >> 8));
+    public byte Type => SnesLittleEndian.HighByte(FrameAndType);
 
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
     public ushort AnimationTimer { get; internal set; }

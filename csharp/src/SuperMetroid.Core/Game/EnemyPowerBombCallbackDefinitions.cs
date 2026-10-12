@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Native Power Bomb callback classifications, distinct from zero/common and private handlers.</summary>
@@ -25,7 +26,7 @@ public static class EnemyPowerBombCallbackDefinitions
     public const int EscapeAnimalsNoOp = 0xb3804c;
 
     /// <summary>Zero selects common damage, not a no-op. Other private callbacks retain their dispatcher checks.</summary>
-    public static bool IsLiteralNoOp(byte bank, ushort pointer) => ((bank << 16) | pointer) is
+    public static bool IsLiteralNoOp(byte bank, ushort pointer) => (((int)new SnesAddress(bank, pointer))) is
         ShipAndShutterNoOp or ElevatorNoOp or DraygonPartsNoOp or SporeSpawnNoOp or
         RidleyExplosionNoOp or PhantoonNoOp or PhantoonPartsAndAnimalsNoOp or
         EvirAndWingsNoOp or TourianStatuesNoOp or EscapeAnimalsNoOp;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
@@ -109,7 +110,7 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
         if (!Owns(address) || !Owns((ushort)(address + 1))) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
-        value = (ushort)(low | high << 8);
+        value = (ushort)(SnesLittleEndian.Word(low, high));
         return true;
     }
 

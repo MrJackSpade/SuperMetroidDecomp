@@ -42,7 +42,7 @@ internal static partial class Program
                     directArtwork: artwork);
                 AssertEqual((byte)expected, oam.LowTable[2],
                     $"atmospheric type {type} frame {frame} low attribute uses imported art");
-                AssertEqual((byte)(expected >> 8), oam.LowTable[3],
+                AssertEqual(SnesLittleEndian.HighByte(expected), oam.LowTable[3],
                     $"atmospheric type {type} frame {frame} high attribute uses imported art");
             }
 

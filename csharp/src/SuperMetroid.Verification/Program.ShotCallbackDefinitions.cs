@@ -65,11 +65,11 @@ internal static partial class Program
         var classifyShot = typeof(RoomEnemySystem).GetMethod("IsLiteralNoOpEnemyAi", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<byte, ushort, bool>>();
         foreach (int address in shotCallbacks)
-            AssertEqual(expectedShotNoOps.Contains(address), classifyShot((byte)(address >> 16), (ushort)address), "real shot classifier native parity");
+            AssertEqual(expectedShotNoOps.Contains(address), classifyShot(SnesLittleEndian.BankByte(address), (ushort)address), "real shot classifier native parity");
         for (int bank = 0; bank <= 255; bank++)
         for (int pointer = 0; pointer <= 65535; pointer++)
         {
-            int address = (bank << 16) | pointer;
+            int address = ((int)new SnesAddress(checked((byte)bank), checked((ushort)pointer)));
             AssertEqual(expectedShotNoOps.Contains(address),
                 classifyShot((byte)bank, (ushort)pointer),
                 "bank-qualified shot identity");

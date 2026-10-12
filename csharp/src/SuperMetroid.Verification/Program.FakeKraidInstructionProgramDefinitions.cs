@@ -21,10 +21,8 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;
-        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer((ushort)(FakeKraidInstructionProgramDefinitionsRomByte(rom, population) |
-            FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1) << 8));
-        ushort extraProperties = (ushort)(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10) |
-            FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11) << 8);
+        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer((ushort)(SnesLittleEndian.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1))));
+        ushort extraProperties = (ushort)(SnesLittleEndian.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11)));
         AssertEqual(EnemyDefinitionId.MiniKraid, populationDefinition,
             "retail Fake Kraid population matches the installed visual family");
         AssertTrue((extraProperties &

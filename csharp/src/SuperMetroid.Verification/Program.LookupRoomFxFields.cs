@@ -110,7 +110,7 @@ internal static partial class Program
             {
                 AssertEqual(OriginalByte(index), actual.ReadByte(index), "FX byte view");
                 if (index < 15)
-                    AssertEqual((ushort)(OriginalByte(index) | OriginalByte(index + 1) << 8),
+                    AssertEqual((ushort)(SnesLittleEndian.Word(OriginalByte(index), OriginalByte(index + 1))),
                         actual.ReadWord(index), "FX overlapping word view");
             }
         }

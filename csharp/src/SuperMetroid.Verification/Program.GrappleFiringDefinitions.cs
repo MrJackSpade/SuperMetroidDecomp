@@ -11,7 +11,7 @@ internal static partial class Program
         Suite(nameof(VerifyGrappleLaunchXSelection), () => VerifyGrappleLaunchXSelection(rom));
         Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(rom));
         Suite(nameof(VerifyGrappleLaunchAngleAlgorithm), () => VerifyGrappleLaunchAngleAlgorithm(rom));
-        short Word(int address) => unchecked((short)(GrappleFiringDefinitionsRomByte(rom, address) | GrappleFiringDefinitionsRomByte(rom, address + 1) << 8));
+        short Word(int address) => unchecked((short)(SnesLittleEndian.Word(GrappleFiringDefinitionsRomByte(rom, address), GrappleFiringDefinitionsRomByte(rom, address + 1))));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
@@ -205,7 +205,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             int source = address + 2 * direction;
-            short expected = unchecked((short)(GrappleOriginFieldRomByte(rom, source) | GrappleOriginFieldRomByte(rom, source + 1) << 8));
+            short expected = unchecked((short)(SnesLittleEndian.Word(GrappleOriginFieldRomByte(rom, source), GrappleOriginFieldRomByte(rom, source + 1))));
             AssertEqual(expected, select(GrappleFiringDefinitions.Origin(direction, running)),
                 $"Grapple origin {label} direction {direction}");
         }
@@ -234,7 +234,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             int address = source + 2 * direction;
-            ushort original = (ushort)(GrappleLaunchFieldRomByte(rom, address) | GrappleLaunchFieldRomByte(rom, address + 1) << 8);
+            ushort original = (ushort)(SnesLittleEndian.Word(GrappleLaunchFieldRomByte(rom, address), GrappleLaunchFieldRomByte(rom, address + 1)));
             AssertEqual(original, select(direction), $"Original grapple {label}, direction {direction}");
         }
         AssertThrows<IndexOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");

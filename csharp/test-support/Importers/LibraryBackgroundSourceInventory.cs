@@ -84,9 +84,8 @@ internal static class LibraryBackgroundSourceInventory
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer)
     {
         int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-        return unchecked((ushort)(bus.ReadCartridgeByte(address) |
-            (bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank |
-                unchecked((ushort)(pointer + 1))) << 8)));
+        return unchecked((ushort)(SnesLittleEndian.Word(bus.ReadCartridgeByte(address), bus.ReadCartridgeByte(RoomAssetRomData.LibraryBackground.CommandBank |
+                unchecked((ushort)(pointer + 1))))));
     }
 
     private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>

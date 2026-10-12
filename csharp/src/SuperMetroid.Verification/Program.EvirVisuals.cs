@@ -16,9 +16,9 @@ internal static partial class Program
         {
             ushort operand = EvirInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            int selectorAddress = (EvirVisualDefinitions.Bank << 16) | operand;
+            int selectorAddress = ((int)new SnesAddress(EvirVisualDefinitions.Bank, operand));
             ushort nativePointer = unchecked((ushort)(
-                InstalledEvirVisualsRomByte(rom, selectorAddress) | InstalledEvirVisualsRomByte(rom, selectorAddress + 1) << 8));
+                SnesLittleEndian.Word(InstalledEvirVisualsRomByte(rom, selectorAddress), InstalledEvirVisualsRomByte(rom, selectorAddress + 1))));
             AssertEqual(nativePointer, EvirVisualDefinitions.FrameAt(operand),
                 $"Evir visual selector {index} matches pinned cartridge");
             EnemyDefinitionId definition = operand >=

@@ -386,7 +386,7 @@ internal static partial class Program
     {
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);
-        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         return new RoomFxRecordDefinition(pointer,
             Word(0), Word(2), Word(4), Word(6), Byte(8), Byte(9), Byte(10), Byte(11),
             Byte(12), Byte(13), Byte(14), Byte(15));

@@ -51,7 +51,7 @@ internal static partial class Program
             {
                 fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
                 int index = level < 10 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
-                byte shade = (byte)(unchecked((ushort)(darkness[level / 2] + flash[index])) >> 8);
+                byte shade = SnesLittleEndian.HighByte((ushort)(darkness[level / 2] + flash[index]));
                 AssertEqual(shade | 0x20, fixedColor.Red, $"death offset {level}, frame {frame}: red");
                 AssertEqual(shade | 0x80, fixedColor.Green, $"death offset {level}, frame {frame}: blue");
                 AssertEqual(shade | 0x40, fixedColor.Blue, $"death offset {level}, frame {frame}: green");

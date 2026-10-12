@@ -30,7 +30,7 @@ internal static partial class Program
             byte[] native = RomDataReader.ReadFixedBank(rom,
                 KraidPaletteRomData.SourceAddress(source), count * sizeof(ushort));
             for (int index = 0; index < count; index++)
-                AssertEqual((ushort)(native[index * 2] | native[index * 2 + 1] << 8),
+                AssertEqual((ushort)(SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1])),
                     catalog.Resolve(source, index),
                     $"Kraid {source} stock RGB5 color {index}");
             for (int index = 0; index < count; index++)

@@ -888,7 +888,7 @@ public sealed partial class RoomEnemySystem
 
     private void StepShitroidNormalPalette(ShitroidEnemyState state)
     {
-        byte timer = unchecked((byte)(state.PaletteTimerAndPhase >> 8));
+        byte timer = SnesLittleEndian.HighByte(state.PaletteTimerAndPhase);
         if (timer != 0)
         {
             state.PaletteTimerAndPhase = unchecked((ushort)(

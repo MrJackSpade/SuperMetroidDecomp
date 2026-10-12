@@ -31,7 +31,7 @@ public sealed class SamusVisorPaletteState
     public byte Timer => unchecked((byte)PackedTimerIndex);
 
     /// <summary>High byte at WRAM <c>$0A73</c>; this is a byte offset, not an ordinal.</summary>
-    public byte PaletteByteOffset => unchecked((byte)(PackedTimerIndex >> 8));
+    public byte PaletteByteOffset => SnesLittleEndian.HighByte(PackedTimerIndex);
 
     /// <summary>
     /// Advances one palette-handler call and optionally writes CGRAM color 196.
@@ -90,7 +90,7 @@ public sealed class SamusVisorPaletteState
             nextOffset < SamusPaletteRomData.Visor.CycleEndByteOffset
                 ? nextOffset
                 : SamusPaletteRomData.Visor.CycleFirstByteOffset));
-        PackedTimerIndex = unchecked((ushort)(Timer | (storedNextOffset << 8)));
+        PackedTimerIndex = unchecked((ushort)(SnesLittleEndian.Word(Timer, storedNextOffset)));
 
         return new SamusVisorPaletteStepResult();
     }

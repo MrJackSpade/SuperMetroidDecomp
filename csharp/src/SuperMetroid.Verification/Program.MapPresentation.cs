@@ -368,7 +368,7 @@ internal static partial class Program
         {
             int cursor = frame * MotherBrainBeamRomData.ColorStride;
             int address = MotherBrainBeamRomData.ColorTable + cursor;
-            ushort nativeBeamColor = (ushort)(CpuBusRegionRead.Read(bus, address) | CpuBusRegionRead.Read(bus, address + 1) << 8);
+            ushort nativeBeamColor = (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1)));
             AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(cursor, out Bgr555 beamColor) &&
                 beamColor == Bgr555.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }

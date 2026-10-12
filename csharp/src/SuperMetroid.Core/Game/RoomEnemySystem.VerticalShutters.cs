@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -31,7 +32,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)(speedRecordOffset + 4)));
 
         state.MovedUpRestParameter = unchecked((byte)slot.ExtraProperties);
-        state.MovedDownRestParameter = unchecked((byte)(slot.ExtraProperties >> 8));
+        state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties);
         state.MovedUpRestTime = unchecked((ushort)(state.MovedUpRestParameter << 4));
         state.MovedDownRestTime = unchecked((ushort)(state.MovedDownRestParameter << 4));
 
@@ -42,7 +43,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException(
                 $"Vertical shutter trigger mode {state.TriggerMode} exceeds its five-entry ROM table.");
         }
-        state.TravelDistance = unchecked((byte)(slot.Parameter1 >> 8));
+        state.TravelDistance = SnesLittleEndian.HighByte(slot.Parameter1);
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
         state.FunctionTimer = slot.Parameter2;
 

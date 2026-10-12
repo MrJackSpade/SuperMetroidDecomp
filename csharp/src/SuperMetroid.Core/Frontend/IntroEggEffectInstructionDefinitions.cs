@@ -40,7 +40,7 @@ internal static class IntroEggEffectInstructionDefinitions
         if (pointer == DeletePointer)
             return (byte)((ushort)CinematicSpriteInstruction.Delete & 0xff);
         if (pointer == DeletePointer + 1)
-            return (byte)((ushort)CinematicSpriteInstruction.Delete >> 8);
+            return SnesLittleEndian.HighByte((ushort)CinematicSpriteInstruction.Delete);
         if (pointer is < StartPointer or >= EndPointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
         int offset = pointer - StartPointer;

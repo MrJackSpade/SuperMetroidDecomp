@@ -128,7 +128,7 @@ public sealed partial class RoomPlmSystem
                 ushort destination = ReadProgramWord(bus, unchecked((ushort)(cursor + 7)));
                 _vramWriteRequests.Add(new PlmVramWriteRequest(
                     size,
-                    (sourceBank << 16) | sourceOffset,
+                    ((int)new SnesAddress(sourceBank, sourceOffset)),
                     destination));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 9));
                 return true;

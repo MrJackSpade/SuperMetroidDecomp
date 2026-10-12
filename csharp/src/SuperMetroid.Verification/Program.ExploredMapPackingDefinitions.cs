@@ -21,7 +21,7 @@ internal static partial class Program
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => unchecked((ushort)(
-            ExploredMapPackingDefinitionsRomByte(retail, address) | ExploredMapPackingDefinitionsRomByte(retail, address + 1) << 8));
+            SnesLittleEndian.Word(ExploredMapPackingDefinitionsRomByte(retail, address), ExploredMapPackingDefinitionsRomByte(retail, address + 1))));
 
         int exportedByteCount = 0;
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
@@ -490,8 +491,7 @@ public sealed class ManagedSnesDsp
     {
         int directory = (registers[(byte)DspGlobalRegister.SourceDirectory] << 8) +
             source * DspBrrLayout.DirectoryEntryBytes + DspBrrLayout.LoopPointerOffset;
-        return unchecked((ushort)(apuRam[directory & ushort.MaxValue] |
-            apuRam[(directory + 1) & ushort.MaxValue] << 8));
+        return unchecked((ushort)(SnesLittleEndian.Word(apuRam[directory & ushort.MaxValue], apuRam[(directory + 1) & ushort.MaxValue])));
     }
 
     /// <summary>
@@ -577,12 +577,12 @@ public sealed class ManagedSnesDsp
     }
 
     private ushort ReadWord(int address) => unchecked((ushort)(
-        apuRam[address & 0xffff] | (apuRam[(address + 1) & 0xffff] << 8)));
+        SnesLittleEndian.Word(apuRam[address & 0xffff], apuRam[(address + 1) & 0xffff])));
 
     private void WriteWord(int address, ushort value)
     {
         apuRam[address & 0xffff] = unchecked((byte)value);
-        apuRam[(address + 1) & 0xffff] = unchecked((byte)(value >> 8));
+        apuRam[(address + 1) & 0xffff] = SnesLittleEndian.HighByte(value);
     }
 
     private static int Clamp16(int value) => Math.Clamp(value, short.MinValue, short.MaxValue);

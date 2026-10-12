@@ -2764,7 +2764,7 @@ internal static partial class Program
                     {
                         if (storageIndex + 1 >= scrolls.Length)
                             throw UnsupportedStream3DoorScroll(pointer, opcode, pc - 4);
-                        scrolls[storageIndex + 1] = unchecked((byte)(accumulator >> 8));
+                        scrolls[storageIndex + 1] = SnesLittleEndian.HighByte(accumulator);
                     }
                     break;
 
@@ -2919,7 +2919,7 @@ internal static partial class Program
         AssertEqual(3, selected.Length, "stream 3 identified native Baby compositions");
         foreach (var frame in selected)
         {
-            int source = (frame.Bank << 16) | frame.Pointer;
+            int source = ((int)new SnesAddress(frame.Bank, frame.Pointer));
             AssertEqual(30, CartridgeImportSource.Require(rom).ReadCartridgeWord(source), "stream 3 native Baby counted-record extent");
             document.Frames[frame.Name] = Enumerable.Range(0, 30).Select(index =>
             {
@@ -2947,15 +2947,15 @@ internal static partial class Program
             }
             string expected = SelectedPresentationHash.Create("enemy-oam-v1", content =>
             {
-                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
                 {
-                    content.Append("frame", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("frame", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
                     content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
-                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
                 {
-                    content.Append("native-binding", (frame.Bank << 16) | frame.Pointer);
-                    content.Append("selected-binding", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("native-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
+                    content.Append("selected-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
                 }
             });
             AssertEqual(expected, catalog.ContentIdentity, "stream 3 indexed OAM view retains canonical hash framing");
@@ -3403,7 +3403,7 @@ internal static partial class Program
                 IntroFinalLineTilemapFormat.CellCount * 2);
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
                 AssertEqual(ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + index * 2),
-                    (ushort)(subtitleUpload[index * 2] | subtitleUpload[index * 2 + 1] << 8), "actual Japanese subtitle staging upload");
+                    (ushort)(SnesLittleEndian.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1])), "actual Japanese subtitle staging upload");
             string hash = stock.ContentIdentity;
             for (int word = 0; word < 1024; word++)
             {

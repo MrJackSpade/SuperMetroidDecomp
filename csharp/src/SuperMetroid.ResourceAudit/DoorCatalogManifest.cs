@@ -36,7 +36,7 @@ internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPo
     {
         int address = 0x830000 | pointer;
         byte Byte(int offset) => cartridgeByte(address + offset);
-        ushort Word(int offset) => (ushort)(Byte(offset) | Byte(offset + 1) << 8);
+        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         return new(pointer, Word(0), Byte(3), Byte(4), Byte(5), Byte(6), Byte(7), Word(8), Word(10));
     }
 

@@ -83,10 +83,10 @@ internal static partial class Program
                 var oam = new OamBuffer(); oam.BeginFrame(); edited.PauseSelectors.Draw(oam, PauseEquipmentCategory.Beams, 0, expectedFrame);
                 AssertEqual((byte)112, oam.LowTable[0], "authored selector anchor plus X offset");
                 AssertEqual((byte)86, oam.LowTable[1], "authored selector anchor plus Y offset");
-                var attributes = new SnesObjAttributeWord((ushort)(oam.LowTable[2] | oam.LowTable[3] << 8));
+                var attributes = new SnesObjAttributeWord((ushort)(SnesLittleEndian.Word(oam.LowTable[2], oam.LowTable[3])));
                 AssertEqual(SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical), attributes, "authored selector tile, explicit palette, priority and flips");
                 AssertTrue((oam.HighTable[0] & 2) != 0, "authored large selector sprite size");
-                AssertEqual(4, new SnesObjAttributeWord((ushort)(oam.LowTable[6] | oam.LowTable[7] << 8)).PaletteIndex, "null part palette inherits authored selector palette");
+                AssertEqual(4, new SnesObjAttributeWord((ushort)(SnesLittleEndian.Word(oam.LowTable[6], oam.LowTable[7]))).PaletteIndex, "null part palette inherits authored selector palette");
             }
             AssertTrue(customMenu.Render().AsSpan().SequenceEqual(RenderForComparison(snapshot)), "custom selector animation reaches direct and captured rendering consistently");
         }

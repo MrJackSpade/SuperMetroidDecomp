@@ -727,7 +727,7 @@ internal static partial class Program
                 step();
                 AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), (SnesAngle)type.GetField("mode7Angle", flags)!.GetValue(state)!, "rotation context advances independently of selected signs");
                 AssertEqual((ushort)expectedZoom, Get("mode7Zoom"), "zoom context advances independently of selected signs");
-                AssertEqual((ushort)(expected >> 16), Get("mode7X"), "production shake whole position follows native indexed values");
+                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), Get("mode7X"), "production shake whole position follows native indexed values");
                 AssertEqual((ushort)expected, Get("mode7XSubposition"), "production shake fraction preserves carry/borrow");
                 AssertEqual((ushort)((frame + 1) % count), Get("planetMotionIndex"), "production shake advances after selection and wraps native mask");
             }
@@ -736,7 +736,7 @@ internal static partial class Program
             Set("mode7X", (ushort)0); Set("mode7XSubposition", (ushort)0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual((ushort)(finalPosition >> 16), Get("mode7X"), "terminal negative sample wraps whole position before handoff");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), Get("mode7X"), "terminal negative sample wraps whole position before handoff");
             AssertEqual((ushort)finalPosition, Get("mode7XSubposition"), "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
             AssertEqual((ushort)0, Get("planetMotionIndex"), "handoff preserves wrapped/reset index");
@@ -885,7 +885,7 @@ internal static partial class Program
             if (!unresolved)
             {
                 int offset = SporeSpawnDeathColorDefinitions.LevelPaletteByteOffset + color * 2;
-                AssertEqual((ushort)(palette[offset] | palette[offset + 1] << 8),
+                AssertEqual((ushort)(SnesLittleEndian.Word(palette[offset], palette[offset + 1])),
                     SporeSpawnDeathColorDefinitions.InitialLevelColor(color), "Level basis matches exact original decoded room color");
             }
             for (int frame = 0; frame < 7; frame++)
@@ -949,7 +949,7 @@ internal static partial class Program
         foreach (int color in Enumerable.Range(1, 11).Concat(new[] { 14, 15 }))
         {
             int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
-            AssertEqual((ushort)(palette[offset] | palette[offset + 1] << 8),
+            AssertEqual((ushort)(SnesLittleEndian.Word(palette[offset], palette[offset + 1])),
                 SporeSpawnDeathColorDefinitions.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
         }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
@@ -1177,7 +1177,7 @@ internal static partial class Program
             for (int cell = 0; cell < expected.Length; cell++)
             {
                 int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
-                AssertEqual(expected[cell], (ushort)(vram.Bytes[address] | vram.Bytes[address + 1] << 8), "Actual subtitle reaches VRAM unchanged");
+                AssertEqual(expected[cell], (ushort)(SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1])), "Actual subtitle reaches VRAM unchanged");
             }
             typeof(EndingBackgroundTextState).GetField("instructionTimer", flags)!.SetValue(state, (ushort)1);
             state.Step(vram);
@@ -1423,7 +1423,7 @@ internal static partial class Program
             for(int column=0;column<32;column++)
             {
                 var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
-                AssertEqual(expected,(ushort)(transfer.Span[column*2]|transfer.Span[column*2+1]<<8),"Every supplied top-row cell survives output packing");
+                AssertEqual(expected, (ushort)(SnesLittleEndian.Word(transfer.Span[column*2], transfer.Span[column*2+1])), "Every supplied top-row cell survives output packing");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),GameplayHudDefinitions.TopRowWord(column),"Native calculated top-row word");
             }
             var vram=new SnesVram();vram.LoadBytes(0xb000,transfer.Span);
@@ -2489,7 +2489,7 @@ internal static partial class Program
         for(int index=0;index<250;index++)
         {
             ushort address=DraygonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            identities[index*2]=(byte)address; identities[index*2+1]=(byte)(address>>8);
+            identities[index*2]=(byte)address; identities[index*2+1]=SnesLittleEndian.HighByte(address);
             ushort duration=CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa50000+address-2);
             ushort selector=CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa50000+address);
             AssertTrue(duration<0x8000,"Native timed record uses low-bit duration");
@@ -2841,7 +2841,7 @@ internal static partial class Program
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a693 + color * 2));
             AssertEqual(expected, NorfairRidleyRevealPaintDefinitions.Endpoint(color), "Exact immutable room material endpoint");
-            AssertEqual(expected, (ushort)(roomPalette[(113 + color) * 2] | roomPalette[(113 + color) * 2 + 1] << 8),
+            AssertEqual(expected, (ushort)(SnesLittleEndian.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1])),
                 "Identical room-theme9 occurrence remains separately accounted");
         }
         for (int edit = -1; edit < 630; edit++)

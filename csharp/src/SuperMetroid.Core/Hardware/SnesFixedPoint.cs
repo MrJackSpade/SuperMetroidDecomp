@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Hardware;
 
 /// <summary>A signed native 8.8 velocity word, retained losslessly in cartridge form.</summary>
 /// <param name="RawValue">The unchanged two's-complement word containing eight whole and eight fractional bits.</param>
+[SnesEncodingOwner]
 public readonly record struct SnesSignedEightEight(ushort RawValue)
 {
     /// <summary>The raw word read as its signed two's-complement value.</summary>
@@ -16,7 +17,19 @@ public readonly record struct SnesSignedEightEight(ushort RawValue)
         SnesSignedSixteenSixteen.FromRaw(unchecked((short)RawValue) << 8);
 }
 
+/// <summary>
+/// The unsigned native 8.8 layout (#223): a word whose high byte is whole units and low byte is 1/256ths, as
+/// radii, speeds and accelerations the cartridge advances by a fraction each frame keep it.
+/// </summary>
+[SnesEncodingOwner]
+public static class SnesUnsignedEightEight
+{
+    /// <summary>The whole units of an unsigned 8.8 word.</summary>
+    public static byte Whole(ushort value) => unchecked((byte)(value >> 8));
+}
+
 /// <summary>A signed native 16.16 displacement with explicit whole and fractional halves.</summary>
+[SnesEncodingOwner]
 public readonly record struct SnesSignedSixteenSixteen
 {
     private SnesSignedSixteenSixteen(int rawValue) => RawValue = rawValue;
@@ -71,8 +84,12 @@ public readonly record struct SnesSignedSixteenSixteen
 /// <summary>The two WRAM words produced after applying a fixed-point displacement.</summary>
 /// <param name="Whole">The unsigned whole-position word, wrapping at the native sixteen-bit boundary.</param>
 /// <param name="Fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
+[SnesEncodingOwner]
 public readonly record struct SnesFixedPosition(ushort Whole, ushort Fraction)
 {
+    /// <summary>The whole-pixel word of a native 16.16 value: its upper sixteen bits, whatever its sign.</summary>
+    public static ushort WholeOf(int rawValue) => unchecked((ushort)(rawValue >> 16));
+
     /// <summary>Splits one native 32-bit position (whole word high, fraction word low).</summary>
     public static SnesFixedPosition FromRaw(uint rawValue) =>
         new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));

@@ -33,8 +33,7 @@ internal static partial class Program
         foreach (ushort pointer in SamusProjectileRadiusDefinitions.TimedRecordPointers)
         {
             int record = SamusProjectileRomData.Banks.Projectile | pointer;
-            ushort Word(int offset) => (ushort)(CpuBusRegionRead.Read(rom, record + offset) |
-                CpuBusRegionRead.Read(rom, record + offset + 1) << 8);
+            ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + offset), CpuBusRegionRead.Read(rom, record + offset + 1)));
             var nativeShot = new SamusProjectileSlot(0)
             {
                 InstructionPointer = unchecked((ushort)(pointer + 8)),

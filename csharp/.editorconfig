@@ -76,6 +76,8 @@ dotnet_diagnostic.SME6341.severity = error
 dotnet_diagnostic.SME6342.severity = error
 dotnet_diagnostic.SME6343.severity = error
 dotnet_diagnostic.SME6344.severity = error
+# #223: shifts and masks by a storage width name their meaning.
+dotnet_diagnostic.SME6345.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620/#677: reusable argument guards use Ensure; Ensure calls let it capture the value expression.

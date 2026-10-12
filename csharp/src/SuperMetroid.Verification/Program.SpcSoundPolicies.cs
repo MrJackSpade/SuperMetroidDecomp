@@ -15,7 +15,7 @@ internal static partial class Program
         // tables and handler labels are independently identified in PJBoy/SM-SPC
         // 17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/sound library N.asm.
         byte Read(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
-        int Word(int address) => Read(address) | Read(address + 1) << 8;
+        int Word(int address) => SnesLittleEndian.Word(Read(address), Read(address + 1));
         MethodInfo configure = typeof(ManagedSpcPlayer).GetMethod("ConfigureSoundLibrary", BindingFlags.Static | BindingFlags.NonPublic)
             ?? throw new InvalidOperationException("Missing production sound policy consumer.");
         var applyPolicy = configure.CreateDelegate<Action<int, ManagedSpcSoundLibrary, byte>>();

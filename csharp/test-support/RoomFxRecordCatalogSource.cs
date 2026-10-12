@@ -39,7 +39,7 @@ internal static class RoomFxRecordCatalogSource
                     byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
                         RoomFxRomData.Record.ByteCount);
                     static ushort Word(byte[] bytes, int offset) =>
-                        (ushort)(bytes[offset] | bytes[offset + 1] << 8);
+                        (ushort)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]));
                     record = new(pointer, door,
                         Word(native, RoomFxRomDataRecordTooling.BaseYPositionOffset),
                         Word(native, RoomFxRomDataRecordTooling.TargetYPositionOffset),
@@ -79,7 +79,7 @@ internal static class RoomFxRecordCatalogSource
                 RoomFxRomDataBanksTooling.RoomDefinitions | pointer,
                 RoomFxRomData.Record.ByteCount);
             static ushort Word(byte[] bytes, int offset) =>
-                (ushort)(bytes[offset] | bytes[offset + 1] << 8);
+                (ushort)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]));
             records.Add(pointer, new RoomFxRecordDefinition(
                 pointer,
                 Word(native, RoomFxRomDataRecordTooling.DoorPointerOffset),

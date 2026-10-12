@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -28,7 +29,7 @@ public sealed class SamusPoseHistoryState
         {
             // $90:9D35 compares the raw movement byte, so a byte outside the movement-type
             // domain is simply not one of the two admitted movements.
-            byte movement = unchecked((byte)(LastDifferentDirectionAndMovement >> 8));
+            byte movement = SnesLittleEndian.HighByte(LastDifferentDirectionAndMovement);
             return Enum.IsDefined((SamusMovementType)movement) &&
                 (SamusMovementType)movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
         }

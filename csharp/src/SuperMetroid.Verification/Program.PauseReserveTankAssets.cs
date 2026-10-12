@@ -61,7 +61,7 @@ internal static partial class Program
         AssertEqual((byte)132, snapshot.Memory.Oam[last], "actual menu uses custom tank X");
         AssertEqual((byte)136, snapshot.Memory.Oam[last + 1], "actual menu uses custom tank Y");
         AssertEqual(SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical).Raw,
-            (ushort)(snapshot.Memory.Oam[last + 2] | snapshot.Memory.Oam[last + 3] << 8), "actual tank tile/palette/priority/flips");
+            (ushort)(SnesLittleEndian.Word(snapshot.Memory.Oam[last + 2], snapshot.Memory.Oam[last + 3])), "actual tank tile/palette/priority/flips");
         var editedPixels = menu.Render();
         AssertTrue(editedPixels.AsSpan().SequenceEqual(RenderForComparison(snapshot)), "edited reserve reaches captured renderer");
         using (var state = new MemoryStream())

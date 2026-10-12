@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -20,7 +21,7 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
         if (address is < FirstAddress or >= LastAddress) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
-        value = (ushort)(low | high << 8);
+        value = (ushort)(SnesLittleEndian.Word(low, high));
         return true;
     }
 

@@ -58,6 +58,6 @@ internal static partial class Program
     private static void WriteMirroredWorkRamWord(SuperMetroidAddressSpace writer, int address, ushort value)
     {
         writer.WriteByte(address, (byte)value);
-        writer.WriteByte(address + 1, (byte)(value >> 8));
+        writer.WriteByte(address + 1, SnesLittleEndian.HighByte(value));
     }
 }

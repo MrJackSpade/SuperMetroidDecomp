@@ -111,7 +111,7 @@ internal static partial class Program
             short velocity = (short)(native[sampleIndex] >> 2);
             uint expected = unchecked(initial + (uint)(velocity * 256));
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight((ushort)phase));
-            projectile.Variable1 = (ushort)(initial >> 16);
+            projectile.Variable1 = SnesFixedPosition.WholeOf(unchecked((int)initial));
             projectile.Variable0 = unchecked((ushort)initial);
             arc(projectile, step);
             if (projectile.Variable1 != expected >> 16 || projectile.Variable0 != (expected & 65535) ||

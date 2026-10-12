@@ -30,7 +30,7 @@ internal static partial class Program
         {
             speed += 6;
             expectedPosition += (uint)speed << 8;
-            ushort expectedY = (ushort)(expectedPosition >> 16);
+            ushort expectedY = SnesFixedPosition.WholeOf(unchecked((int)expectedPosition));
             ushort expectedHead = (ushort)Math.Min(expectedY - 56, 196);
             step(tube);
             AssertEqual(expectedY, tube.Position.Y.Whole, $"Tube native acceleration at frame {frame}");

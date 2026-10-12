@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>One six-byte instrument record of the driver's instrument table (#632).</summary>
@@ -35,7 +36,7 @@ public sealed partial class ManagedSpcPlayer
     /// <summary>The little-endian pointer word at <paramref name="address"/>; the high byte wraps at 16 bits.</summary>
     [SpcMemoryBoundary("driver-memory view: little-endian pointer words")]
     private ushort ReadWord(int address) => unchecked((ushort)(
-        ram[address & ushort.MaxValue] | (ram[(address + 1) & ushort.MaxValue] << 8)));
+        SnesLittleEndian.Word(ram[address & ushort.MaxValue], ram[(address + 1) & ushort.MaxValue])));
 
     /// <summary>Entry <paramref name="index"/> of the pointer table at <paramref name="table"/> (two bytes per entry).</summary>
     [SpcMemoryBoundary("driver-memory view: pointer tables")]
@@ -53,7 +54,7 @@ public sealed partial class ManagedSpcPlayer
     [SpcMemoryBoundary("driver-memory view: instrument records")]
     private SpcInstrumentRecord ReadInstrument(int address) => new(
         ram[address], ram[address + 1], ram[address + 2], ram[address + 3],
-        unchecked((ushort)((ram[address + 4] << 8) | ram[address + 5])));
+        unchecked((ushort)(SnesLittleEndian.Word(ram[address + 5], ram[address + 4]))));
 
     /// <summary>Stores an instrument record at <paramref name="address"/> in the native byte order.</summary>
     [SpcMemoryBoundary("driver-memory view: instrument records")]
@@ -63,7 +64,7 @@ public sealed partial class ManagedSpcPlayer
         ram[address + 1] = record.Adsr1;
         ram[address + 2] = record.Adsr2;
         ram[address + 3] = record.Gain;
-        ram[address + 4] = unchecked((byte)(record.PitchBase >> 8));
+        ram[address + 4] = SnesLittleEndian.HighByte(record.PitchBase);
         ram[address + 5] = unchecked((byte)record.PitchBase);
     }
 

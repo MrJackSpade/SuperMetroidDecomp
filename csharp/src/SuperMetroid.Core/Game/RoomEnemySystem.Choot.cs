@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The literal bank-$A2 function pointer stored in a Choot's variable A.</summary>
@@ -160,7 +161,7 @@ public sealed partial class RoomEnemySystem
         // Parameter one's high byte selects one of five genuine pattern streams. The sixth
         // ROM table word points back into the pointer table and is documented garbage; no
         // retail population selects it, so expose corrupt/high parameters as invalid data.
-        ushort patternIndex = unchecked((byte)(slot.Parameter1 >> 8));
+        ushort patternIndex = SnesLittleEndian.HighByte(slot.Parameter1);
         ChootPatternDefinition pattern = ChootPatternDefinitions.ForIndex(patternIndex);
         state.FallingPatternPointer = (ushort)pattern.FallingPatternPointer;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
@@ -300,7 +301,7 @@ public sealed partial class RoomEnemySystem
             ushort tableIndex = unchecked((ushort)(encodedIndex >> 8));
             accumulatedDistance = unchecked(accumulatedDistance +
                 (uint)ReadQuadraticEnemySpeed(tableIndex, negative: false));
-            ushort wholeDistance = unchecked((ushort)(accumulatedDistance >> 16));
+            ushort wholeDistance = SnesFixedPosition.WholeOf(unchecked((int)accumulatedDistance));
             if (unchecked((short)(wholeDistance - jumpHeight)) >= 0)
                 return encodedIndex;
         }

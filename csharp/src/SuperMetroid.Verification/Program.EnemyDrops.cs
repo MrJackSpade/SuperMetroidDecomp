@@ -61,7 +61,7 @@ internal static partial class Program
         AssertEqual(1, fixture.System.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
         AssertEqual((int)EnemyAiRoutine.RTL_A3804C,
-            (enemy.Definition.Bank << 16) | enemy.Definition.MainAiPointer,
+            ((int)new SnesAddress(enemy.Definition.Bank, enemy.Definition.MainAiPointer)),
             "cached header follows replacement identity into native no-op AI");
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
         AssertEqual(0, fixture.System.ActiveEnemyIndexes.Count, "placeholder remains excluded next frame");

@@ -85,7 +85,7 @@ internal static partial class Program
         }
 
         static ushort ReadWord(ISnesAddressSpace addressSpace, int address) =>
-            (ushort)(GameplayBasePalettesRomByte(addressSpace, address) | GameplayBasePalettesRomByte(addressSpace, address + 1) << 8);
+            (ushort)(SnesLittleEndian.Word(GameplayBasePalettesRomByte(addressSpace, address), GameplayBasePalettesRomByte(addressSpace, address + 1)));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay base palettes")]

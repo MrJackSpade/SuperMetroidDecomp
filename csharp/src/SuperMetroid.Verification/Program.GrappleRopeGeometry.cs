@@ -41,7 +41,7 @@ internal static partial class Program
                 for (int segment = 0; segment < count; segment++)
                 {
                     visited++;
-                    ushort sx = (ushort)(x >> 16), sy = (ushort)(y >> 16);
+                    ushort sx = SnesFixedPosition.WholeOf(x), sy = SnesFixedPosition.WholeOf(y);
                     if (((sx | sy) & 0xff00) != 0) break;
                     expected.Add(((byte)sx, (byte)sy));
                     x = unchecked(x + dx); y = unchecked(y + dy);

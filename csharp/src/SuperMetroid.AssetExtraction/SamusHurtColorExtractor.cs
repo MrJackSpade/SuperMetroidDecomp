@@ -33,7 +33,7 @@ public static class SamusHurtColorExtractor
         var colors = new PaletteRgb5[SamusHurtColorFormat.ColorsPerPalette];
         for (int index = 0; index < colors.Length; index++)
         {
-            ushort word = unchecked((ushort)(source[index * 2] | source[index * 2 + 1] << 8));
+            ushort word = unchecked((ushort)(SnesLittleEndian.Word(source[index * 2], source[index * 2 + 1])));
             colors[index] = new PaletteRgb5
             {
                 Red = word & 31,

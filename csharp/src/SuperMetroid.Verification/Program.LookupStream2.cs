@@ -31,13 +31,13 @@ internal static partial class Program
             Frames = definitions.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal),
             DisplayFrames = definitions.ToDictionary(frame => frame.Name, frame => frame.Name, StringComparer.Ordinal),
         };
-        var selected = definitions.Where(frame => nativeIdentities.Contains((frame.Bank << 16) | frame.Pointer)).ToArray();
+        var selected = definitions.Where(frame => nativeIdentities.Contains(((int)new SnesAddress(frame.Bank, frame.Pointer)))).ToArray();
         AssertEqual(8, selected.Length, "Eight native Chozo stride composition identities");
         for (int pose = 0; pose < nativeIdentities.Length; pose++)
             AssertEqual(nativeIdentities[pose], ChozoStrideGeometryDefinitions.NativePoseIdentity(pose), "Chozo counted-record identity geometry");
         foreach (var frame in selected)
         {
-            int source = (frame.Bank << 16) | frame.Pointer;
+            int source = ((int)new SnesAddress(frame.Bank, frame.Pointer));
             document.Frames[frame.Name] = Enumerable.Range(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(source)).Select(index =>
             {
                 int entry = source + 2 + index * 5;
@@ -64,15 +64,15 @@ internal static partial class Program
             }
             string expected = SelectedPresentationHash.Create("enemy-oam-v1", content =>
             {
-                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
                 {
-                    content.Append("frame", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("frame", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
                     content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
-                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
                 {
-                    content.Append("native-binding", (frame.Bank << 16) | frame.Pointer);
-                    content.Append("selected-binding", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("native-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
+                    content.Append("selected-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
                 }
             });
             AssertEqual(expected, catalog.ContentIdentity, "Chozo calculated foot fields retain canonical presentation hash");
@@ -2286,7 +2286,7 @@ internal static partial class Program
         {
             int identity = 0xaaa4fa + 34 * phase;
             AssertEqual(identity, GoldenTorizoStrideGeometryDefinitions.NativeFrameIdentity(phase), "Golden Torizo native extended-record geometry");
-            var frame = definitions.Single(frame => ((frame.Bank << 16) | frame.Pointer) == identity);
+            var frame = definitions.Single(frame => (((int)new SnesAddress(frame.Bank, frame.Pointer))) == identity);
             selected[phase] = frame;
             AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWord(identity), "Golden Torizo four native visual components");
             var components = new EnemyExtendedVisualComponent[4];
@@ -2341,12 +2341,12 @@ internal static partial class Program
                 AssertTrue(expectedOam.ImageEquals(actualOam),
                     "Golden Torizo calculated stock/supplied parts produce exact packed OAM");
             }
-            var identities = definitions.ToDictionary(frame => frame.Name, frame => (frame.Bank << 16) | frame.Pointer, StringComparer.Ordinal);
+            var identities = definitions.ToDictionary(frame => frame.Name, frame => ((int)new SnesAddress(frame.Bank, frame.Pointer)), StringComparer.Ordinal);
             string expectedHash = SelectedPresentationHash.Create("enemy-extended-oam-v1", content =>
             {
-                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
                 {
-                    content.Append("frame", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("frame", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
                     var components = document.Frames[frame.Name];
                     content.Append("components", components.Length);
                     foreach (var component in components)
@@ -2355,9 +2355,9 @@ internal static partial class Program
                         content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(component.Parts, frame.Name));
                     }
                 }
-                foreach (var frame in definitions.OrderBy(frame => (frame.Bank << 16) | frame.Pointer))
+                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
                 {
-                    content.Append("native-binding", (frame.Bank << 16) | frame.Pointer);
+                    content.Append("native-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
                     content.Append("selected-binding", identities[document.DisplayFrames![frame.Name]]);
                 }
             });

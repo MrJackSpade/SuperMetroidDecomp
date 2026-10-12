@@ -9,7 +9,7 @@ internal static partial class Program
     {
         static SpeedTableEntry Read(Func<int, byte> readByte, int a)
         {
-            ushort Word(int offset) => (ushort)(readByte(a + offset) | readByte(a + offset + 1) << 8);
+            ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(readByte(a + offset), readByte(a + offset + 1)));
             return new(Word(0), Word(2), Word(4), Word(6), Word(8), Word(10));
         }
         var actual = new SamusHorizontalSpeedState();

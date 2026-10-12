@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text;
 
 namespace SuperMetroid.Core.Audio;
@@ -110,9 +111,9 @@ public static class PcmWaveFile
     }
 
     private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) =>
-        unchecked((ushort)(bytes[offset] | (bytes[offset + 1] << 8)));
+        unchecked((ushort)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1])));
 
     private static uint ReadDword(ReadOnlySpan<byte> bytes, int offset) =>
-        unchecked((uint)(bytes[offset] | (bytes[offset + 1] << 8) |
+        unchecked((uint)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]) |
             (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24)));
 }

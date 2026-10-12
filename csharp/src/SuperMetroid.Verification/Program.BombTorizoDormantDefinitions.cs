@@ -20,7 +20,7 @@ internal static partial class Program
         {
             InstructionMechanicsWord word =
                 BombTorizoDormantInstructionProgramDefinitions.MechanicsWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | word.Address);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, word.Address)));
             AssertEqual(native, word.Value,
                 $"Bomb Torizo dormant mechanics $AA:{word.Address:X4}");
             AssertTrue(BombTorizoDormantInstructionProgramDefinitions
@@ -28,10 +28,9 @@ internal static partial class Program
                        selected == native,
                 $"Bomb Torizo dormant word $AA:{word.Address:X4} selects native value");
             AssertTrue(BombTorizoDormantInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        BombTorizoDormantInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Bomb Torizo dormant word $AA:{word.Address:X4} owns both bytes");
         }
 
@@ -39,7 +38,7 @@ internal static partial class Program
             .PresentationWordAddress(0);
         AssertTrue(CompiledEnemyVisualSelectors.TryGet(bank, visualOperand,
                 out ushort installedFrame) &&
-                   installedFrame == CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | visualOperand),
+                   installedFrame == CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, visualOperand))),
             "Bomb Torizo dormant visual selector is compiled from the cartridge");
         AssertTrue(!BombTorizoDormantInstructionProgramDefinitions
                 .TryReadMechanicsWord(visualOperand, out _),

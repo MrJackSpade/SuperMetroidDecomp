@@ -52,8 +52,7 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
     internal ushort TrailProgramWord(SnesAddress source)
     {
         ISnesMutableMemory memory = WorkRam("Projectile trail low-bank alias's mutable console memory");
-        return (ushort)(memory.ReadWorkRamByte((int)source) |
-            memory.ReadWorkRamByte((int)source.AddWithinBank(1)) << 8);
+        return (ushort)(SnesLittleEndian.Word(memory.ReadWorkRamByte((int)source), memory.ReadWorkRamByte((int)source.AddWithinBank(1))));
     }
 
     /// <summary>A projectile-trail direction byte in bank $9B's lower half: live memory or a modeled peripheral.</summary>
@@ -88,17 +87,17 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
     /// </summary>
     internal ushort SpeedBoosterExpansionWord(int index, ushort pointer) =>
         SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus,
-            (byte)(SamusPaletteRomData.Banks.Palette >> 16), (ushort)(index * 2), pointer);
+            SnesLittleEndian.BankByte(SamusPaletteRomData.Banks.Palette), (ushort)(index * 2), pointer);
 
     /// <summary>Chainsaw beam palette word <paramref name="color"/>, read through its glitched <c>[$00],Y</c> pointer.</summary>
     internal ushort ChainsawPaletteWord(ushort color) =>
-        SnesIndirectLongDataRead.ReadWord(bus, (byte)(SamusMovementRomData.Banks.Movement >> 16),
+        SnesIndirectLongDataRead.ReadWord(bus, SnesLittleEndian.BankByte(SamusMovementRomData.Banks.Movement),
             ChainsawBeamGraphicsDefinitions.PalettePointer, (ushort)(color * 2),
             ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress);
 
     /// <summary>SpaceTime beam palette word <paramref name="color"/>, read through its glitched pointer into live WRAM.</summary>
     internal ushort SpacetimePaletteWord(ushort color) =>
-        SnesIndirectLongDataRead.ReadWord(bus, (byte)(SamusMovementRomData.Banks.Movement >> 16),
+        SnesIndirectLongDataRead.ReadWord(bus, SnesLittleEndian.BankByte(SamusMovementRomData.Banks.Movement),
             SpacetimeBeamGraphicsDefinitions.PalettePointer, (ushort)(color * 2));
 
     /// <summary>

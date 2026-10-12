@@ -49,14 +49,14 @@ internal static partial class Program
                 {
                     var splash = enemies.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
                     AssertTrue(splash is not null, "surface crossing spawned splash");
-                    AssertEqual(unchecked((ushort)(x >> 16)), splash!.Position.X.Whole, "splash X follows native particle trajectory");
+                    AssertEqual(SnesFixedPosition.WholeOf(x), splash!.Position.X.Whole, "splash X follows native particle trajectory");
                     AssertEqual(212, splash.Position.Y.Whole, "splash is four pixels above water surface");
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.
                     foreach (var other in enemies.EnemyProjectiles)
                         if (other != splash) other.Kind = 0;
                     int visibleFrames = 0;
-                    ushort splashX = unchecked((ushort)(x >> 16));
+                    ushort splashX = SnesFixedPosition.WholeOf(x);
                     for (int age = 0; age < 64 && splash.IsActive; age++)
                     {
                         var expectedOam = new OamBuffer();

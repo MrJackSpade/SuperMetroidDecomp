@@ -24,7 +24,7 @@ internal static partial class Program
             if (!owned) AssertEqual((ushort)0, actual, "Crocomire missing word is zero");
             else if ((draw ? draws : controls).Contains(address))
             {
-                ushort expected = (ushort)(CrocomireProgramFieldRomByte(rom, 0x840000 | raw) | CrocomireProgramFieldRomByte(rom, 0x840000 | (raw + 1)) << 8);
+                ushort expected = (ushort)(SnesLittleEndian.Word(CrocomireProgramFieldRomByte(rom, 0x840000 | raw), CrocomireProgramFieldRomByte(rom, 0x840000 | (raw + 1))));
                 AssertEqual(expected, actual, "Crocomire original program field");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "Crocomire shared reader owns field");
                 AssertEqual(expected, shared, "Crocomire shared reader native field");

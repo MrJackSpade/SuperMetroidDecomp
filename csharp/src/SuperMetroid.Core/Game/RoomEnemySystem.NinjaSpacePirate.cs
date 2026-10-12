@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
@@ -184,7 +185,7 @@ public sealed partial class RoomEnemySystem
         while (unchecked((short)(accumulatedDistance - distanceInSubpixels)) < 0);
 
         state.CalculatedSpinJumpSpeed = speed;
-        ushort adjustedHalfSpan = unchecked((byte)(accumulatedDistance >> 8));
+        ushort adjustedHalfSpan = SnesLittleEndian.HighByte(accumulatedDistance);
         state.RightPostX = unchecked((ushort)(state.PostsMidpointX + adjustedHalfSpan));
         state.LeftPostX = unchecked((ushort)(state.PostsMidpointX - adjustedHalfSpan));
         slot.Position = slot.Position.WithX(new(startsAtLeft ? state.LeftPostX : state.RightPostX, 0));

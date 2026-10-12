@@ -72,7 +72,7 @@ internal static partial class Program
         }
 
         SnesAddress source = SnesAddress.FromBusAddress(address);
-        if (source.Bank != (byte)(RoomFxRomDataBanksTooling.RoomDefinitions >> 16))
+        if (source.Bank != SnesLittleEndian.BankByte(RoomFxRomDataBanksTooling.RoomDefinitions))
             return false;
 
         for (int areaIndex = 0;

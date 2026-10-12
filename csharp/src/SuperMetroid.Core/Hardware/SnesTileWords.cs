@@ -17,6 +17,7 @@ public enum SnesTileFlipFlags : ushort
 
 /// <summary>A lossless view over one standard SNES background tilemap entry.</summary>
 /// <param name="Raw">The complete 16-bit entry, including character, palette, priority, and flip fields.</param>
+[SnesEncodingOwner]
 public readonly record struct SnesBgTilemapWord(ushort Raw)
 {
     private const ushort CharacterMask = 0x03ff;
@@ -104,6 +105,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
 
 /// <summary>A lossless view over the two-byte attribute word in one low-OAM record.</summary>
 /// <param name="Raw">The packed tile number and OBJ attributes, preserving all 16 native bits.</param>
+[SnesEncodingOwner]
 public readonly record struct SnesObjAttributeWord(ushort Raw)
 {
     private const ushort TileNumberMask = 0x01ff;
@@ -206,6 +208,7 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
 /// The two-bit high-OAM pair belonging to one sprite: X coordinate bit eight followed by
 /// the size-select bit. Four independently encoded pairs share each physical table byte.
 /// </summary>
+[SnesEncodingOwner]
 public readonly record struct SnesOamHighTablePair
 {
     private const byte PairMask = 0x03;
@@ -244,6 +247,7 @@ public readonly record struct SnesOamHighTablePair
 /// the modular X offset and bit fifteen independently selects the large OBJ size.
 /// </summary>
 /// <param name="Raw">The complete native X word, including any unused upper bits.</param>
+[SnesEncodingOwner]
 public readonly record struct SnesSpritemapXWord(ushort Raw)
 {
     private const ushort OffsetMask = 0x01ff;

@@ -43,7 +43,7 @@ internal sealed class CreditsObjectState
         uint fixedScroll = ((uint)VerticalScroll << 16) | scrollSubposition;
         fixedScroll = unchecked(
             fixedScroll + EndingCreditsRomData.Motion.CreditsScrollDelta16Point16);
-        VerticalScroll = unchecked((ushort)(fixedScroll >> 16));
+        VerticalScroll = SnesFixedPosition.WholeOf(unchecked((int)fixedScroll));
         scrollSubposition = unchecked((ushort)fixedScroll);
 
         // A new source row is interpreted whenever the scroll advances eight whole pixels,

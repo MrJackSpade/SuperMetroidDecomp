@@ -94,7 +94,7 @@ internal static partial class Program
         samus.SetAnimationFrameFromSpecialHandler(0, 1);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
-            (ushort)(((byte)SamusMovementType.MorphBallGround << 8) | (byte)SamusFacingDirection.Right);
+            (ushort)(SnesLittleEndian.Word((byte)SamusFacingDirection.Right, (byte)SamusMovementType.MorphBallGround));
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
         samus.PoseHistory.LastDifferentPose = 0;
         var target = runtime.Enemies.Slots[0];

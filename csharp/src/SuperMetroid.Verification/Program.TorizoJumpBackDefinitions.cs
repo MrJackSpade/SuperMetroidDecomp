@@ -21,17 +21,16 @@ internal static partial class Program
             AssertTrue(word.Address >= TorizoJumpBackInstructionProgramDefinitions.Start &&
                        word.Address < TorizoJumpBackInstructionProgramDefinitions.End,
                 $"Torizo jump-back control $AA:{word.Address:X4} is bounded");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | word.Address), word.Value,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, word.Address))), word.Value,
                 $"Torizo jump-back control $AA:{word.Address:X4}");
             AssertTrue(TorizoJumpBackInstructionProgramDefinitions
                     .TryReadMechanicsWord(word.Address, out ushort selected) &&
                        selected == word.Value,
                 $"Torizo jump-back control $AA:{word.Address:X4} lookup");
             AssertTrue(TorizoJumpBackInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        TorizoJumpBackInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Torizo jump-back control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(52, mechanicsAddresses.Count,
@@ -44,7 +43,7 @@ internal static partial class Program
         {
             ushort address = TorizoJumpBackInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | address);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, address)));
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(bank, address,
                     out ushort compiled) && compiled == native,
                 $"Torizo jump-back selector $AA:{address:X4}");
@@ -65,19 +64,19 @@ internal static partial class Program
             AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                     frame, out TorizoCollisionComponents components),
                 $"Torizo jump-back frame $AA:{frame:X4} is compiled");
-            AssertEqual((ushort)components.Length, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | frame),
+            AssertEqual((ushort)components.Length, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, frame))),
                 $"Torizo jump-back frame $AA:{frame:X4} component count");
             for (int componentIndex = 0; componentIndex < components.Length; componentIndex++)
             {
                 GoldenTorizoCollisionComponent component = components[componentIndex];
                 ushort address = unchecked((ushort)(frame + 2 + componentIndex * 8));
-                AssertEqual(unchecked((ushort)component.Offset.X), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | address),
+                AssertEqual(unchecked((ushort)component.Offset.X), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, address))),
                     $"Torizo jump-back frame $AA:{frame:X4} component X {componentIndex}");
                 AssertEqual(unchecked((ushort)component.Offset.Y),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 2)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 2))))),
                     $"Torizo jump-back frame $AA:{frame:X4} component Y {componentIndex}");
                 AssertEqual(component.HitboxList,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 6)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 6))))),
                     $"Torizo jump-back frame $AA:{frame:X4} hitbox list {componentIndex}");
                 hitboxLists.Add(component.HitboxList);
             }
@@ -88,28 +87,28 @@ internal static partial class Program
         {
             ReadOnlySpan<GoldenTorizoCollisionHitbox> hitboxes =
                 TorizoCollisionDefinitions.HitboxesAt(pointer);
-            AssertEqual((ushort)hitboxes.Length, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | pointer),
+            AssertEqual((ushort)hitboxes.Length, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, pointer))),
                 $"Torizo jump-back hitbox list $AA:{pointer:X4} count");
             for (int index = 0; index < hitboxes.Length; index++)
             {
                 GoldenTorizoCollisionHitbox hitbox = hitboxes[index];
                 ushort address = unchecked((ushort)(pointer + 2 + index * 12));
-                AssertEqual(unchecked((ushort)hitbox.Left), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | address),
+                AssertEqual(unchecked((ushort)hitbox.Left), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, address))),
                     $"Torizo jump-back hitbox $AA:{pointer:X4} left");
                 AssertEqual(unchecked((ushort)hitbox.Top),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 2)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 2))))),
                     $"Torizo jump-back hitbox $AA:{pointer:X4} top");
                 AssertEqual(unchecked((ushort)hitbox.Right),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 4)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 4))))),
                     $"Torizo jump-back hitbox $AA:{pointer:X4} right");
                 AssertEqual(unchecked((ushort)hitbox.Bottom),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 6)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 6))))),
                     $"Torizo jump-back hitbox $AA:{pointer:X4} bottom");
                 AssertEqual(hitbox.TouchAi,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 8)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 8))))),
                     $"Torizo jump-back hitbox $AA:{pointer:X4} touch AI");
                 AssertEqual(hitbox.ShotAi,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 10)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 10))))),
                     $"Torizo jump-back hitbox $AA:{pointer:X4} shot AI");
             }
         }
@@ -137,17 +136,16 @@ internal static partial class Program
             AssertTrue(word.Address >= TorizoJumpBackLeftInstructionProgramDefinitions.Start &&
                        word.Address < TorizoJumpBackLeftInstructionProgramDefinitions.End,
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4} is bounded");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | word.Address), word.Value,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, word.Address))), word.Value,
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4}");
             AssertTrue(TorizoJumpBackLeftInstructionProgramDefinitions
                     .TryReadMechanicsWord(word.Address, out ushort selected) &&
                        selected == word.Value,
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4} lookup");
             AssertTrue(TorizoJumpBackLeftInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        TorizoJumpBackLeftInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(52, mechanicsAddresses.Count,
@@ -160,7 +158,7 @@ internal static partial class Program
         {
             ushort address = TorizoJumpBackLeftInstructionProgramDefinitions
                 .PresentationWordAddress(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | address);
+            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, address)));
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(bank, address,
                     out ushort compiled) && compiled == native,
                 $"left-facing Torizo jump-back selector $AA:{address:X4}");
@@ -180,19 +178,19 @@ internal static partial class Program
             AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                     frame, out TorizoCollisionComponents components),
                 $"left-facing Torizo jump-back frame $AA:{frame:X4} is compiled");
-            AssertEqual((ushort)components.Length, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | frame),
+            AssertEqual((ushort)components.Length, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, frame))),
                 $"left-facing Torizo jump-back frame $AA:{frame:X4} component count");
             for (int componentIndex = 0; componentIndex < components.Length; componentIndex++)
             {
                 GoldenTorizoCollisionComponent component = components[componentIndex];
                 ushort address = unchecked((ushort)(frame + 2 + componentIndex * 8));
-                AssertEqual(unchecked((ushort)component.Offset.X), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | address),
+                AssertEqual(unchecked((ushort)component.Offset.X), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, address))),
                     $"left-facing Torizo jump-back frame $AA:{frame:X4} X {componentIndex}");
                 AssertEqual(unchecked((ushort)component.Offset.Y),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 2)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 2))))),
                     $"left-facing Torizo jump-back frame $AA:{frame:X4} Y {componentIndex}");
                 AssertEqual(component.HitboxList,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 6)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 6))))),
                     $"left-facing Torizo jump-back frame $AA:{frame:X4} hitbox {componentIndex}");
                 hitboxLists.Add(component.HitboxList);
             }
@@ -203,28 +201,28 @@ internal static partial class Program
         {
             ReadOnlySpan<GoldenTorizoCollisionHitbox> hitboxes =
                 TorizoCollisionDefinitions.HitboxesAt(pointer);
-            AssertEqual((ushort)hitboxes.Length, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | pointer),
+            AssertEqual((ushort)hitboxes.Length, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, pointer))),
                 $"left-facing Torizo jump-back hitbox list $AA:{pointer:X4} count");
             for (int index = 0; index < hitboxes.Length; index++)
             {
                 GoldenTorizoCollisionHitbox hitbox = hitboxes[index];
                 ushort address = unchecked((ushort)(pointer + 2 + index * 12));
-                AssertEqual(unchecked((ushort)hitbox.Left), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | address),
+                AssertEqual(unchecked((ushort)hitbox.Left), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, address))),
                     $"left-facing Torizo jump-back hitbox $AA:{pointer:X4} left");
                 AssertEqual(unchecked((ushort)hitbox.Top),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 2)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 2))))),
                     $"left-facing Torizo jump-back hitbox $AA:{pointer:X4} top");
                 AssertEqual(unchecked((ushort)hitbox.Right),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 4)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 4))))),
                     $"left-facing Torizo jump-back hitbox $AA:{pointer:X4} right");
                 AssertEqual(unchecked((ushort)hitbox.Bottom),
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 6)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 6))))),
                     $"left-facing Torizo jump-back hitbox $AA:{pointer:X4} bottom");
                 AssertEqual(hitbox.TouchAi,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 8)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 8))))),
                     $"left-facing Torizo jump-back hitbox $AA:{pointer:X4} touch AI");
                 AssertEqual(hitbox.ShotAi,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((bank << 16) | (unchecked((ushort)(address + 10)))),
+                    CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 10))))),
                     $"left-facing Torizo jump-back hitbox $AA:{pointer:X4} shot AI");
             }
         }

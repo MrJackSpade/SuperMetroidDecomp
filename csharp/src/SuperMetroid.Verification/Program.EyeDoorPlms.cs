@@ -228,9 +228,9 @@ internal static partial class Program
         }
 
         SeedRoomPlmPopulation(bus, 0x9000, [
-            unchecked((byte)eyeHeader), unchecked((byte)(eyeHeader >> 8)), 7, 4, 5, 0,
-            unchecked((byte)doorHeader), unchecked((byte)(doorHeader >> 8)), 7, 6, 5, 0,
-            unchecked((byte)bottomHeader), unchecked((byte)(bottomHeader >> 8)), 7, 8, 5, 0,
+            unchecked((byte)eyeHeader), SnesLittleEndian.HighByte(eyeHeader), 7, 4, 5, 0,
+            unchecked((byte)doorHeader), SnesLittleEndian.HighByte(doorHeader), 7, 6, 5, 0,
+            unchecked((byte)bottomHeader), SnesLittleEndian.HighByte(bottomHeader), 7, 8, 5, 0,
             0, 0,
         ]);
         SeedPlmProgramWords(bus, unchecked((ushort)(eyeHeader + 2)), 0x0400);
@@ -271,10 +271,10 @@ internal static partial class Program
     {
         int address = 0x840000 | list;
         bus.WriteBytes(address, [
-            0x72, 0x8a, unchecked((byte)openedTarget), unchecked((byte)(openedTarget >> 8)),
-            0x24, 0x8a, unchecked((byte)openedTarget), unchecked((byte)(openedTarget >> 8)),
+            0x72, 0x8a, unchecked((byte)openedTarget), SnesLittleEndian.HighByte(openedTarget),
+            0x24, 0x8a, unchecked((byte)openedTarget), SnesLittleEndian.HighByte(openedTarget),
             0xc1, 0x86, 0x53, 0xd7,
-            0x01, 0x00, unchecked((byte)draw), unchecked((byte)(draw >> 8)),
+            0x01, 0x00, unchecked((byte)draw), SnesLittleEndian.HighByte(draw),
             0xb4, 0x86,
         ]);
         SeedPlmProgramWords(bus, openedTarget, (ushort)RoomPlmInstruction.Delete);

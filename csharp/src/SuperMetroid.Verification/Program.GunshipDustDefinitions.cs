@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(CompiledGunshipDustRomByte(rom, address) | CompiledGunshipDustRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewGunshipDustGuard(rom));

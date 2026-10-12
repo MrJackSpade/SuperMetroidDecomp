@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -630,7 +631,7 @@ public sealed partial class RoomEnemySystem
             state.TargetXOrSpeedIndex,
             negativeHalf: true)));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ushort byteAngle = unchecked((byte)(state.Angle >> 8));
+        ushort byteAngle = SnesAngle.FromRaw(state.Angle).TableIndex;
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + CircleOffset(byteAngle, radius) - state.OrbitOffset);
 
         if (unchecked((short)(state.Angle + 0x4000)) < 0)
@@ -651,7 +652,7 @@ public sealed partial class RoomEnemySystem
             state.TargetXOrSpeedIndex,
             negativeHalf: false)));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ushort byteAngle = unchecked((byte)(state.Angle >> 8));
+        ushort byteAngle = SnesAngle.FromRaw(state.Angle).TableIndex;
         ushort desiredY = unchecked((ushort)(
             state.OrbitCenter.Y +
             ReadEightBitNegativeSineProduct(byteAngle, radius) -

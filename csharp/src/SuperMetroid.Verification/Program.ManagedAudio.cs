@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -136,14 +137,14 @@ internal static partial class Program
         var upload = new List<byte>();
 
         AddSpcUploadRecord(upload, SpcDriverData.Ram.DefaultMusicPointer,
-            [unchecked((byte)topLevel), (byte)(topLevel >> 8)]);
+            [unchecked((byte)topLevel), SnesLittleEndian.HighByte(topLevel)]);
         AddSpcUploadRecord(upload, SpcDriverDataRamConstants.MusicTrackPointerTable,
-            [unchecked((byte)topLevel), (byte)(topLevel >> 8)]);
+            [unchecked((byte)topLevel), SnesLittleEndian.HighByte(topLevel)]);
         AddSpcUploadRecord(upload, topLevel,
-            [unchecked((byte)patternTable), (byte)(patternTable >> 8)]);
+            [unchecked((byte)patternTable), SnesLittleEndian.HighByte(patternTable)]);
         AddSpcUploadRecord(upload, patternTable,
             [
-                unchecked((byte)channelPattern), (byte)(channelPattern >> 8),
+                unchecked((byte)channelPattern), SnesLittleEndian.HighByte(channelPattern),
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             ]);
         AddSpcUploadRecord(upload, channelPattern,
@@ -178,9 +179,9 @@ internal static partial class Program
     private static void AddSpcUploadRecord(List<byte> stream, ushort target, byte[] payload)
     {
         stream.Add(unchecked((byte)payload.Length));
-        stream.Add(unchecked((byte)(payload.Length >> 8)));
+        stream.Add(SnesLittleEndian.HighByte(unchecked((ushort)payload.Length)));
         stream.Add(unchecked((byte)target));
-        stream.Add(unchecked((byte)(target >> 8)));
+        stream.Add(SnesLittleEndian.HighByte(target));
         stream.AddRange(payload);
     }
 

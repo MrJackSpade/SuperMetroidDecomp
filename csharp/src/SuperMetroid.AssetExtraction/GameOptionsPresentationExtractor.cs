@@ -143,7 +143,7 @@ public static class GameOptionsPresentationExtractor
         for (int index = 0; index < cells.Length; index++)
         {
             var word = new SnesBgTilemapWord(unchecked((ushort)(
-                bytes[index * 2] | bytes[index * 2 + 1] << 8)));
+                SnesLittleEndian.Word(bytes[index * 2], bytes[index * 2 + 1]))));
             cells[index] = new()
             {
                 TileColumn = word.CharacterIndex % MapTileAtlasFormat.TileColumns,

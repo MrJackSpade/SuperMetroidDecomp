@@ -244,9 +244,9 @@ internal static partial class Program
         Position16<RoomBlocks> itemBlock = layout.Block ?? new(3, 3);
         int blockIndex = size.RowMajorIndex(itemBlock);
         SeedRoomPlmPopulation(bus, population, [
-            unchecked((byte)header), unchecked((byte)(header >> 8)),
+            unchecked((byte)header), SnesLittleEndian.HighByte(header),
             unchecked((byte)itemBlock.X), unchecked((byte)itemBlock.Y),
-            unchecked((byte)roomArgument), unchecked((byte)(roomArgument >> 8)),
+            unchecked((byte)roomArgument), SnesLittleEndian.HighByte(roomArgument),
             0x00, 0x00,
         ]);
 
@@ -296,7 +296,7 @@ internal static partial class Program
                     ? sharedDynamicList
                     : (ushort)0xf000;
                 SeedPlmProgramBytes(bus, unchecked((ushort)(header + 2)), [
-                    unchecked((byte)instruction), unchecked((byte)(instruction >> 8)),
+                    unchecked((byte)instruction), SnesLittleEndian.HighByte(instruction),
                 ]);
             }
         }
@@ -320,7 +320,7 @@ internal static partial class Program
     private static void WriteOneBlockDraw(TestAddressSpace bus, int pointer, ushort levelWord) =>
         SeedPlmProgramBytes(bus, unchecked((ushort)pointer), [
             0x01, 0x00,
-            unchecked((byte)levelWord), unchecked((byte)(levelWord >> 8)),
+            unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
             0x00, 0x00,
         ]);
 
@@ -736,7 +736,7 @@ internal static partial class Program
             var pickup = new SamusSuitPickupState();
             pickup.Begin(bus, samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
-            ushort initialMetadata = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
+            ushort initialMetadata = (ushort)(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)));
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
             AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
@@ -748,7 +748,7 @@ internal static partial class Program
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
             AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
-            AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
+            AssertEqual(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)),
                 history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
         }

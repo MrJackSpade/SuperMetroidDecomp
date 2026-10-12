@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Physical foreground at8C:BEC3. Regular regions are constructed geometrically;
@@ -49,7 +50,7 @@ internal static class IntroMotherBrainCollisionDefinitions
                 ushort word = Block(row, column);
                 int offset = (row * Columns + column) * sizeof(ushort);
                 bytes[offset] = (byte)word;
-                bytes[offset + 1] = (byte)(word >> 8);
+                bytes[offset + 1] = SnesLittleEndian.HighByte(word);
             }
         return bytes;
     }

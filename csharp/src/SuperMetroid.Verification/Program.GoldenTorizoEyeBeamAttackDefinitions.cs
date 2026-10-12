@@ -25,10 +25,9 @@ internal static partial class Program
                        selected == word.Value,
                 $"Golden Torizo eye-beam control $AA:{word.Address:X4} lookup");
             AssertTrue(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) | word.Address) &&
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoEyeBeamAttackInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) |
-                        unchecked((ushort)(word.Address + 1))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo eye-beam control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(41, addresses.Count,
@@ -44,9 +43,8 @@ internal static partial class Program
             AssertEqual(descriptor.ByteCount,
                 ReadWord(unchecked((ushort)(transfer + 2))),
                 $"Golden Torizo eye-beam transfer $AA:{transfer:X4} length");
-            int source = GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 4)) |
-                GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 5)) << 8 |
-                GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 6)) << 16;
+            int source = ((int)new SnesAddress(                GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 6)), checked((ushort)(GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 4)) |
+                GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 5)) << 8))));
             AssertEqual(descriptor.SourceAddress, source,
                 $"Golden Torizo eye-beam transfer $AA:{transfer:X4} source");
             AssertEqual(descriptor.DestinationWord,
@@ -54,7 +52,7 @@ internal static partial class Program
                 $"Golden Torizo eye-beam transfer $AA:{transfer:X4} destination");
             for (int byteOffset = 2; byteOffset < 9; byteOffset++)
                 AssertTrue(!GoldenTorizoEyeBeamAttackInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte((bank << 16) | (transfer + byteOffset)),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, checked((ushort)(transfer + byteOffset))))),
                     $"Golden Torizo eye-beam transfer $AA:{transfer:X4} descriptor is not an opcode");
         }
         Console.WriteLine(
@@ -62,9 +60,8 @@ internal static partial class Program
             "VRAM descriptors match the pinned cartridge; no spritemap selectors.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | address) |
-                GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) |
-                    unchecked((ushort)(address + 1))) << 8);
+            (ushort)(SnesLittleEndian.Word(GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | address), GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) |
+                    unchecked((ushort)(address + 1)))));
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo eye beam attack definitions")]

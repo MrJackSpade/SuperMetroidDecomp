@@ -119,7 +119,7 @@ internal static partial class Program
                 address => $"Installed Tourian statue artwork read cartridge byte ${address:X6}.")
             .Forbid(IsTourianStatueMechanicsByte,
                 address => $"Production read compiled Tourian statue mechanics byte {SnesAddress.FromBusAddress(address)}.")
-            .Observe(address => SnesAddress.FromBusAddress(address).Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16),
+            .Observe(address => SnesAddress.FromBusAddress(address).Bank == SnesLittleEndian.BankByte(RoomFxRomData.Banks.AnimatedTiles),
                 address =>
                 {
                     ushort offset = SnesAddress.FromBusAddress(address).Offset;
@@ -165,7 +165,7 @@ internal static partial class Program
     private static bool IsTourianStatueMechanicsByte(int address)
     {
         SnesAddress snesAddress = SnesAddress.FromBusAddress(address);
-        return snesAddress.Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16) &&
+        return snesAddress.Bank == SnesLittleEndian.BankByte(RoomFxRomData.Banks.AnimatedTiles) &&
             TourianStatueAnimatedTileMechanicsDefinitions.All.Any(definition =>
                 definition.TryReadMechanicsWord(snesAddress.Offset, out _) ||
                 definition.TryReadMechanicsWord(unchecked((ushort)(snesAddress.Offset - 1)), out _));

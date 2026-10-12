@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 
@@ -18,7 +19,7 @@ internal static partial class Program
             var samus = scenario.Samus;
             for (int frame = 0; frame < scenario.FrameCount; frame++)
             {
-                uint previousY = ((uint)samus.Position.Y.Whole << 16) | samus.Kinematics.Position.Y.Fraction;
+                uint previousY = new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
                 runtime.StepFrame(scenario.Input(frame));
                 AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.FlareCounter, "aerial charge mirror");
                 if (wallRoute)
@@ -73,7 +74,7 @@ internal static partial class Program
             if (frame >= releaseFrame)
                 AssertEqual((ushort)0, samus.ProjectileFlareCounter, "walljump spread consumes charge");
             if (delay == 41 && frame == 134)
-                AssertTrue((((uint)samus.Position.Y.Whole << 16) | samus.Kinematics.Position.Y.Fraction) > previousY,
+                AssertTrue((new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue) > previousY,
                     "late success starts morph after descent has already begun, as native permits");
         }
         else

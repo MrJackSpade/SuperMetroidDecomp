@@ -241,7 +241,7 @@ public static class SamusPaletteRomData
                 int phase = wordIndex % phaseCount;
                 int shade = pingPong ? Math.Min(phase, 6 - phase) : phase;
                 ushort pointer = checked((ushort)(firstPalette + suit * 0x200 + shade * 0x20));
-                return (index & 1) == 0 ? (byte)pointer : (byte)(pointer >> 8);
+                return (index & 1) == 0 ? (byte)pointer : SnesLittleEndian.HighByte(pointer);
             }
         }
         /// <summary>Number of full-body Hyper Beam palettes.</summary>

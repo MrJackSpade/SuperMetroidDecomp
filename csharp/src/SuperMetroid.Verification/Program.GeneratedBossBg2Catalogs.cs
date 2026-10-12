@@ -88,18 +88,18 @@ internal static partial class Program
     }
     private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, EnemyBg2FrameDefinition[] expected, EnemyBg2FrameDefinitionSequence frames, Bg2CatalogAccess access)
     {
-        ushort Word(int address) => (ushort)(GeneratedBg2CatalogRomByte(rom, address) | GeneratedBg2CatalogRomByte(rom, address + 1) << 8);
+        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GeneratedBg2CatalogRomByte(rom, address), GeneratedBg2CatalogRomByte(rom, address + 1)));
         AssertEqual(expected.Length, frames.Length, $"{family} catalog count");
         for (int index = 0; index < expected.Length; index++)
         {
             AssertEqual(expected[index], access.FrameAt(index), $"{family} published identity/name");
-            int root = (bank << 16) | expected[index].Pointer;
+            int root = ((int)new SnesAddress(bank, expected[index].Pointer));
             int components = family == "Phantoon" && index is >= 16 and < 19 ? 2 : 1;
             AssertEqual((ushort)components, Word(root), $"{family} native count determines stride");
             for (int component = 0; component < components; component++)
             {
                 ushort target = Word(root + 6 + component * 8);
-                AssertEqual((ushort)0xfffe, Word((bank << 16) | target), $"{family} native BG2 stream marker");
+                AssertEqual((ushort)0xfffe, Word(((int)new SnesAddress(bank, target))), $"{family} native BG2 stream marker");
             }
         }
         AssertTrue(expected.SequenceEqual(frames.ToArray()), $"{family} generated enumeration");

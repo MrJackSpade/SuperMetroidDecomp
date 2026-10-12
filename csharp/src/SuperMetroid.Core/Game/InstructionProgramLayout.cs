@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One word of a compiled instruction program: a mechanics value or a presentation slot.</summary>
@@ -15,7 +16,7 @@ internal readonly record struct InstructionWord(ushort Value, bool IsPresentatio
     internal static InstructionWord Visual(ushort identity) => new(identity, true, true);
 
     /// <summary>Two packed byte operands (for example X/Y radii) read as one native word.</summary>
-    internal static InstructionWord Bytes(byte low, byte high) => new((ushort)(low | high << 8), false);
+    internal static InstructionWord Bytes(byte low, byte high) => new((ushort)(SnesLittleEndian.Word(low, high)), false);
 
     public static implicit operator InstructionWord(ushort value) => new(value, false);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
@@ -144,6 +145,6 @@ public sealed partial class RoomEnemySystem
     private static ushort ReadLittleEndianWord(ReadOnlySpan<byte> source, int word)
     {
         int offset = checked(word * 2);
-        return unchecked((ushort)(source[offset] | (source[offset + 1] << 8)));
+        return unchecked((ushort)(SnesLittleEndian.Word(source[offset], source[offset + 1])));
     }
 }

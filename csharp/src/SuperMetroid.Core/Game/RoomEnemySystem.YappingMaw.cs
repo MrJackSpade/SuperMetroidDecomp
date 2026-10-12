@@ -453,10 +453,10 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports $A8:A63E's split-word addition and eight-byte table advance.</summary>
     private static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        uint position = ((uint)state.ExtensionWhole << 16) | state.ExtensionFraction;
+        uint position = new SnesFixedPosition(state.ExtensionWhole, state.ExtensionFraction).RawValue;
         uint velocity = unchecked((uint)EnemyQuadraticSpeedDefinitions.ReadDisplacement(state.QuadraticSpeedByteOffset));
         uint next = unchecked(position + velocity);
-        state.ExtensionWhole = unchecked((ushort)(next >> 16));
+        state.ExtensionWhole = SnesFixedPosition.WholeOf(unchecked((int)next));
         state.ExtensionFraction = unchecked((ushort)next);
         state.QuadraticSpeedByteOffset = unchecked((ushort)(
             state.QuadraticSpeedByteOffset + 8));

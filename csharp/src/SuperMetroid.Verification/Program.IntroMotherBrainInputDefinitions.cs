@@ -10,8 +10,7 @@ internal static partial class Program
         IntroCinematicArtworkCatalog stock)
     {
         Suite(nameof(VerifyIntroMotherBrainInputSource), () => VerifyIntroMotherBrainInputSource(bus));
-        ushort ReferenceWord(ushort pointer) => (ushort)(IntroMotherBrainDemoInputRomByte(bus, 0x910000 | pointer) |
-            IntroMotherBrainDemoInputRomByte(bus, 0x910000 | unchecked((ushort)(pointer + 1))) << 8);
+        ushort ReferenceWord(ushort pointer) => (ushort)(SnesLittleEndian.Word(IntroMotherBrainDemoInputRomByte(bus, 0x910000 | pointer), IntroMotherBrainDemoInputRomByte(bus, 0x910000 | unchecked((ushort)(pointer + 1)))));
         AssertThrows<InvalidDataException>(() =>
             IntroMotherBrainInputDefinitions.ReadWord(
                 IntroMotherBrainInputDefinitions.ListEnd),

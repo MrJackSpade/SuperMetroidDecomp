@@ -11,7 +11,7 @@ internal static partial class Program
                 "original caret instruction byte");
             if (pointer == 0xcc0e) continue;
             AssertTrue(IntroCaretInstructionDefinitions.TryReadWord((ushort)pointer, out ushort word), "caret word is admitted");
-            AssertEqual((ushort)(IntroCaretInstructionsRomByte(rom, 0x8b0000 + pointer) | IntroCaretInstructionsRomByte(rom, 0x8b0001 + pointer) << 8), word,
+            AssertEqual((ushort)(SnesLittleEndian.Word(IntroCaretInstructionsRomByte(rom, 0x8b0000 + pointer), IntroCaretInstructionsRomByte(rom, 0x8b0001 + pointer))), word,
                 "original caret aligned or overlapping word");
         }
         foreach (ushort pointer in new ushort[] { 0, 0xcbfa, 0xcc0f, ushort.MaxValue })

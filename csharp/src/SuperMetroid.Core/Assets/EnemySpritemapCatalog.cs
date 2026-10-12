@@ -43,7 +43,7 @@ public sealed class EnemySpritemapCatalog
     public bool TryGetDisplay(byte bank, ushort nativePointer,
         out EnemySpritemapParts parts)
     {
-        int identity = (bank << 16) | nativePointer;
+        int identity = ((int)new SnesAddress(bank, nativePointer));
         if (displayFrames.TryGetValue(identity, out int selected) &&
             frames.TryGetValue(selected, out EnemySpritemapParts? found))
         {
@@ -107,13 +107,13 @@ public sealed class EnemySpritemapCatalog
                 visual is null || visual.Length > EnemySpritemapDefinitions.MaximumParts)
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
-            EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile((frame.Bank << 16) | frame.Pointer,
+            EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(((int)new SnesAddress(frame.Bank, frame.Pointer)),
                 CompileParts(visual, frame.Name), ref sharedBabyBody);
-            parts = ChozoStrideGeometryDefinitions.Compile((frame.Bank << 16) | frame.Pointer, parts);
-            if (!frames.TryAdd((frame.Bank << 16) | frame.Pointer, parts))
+            parts = ChozoStrideGeometryDefinitions.Compile(((int)new SnesAddress(frame.Bank, frame.Pointer)), parts);
+            if (!frames.TryAdd(((int)new SnesAddress(frame.Bank, frame.Pointer)), parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
-            identities.Add(frame.Name, (frame.Bank << 16) | frame.Pointer);
+            identities.Add(frame.Name, ((int)new SnesAddress(frame.Bank, frame.Pointer)));
         }
         var displayFrames = new Dictionary<int, int>();
         // Schema/count validation above has already rejected unknown versions.

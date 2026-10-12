@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Audio;
 
 public sealed partial class ManagedSpcPlayer
@@ -266,7 +267,7 @@ public sealed partial class ManagedSpcPlayer
             if (command == 0xf9) // allow(DomainDiscriminator): SFX inline ADSR override
             {
                 soundChannel.AdsrSettings = ReadSoundByte(soundChannel);
-                soundChannel.AdsrSettings |= unchecked((ushort)(ReadSoundByte(soundChannel) << 8));
+                soundChannel.AdsrSettings |= SnesLittleEndian.Word(low: 0, high: ReadSoundByte(soundChannel));
                 soundChannel.PointerIndex += 2;
                 soundChannel.UpdateAdsr = SpcDriverData.SoundEffects.Active;
                 goto NextCommand;
@@ -313,15 +314,14 @@ public sealed partial class ManagedSpcPlayer
             SetInstrumentWithoutSavingId(musicChannel, command);
             musicChannel.FinalVolume = ReadSoundByte(soundChannel);
             musicChannel.PanFlags = 0;
-            WriteVolume(musicChannel, unchecked((ushort)(ReadSoundByte(soundChannel) << 8)));
+            WriteVolume(musicChannel, SpcFixedPoint.FromWhole(ReadSoundByte(soundChannel)));
             command = ReadSoundByte(soundChannel);
             if (command != 0xf6) // allow(DomainDiscriminator): retain prior SFX note opcode
             {
                 soundChannel.Note = command;
                 soundChannel.Subnote = 0;
             }
-            WritePitchInner(musicChannel, unchecked((ushort)((soundChannel.Note << 8) |
-                soundChannel.Subnote)));
+            WritePitchInner(musicChannel, unchecked((ushort)(SnesLittleEndian.Word(soundChannel.Subnote, soundChannel.Note))));
             soundChannel.InstructionTimer = ReadSoundByte(soundChannel);
             if (soundChannel.UpdateAdsr != 0)
             {
@@ -359,6 +359,6 @@ public sealed partial class ManagedSpcPlayer
             }
         }
         WritePitchInner(channels[soundChannel.VoiceIndex >> 1], unchecked((ushort)(
-            (soundChannel.Note << 8) | soundChannel.Subnote)));
+            SnesLittleEndian.Word(soundChannel.Subnote, soundChannel.Note))));
     }
 }

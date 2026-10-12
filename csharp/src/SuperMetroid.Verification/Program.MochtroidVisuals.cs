@@ -17,7 +17,7 @@ internal static partial class Program
         {
             ushort operand = MochtroidInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            int selectorAddress = (MochtroidVisualDefinitions.Bank << 16) | operand;
+            int selectorAddress = ((int)new SnesAddress(MochtroidVisualDefinitions.Bank, operand));
             ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer, MochtroidVisualDefinitions.FrameAt(operand),
                 $"Mochtroid visual selector {index} matches pinned cartridge");

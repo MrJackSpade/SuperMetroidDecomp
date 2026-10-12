@@ -647,7 +647,7 @@ public sealed partial class RoomEnemySystem
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
             angle = unchecked((ushort)targetAngle);
         state.SwoopAngleAccumulator = angle;
-        byte phase = (byte)(angle >> 8);
+        byte phase = SnesLittleEndian.HighByte(angle);
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase)));
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked((byte)(phase + 64)))));
     }

@@ -23,9 +23,9 @@ internal static partial class Program
             if (index == 19)
             {
                 AssertEqual(0x8fe0, pointer, "small baby record chain end");
-                pointer = IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc41) | IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc42) << 8;
+                pointer = SnesLittleEndian.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc41), IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc42));
             }
-            int count = IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8;
+            int count = SnesLittleEndian.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual((ushort)pointer, frames[index].Pointer, "discovery original record pointer");
             AssertEqual(count, frames[index].StockPartCount, "discovery original part count");
             AssertEqual(names[index], frames[index].Name, "discovery published asset key");

@@ -14,7 +14,7 @@ internal static partial class Program
 
     private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, short> calculate)
     {
-        ushort Word(int pointer) => (ushort)(KraidFootCoordinateRomByte(rom, 0xa70000 | pointer) | KraidFootCoordinateRomByte(rom, 0xa70000 | (pointer + 1)) << 8);
+        ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(KraidFootCoordinateRomByte(rom, 0xa70000 | pointer), KraidFootCoordinateRomByte(rom, 0xa70000 | (pointer + 1))));
         for (int ordinal = 0; ordinal <= 35; ordinal++)
         {
             ushort pointer = ordinal == 35 ? (ushort)0xa565 : (ushort)(0x8ce3 + 18 * ordinal);
@@ -34,7 +34,7 @@ internal static partial class Program
 
     private static void VerifyKraidFootSharedHitbox(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int pointer) => (ushort)(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer) | KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1)) << 8);
+        ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer), KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1))));
         var boxes = KraidFootCollisionDefinitions.HitboxesAt(0x9453);
         AssertEqual((int)Word(0x9453), boxes.Length, "Native shared rectangle count");
         var expected = new KraidFootCollisionHitbox(unchecked((short)Word(0x9455)), unchecked((short)Word(0x9457)),

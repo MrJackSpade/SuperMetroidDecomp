@@ -269,7 +269,7 @@ public sealed class SuperMetroidSaveRam
         for (int offset = marker.Length - 2; offset >= 0; offset -= 2)
         {
             ushort sram = ReadSramWord(SaveRamLayout.CompletionMarkerOffset + offset);
-            ushort text = (ushort)(marker[offset] | marker[offset + 1] << 8);
+            ushort text = (ushort)(SnesLittleEndian.Word(marker[offset], marker[offset + 1]));
             if (sram != text)
                 return sram >= text;
         }
@@ -442,7 +442,7 @@ public sealed class SuperMetroidSaveRam
     private static void WriteWord(Span<byte> destination, int offset, ushort value)
     {
         destination[offset] = unchecked((byte)value);
-        destination[offset + 1] = unchecked((byte)(value >> 8));
+        destination[offset + 1] = SnesLittleEndian.HighByte(value);
     }
 }
 

@@ -102,7 +102,7 @@ internal static partial class Program
         {
             ushort operand = DeadTourianCorpseInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
+            int selectorAddress = ((int)new SnesAddress(DeadTourianCorpseVisualDefinitions.Bank, operand));
             ushort nativePointer = rom.ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer,
                 DeadTourianCorpseVisualDefinitions.FrameAt(operand),
@@ -134,7 +134,7 @@ internal static partial class Program
         {
             ushort operand = DeadSidehopperInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
-            int selectorAddress = (DeadTourianCorpseVisualDefinitions.Bank << 16) | operand;
+            int selectorAddress = ((int)new SnesAddress(DeadTourianCorpseVisualDefinitions.Bank, operand));
             ushort nativePointer = rom.ReadCartridgeWord(selectorAddress);
             AssertEqual(nativePointer,
                 DeadTourianCorpseVisualDefinitions.SidehopperFrameAt(operand),

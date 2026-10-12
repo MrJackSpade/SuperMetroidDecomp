@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Shared eye-door control sequences with calculated mirrored operands; no encoded program cache.</summary>
@@ -26,7 +27,7 @@ internal static class EyeDoorPlmProgramDefinitions
     {
         value = 0;
         if (address is < FirstAddress or >= LastAddress) return false;
-        value = (ushort)(ByteAt(address) | ByteAt(address + 1) << 8);
+        value = (ushort)(SnesLittleEndian.Word(ByteAt(address), ByteAt(address + 1)));
         return true;
     }
 

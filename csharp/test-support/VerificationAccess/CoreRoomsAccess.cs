@@ -1124,7 +1124,7 @@ internal static class RoomPlmSystemAccess
             {
                 int address = (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, (ushort)(pointer + index * 2));
                 memory.WriteByte(address, (byte)instructions[index]);
-                memory.WriteByte(address + 1, (byte)(instructions[index] >> 8));
+                memory.WriteByte(address + 1, SnesLittleEndian.HighByte(instructions[index]));
             }
             self.SetSoleInstructionPointerForVerification(pointer);
         }

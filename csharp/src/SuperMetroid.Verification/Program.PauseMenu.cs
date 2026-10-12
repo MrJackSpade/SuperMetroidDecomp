@@ -274,7 +274,7 @@ internal static partial class Program
     {
         int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
         rom[offset] = unchecked((byte)value);
-        rom[offset + 1] = unchecked((byte)(value >> 8));
+        rom[offset + 1] = SnesLittleEndian.HighByte(unchecked((ushort)value));
         rom[offset + 2] = unchecked((byte)(value >> 16));
     }
 

@@ -107,7 +107,7 @@ internal static partial class Program
         fixedPosition = add
             ? unchecked(fixedPosition + magnitude)
             : unchecked(fixedPosition - magnitude);
-        return (unchecked((ushort)(fixedPosition >> 16)), unchecked((ushort)fixedPosition));
+        return (SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition));
     }
 
     private static CartridgeReadGuard NewDraygonBurialEvirReadGuard(ISnesAddressSpace source) =>

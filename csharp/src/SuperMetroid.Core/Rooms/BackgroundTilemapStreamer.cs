@@ -83,7 +83,7 @@ public sealed class BackgroundTilemapStreamer
         if ((uint)(byteIndex + 1) >= (uint)_blockDefinitions.Length)
             throw new ArgumentOutOfRangeException(nameof(wordIndex));
         _blockDefinitions[byteIndex] = unchecked((byte)tilemapWord);
-        _blockDefinitions[byteIndex + 1] = unchecked((byte)(tilemapWord >> 8));
+        _blockDefinitions[byteIndex + 1] = SnesLittleEndian.HighByte(tilemapWord);
     }
 
     /// <summary>

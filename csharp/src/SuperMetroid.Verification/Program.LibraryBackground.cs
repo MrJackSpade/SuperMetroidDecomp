@@ -217,13 +217,13 @@ private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace so
 private static void WriteLibraryWord(byte[] rom, ushort pointer, ushort value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
-    WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), (byte)(value >> 8));
+    WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), SnesLittleEndian.HighByte(value));
 }
 
 private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
-    WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), (byte)(value >> 8));
+    WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), SnesLittleEndian.HighByte(unchecked((ushort)value)));
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), (byte)(value >> 16));
 }
 

@@ -39,13 +39,13 @@ internal static partial class Program
                     // independently performs movement, collision and deletion.
                     if (vertical)
                     {
-                        uint next = unchecked(((uint)shot.Position.Y.Whole << 16 | shot.Position.Y.Fraction)
+                        uint next = unchecked((new SnesFixedPosition(shot.Position.Y.Whole, shot.Position.Y.Fraction).RawValue)
                             + (uint)((short)(shot.Velocity.Y.SignedRawValue - 16) * 256));
                         cameraY = unchecked((ushort)((next >> 16) + (cameraMode == 2 ? 64u : 65u)));
                     }
                     else
                     {
-                        uint next = unchecked(((uint)shot.Position.X.Whole << 16 | shot.Position.X.Fraction)
+                        uint next = unchecked((new SnesFixedPosition(shot.Position.X.Whole, shot.Position.X.Fraction).RawValue)
                             + (uint)((short)(shot.Velocity.X.SignedRawValue + 16) * 256));
                         cameraX = unchecked((ushort)((next >> 16) - (cameraMode == 2 ? 319u : 320u)));
                     }

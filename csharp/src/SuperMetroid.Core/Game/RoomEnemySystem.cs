@@ -1148,7 +1148,7 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput = 0,
         ushort cameraX = 0)
     {
-        int address = (slot.Definition.Bank << 16) | slot.Definition.InitializationAiPointer;
+        int address = ((int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer));
         var routine = (EnemyAiRoutine)address;
         if (!Enum.IsDefined(routine))
             throw new InvalidDataException(
@@ -1599,7 +1599,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
     {
-        int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
+        int address = ((int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer));
         var routine = (EnemyAiRoutine)address;
         if (!Enum.IsDefined(routine))
             throw new InvalidDataException(
@@ -2236,9 +2236,9 @@ public sealed partial class RoomEnemySystem
 
     private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, uint delta)
     {
-        uint samusFixed = ((uint)samus.Position.Y.Whole << 16) | samus.Kinematics.Position.Y.Fraction;
+        uint samusFixed = new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
         samusFixed = unchecked(samusFixed + delta);
-        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(samusFixed >> 16)));
+        samus.Position = samus.Position.WithWholeY(SnesFixedPosition.WholeOf(unchecked((int)samusFixed)));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(unchecked((ushort)samusFixed));
 
         for (int component = 0; component < 3; component++)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 // Bank files contain remaining literal selectors. Calculated families are dispatched
@@ -55,7 +56,7 @@ internal static partial class CompiledEnemyVisualSelectors
             pointer = PolypRockInstructionProgramDefinitions.FrameAt(operandAddress);
             return true;
         }
-        int key = (bank << 16) | operandAddress;
+        int key = ((int)new SnesAddress(bank, operandAddress));
         if (IsCalculatedSelector(key))
         {
             pointer = bank switch

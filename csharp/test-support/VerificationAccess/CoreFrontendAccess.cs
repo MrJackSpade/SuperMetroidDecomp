@@ -306,7 +306,7 @@ internal static class PauseMenuStateAccess
 
             int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;
             return unchecked((ushort)(
-                PrivateState.Field<byte[]>(self, "equipmentTilemap")[byteOffset] | (PrivateState.Field<byte[]>(self, "equipmentTilemap")[byteOffset + 1] << 8)));
+                SnesLittleEndian.Word(PrivateState.Field<byte[]>(self, "equipmentTilemap")[byteOffset], PrivateState.Field<byte[]>(self, "equipmentTilemap")[byteOffset + 1])));
         }
     }
 }

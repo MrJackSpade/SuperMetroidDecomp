@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Native bank-$A8 function words stored by the Evir composite actors.</summary>
@@ -176,7 +177,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException($"WRAM ${address:X4} lies outside enemy RAM.");
         int byteOffset = relative % EnemyRamDefinitions.SlotStride;
         ushort word = _slots[slotIndex].ReadNativeWord(byteOffset & ~1);
-        return (byteOffset & 1) == 0 ? (byte)word : (byte)(word >> 8);
+        return (byteOffset & 1) == 0 ? (byte)word : SnesLittleEndian.HighByte(word);
     }
 
     /// <summary>Ports <c>InitAI_EvirProjectile</c> at $A8:88B0.</summary>
@@ -242,7 +243,7 @@ public sealed partial class RoomEnemySystem
         state.MovementTimer = unchecked((ushort)(state.MovementTimer - 1));
         if ((state.MovementTimer & 0x8000) != 0)
         {
-            state.MovementTimer = unchecked((byte)(slot.Parameter2 >> 8));
+            state.MovementTimer = SnesLittleEndian.HighByte(slot.Parameter2);
             state.MovementDirection ^= 1;
         }
     }

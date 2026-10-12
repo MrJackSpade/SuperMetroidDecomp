@@ -18,7 +18,7 @@ internal static partial class Program
         AssertEqual((byte)0x5d, Read(0x1a97), "native MOV X A takes only product low byte");
         AssertEqual((byte)0xf5, Read(0x1a9a), "native MOV A absolute plus X");
         AssertEqual((byte)0x3d, Read(0x1aa0), "native INC X");
-        int nativeBase = Read(0x1a9b) | Read(0x1a9c) << 8;
+        int nativeBase = SnesLittleEndian.Word(Read(0x1a9b), Read(0x1a9c));
         var player = new ManagedSpcPlayer();
         var ram = (byte[])(typeof(ManagedSpcPlayer).GetField("ram", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(player)
             ?? throw new InvalidOperationException("Missing SPC RAM fixture access."));

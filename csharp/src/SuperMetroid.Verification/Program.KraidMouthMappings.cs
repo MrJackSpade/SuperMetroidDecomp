@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyKraidMouthShapeCases(SuperMetroidAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(KraidMouthShapeCasesRomByte(rom, address) | KraidMouthShapeCasesRomByte(rom, address + 1) << 8));
+        short Word(int address) => unchecked((short)(SnesLittleEndian.Word(KraidMouthShapeCasesRomByte(rom, address), KraidMouthShapeCasesRomByte(rom, address + 1))));
         for (int entry = 0; entry < 8; entry++)
         {
             ushort pointer = (ushort)(0x9788 + 8 * entry);
@@ -40,7 +40,7 @@ internal static partial class Program
         var bus = new KraidMouthBoundaryReadBus();
         byte ExpectedByte(ushort pointer) => pointer < 0x8000
             ? KraidMouthBoundaryReadBus.Value(pointer) : KraidLowHalfBoundaryMappingRomByte(rom, 0xa70000 | pointer);
-        short ExpectedWord(ushort pointer) => unchecked((short)(ExpectedByte(pointer) | ExpectedByte((ushort)(pointer + 1)) << 8));
+        short ExpectedWord(ushort pointer) => unchecked((short)(SnesLittleEndian.Word(ExpectedByte(pointer), ExpectedByte((ushort)(pointer + 1)))));
         for (ushort pointer = 0x7ff9; pointer <= 0x7fff; pointer++)
             AssertEqual((ExpectedWord(pointer), ExpectedWord((ushort)(pointer + 2)), ExpectedWord((ushort)(pointer + 6))),
                 KraidMouthHitboxes.ResolveCollision(bus, pointer), "Mouth boundary crossing uses original bytes");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>Stable JSON operation names for decoded SPC music content.</summary>
@@ -224,7 +225,7 @@ internal static class SpcMusicDefinitionCodec
                     address = program.Address;
                 }
                 bytes[channel * 2] = unchecked((byte)address);
-                bytes[channel * 2 + 1] = unchecked((byte)(address >> 8));
+                bytes[channel * 2 + 1] = SnesLittleEndian.HighByte(address);
             }
             Merge(writes, phrase.Address, bytes, phrase.Id);
         }
@@ -368,7 +369,7 @@ internal static class SpcMusicDefinitionCodec
                     arguments));
                 if (effect == SpcMusicEffect.CallPattern)
                 {
-                    ushort target = unchecked((ushort)(arguments[0] | (arguments[1] << 8)));
+                    ushort target = unchecked((ushort)(SnesLittleEndian.Word(arguments[0], arguments[1])));
                     callTargets.Add(target);
                 }
             }
@@ -447,13 +448,13 @@ internal static class SpcMusicDefinitionCodec
     {
         byte low = ReadByte(ram, written, ref cursor, id);
         byte high = ReadByte(ram, written, ref cursor, id);
-        return unchecked((ushort)(low | (high << 8)));
+        return unchecked((ushort)(SnesLittleEndian.Word(low, high)));
     }
 
     private static void WriteWord(List<byte> bytes, ushort value)
     {
         bytes.Add(unchecked((byte)value));
-        bytes.Add(unchecked((byte)(value >> 8)));
+        bytes.Add(SnesLittleEndian.HighByte(value));
     }
 
     private static InvalidDataException InvalidTrackInstruction(

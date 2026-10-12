@@ -24,10 +24,10 @@ internal static partial class Program
             int definition = GameplayMessageRomData.Assets.DefinitionTable +
                 ((byte)id - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
             int content = GameplayMessageRomData.Assets.BankBase |
-                (GameplayMessageTitlesRomByte(bus, definition + 4) | GameplayMessageTitlesRomByte(bus, definition + 5) << 8);
+                (SnesLittleEndian.Word(GameplayMessageTitlesRomByte(bus, definition + 4), GameplayMessageTitlesRomByte(bus, definition + 5)));
             ReadOnlySpan<ushort> row = installed.Tilemap.Slice(width, width);
             for (int column = 0; column < width; column++)
-                AssertEqual((ushort)(GameplayMessageTitlesRomByte(bus, content + column * 2) | GameplayMessageTitlesRomByte(bus, content + column * 2 + 1) << 8),
+                AssertEqual((ushort)(SnesLittleEndian.Word(GameplayMessageTitlesRomByte(bus, content + column * 2), GameplayMessageTitlesRomByte(bus, content + column * 2 + 1))),
                     row[column], $"installed UTF-8 gameplay title {id} column {column} matches the cartridge tilemap");
             comparedWords += width;
         }

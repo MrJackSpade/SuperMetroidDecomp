@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
@@ -67,7 +68,7 @@ internal static class ChozoStatuePlmProgramDefinitions
         value = 0;
         if (!TryLocate(address, out ProgramList list) || address == EndOf(list)) return false;
         int offset = address - StartOf(list);
-        value = (ushort)(ByteAt(list, offset) | ByteAt(list, offset + 1) << 8);
+        value = (ushort)(SnesLittleEndian.Word(ByteAt(list, offset), ByteAt(list, offset + 1)));
         return true;
     }
     internal static bool TryReadMechanicsByte(ushort address, out byte value)

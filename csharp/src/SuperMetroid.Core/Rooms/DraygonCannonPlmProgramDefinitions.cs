@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -26,7 +27,7 @@ internal static class DraygonCannonPlmProgramDefinitions
     {
         value = 0;
         if (!TryLocate(address, out int start, out int offset) || offset == 72) return false;
-        value = (ushort)(ByteAt(start, offset) | ByteAt(start, offset + 1) << 8);
+        value = (ushort)(SnesLittleEndian.Word(ByteAt(start, offset), ByteAt(start, offset + 1)));
         return true;
     }
 

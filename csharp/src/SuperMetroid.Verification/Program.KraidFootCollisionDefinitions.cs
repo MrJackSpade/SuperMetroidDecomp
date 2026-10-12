@@ -92,8 +92,7 @@ internal static partial class Program
             "installed path forbids ROM reads.");
 
         ushort ReadWord(ushort address) => unchecked((ushort)(
-            KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | address) |
-            KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | unchecked((ushort)(address + 1))) << 8));
+            SnesLittleEndian.Word(KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | address), KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | unchecked((ushort)(address + 1))))));
 
         bool NativeHit(ushort frame, ushort originX, ushort originY,
             ushort x, ushort y, bool shot, out ushort callback)

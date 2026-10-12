@@ -42,7 +42,7 @@ internal static class FirefleaRoomFx
         ushort combined = unchecked((ushort)(
             FirefleaFxDefinitions.FlashingShade(index) +
             FirefleaFxDefinitions.DarknessShade(darkness)));
-        byte shade = (byte)(combined >> 8);
+        byte shade = SnesLittleEndian.HighByte(combined);
         var fixedColor = new FixedColorMemory(bus);
         fixedColor.Green = (byte)(shade | 0x80);
         fixedColor.Blue = (byte)(shade | 0x40);

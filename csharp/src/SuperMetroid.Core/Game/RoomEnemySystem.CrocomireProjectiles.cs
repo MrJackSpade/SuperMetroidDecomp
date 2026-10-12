@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -165,7 +166,7 @@ public sealed partial class RoomEnemySystem
         byte maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)((velocityWhole << 8) | velocityFraction))));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(SnesLittleEndian.Word(velocityFraction, velocityWhole)))));
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.

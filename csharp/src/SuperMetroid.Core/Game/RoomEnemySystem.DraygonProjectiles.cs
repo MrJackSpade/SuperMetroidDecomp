@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -89,9 +90,9 @@ public sealed partial class RoomEnemySystem
         projectile.DirectionParameter = angle;
         int xMagnitude = ReadUnsignedSineMagnitudeProduct(angle, speed, 0x40);
         int yMagnitude = ReadUnsignedSineMagnitudeProduct(angle, speed, 0x80);
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(xMagnitude >> 16))));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(SnesFixedPosition.WholeOf(xMagnitude)));
         projectile.Variable0 = unchecked((ushort)xMagnitude);
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(yMagnitude >> 16))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(SnesFixedPosition.WholeOf(yMagnitude)));
         projectile.Variable1 = unchecked((ushort)yMagnitude);
     }
 

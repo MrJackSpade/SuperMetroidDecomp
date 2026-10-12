@@ -89,8 +89,7 @@ public static class IntroNarrationExtractor
                 IntroNarrationDefinitions.Native.PackedPositionXMask;
             int row = packedPosition >> 8;
             ushort drawFunction = ReadWord(bus, dataPointer);
-            int dimensions = ReadByte(bus, Add(dataPointer, 2)) |
-                ReadByte(bus, Add(dataPointer, 3)) << 8;
+            int dimensions = SnesLittleEndian.Word(ReadByte(bus, Add(dataPointer, 2)), ReadByte(bus, Add(dataPointer, 3)));
             if (drawFunction != IntroNarrationDefinitions.Native.DrawCharacterFunction ||
                 dimensions != IntroNarrationDefinitions.Native.SingleTileDimensions)
                 throw new InvalidDataException(

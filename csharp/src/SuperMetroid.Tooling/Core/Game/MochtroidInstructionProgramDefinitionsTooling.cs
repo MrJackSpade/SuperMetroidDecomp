@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MochtroidInstructionProgramDefinitions))]
 internal abstract class MochtroidInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 12;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 8;
     /// <summary>Each loop displays four timed records followed by Goto and its target; all records calculate on demand.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -21,14 +19,12 @@ internal abstract class MochtroidInstructionProgramDefinitionsTooling : IInstruc
         ushort address = (ushort)(MochtroidInstructionProgramDefinitions.FreeFlight + 20 * program + (record < 4 ? 4 * record : 16 + 2 * (record - 4)));
         return new(address, MochtroidInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(MochtroidInstructionProgramDefinitions.FreeFlight + 20 * (index / 4) + 4 * (index % 4) + 2);
     }
-    /// <summary>Checks whether the address belongs to compiled mechanics data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa30000)

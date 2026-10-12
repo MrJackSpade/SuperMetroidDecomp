@@ -7,10 +7,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using static MapPresentationVerification;
 
-/// <summary>Represents hud atlas verification.</summary>
 internal static class HudAtlasVerification
 {
-    /// <summary>verify hud atlas integration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed HUD tile atlas")]
     internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,

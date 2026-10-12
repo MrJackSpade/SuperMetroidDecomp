@@ -17,7 +17,6 @@ using SuperMetroid.Core.Rooms;
 using static LookupRoomFxFieldsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents room fx record definitions verification.</summary>
 internal static class RoomFxRecordDefinitionsVerification
 {
     /// <summary>Checks the complete generated catalog and every source field against the ROM.</summary>
@@ -36,7 +35,6 @@ internal static class RoomFxRecordDefinitionsVerification
         Console.WriteLine($"Compiled room FX: {records.Count} typed records across {RoomStateDefinitions.All.Count()} room states match every native field.");
     }
 
-    /// <summary>Verifies compiled ceres room fx consumers.</summary>
     private static void VerifyCompiledCeresRoomFxConsumers(SuperMetroidAddressSpace bus)
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
@@ -95,15 +93,12 @@ internal static class RoomFxRecordDefinitionsVerification
             "Ceres compiled treadmill animation count");
     }
 
-    /// <summary>Stores forbidden room fx record bytes.</summary>
     private static readonly HashSet<int> ForbiddenRoomFxRecordBytes = BuildForbiddenRoomFxRecordBytes();
 
-    /// <summary>New room fx record read guard.</summary>
     private static CartridgeReadGuard NewRoomFxRecordReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(ForbiddenRoomFxRecordBytes.Contains,
             address => $"Compiled room-FX consumer reread source record byte ${address:X6}.");
 
-    /// <summary>Builds forbidden room fx record bytes.</summary>
     private static HashSet<int> BuildForbiddenRoomFxRecordBytes()
     {
         var result = new HashSet<int>();
@@ -117,7 +112,6 @@ internal static class RoomFxRecordDefinitionsVerification
         return result;
     }
 
-    /// <summary>Room fx record definitions command.</summary>
     [VerificationCommand("--room-fx-record-definitions")]
     internal static int RoomFxRecordDefinitionsCommand()
     {

@@ -5,11 +5,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The mutually exclusive Mother Brain component owning a Samus-contact list.</summary>
 internal enum MotherBrainContactPart : byte
 {
-    /// <summary>Identifies body.</summary>
     Body,
-    /// <summary>Identifies brain.</summary>
     Brain,
-    /// <summary>Identifies neck.</summary>
     Neck,
 }
 
@@ -42,10 +39,8 @@ internal static class MotherBrainContactHitboxDefinitions
 /// <summary>Ordered physical regions of a component; no stored rectangle sequence.</summary>
 internal readonly record struct MotherBrainContactHitboxes(MotherBrainContactPart Part) : IReadOnlyList<MotherBrainContactHitbox>
 {
-    /// <summary>Gets count.</summary>
     public int Count => Part == MotherBrainContactPart.Neck ? 1 : 2;
 
-    /// <summary>Gets an indexed value.</summary>
     public MotherBrainContactHitbox this[int region] => (Part, region) switch
     {
         // Lower body first, then the narrower upper body. Native collision stops on its first hit.
@@ -58,12 +53,10 @@ internal readonly record struct MotherBrainContactHitboxes(MotherBrainContactPar
         _ => throw new IndexOutOfRangeException(),
     };
 
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<MotherBrainContactHitbox> GetEnumerator()
     {
         for (int region = 0; region < Count; region++) yield return this[region];
     }
 
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

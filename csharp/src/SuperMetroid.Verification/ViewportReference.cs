@@ -4,10 +4,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 
 // Frozen pre-optimization scalar reference: do not share the optimized tile-row loop.
-/// <summary>Represents viewport reference.</summary>
 internal static class ViewportReference
 {
-    /// <summary>composite4 bpp viewport.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, BgViewport viewport, bool? priority = null)
     {

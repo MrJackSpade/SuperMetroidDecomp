@@ -7,7 +7,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Checks sparse bank/pointer pairs rather than treating either dimension as contiguous.</summary>
 internal static class EnemyDisplayArtworkDomainAudit
 {
-    /// <summary>Invalid constants.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         string type = operation.TargetMethod.ContainingType.ToDisplayString();

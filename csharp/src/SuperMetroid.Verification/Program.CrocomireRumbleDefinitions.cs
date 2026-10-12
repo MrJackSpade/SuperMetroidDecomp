@@ -15,10 +15,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents crocomire rumble definitions verification.</summary>
 internal static class CrocomireRumbleDefinitionsVerification
 {
-    /// <summary>Verifies crocomire rumble definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire rumble definitions")]
     internal static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
@@ -136,7 +134,6 @@ internal static class CrocomireRumbleDefinitionsVerification
             $"Crocomire rumble definitions: all 32 native words and {frames} exact production frames pass with the source stream forbidden.");
     }
 
-    /// <summary>Advances crocomire rumble reference.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Crocomire rumble reference step")]
     private static void StepCrocomireRumbleReference(
         ISnesAddressSpace rom,
@@ -183,7 +180,6 @@ internal static class CrocomireRumbleDefinitionsVerification
             : unchecked((ushort)(yOffset + delta));
     }
 
-    /// <summary>Creates crocomire rumble read guard.</summary>
     private static CartridgeReadGuard NewCrocomireRumbleReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa498ca and < 0xa4990a or
@@ -192,7 +188,6 @@ internal static class CrocomireRumbleDefinitionsVerification
                     CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)),
                 address => $"Crocomire rumble attempted migrated data read ${address:X6}.");
 
-    /// <summary>Runs the stream5 crocomire rumble lookup command.</summary>
     [VerificationCommand("--lookup-stream5-crocomire-rumble")]
     internal static int LookupStream5CrocomireRumbleCommand()
     {

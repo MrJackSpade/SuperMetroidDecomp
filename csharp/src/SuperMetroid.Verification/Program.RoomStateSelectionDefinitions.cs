@@ -13,10 +13,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RoomMainCodeCatalogVerification;
 
-/// <summary>Represents room state selection definitions verification.</summary>
 internal static class RoomStateSelectionDefinitionsVerification
 {
-    /// <summary>Verifies compiled room state selection definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room state selection definitions")]
     internal static void VerifyCompiledRoomStateSelectionDefinitions()
     {
@@ -122,7 +120,6 @@ internal static class RoomStateSelectionDefinitionsVerification
         Console.WriteLine($"Room selectors: 262 identities, 54 conditional programs, 61 ordered branches, 323 states and {comparisons} native predicate-partition comparisons pass.");
     }
 
-    /// <summary>Room state definitions command.</summary>
     [VerificationCommand("--room-state-definitions")]
     internal static int RoomStateDefinitionsCommand()
     {

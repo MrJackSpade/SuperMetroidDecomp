@@ -10,7 +10,6 @@ using SuperMetroid.Core.Hardware;
 [CpuBusBoundary("domain view: verification read of the projectile-inheritance WRAM block")]
 internal readonly struct ProjectileInheritanceInspection(ISnesMemoryBus bus)
 {
-    /// <summary>Gets or sets records.</summary>
     private WorkRamByteTable Records => new(bus, ProjectileInheritanceWorkRam.Records);
 
     /// <summary>Bytes in the block: the camera Y subspeed word, then four signed 16.16 distances.</summary>

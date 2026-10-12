@@ -16,7 +16,6 @@ internal static class MapCrossViewAuditDefinitions
     /// <summary>Botwoon room, a left-page Maridia room at <c>$8F:D95E</c>.</summary>
     public const ushort BotwoonRoom = 0xd95e;
 
-    /// <summary>Stores representative rooms.</summary>
     public static readonly ushort[] RepresentativeRooms =
     [
         LandingSiteRoom,
@@ -33,7 +32,6 @@ internal static class MapCrossViewAuditDefinitions
 /// </summary>
 internal static class MapCrossViewAudit
 {
-    /// <summary>Run.</summary>
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -63,7 +61,6 @@ internal static class MapCrossViewAudit
         return 0;
     }
 
-    /// <summary>Verify room.</summary>
     private static int VerifyRoom(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,

@@ -14,9 +14,7 @@ internal readonly record struct RoomPaletteFxDefinition(
 /// </summary>
 internal static class RoomPaletteFxDefinitions
 {
-    /// <summary>Stores area count.</summary>
     internal const int AreaCount = 8;
-    /// <summary>Stores definitions per area.</summary>
     internal const int DefinitionsPerArea = 8;
 
     /// <summary>Selects setup callback and initial program by native palette-FX object identity.</summary>

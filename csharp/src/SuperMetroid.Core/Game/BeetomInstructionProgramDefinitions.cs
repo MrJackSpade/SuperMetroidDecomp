@@ -31,10 +31,8 @@ internal abstract class BeetomInstructionProgramDefinitions
     /// <summary>The repeating left-drain frame list at $A8:B6DE.</summary>
     internal const ushort DrainingLeftLoop = 0xb6de;
 
-    /// <summary>Defines facing stride.</summary>
     internal const int FacingStride = CrawlingRight - CrawlingLeft;
 
-    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - CrawlingLeft;
@@ -47,7 +45,6 @@ internal abstract class BeetomInstructionProgramDefinitions
         return (local <= 14 && local % 4 == 2) || (local >= 20 && local <= 32 && local % 4 == 0);
     }
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - CrawlingLeft;
@@ -81,7 +78,6 @@ internal abstract class BeetomInstructionProgramDefinitions
         throw new InvalidDataException($"Beetom instruction mechanics pointer $A8:{address:X4} is not compiled.");
     }
 
-    /// <summary>Checks whether mechanics position.</summary>
     internal static bool IsMechanicsPosition(int local)
     {
         if (local < HopLeft - CrawlingLeft)

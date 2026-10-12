@@ -6,7 +6,6 @@
 /// </summary>
 internal sealed class TestScratchDirectory : IDisposable
 {
-    /// <summary>Stores parent.</summary>
     private static readonly string Parent = Path.GetFullPath(Path.Combine("csharp", "test-temp", "scratch"));
 
     /// <summary>Reserves the path <c>csharp/test-temp/scratch/{prefix}-{guid}</c>; the test creates it when it needs it.</summary>

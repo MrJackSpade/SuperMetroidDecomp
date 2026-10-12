@@ -15,12 +15,9 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$84 PLM block-draw lists → installed PLM door visual files")]
 internal static class RoomPlmDoorVisualFileCodec
 {
-    /// <summary>Stores manifest file name.</summary>
     internal const string ManifestFileName = "manifest.json";
-    /// <summary>Stores format version.</summary>
     private const int FormatVersion = 1;
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -28,10 +25,8 @@ internal static class RoomPlmDoorVisualFileCodec
         WriteIndented = true,
     };
 
-    /// <summary>Represents entry.</summary>
     internal sealed record Entry(string Id, ushort[] Blocks);
 
-    /// <summary>Extracts.</summary>
     internal static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256, string visualFileName, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
@@ -54,7 +49,6 @@ internal static class RoomPlmDoorVisualFileCodec
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
-    /// <summary>Loads.</summary>
     internal static TCatalog Load<TCatalog>(string stockDirectory, string? overrideDirectory,
         RoomPlmVisualFamily<TCatalog> visuals)
     {
@@ -93,7 +87,6 @@ internal static class RoomPlmDoorVisualFileCodec
                 overridePath, family, createCatalog);
     }
 
-    /// <summary>Reads and verify native.</summary>
     private static Entry[] ReadAndVerifyNative(ISnesAddressSpace bus,
         string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
@@ -145,7 +138,6 @@ internal static class RoomPlmDoorVisualFileCodec
         return entries.ToArray();
     }
 
-    /// <summary>Verifies stock matches compiled.</summary>
     private static void VerifyStockMatchesCompiled<TCatalog>(TCatalog catalog,
         string path, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
@@ -170,7 +162,6 @@ internal static class RoomPlmDoorVisualFileCodec
         }
     }
 
-    /// <summary>Creates catalog.</summary>
     private static TCatalog CreateCatalog<TCatalog>(VisualDocument document,
         string path, string family, Func<Entry[], TCatalog> createCatalog)
     {
@@ -185,11 +176,9 @@ internal static class RoomPlmDoorVisualFileCodec
         }
     }
 
-    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(string path, string family) =>
         ReadJson<T>(File.ReadAllBytes(path), path, family);
 
-    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(byte[] bytes, string path, string family)
     {
         try
@@ -203,16 +192,13 @@ internal static class RoomPlmDoorVisualFileCodec
         }
     }
 
-    /// <summary>Reads word.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         pointer == ushort.MaxValue
             ? throw new InvalidDataException("A PLM visual word cannot start at the PLM bank's last byte.")
             : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer));
 
-    /// <summary>Represents visual manifest.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
-    /// <summary>Represents visual document.</summary>
     private sealed record VisualDocument(int Version, Entry[] Entries);
 }
 /// <summary>

@@ -8,10 +8,8 @@ using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents samus full body cycle colors verification.</summary>
 internal static class SamusFullBodyCycleColorsVerification
 {
-    /// <summary>verify full body palette color data.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
     {
@@ -391,7 +389,6 @@ internal static class SamusFullBodyCycleColorsVerification
                 ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color)), edited.Resolve(pointer, color),
                 "Varia bright-only edit preserves supplied midpoint and other colors");
     }
-    /// <summary>verify samus full body cycle color override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
@@ -542,7 +539,6 @@ internal static class SamusFullBodyCycleColorsVerification
         }
     }
 
-    /// <summary>new full body color read guard.</summary>
     private static MutableCartridgeReadGuard NewFullBodyColorReadGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();

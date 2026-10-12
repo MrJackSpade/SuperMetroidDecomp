@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
-/// <summary>Represents intro egg rocking parts verification.</summary>
 internal static class IntroEggRockingPartsVerification
 {
-    /// <summary>Verifies intro egg rocking parts.</summary>
     internal static void VerifyIntroEggRockingParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggRocking", value.AppendIdentity);

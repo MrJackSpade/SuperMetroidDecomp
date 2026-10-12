@@ -26,7 +26,6 @@ public sealed class RoomPlmCollectibleVisualCatalog
         }
     });
 
-    /// <summary>Stores custom words.</summary>
     private readonly Dictionary<ushort, ushort>? customWords;
 
     /// <summary>Validates all twenty-four compiled one-cell frames and retains authored visual differences without changing pickup, collision, or persistence rules.</summary>

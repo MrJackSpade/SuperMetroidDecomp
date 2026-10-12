@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents fireflea instruction program definitions verification.</summary>
 internal static class FirefleaInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies fireflea instruction program definitions.</summary>
     internal static void VerifyFirefleaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFirefleaInstructionProgramDefinitions), () => VerifyFirefleaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies fireflea instruction program definitions.</summary>
     internal static void VerifyFirefleaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -112,7 +109,6 @@ internal static class FirefleaInstructionProgramDefinitionsVerification
             "loop, and 52 exact frame selections pass with mechanics and visual source bytes forbidden.");
     }
 
-    /// <summary>Probes fireflea instruction mechanics allocation.</summary>
     private static int ProbeFirefleaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -126,7 +122,6 @@ internal static class FirefleaInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Fireflea instruction program definitions command.</summary>
     [VerificationCommand("--fireflea-instruction-program-definitions")]
     internal static int FirefleaInstructionProgramDefinitionsCommand()
     {

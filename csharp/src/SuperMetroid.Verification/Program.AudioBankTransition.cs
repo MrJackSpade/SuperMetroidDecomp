@@ -15,10 +15,8 @@ using SuperMetroid.Core.Audio;
 using static ManagedAudioVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents audio bank transition verification.</summary>
 internal static class AudioBankTransitionVerification
 {
-    /// <summary>Verifies released voice bank switch.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void VerifyReleasedVoiceBankSwitch()
     {
@@ -54,7 +52,6 @@ internal static class AudioBankTransitionVerification
         }, "an audible unmapped source must still fail loudly");
     }
 
-    /// <summary>Verifies audio bank transition.</summary>
     internal static void VerifyAudioBankTransition(string directory)
     {
         Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());
@@ -76,7 +73,6 @@ internal static class AudioBankTransitionVerification
         }
     }
 
-    /// <summary>Audio bank transition command.</summary>
     [VerificationCommand("--audio-bank-transition")]
     internal static int AudioBankTransitionCommand()
     {

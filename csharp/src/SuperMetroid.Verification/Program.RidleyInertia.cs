@@ -15,10 +15,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ridley inertia verification.</summary>
 internal static class RidleyInertiaVerification
 {
-    /// <summary>Verifies compiled ridley inertia.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley inertia")]
     internal static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
     {
@@ -57,7 +55,6 @@ internal static class RidleyInertiaVerification
 
     // $A6:D62F/$D6A6: the carry left by `position - target` feeds the first ADC/SBC of
     // the velocity step, and each reversal step chains its own carry into the next.
-    /// <summary>Expected ceres native acceleration.</summary>
     private static ushort ExpectedCeresNativeAcceleration(ushort initial, ushort position, ushort target, int divisor)
     {
         short distance = unchecked((short)(position - target));
@@ -91,7 +88,6 @@ internal static class RidleyInertiaVerification
     // Model the native word arithmetic independently as wide intermediate values
     // and explicit carry terms. The movie-derived regression supplies independent
     // expected motion; this existing numeric contract covers wrapped inputs too.
-    /// <summary>Expected ridley native acceleration.</summary>
     internal static ushort ExpectedRidleyNativeAcceleration(ushort initial, ushort position, ushort target, int divisor, int boost)
     {
         short distance = unchecked((short)(position - target));
@@ -121,7 +117,6 @@ internal static class RidleyInertiaVerification
         return unchecked((short)(result - 0x0500)) >= 0 ? (ushort)0x0500 : result;
     }
 
-    /// <summary>Ridley acceleration carry command.</summary>
     [VerificationCommand("--ridley-acceleration-carry")]
     internal static int RidleyAccelerationCarryCommand()
     {

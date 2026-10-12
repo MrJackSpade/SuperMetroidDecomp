@@ -57,7 +57,6 @@ public static class EndingVramLayout
     public static readonly PpuLayoutCell PostShotLowerTilemap = Vram(nameof(PostShotLowerTilemap), EndingPostShotDefinitions.FinalLowerTilemapWord,
         0x0400, "BG tilemap words (32x32)");
 
-    /// <summary>vram.</summary>
     private static PpuLayoutCell Vram(string name, int word, int count, string encoding) =>
         new(name, PpuLayoutRegion.Vram, word, count, encoding, PpuMemoryLayout.Vram);
 }

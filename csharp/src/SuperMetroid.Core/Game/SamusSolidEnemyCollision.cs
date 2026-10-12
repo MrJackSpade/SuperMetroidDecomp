@@ -116,7 +116,6 @@ public static class SamusSolidEnemyCollision
             WasTouching: false);
     }
 
-    /// <summary>Builds rounded target.</summary>
     private static (ushort X, ushort Y) BuildRoundedTarget(
         SamusKinematicsState state,
         SamusCollisionDirection direction,
@@ -153,7 +152,6 @@ public static class SamusSolidEnemyCollision
         return (targetX, targetY);
     }
 
-    /// <summary>Round negative.</summary>
     private static ushort RoundNegative(
         ushort position,
         ushort subposition,
@@ -182,7 +180,6 @@ public static class SamusSolidEnemyCollision
         return whole;
     }
 
-    /// <summary>Round positive.</summary>
     private static ushort RoundPositive(
         ushort position,
         ushort subposition,
@@ -211,7 +208,6 @@ public static class SamusSolidEnemyCollision
         return whole;
     }
 
-    /// <summary>Strictly overlaps.</summary>
     private static bool StrictlyOverlaps(
         ushort firstPosition,
         ushort firstRadius,

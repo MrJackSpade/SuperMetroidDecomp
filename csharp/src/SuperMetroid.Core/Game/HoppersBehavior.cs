@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,12 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Hoppers species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class HoppersBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
-    /// <summary>Initializes a new hoppers behavior instance.</summary>
     internal HoppersBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
@@ -46,16 +43,12 @@ internal sealed class HoppersBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines hopper random seed.</summary>
     private const ushort HopperRandomSeed = 0x0025;
-    /// <summary>Defines maximum hopper yspeed table index.</summary>
     private const ushort MaximumHopperYSpeedTableIndex = 0x0040;
 
-    /// <summary>Stores hopper states.</summary>
     internal readonly HopperEnemyState?[] _hopperStates =
         new HopperEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>Checks whether hopper definition.</summary>
     internal static bool IsHopperDefinition(EnemyDefinitionId definitionPointer) => definitionPointer is
         EnemyDefinitionId.Sidehopper or
         EnemyDefinitionId.Dessgeega or
@@ -167,14 +160,12 @@ internal sealed class HoppersBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Requires hopper level.</summary>
     private static void RequireHopperLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Hopper movement requires room level data.");
     }
 
-    /// <summary>Prepares hopper hop.</summary>
     private static void PrepareHopperHop(HopperEnemyState state, bool bigHop)
     {
         state.YSpeedTableIndexDelta = bigHop ? (ushort)4 : (ushort)3;
@@ -187,7 +178,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
             : HopperEnemyFunction.ChooseDirectionUpsideUp;
     }
 
-    /// <summary>Choose hopper direction.</summary>
     private static void ChooseHopperDirection(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -207,7 +197,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
         };
     }
 
-    /// <summary>Starts hopper jump.</summary>
     internal static void StartHopperJump(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -230,7 +219,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
         };
     }
 
-    /// <summary>Land hopper.</summary>
     internal static void LandHopper(RoomEnemySlot slot, HopperEnemyState state)
     {
         SetHopperInstructionList(slot, state, ReadHopperInstructionList(
@@ -238,7 +226,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
         state.Function = HopperEnemyFunction.WaitToHop;
     }
 
-    /// <summary>Runs hopper movement.</summary>
     private void RunHopperMovement(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -306,7 +293,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
             : MaximumHopperYSpeedTableIndex;
     }
 
-    /// <summary>Calculates initial hopper yspeed table index.</summary>
     internal static ushort CalculateInitialHopperYSpeedTableIndex(
         ushort jumpHeight,
         ushort tableIndexDelta)
@@ -330,7 +316,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
             "Hopper initial-speed calculation did not reach its ROM jump height.");
     }
 
-    /// <summary>Reads hopper instruction list.</summary>
     private static ushort ReadHopperInstructionList(
         HopperEnemyState state,
         bool upsideDown,
@@ -338,7 +323,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
         HopperAnimationDefinitions.InstructionList(
             (ushort)(state.VariantTableOffset >> 1), upsideDown, jumping);
 
-    /// <summary>Sets hopper instruction list.</summary>
     private static void SetHopperInstructionList(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -350,12 +334,10 @@ internal sealed class HoppersBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>Requires hopper state.</summary>
     private HopperEnemyState RequireHopperState(RoomEnemySlot slot) =>
         _hopperStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hopper state.");
 
-    /// <summary>Register hoppers initialization ai.</summary>
     internal void RegisterHoppersInitializationAi(EnemyAiTable table)
     {
 
@@ -365,7 +347,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register hoppers main ai.</summary>
     internal void RegisterHoppersMainAi(EnemyAiTable table)
     {
 
@@ -375,7 +356,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register hoppers owned instructions.</summary>
     internal void RegisterHoppersOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

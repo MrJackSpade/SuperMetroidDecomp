@@ -8,13 +8,10 @@ namespace SuperMetroid.Core.Assets;
 /// X=-48 and Y=-8, leaving the space empty; all parts are small and unflipped.</summary>
 internal sealed class PlanetZebesTitleParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates replacement sprite parts when the pointer matches this artwork series; otherwise returns the supplied composition.</summary>
     internal static SpriteComposition CalculateIfMatching(CeresDestructionBackdrop? backdrop, SpriteComposition supplied) =>
         backdrop == CeresDestructionBackdrop.Title
             ? supplied.CalculateIfMatching(new PlanetZebesTitleParts()) : supplied;
-    /// <summary>Gets the number of items in this collection.</summary>
     public int Count => PlanetZebesTitleAtlas.Text.Length - 1;
-    /// <summary>Accesses a value by index or range.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -26,21 +23,17 @@ internal sealed class PlanetZebesTitleParts : IReadOnlyList<CompiledSpritePart>
                 unchecked((byte)-8), SnesObjAttributeWord.Create(PlanetZebesTitleAtlas.Tile(PlanetZebesTitleAtlas.Text[column]), 0, 0, 0), true);
         }
     }
-    /// <summary>Returns an enumerator over this collection.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Returns an enumerator over this collection.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Represents planet zebes title atlas.</summary>
 internal static class PlanetZebesTitleAtlas
 {
     /// <summary>English title selected by native8C:9654; the space occupies column6.</summary>
     internal const string Text = "PLANET ZEBES";
-    /// <summary>Defines space column.</summary>
     internal const int SpaceColumn = 6;
     /// <summary>Named glyph selection in the Ceres OBJ atlas: P at8F and
     /// the remaining distinct title letters L,A,N,E,T,Z,B,S at97..9E.

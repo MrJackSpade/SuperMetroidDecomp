@@ -1,9 +1,8 @@
-namespace SuperMetroid.Core.Game;
+﻿namespace SuperMetroid.Core.Game;
 
 /// <summary>Development-tool members of <see cref="DeadMonsterRottingDefinitions"/>; never linked by player hosts.</summary>
 internal static class DeadMonsterRottingDefinitionsTooling
 {
-    /// <summary>Gets or sets all transfers.</summary>
     internal static IEnumerable<DeadMonsterVramTransferDefinition> AllTransfers
     {
         get

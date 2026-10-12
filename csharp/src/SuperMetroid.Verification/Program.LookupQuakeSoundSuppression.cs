@@ -3,10 +3,8 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents lookup quake sound suppression verification.</summary>
 internal static class LookupQuakeSoundSuppressionVerification
 {
-    /// <summary>Verifies quake sound suppression.</summary>
     internal static void VerifyQuakeSoundSuppression(SuperMetroidAddressSpace rom)
     {
         var nativeRooms = new HashSet<ushort>();
@@ -42,7 +40,6 @@ internal static class LookupQuakeSoundSuppressionVerification
         }
     }
 
-    /// <summary>Quake sound suppression rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for quake sound suppression")]
     private static byte QuakeSoundSuppressionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

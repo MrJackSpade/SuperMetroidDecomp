@@ -17,17 +17,14 @@ using static FakeKraidProgramMappingsVerification;
 using static KraidVisualSelectorsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents fake kraid instruction program definitions verification.</summary>
 internal static class FakeKraidInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies fake kraid instruction program definitions.</summary>
     internal static void VerifyFakeKraidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidInstructionProgramDefinitions), () => VerifyFakeKraidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies fake kraid instruction program definitions.</summary>
     internal static void VerifyFakeKraidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -208,11 +205,9 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Fake kraid instruction program definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid instruction program definitions")]
     private static byte FakeKraidInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Probes fake kraid instruction mechanics allocation.</summary>
     private static int ProbeFakeKraidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -224,14 +219,12 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads fake kraid instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid instruction words")]
     internal static ushort ReadFakeKraidInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>Checks whether fake kraid selector byte.</summary>
     private static bool IsFakeKraidSelectorByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa60000)
@@ -246,7 +239,6 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         return false;
     }
 
-    /// <summary>Fake kraid instruction mechanics command.</summary>
     [VerificationCommand("--fake-kraid-instruction-mechanics")]
     internal static int FakeKraidInstructionMechanicsCommand()
     {

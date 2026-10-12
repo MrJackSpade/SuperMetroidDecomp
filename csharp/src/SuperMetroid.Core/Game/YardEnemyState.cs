@@ -38,10 +38,8 @@ public enum YardMovementFunction : ushort
 /// </summary>
 public sealed class YardEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new yard enemy state instance.</summary>
     internal YardEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

@@ -20,7 +20,6 @@ internal static class SamusAtmosphericArtworkDefinitions
     /// original attribute words are covered; independent tile pixels, RGB colors and timing are not exempt.</remarks>
     internal const int Priority = 2;
 
-    /// <summary>attributes.</summary>
     internal static ushort Attributes(bool footstep, int frame)
     {
         if ((uint)frame >= SamusMovementRomData.Environment.DirectAtmosphericFrameCount)

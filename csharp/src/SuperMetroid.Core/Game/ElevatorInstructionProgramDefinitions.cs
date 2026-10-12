@@ -8,13 +8,11 @@ internal abstract class ElevatorInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Elevator</c> at $A3:94D6.</summary>
     internal const ushort Loop = 0x94d6;
-    /// <summary>Indicates whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (Loop + 2);
         return (uint)offset < 8 && offset % 4 == 0;
     }
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Loop;

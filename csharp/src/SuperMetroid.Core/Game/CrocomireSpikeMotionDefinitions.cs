@@ -44,7 +44,6 @@ internal static class CrocomireSpikeMotionDefinitions
         return (byte)(slot < 10 ? pairedRamp : Math.Max(pairedRamp, 6 - groupSlot));
     }
 
-    /// <summary>Validates slot.</summary>
     private static void ValidateSlot(int slot)
     {
         if ((uint)slot >= 18)

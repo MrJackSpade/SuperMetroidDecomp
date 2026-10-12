@@ -21,14 +21,10 @@ internal abstract class EvirInstructionProgramDefinitions
     /// <summary><c>InstList_Evir_Projectile_Regenerating_1</c> at $A8:877D.</summary>
     internal const ushort ProjectileRegenerationLoop = 0x877d;
 
-    /// <summary>Defines body frame count.</summary>
     internal const int BodyFrameCount = 6;
-    /// <summary>Defines arms frame count.</summary>
     internal const int ArmsFrameCount = 17;
 
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 67;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 49;
 
     /// <summary>
@@ -72,7 +68,6 @@ internal abstract class EvirInstructionProgramDefinitions
         };
     }
 
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)

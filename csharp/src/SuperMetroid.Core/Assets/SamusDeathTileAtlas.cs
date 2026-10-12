@@ -12,10 +12,8 @@ namespace SuperMetroid.Core.Assets;
 /// OAM placement, sequence timing and every other atlas.</remarks>
 public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
 {
-    /// <summary>Stores source bytes.</summary>
     private readonly Dictionary<int, byte> sourceBytes;
 
-    /// <summary>Initializes a new samus death tile atlas instance.</summary>
     private SamusDeathTileAtlas(byte[] planar)
     {
         if (planar.Length != SamusDeathTileAtlasFormat.TotalByteCount)
@@ -30,7 +28,6 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(SamusDeathTileAtlas),
         content => content.Append("death characters", ReadRange(0, SamusDeathTileAtlasFormat.TotalByteCount)));
 
-    /// <summary>Reads byte.</summary>
     private byte ReadByte(int index)
     {
         if (sourceBytes.TryGetValue(index, out byte value)) return value;
@@ -39,7 +36,6 @@ public sealed class SamusDeathTileAtlas : IInstalledArtworkTransferSource
             : throw new InvalidDataException("Death artwork source byte is unavailable.");
     }
 
-    /// <summary>Reads range.</summary>
     private byte[] ReadRange(int first, int count)
     {
         var bytes = new byte[count];

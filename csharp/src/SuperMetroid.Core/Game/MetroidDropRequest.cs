@@ -36,10 +36,8 @@ public readonly record struct MetroidDropRequest();
 /// </summary>
 public sealed class MetroidEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new metroid enemy state instance.</summary>
     internal MetroidEnemyState(
         RoomEnemySlot slot,
         RoomSpriteObjectSlot outerBodyA,

@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 
-/// <summary>Represents mother brain glass shard definitions verification.</summary>
 internal static class MotherBrainGlassShardDefinitionsVerification
 {
-    /// <summary>Verifies mother brain glass shard definitions.</summary>
     internal static void VerifyMotherBrainGlassShardDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGlassShardXPlacement), () => VerifyGlassShardXPlacement(rom));
@@ -62,7 +60,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             "Mother Brain glass-shard definitions: sixteen instruction selectors, six placement words and 48 real spawns pass with source tables forbidden.");
     }
 
-    /// <summary>Verifies glass shard program selection.</summary>
     private static void VerifyGlassShardProgramSelection(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -77,7 +74,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         }
     }
 
-    /// <summary>Verifies glass shard program origins.</summary>
     private static void VerifyGlassShardProgramOrigins(SuperMetroidAddressSpace rom)
     {
         // Original selector entries that introduce each native loop, independent of its stride.
@@ -91,12 +87,9 @@ internal static class MotherBrainGlassShardDefinitionsVerification
                 "Glass shard ordinal bounds preserve array contract");
     }
 
-    /// <summary>Verifies glass shard xplacement.</summary>
     private static void VerifyGlassShardXPlacement(SuperMetroidAddressSpace rom) => VerifyGlassShardPlacementField(rom, false);
-    /// <summary>Verifies glass shard yplacement.</summary>
     private static void VerifyGlassShardYPlacement(SuperMetroidAddressSpace rom) => VerifyGlassShardPlacementField(rom, true);
 
-    /// <summary>Verifies glass shard placement field.</summary>
     private static void VerifyGlassShardPlacementField(SuperMetroidAddressSpace rom, bool yAxis)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -114,14 +107,12 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         }
     }
 
-    /// <summary>Reads mother brain glass shard word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass shard words")]
     internal static ushort ReadMotherBrainGlassShardWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>Creates mother brain glass shard read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassShardReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86ce41 and < 0x86ce6d,

@@ -7,21 +7,14 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
-/// <summary>Represents vram dma finding.</summary>
 internal sealed record VramDmaFinding(string Code, string Owner, string Source, string Detail);
-/// <summary>Represents vram dma site.</summary>
 internal sealed record VramDmaSite();
-/// <summary>Represents vram dma transfer.</summary>
 internal sealed record VramDmaTransfer(string Owner, int SourceAddress, int ByteCount,
     VramAssetId Asset = VramAssetId.None);
-/// <summary>Represents vram dma report.</summary>
 internal sealed class VramDmaReport
 {
-    /// <summary>Gets sites.</summary>
     public List<VramDmaSite> Sites { get; } = [];
-    /// <summary>Gets transfers.</summary>
     public List<VramDmaTransfer> Transfers { get; } = [];
-    /// <summary>Gets findings.</summary>
     public List<VramDmaFinding> Findings { get; } = [];
 }
 
@@ -32,7 +25,6 @@ internal sealed class VramDmaReport
 /// </summary>
 internal static class VramDmaAudit
 {
-    /// <summary>Run.</summary>
     internal static int Run(string root, string? jsonPath)
     {
         VramDmaReport report = Analyze(CreateCompilation(root), root);
@@ -51,7 +43,6 @@ internal static class VramDmaAudit
         return report.Findings.Count == 0 ? 0 : 1;
     }
 
-    /// <summary>Creates compilation.</summary>
     internal static CSharpCompilation CreateCompilation(string root)
     {
         var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
@@ -70,7 +61,6 @@ internal static class VramDmaAudit
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true));
     }
 
-    /// <summary>Analyze.</summary>
     internal static VramDmaReport Analyze(CSharpCompilation compilation, string? root = null,
         Func<int, int, bool>? ownsNative = null, Func<VramAssetId, int, bool>? ownsTyped = null)
     {
@@ -153,7 +143,6 @@ internal static class VramDmaAudit
         }
     }
 
-    /// <summary>Checks transfer.</summary>
     internal static string? CheckTransfer(VramDmaTransfer transfer, Func<int, int, bool> ownsNative,
         Func<VramAssetId, int, bool> ownsTyped)
     {
@@ -175,13 +164,11 @@ internal static class VramDmaAudit
         return null;
     }
 
-    /// <summary>Constant.</summary>
     private static int? Constant(IInvocationOperation call, string name)
     {
         var value = call.Arguments.Single(argument => argument.Parameter?.Name == name).Value.ConstantValue;
         return value is { HasValue: true, Value: not null } ? Convert.ToInt32(value.Value) : null;
     }
-    /// <summary>Location.</summary>
     private static string Location(SyntaxNode node) => node.SyntaxTree.FilePath + ":" +
         (node.GetLocation().GetLineSpan().StartLinePosition.Line + 1);
 }

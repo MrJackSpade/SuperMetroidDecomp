@@ -6,7 +6,6 @@ using static AssertionsVerification;
 using static SyntheticSamusAnimationDelaysVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents cramped aerial landing verification.</summary>
 internal static class CrampedAerialLandingVerification
 {
     /// <summary>

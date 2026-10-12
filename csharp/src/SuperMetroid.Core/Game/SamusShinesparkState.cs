@@ -15,11 +15,8 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusShinesparkState
 {
-    /// <summary>Stores audio power bomb.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
-    /// <summary>Stores projectiles.</summary>
     [NonSerialized] private SamusProjectileSystem? _projectiles;
-    /// <summary>Stores charge cancellation sound requested.</summary>
     [NonSerialized] private bool _chargeCancellationSoundRequested;
 
     /// <summary>
@@ -104,13 +101,13 @@ public sealed class SamusShinesparkState
         PaletteFrameOffset = 0;
     }
 
-    /// <summary>Sets at stored timer 170, matching SFX queue three `$0C`.</summary>
+    /// <summary>Set at stored timer 170, matching SFX queue three `$0C`.</summary>
     public bool StoredShineWarningSoundRequested { get; set; }
 
-    /// <summary>Sets when direction selection requests SFX queue three `$0F`.</summary>
+    /// <summary>Set when direction selection requests SFX queue three `$0F`.</summary>
     public bool LaunchSoundRequested { get; set; }
 
-    /// <summary>Sets when energy or collision installs the crash handler.</summary>
+    /// <summary>Set when energy or collision installs the crash handler.</summary>
     public bool CrashSoundRequested { get; set; }
 
     /// <summary>Consumes the stored-shine warning's <c>QueueSfx3_Max9($0C)</c> call.</summary>
@@ -196,9 +193,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     public ShinesparkReleasedEchoClear? LastReleasedCrashEchoClear { get; private set; }
 
-    /// <summary>Stores first released crash echo.</summary>
     private readonly ReleasedEchoSlot _firstReleasedCrashEcho = new();
-    /// <summary>Stores second released crash echo.</summary>
     private readonly ReleasedEchoSlot _secondReleasedCrashEcho = new();
 
     /// <summary>
@@ -266,7 +261,6 @@ public sealed class SamusShinesparkState
         BeginDirectionalLaunch(bus, samus, targetPose);
     }
 
-    /// <summary>Initializes windup.</summary>
     private void InitializeWindup(SamusState samus)
     {
         // Projectile_Func7_Shinespark checks $0CD0 before clearing it. A charge that has
@@ -515,7 +509,6 @@ false);
         return true;
     }
 
-    /// <summary>Begin crash.</summary>
     private void BeginCrash(ISnesAddressSpace bus, SamusState samus)
     {
         // `$90:D2BA-$D345` kills translational velocity before installing the crash handler.
@@ -705,7 +698,6 @@ false,             CrashSequenceFinished: true);
         return true;
     }
 
-    /// <summary>Steps released crash echo.</summary>
     private bool StepReleasedCrashEcho(
         SamusState samus,
         Position16<RoomPixels> layer1,
@@ -757,7 +749,6 @@ false,             CrashSequenceFinished: true);
         return new(unchecked((short)x), unchecked((short)y));
     }
 
-    /// <summary>Looks up signed component.</summary>
     private static ushort LookupSignedComponent(
         SnesAngle angle,
         byte radius)
@@ -797,7 +788,6 @@ false,             CrashSequenceFinished: true);
             samus.WritePreviousYPosition(unchecked((ushort)(samus.Position.Y.Whole + 0x0e)));
     }
 
-    /// <summary>Moves x.</summary>
     private BlockMoveResult MoveX(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -822,7 +812,6 @@ false,             CrashSequenceFinished: true);
         return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
-    /// <summary>Moves y.</summary>
     private BlockMoveResult MoveY(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -887,24 +876,17 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private sealed class ReleasedEchoSlot
     {
-        /// <summary>Gets or sets active.</summary>
         public bool Active { get; private set; }
-        /// <summary>Gets or sets angle.</summary>
         public SnesAngle Angle { get; set; }
-        /// <summary>Gets or sets radius.</summary>
         public ushort Radius { get; set; }
-        /// <summary>Gets or sets position.</summary>
         public Position16<RoomPixels> Position { get; set; }
 
-        /// <summary>Gets snapshot.</summary>
         public ShinesparkReleasedEcho Snapshot => new(Active, Position);
 
         // Crash entry changes only the drawing enable. It does not clear coordinates,
         // projectile ownership, or the aliased angular-travel word.
-        /// <summary>Disable drawing.</summary>
         public void DisableDrawing() => Active = false;
 
-        /// <summary>Initialize.</summary>
         public void Initialize(SnesAngle angle, Position16<RoomPixels> position)
         {
             Active = true;
@@ -915,7 +897,6 @@ false,             CrashSequenceFinished: true);
             Position = position;
         }
 
-        /// <summary>Clear.</summary>
         public void Clear()
         {
             Active = false;

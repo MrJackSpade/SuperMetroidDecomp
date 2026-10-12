@@ -40,7 +40,6 @@ public static class NorfairRidleyColorExtractor
         });
     }
 
-    /// <summary>Reads colors.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int source, int count)
     {
         var colors = new PaletteRgb5[count];

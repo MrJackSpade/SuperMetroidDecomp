@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,12 +6,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The walking space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
 {
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Initializes a new walking space pirate behavior instance.</summary>
     internal WalkingSpacePirateBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles)
     {
         _terrain = terrain;
@@ -67,33 +64,21 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines pirate mother brain laser sound.</summary>
     internal const ushort PirateMotherBrainLaserSound = 0x0067;
-    /// <summary>Defines walking pirate one pixel down.</summary>
     private const int WalkingPirateOnePixelDown = 1 << 16;
-    /// <summary>Defines walking pirate left ledge probe pixels.</summary>
     private const int WalkingPirateLeftLedgeProbePixels = 17;
-    /// <summary>Defines walking pirate right ledge probe pixels.</summary>
     private const int WalkingPirateRightLedgeProbePixels = 16;
-    /// <summary>Defines walking pirate left step displacement.</summary>
     private const int WalkingPirateLeftStepDisplacement = -0x3801;
-    /// <summary>Defines walking pirate right step displacement.</summary>
     private const int WalkingPirateRightStepDisplacement = 0x3800;
-    /// <summary>Defines walking pirate firing band pixels.</summary>
     private const int WalkingPirateFiringBandPixels = 16;
-    /// <summary>Defines walking pirate flinch box pixels.</summary>
     private const int WalkingPirateFlinchBoxPixels = 32;
-    /// <summary>Defines walking pirate laser muzzle xoffset.</summary>
     private const int WalkingPirateLaserMuzzleXOffset = 24;
-    /// <summary>Defines walking pirate slow laser pixels per frame.</summary>
     private const int WalkingPirateSlowLaserPixelsPerFrame = 2;
-    /// <summary>Defines walking pirate fast laser pixels per frame.</summary>
     private const int WalkingPirateFastLaserPixelsPerFrame = 4;
 
     // The six palette/health tiers share the same initialization, main AI, collision AI,
     // dimensions, animation lists, and projectile. Definition identity must still remain
     // explicit because damage, health, vulnerability, drops, tiles, and palette are ROM data.
-    /// <summary>Stores walking space pirate states.</summary>
     internal readonly WalkingSpacePirateEnemyState?[] _walkingSpacePirateStates =
         new WalkingSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -103,7 +88,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastSpacePirateSoundEffect { get; internal set; }
 
-    /// <summary>Checks whether walking space pirate definition.</summary>
     internal static bool IsWalkingSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyWalking or
         EnemyDefinitionId.PirateGreenWalking or
@@ -321,14 +305,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
             : WalkingSpacePirateInstructionProgramDefinitions.WalkingRight;
     }
 
-    /// <summary>Walking space pirate is vertically close.</summary>
     private static bool WalkingSpacePirateIsVerticallyClose(
         RoomEnemySlot slot,
         SamusState samus) =>
         Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))) <
             WalkingPirateFiringBandPixels;
 
-    /// <summary>Install walking space pirate attack.</summary>
     private static void InstallWalkingSpacePirateAttack(
         RoomEnemySlot slot,
         SamusState samus) =>
@@ -338,7 +320,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
                 ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
                 : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft);
 
-    /// <summary>Install walking space pirate instruction.</summary>
     private static void InstallWalkingSpacePirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -465,13 +446,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
             projectile.Clear();
     }
 
-    /// <summary>Requires walking space pirate state.</summary>
     private WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
         RoomEnemySlot slot) =>
         _walkingSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized walking Space Pirate state.");
 
-    /// <summary>Register walking space pirate projectiles.</summary>
     internal static void RegisterWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -501,7 +480,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
             });
     }
 
-    /// <summary>Register walking space pirate initialization ai.</summary>
     internal void RegisterWalkingSpacePirateInitializationAi(EnemyAiTable table)
     {
 
@@ -511,7 +489,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register walking space pirate main ai.</summary>
     internal void RegisterWalkingSpacePirateMainAi(EnemyAiTable table)
     {
 
@@ -526,7 +503,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register walking space pirate owned instructions.</summary>
     internal void RegisterWalkingSpacePirateOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -548,7 +524,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         LastSpacePirateSoundEffect = null;
     }
 
-    /// <summary>Resolves space pirate hitbox shot.</summary>
     internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c)
     {
         if (!c.UsesExtendedHitboxes)

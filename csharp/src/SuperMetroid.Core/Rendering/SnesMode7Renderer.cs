@@ -14,11 +14,8 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU Mode 7 rasterizer")]
 public static class SnesMode7Renderer
 {
-    /// <summary>Defines map width in tiles.</summary>
     private const int MapWidthInTiles = 128;
-    /// <summary>Defines character width.</summary>
     private const int CharacterWidth = 8;
-    /// <summary>Defines mode7 coordinate mask.</summary>
     private const int Mode7CoordinateMask = 0x03ff;
 
     /// <summary>
@@ -94,6 +91,5 @@ public static class SnesMode7Renderer
         }
     }
 
-    /// <summary>Sign extend13.</summary>
     private static int SignExtend13(short register) => (register << 19) >> 19;
 }

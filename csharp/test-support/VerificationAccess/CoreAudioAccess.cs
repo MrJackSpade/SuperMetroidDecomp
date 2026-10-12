@@ -3,10 +3,8 @@ using SuperMetroid.Core.Audio;
 /// <summary>Verification access to <see cref="ManagedSnesDsp"/> members production does not use.</summary>
 internal static class ManagedSnesDspAccess
 {
-    /// <summary>Provides verification helpers for <see cref="ManagedSnesDsp"/>.</summary>
     extension(ManagedSnesDsp self)
     {
-        /// <summary>Reads register.</summary>
         [DspRegisterAccess]
         internal byte ReadRegister(byte address) => PrivateState.Field<byte[]>(self, "registers")[address & 0x7f];
     }
@@ -15,7 +13,6 @@ internal static class ManagedSnesDspAccess
 /// <summary>Verification views of FLG's two meanings: the control bits and the noise rate (#631 alias proof).</summary>
 internal static class DspFlagsAccess
 {
-    /// <summary>Provides verification helpers for <see cref="DspFlags"/>.</summary>
     extension(DspFlags self)
     {
         /// <summary>The reset (bit 7), mute (bit 6) and echo-write-disable (bit 5) bits.</summary>
@@ -31,7 +28,6 @@ internal static class DspFlagsAccess
 /// <summary>Verification access to <see cref="ManagedSpcPlayer"/> members production does not use.</summary>
 internal static class ManagedSpcPlayerAccess
 {
-    /// <summary>Provides verification helpers for <see cref="ManagedSpcPlayer"/>.</summary>
     extension(ManagedSpcPlayer self)
     {
         /// <summary>Exposes the mirrored DSP register file to deterministic verification.</summary>
@@ -53,7 +49,6 @@ internal static class ManagedSpcPlayerAccess
 /// <summary>Verification access to <see cref="MusicCommandDelay"/> members production does not use.</summary>
 internal static class MusicCommandDelayAccess
 {
-    /// <summary>Provides verification helpers for <see cref="MusicCommandDelay"/>.</summary>
     extension(MusicCommandDelay)
     {
         /// <summary>
@@ -75,7 +70,6 @@ internal static class MusicCommandDelayAccess
 /// <summary>Verification access to <see cref="SoundEffectLibraries"/> members production does not use.</summary>
 internal static class SoundEffectLibrariesAccess
 {
-    /// <summary>Provides verification helpers for <see cref="SoundEffectLibraries"/>.</summary>
     extension(SoundEffectLibraries)
     {
         /// <summary>Validates a raw cartridge library number before it enters typed code.</summary>

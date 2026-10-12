@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
@@ -10,22 +10,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Spore Spawn species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SporeSpawnBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Initializes a new spore spawn behavior instance.</summary>
     internal SporeSpawnBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, EnemyFrameContext frameContext, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
@@ -37,14 +29,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Defines spore spawn death center x.</summary>
     private const ushort SporeSpawnDeathCenterX = 128;
-    /// <summary>Defines spore spawn death center y.</summary>
     private const ushort SporeSpawnDeathCenterY = 624;
-    /// <summary>Defines spore spawn ceiling y.</summary>
     private const ushort SporeSpawnCeilingY = 560;
 
-    /// <summary>Stores spore spawn drop requests.</summary>
     internal readonly List<SporeSpawnDropRequest> _sporeSpawnDropRequests = new();
 
     /// <summary>Frame-local hardcoded ceiling PLM request.</summary>
@@ -53,7 +41,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
     /// <summary>Last library-two sound requested by the boss or one of its instructions.</summary>
     public ushort? LastSporeSpawnSoundEffectLibrary2 { get; private set; }
 
-    /// <summary>Resets spore spawn room state.</summary>
     internal void ResetSporeSpawnRoomState()
     {
         _sporeSpawn = null;
@@ -62,7 +49,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         _sporeSpawnDropRequests.Clear();
     }
 
-    /// <summary>Begin spore spawn frame.</summary>
     internal void BeginSporeSpawnFrame()
     {
         LastSporeSpawnPlm = null;
@@ -93,7 +79,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             SporeSpawnScrollingHooks.FightMinimumLayerOneY);
     }
 
-    /// <summary>Requires spore spawn state.</summary>
     private SporeSpawnEnemyState RequireSporeSpawnState(RoomEnemySlot slot)
     {
         SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
@@ -280,7 +265,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             horizontal: false);
     }
 
-    /// <summary>Writes spore spawn stalk axis.</summary>
     private void WriteSporeSpawnStalkAxis(
         ushort firstPosition,
         ushort anchor,
@@ -315,11 +299,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Publish spore spawn plm.</summary>
     private void PublishSporeSpawnPlm(PlmHeaderId header) =>
         LastSporeSpawnPlm = new SporeSpawnPlmRequest(new(7, 30), header);
 
-    /// <summary>Register spore spawn bomb reactions.</summary>
     internal void RegisterSporeSpawnBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
@@ -330,7 +312,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register spore spawn projectiles.</summary>
     internal void RegisterSporeSpawnProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -368,7 +349,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             });
     }
 
-    /// <summary>Register spore spawn initialization ai.</summary>
     internal void RegisterSporeSpawnInitializationAi(EnemyAiTable table)
     {
 
@@ -378,7 +358,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register spore spawn main ai.</summary>
     internal void RegisterSporeSpawnMainAi(EnemyAiTable table)
     {
 
@@ -388,7 +367,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register spore spawn owned instructions.</summary>
     internal void RegisterSporeSpawnOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -398,7 +376,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register spore spawn shot reactions.</summary>
     internal void RegisterSporeSpawnShotReactions(EnemyAiTable table)
     {
 
@@ -434,7 +411,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register spore spawn touch.</summary>
     internal void RegisterSporeSpawnTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
@@ -454,7 +430,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
                 ResolveSporeSpawnDeathAfterCommon(context.Slot);
             });
     }
-    /// <summary>Spore spawn accepts projectile.</summary>
     private static bool SporeSpawnAcceptsProjectile(ushort projectileType) =>
         (projectileType & 0x0700) != 0 || (projectileType & 0x0010) != 0;
 
@@ -533,7 +508,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         PublishSporeSpawnPlm(header: PlmHeaderId.CrumbleSporeSpawnCeiling);
     }
 
-    /// <summary>Tries to process spore spawn instruction.</summary>
     private bool TryProcessSporeSpawnInstruction(
         RoomEnemySlot body,
         ushort opcode,
@@ -640,7 +614,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Loads spore spawn death palette.</summary>
     internal void LoadSporeSpawnDeathPalette(ushort sourceByteOffset, bool targetOnly)
     {
         SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
@@ -662,7 +635,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
             targetOnly);
     }
 
-    /// <summary>Copies spore spawn palette row.</summary>
     private void CopySporeSpawnPaletteRow(
         SporeSpawnDeathPaletteLayer layer,
         ushort sourceByteOffset,
@@ -685,7 +657,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Spawn spore spawn hardening dust.</summary>
     private void SpawnSporeSpawnHardeningDust(SporeSpawnEnemyState state)
     {
         ushort random = _room.Random.Generate();
@@ -695,7 +666,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         LastSporeSpawnSoundEffectLibrary2 = 0x0029;
     }
 
-    /// <summary>Spawn spore spawn dying explosion.</summary>
     private void SpawnSporeSpawnDyingExplosion(SporeSpawnEnemyState state)
     {
         ushort random = _room.Random.Generate();
@@ -706,7 +676,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         LastSporeSpawnSoundEffectLibrary2 = 0x0025;
     }
 
-    /// <summary>Request spore spawn death drops.</summary>
     private void RequestSporeSpawnDeathDrops(SporeSpawnEnemyState state)
     {
         for (int drop = 0; drop < 16; drop++)
@@ -719,10 +688,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         }
         state.DeathDropRequested = true;
     }
-    /// <summary>Defines spore spawn spawner spawn instruction.</summary>
     private const ushort SporeSpawnSpawnerSpawnInstruction =
         SporeSpawnProjectileInstructionProgramDefinitions.SpawnerRelease;
-    /// <summary>Defines spore spawn graphics index.</summary>
     private const ushort SporeSpawnGraphicsIndex = 0x0200;
 
     /// <summary>Ports projectile definition $86:DE6C and initializer $86:DCA3.</summary>
@@ -859,7 +826,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
     {
         BeginSporeSpawnFrame();
     }
-    /// <summary>Stores spore spawn.</summary>
     internal SporeSpawnEnemyState? _sporeSpawn;
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

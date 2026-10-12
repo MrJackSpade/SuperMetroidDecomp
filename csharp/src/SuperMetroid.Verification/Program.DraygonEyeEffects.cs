@@ -14,10 +14,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents draygon eye effects verification.</summary>
 internal static class DraygonEyeEffectsVerification
 {
-    /// <summary>Verifies draygon eye effects.</summary>
     internal static void VerifyDraygonEyeEffects()
     {
         foreach (bool facingRight in new[] { false, true })
@@ -46,7 +44,6 @@ internal static class DraygonEyeEffectsVerification
         }
     }
 
-    /// <summary>Draygon eye effects command.</summary>
     [VerificationCommand("--draygon-eye-effects")]
     internal static int DraygonEyeEffectsCommand()
     {

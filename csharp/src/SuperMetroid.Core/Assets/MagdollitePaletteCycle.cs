@@ -24,9 +24,7 @@ public sealed class MagdollitePaletteCycle
         });
 
     // The four independent glow colors remain required artwork under issue1165.
-    /// <summary>Stores colors.</summary>
     private readonly Bgr555[] colors;
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
     /// <summary>
@@ -43,7 +41,6 @@ public sealed class MagdollitePaletteCycle
                 edits.Add(frame * colors.Length + color, frames[frame][color]);
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -140,7 +137,6 @@ public sealed class MagdollitePaletteCycle
         return bytes;
     }
 
-    /// <summary>reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Magdollite palette property {name}."));

@@ -6,7 +6,6 @@ public static class RoomTilesetDefinitions
     /// <summary>$8F:E7A7..E7DF: graphics themes $00..$1C precede unrelated data.</summary>
     public const int Count = 0x1d;
 
-    /// <summary>Represents theme.</summary>
     private enum Theme : byte
     {
         /// <summary>$8F:E6A2, <c>Tileset_Table_0_UpperCrateria</c>, graphics-set selector $00.</summary>
@@ -69,7 +68,6 @@ public static class RoomTilesetDefinitions
         Draygon = 0x1c,
     }
 
-    /// <summary>Represents block source.</summary>
     private enum BlockSource : int
     {
         /// <summary>$C1B6F6, <c>TileTables_0_1_UpperCrateria</c>: native BlockSource identity.</summary>
@@ -102,7 +100,6 @@ public static class RoomTilesetDefinitions
         Draygon = 0xc2960d,
     }
 
-    /// <summary>select block source.</summary>
     private static BlockSource SelectBlockSource(Theme theme) => theme switch
     {
         Theme.UpperCrateria or Theme.RedCrateria => BlockSource.UpperCrateria,
@@ -122,7 +119,6 @@ public static class RoomTilesetDefinitions
         _ => throw new InvalidDataException("Invalid graphics theme."),
     };
 
-    /// <summary>Represents character source.</summary>
     private enum CharacterSource : int
     {
         /// <summary>$BAC629, <c>Tiles_0_1_UpperCrateria</c>: native CharacterSource identity.</summary>
@@ -159,7 +155,6 @@ public static class RoomTilesetDefinitions
         Draygon = 0xbf9dea,
     }
 
-    /// <summary>select character source.</summary>
     private static CharacterSource SelectCharacterSource(Theme theme) => theme switch
     {
         Theme.UpperCrateria or Theme.RedCrateria => CharacterSource.UpperCrateria,
@@ -181,7 +176,6 @@ public static class RoomTilesetDefinitions
         _ => throw new InvalidDataException("Invalid graphics theme."),
     };
 
-    /// <summary>Represents palette source.</summary>
     private enum PaletteSource : int
     {
         /// <summary>$C2AD7C, <c>Palettes_0_UpperCrateria</c>: native PaletteSource identity.</summary>
@@ -236,7 +230,6 @@ public static class RoomTilesetDefinitions
         Draygon = 0xc2ba2c,
     }
 
-    /// <summary>select palette source.</summary>
     private static PaletteSource SelectPaletteSource(Theme theme) => theme switch
     {
         Theme.UpperCrateria => PaletteSource.UpperCrateria,

@@ -6,10 +6,8 @@ using SuperMetroid.Rendering.Direct3D11;
 
 using static DesktopVerificationSupport;
 
-/// <summary>Represents close during load tests.</summary>
 internal static class CloseDuringLoadTests
 {
-    /// <summary>Verifies close during load.</summary>
     internal static async Task VerifyCloseDuringLoad(bool restart)
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");

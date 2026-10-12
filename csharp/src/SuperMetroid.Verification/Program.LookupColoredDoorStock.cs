@@ -2,10 +2,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
-/// <summary>Represents lookup colored door stock verification.</summary>
 internal static class LookupColoredDoorStockVerification
 {
-    /// <summary>Verifies colored door stock mapping.</summary>
     internal static void VerifyColoredDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmColoredDoorVisualCatalog installed)
     {

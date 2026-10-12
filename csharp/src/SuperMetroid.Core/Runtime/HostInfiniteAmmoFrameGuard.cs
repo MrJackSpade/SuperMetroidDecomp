@@ -15,10 +15,8 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 internal sealed class HostInfiniteAmmoFrameGuard
 {
-    /// <summary>Stores completed.</summary>
     private bool _completed;
 
-    /// <summary>Initializes a new host infinite ammo frame guard instance.</summary>
     private HostInfiniteAmmoFrameGuard(
         SamusState? actor,
         bool missilesBuffered,
@@ -31,13 +29,9 @@ internal sealed class HostInfiniteAmmoFrameGuard
         PowerBombsBuffered = powerBombsBuffered;
     }
 
-    /// <summary>Gets actor.</summary>
     private SamusState? Actor { get; }
-    /// <summary>Gets missiles buffered.</summary>
     private bool MissilesBuffered { get; }
-    /// <summary>Gets super missiles buffered.</summary>
     private bool SuperMissilesBuffered { get; }
-    /// <summary>Gets power bombs buffered.</summary>
     private bool PowerBombsBuffered { get; }
 
     /// <summary>Prepares the three counters before any frame logic can observe them.</summary>
@@ -99,7 +93,6 @@ internal sealed class HostInfiniteAmmoFrameGuard
             PowerBombsBuffered);
     }
 
-    /// <summary>Prepare counter.</summary>
     private static bool PrepareCounter(
         ushort current,
         ushort maximum,
@@ -120,7 +113,6 @@ internal sealed class HostInfiniteAmmoFrameGuard
         return true;
     }
 
-    /// <summary>Completes counter.</summary>
     private static ushort CompleteCounter(ushort current, ushort maximum, bool buffered)
     {
         if (maximum == 0)

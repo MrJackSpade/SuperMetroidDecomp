@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 
-/// <summary>Represents native capture seeds.</summary>
 internal static class NativeCaptureSeeds
 {
     /// <summary>

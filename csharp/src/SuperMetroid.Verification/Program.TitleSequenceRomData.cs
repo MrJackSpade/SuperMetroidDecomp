@@ -10,7 +10,6 @@ using static FrontendVerification;
 using static TitleFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents title sequence rom data verification.</summary>
 internal static class TitleSequenceRomDataVerification
 {
     /// <summary>
@@ -108,7 +107,6 @@ internal static class TitleSequenceRomDataVerification
             "animation, confirmation fade, and skip route agree.");
     }
 
-    /// <summary>Creates constructed title rom.</summary>
     internal static byte[] CreateConstructedTitleRom()
     {
         var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -173,7 +171,6 @@ internal static class TitleSequenceRomDataVerification
         return rom;
     }
 
-    /// <summary>Writes constructed title text list.</summary>
     private static void WriteConstructedTitleTextList(
         byte[] rom,
         TitleTextSequenceDefinition definition,

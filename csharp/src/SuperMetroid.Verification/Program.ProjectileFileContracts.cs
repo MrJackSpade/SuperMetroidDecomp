@@ -17,7 +17,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using static RoomAssetJsonContractsVerification;
 
-/// <summary>Represents projectile file contracts verification.</summary>
 internal static class ProjectileFileContractsVerification
 {
     /// <summary>
@@ -202,7 +201,6 @@ internal static class ProjectileFileContractsVerification
         manifest[field] = hash;
     }
 
-    /// <summary>Projectile file contracts command.</summary>
     [VerificationCommand("--projectile-file-contracts")]
     internal static int ProjectileFileContractsCommand()
     {

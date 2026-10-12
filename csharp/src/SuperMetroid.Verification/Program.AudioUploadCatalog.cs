@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
-/// <summary>Represents audio upload catalog verification.</summary>
 internal static class AudioUploadCatalogVerification
 {
-    /// <summary>Verifies audio upload catalog.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the audio upload catalog pointers")]
     internal static void VerifyAudioUploadCatalog(ISnesAddressSpace rom)
     {

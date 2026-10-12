@@ -12,36 +12,21 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class MessageBoxFlow
 {
-    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Stores bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Stores hud.</summary>
     private readonly HudState _hud;
-    /// <summary>Stores message box.</summary>
     private readonly GameplayMessageBoxState _messageBox;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores suit pickup.</summary>
     private readonly SamusSuitPickupState _suitPickup;
-    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
-    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new message box flow instance.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
@@ -59,13 +44,9 @@ internal sealed class MessageBoxFlow
         _vramWrites = dependencies.VramWrites;
         _addressSpace = dependencies.AddressSpace;
     }
-    /// <summary>Stores pending suit pickup.</summary>
     internal SamusSuitPickupKind? _pendingSuitPickup;
-    /// <summary>Stores pending save station.</summary>
     internal StationActivationEvent? _pendingSaveStation;
-    /// <summary>Stores pending save station completion.</summary>
     internal StationActivationEvent? _pendingSaveStationCompletion;
-    /// <summary>Stores completed save station.</summary>
     private SaveStationPersistenceRequest? _completedSaveStation;
 
     /// <summary>One-frame bank-$85 request for the save selector's library-one sound $37.</summary>
@@ -187,7 +168,6 @@ internal sealed class MessageBoxFlow
         return;
     }
 
-    /// <summary>Stores gunship exit sound requested.</summary>
     private bool _gunshipExitSoundRequested;
 
     /// <summary>

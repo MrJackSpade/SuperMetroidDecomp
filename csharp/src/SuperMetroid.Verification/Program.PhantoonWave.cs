@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 using static SuiteTimingVerification;
 
-/// <summary>Represents phantoon wave verification.</summary>
 internal static class PhantoonWaveVerification
 {
-    /// <summary>Verifies phantoon wave lifecycle.</summary>
     internal static void VerifyPhantoonWaveLifecycle()
     {
         var boss = new PhantoonEnemyState(new RoomEnemySlot(0))
@@ -52,7 +50,6 @@ internal static class PhantoonWaveVerification
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch and debugger round-trip agree.");
     }
 
-    /// <summary>Verifies phantoon fade colors.</summary>
     private static void VerifyPhantoonFadeColors()
     {
         // Original $A7:D464/$D486 captures: health one, denominator twelve,
@@ -67,7 +64,6 @@ internal static class PhantoonWaveVerification
             "fast fade reaches target on first interpolated update");
     }
 
-    /// <summary>Verifies phantoon blending lifecycle.</summary>
     private static void VerifyPhantoonBlendingLifecycle(PhantoonEnemyState boss)
     {
         var blend = boss.Blending;

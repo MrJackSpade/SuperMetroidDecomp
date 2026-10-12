@@ -5,15 +5,12 @@ internal static class ColoredDoorPlmDrawDefinitions
 {
     /// <summary>Yellow left-facing closed cap at $84:A767.</summary>
     private const ushort YellowLeft = 0xa767;
-    /// <summary>Defines draw list bytes.</summary>
     internal const int DrawListBytes = 12;
 
     /// <summary>One of forty-eight twelve-byte records at $84:A767..A9A6.</summary>
     internal readonly record struct Draw(int Color, int Orientation, int Frame)
     {
-        /// <summary>Gets vertical.</summary>
         internal bool Vertical => Orientation < 2;
-        /// <summary>Gets direction and count.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
         /// <summary>
@@ -37,7 +34,6 @@ internal static class ColoredDoorPlmDrawDefinitions
         }
     }
 
-    /// <summary>Tries to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - YellowLeft;
@@ -47,7 +43,6 @@ internal static class ColoredDoorPlmDrawDefinitions
         return owned;
     }
 
-    /// <summary>Gets or sets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -61,7 +56,6 @@ internal static class ColoredDoorPlmDrawDefinitions
     }
 
     // Temporary import/export DTOs; the runtime calculates cells directly.
-    /// <summary>Tries to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -72,7 +66,6 @@ internal static class ColoredDoorPlmDrawDefinitions
         return true;
     }
 
-    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -82,7 +75,6 @@ internal static class ColoredDoorPlmDrawDefinitions
         return $"{color}-{direction}-frame-{draw.Frame}";
     }
 
-    /// <summary>Tries to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         for (int index = 0; index < 48; index++)

@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents mother brain door fragment definitions verification.</summary>
 internal static class MotherBrainDoorFragmentDefinitionsVerification
 {
-    /// <summary>Verifies mother brain door fragment definitions.</summary>
     internal static void VerifyMotherBrainDoorFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 8; parameter++)
@@ -56,7 +54,6 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
             "Mother Brain door fragments: 32 native physical words and all eight real spawns pass with offset/velocity tables forbidden.");
     }
 
-    /// <summary>New mother brain door fragment read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainDoorFragmentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86c992 and < 0x86c9d2,

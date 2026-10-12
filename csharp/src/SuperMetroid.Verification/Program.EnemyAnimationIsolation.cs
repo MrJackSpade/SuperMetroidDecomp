@@ -17,10 +17,8 @@ using static EnemyContentIdentityFixtureVerification;
 using static GoldenTorizoRightOrbFramesVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy animation isolation verification.</summary>
 internal static class EnemyAnimationIsolationVerification
 {
-    /// <summary>Verifies enemy animation isolation.</summary>
     internal static void VerifyEnemyAnimationIsolation()
     {
         var stock = new EnemyIdentityFixture().Build();
@@ -32,7 +30,6 @@ internal static class EnemyAnimationIsolationVerification
             "boss attack/hitbox windows and death progression remain frame-exact with replaced display sequences and projectile art.");
     }
 
-    /// <summary>Verifies boyon animation isolation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyBoyonAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
@@ -64,7 +61,6 @@ internal static class EnemyAnimationIsolationVerification
             $"{heights.Count} Y positions and {bounceSounds} bounce callbacks; OAM changes every frame without changing mechanics.");
     }
 
-    /// <summary>Verifies torizo animation isolation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyTorizoAnimationIsolation(EnemyAnimationFixture stock, EnemyAnimationFixture edited)
     {
@@ -127,7 +123,6 @@ internal static class EnemyAnimationIsolationVerification
             "identical motion, projectiles, damage fields, RNG and progression with different OAM.");
     }
 
-    /// <summary>Compare torizo hit windows.</summary>
     private static void CompareTorizoHitWindows(EnemyAnimationFixture stock, EnemyAnimationFixture edited,
         int frame, ref int hits, ref int misses)
     {
@@ -145,7 +140,6 @@ internal static class EnemyAnimationIsolationVerification
         }
     }
 
-    /// <summary>Enemy animation isolation command.</summary>
     [VerificationCommand("--enemy-animation-isolation")]
     internal static int EnemyAnimationIsolationCommand()
     {

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Game;
+﻿namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// Native <c>CapScrollingSpeed</c> for enemies that place Samus (Draygon and Yapping Maw): it rewrites her
@@ -37,7 +37,6 @@ internal sealed class SamusScrollCap
             samus.WritePreviousXPosition(cappedX);
     }
 
-    /// <summary>Capped previous position.</summary>
     private static ushort? CappedPreviousPosition(ushort position, ushort previous)
     {
         ushort delta = unchecked((ushort)(position - previous));

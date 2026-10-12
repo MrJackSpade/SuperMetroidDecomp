@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents game time verification.</summary>
 internal static class GameTimeVerification
 {
     /// <summary>Checks `$82:DB69` rollover, saturation, and save-snapshot ownership.</summary>

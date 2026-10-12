@@ -16,11 +16,8 @@ internal abstract class ZebetiteInstructionProgramDefinitions
     /// <summary><c>InstList_Big_HealthGreaterThanEqualTo800</c> at $A6:FDCC.</summary>
     internal const ushort BigHealthAtLeast800 = 0xfdcc;
 
-    /// <summary>Gets program count.</summary>
     internal static int ProgramCount => 10;
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => ProgramCount * 2;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => ProgramCount;
 
     /// <summary>
@@ -34,14 +31,12 @@ internal abstract class ZebetiteInstructionProgramDefinitions
         return Program((ushort)(BigHealthAtLeast800 + index * 3 * sizeof(ushort)));
     }
 
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Word(ProgramAt(index / 2).Entry, (ushort)((index & 1) * 4));
     }
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => ProgramAt(index).Presentation;
     /// <summary>Returns fixed Zebetite control or rejects pointers outside its ten lists.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
@@ -64,11 +59,9 @@ internal abstract class ZebetiteInstructionProgramDefinitions
             $"Zebetite instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    /// <summary>Program.</summary>
     private static ZebetiteInstructionProgram Program(ushort entry) =>
         new(entry, unchecked((ushort)(entry + 2)));
 
-    /// <summary>Word.</summary>
     private static InstructionMechanicsWord Word(ushort entry, ushort offset) =>
         new(
             unchecked((ushort)(entry + offset)),

@@ -20,21 +20,14 @@ internal readonly record struct ConvertedMovieUpdate(
 /// </summary>
 internal sealed class NativeMovieCheckpoints : IDisposable
 {
-    /// <summary>Defines work ram byte count.</summary>
     public const int WorkRamByteCount = 0x20000;
-    /// <summary>Defines record header bytes.</summary>
     private const int RecordHeaderBytes = 8;
 
-    /// <summary>Stores file.</summary>
     private readonly FileStream file;
-    /// <summary>Stores trace.</summary>
     private readonly GZipStream trace;
-    /// <summary>Stores record.</summary>
     private readonly byte[] record = new byte[RecordHeaderBytes + WorkRamByteCount];
-    /// <summary>Stores last record.</summary>
     private int lastRecord = -1;
 
-    /// <summary>Initializes a new native movie checkpoints instance.</summary>
     private NativeMovieCheckpoints(string directory, JsonElement root, ConvertedMovieUpdate[] updates)
     {
         Updates = updates;
@@ -49,11 +42,8 @@ internal sealed class NativeMovieCheckpoints : IDisposable
         trace = new GZipStream(file, CompressionMode.Decompress);
     }
 
-    /// <summary>Gets updates.</summary>
     public IReadOnlyList<ConvertedMovieUpdate> Updates { get; }
-    /// <summary>Gets source frame count.</summary>
     public int SourceFrameCount { get; }
-    /// <summary>Gets initial input.</summary>
     public ushort InitialInput { get; }
     /// <summary>Record preceding the first port update; nonzero after a folded power-on prelude.</summary>
     public int InitialRecord { get; }
@@ -129,7 +119,6 @@ internal sealed class NativeMovieCheckpoints : IDisposable
             throw new InvalidDataException("Native checkpoint stream continues after the movie's terminal state.");
     }
 
-    /// <summary>Releases resources held by this instance.</summary>
     public void Dispose()
     {
         trace.Dispose();

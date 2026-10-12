@@ -16,17 +16,14 @@ using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static LookupStream5Verification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents dead tourian corpse instruction program definitions verification.</summary>
 internal static class DeadTourianCorpseInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies dead tourian corpse instruction program definitions.</summary>
     internal static void VerifyDeadTourianCorpseInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadTourianCorpseInstructionProgramDefinitions), () => VerifyDeadTourianCorpseInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies dead tourian corpse instruction program definitions.</summary>
     internal static void VerifyDeadTourianCorpseInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -120,7 +117,6 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsVerification
             "spritemap selectors pass with mechanics bytes forbidden.");
     }
 
-    /// <summary>Probes dead tourian corpse instruction mechanics allocation.</summary>
     private static int ProbeDeadTourianCorpseInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -134,7 +130,6 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New dead tourian corpse instruction read guard.</summary>
     private static CartridgeReadGuard NewDeadTourianCorpseInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(DeadTourianCorpseInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -142,7 +137,6 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsVerification
             .ObserveWords(0xa90000, DeadTourianCorpseInstructionProgramDefinitions.ProgramCount,
                 DeadTourianCorpseInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
-    /// <summary>Dead tourian corpse instruction mechanics command.</summary>
     [VerificationCommand("--dead-tourian-corpse-instruction-mechanics")]
     internal static int DeadTourianCorpseInstructionMechanicsCommand()
     {

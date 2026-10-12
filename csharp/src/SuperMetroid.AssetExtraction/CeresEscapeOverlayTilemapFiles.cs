@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM Ceres escape warning tilemap words → Ceres escape overlay tilemap files")]
 internal static class CeresEscapeOverlayTilemapFiles
 {
-    /// <summary>Extract.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

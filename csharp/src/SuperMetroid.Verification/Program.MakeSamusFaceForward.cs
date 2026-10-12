@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents make samus face forward verification.</summary>
 internal static class MakeSamusFaceForwardVerification
 {
     /// <summary>

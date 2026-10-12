@@ -5,7 +5,6 @@ using SuperMetroid.Desktop;
 /// <summary>Confirms only the requested automatic console-to-ZIP lifecycle, without gameplay.</summary>
 internal static class DesktopSessionLogSmokeTest
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run(string gameAssemblyPath)
     {
         using var rootScratch = new TestScratchDirectory("session-log");
@@ -30,7 +29,6 @@ internal static class DesktopSessionLogSmokeTest
         Console.WriteLine("PASS automatic session ZIP: stdout/stderr, nested fatal report before acknowledgment, concurrent writes, recoverable/report-worker output, normal close, IO failure preservation, executable-relative startup failure.");
     }
 
-    /// <summary>verify lifecycle.</summary>
     private static void VerifyLifecycle(string root)
     {
         using var output = new StringWriter();
@@ -96,7 +94,6 @@ internal static class DesktopSessionLogSmokeTest
         Require(!ReadArchive(archive).Contains("restored console marker"), "Disposed tee still captured console output.");
     }
 
-    /// <summary>verify archive failure.</summary>
     private static void VerifyArchiveFailure(string root)
     {
         using var output = new StringWriter();
@@ -117,7 +114,6 @@ internal static class DesktopSessionLogSmokeTest
             "Archive failure was silently swallowed or lacked its full exception.");
     }
 
-    /// <summary>verify game entry.</summary>
     private static void VerifyGameEntry(string root, string gameAssemblyPath)
     {
         string executable = Path.GetDirectoryName(Path.GetFullPath(gameAssemblyPath))!;
@@ -163,7 +159,6 @@ internal static class DesktopSessionLogSmokeTest
             Directory.Delete(logs);
     }
 
-    /// <summary>read archive.</summary>
     private static string ReadArchive(string path)
     {
         using ZipArchive zip = ZipFile.OpenRead(path);
@@ -173,27 +168,21 @@ internal static class DesktopSessionLogSmokeTest
         return reader.ReadToEnd();
     }
 
-    /// <summary>capture failure.</summary>
     private static Exception CaptureFailure()
     {
         try { throw new InvalidOperationException("fixture fatal", new InvalidDataException("fixture inner")); }
         catch (Exception error) { return error; }
     }
 
-    /// <summary>Throws when the asserted condition is false.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException(message);
     }
 
-    /// <summary>Represents local issue client.</summary>
     private sealed class LocalIssueClient : IGitHubIssueClient
     {
-        /// <summary>find by fingerprint async.</summary>
         public Task<string?> FindByFingerprintAsync(string repository, string fingerprint) => Task.FromResult<string?>(null);
-        /// <summary>create async.</summary>
         public Task<string> CreateAsync(string repository, string title, string body) => Task.FromResult("fixture-created-issue");
-        /// <summary>comment async.</summary>
         public Task CommentAsync(string repository, string issueUrl, string body) => Task.CompletedTask;
     }
 }

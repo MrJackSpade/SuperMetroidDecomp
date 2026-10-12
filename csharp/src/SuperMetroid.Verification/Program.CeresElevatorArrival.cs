@@ -14,7 +14,6 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ceres elevator arrival verification.</summary>
 internal static class CeresElevatorArrivalVerification
 {
     /// <summary>
@@ -83,7 +82,6 @@ internal static class CeresElevatorArrivalVerification
             "  Ceres elevator: definitions/programs match cartridge data, run without bank-$86 reads, and retain native graphics/landing behavior.");
     }
 
-    /// <summary>Verifies compiled definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres elevator arrival definitions")]
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
@@ -129,13 +127,11 @@ internal static class CeresElevatorArrivalVerification
         }
     }
 
-    /// <summary>New ceres arrival definition read guard.</summary>
     private static CartridgeReadGuard NewCeresArrivalDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86a28b and < 0x86a2a1 or >= 0x86a387 and < 0x86a3a3,
                 address => $"Ceres arrival read compiled bank-$86 byte ${address:X6}.");
 
-    /// <summary>Ceres elevator arrival definitions command.</summary>
     [VerificationCommand("--ceres-elevator-arrival-definitions")]
     internal static int CeresElevatorArrivalDefinitionsCommand()
     {

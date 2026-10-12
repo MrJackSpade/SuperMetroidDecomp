@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -6,20 +6,13 @@ namespace SuperMetroid.Core.Game;
 internal sealed class ChootBehavior : IEnemySpecies
 {
 
-    /// <summary>Stores choot activation distance.</summary>
     private const ushort ChootActivationDistance = 0x0050;
 
-    /// <summary>Stores choot spawn positions.</summary>
     internal readonly Position16<RoomPixels>[] _chootSpawnPositions = new Position16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores choot initial falling positions.</summary>
     internal readonly Position16<RoomPixels>[] _chootInitialFallingPositions = new Position16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores choot falling origins.</summary>
     internal readonly Position16<RoomPixels>[] _chootFallingOrigins = new Position16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores choot initial yspeed table indexes.</summary>
     internal readonly ushort[] _chootInitialYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores choot jump delay timers.</summary>
     internal readonly ushort[] _chootJumpDelayTimers = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores choot states.</summary>
     internal readonly ChootEnemyState?[] _chootStates =
         new ChootEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -83,7 +76,6 @@ internal sealed class ChootBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Wait for choot activation.</summary>
     private static void WaitForChootActivation(
         RoomEnemySlot slot,
         ChootEnemyState state,
@@ -105,7 +97,6 @@ internal sealed class ChootBehavior : IEnemySpecies
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
-    /// <summary>Prepares choot jump.</summary>
     internal static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.JumpDelayTimer);
@@ -117,7 +108,6 @@ internal sealed class ChootBehavior : IEnemySpecies
         state.Function = ChootEnemyFunction.Jumping;
     }
 
-    /// <summary>Runs choot jump.</summary>
     internal static void RunChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         // Only the cursor's high byte reaches the eight-byte quadratic table index. Choot
@@ -144,7 +134,6 @@ internal sealed class ChootBehavior : IEnemySpecies
         state.Function = ChootEnemyFunction.Falling;
     }
 
-    /// <summary>Runs choot fall.</summary>
     internal static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
     {
         int frameIndex = SnesLittleEndian.HighByte(state.FallingPatternIndex);
@@ -195,7 +184,6 @@ internal sealed class ChootBehavior : IEnemySpecies
             $"Choot jump-height calculation did not reach {jumpHeight} pixels.");
     }
 
-    /// <summary>Sets choot instruction list.</summary>
     private static void SetChootInstructionList(
         RoomEnemySlot slot,
         ushort instructionList)
@@ -205,12 +193,10 @@ internal sealed class ChootBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>Requires choot state.</summary>
     private ChootEnemyState RequireChootState(RoomEnemySlot slot) =>
         _chootStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Choot state.");
 
-    /// <summary>Registers choot initialization ai.</summary>
     internal void RegisterChootInitializationAi(EnemyAiTable table)
     {
 
@@ -220,7 +206,6 @@ internal sealed class ChootBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers choot main ai.</summary>
     internal void RegisterChootMainAi(EnemyAiTable table)
     {
 

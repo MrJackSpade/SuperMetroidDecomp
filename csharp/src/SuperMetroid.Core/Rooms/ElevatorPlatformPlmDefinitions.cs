@@ -33,32 +33,26 @@ internal static class ElevatorPlatformPlmDefinitions
     /// </summary>
     internal readonly record struct Draw(ushort Pointer, int Frame)
     {
-        /// <summary>Gets run count.</summary>
         internal int RunCount => Pointer == 0 ? 0 : 3;
-        /// <summary>check run.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
-        /// <summary>word count.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
             return run == 2 ? 4 : 1;
         }
-        /// <summary>next x.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             return run == 0 ? (sbyte)3 : (sbyte)0;
         }
-        /// <summary>next y.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return run == 1 ? (sbyte)1 : (sbyte)0;
         }
-        /// <summary>word at.</summary>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -67,7 +61,6 @@ internal static class ElevatorPlatformPlmDefinitions
             return (ushort)(0x8000 | (right ? 0x400 : 0) | tile);
         }
     }
-    /// <summary>try describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         // Pointers outside the three lists belong to other draw families.
@@ -75,7 +68,6 @@ internal static class ElevatorPlatformPlmDefinitions
         draw = owned ? new(pointer, (pointer - (ushort)ElevatorPlatformDraw.First) / DrawStride) : default;
         return owned;
     }
-    /// <summary>Enumerates the elevator platform draw lists.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists
     {
         get
@@ -88,7 +80,6 @@ internal static class ElevatorPlatformPlmDefinitions
         }
     }
 
-    /// <summary>visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<ElevatorPlatformDraw>(pointer, "elevator-platform draw list") switch
         {
@@ -98,7 +89,6 @@ internal static class ElevatorPlatformPlmDefinitions
             _ => throw new InvalidOperationException($"Undefined elevator-platform draw list ${pointer:X4}."),
         };
 
-    /// <summary>try get by visual id.</summary>
     internal static bool TryGetByVisualId(string? id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -143,7 +133,6 @@ internal static class ElevatorPlatformPlmDefinitions
     }
 
     // Temporary artwork DTOs; gameplay draws calculate cells directly.
-    /// <summary>try get draw.</summary>
     internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;

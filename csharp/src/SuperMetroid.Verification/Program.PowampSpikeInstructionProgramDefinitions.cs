@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents powamp spike instruction program definitions verification.</summary>
 internal static class PowampSpikeInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies powamp spike instruction program definitions.</summary>
     internal static void VerifyPowampSpikeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPowampSpikeInstructionProgramDefinitions), () => VerifyPowampSpikeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies powamp spike instruction program definitions.</summary>
     internal static void VerifyPowampSpikeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -139,7 +136,6 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe powamp spike instruction mechanics allocation.</summary>
     private static int ProbePowampSpikeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -153,7 +149,6 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New powamp spike instruction read guard.</summary>
     private static CartridgeReadGuard NewPowampSpikeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -161,7 +156,6 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
             .ObserveWords(EnemyProjectileCodePointers.BankBase, PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
                 PowampSpikeInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Powamp spike instruction mechanics command.</summary>
     [VerificationCommand("--powamp-spike-instruction-mechanics")]
     internal static int PowampSpikeInstructionMechanicsCommand()
     {

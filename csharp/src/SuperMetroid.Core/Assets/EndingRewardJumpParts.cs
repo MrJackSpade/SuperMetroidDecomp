@@ -7,14 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// strips and upper/lower body atlas regions.</summary>
 internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.LargeSamusFromEndingJumping)
             ? supplied.CalculateIfMatching(new EndingRewardJumpParts()) : supplied;
 
-    /// <summary>Gets count.</summary>
     public int Count => 20;
-    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -62,12 +59,10 @@ internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

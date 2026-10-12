@@ -2,10 +2,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents zebes escape explosion definitions verification.</summary>
 internal static class ZebesEscapeExplosionDefinitionsVerification
 {
-    /// <summary>verify zebes escape explosion definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Zebes escape explosion definitions")]
     internal static void VerifyZebesEscapeExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -64,7 +62,6 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
             "Zebes escape explosion definitions: sixteen native bytes and all 128 random/inherited selection handoffs pass with source tables forbidden.");
     }
 
-    /// <summary>new zebes escape explosion read guard.</summary>
     private static CartridgeReadGuard NewZebesEscapeExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x8fc1d6 and < 0x8fc1e6,
             address => $"Zebes escape explosion attempted migrated table read ${address:X6}.");

@@ -7,24 +7,15 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Loads a room PLM population: installs the room bindings, allocates native slots and runs each family setup in record order.</summary>
 internal sealed class PlmPopulationLoader
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Stores bomb torizo hand.</summary>
     private readonly BombTorizoHandPlms _bombTorizoHand;
-    /// <summary>Stores collectible plms.</summary>
     private readonly CollectiblePlms _collectiblePlms;
-    /// <summary>Stores eye doors.</summary>
     private readonly EyeDoorPlms _eyeDoors;
-    /// <summary>Stores gates.</summary>
     private readonly GatePlms _gates;
-    /// <summary>Stores mother brain glass.</summary>
     private readonly MotherBrainGlassPlms _motherBrainGlass;
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
-    /// <summary>Stores speed booster escape.</summary>
     private readonly SpeedBoosterEscapePlms _speedBoosterEscape;
 
-    /// <summary>Initializes a new plm population loader instance.</summary>
     internal PlmPopulationLoader(PlmPopulationLoaderDependencies dependencies)
     {
         _bindings = dependencies.Bindings;
@@ -113,7 +104,6 @@ recordIndex,
         return spawnedRecordCount;
     }
 
-    /// <summary>allocate room population slot.</summary>
     private PlmSlot? AllocateRoomPopulationSlot(
         RoomPlmPopulationRecord record,
         int blockIndex,
@@ -138,7 +128,6 @@ recordIndex,
         return null;
     }
 
-    /// <summary>clear slot.</summary>
     internal static void ClearSlot(PlmSlot slot)
     {
         // Native PLM arrays contain only scalar words, so allocating an inactive ID
@@ -169,7 +158,6 @@ recordIndex,
         slot.DraygonCannon = null;
     }
 
-    /// <summary>try run room population setup.</summary>
     private bool TryRunRoomPopulationSetup(
         PlmRoom room,
         IAreaBossFlagReader bosses,

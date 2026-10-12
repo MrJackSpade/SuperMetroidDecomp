@@ -50,23 +50,14 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// <summary>Native9BA12A suitless ink5: full red,green and blue in RGB5.</summary>
     private static readonly Bgr555 WhiteInkColor = new(31, 31, 31);
 
-    /// <summary>Stores suited.</summary>
     private readonly Dictionary<int, Bgr555> suited = new();
-    /// <summary>Stores suited fade inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitedFadeInputs = new();
-    /// <summary>Stores suitless.</summary>
     private readonly Dictionary<int, Bgr555> suitless = new();
-    /// <summary>Stores suitless fade inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> suitlessFadeInputs = new();
-    /// <summary>Stores neutral inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> neutralInputs = new();
-    /// <summary>Stores warm shade inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> warmShadeInputs = new();
-    /// <summary>Stores tint shade inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> tintShadeInputs = new();
-    /// <summary>Stores whiteout.</summary>
     private readonly WhiteoutInputs whiteout;
-    /// <summary>Stores explosion palette indices.</summary>
     private readonly Dictionary<int, ushort> explosionPaletteIndices = new();
 
     /// <summary>Captures selected death artwork as owned inputs and independent channel overrides; no caller arrays are retained or modified.</summary>
@@ -398,10 +389,8 @@ public sealed class SamusDeathPaletteArtworkCatalog
     /// supplied shade remain independent of every other supplied shade.</remarks>
     private sealed class WhiteoutInputs
     {
-        /// <summary>Stores inputs.</summary>
         private readonly Dictionary<int, LoadingPaletteInputView.Channels> inputs = new();
 
-        /// <summary>Initializes a new whiteout inputs instance.</summary>
         internal WhiteoutInputs(Bgr555[] source)
         {
             for (int index = 0; index < source.Length; index++)
@@ -411,7 +400,6 @@ public sealed class SamusDeathPaletteArtworkCatalog
             }
         }
 
-        /// <summary>Resolves.</summary>
         internal Bgr555 Resolve(int index)
         {
             Bgr555 expected = DefaultWhiteoutColor(index);
@@ -458,7 +446,6 @@ public sealed class SamusDeathPaletteArtworkCatalog
         return explosionPaletteIndices.TryGetValue(frame, out ushort value) ? value : expected;
     }
 
-    /// <summary>Default explosion palette index.</summary>
     private static ushort DefaultExplosionPaletteIndex(int frame)
     {
         if ((uint)frame >= SamusDeathExplosionTimingDefinitions.RecordCount) throw new IndexOutOfRangeException();

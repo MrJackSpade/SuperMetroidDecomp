@@ -24,7 +24,6 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     /// <summary>$A9:D07E: closing Goto opcode following the timed frames.</summary>
     private const ushort LoopInstruction = FlashStart + PresentationWordCount * 4;
 
-    /// <summary>Presentation word address.</summary>
     internal static ushort PresentationWordAddress(int index) =>
         (uint)index < PresentationWordCount ? (ushort)(FlashStart + index * 4 + 2) :
             throw new IndexOutOfRangeException();
@@ -39,7 +38,6 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
         _ => throw new IndexOutOfRangeException(),
     };
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FlashStart;

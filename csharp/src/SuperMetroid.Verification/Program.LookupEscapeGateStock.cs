@@ -2,10 +2,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
-/// <summary>Represents lookup escape gate stock verification.</summary>
 internal static class LookupEscapeGateStockVerification
 {
-    /// <summary>Verifies escape gate stock mapping.</summary>
     internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmEscapeGateVisualCatalog installed)
     {

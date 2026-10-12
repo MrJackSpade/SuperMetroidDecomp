@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents skree metaree animation definitions verification.</summary>
 internal static class SkreeMetareeAnimationDefinitionsVerification
 {
-    /// <summary>Verifies skree metaree animation definitions.</summary>
     internal static void VerifySkreeMetareeAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
@@ -36,7 +34,6 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             "Skree/Metaree animation definitions: eight native selectors, all eight install handoffs, and both live attack transitions per family pass with pointer tables forbidden.");
     }
 
-    /// <summary>Verifies all skree metaree install handoffs.</summary>
     private static void VerifyAllSkreeMetareeInstallHandoffs()
     {
 
@@ -73,7 +70,6 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         }
     }
 
-    /// <summary>Verifies live metaree animation handoffs.</summary>
     private static void VerifyLiveMetareeAnimationHandoffs(SuperMetroidAddressSpace rom)
     {
         var enemies = NewSkreeMetareeGuardedSystem(rom);
@@ -107,7 +103,6 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             "live Metaree dive");
     }
 
-    /// <summary>Verifies live skree animation handoffs.</summary>
     private static void VerifyLiveSkreeAnimationHandoffs(SuperMetroidAddressSpace rom)
     {
         var enemies = NewSkreeMetareeGuardedSystem(rom);
@@ -141,7 +136,6 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             "live Skree dive");
     }
 
-    /// <summary>New skree metaree guarded system.</summary>
     private static RoomEnemySystem NewSkreeMetareeGuardedSystem(
         SuperMetroidAddressSpace rom)
     {
@@ -150,7 +144,6 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         return enemies;
     }
 
-    /// <summary>New skree metaree animation slot.</summary>
     private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0)
     {
         CurrentInstruction = 0x7777,
@@ -158,14 +151,12 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         Timer = 0x3333,
     };
 
-    /// <summary>Different skree metaree phase.</summary>
     private static SkreeMetareeAnimationPhase DifferentSkreeMetareePhase(
         SkreeMetareeAnimationPhase phase) =>
         phase == SkreeMetareeAnimationPhase.Idling
             ? SkreeMetareeAnimationPhase.PreparingAttack
             : SkreeMetareeAnimationPhase.Idling;
 
-    /// <summary>Asserts skree metaree handoff.</summary>
     private static void AssertSkreeMetareeHandoff(
         RoomEnemySlot slot,
         SkreeMetareeAnimationPhase installed,
@@ -179,7 +170,6 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
 
-    /// <summary>New skree metaree animation read guard.</summary>
     private static CartridgeReadGuard NewSkreeMetareeAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3894e and < 0xa38956 or >= 0xa3c69c and < 0xa3c6a4,
             address => $"Skree/Metaree attempted migrated selector read ${address:X6}.");

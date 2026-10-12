@@ -1,14 +1,12 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>PLMs triggered by Samus projectiles reaching their block rather than by contact.</summary>
 internal sealed class ProjectileTriggerPlms
 {
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
-    /// <summary>Initializes a new projectile trigger plms instance.</summary>
     internal ProjectileTriggerPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 
-/// <summary>Represents draygon terrain priority tests.</summary>
 internal static class DraygonTerrainPriorityTests
 {
     /// <summary>The repository ROM, the independent source of Draygon's authored tilemap words.</summary>
@@ -20,7 +19,6 @@ internal static class DraygonTerrainPriorityTests
         return total;
     }
 
-    /// <summary>verify draygon part tilemap.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int VerifyDraygonPartTilemap(SuperMetroidRuntime runtime, RoomEnemySlot body)
     {
@@ -107,7 +105,6 @@ internal static class DraygonTerrainPriorityTests
 
     // Deliberately decode bitplanes here instead of calling the production sampler:
     // the assertion must detect a fused-renderer priority/addressing regression.
-    /// <summary>read draygon audit pixel.</summary>
     private static (bool Opaque, bool High, int Palette) ReadDraygonAuditPixel(
         PpuMemorySnapshot memory, int map, int characters, Extent16<TilemapCells> mapSize, Position16<BgPlanePixels> pixel)
     {
@@ -129,7 +126,6 @@ internal static class DraygonTerrainPriorityTests
     }
 }
 
-/// <summary>Represents draygon tilemap audit definitions.</summary>
 internal static class DraygonTilemapAuditDefinitions
 {
     /// <summary>$A0:96CA ProcessExtendedTilemap writes into tilemap_stuff at $7E:2000.</summary>

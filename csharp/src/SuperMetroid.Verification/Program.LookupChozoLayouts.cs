@@ -5,17 +5,12 @@ using static ChozoStatueVisualsVerification;
 using static SamusEaterPlmDefinitionsVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents lookup chozo layouts verification.</summary>
 internal static class LookupChozoLayoutsVerification
 {
-    /// <summary>Verifies chozo layout geometry.</summary>
     internal static void VerifyChozoLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 0);
-    /// <summary>Verifies chozo layout collision.</summary>
     internal static void VerifyChozoLayoutCollision(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 1);
-    /// <summary>Verifies chozo layout visuals.</summary>
     internal static void VerifyChozoLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 2);
 
-    /// <summary>Verifies chozo layout draw field.</summary>
     private static void VerifyChozoLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa2b5,0x9cc5,0x9d0f];

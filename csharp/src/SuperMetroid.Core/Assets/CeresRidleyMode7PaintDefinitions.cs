@@ -13,14 +13,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyMode7PaintDefinitions
 {
-    /// <summary>Stores body.</summary>
     private readonly CeresRidleyBodyPaintDefinitions body;
-    /// <summary>Stores eyes.</summary>
     private readonly CeresRidleyFadeColorDefinitions.EyePaint eyes;
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new ceres ridley mode7 paint definitions instance.</summary>
     internal CeresRidleyMode7PaintDefinitions(Bgr555[][] rows)
     {
         body = new(rows[0].AsSpan(0, 11));
@@ -34,7 +30,6 @@ internal sealed class CeresRidleyMode7PaintDefinitions
     /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
     internal static Bgr555 RetreatNeutral => CeresRidleyFadeColorDefinitions.Scale(Neutral, 1);
 
-    /// <summary>Resolves.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         if ((uint)row >= 9) throw new ArgumentOutOfRangeException(nameof(row));
@@ -42,7 +37,6 @@ internal sealed class CeresRidleyMode7PaintDefinitions
         return edits.TryGetValue(row * 15 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
-    /// <summary>Calculates.</summary>
     private Bgr555 Calculate(int row, int color)
     {
         Bgr555 endpoint = color < 11 ? body.Color(color) : color < 14 ? eyes.Color(color - 11) : Neutral;

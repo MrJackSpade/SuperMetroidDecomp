@@ -8,10 +8,8 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomCharacterAtlas
 {
-    /// <summary>Stores planar.</summary>
     private readonly byte[] planar;
 
-    /// <summary>Initializes a new room character atlas instance.</summary>
     private RoomCharacterAtlas(byte[] planar) => this.planar = planar;
 
     /// <summary>Read-only view of the compiled, row-major 8x8 SNES 4-bpp characters, excluding unused PNG cells.</summary>

@@ -12,7 +12,6 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class ConsumerAudit
 {
-    /// <summary>Run.</summary>
     public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
         CSharpCompilation compilation = CreateCompilation(root);
@@ -42,7 +41,6 @@ internal static class ConsumerAudit
     internal static Type? ProgramOwnerType(string fullName) =>
         typeof(SuperMetroid.Core.Game.RoomEnemySystem).Assembly.GetType(fullName) ?? typeof(ToolingTypes).Assembly.GetType(fullName);
 
-    /// <summary>Creates compilation.</summary>
     internal static CSharpCompilation CreateCompilation(string root)
     {
         string directory = Path.Combine(root, "csharp/src/SuperMetroid.Core");
@@ -73,7 +71,6 @@ internal static class ConsumerAudit
         return compilation;
     }
 
-    /// <summary>Inspect.</summary>
     internal static void Inspect(InvocationExpressionSyntax call, SemanticModel semantic,
         ResourceIndex exports, AuditReport report, ClosedPresentationAudit? closedProviders = null)
     {
@@ -111,7 +108,6 @@ internal static class ConsumerAudit
         report.Consumers.Add(new(owner, source,             exports.Contains(domain, key) ? "resolved" : "missing"));
     }
 
-    /// <summary>Checks whether resource type.</summary>
     private static bool IsResourceType(ITypeSymbol type)
     {
         string space = type.ContainingNamespace.ToDisplayString();
@@ -122,7 +118,6 @@ internal static class ConsumerAudit
              type.Name.EndsWith("Visuals", StringComparison.Ordinal));
     }
 
-    /// <summary>Domain.</summary>
     private static string? Domain(string type, string method) => (type, method) switch
     {
         ("EnemySpritemapCatalog", "TryGetDisplay" or "TryGet") => ResourceDomains.EnemySimple,
@@ -134,7 +129,6 @@ internal static class ConsumerAudit
         _ => null,
     };
 
-    /// <summary>Constant key.</summary>
     private static string? ConstantKey(string domain, InvocationExpressionSyntax call, SemanticModel semantic)
     {
         // Match parameter identities, not textual argument order; named arguments

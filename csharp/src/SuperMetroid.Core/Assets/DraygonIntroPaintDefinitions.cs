@@ -11,14 +11,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class DraygonIntroPaintDefinitions
 {
-    /// <summary>Stores primary.</summary>
     private readonly DraygonMaterialPaintDefinitions primary;
-    /// <summary>Stores surface.</summary>
     private readonly CeresDoorEscapeSurfacePaintDefinitions surface;
-    /// <summary>Stores clear edit.</summary>
     private readonly Bgr555? clearEdit;
 
-    /// <summary>Initializes a new draygon intro paint definitions instance.</summary>
     internal DraygonIntroPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 25);
@@ -27,7 +23,6 @@ internal sealed class DraygonIntroPaintDefinitions
         clearEdit = colors[16] == DraygonMaterialPaintDefinitions.ClearTarget ? null : colors[16];
     }
 
-    /// <summary>color.</summary>
     internal Bgr555 Color(int index)
     {
         if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));

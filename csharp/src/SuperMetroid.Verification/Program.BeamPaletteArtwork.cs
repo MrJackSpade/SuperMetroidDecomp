@@ -18,10 +18,8 @@ using static ProjectileCompositionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents beam palette artwork verification.</summary>
 internal static class BeamPaletteArtworkVerification
 {
-    /// <summary>Verifies beam palette artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus, BeamTileCatalog tiles)
     {
@@ -72,7 +70,6 @@ internal static class BeamPaletteArtworkVerification
             () => BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()))), message);
     }
 
-    /// <summary>Verifies beam palette ownership.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyBeamPaletteOwnership(ISnesAddressSpace bus, BeamPaletteCatalog palettes)
     {
@@ -130,7 +127,6 @@ internal static class BeamPaletteArtworkVerification
         AssertEqual(32657, nativeRuntime.Cgram.Colors[223], "Debug grapple retains the adjacent fixed flare color");
     }
 
-    /// <summary>Beam palette artwork command.</summary>
     [VerificationCommand("--beam-palette-artwork")]
     internal static int BeamPaletteArtworkCommand()
     {

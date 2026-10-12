@@ -22,10 +22,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-/// <summary>Represents mother brain hand beam body instruction definitions verification.</summary>
 internal static class MotherBrainHandBeamBodyInstructionDefinitionsVerification
 {
-    /// <summary>Verifies mother brain hand beam body instruction definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain hand-beam body instruction list")]
     internal static void VerifyMotherBrainHandBeamBodyInstructionDefinitions()
     {
@@ -84,13 +82,11 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsVerification
             $"{visualWords} visual-selector words match the pinned ROM without list reads.");
     }
 
-    /// <summary>Creates mother brain hand beam list read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainHandBeamListReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa99a42 and <= 0xa99ac7,
                 address => $"Mother Brain reread compiled hand-beam list ${address:X6}.");
 
-    /// <summary>Mother brain command.</summary>
     [VerificationCommand("--mother-brain")]
     internal static int MotherBrainCommand()
     {

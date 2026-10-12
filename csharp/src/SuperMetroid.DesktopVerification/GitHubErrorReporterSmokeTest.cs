@@ -88,7 +88,6 @@ public static class GitHubErrorReporterSmokeTest
             client.CreatedIssues.Count);
     }
 
-    /// <summary>verify frame failure snapshot.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static string VerifyFrameFailureSnapshot()
     {
@@ -124,7 +123,6 @@ public static class GitHubErrorReporterSmokeTest
         return diagnostics;
     }
 
-    /// <summary>verify audio recovery.</summary>
     private static void VerifyAudioRecovery()
     {
         var recovery = new AudioFrameRecovery();
@@ -150,7 +148,6 @@ public static class GitHubErrorReporterSmokeTest
         Console.WriteLine("PASS audio recovery: repeated failure, reporting disabled, failed reporter, deduplication and subsequent successful frame.");
     }
 
-    /// <summary>capture fixture exception.</summary>
     private static Exception CaptureFixtureException(string message)
     {
         try
@@ -163,34 +160,26 @@ public static class GitHubErrorReporterSmokeTest
         }
     }
 
-    /// <summary>Throws when the asserted condition is false.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition)
             throw new InvalidOperationException(message);
     }
 
-    /// <summary>Represents recording issue client.</summary>
     private sealed class RecordingIssueClient : IGitHubIssueClient
     {
-        /// <summary>Gets comments.</summary>
         public List<string> Comments { get; } = [];
-        /// <summary>comment async.</summary>
         public Task CommentAsync(string repository, string issueUrl, string body)
         {
             Comments.Add(body);
             return Task.CompletedTask;
         }
-        /// <summary>Gets existing fingerprints.</summary>
         public HashSet<string> ExistingFingerprints { get; } = new(StringComparer.Ordinal);
 
-        /// <summary>Gets find calls.</summary>
         public List<string> FindCalls { get; } = [];
 
-        /// <summary>Gets created issues.</summary>
         public List<CreatedIssue> CreatedIssues { get; } = [];
 
-        /// <summary>find by fingerprint async.</summary>
         public Task<string?> FindByFingerprintAsync(string repository, string fingerprint)
         {
             FindCalls.Add(fingerprint);
@@ -200,7 +189,6 @@ public static class GitHubErrorReporterSmokeTest
             return Task.FromResult(result);
         }
 
-        /// <summary>create async.</summary>
         public Task<string> CreateAsync(string repository, string title, string body)
         {
             CreatedIssues.Add(new CreatedIssue(title, body));
@@ -208,7 +196,6 @@ public static class GitHubErrorReporterSmokeTest
         }
     }
 
-    /// <summary>Represents created issue.</summary>
     private sealed record CreatedIssue(string Title, string Body);
 }
 

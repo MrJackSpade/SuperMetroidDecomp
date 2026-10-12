@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents baby metroid fixture head verification.</summary>
 internal static class BabyMetroidFixtureHeadVerification
 {
     /// <summary>

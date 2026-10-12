@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Intact egg and two opposite row-sheared rocking poses.</summary>
 internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
@@ -14,9 +13,7 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
                 return supplied.CalculateIfMatching(new IntroEggRockingParts(frame));
         return supplied;
     }
-    /// <summary>Gets count.</summary>
     public int Count => frame == 0 ? 6 : 9;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -58,16 +55,13 @@ internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSp
                 unchecked((byte)(-12 + 8 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Represents intro egg rocking atlas.</summary>
 internal static class IntroEggRockingAtlas
 {
     /// <summary>Tile$122,start of the intact egg three-tile top strip.</summary>

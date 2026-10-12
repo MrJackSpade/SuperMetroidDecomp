@@ -8,7 +8,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Shared focused confirmation for identified ordinary enemy composition omissions.</summary>
 internal static class EnemyCompositionResourceChecks
 {
-    /// <summary>Runs.</summary>
     public static void Run(string family, byte bank, ReadOnlySpan<ushort> operands,
         int familyFrameCount, int previousVersion, int previousFrameCount, int? familyStart = null)
     {
@@ -67,20 +66,17 @@ internal static class EnemyCompositionResourceChecks
         Console.WriteLine($"{family} resources: all {pointers.Count} compositions load; legacy edits survive, new stock inherits, incomplete stock is rejected.");
     }
 
-    /// <summary>Part.</summary>
     private static SpriteVisualPart Part(int x) => new()
     {
         OffsetX = x, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
         TileColumn = 0, TileRow = 0, FlipX = false, FlipY = false,
     };
 
-    /// <summary>Loads.</summary>
     private static EnemySpritemapCatalog Load(EnemySpritemapDocument document,
         EnemySpritemapCatalog? stock = null) =>
         EnemySpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 
-    /// <summary>Requires.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("Enemy composition resource contract failed: " + message);

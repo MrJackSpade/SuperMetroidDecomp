@@ -15,7 +15,6 @@ internal readonly record struct SpacePirateCollisionHitbox(short Left, short Top
 /// </remarks>
 internal static class SpacePirateCollisionDefinitions
 {
-    /// <summary>Stores frames.</summary>
     private static readonly CollisionRecordRuns<SpacePirateCollisionComponent> Frames =
         CollisionRecordRuns<SpacePirateCollisionComponent>.Frames(
         new(0x804f,
@@ -175,7 +174,6 @@ internal static class SpacePirateCollisionDefinitions
             [new(new(0, 1), 0xa074)],
         ]));
 
-    /// <summary>Stores lists.</summary>
     private static readonly CollisionRecordRuns<SpacePirateCollisionHitbox> Lists =
         CollisionRecordRuns<SpacePirateCollisionHitbox>.HitboxLists(
         new(0x8059,
@@ -392,13 +390,11 @@ internal static class SpacePirateCollisionDefinitions
             [new(-7, -19, 6, 16, 0x876c, 0x8779), new(6, 3, 31, 16, 0x876c, 0x8779)],
         ]));
 
-    /// <summary>Components at.</summary>
     internal static ReadOnlySpan<SpacePirateCollisionComponent> ComponentsAt(ushort pointer) =>
         Frames.TryGet(pointer, out SpacePirateCollisionComponent[] components)
             ? components
             : throw new InvalidDataException($"Space Pirate collision frame $B2:{pointer:X4} is not compiled.");
 
-    /// <summary>Hitboxes at.</summary>
     internal static ReadOnlySpan<SpacePirateCollisionHitbox> HitboxesAt(ushort pointer) =>
         Lists.TryGet(pointer, out SpacePirateCollisionHitbox[] hitboxes)
             ? hitboxes

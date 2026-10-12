@@ -20,7 +20,6 @@ internal static class MapMarkerGeometry
     /// <summary>The authored map title at82:CBFB; its wording is text content, not a numerical mapping.</summary>
     private const string WorldTitleText = "PLANET ZEBES";
 
-    /// <summary>Part count.</summary>
     internal static int PartCount(MapSpriteId id) => id switch
     {
         MapSpriteId.ArrowRight or MapSpriteId.ArrowLeft or
@@ -38,7 +37,6 @@ internal static class MapMarkerGeometry
         _ => throw new InvalidOperationException($"Undefined MapSpriteId {id}."),
     };
 
-    /// <summary>Part.</summary>
     internal static CompiledSpritePart Part(MapSpriteId id, int index)
     {
         if ((uint)index >= (uint)PartCount(id)) throw new ArgumentOutOfRangeException(nameof(index));
@@ -153,7 +151,6 @@ internal static class MapMarkerGeometry
         return upper + (top ? 0 : 16);
     }
 
-    /// <summary>Matches.</summary>
     internal static bool Matches(MapSpriteId id, SpriteVisualPart[] parts)
     {
         int count = PartCount(id);

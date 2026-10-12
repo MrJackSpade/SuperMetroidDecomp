@@ -14,10 +14,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents overlapping enemy shots verification.</summary>
 internal static class OverlappingEnemyShotsVerification
 {
-    /// <summary>Verifies overlapping enemy shots.</summary>
     internal static void VerifyOverlappingEnemyShots()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -70,7 +68,6 @@ internal static class OverlappingEnemyShotsVerification
         Console.WriteLine("Overlapping Beetoms: all three receive one shot's damage; deferred removal prevents a later hit.");
     }
 
-    /// <summary>Overlapping enemy shots command.</summary>
     [VerificationCommand("--overlapping-enemy-shots")]
     internal static int OverlappingEnemyShotsCommand()
     {

@@ -11,10 +11,8 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresRevealActorLayout
 {
-    /// <summary>Stores placements.</summary>
     private readonly CeresRevealActorPlacement[]? placements;
 
-    /// <summary>Initializes a new ceres reveal actor layout instance.</summary>
     private CeresRevealActorLayout(CeresRevealActorPlacement[] placements)
     {
         bool stock = true;

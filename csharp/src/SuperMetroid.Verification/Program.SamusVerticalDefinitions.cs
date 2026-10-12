@@ -3,10 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
-/// <summary>Represents samus vertical definitions verification.</summary>
 internal static class SamusVerticalDefinitionsVerification
 {
-    /// <summary>Verifies samus vertical definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus vertical definitions")]
     internal static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
     {

@@ -17,7 +17,6 @@ using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyContentIdentityFixtureVerification;
 using static MotherBrainBodyPresentationFixtureVerification;
 
-/// <summary>Represents mother brain body presentation verification.</summary>
 internal static class MotherBrainBodyPresentationVerification
 {
     /// <summary>
@@ -124,7 +123,6 @@ internal static class MotherBrainBodyPresentationVerification
         };
     }
 
-    /// <summary>assert body oam.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body)
     {
@@ -148,7 +146,6 @@ internal static class MotherBrainBodyPresentationVerification
         AssertEqual(high, actual.HighTable[0], "body limb sizes and high X bits match authored art");
     }
 
-    /// <summary>assert body bg2.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void AssertBodyBg2(SnesVram actual, EnemyBg2FrameDocument authored, string oamName)
     {
@@ -215,7 +212,6 @@ internal static class MotherBrainBodyPresentationVerification
         Console.WriteLine("PASS Mother Brain installation: stock hashes, selected overrides/identity and malformed/tampered-data rejection.");
     }
 
-    /// <summary>mother brain body presentation command.</summary>
     [VerificationCommand("--mother-brain-body-presentation")]
     internal static int MotherBrainBodyPresentationCommand()
     {
@@ -223,7 +219,6 @@ internal static class MotherBrainBodyPresentationVerification
         return 0;
     }
 
-    /// <summary>mother brain body stock presentation command.</summary>
     [VerificationCommand("--mother-brain-body-stock-presentation")]
     internal static int MotherBrainBodyStockPresentationCommand()
     {

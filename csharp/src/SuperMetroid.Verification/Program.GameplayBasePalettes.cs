@@ -17,10 +17,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static FrontendRomFreeVerification;
 
-/// <summary>Represents gameplay base palettes verification.</summary>
 internal static class GameplayBasePalettesVerification
 {
-    /// <summary>Verifies gameplay base palettes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameplayBasePalettes(string sourceRom)
     {
@@ -99,11 +97,9 @@ internal static class GameplayBasePalettesVerification
             (ushort)(SnesLittleEndian.Word(GameplayBasePalettesRomByte(addressSpace, address), GameplayBasePalettesRomByte(addressSpace, address + 1)));
     }
 
-    /// <summary>Gameplay base palettes rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay base palettes")]
     private static byte GameplayBasePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Gameplay base palettes command.</summary>
     [VerificationCommand("--gameplay-base-palettes")]
     internal static int GameplayBasePalettesCommand()
     {

@@ -2,17 +2,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
-/// <summary>Represents lookup grey cap verification.</summary>
 internal static class LookupGreyCapVerification
 {
-    /// <summary>Verifies grey cap geometry.</summary>
     internal static void VerifyGreyCapGeometry(SuperMetroidAddressSpace rom) => VerifyGreyCapField(rom, 0);
-    /// <summary>Verifies grey cap collision.</summary>
     internal static void VerifyGreyCapCollision(SuperMetroidAddressSpace rom) => VerifyGreyCapField(rom, 1);
-    /// <summary>Verifies grey cap visuals.</summary>
     internal static void VerifyGreyCapVisuals(SuperMetroidAddressSpace rom) => VerifyGreyCapField(rom, 2);
 
-    /// <summary>Verifies grey cap field.</summary>
     private static void VerifyGreyCapField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa677,0xa683,0xa68f,0xa69b,0xa6a7,0xa6b3,0xa6bf,0xa6cb,0xa6d7,0xa6e3,0xa6ef,0xa6fb,0xa707,0xa713,0xa71f,0xa72b,0xa737,0xa743,0xa74f,0xa75b];

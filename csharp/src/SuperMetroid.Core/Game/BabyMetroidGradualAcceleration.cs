@@ -10,11 +10,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class BabyMetroidGradualAcceleration
 {
-    /// <summary>Stores reversal step.</summary>
     private const ushort ReversalStep = 0x0008;
-    /// <summary>Stores max xspeed.</summary>
     private const ushort MaxXSpeed = 0x0800;
-    /// <summary>Stores max yspeed.</summary>
     private const ushort MaxYSpeed = 0x0500;
 
     /// <summary>
@@ -103,7 +100,6 @@ internal static class BabyMetroidGradualAcceleration
     }
 
     // $4204/$4206 divide the distance by the 8-bit divisor; a zero quotient becomes 1.
-    /// <summary>Steps.</summary>
     private static ushort Step(ushort distance, byte divisor)
     {
         if (divisor == 0)
@@ -112,10 +108,8 @@ internal static class BabyMetroidGradualAcceleration
         return quotient == 0 ? (ushort)1 : quotient;
     }
 
-    /// <summary>Checks whether the value is negative.</summary>
     private static bool IsNegative(ushort value) => (value & 0x8000) != 0;
 
-    /// <summary>Adc.</summary>
     private static ushort Adc(ushort value, ushort addend, ref bool carry)
     {
         int sum = value + addend + (carry ? 1 : 0);
@@ -123,7 +117,6 @@ internal static class BabyMetroidGradualAcceleration
         return unchecked((ushort)sum);
     }
 
-    /// <summary>Sbc.</summary>
     private static ushort Sbc(ushort value, ushort subtrahend, ref bool carry)
     {
         int difference = value - subtrahend - (carry ? 0 : 1);

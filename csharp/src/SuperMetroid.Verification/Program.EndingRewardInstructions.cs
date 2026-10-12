@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
 
-/// <summary>Represents ending reward instructions verification.</summary>
 internal static class EndingRewardInstructionsVerification
 {
-    /// <summary>Verifies ending reward instructions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward instructions")]
     internal static void VerifyEndingRewardInstructions(ISnesAddressSpace bus)
     {
@@ -102,7 +100,6 @@ internal static class EndingRewardInstructionsVerification
         }
     }
 
-    /// <summary>Verifies ending reward calculated parts.</summary>
     private static void VerifyEndingRewardCalculatedParts(ISnesAddressSpace bus, EndingRewardSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,

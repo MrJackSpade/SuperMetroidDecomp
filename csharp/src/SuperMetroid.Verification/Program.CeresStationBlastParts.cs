@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
 
-/// <summary>Represents ceres station blast parts verification.</summary>
 internal static class CeresStationBlastPartsVerification
 {
-    /// <summary>Verifies ceres station blast parts.</summary>
     internal static void VerifyCeresStationBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStationBlast", value.AppendIdentity);

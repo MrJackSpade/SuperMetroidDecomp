@@ -10,12 +10,10 @@ internal static class ShitroidVisualDefinitions
     /// <summary>Three Tourian baby Metroid drain and remorse compositions at $A9:F9A8..FAD8.</summary>
     internal const int FrameCount = 3;
 
-    /// <summary>Operands.</summary>
     internal static ushort[] Operands() => Enumerable.Range(0,
         ShitroidInstructionProgramDefinitions.PresentationWordCount)
         .Select(ShitroidInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
-    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "shitroid");
 }

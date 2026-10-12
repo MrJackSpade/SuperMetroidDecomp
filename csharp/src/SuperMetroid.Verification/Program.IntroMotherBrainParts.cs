@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
-/// <summary>Represents intro mother brain parts verification.</summary>
 internal static class IntroMotherBrainPartsVerification
 {
-    /// <summary>Verifies intro mother brain parts.</summary>
     internal static void VerifyIntroMotherBrainParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrain", value.AppendIdentity);

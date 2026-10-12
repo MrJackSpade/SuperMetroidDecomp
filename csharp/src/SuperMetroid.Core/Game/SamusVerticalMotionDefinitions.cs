@@ -50,7 +50,6 @@ internal static class SamusVerticalMotionDefinitions
         _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
     });
 
-    /// <summary>Split speed.</summary>
     private static (ushort Whole, ushort Fraction) SplitSpeed(int speed) =>
         ((ushort)SnesEightEight.WholeOf(speed), (ushort)SnesSixteenSixteen.FractionOf(SnesSixteenSixteen.FromEightEight(speed)));
 }

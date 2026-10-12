@@ -34,11 +34,8 @@ internal abstract class SparkInstructionProgramDefinitions
     /// into the instruction timer; the separate intangibility callback and function timers own gameplay.</summary>
     private const ushort FlickerOutCadence = 1;
 
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 33;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 26;
-    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -50,19 +47,16 @@ internal abstract class SparkInstructionProgramDefinitions
             index == 25 ? (ushort)SparkInstruction.SetAsIntangible : (ushort)CommonEnemyInstruction.Sleep);
         return LoopWord(Emitter, index - 27);
     }
-    /// <summary>activation duration.</summary>
     private static ushort ActivationDuration(int frame)
     {
         if (frame >= 8) return ActivationSustainedTicks;
         if ((frame & 1) == 0) return ActivationFlashOnTicks;
         return frame == 7 ? ActivationFinalGapTicks : ActivationFlashOffTicks;
     }
-    /// <summary>loop word.</summary>
     private static InstructionMechanicsWord LoopWord(ushort start, int index) => index < 4
         ? new((ushort)(start + index * 4), ContinuousVisualCadence)
         : new((ushort)(start + 16 + (index - 4) * 2), index == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
 
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -6,20 +6,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Magdollite species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MagdolliteBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Initializes a new magdollite behavior instance.</summary>
     internal MagdolliteBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
@@ -30,16 +23,11 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Stores magdollite states.</summary>
     internal readonly MagdolliteEnemyState?[] _magdolliteStates =
         new MagdolliteEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores magdollite palette animation timer.</summary>
     internal ushort _magdollitePaletteAnimationTimer;
-    /// <summary>Stores magdollite palette animation index.</summary>
     internal ushort _magdollitePaletteAnimationIndex;
-    /// <summary>Stores magdollite palette base byte offset.</summary>
     internal ushort _magdollitePaletteBaseByteOffset;
-    /// <summary>Stores magdollite palette animation installed.</summary>
     internal bool _magdollitePaletteAnimationInstalled;
 
     /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
@@ -114,7 +102,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         _magdollitePaletteAnimationIndex = 0;
     }
 
-    /// <summary>Initializes magdollite head.</summary>
     private static void InitializeMagdolliteHead(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
@@ -138,7 +125,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
-    /// <summary>Initializes magdollite body.</summary>
     private static void InitializeMagdolliteBody(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -154,7 +140,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
-    /// <summary>Initializes magdollite overlay.</summary>
     private static void InitializeMagdolliteOverlay(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -220,7 +205,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Runs magdollite head waiting.</summary>
     private void RunMagdolliteHeadWaiting(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -253,7 +237,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaitingForAttackAnimation;
     }
 
-    /// <summary>Runs magdollite head waiting for attack animation.</summary>
     private void RunMagdolliteHeadWaitingForAttackAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state)
@@ -267,7 +250,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaitingForBodyLanding;
     }
 
-    /// <summary>Runs magdollite head waiting for body landing.</summary>
     private static void RunMagdolliteHeadWaitingForBodyLanding(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -285,7 +267,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaitingForReturnAnimation;
     }
 
-    /// <summary>Runs magdollite head waiting for return animation.</summary>
     private static void RunMagdolliteHeadWaitingForReturnAnimation(
         RoomEnemySlot head,
         MagdolliteEnemyState state,
@@ -303,7 +284,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         state.Function = MagdolliteEnemyFunction.HeadWaiting;
     }
 
-    /// <summary>Runs magdollite body dormant.</summary>
     private static void RunMagdolliteBodyDormant(
         RoomEnemySlot body,
         MagdolliteEnemyState state)
@@ -318,7 +298,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         body.Position = body.Position.WithWholeY(state.OriginY);
     }
 
-    /// <summary>Runs magdollite body rising.</summary>
     internal void RunMagdolliteBodyRising(
         RoomEnemySlot body,
         MagdolliteEnemyState state,
@@ -367,7 +346,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         InstallMagdolliteInstructionList(body, state);
     }
 
-    /// <summary>Runs magdollite body falling.</summary>
     internal void RunMagdolliteBodyFalling(
         RoomEnemySlot body,
         MagdolliteEnemyState state)
@@ -403,7 +381,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         InstallMagdolliteInstructionList(body, state);
     }
 
-    /// <summary>Runs magdollite overlay waiting.</summary>
     private void RunMagdolliteOverlayWaiting(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -416,7 +393,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Runs magdollite overlay animation.</summary>
     private void RunMagdolliteOverlayAnimation(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -436,7 +412,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         UpdateMagdolliteHeadRadius(overlay);
     }
 
-    /// <summary>Runs magdollite overlay tracking rise.</summary>
     internal void RunMagdolliteOverlayTrackingRise(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state,
@@ -466,7 +441,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         UpdateMagdolliteHeadRadius(overlay);
     }
 
-    /// <summary>Runs magdollite overlay tracking fall.</summary>
     private void RunMagdolliteOverlayTrackingFall(
         RoomEnemySlot overlay,
         MagdolliteEnemyState state)
@@ -500,7 +474,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         head.Radius = head.Radius.WithY(EnemyMath.IsNegative16(radius - 8) ? (ushort)8 : radius);
     }
 
-    /// <summary>Adds magdollite y.</summary>
     private static int AddMagdolliteY(
         RoomEnemySlot slot,
         ushort wholeVelocity,
@@ -514,7 +487,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         return wholeDelta;
     }
 
-    /// <summary>Installs magdollite instruction list.</summary>
     private static void InstallMagdolliteInstructionList(
         RoomEnemySlot slot,
         MagdolliteEnemyState state)
@@ -527,12 +499,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>Requires magdollite state.</summary>
     private MagdolliteEnemyState RequireMagdolliteState(RoomEnemySlot slot) =>
         _magdolliteStates[slot.SlotIndex] ?? throw new InvalidDataException(
             $"Magdollite slot {slot.SlotIndex} has no typed state.");
 
-    /// <summary>Requires magdollite composite.</summary>
     private (RoomEnemySlot Head, RoomEnemySlot Body, RoomEnemySlot Overlay)
         RequireMagdolliteComposite(RoomEnemySlot member)
     {
@@ -689,7 +659,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>Next magdollite slot.</summary>
     private RoomEnemySlot NextMagdolliteSlot(RoomEnemySlot slot)
     {
         if (slot.SlotIndex + 1 >= RoomEnemySystem.MaximumEnemyCount)
@@ -732,7 +701,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Registers magdollite bomb reactions.</summary>
     internal void RegisterMagdolliteBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
@@ -742,7 +710,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers magdollite projectiles.</summary>
     internal void RegisterMagdolliteProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -759,7 +726,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
             });
     }
 
-    /// <summary>Registers magdollite initialization ai.</summary>
     internal void RegisterMagdolliteInitializationAi(EnemyAiTable table)
     {
 
@@ -769,7 +735,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers magdollite main ai.</summary>
     internal void RegisterMagdolliteMainAi(EnemyAiTable table)
     {
 
@@ -779,7 +744,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers magdollite owned instructions.</summary>
     internal void RegisterMagdolliteOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -789,7 +753,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers magdollite power bomb reactions.</summary>
     internal void RegisterMagdollitePowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
@@ -799,7 +762,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers magdollite shot reactions.</summary>
     internal void RegisterMagdolliteShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
@@ -809,7 +771,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers magdollite touch.</summary>
     internal void RegisterMagdolliteTouch(EnemyAiTable table)
     {
         // Common touch damage followed by the species' own reaction.
@@ -821,9 +782,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
                 ResolveMagdolliteCombatAfterCommon(context.Slot);
             });
     }
-    /// <summary>Stores magdollite lava horizontal speed.</summary>
     private const ushort MagdolliteLavaHorizontalSpeed = 0x0300;
-    /// <summary>Stores magdollite lava upward speed.</summary>
     private const ushort MagdolliteLavaUpwardSpeed = 0xfd00;
 
     /// <summary>Last drop request produced by a destroyed lava projectile this frame.</summary>

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
@@ -47,11 +47,8 @@ internal delegate bool EnemyFrozenPreemption(RoomEnemySlot slot);
 /// </summary>
 internal sealed class EnemyAiTable
 {
-    /// <summary>Stores initialization.</summary>
     private readonly Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, EnemyInitializationAiHandler Handler)>> _initialization = [];
-    /// <summary>Stores main.</summary>
     private readonly Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, EnemyMainAiHandler Handler)>> _main = [];
-    /// <summary>Stores owned instructions.</summary>
     private readonly List<EnemyOwnedInstructionHandler> _ownedInstructions = [];
 
     /// <summary>Owner instruction handlers in registration order.</summary>
@@ -60,11 +57,8 @@ internal sealed class EnemyAiTable
     /// <summary>Adds an owner's private instruction handler after those already registered.</summary>
     internal void AddOwnedInstructions(EnemyOwnedInstructionHandler handler) => _ownedInstructions.Add(Ensure.NotNull(handler));
 
-    /// <summary>Stores hurt.</summary>
     private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyHurtAiHandler Handler)> _hurt = [];
-    /// <summary>Stores frozen preemptions.</summary>
     private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyFrozenPreemption Preemption)> _frozenPreemptions = [];
-    /// <summary>Stores frozen.</summary>
     private readonly List<(Func<RoomEnemySlot, bool> Matches, Action<RoomEnemySlot> Handler)> _frozen = [];
 
     /// <summary>Adds a hurt AI; the first registered hurt AI whose match accepts the enemy runs.</summary>
@@ -111,7 +105,6 @@ internal sealed class EnemyAiTable
         }
     }
 
-    /// <summary>Stores touch.</summary>
     private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyTouchHandler Handler)> _touch = [];
 
     /// <summary>Adds a touch reaction; the first registered reaction whose match accepts the enemy runs.</summary>
@@ -129,7 +122,6 @@ internal sealed class EnemyAiTable
         return null;
     }
 
-    /// <summary>Stores shot.</summary>
     private readonly List<EnemyShotReaction> _shot = [];
 
     /// <summary>Adds a shot reaction; the first registered reaction that matches the enemy runs.</summary>
@@ -146,11 +138,8 @@ internal sealed class EnemyAiTable
         return null;
     }
 
-    /// <summary>Stores bomb specials.</summary>
     private readonly List<(Func<EnemyBombContext, bool> Matches, Action<EnemyBombContext> Handler)> _bombSpecials = [];
-    /// <summary>Stores bomb specials after no op.</summary>
     private readonly List<(Func<EnemyBombContext, bool> Matches, Action<EnemyBombContext> Handler)> _bombSpecialsAfterNoOp = [];
-    /// <summary>Stores bomb common.</summary>
     private readonly List<EnemyBombReaction> _bombCommon = [];
 
     /// <summary>Adds a private bomb callback consulted before the selected literal no-op gate.</summary>
@@ -181,7 +170,6 @@ internal sealed class EnemyAiTable
         return null;
     }
 
-    /// <summary>Finds.</summary>
     private static Action<EnemyBombContext>? Find(
         List<(Func<EnemyBombContext, bool> Matches, Action<EnemyBombContext> Handler)> entries, EnemyBombContext context)
     {
@@ -193,7 +181,6 @@ internal sealed class EnemyAiTable
         return null;
     }
 
-    /// <summary>Stores power bomb.</summary>
     private readonly List<EnemyPowerBombReaction> _powerBomb = [];
 
     /// <summary>Adds a power-bomb reaction; the first registered reaction that matches the enemy runs.</summary>
@@ -228,7 +215,6 @@ internal sealed class EnemyAiTable
         [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out EnemyMainAiHandler? handler) =>
         TryGet(_main, routine, slot, out handler);
 
-    /// <summary>Adds.</summary>
     private static void Add<THandler>(Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, THandler Handler)>> table,
         EnemyAiRoutine routine, Func<RoomEnemySlot, bool>? applies, THandler handler) where THandler : Delegate
     {
@@ -240,7 +226,6 @@ internal sealed class EnemyAiTable
         entries.Add((applies, handler));
     }
 
-    /// <summary>Attempts to get.</summary>
     private static bool TryGet<THandler>(Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, THandler Handler)>> table,
         EnemyAiRoutine routine, RoomEnemySlot slot,
         [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out THandler? handler) where THandler : Delegate

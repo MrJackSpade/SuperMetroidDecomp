@@ -44,11 +44,8 @@ internal static class MotherBrainGlassPlmDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(MotherBrainGlassDraw Pointer)
     {
-        /// <summary>Gets pane.</summary>
         private bool Pane => Pointer is MotherBrainGlassDraw.PaneDamage1 or MotherBrainGlassDraw.PaneDamage2;
-        /// <summary>Gets shifted.</summary>
         private bool Shifted => Pointer is MotherBrainGlassDraw.ShiftedPane1 or MotherBrainGlassDraw.ShiftedPane2 or MotherBrainGlassDraw.ShiftedPane3;
-        /// <summary>Gets run count.</summary>
         internal int RunCount => Pointer switch
         {
             MotherBrainGlassDraw.Initial or MotherBrainGlassDraw.PaneTransition => 1,
@@ -58,12 +55,10 @@ internal static class MotherBrainGlassPlmDrawDefinitions
                 MotherBrainGlassDraw.Cleared => 4,
             _ => throw new InvalidOperationException($"Undefined Mother Brain glass draw {Pointer}."),
         };
-        /// <summary>Checks run.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
-        /// <summary>Word count.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
@@ -73,20 +68,17 @@ internal static class MotherBrainGlassPlmDrawDefinitions
             if (Shifted) return run == 2 ? 2 : Pointer == MotherBrainGlassDraw.ShiftedPane1 ? 4 : Pointer == MotherBrainGlassDraw.ShiftedPane2 ? 3 : 2;
             return Pointer == MotherBrainGlassDraw.Shatter1 && run >= 2 ? 2 : 4;
         }
-        /// <summary>Vertical.</summary>
         internal bool Vertical(int run)
         {
             CheckRun(run);
             return Pointer != MotherBrainGlassDraw.Initial && !(Shifted && run == 0);
         }
-        /// <summary>Next x.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             if (run == RunCount - 1) return 0;
             return Pane ? (sbyte)-1 : (sbyte)(run - 3);
         }
-        /// <summary>Next y.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
@@ -94,7 +86,6 @@ internal static class MotherBrainGlassPlmDrawDefinitions
             return (sbyte)(Pane || Shifted && (run != 0 || Pointer != MotherBrainGlassDraw.ShiftedPane1) ||
                 Pointer == MotherBrainGlassDraw.Shatter1 && run >= 1 ? 1 : 0);
         }
-        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -135,7 +126,6 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         }
     }
 
-    /// <summary>Attempts to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         // Pointers outside the eleven glass states belong to other draw families.
@@ -143,7 +133,6 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         draw = owned ? new((MotherBrainGlassDraw)pointer) : default;
         return owned;
     }
-    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -156,7 +145,6 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         }
     }
     // Temporary artwork DTOs; gameplay calculates individual cells directly.
-    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -171,7 +159,6 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         list = new(pointer, runs);
         return true;
     }
-    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (MotherBrainGlassDraw pointer in Enum.GetValues<MotherBrainGlassDraw>())
@@ -179,7 +166,6 @@ internal static class MotherBrainGlassPlmDrawDefinitions
         list = default;
         return false;
     }
-    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<MotherBrainGlassDraw>(pointer, "Mother Brain glass draw") switch
     {

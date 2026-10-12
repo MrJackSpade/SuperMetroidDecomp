@@ -39,7 +39,6 @@ internal static class SkreeMetareeAnimationDefinitions
         _ => throw InvalidPhase(phase, "Skree"),
     };
 
-    /// <summary>invalid phase.</summary>
     private static InvalidDataException InvalidPhase(SkreeMetareeAnimationPhase phase, string enemyName) =>
         new($"{enemyName} animation phase ${(int)phase:X4} exceeds its four-entry table.");
 }

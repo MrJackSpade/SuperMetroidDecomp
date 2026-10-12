@@ -66,12 +66,8 @@ internal readonly record struct EndingLogoActorDefinition(
 /// <summary>Four mutually exclusive native logo roles, in E554..E569 allocation order.</summary>
 internal enum EndingLogoActorKind
 {
-    /// <summary>Identifies upper s.</summary>
     UpperS,
-    /// <summary>Identifies lower s.</summary>
     LowerS,
-    /// <summary>Identifies upper circle.</summary>
     UpperCircle,
-    /// <summary>Identifies lower circle.</summary>
     LowerCircle,
 }

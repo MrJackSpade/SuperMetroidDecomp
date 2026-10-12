@@ -73,26 +73,16 @@ public enum BeetomEnemyFunction : ushort
 /// </summary>
 public sealed class BeetomEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Stores installed instruction lists.</summary>
     private readonly ushort[] _installedInstructionLists;
-    /// <summary>Stores initial short leap yspeed indexes.</summary>
     private readonly ushort[] _initialShortLeapYSpeedIndexes;
-    /// <summary>Stores initial long leap yspeed indexes.</summary>
     private readonly ushort[] _initialLongLeapYSpeedIndexes;
-    /// <summary>Stores initial lunge yspeed indexes.</summary>
     private readonly ushort[] _initialLungeYSpeedIndexes;
-    /// <summary>Stores falling flags.</summary>
     private readonly ushort[] _fallingFlags;
-    /// <summary>Stores attached flags.</summary>
     private readonly ushort[] _attachedFlags;
-    /// <summary>Stores directions.</summary>
     private readonly ushort[] _directions;
-    /// <summary>Stores initial attachment offsets.</summary>
     private readonly Offset16<RoomPixels>[] _initialAttachmentOffsets;
 
-    /// <summary>Initializes a new beetom enemy state instance.</summary>
     internal BeetomEnemyState(RoomEnemySlot slot, BeetomSharedTables tables)
     {
         _slot = slot;

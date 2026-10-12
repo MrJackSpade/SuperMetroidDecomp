@@ -7,10 +7,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy tile artwork spore spawn colors verification.</summary>
 internal static class EnemyTileArtworkSporeSpawnColorsVerification
 {
-    /// <summary>Verifies installed spore spawn colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Spore Spawn colors")]
     internal static void VerifyInstalledSporeSpawnColors(

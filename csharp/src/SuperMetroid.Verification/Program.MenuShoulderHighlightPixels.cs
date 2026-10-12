@@ -2,10 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents menu shoulder highlight pixels verification.</summary>
 internal static class MenuShoulderHighlightPixelsVerification
 {
-    /// <summary>verify menu shoulder highlight pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu shoulder highlight pixels")]
     internal static void VerifyMenuShoulderHighlightPixels(ISnesAddressSpace rom)

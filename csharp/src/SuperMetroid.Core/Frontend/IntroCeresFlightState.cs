@@ -11,59 +11,34 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class IntroCeresFlightState
 {
     // OBJ layer reused across renders; the span overload clears it first. Never saved state.
-    /// <summary>Stores object layer scratch.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
-    /// <summary>Stores frame buffer.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState audio;
-    /// <summary>Stores vram.</summary>
     private readonly SnesVram vram = new();
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram cgram = new();
-    /// <summary>Stores tilemap.</summary>
     private byte[] tilemap;
-    /// <summary>Stores sprite artwork.</summary>
     [NonSerialized] private CeresFlightSpritePresentation? spriteArtwork;
-    /// <summary>Stores actor layout.</summary>
     [NonSerialized] private CeresFlightActorLayout? actorLayout;
-    /// <summary>Stores space colony tilemap.</summary>
     private readonly ushort[] spaceColonyTilemap = new ushort[0x400];
-    /// <summary>Stores stars.</summary>
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
 
-    /// <summary>Stores background.</summary>
     private FixedPosition<Mode7Pixels> background = new(new(0xffb8, 0), new(0xff98, 0));
-    /// <summary>Stores zoom.</summary>
     private ushort zoom = 0x0200;
-    /// <summary>Stores angle.</summary>
     private SnesAngle angle = SnesAngle.FromTableIndex(0xe0);
-    /// <summary>Stores brightness.</summary>
     private byte brightness;
-    /// <summary>Stores rear view actors.</summary>
     private IntroDiscoverySprite[] rearViewActors = [];
-    /// <summary>Stores fixed color red.</summary>
     private byte fixedColorRed = 0x20;
-    /// <summary>Stores fixed color green.</summary>
     private byte fixedColorGreen = 0x40;
-    /// <summary>Stores fixed color blue.</summary>
     private byte fixedColorBlue = 0x80;
-    /// <summary>Stores space colony letter index.</summary>
     private int spaceColonyLetterIndex;
-    /// <summary>Stores space colony timer.</summary>
     private int spaceColonyTimer;
-    /// <summary>Stores space colony hold started.</summary>
     private bool spaceColonyHoldStarted;
-    /// <summary>Stores space colony japanese caption drawn.</summary>
     private bool spaceColonyJapaneseCaptionDrawn;
-    /// <summary>Stores japanese text.</summary>
     private readonly bool japaneseText;
-    /// <summary>Stores fade delay.</summary>
     private int fadeDelay;
 
     /// <param name="bus">Address space the star and actor instruction lists step and draw through.</param>
@@ -126,13 +101,11 @@ internal sealed class IntroCeresFlightState
         artwork.Palette.LoadTo(cgram);
     }
 
-    /// <summary>Gets or sets phase.</summary>
     public IntroCeresFlightPhase Phase { get; private set; }
 
     /// <summary>True after the native SPACE COLONY hold and final fade reach forced blank.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
 
-    /// <summary>step.</summary>
     public void Step()
     {
         switch (Phase)
@@ -203,7 +176,6 @@ internal sealed class IntroCeresFlightState
             stars.Step(instructionWord: CeresFlightSpriteInstructionDefinitions.ReadWord);
     }
 
-    /// <summary>render.</summary>
     public Rgba32[] Render()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
@@ -278,7 +250,6 @@ internal sealed class IntroCeresFlightState
             MenuRenderDefinitions.ObjectSelection, brightness);
     }
 
-    /// <summary>prepare render oam.</summary>
     private OamBuffer PrepareRenderOam()
     {
         var oam = new OamBuffer();
@@ -291,7 +262,6 @@ internal sealed class IntroCeresFlightState
         return oam;
     }
 
-    /// <summary>setup rear view.</summary>
     private void SetupRearView()
     {
         // $BE22 queues the second $300-byte map immediately behind the front view in the
@@ -327,7 +297,6 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FlyingTowardCeres;
     }
 
-    /// <summary>create actor.</summary>
     private static IntroDiscoverySprite CreateActor(CeresFlightActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(
@@ -341,7 +310,6 @@ internal sealed class IntroCeresFlightState
         return actor;
     }
 
-    /// <summary>step flying toward ceres.</summary>
     private void StepFlyingTowardCeres()
     {
         // The fixed-colour flash fades by one SNES component step per frame, clamped at
@@ -361,7 +329,6 @@ internal sealed class IntroCeresFlightState
             SetupSpaceColonyTitle();
     }
 
-    /// <summary>setup space colony title.</summary>
     private void SetupSpaceColonyTitle()
     {
         // `$8B:C03E` switches from Mode 7 to Mode 1, assigns BG1SC=$5C/BG1NBA=$06,
@@ -376,7 +343,6 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
 
-    /// <summary>step space colony title.</summary>
     private void StepSpaceColonyTitle()
     {
         if (--spaceColonyTimer > 0)
@@ -412,7 +378,6 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FadeOut;
     }
 
-    /// <summary>write next space colony letter.</summary>
     private void WriteNextSpaceColonyLetter()
     {
         (int column, ushort tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
@@ -421,7 +386,6 @@ internal sealed class IntroCeresFlightState
         new CeresVram(vram).SpaceColonyTilemap.Write(spaceColonyTilemap);
     }
 
-    /// <summary>write space colony japanese caption.</summary>
     private void WriteSpaceColonyJapaneseCaption()
     {
         ReadOnlySpan<ushort> tiles = SpaceColonyCaptionDefinitions.JapaneseTiles;
@@ -431,7 +395,6 @@ internal sealed class IntroCeresFlightState
         new CeresVram(vram).SpaceColonyTilemap.Write(spaceColonyTilemap);
     }
 
-    /// <summary>step fade out.</summary>
     private void StepFadeOut()
     {
         // `$C0A2` seeds both fade words with one. `$8B:C0C5` calls HandleFadingOut, which
@@ -444,7 +407,6 @@ internal sealed class IntroCeresFlightState
             Phase = IntroCeresFlightPhase.StartGameAtCeres;
     }
 
-    /// <summary>render space colony title.</summary>
     private void RenderSpaceColonyTitle(Span<Rgba32> pixels, OamBuffer oam)
     {
         // Mode 1's ordinary ordering is sufficient here because every caption word uses
@@ -458,13 +420,11 @@ internal sealed class IntroCeresFlightState
         CompositeObjPriority(pixels, oam, 3);
     }
 
-    /// <summary>composite space colony priority.</summary>
     private void CompositeSpaceColonyPriority(Span<Rgba32> pixels, bool priority)
     {
         SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = CeresFlightRomData.Layers.SpaceColonyTilemapWord, CharacterBaseWord = CeresFlightRomData.Layers.SpaceColonyCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
-    /// <summary>step rear view actors.</summary>
     private void StepRearViewActors()
     {
         for (int index = 0; index < rearViewActors.Length; index++)
@@ -486,20 +446,17 @@ internal sealed class IntroCeresFlightState
         }
     }
 
-    /// <summary>add wrapped x.</summary>
     private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
     {
         SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
         actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole & 0x01ff)));
     }
 
-    /// <summary>add signed x.</summary>
     private static void AddSignedX(IntroDiscoverySprite actor, int fixedDelta)
     {
         actor.Position = actor.Position.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(actor.Position.X, fixedDelta));
     }
 
-    /// <summary>apply rear view fixed color math.</summary>
     private void ApplyRearViewFixedColorMath(Span<Rgba32> pixels)
     {
         int addRed = fixedColorRed & 0x1f;
@@ -516,14 +473,11 @@ internal sealed class IntroCeresFlightState
         }
     }
 
-    /// <summary>reduce to five bit.</summary>
     private static int ReduceToFiveBit(byte component) => (component * 31 + 127) / 255;
 
-    /// <summary>expand five bit.</summary>
     private static byte ExpandFiveBit(int component) =>
         (byte)((component << 3) | (component >> 2));
 
-    /// <summary>step stars and background.</summary>
     private void StepStarsAndBackground()
     {
         // BEBE adds $0080 to a signed 8.8 speed, then applies that same growing delta to
@@ -546,7 +500,6 @@ internal sealed class IntroCeresFlightState
             IntroCinematicMotion.AddEightEight(background.Y, velocity));
     }
 
-    /// <summary>calculate matrix.</summary>
     private (short A, short B, short C, short D) CalculateMatrix()
     {
         // $8532 reads signed 8-bit sine words from $A0:B443 and keeps product bits 8..23.
@@ -558,14 +511,11 @@ internal sealed class IntroCeresFlightState
         return (a, b, unchecked((short)-b), a);
     }
 
-    /// <summary>read sine.</summary>
     private static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(tableIndex);
 
-    /// <summary>scale.</summary>
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
 
-    /// <summary>composite obj priority.</summary>
     private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
     {
         // Name both optional arguments. A positional integer following `obsel` binds to
@@ -576,7 +526,6 @@ internal sealed class IntroCeresFlightState
         SnesLayerCompositor.Composite(pixels, layer);
     }
 
-    /// <summary>require minimum.</summary>
     private static void RequireMinimum(byte[] bytes, int minimum, string name)
     {
         if (bytes.Length < minimum)
@@ -589,13 +538,9 @@ internal enum IntroCeresFlightPhase
 {
     /// <summary>$8B:BDE4: forced blank until the music queue drains.</summary>
     WaitForMusicQueue,
-    /// <summary>Identifies flying into camera.</summary>
     FlyingIntoCamera,
-    /// <summary>Identifies flying toward ceres.</summary>
     FlyingTowardCeres,
-    /// <summary>Identifies space colony title.</summary>
     SpaceColonyTitle,
-    /// <summary>Identifies fade out.</summary>
     FadeOut,
     /// <summary>$8B:C100 has run; game state $1F follows.</summary>
     Finished,

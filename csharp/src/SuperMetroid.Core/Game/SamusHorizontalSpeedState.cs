@@ -553,7 +553,6 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoPosition = second;
     }
 
-    /// <summary>Adds extra run acceleration.</summary>
     private void AddExtraRunAcceleration()
     {
         uint accelerated = unchecked(SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed) + SamusMovementRomData.HorizontalMotion.ExtraRunAcceleration);
@@ -561,7 +560,6 @@ public sealed class SamusHorizontalSpeedState
         ExtraRunSubspeed = unchecked((ushort)accelerated);
     }
 
-    /// <summary>Publishes boost contact damage.</summary>
     private void PublishBoostContactDamage()
     {
         if ((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) == 0x0400)
@@ -765,7 +763,6 @@ public sealed class SamusHorizontalSpeedState
         return ReadEntryAtAddress(bus, address);
     }
 
-    /// <summary>Reads entry at address.</summary>
     private static SpeedTableEntry ReadEntryAtAddress(ISnesAddressSpace bus, int address)
     {
         if (SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out SpeedTableEntry compiled) ||
@@ -807,7 +804,6 @@ public sealed class SamusHorizontalSpeedState
         return CalculateBaseSpeed(ReadEntryAtAddress(bus, address));
     }
 
-    /// <summary>Calculates base speed.</summary>
     private uint CalculateBaseSpeed(SpeedTableEntry entry)
     {
 
@@ -958,14 +954,12 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Current base speed as the native high-word/low-word unsigned 16.16 pair.</summary>
     public uint BaseFixed => SnesSixteenSixteen.Compose(BaseSpeed, BaseSubspeed);
 
-    /// <summary>Sets base fixed.</summary>
     private void SetBaseFixed(uint value)
     {
         BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)value));
         BaseSubspeed = unchecked((ushort)value);
     }
 
-    /// <summary>Indicates whether greater than quirked.</summary>
     private static bool IsGreaterThanQuirked(
         ushort valueHigh,
         ushort valueLow,
@@ -979,7 +973,6 @@ public sealed class SamusHorizontalSpeedState
                (unchecked((short)(valueLow - comparisonLow)) >= 0 && valueLow != comparisonLow);
     }
 
-    /// <summary>Clamp displacement.</summary>
     private static int ClampDisplacement(int displacement)
     {
         short high = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));

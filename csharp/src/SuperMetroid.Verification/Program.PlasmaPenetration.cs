@@ -13,10 +13,8 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using static AssertionsVerification;
 
-/// <summary>Represents plasma penetration verification.</summary>
 internal static class PlasmaPenetrationVerification
 {
-    /// <summary>Verifies plasma enemy penetration.</summary>
     internal static void VerifyPlasmaEnemyPenetration()
     {
         var bus = new TestAddressSpace();
@@ -45,7 +43,6 @@ internal static class PlasmaPenetrationVerification
         }
     }
 
-    /// <summary>Plasma penetration command.</summary>
     [VerificationCommand("--plasma-penetration")]
     internal static int PlasmaPenetrationCommand()
     {

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,15 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CeresRidleyProjectileInstructionProgramDefinitions))]
 internal abstract class CeresRidleyProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
     // Each draw occupies a duration word and a presentation operand. Spawning
     // programs insert their callback immediately after the first draw.
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 42;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -53,7 +49,6 @@ internal abstract class CeresRidleyProjectileInstructionProgramDefinitionsToolin
         }
         return new((ushort)address, CeresRidleyProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
     }
-    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

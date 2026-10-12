@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,27 +6,21 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Ripper species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class RipperBehavior : IEnemySpecies
 {
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
-    /// <summary>Initializes a new ripper behavior instance.</summary>
     internal RipperBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
     }
 
 
-    /// <summary>Stores ripper variant minimum xpositions.</summary>
     private readonly ushort[] _ripperVariantMinimumXPositions =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores ripper variant maximum xpositions.</summary>
     private readonly ushort[] _ripperVariantMaximumXPositions =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores ripper variant states.</summary>
     private readonly RipperVariantEnemyState?[] _ripperVariantStates =
         new RipperVariantEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>reset ripper variant room state.</summary>
     internal void ResetRipperVariantRoomState()
     {
         Array.Clear(_ripperVariantMinimumXPositions);
@@ -162,7 +156,6 @@ internal sealed class RipperBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>load ripper velocity.</summary>
     internal static void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
     {
         var velocity = EnemyLinearSpeedDefinitions.Read(slot.VariableE + (movingRight ? 0 : 4));
@@ -184,7 +177,6 @@ internal sealed class RipperBehavior : IEnemySpecies
             : RipperInstructionProgramDefinitions.FrozenFacingRightSpritemap;
     }
 
-    /// <summary>create ripper variant state.</summary>
     private RipperVariantEnemyState CreateRipperVariantState(RoomEnemySlot slot)
     {
         var state = new RipperVariantEnemyState(
@@ -195,7 +187,6 @@ internal sealed class RipperBehavior : IEnemySpecies
         return state;
     }
 
-    /// <summary>require ripper terrain.</summary>
     private static void RequireRipperTerrain(RoomLevelData? level, string species)
     {
         if (level is null)
@@ -205,7 +196,6 @@ internal sealed class RipperBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>reverse ripper variant.</summary>
     internal static void ReverseRipperVariant(
         RoomEnemySlot slot,
         ushort positiveInstruction,
@@ -218,7 +208,6 @@ internal sealed class RipperBehavior : IEnemySpecies
             wasMovingNegative ? positiveInstruction : negativeInstruction);
     }
 
-    /// <summary>set ripper instruction list.</summary>
     private static void SetRipperInstructionList(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -226,12 +215,10 @@ internal sealed class RipperBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>require ripper variant state.</summary>
     private RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>
         _ripperVariantStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized GRipper/Ripper II state.");
 
-    /// <summary>register ripper bomb reactions.</summary>
     internal static void RegisterRipperBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
@@ -241,7 +228,6 @@ internal sealed class RipperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register ripper initialization ai.</summary>
     internal void RegisterRipperInitializationAi(EnemyAiTable table)
     {
 
@@ -261,7 +247,6 @@ internal sealed class RipperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register ripper main ai.</summary>
     internal void RegisterRipperMainAi(EnemyAiTable table)
     {
 
@@ -281,7 +266,6 @@ internal sealed class RipperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register ripper shot reactions.</summary>
     internal static void RegisterRipperShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&

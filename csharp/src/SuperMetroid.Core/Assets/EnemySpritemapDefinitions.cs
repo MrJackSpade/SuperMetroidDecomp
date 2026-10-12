@@ -220,205 +220,106 @@ internal static class EnemySpritemapDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(EnemySpritemapSchema)} {(int)schema}."),
     };
 
-    /// <summary>Defines pre ridley breakup frame count.</summary>
     internal const int PreRidleyBreakupFrameCount = 1404;
-    /// <summary>Defines pre single frame frame count.</summary>
     internal const int PreSingleFrameFrameCount = 1402;
-    /// <summary>Defines pre nuclear waffle frame count.</summary>
     internal const int PreNuclearWaffleFrameCount = 1394;
-    /// <summary>Defines pre kraid lint frame count.</summary>
     internal const int PreKraidLintFrameCount = 1392;
-    /// <summary>Defines pre audit ordinary frame count.</summary>
     internal const int PreAuditOrdinaryFrameCount = 1339;
-    /// <summary>Defines pre friendly animal frame count.</summary>
     internal const int PreFriendlyAnimalFrameCount = 1257;
-    /// <summary>Defines pre zero frame count.</summary>
     internal const int PreZeroFrameCount = 1241;
-    /// <summary>Defines pre mama turtle frame count.</summary>
     internal const int PreMamaTurtleFrameCount = 1212;
-    /// <summary>Defines pre gunship frame count.</summary>
     internal const int PreGunshipFrameCount = 1199;
-    /// <summary>Defines pre botwoon frame count.</summary>
     internal const int PreBotwoonFrameCount = 1183;
-    /// <summary>Defines pre yard frame count.</summary>
     internal const int PreYardFrameCount = 1079;
-    /// <summary>Defines pre work robot frame count.</summary>
     internal const int PreWorkRobotFrameCount = 1052;
-    /// <summary>Defines pre evir frame count.</summary>
     internal const int PreEvirFrameCount = 1028;
-    /// <summary>Defines pre mochtroid frame count.</summary>
     internal const int PreMochtroidFrameCount = 1022;
-    /// <summary>Defines pre dead tourian corpse frame count.</summary>
     internal const int PreDeadTourianCorpseFrameCount = 1009;
-    /// <summary>Defines pre dead torizo stationary frame count.</summary>
     internal const int PreDeadTorizoStationaryFrameCount = 1008;
-    /// <summary>Defines pre rinka frame count.</summary>
     internal const int PreRinkaFrameCount = 1003;
-    /// <summary>Defines pre viola frame count.</summary>
     internal const int PreViolaFrameCount = 995;
-    /// <summary>Defines pre chozo statue frame count.</summary>
     internal const int PreChozoStatueFrameCount = 969;
-    /// <summary>Defines pre norfair lava jumper frame count.</summary>
     internal const int PreNorfairLavaJumperFrameCount = 958;
-    /// <summary>Defines pre multiviola frame count.</summary>
     internal const int PreMultiviolaFrameCount = 950;
-    /// <summary>Defines pre dragon frame count.</summary>
     internal const int PreDragonFrameCount = 938;
-    /// <summary>Defines pre tripper kamer frame count.</summary>
     internal const int PreTripperKamerFrameCount = 920;
-    /// <summary>Defines pre shaktool frame count.</summary>
     internal const int PreShaktoolFrameCount = 905;
-    /// <summary>Defines pre metroid frame count.</summary>
     internal const int PreMetroidFrameCount = 901;
-    /// <summary>Defines pre shutter frame count.</summary>
     internal const int PreShutterFrameCount = 896;
-    /// <summary>Defines pre morph ball eye frame count.</summary>
     internal const int PreMorphBallEyeFrameCount = 874;
-    /// <summary>Defines pre face block frame count.</summary>
     internal const int PreFaceBlockFrameCount = 869;
-    /// <summary>Defines pre kago frame count.</summary>
     internal const int PreKagoFrameCount = 866;
-    /// <summary>Defines pre fly frame count.</summary>
     internal const int PreFlyFrameCount = 862;
-    /// <summary>Defines pre sciser frame count.</summary>
     internal const int PreSciserFrameCount = 850;
-    /// <summary>Defines pre ridley supplement frame count.</summary>
     internal const int PreRidleySupplementFrameCount = 819;
-    /// <summary>Defines pre dead torizo frame count.</summary>
     internal const int PreDeadTorizoFrameCount = 818;
-    /// <summary>Defines pre mother brain frame count.</summary>
     internal const int PreMotherBrainFrameCount = 800;
-    /// <summary>Defines pre ki hunter frame count.</summary>
     internal const int PreKiHunterFrameCount = 759;
-    /// <summary>Defines pre yapping maw frame count.</summary>
     internal const int PreYappingMawFrameCount = 735;
-    /// <summary>Defines pre room sprite object frame count.</summary>
     internal const int PreRoomSpriteObjectFrameCount = 472;
-    /// <summary>Defines pre draygon breath frame count.</summary>
     internal const int PreDraygonBreathFrameCount = 463;
-    /// <summary>Defines pre draygon intro frame count.</summary>
     internal const int PreDraygonIntroFrameCount = 459;
-    /// <summary>Defines pre elevator frame count.</summary>
     internal const int PreElevatorFrameCount = 457;
-    /// <summary>Defines pre kamer frame count.</summary>
     internal const int PreKamerFrameCount = 453;
-    /// <summary>Defines pre fune namihe frame count.</summary>
     internal const int PreFuneNamiheFrameCount = 431;
-    /// <summary>Defines pre sbug frame count.</summary>
     internal const int PreSbugFrameCount = 407;
-    /// <summary>Defines pre hzoomer frame count.</summary>
     internal const int PreHZoomerFrameCount = 387;
-    /// <summary>Defines pre choot frame count.</summary>
     internal const int PreChootFrameCount = 383;
-    /// <summary>Defines pre hopper frame count.</summary>
     internal const int PreHopperFrameCount = 359;
-    /// <summary>Defines pre beetom frame count.</summary>
     internal const int PreBeetomFrameCount = 337;
-    /// <summary>Defines pre alcoon frame count.</summary>
     internal const int PreAlcoonFrameCount = 319;
-    /// <summary>Defines pre bull frame count.</summary>
     internal const int PreBullFrameCount = 316;
-    /// <summary>Defines pre puyo frame count.</summary>
     internal const int PrePuyoFrameCount = 308;
-    /// <summary>Defines pre norfair rio frame count.</summary>
     internal const int PreNorfairRioFrameCount = 288;
-    /// <summary>Defines pre lower norfair rio frame count.</summary>
     internal const int PreLowerNorfairRioFrameCount = 270;
-    /// <summary>Defines pre rio frame count.</summary>
     internal const int PreRioFrameCount = 262;
-    /// <summary>Defines pre ceres baby frame count.</summary>
     internal const int PreCeresBabyFrameCount = 259;
-    /// <summary>Defines pre ceres door frame count.</summary>
     internal const int PreCeresDoorFrameCount = 244;
-    /// <summary>Defines pre display bindings frame count.</summary>
     internal const int PreDisplayBindingsFrameCount = 244;
-    /// <summary>Defines pre magdollite frame count.</summary>
     internal const int PreMagdolliteFrameCount = 215;
-    /// <summary>Defines pre fireflea frame count.</summary>
     internal const int PreFirefleaFrameCount = 194;
-    /// <summary>Defines pre ripper frame count.</summary>
     internal const int PreRipperFrameCount = 180;
-    /// <summary>Defines pre owtch stoke frame count.</summary>
     internal const int PreOwtchStokeFrameCount = 167;
-    /// <summary>Defines previous frame count.</summary>
     internal const int PreviousFrameCount = 145;
-    /// <summary>Defines prior frame count.</summary>
     internal const int PriorFrameCount = 101;
-    /// <summary>Defines earlier frame count.</summary>
     internal const int EarlierFrameCount = 79;
-    /// <summary>Defines intermediate frame count.</summary>
     internal const int IntermediateFrameCount = 69;
-    /// <summary>Defines legacy frame count.</summary>
     internal const int LegacyFrameCount = 47;
-    /// <summary>Defines file name.</summary>
     internal const string FileName = "enemy-compositions.json";
-    /// <summary>Defines boyon bank.</summary>
     internal const byte BoyonBank = 0xa2;
-    /// <summary>Defines rio bank.</summary>
     internal const byte RioBank = 0xa2;
-    /// <summary>Defines lower norfair rio bank.</summary>
     internal const byte LowerNorfairRioBank = 0xa2;
-    /// <summary>Defines norfair rio bank.</summary>
     internal const byte NorfairRioBank = 0xa2;
-    /// <summary>Defines puyo bank.</summary>
     internal const byte PuyoBank = 0xa2;
-    /// <summary>Defines bull bank.</summary>
     internal const byte BullBank = 0xa8;
-    /// <summary>Defines alcoon bank.</summary>
     internal const byte AlcoonBank = 0xa8;
-    /// <summary>Defines beetom bank.</summary>
     internal const byte BeetomBank = 0xa8;
-    /// <summary>Defines hopper bank.</summary>
     internal const byte HopperBank = 0xa3;
-    /// <summary>Defines choot bank.</summary>
     internal const byte ChootBank = 0xa2;
-    /// <summary>Defines hzoomer bank.</summary>
     internal const byte HZoomerBank = 0xa3;
-    /// <summary>Defines sbug bank.</summary>
     internal const byte SbugBank = 0xa3;
-    /// <summary>Defines fune namihe bank.</summary>
     internal const byte FuneNamiheBank = 0xa8;
-    /// <summary>Defines kamer platform bank.</summary>
     internal const byte KamerPlatformBank = 0xa2;
-    /// <summary>Defines elevator bank.</summary>
     internal const byte ElevatorBank = 0xa3;
-    /// <summary>Defines room sprite object bank.</summary>
     internal const byte RoomSpriteObjectBank = 0xb4;
-    /// <summary>Defines skultera bank.</summary>
     internal const byte SkulteraBank = 0xa3;
-    /// <summary>Defines waver bank.</summary>
     internal const byte WaverBank = 0xa3;
-    /// <summary>Defines zoa bank.</summary>
     internal const byte ZoaBank = 0xa3;
-    /// <summary>Defines skree metaree bank.</summary>
     internal const byte SkreeMetareeBank = 0xa3;
-    /// <summary>Defines pipe bug bank.</summary>
     internal const byte PipeBugBank = 0xb3;
-    /// <summary>Defines fake kraid bank.</summary>
     internal const byte FakeKraidBank = 0xa6;
-    /// <summary>Defines kraid nail bank.</summary>
     internal const byte KraidNailBank = 0xa7;
-    /// <summary>Defines owtch stoke bank.</summary>
     internal const byte OwtchStokeBank = 0xa2;
-    /// <summary>Defines ripper bank.</summary>
     internal const byte RipperBank = 0xa2;
-    /// <summary>Defines fireflea bank.</summary>
     internal const byte FirefleaBank = 0xa3;
-    /// <summary>Defines magdollite bank.</summary>
     internal const byte MagdolliteBank = 0xa8;
-    /// <summary>Defines boulder bank.</summary>
     internal const byte BoulderBank = 0xa6;
-    /// <summary>Defines atomic bank.</summary>
     internal const byte AtomicBank = 0xa8;
-    /// <summary>Defines maximum parts.</summary>
     internal const int MaximumParts = 128;
-    /// <summary>Defines tile columns.</summary>
     internal const int TileColumns = 16;
-    /// <summary>Defines tile rows.</summary>
     internal const int TileRows = 32;
 
     // These mutually exclusive identities preserve the historical installed-schema order.
-    /// <summary>Represents named frame id.</summary>
     private enum NamedFrameId
     {
         /// <summary>$A2:88DA: boyon_idle_0 visual identity in the installed frame schema.</summary>
@@ -1370,7 +1271,6 @@ internal static class EnemySpritemapDefinitions
     /// <summary>Two-byte part count followed by five bytes per native OAM part.</summary>
     private static int NativeFrameBytes(int parts) => 2 + 5 * parts;
 
-    /// <summary>named frame.</summary>
     private static EnemySpritemapDefinition NamedFrame(NamedFrameId frame)
     {
         (byte bank, ushort pointer) = frame switch
@@ -1716,7 +1616,6 @@ internal static class EnemySpritemapDefinitions
         return new(bank, pointer, frame.ToString());
     }
 
-    /// <summary>named frames.</summary>
     private static IEnumerable<EnemySpritemapDefinition> NamedFrames()
     {
         foreach (NamedFrameId frame in Enum.GetValues<NamedFrameId>())
@@ -1727,7 +1626,6 @@ internal static class EnemySpritemapDefinitions
     // All other bank-$B4 presentation targets are shared by the 62 compiled
     // sprite-object programs. Build their stable, address-named art identities
     // from the compiled selectors; do not duplicate their pointer list here.
-    /// <summary>enumerate frames.</summary>
     private static IEnumerable<EnemySpritemapDefinition> EnumerateFrames()
     {
         foreach (var frame in NamedFrames())
@@ -1820,27 +1718,18 @@ internal static class EnemySpritemapDefinitions
         foreach (var frame in RidleyBreakupVisualDefinitions.Claw) yield return frame;
     }
 
-    /// <summary>Gets frames.</summary>
     internal static FrameList Frames { get; } = new();
 
-    /// <summary>Represents frame list.</summary>
     internal sealed class FrameList : IReadOnlyList<EnemySpritemapDefinition>
     {
         // The frame list is a fixed derivation of the definitions; derive it once, not per access.
-        /// <summary>Stores frames.</summary>
         private readonly Lazy<EnemySpritemapDefinition[]> frames = new(() => EnumerateFrames().ToArray());
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => frames.Value.Length;
-        /// <summary>Gets the number of elements in this view.</summary>
         internal int Length => Count;
-        /// <summary>Accesses a value by index or range.</summary>
         public EnemySpritemapDefinition this[int index] => (uint)index < Count
             ? frames.Value[index] : throw new IndexOutOfRangeException();
-        /// <summary>Accesses a value by index or range.</summary>
         internal EnemySpritemapDefinition[] this[Range range] => frames.Value[range];
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<EnemySpritemapDefinition> GetEnumerator() => ((IEnumerable<EnemySpritemapDefinition>)frames.Value).GetEnumerator();
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

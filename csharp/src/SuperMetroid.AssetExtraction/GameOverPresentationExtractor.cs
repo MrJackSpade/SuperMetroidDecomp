@@ -123,7 +123,6 @@ public static class GameOverPresentationExtractor
             RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverRomData.SpriteBank | pointer);
     }
 
-    /// <summary>Verifies compiled animation.</summary>
     private static void VerifyCompiledAnimation(ISnesAddressSpace bus)
     {
         foreach (GameOverBabyInstruction instruction in GameOverBabyAnimationDefinitions.All)

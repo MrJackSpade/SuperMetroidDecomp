@@ -5,11 +5,9 @@ using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
 using static LookupFxBlendSelectorsVerification;
 
-/// <summary>Represents lookup fx pair colors verification.</summary>
 internal static class LookupFxPairColorsVerification
 {
     // Independent reviewed fields, not the production rule's reported coverage.
-    /// <summary>Original fx pair calculated mask.</summary>
     internal static int OriginalFxPairCalculatedMask(byte id, int color) => color == 0 && id is (0x42 or 0xe2 or 0xee) ? 0x7fff : id switch
     {
         0x02 => 0x7c1f,
@@ -19,14 +17,10 @@ internal static class LookupFxPairColorsVerification
         _ => 0,
     };
 
-    /// <summary>Verifies fx pair red.</summary>
     internal static void VerifyFxPairRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 0);
-    /// <summary>Verifies fx pair green.</summary>
     internal static void VerifyFxPairGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 5);
-    /// <summary>Verifies fx pair blue.</summary>
     internal static void VerifyFxPairBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 10);
 
-    /// <summary>Verifies fx pair component.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFxPairComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
     {
@@ -50,7 +44,6 @@ internal static class LookupFxPairColorsVerification
         }
     }
 
-    /// <summary>Verifies fx pair storage and edits.</summary>
     internal static void VerifyFxPairStorageAndEdits(ISnesAddressSpace rom)
     {
         foreach (byte id in OriginalFxBlendIds())
@@ -93,11 +86,9 @@ internal static class LookupFxPairColorsVerification
         }
     }
 
-    /// <summary>Represents derived blend source guard.</summary>
     [CpuBusBoundary("exact bus test: cartridge source that clears the calculated FX-pair color bits, proving the blend extractor recomputes them")]
     internal sealed class DerivedBlendSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
-        /// <summary>Reads byte.</summary>
         public byte ReadByte(int address)
         {
             byte original = CpuBusRegionRead.Read(source, address);
@@ -111,9 +102,7 @@ internal static class LookupFxPairColorsVerification
             }
             return original;
         }
-        /// <summary>Reads cartridge byte.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
-        /// <summary>Writes byte.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

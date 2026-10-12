@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents gamepad input verification.</summary>
 internal static class GamepadInputVerification
 {
-/// <summary>Verifies generic gamepad input.</summary>
 internal static void VerifyGenericGamepadInput()
 {
     UsbGamepadIdentifier snesAdapter =
@@ -93,7 +91,6 @@ internal static void VerifyGenericGamepadInput()
         "  Gamepad: axes, POV, positional/0079:0011 face layouts, shoulders, and menus agree.");
 }
 
-/// <summary>Verifies gamepad button.</summary>
 static void VerifyGamepadButton(
     int zeroBasedButtonIndex,
     SnesButton expected,

@@ -12,32 +12,19 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class TourianStatueSequence
 {
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
-    /// <summary>Stores room palette fx.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
-    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Stores tester.</summary>
     private readonly TesterTools _tester;
-    /// <summary>Stores freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
 
-    /// <summary>Initializes a new tourian statue sequence instance.</summary>
     internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies)
     {
         _addressSpace = dependencies.AddressSpace;
@@ -54,19 +41,13 @@ public sealed class TourianStatueSequence
         _vramWrites = dependencies.VramWrites;
     }
 
-    /// <summary>Represents tile object.</summary>
     private sealed class TileObject
     {
-        /// <summary>Stores definition.</summary>
         public required TourianStatueAnimatedTileProgramDefinition Definition;
-        /// <summary>Stores pointer.</summary>
         public ushort Pointer, Timer = 1;
     }
-    /// <summary>Stores objects.</summary>
     private readonly List<TileObject> objects = [];
-    /// <summary>Stores delay.</summary>
     private int delay = -2;
-    /// <summary>Stores descent.</summary>
     private int descent;
     /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes and is reset by the next <see cref="Load"/>.</summary>
     public bool Enabled { get; private set; }
@@ -78,7 +59,6 @@ public sealed class TourianStatueSequence
     public short VerticalOffset => unchecked((short)SnesSixteenSixteen.WholeOf(-descent));
     /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
     public short DisplayedVerticalOffset { get; private set; }
-    /// <summary>latch display.</summary>
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>Resets room-local animation, delay, and displayed descent state, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
@@ -261,14 +241,12 @@ public sealed class TourianStatueSequence
         }
     }
 
-    /// <summary>enable scrolling.</summary>
     private void EnableScrolling()
     {
         _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueFinished = true;
         _room.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
         _room.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
     }
-    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     private static ushort MechanicsWord(TileObject tile, int pointer)
     {
         ushort bankPointer = unchecked((ushort)pointer);

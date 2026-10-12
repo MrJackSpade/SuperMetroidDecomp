@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
@@ -8,11 +8,9 @@ internal sealed class ProjectileEarthquakes
 {
     // This is a routing reference, not additional emulated state. The runtime restores
     // it before executing a frame; the actual shared quake words remain in the room owner.
-    /// <summary>Stores room earthquake owner.</summary>
     [NonSerialized]
     private RoomEnemySystem? _roomEarthquakeOwner;
 
-    /// <summary>Bind room earthquake owner.</summary>
     internal void BindRoomEarthquakeOwner(RoomEnemySystem owner)
         => _roomEarthquakeOwner = Ensure.NotNull(owner);
 

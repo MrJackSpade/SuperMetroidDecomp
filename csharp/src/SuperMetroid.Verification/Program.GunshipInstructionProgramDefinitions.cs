@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents gunship instruction program definitions verification.</summary>
 internal static class GunshipInstructionProgramDefinitionsVerification
 {
-    /// <summary>verify gunship instruction program definitions.</summary>
     internal static void VerifyGunshipInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyGunshipInstructionProgramDefinitions), () => VerifyGunshipInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>verify gunship instruction program definitions.</summary>
     internal static void VerifyGunshipInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -181,7 +178,6 @@ internal static class GunshipInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>probe gunship instruction mechanics allocation.</summary>
     private static int ProbeGunshipInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -193,14 +189,12 @@ internal static class GunshipInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>new gunship instruction guard.</summary>
     private static CartridgeReadGuard NewGunshipInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(GunshipInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled gunship mechanics ${address:X6}.")
             .ObserveWords(0xa20000, GunshipInstructionProgramDefinitions.PresentationWordCount, GunshipInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>gunship instruction mechanics command.</summary>
     [VerificationCommand("--gunship-instruction-mechanics")]
     internal static int GunshipInstructionMechanicsCommand()
     {

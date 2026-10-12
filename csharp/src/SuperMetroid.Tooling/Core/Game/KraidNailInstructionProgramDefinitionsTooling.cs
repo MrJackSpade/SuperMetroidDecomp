@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(KraidNailInstructionProgramDefinitions))]
 internal abstract class KraidNailInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => KraidNailInstructionProgramDefinitions.MechanicsWordCount;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => KraidNailInstructionProgramDefinitions.MechanicsWord(index);
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => KraidNailInstructionProgramDefinitions.PresentationWordCount;
     /// <summary>Each frame's visual operand is two bytes after its duration.</summary>
     public static ushort PresentationWordAddress(int index)
@@ -19,7 +16,6 @@ internal abstract class KraidNailInstructionProgramDefinitionsTooling : IInstruc
         if ((uint)index >= KraidNailInstructionProgramDefinitions.PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(KraidNailInstructionProgramDefinitions.Loop + 4 * index + 2);
     }
-    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa70000)

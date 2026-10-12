@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$90 movement-type admission to the inactive Grapple HUD handler.</summary>
 internal static class SamusGrappleHudInput
 {
-    /// <summary>is selected and admitted.</summary>
     public static bool IsSelectedAndAdmitted(ISnesAddressSpace bus, SamusState samus)
     {
         if (samus.InputLocked || SamusPoseMetadata.IsForwardFacingPose(samus.Pose) ||

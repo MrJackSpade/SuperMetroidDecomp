@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomCharacterAtlasCatalog
 {
-    /// <summary>Stores by source.</summary>
     private readonly Dictionary<int, RoomCharacterAtlas> bySource;
 
     /// <summary>Creates a complete installed character-art catalog and verifies that every compiled room graphics set can resolve its selected source.</summary>

@@ -21,10 +21,8 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
 
     /// <summary>Left-facing bullet pose at $86:C143; eight poses occupy six bytes each.</summary>
     internal const ushort BulletLeft = 0xc143;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 21;
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -34,12 +32,10 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
             : BulletTouchOrShot + 6 + 4 * (index - 16));
     }
 
-    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainRoomTurret or
         RoomEnemyProjectileKind.MotherBrainRoomTurretBullet;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -48,7 +44,6 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitions
             $"Mother Brain turret mechanics pointer $86:{address:X4} is not compiled.");
     }
 
-    /// <summary>Attempts to read.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         int poseOffset = address - TurretLeft;

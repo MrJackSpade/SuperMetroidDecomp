@@ -21,7 +21,6 @@ internal static class TripperKamerVisualDefinitions
     /// Every nonzero value chooses the right map, including values outside the normal dispatcher domain.</summary>
     internal static ushort FrozenFrame(PlatformHorizontalMovement direction) =>
         direction == PlatformHorizontalMovement.Left ? FrozenMovingLeft : FrozenMovingRight;
-    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, MovingTripperFrame(0, 0), "tripper_moving_left_0"),
@@ -66,12 +65,9 @@ internal static class TripperKamerVisualDefinitions
         return StillTripperFrame(facing, pose);
     }
     // These record-layout calculations serve runtime selection and export identities.
-    /// <summary>Kamer frame.</summary>
     private static ushort KamerFrame(int frame) => (ushort)(0xa021 + 12 * frame);
-    /// <summary>Moving tripper frame.</summary>
     private static ushort MovingTripperFrame(int facing, int pose) =>
         (ushort)(0x9f29 + 51 * facing + 17 * pose);
-    /// <summary>Still tripper frame.</summary>
     private static ushort StillTripperFrame(int facing, int pose) =>
         (ushort)(0x9f8f + 61 * facing + 22 * pose - (pose == 2 ? 5 : 0));
 }

@@ -18,10 +18,8 @@ using static CrocomireArenaPlmsVerification;
 using static LookupCrocomireStockVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents crocomire arena visuals verification.</summary>
 internal static class CrocomireArenaVisualsVerification
 {
-    /// <summary>Verifies crocomire arena visuals.</summary>
     internal static void VerifyCrocomireArenaVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -102,7 +100,6 @@ internal static class CrocomireArenaVisualsVerification
         Console.WriteLine("Crocomire arena visuals: five stock draws, bridge/wall edits, physical isolation, override persistence and strict failures pass.");
     }
 
-    /// <summary>Verifies crocomire visual draw.</summary>
     private static void VerifyCrocomireVisualDraw(PlmHeaderId header,
         Offset16<RoomBlocks> blockOffset, ushort physicalWord, ushort visualWord,
         RoomPlmCrocomireVisualCatalog? visuals)
@@ -135,7 +132,6 @@ internal static class CrocomireArenaVisualsVerification
             $"Crocomire visual header ${(int)header:X4} reads no compiled source");
     }
 
-    /// <summary>Crocomire arena visuals command.</summary>
     [VerificationCommand("--crocomire-arena-visuals")]
     internal static int CrocomireArenaVisualsCommand()
     {

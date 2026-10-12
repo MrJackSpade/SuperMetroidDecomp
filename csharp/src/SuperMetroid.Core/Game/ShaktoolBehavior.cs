@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,16 +6,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Shaktool species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ShaktoolBehavior : IEnemySpecies
 {
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Initializes a new shaktool behavior instance.</summary>
     internal ShaktoolBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision)
     {
         _terrain = terrain;
@@ -24,14 +19,11 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         _collision = collision;
     }
 
-    /// <summary>Defines shaktool segment count.</summary>
     private const int ShaktoolSegmentCount = 7;
 
-    /// <summary>Stores shaktool segments.</summary>
     internal readonly ShaktoolSegmentState?[] _shaktoolSegments =
         new ShaktoolSegmentState?[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>Resets shaktool room state.</summary>
     internal void ResetShaktoolRoomState() => Array.Clear(_shaktoolSegments);
 
     /// <summary>Ports <c>Shaktool_Init</c> at <c>$AA:DE43</c>.</summary>
@@ -39,7 +31,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     private static ushort OppositeOrbitStep(ushort angle) =>
         SnesAngle.FromTableIndex(SnesAngle.FromRaw(angle).AddRaw(SnesAngle.HalfTurn.RawValue).TableIndex).RawValue;
 
-    /// <summary>Initializes shaktool.</summary>
     internal void InitializeShaktool(RoomEnemySlot slot)
     {
         if ((slot.Parameter2 & 1) != 0 || slot.Parameter2 > 12)
@@ -241,7 +232,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Reverse shaktool after collision.</summary>
     internal void ReverseShaktoolAfterCollision(
         RoomEnemySlot slot,
         ShaktoolSegmentState state,
@@ -311,7 +301,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Swap mirrored shaktool angles.</summary>
     private void SwapMirroredShaktoolAngles(RoomEnemySlot left, RoomEnemySlot right)
     {
         ShaktoolSegmentState leftState = RequireShaktoolState(left);
@@ -345,14 +334,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Sets shaktool group target angle.</summary>
     private void SetShaktoolGroupTargetAngle(RoomEnemySlot anySegment, ushort target)
     {
         foreach (RoomEnemySlot segment in GetShaktoolGroup(anySegment))
             RequireShaktoolState(segment).TargetAngle = target;
     }
 
-    /// <summary>Sets shaktool group motion flags.</summary>
     private void SetShaktoolGroupMotionFlags(
         RoomEnemySlot anySegment,
         ShaktoolMotionFlags flags)
@@ -361,7 +348,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             segment.Parameter1 = (ushort)flags;
     }
 
-    /// <summary>Gets shaktool group.</summary>
     private RoomEnemySlot[] GetShaktoolGroup(RoomEnemySlot anySegment)
     {
         ShaktoolSegmentState state = RequireShaktoolState(anySegment);
@@ -390,7 +376,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         return group;
     }
 
-    /// <summary>Gets next shaktool segment.</summary>
     private RoomEnemySlot GetNextShaktoolSegment(RoomEnemySlot slot)
     {
         if (slot.SlotIndex + 1 >= _slotTable._slots.Length)
@@ -401,7 +386,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         return _slotTable._slots[slot.SlotIndex + 1];
     }
 
-    /// <summary>Requires shaktool state.</summary>
     private ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
         _shaktoolSegments[slot.SlotIndex] is { } state
             ? state
@@ -484,7 +468,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         slot.Position = slot.Position.Advance(new(new SnesSignedEightEight(xVelocity).ToSixteenSixteenDelta(), new SnesSignedEightEight(yVelocity).ToSixteenSixteenDelta()));
     }
 
-    /// <summary>Reads shaktool common sine sample.</summary>
     internal static ushort ReadShaktoolCommonSineSample(int fullTableIndex) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(fullTableIndex - 64)));
 
@@ -509,7 +492,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             _slotTable._slots[ownerSlotIndex + index].Properties = (ushort)EnemyProperties.Deleted;
     }
 
-    /// <summary>Register shaktool bomb reactions.</summary>
     internal void RegisterShaktoolBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
@@ -519,7 +501,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register shaktool projectiles.</summary>
     internal void RegisterShaktoolProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -533,7 +514,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
     }
 
-    /// <summary>Register shaktool initialization ai.</summary>
     internal void RegisterShaktoolInitializationAi(EnemyAiTable table)
     {
 
@@ -543,7 +523,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register shaktool main ai.</summary>
     internal void RegisterShaktoolMainAi(EnemyAiTable table)
     {
 
@@ -553,7 +532,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register shaktool owned instructions.</summary>
     internal void RegisterShaktoolOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -571,7 +549,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
     }
 
-    /// <summary>Register shaktool shot reactions.</summary>
     internal void RegisterShaktoolShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&

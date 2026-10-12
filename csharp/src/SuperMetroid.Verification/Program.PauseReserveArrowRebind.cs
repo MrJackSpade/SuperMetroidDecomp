@@ -4,7 +4,6 @@ using SuperMetroid.Desktop;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 
-/// <summary>Represents pause reserve arrow rebind verification.</summary>
 internal static class PauseReserveArrowRebindVerification
 {
     /// <summary>

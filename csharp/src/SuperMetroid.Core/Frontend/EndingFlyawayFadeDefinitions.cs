@@ -1,6 +1,5 @@
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>Represents ending flyaway fade definitions.</summary>
 internal static class EndingFlyawayFadeDefinitions
 {
     /// <summary>Func120 sets COLDATA to maximum white on each five-bit component.</summary>

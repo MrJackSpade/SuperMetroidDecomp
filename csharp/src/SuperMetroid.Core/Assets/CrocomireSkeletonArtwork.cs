@@ -7,10 +7,8 @@ public sealed class CrocomireSkeletonArtwork
     public string ContentIdentity => SelectedPresentationHash.Create("enemy-crocomire-skeleton-v1",
         content => content.Append("tiles", atlas.Transfer.Span));
 
-    /// <summary>Stores atlas.</summary>
     private readonly RoomCharacterAtlas atlas;
 
-    /// <summary>Initializes a new crocomire skeleton artwork instance.</summary>
     private CrocomireSkeletonArtwork(RoomCharacterAtlas atlas) => this.atlas = atlas;
 
     /// <summary>Compiles the 256-by-24 indexed skeleton sheet into $0C00 bytes of four-bit characters, retaining the six ordered $0200-byte upload chunks represented by $A4:99CB/$99D9.</summary>
@@ -21,7 +19,6 @@ public sealed class CrocomireSkeletonArtwork
         new(RoomCharacterAtlas.Load(png,
             CrocomireSkeletonTransferDefinitions.TotalByteCount));
 
-    /// <summary>Chunk.</summary>
     internal ReadOnlyMemory<byte> Chunk(int index)
     {
         if (!CrocomireSkeletonTransferDefinitions.TryGet(index, out _))

@@ -16,15 +16,12 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents tourian statue projectile instruction program definitions verification.</summary>
 internal static class TourianStatueProjectileInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies tourian statue projectile instruction program definitions.</summary>
     internal static void VerifyTourianStatueProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTourianStatueProjectileInstructionProgramDefinitions), () => VerifyTourianStatueProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    /// <summary>Verifies tourian statue projectile instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue projectile instruction program definitions")]
     internal static void VerifyTourianStatueProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -182,7 +179,6 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         }
     }
 
-    /// <summary>Probes tourian statue projectile instruction mechanics allocation.</summary>
     private static int ProbeTourianStatueProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -196,14 +192,12 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         return checksum;
     }
 
-    /// <summary>Creates tourian statue projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewTourianStatueProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(TourianStatueProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Tourian statue mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount, TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Tourian statue projectile instruction mechanics command.</summary>
     [VerificationCommand("--tourian-statue-projectile-instruction-mechanics")]
     internal static int TourianStatueProjectileInstructionMechanicsCommand()
     {

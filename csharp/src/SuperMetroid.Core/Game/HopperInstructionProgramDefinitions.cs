@@ -32,19 +32,14 @@ internal abstract class HopperInstructionProgramDefinitions
     /// <summary>$A3:AA94 and each landed program: last pose hold before ReadyToHop. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort LandingFinalHold = 3;
 
-    /// <summary>Represents program definition.</summary>
     private readonly record struct ProgramDefinition(ushort Start, bool Sound, bool Jumping)
     {
-        /// <summary>Gets prefix words.</summary>
         internal int PrefixWords => Sound ? 3 : 1;
-        /// <summary>Gets pose count.</summary>
         internal int PoseCount => Jumping ? 1 : 4;
-        /// <summary>Gets word count.</summary>
         internal int WordCount => PrefixWords + PoseCount + (Jumping ? 1 : 2);
     }
 
     // Four species/size groups each contain airborne and landed programs for both orientations.
-    /// <summary>program at.</summary>
     private static ProgramDefinition ProgramAt(int index)
     {
         if ((uint)index >= 16) throw new IndexOutOfRangeException();
@@ -78,12 +73,9 @@ internal abstract class HopperInstructionProgramDefinitions
         return ProgramAt(group * 4 + (upsideDown ? 2 : 0) + (jumping ? 0 : 1)).Start;
     }
 
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 96;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 40;
 
-    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -96,7 +88,6 @@ internal abstract class HopperInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
-    /// <summary>word.</summary>
     private static InstructionMechanicsWord Word(ProgramDefinition program, int index)
     {
         if (index == 0)
@@ -124,7 +115,6 @@ internal abstract class HopperInstructionProgramDefinitions
                 : (ushort)CommonEnemyInstruction.Sleep);
     }
 
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -134,7 +124,6 @@ internal abstract class HopperInstructionProgramDefinitions
         return (ushort)(program.Start + program.PrefixWords * 2 + (pose == 0 ? 0 : pose - 1) * 4 + 2);
     }
 
-    /// <summary>is presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)
@@ -142,7 +131,6 @@ internal abstract class HopperInstructionProgramDefinitions
         return false;
     }
 
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

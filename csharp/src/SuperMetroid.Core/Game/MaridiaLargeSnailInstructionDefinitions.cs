@@ -3,21 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The eight mutually exclusive facing/action animation states used by Oum.</summary>
 internal enum MaridiaLargeSnailAnimation : ushort
 {
-    /// <summary>Identifies facing right idle.</summary>
     FacingRightIdle = 0,
-    /// <summary>Identifies facing left idle.</summary>
     FacingLeftIdle = 1,
-    /// <summary>Identifies facing right rolling forwards.</summary>
     FacingRightRollingForwards = 2,
-    /// <summary>Identifies facing left rolling forwards.</summary>
     FacingLeftRollingForwards = 3,
-    /// <summary>Identifies facing right attacking.</summary>
     FacingRightAttacking = 4,
-    /// <summary>Identifies facing left attacking.</summary>
     FacingLeftAttacking = 5,
-    /// <summary>Identifies facing right rolling backwards.</summary>
     FacingRightRollingBackwards = 6,
-    /// <summary>Identifies facing left rolling backwards.</summary>
     FacingLeftRollingBackwards = 7,
 }
 

@@ -14,15 +14,12 @@ using SuperMetroid.Core.Hardware;
 using static EnemyProjectileProgramOracleVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents draygon projectile instruction program definitions verification.</summary>
 internal static class DraygonProjectileInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies draygon projectile instruction program definitions.</summary>
     internal static void VerifyDraygonProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyDraygonProjectileInstructionProgramDefinitions), () => VerifyDraygonProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    /// <summary>Verifies draygon projectile instruction program definitions.</summary>
     internal static void VerifyDraygonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -182,7 +179,6 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe draygon projectile instruction mechanics allocation.</summary>
     private static int ProbeDraygonProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -196,7 +192,6 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New draygon projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewDraygonProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -207,7 +202,6 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
                 DraygonProjectileInstructionProgramDefinitions.PresentationWordCount,
                 DraygonProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Draygon projectile instruction mechanics command.</summary>
     [VerificationCommand("--draygon-projectile-instruction-mechanics")]
     internal static int DraygonProjectileInstructionMechanicsCommand()
     {

@@ -23,18 +23,12 @@ public sealed class KraidColorCatalog
             }
         });
 
-    /// <summary>Stores room backdrop.</summary>
     private readonly IReadOnlyList<Bgr555> roomBackdrop;
-    /// <summary>Stores initial target.</summary>
     private readonly IReadOnlyList<Bgr555> initialTarget;
-    /// <summary>Stores health.</summary>
     private readonly IReadOnlyList<Bgr555> health;
-    /// <summary>Stores secondary.</summary>
     private readonly IReadOnlyList<Bgr555> secondary;
-    /// <summary>Stores death arm.</summary>
     private readonly IReadOnlyList<Bgr555> deathArm;
 
-    /// <summary>Initializes a new kraid color catalog instance.</summary>
     private KraidColorCatalog(KraidColorDocument document)
     {
         roomBackdrop = new StockBand(KraidPaletteSource.RoomBackdrop,
@@ -74,12 +68,9 @@ public sealed class KraidColorCatalog
     /// </summary>
     private sealed class StockBand : IReadOnlyList<Bgr555>
     {
-        /// <summary>Stores source.</summary>
         private readonly KraidPaletteSource source;
-        /// <summary>Stores deviations.</summary>
         private readonly Dictionary<int, Bgr555> deviations = new();
 
-        /// <summary>Initializes a new stock band instance.</summary>
         internal StockBand(KraidPaletteSource source, Bgr555[] supplied)
         {
             this.source = source;
@@ -88,19 +79,15 @@ public sealed class KraidColorCatalog
                     deviations.Add(index, supplied[index]);
         }
 
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => KraidPaletteRomData.ColorCount(source);
-        /// <summary>Accesses a value by index or range.</summary>
         public Bgr555 this[int index] => deviations.TryGetValue(index, out Bgr555 supplied)
             ? supplied : KraidPaintDefinitions.Color(source, index);
 
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<Bgr555> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -127,10 +114,8 @@ public sealed class KraidColorCatalog
     /// </summary>
     private sealed class HealthPalette : IReadOnlyList<Bgr555>
     {
-        /// <summary>Stores deviations.</summary>
         private readonly Dictionary<int, Bgr555> deviations = new();
 
-        /// <summary>Initializes a new health palette instance.</summary>
         internal HealthPalette(Bgr555[] supplied)
         {
             // Authored cells first: interior interpolation reads the (possibly edited) endpoints.
@@ -142,9 +127,7 @@ public sealed class KraidColorCatalog
                     deviations.Add(index, supplied[index]);
         }
 
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => KraidPaletteRomData.HealthBandCount * KraidPaletteRomData.BandColors;
-        /// <summary>Accesses a value by index or range.</summary>
         public Bgr555 this[int index]
         {
             get
@@ -155,7 +138,6 @@ public sealed class KraidColorCatalog
             }
         }
 
-        /// <summary>calculate.</summary>
         private Bgr555 Calculate(int index)
         {
             if (KraidPaintDefinitions.HealthAuthored(index) is Bgr555 authored)
@@ -168,13 +150,11 @@ public sealed class KraidColorCatalog
             return InterpolateHealth(this[KraidPaletteRomData.BandColors + color], this[finalBand + color], band);
         }
 
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<Bgr555> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Validates and compiles all five Kraid RGB5 sources, preserving independent authored edits while leaving health-band selection and fade timing to the boss mechanics.</summary>
@@ -213,7 +193,6 @@ public sealed class KraidColorCatalog
         return bytes;
     }
 
-    /// <summary>compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
     {
         int expected = KraidPaletteRomData.ColorCount(kind);
@@ -232,12 +211,10 @@ public sealed class KraidColorCatalog
         return result;
     }
 
-    /// <summary>reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
             name => new InvalidDataException($"Duplicate Kraid color property {name}."));
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

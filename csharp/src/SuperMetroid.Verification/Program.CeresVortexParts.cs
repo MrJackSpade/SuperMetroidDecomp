@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static CeresStationPartsVerification;
 using static MapSpritesVerification;
 
-/// <summary>Represents ceres vortex parts verification.</summary>
 internal static class CeresVortexPartsVerification
 {
-    /// <summary>verify ceres vortex parts.</summary>
     internal static void VerifyCeresVortexParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);

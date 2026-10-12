@@ -135,7 +135,6 @@ public static class GameOptionsPresentationExtractor
         }
     }
 
-    /// <summary>Cells.</summary>
     private static MapPresentationCell[] Cells(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length % sizeof(ushort) != 0)
@@ -158,7 +157,6 @@ public static class GameOptionsPresentationExtractor
         return cells;
     }
 
-    /// <summary>Points.</summary>
     private static Position16<OamPixels>[] Points(ushort x, int count, Func<int, ushort> rowY)
     {
         var result = new Position16<OamPixels>[count];
@@ -167,7 +165,6 @@ public static class GameOptionsPresentationExtractor
         return result;
     }
 
-    /// <summary>Byte offset point.</summary>
     private static Position16<TilemapCells> ByteOffsetPoint(ushort byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
@@ -175,11 +172,9 @@ public static class GameOptionsPresentationExtractor
             checked((ushort)(cell / GameOptionsRomData.MenuTilemapWidth)));
     }
 
-    /// <summary>Cell range.</summary>
     private static int[] CellRange(int byteOffset, int byteCount) =>
         Enumerable.Range(byteOffset / sizeof(ushort), byteCount / sizeof(ushort)).ToArray();
 
-    /// <summary>Toggle.</summary>
     private static GameOptionsToggleVisualDocument Toggle(GameOptionsToggleLayout layout) => new()
     {
         EnabledCells = CellRange(layout.EnabledTop,

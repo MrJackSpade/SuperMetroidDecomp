@@ -36,16 +36,11 @@ internal static class MotherBrainRainbowShadeDefinitions
 /// </summary>
 internal sealed class MotherBrainRainbowShadeChannel
 {
-    /// <summary>Stores profile.</summary>
     private readonly MotherBrainRainbowShadeProfile profile;
-    /// <summary>Stores source green.</summary>
     private readonly Func<int, int> sourceGreen;
-    /// <summary>Stores inputs.</summary>
     private readonly byte[] inputs;
-    /// <summary>Stores calculated.</summary>
     private readonly bool calculated;
 
-    /// <summary>Initializes a new mother brain rainbow shade channel instance.</summary>
     internal MotherBrainRainbowShadeChannel(byte[] samples, MotherBrainRainbowShadeProfile profile, Func<int, int> sourceGreen)
     {
         this.profile = profile;
@@ -64,10 +59,8 @@ internal sealed class MotherBrainRainbowShadeChannel
         calculated = true;
     }
 
-    /// <summary>Gets an indexed value.</summary>
     internal byte this[int color] => calculated ? (byte)Calculate(color) : inputs[color];
 
-    /// <summary>Calculate.</summary>
     private int Calculate(int color)
     {
         if (color < Layout.PlateStart)
@@ -106,13 +99,10 @@ internal sealed class MotherBrainRainbowShadeChannel
     }
 
     // Exposed-head outline shares the darkest cortex channel in these native phases.
-    /// <summary>Shares dark head tail.</summary>
     private static bool SharesDarkHeadTail(MotherBrainRainbowShadeProfile profile) =>
         profile is MotherBrainRainbowShadeProfile.FirstGreenRise or MotherBrainRainbowShadeProfile.MixedBlue or MotherBrainRainbowShadeProfile.MaximumBlue;
 
-    /// <summary>Represents rounding.</summary>
-    private enum Rounding { /** <summary>Identifies floor.</summary> */ Floor, /** <summary>Identifies ceiling.</summary> */ Ceiling, /** <summary>Identifies nearest up.</summary> */ NearestUp, /** <summary>Identifies nearest even.</summary> */ NearestEven }
-    /// <summary>Interpolate.</summary>
+    private enum Rounding { Floor, Ceiling, NearestUp, NearestEven }
     private static int Interpolate(int first, int last, int shade, int intervals, Rounding rounding)
     {
         int numerator = first * (intervals - shade) + last * shade;

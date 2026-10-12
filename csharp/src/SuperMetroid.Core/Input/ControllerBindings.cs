@@ -193,7 +193,6 @@ public readonly record struct ControllerBindings(
         return this;
     }
 
-    /// <summary>With action.</summary>
     private ControllerBindings WithAction(int action, ushort value) => action switch
     {
         0 => this with { Shoot = value },
@@ -206,7 +205,6 @@ public readonly record struct ControllerBindings(
         _ => throw new ArgumentOutOfRangeException(nameof(action)),
     };
 
-    /// <summary>Map.</summary>
     private static ushort Map(
         ushort physicalInput,
         ushort physicalBinding,

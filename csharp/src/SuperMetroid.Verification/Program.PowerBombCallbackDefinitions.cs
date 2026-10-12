@@ -16,10 +16,8 @@ using System.Text.RegularExpressions;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents power bomb callback definitions verification.</summary>
 internal static class PowerBombCallbackDefinitionsVerification
 {
-    /// <summary>Finds callback disassembly source.</summary>
     internal static string FindCallbackDisassemblySource()
     {
         // Linked worktrees share the separately checked-out diagnostic reference.
@@ -35,7 +33,6 @@ internal static class PowerBombCallbackDefinitionsVerification
             "in this checkout or an ancestor containing the shared reference checkout.");
     }
 
-    /// <summary>Verifies power bomb callback definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb callback definitions")]
     internal static void VerifyPowerBombCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -68,7 +65,6 @@ internal static class PowerBombCallbackDefinitionsVerification
         Console.WriteLine($"Power Bomb callbacks: {headers} named headers match native opcode classification; all 16777216 bank/pointer pairs preserve the ten literal no-ops and zero/common distinction.");
     }
 
-    /// <summary>Enemy callback definitions command.</summary>
     [VerificationCommand("--enemy-callback-definitions")]
     internal static int EnemyCallbackDefinitionsCommand()
     {

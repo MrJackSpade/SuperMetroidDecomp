@@ -44,10 +44,8 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
 
     /// <summary>Samus-contact death pose hold 2 at $86:EDFF..EE3D. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort ContactDeathPoseDuration = 2;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 31;
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -62,21 +60,17 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
         });
     }
 
-    /// <summary>Frame visual offset.</summary>
     private static int FrameVisualOffset(int frame, int framesBeforeSound) =>
         frame * 4 + 2 + (frame >= framesBeforeSound ? 2 : 0);
 
-    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
         (kind == RoomEnemyProjectileKind.EnemyDeathExplosion ||
          (kind == RoomEnemyProjectileKind.EnemyDeathPickup && address >= RespawnTail && address < BigExplosion)) &&
         TryWord(address, out _);
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Generic enemy-death mechanics pointer $86:{address:X4} is not compiled.");
 
-    /// <summary>Attempts to word.</summary>
     internal static bool TryWord(ushort address, out ushort value)
     {
         ushort? result = null;
@@ -104,7 +98,6 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
 
     // Big and Mini-Kraid deaths repeat two or three sprite spawns, one blank frame,
     // sound and timer/goto control before becoming a pickup.
-    /// <summary>Repeated explosion word.</summary>
     private static ushort? RepeatedExplosionWord(int offset, bool miniKraid)
     {
         int firstFrameOffset = miniKraid ? 16 : 12;
@@ -129,7 +122,6 @@ internal abstract class EnemyDeathInstructionProgramDefinitions
 
     // Six normal/small frames or sixteen contact frames, with one sound command
     // inserted before the second phase and the same pickup/delete tail.
-    /// <summary>Animated explosion word.</summary>
     private static ushort? AnimatedExplosionWord(int offset, bool small, bool contact)
     {
         int sound = contact ? 28 : 12;

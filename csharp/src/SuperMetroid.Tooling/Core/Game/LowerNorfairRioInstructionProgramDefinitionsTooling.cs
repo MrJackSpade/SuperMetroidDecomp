@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(LowerNorfairRioInstructionProgramDefinitions))]
 internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 51;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 32;
-    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -23,7 +20,6 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -35,7 +31,6 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
-    /// <summary>Checks whether the address belongs to compiled mechanics data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

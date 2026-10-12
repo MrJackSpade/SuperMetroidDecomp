@@ -8,12 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable escape-timer spritemap compositions, palette and screen-relative anchors.</summary>
 public sealed class EscapeTimerPresentation
 {
-    /// <summary>Stores frames.</summary>
     private readonly Dictionary<string, SpriteComposition> frames;
-    /// <summary>Stores anchors.</summary>
     private readonly Dictionary<string, Offset16<OamPixels>> anchors;
 
-    /// <summary>Initializes a new escape timer presentation instance.</summary>
     private EscapeTimerPresentation(Dictionary<string, SpriteComposition> frames,
         Dictionary<string, Offset16<OamPixels>> anchors, int digitSpacing, int palette)
     {
@@ -63,7 +60,6 @@ public sealed class EscapeTimerPresentation
         }
     }
 
-    /// <summary>Anchor.</summary>
     private Offset16<OamPixels> Anchor(string name) => anchors.TryGetValue(name, out var supplied)
         ? supplied : EscapeTimerPresentationDefinitions.DefaultAnchor(name);
 

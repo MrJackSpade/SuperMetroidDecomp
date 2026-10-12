@@ -7,7 +7,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the specifically identified Work Robot laser resource omission.</summary>
 internal static class WorkRobotResourceChecks
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     public static void Run()
     {
         // Production catalogs, but constructed art: no cartridge, enemy AI, room,
@@ -73,13 +72,11 @@ internal static class WorkRobotResourceChecks
         Console.WriteLine("Work Robot resources: all seven bindings load; legacy edits survive, new frames inherit stock, incomplete stock is rejected.");
     }
 
-    /// <summary>load.</summary>
     private static EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument document,
         EnemyProjectileSpritemapCatalog? stock = null) =>
         EnemyProjectileSpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 
-    /// <summary>Throws when the asserted condition is false.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("Work Robot resource contract failed: " + message);

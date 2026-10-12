@@ -90,7 +90,6 @@ public static class GameAssetInstaller
         return IsExtractedContentComplete(installation) ? installation : null;
     }
 
-    /// <summary>Install validated.</summary>
     private static GameInstallation InstallValidated(byte[] rom, string root,
         CancellationToken cancellationToken, IProgress<string>? progress)
     {
@@ -112,11 +111,9 @@ public static class GameAssetInstaller
         return ExtractAndPublish(installation, rom, new HashSet<InstallerComponent>(), cancellationToken, progress);
     }
 
-    /// <summary>Checks whether complete.</summary>
     private static bool IsComplete(GameInstallation installation) =>
         File.Exists(installation.RomPath) && IsExtractedContentComplete(installation);
 
-    /// <summary>Checks whether extracted content complete.</summary>
     private static bool IsExtractedContentComplete(GameInstallation installation)
     {
         try
@@ -181,7 +178,6 @@ public static class GameAssetInstaller
         }
     }
 
-    /// <summary>Recover interrupted publish.</summary>
     private static void RecoverInterruptedPublish(GameInstallation installation)
     {
         string previous = Path.Combine(installation.Root, GameInstallationLayout.PreviousDirectoryName);
@@ -189,7 +185,6 @@ public static class GameAssetInstaller
             Directory.Move(previous, installation.ContentDirectory);
     }
 
-    /// <summary>Lock.</summary>
     internal static FileStream Lock(string root)
     {
         Directory.CreateDirectory(root);
@@ -197,10 +192,8 @@ public static class GameAssetInstaller
         catch (IOException error) { throw new IOException("Game setup is already in use. Close the other setup window and retry.", error); }
     }
 
-    /// <summary>Represents installation receipt.</summary>
     private sealed record InstallationReceipt(int FormatVersion, string RomSha256);
 
-    /// <summary>Represents installed state.</summary>
     private sealed record InstalledState(byte[] Rom, HashSet<InstallerComponent> Reusable, bool Complete);
 
     /// <summary>One extraction stage: its progress text, extractor, and stock validator.</summary>
@@ -215,7 +208,6 @@ public static class GameAssetInstaller
     /// </summary>
     private sealed record InstallerComponent(string DirectoryName, params InstallerStep[] Steps)
     {
-        /// <summary>Validate.</summary>
         public void Validate(string contentDirectory)
         {
             string directory = Path.Combine(contentDirectory, DirectoryName);
@@ -223,7 +215,6 @@ public static class GameAssetInstaller
         }
     }
 
-    /// <summary>Step.</summary>
     private static InstallerStep Step(string progress,
         Action<CartridgeImportAddressSpace, string> extract, Action<string> validate) =>
         new(progress, (bus, directory, _) => extract(bus, directory), validate);
@@ -375,7 +366,6 @@ public static class GameAssetInstaller
         catch (Exception error) when (IsRepairableContentFailure(error)) { return false; }
     }
 
-    /// <summary>Copies directory.</summary>
     private static void CopyDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);

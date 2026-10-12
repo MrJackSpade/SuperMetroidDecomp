@@ -123,7 +123,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             nativeCarry: reachedVerticalBoundary);
     }
 
-    /// <summary>Calculates yvelocity.</summary>
     private static ushort CalculateYVelocity(
         ushort speed,
         SnesAngle angle)
@@ -134,7 +133,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             speed, angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
     }
 
-    /// <summary>Moves vertically toward ceiling or floor.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
         ushort velocity)
@@ -168,7 +166,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
-    /// <summary>Moves horizontally toward wall.</summary>
     private static bool MoveHorizontallyTowardWall(SamusState samus, ushort velocity)
     {
         ushort candidate = AddNativeEightEightVelocity(
@@ -194,7 +191,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return false;
     }
 
-    /// <summary>Adds native eight eight velocity.</summary>
     private static ushort AddNativeEightEightVelocity(
         ushort wholePosition,
         ushort subposition,
@@ -207,10 +203,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return moved.Whole;
     }
 
-    /// <summary>Capture.</summary>
     private static FixedPosition<RoomPixels> Capture(SamusState samus) => samus.Position;
 
-    /// <summary>Creates result.</summary>
     private static MotherBrainForcedSamusMovementResult CreateResult(
         FixedPosition<RoomPixels> before,
         bool nativeCarry) => new(

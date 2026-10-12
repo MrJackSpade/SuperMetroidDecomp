@@ -23,7 +23,6 @@ internal static class ShaktoolVisualDefinitions
     /// <summary>$AA:E028: first primary-saw record immediately follows the eight head directions.</summary>
     private const ushort FirstPrimarySaw = FirstHead + 8 * HeadRecordBytes;
 
-    /// <summary>frames.</summary>
     internal static IEnumerable<EnemySpritemapDefinition> Frames()
     {
         for (int pose = 0; pose < 3; pose++)

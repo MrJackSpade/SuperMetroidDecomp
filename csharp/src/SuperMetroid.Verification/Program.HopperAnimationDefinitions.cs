@@ -16,10 +16,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents hopper animation definitions verification.</summary>
 internal static class HopperAnimationDefinitionsVerification
 {
-    /// <summary>Verifies hopper animation definitions.</summary>
     internal static void VerifyHopperAnimationDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -156,7 +154,6 @@ internal static class HopperAnimationDefinitionsVerification
               "Tourian alias execute with cartridge visual reads forbidden.");
     }
 
-    /// <summary>Verifies tourian sidehopper instruction alias.</summary>
     private static void VerifyTourianSidehopperInstructionAlias(
         SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog? artwork)
@@ -175,7 +172,6 @@ internal static class HopperAnimationDefinitionsVerification
             "Tourian Sidehopper shares compiled large-Sidehopper landed program");
     }
 
-    /// <summary>Execute hopper instruction program.</summary>
     private static void ExecuteHopperInstructionProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -190,7 +186,6 @@ internal static class HopperAnimationDefinitionsVerification
         }
     }
 
-    /// <summary>Probe hopper instruction mechanics allocation.</summary>
     private static int ProbeHopperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -204,12 +199,10 @@ internal static class HopperAnimationDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads hopper animation word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Hopper animation words")]
     internal static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWord(address);
 
-    /// <summary>New hopper animation guard.</summary>
     private static CartridgeReadGuard NewHopperAnimationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .ForbidRange(0xa3aac2, 0xa3aae2 - 0xa3aac2,
@@ -220,7 +213,6 @@ internal static class HopperAnimationDefinitionsVerification
                 HopperInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Hopper read visual-selector byte ${address:X6}.");
 
-    /// <summary>Hopper instruction program definitions command.</summary>
     [VerificationCommand("--hopper-instruction-program-definitions")]
     internal static int HopperInstructionProgramDefinitionsCommand()
     {

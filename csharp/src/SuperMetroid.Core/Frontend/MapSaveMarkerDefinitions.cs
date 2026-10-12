@@ -45,7 +45,6 @@ public static class MapSaveMarkerDefinitions
         return LoadStationDefinitions.Get(area, (byte)index).RoomPointer != 0;
     }
 
-    /// <summary>Validates area.</summary>
     private static void ValidateArea(AreaId area)
     {
         if ((uint)area >= FileSelectMapRomData.AreaCount)

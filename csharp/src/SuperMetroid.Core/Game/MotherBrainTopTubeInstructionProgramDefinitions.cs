@@ -23,7 +23,6 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
-    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc43),
         Entry(TopRight),
@@ -38,19 +37,15 @@ internal abstract class MotherBrainTopTubeInstructionProgramDefinitions
         Entry(TopMiddleRight),
         Frame(1),
         Op((ushort)EnemyProjectileInstruction.Sleep));
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainTopRightTube or
         RoomEnemyProjectileKind.MotherBrainTopLeftTube or
         RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
         RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

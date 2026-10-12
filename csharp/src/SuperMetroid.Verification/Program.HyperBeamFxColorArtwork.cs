@@ -8,10 +8,8 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static ProjectileCompositionsVerification;
 
-/// <summary>Represents hyper beam fx color artwork verification.</summary>
 internal static class HyperBeamFxColorArtworkVerification
 {
-    /// <summary>Verifies hyper beam fx color artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {

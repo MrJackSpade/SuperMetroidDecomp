@@ -14,10 +14,8 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
-/// <summary>Represents health warning verification.</summary>
 internal static class HealthWarningVerification
 {
-    /// <summary>verify health warning.</summary>
     internal static void VerifyHealthWarning()
     {
         var warning = new SamusHealthWarningState();
@@ -54,7 +52,6 @@ internal static class HealthWarningVerification
         Console.WriteLine("Low-health warning owner: threshold edges, native commands, rejection/suppression latch and serialization pass; frontend integration pending.");
     }
 
-    /// <summary>health warning command.</summary>
     [VerificationCommand("--health-warning")]
     internal static int HealthWarningCommand()
     {

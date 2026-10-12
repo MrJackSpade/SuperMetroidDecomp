@@ -15,10 +15,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static FrontendRomFreeVerification;
 
-/// <summary>Represents standard object artwork verification.</summary>
 internal static class StandardObjectArtworkVerification
 {
-    /// <summary>Verifies standard object artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for standard object artwork")]
     internal static void VerifyStandardObjectArtwork(string sourceRom)
@@ -99,7 +97,6 @@ internal static class StandardObjectArtworkVerification
         }
     }
 
-    /// <summary>Standard object artwork command.</summary>
     [VerificationCommand("--standard-object-artwork")]
     internal static int StandardObjectArtworkCommand()
     {

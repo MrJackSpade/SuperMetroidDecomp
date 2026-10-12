@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents intro caret instructions verification.</summary>
 internal static class IntroCaretInstructionsVerification
 {
-    /// <summary>Verifies intro caret instructions.</summary>
     internal static void VerifyIntroCaretInstructions(ISnesAddressSpace rom)
     {
         for (int pointer = 0xcbfb; pointer < 0xcc0f; pointer++)
@@ -26,7 +24,6 @@ internal static class IntroCaretInstructionsVerification
             "caret terminal byte cannot begin a word");
     }
 
-    /// <summary>Intro caret instructions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro caret instructions")]
     private static byte IntroCaretInstructionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

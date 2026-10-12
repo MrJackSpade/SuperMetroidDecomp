@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ceres steam definitions verification.</summary>
 internal static class CeresSteamDefinitionsVerification
 {
-    /// <summary>Verifies ceres steam definitions.</summary>
     internal static void VerifyCeresSteamDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa6eff5;
@@ -48,7 +46,6 @@ internal static class CeresSteamDefinitionsVerification
             "Ceres steam definitions: twelve native words and all six production initialization paths pass with both selector tables forbidden.");
     }
 
-    /// <summary>Creates ceres steam definition read guard.</summary>
     private static CartridgeReadGuard NewCeresSteamDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa6eff5 and < 0xa6f00d,

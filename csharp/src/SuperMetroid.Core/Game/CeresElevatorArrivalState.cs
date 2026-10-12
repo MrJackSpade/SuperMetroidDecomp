@@ -16,13 +16,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class CeresElevatorArrivalState
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores pad.</summary>
     private readonly CeresElevatorProjectile pad;
-    /// <summary>Stores platform.</summary>
     private readonly CeresElevatorProjectile platform;
-    /// <summary>Stores projectile spritemaps.</summary>
     [NonSerialized] private EnemyProjectileSpritemapCatalog? projectileSpritemaps;
 
     /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
@@ -120,7 +116,6 @@ public sealed class CeresElevatorArrivalState
     private static Position16<RoomPixels> MovingPadUnder(SamusState samus) =>
         samus.Position.Whole + new Offset16<RoomPixels>(0, (short)CeresElevatorArrivalDefinitions.MovingPadYOffset);
 
-    /// <summary>Loads projectile.</summary>
     private static CeresElevatorProjectile LoadProjectile(
         CeresElevatorProjectileDefinition definition,
         Position16<RoomPixels> position)
@@ -132,7 +127,6 @@ public sealed class CeresElevatorArrivalState
             CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
     }
 
-    /// <summary>Processes instruction list.</summary>
     private static void ProcessInstructionList(CeresElevatorProjectile projectile)
     {
         ushort oldTimer = projectile.InstructionTimer;
@@ -171,7 +165,6 @@ public sealed class CeresElevatorArrivalState
             $"Ceres elevator eproj $86:{projectile.DefinitionPointer:X4} exceeded its command guard.");
     }
 
-    /// <summary>Draws projectile.</summary>
     private void DrawProjectile(
         CeresElevatorProjectile projectile,
         OamBuffer oam,
@@ -198,10 +191,8 @@ public sealed class CeresElevatorArrivalState
             originYIsOnScreen: (SnesLittleEndian.HighByteInPlace(screen.Y)) == 0);
     }
 
-    /// <summary>Represents ceres elevator projectile.</summary>
     private sealed class CeresElevatorProjectile
     {
-        /// <summary>Initializes a new ceres elevator projectile instance.</summary>
         public CeresElevatorProjectile(
             ushort definitionPointer,
             ushort instructionPointer,
@@ -214,21 +205,14 @@ public sealed class CeresElevatorArrivalState
             GraphicsIndex = graphicsIndex;
         }
 
-        /// <summary>Gets definition pointer.</summary>
         public ushort DefinitionPointer { get; }
-        /// <summary>Gets graphics index.</summary>
         public ushort GraphicsIndex { get; }
-        /// <summary>Gets or sets active.</summary>
         public bool Active { get; set; } = true;
         /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
-        /// <summary>Gets or sets wait timer.</summary>
         public ushort WaitTimer { get; set; }
-        /// <summary>Gets or sets instruction pointer.</summary>
         public ushort InstructionPointer { get; set; }
-        /// <summary>Gets or sets instruction timer.</summary>
         public ushort InstructionTimer { get; set; } = 1;
-        /// <summary>Gets or sets spritemap pointer.</summary>
         public ushort SpritemapPointer { get; set; } = CeresElevatorArrivalDefinitions.NoSpritemap;
     }
 }

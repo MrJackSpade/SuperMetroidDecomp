@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal static class GameOptionsCursorPolicy
 {
-    /// <summary>Selects.</summary>
     internal static GameOptionsPage? Select(GameOptionsPhase phase) => phase switch
     {
         GameOptionsPhase.FadeIn or GameOptionsPhase.Main or GameOptionsPhase.FadeOutToFileSelect => GameOptionsPage.Primary,

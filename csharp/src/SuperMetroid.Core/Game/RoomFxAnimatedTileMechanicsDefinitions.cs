@@ -92,10 +92,8 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
 /// <summary>One engine-owned bank-$87 animated-tile object header and loop skeleton.</summary>
 public sealed class RoomFxAnimatedTileObjectDefinition
 {
-    /// <summary>Stores frames.</summary>
     private readonly CalculatedFrames frames;
 
-    /// <summary>Initializes a new room fx animated tile object definition instance.</summary>
     internal RoomFxAnimatedTileObjectDefinition(
         AnimatedTileObject objectPointer,
         ushort instructionPointer,
@@ -124,9 +122,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     private sealed class CalculatedFrames(ushort first, int count, ushort duration)
         : IReadOnlyList<RoomFxAnimatedTileFrameDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => count;
-        /// <summary>Gets an indexed value.</summary>
         public RoomFxAnimatedTileFrameDefinition this[int index]
         {
             get
@@ -135,12 +131,10 @@ public sealed class RoomFxAnimatedTileObjectDefinition
                 return new(unchecked((ushort)(first + index * 4)), duration);
             }
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<RoomFxAnimatedTileFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The object-header address within bank $87.</summary>

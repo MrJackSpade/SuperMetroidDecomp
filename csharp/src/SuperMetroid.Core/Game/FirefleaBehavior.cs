@@ -1,18 +1,14 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Fireflea species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FirefleaBehavior : IEnemySpecies
 {
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Stores room status.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
-    /// <summary>Initializes a new fireflea behavior instance.</summary>
     internal FirefleaBehavior(EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus)
     {
         _collision = collision;
@@ -20,16 +16,12 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Stores fireflea minimum ypositions.</summary>
     private readonly ushort[] _firefleaMinimumYPositions =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores fireflea maximum ypositions.</summary>
     private readonly ushort[] _firefleaMaximumYPositions =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores fireflea speed table indexes.</summary>
     private readonly ushort[] _firefleaSpeedTableIndexes =
         new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores fireflea states.</summary>
     internal readonly FirefleaEnemyState?[] _firefleaStates =
         new FirefleaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -148,12 +140,10 @@ internal sealed class FirefleaBehavior : IEnemySpecies
             _roomStatus.FirefleaDarknessLevel = next;
     }
 
-    /// <summary>Requires fireflea state.</summary>
     private FirefleaEnemyState RequireFirefleaState(RoomEnemySlot slot) =>
         _firefleaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fireflea state.");
 
-    /// <summary>Registers fireflea bomb reactions.</summary>
     internal void RegisterFirefleaBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
@@ -167,7 +157,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fireflea initialization ai.</summary>
     internal void RegisterFirefleaInitializationAi(EnemyAiTable table)
     {
 
@@ -177,7 +166,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fireflea main ai.</summary>
     internal void RegisterFirefleaMainAi(EnemyAiTable table)
     {
 
@@ -187,7 +175,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fireflea power bomb reactions.</summary>
     internal void RegisterFirefleaPowerBombReactions(EnemyAiTable table)
     {
         // Reactions around common power-bomb damage.
@@ -198,7 +185,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fireflea shot reactions.</summary>
     internal void RegisterFirefleaShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
@@ -208,7 +194,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fireflea touch.</summary>
     internal void RegisterFirefleaTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&

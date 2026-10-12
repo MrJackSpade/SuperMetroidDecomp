@@ -13,14 +13,12 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents baby metroid head target verification.</summary>
 internal static class BabyMetroidHeadTargetVerification
 {
     // #1269: every Baby routine reads the head enemy Enemy[1]'s X/Y, which head AI moved
     // earlier this frame. The port read the rainbow sequence's own brain copy, one frame
     // stale, so in the 100% movie the Baby latched onto the head's previous position
     // ($7E,$5B-$18 instead of $7D,$5D-$18).
-    /// <summary>Verifies baby metroid head target.</summary>
     internal static void VerifyBabyMetroidHeadTarget()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -51,7 +49,6 @@ internal static class BabyMetroidHeadTargetVerification
         Console.WriteLine("Baby Metroid head target: the Baby reads the head enemy's current position.");
     }
 
-    /// <summary>Baby metroid head target command.</summary>
     [VerificationCommand("--baby-metroid-head-target")]
     internal static int BabyMetroidHeadTargetCommand()
     {

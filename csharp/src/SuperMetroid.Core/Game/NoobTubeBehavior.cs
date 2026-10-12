@@ -1,16 +1,13 @@
-using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Noob tube species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NoobTubeBehavior
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Initializes a new noob tube behavior instance.</summary>
     internal NoobTubeBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -99,7 +96,6 @@ internal sealed class NoobTubeBehavior
         }
     }
 
-    /// <summary>Validates even noob tube parameter.</summary>
     private static int ValidateEvenNoobTubeParameter(
         ushort parameter,
         int entryCount,
@@ -167,7 +163,6 @@ internal sealed class NoobTubeBehavior
         }
     }
 
-    /// <summary>Moves noob tube projectile horizontally along arc.</summary>
     internal static void MoveNoobTubeProjectileHorizontallyAlongArc(
         RoomEnemyProjectileSlot projectile,
         ushort angleStep)
@@ -182,13 +177,11 @@ internal sealed class NoobTubeBehavior
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue + angleStep))));
     }
 
-    /// <summary>Moves noob tube bubble vertically.</summary>
     private static void MoveNoobTubeBubbleVertically(RoomEnemyProjectileSlot projectile)
     {
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(projectile.Variable1);
     }
 
-    /// <summary>Register noob tube projectiles.</summary>
     internal void RegisterNoobTubeProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -198,7 +191,6 @@ internal sealed class NoobTubeBehavior
     }
 
 
-    /// <summary>Register falling angle instructions.</summary>
     internal void RegisterFallingAngleInstructions(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle, null,

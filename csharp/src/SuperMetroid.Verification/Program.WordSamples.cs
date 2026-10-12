@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-/// <summary>Represents word samples verification.</summary>
 internal static class WordSamplesVerification
 {
     /// <summary>

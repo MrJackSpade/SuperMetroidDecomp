@@ -37,10 +37,8 @@ public enum MaridiaLargeSnailBounceFunction : ushort
 /// </summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new maridia large snail enemy state instance.</summary>
     internal MaridiaLargeSnailEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Extra word $00: requested index into the eight-entry list table at $CB77.</summary>

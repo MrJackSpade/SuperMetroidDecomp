@@ -21,26 +21,16 @@ public enum BullEnemyFunction : ushort
 /// </summary>
 public sealed class BullEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Stores max speeds.</summary>
     private readonly ushort[] _maxSpeeds;
-    /// <summary>Stores angles to samus.</summary>
     private readonly ushort[] _anglesToSamus;
-    /// <summary>Stores angles.</summary>
     private readonly ushort[] _angles;
-    /// <summary>Stores shot reaction disable flags.</summary>
     private readonly ushort[] _shotReactionDisableFlags;
-    /// <summary>Stores acceleration timer resets.</summary>
     private readonly ushort[] _accelerationTimerResets;
-    /// <summary>Stores deceleration timer resets.</summary>
     private readonly ushort[] _decelerationTimerResets;
-    /// <summary>Stores shot reaction disable timers.</summary>
     private readonly ushort[] _shotReactionDisableTimers;
-    /// <summary>Stores previous health.</summary>
     private readonly ushort[] _previousHealth;
 
-    /// <summary>Initializes a new bull enemy state instance.</summary>
     internal BullEnemyState(RoomEnemySlot slot, BullSharedTables tables)
     {
         _slot = slot;

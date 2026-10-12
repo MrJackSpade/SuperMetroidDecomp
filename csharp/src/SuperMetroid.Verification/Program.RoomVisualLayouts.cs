@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents room visual layouts verification.</summary>
 internal static class RoomVisualLayoutsVerification
 {
     /// <summary>
@@ -224,7 +223,6 @@ internal static class RoomVisualLayoutsVerification
             "affect only rendering, survive repair, and reject collision bits.");
     }
 
-    /// <summary>new room level corpus read guard.</summary>
     private static CartridgeReadGuard NewRoomLevelCorpusReadGuard(ISnesAddressSpace source, int levelSource) =>
         new CartridgeReadGuard(source).Forbid(address => address == levelSource,
             address => $"Installed room reread native level source ${address:X6}.");

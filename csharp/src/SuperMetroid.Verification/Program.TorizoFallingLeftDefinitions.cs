@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents torizo falling left definitions verification.</summary>
 internal static class TorizoFallingLeftDefinitionsVerification
 {
-    /// <summary>Verifies torizo falling left definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo falling left definitions")]
     internal static void VerifyTorizoFallingLeftDefinitions(ISnesAddressSpace rom)
     {

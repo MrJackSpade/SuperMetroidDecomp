@@ -2,18 +2,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
-/// <summary>Represents lookup speed escape program verification.</summary>
 internal static class LookupSpeedEscapeProgramVerification
 {
-    /// <summary>Verifies speed escape program controls.</summary>
     internal static void VerifySpeedEscapeProgramControls(SuperMetroidAddressSpace rom) =>
         VerifySpeedEscapeProgramField(rom, false);
 
-    /// <summary>Verifies speed escape program callbacks.</summary>
     internal static void VerifySpeedEscapeProgramCallbacks(SuperMetroidAddressSpace rom) =>
         VerifySpeedEscapeProgramField(rom, true);
 
-    /// <summary>Verifies speed escape program field.</summary>
     private static void VerifySpeedEscapeProgramField(SuperMetroidAddressSpace rom, bool callback)
     {
         ushort[] controls = [0xb88a,0xb88e,0xb890,0xb894,0xb896,0xb89a];

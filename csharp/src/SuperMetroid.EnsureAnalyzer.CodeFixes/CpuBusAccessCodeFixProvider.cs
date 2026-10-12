@@ -19,11 +19,8 @@ namespace SuperMetroid.EnsureAnalyzer.CodeFixes;
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CpuBusAccessCodeFixProvider)), Shared]
 public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
 {
-    /// <summary>Defines view of attribute name.</summary>
     private const string ViewOfAttributeName = "CpuBusViewOfAttribute";
-    /// <summary>Defines cell type name.</summary>
     private const string CellTypeName = "CpuBusCell";
-    /// <summary>Defines memory bus type name.</summary>
     private const string MemoryBusTypeName = "ISnesMemoryBus";
 
     /// <inheritdoc />
@@ -63,7 +60,6 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
     private sealed record RawRead(ExpressionSyntax Expression, ExpressionSyntax Bus, ITypeSymbol ResultType,
         IFieldSymbol? Cell, int Address, int Width, string Region);
 
-    /// <summary>Reads of.</summary>
     private static RawRead? ReadOf(SyntaxNode node, SemanticModel model, CancellationToken token)
     {
         for (SyntaxNode? current = node; current is not null; current = current.Parent)
@@ -109,7 +105,6 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
                 : null;
     }
 
-    /// <summary>Replace.</summary>
     private static Document Replace(Document document, SyntaxNode root, RawRead read, INamedTypeSymbol view, IPropertySymbol member)
     {
         ExpressionSyntax creation = SyntaxFactory.ObjectCreationExpression(
@@ -123,14 +118,12 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         return document.WithSyntaxRoot(root.ReplaceNode(read.Expression, replacement));
     }
 
-    /// <summary>Accepts bus.</summary>
     private static bool AcceptsBus(SemanticModel model, INamedTypeSymbol view, ExpressionSyntax bus) =>
         view.InstanceConstructors.Any(constructor =>
             constructor.Parameters.Length == 1 &&
             constructor.Parameters[0].Type.Name == MemoryBusTypeName &&
             model.ClassifyConversion(bus, constructor.Parameters[0].Type) is { IsImplicit: true });
 
-    /// <summary>Cell at async.</summary>
     private static async Task<IFieldSymbol?> CellAtAsync(Solution solution, RawRead read, CancellationToken token)
     {
         IFieldSymbol? match = null;
@@ -146,7 +139,6 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         return match;
     }
 
-    /// <summary>View member async.</summary>
     private static async Task<IPropertySymbol?> ViewMemberAsync(Solution solution, IFieldSymbol cell, ITypeSymbol resultType,
         CancellationToken token)
     {
@@ -166,7 +158,6 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         return match;
     }
 
-    /// <summary>Declares.</summary>
     private static bool Declares(IPropertySymbol property, IFieldSymbol cell) =>
         property.GetAttributes().Any(attribute =>
             attribute.AttributeClass?.Name == ViewOfAttributeName &&
@@ -174,14 +165,12 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
             name == cell.Name &&
             catalog.ToDisplayString() == cell.ContainingType.ToDisplayString());
 
-    /// <summary>Cell fields async.</summary>
     private static async Task<IReadOnlyList<IFieldSymbol>> CellFieldsAsync(Solution solution, CancellationToken token) =>
         (await SourceTypesAsync(solution, token).ConfigureAwait(false))
             .SelectMany(type => type.GetMembers().OfType<IFieldSymbol>())
             .Where(field => field.IsStatic && field.Type.Name == CellTypeName)
             .ToArray();
 
-    /// <summary>Source types async.</summary>
     private static async Task<IReadOnlyList<INamedTypeSymbol>> SourceTypesAsync(Solution solution, CancellationToken token)
     {
         var types = new List<INamedTypeSymbol>();
@@ -194,7 +183,6 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         return types;
     }
 
-    /// <summary>Collect.</summary>
     private static void Collect(INamespaceOrTypeSymbol container, List<INamedTypeSymbol> types)
     {
         foreach (INamespaceOrTypeSymbol member in container.GetMembers().OfType<INamespaceOrTypeSymbol>())

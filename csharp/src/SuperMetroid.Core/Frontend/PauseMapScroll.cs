@@ -25,12 +25,9 @@ internal static class PauseMapScrollLayout
 /// </summary>
 internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<MapPixels> maximum)
 {
-    /// <summary>Stores direction.</summary>
     private MapScrollDirection direction;
-    /// <summary>Stores tick.</summary>
     private int tick;
 
-    /// <summary>can scroll.</summary>
     public bool CanScroll(MapScrollDirection candidate, Position16<MapPixels> scroll) => candidate switch
     {
         MapScrollDirection.Left => Signed(minimum.X - PauseMapScrollLayout.LeftMargin - scroll.X) < 0,
@@ -41,7 +38,6 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
         _ => throw new ArgumentOutOfRangeException(nameof(candidate), candidate, "Undefined map scroll direction."),
     };
 
-    /// <summary>step.</summary>
     public bool Step(ushort heldInput, ref Position16<MapPixels> scroll)
     {
         bool left = CanScroll(MapScrollDirection.Left, scroll);
@@ -74,6 +70,5 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
         return true;
     }
 
-    /// <summary>signed.</summary>
     private static short Signed(int value) => unchecked((short)value);
 }

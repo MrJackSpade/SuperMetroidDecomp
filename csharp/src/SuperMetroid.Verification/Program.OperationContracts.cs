@@ -14,7 +14,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
-/// <summary>Represents operation contracts verification.</summary>
 internal static class OperationContractsVerification
 {
     /// <summary>
@@ -100,7 +99,6 @@ internal static class OperationContractsVerification
         Console.WriteLine("#633 operation contracts: narrow child contracts, the masked grapple frame and construction-time validation pass.");
     }
 
-    /// <summary>Operation contracts command.</summary>
     [VerificationCommand("--operation-contracts")]
     internal static int OperationContractsCommand()
     {

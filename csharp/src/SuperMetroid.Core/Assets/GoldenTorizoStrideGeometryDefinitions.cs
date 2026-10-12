@@ -24,7 +24,6 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     /// <summary>$AA:8FD6-8FE4 and the other body poses: three8px floor-strip tiles $160/$161/$162.</summary>
     private const int FirstFootTile = 0x160, FootTiles = 3, TilePixels = 8;
 
-    /// <summary>Support foot x.</summary>
     private static int SupportFootX(int phase) => (phase % 5) switch
     {
         0 or 1 => ForwardPlantX,
@@ -45,7 +44,6 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         return next - SupportFootX((phase + 9) % 10);
     }
 
-    /// <summary>Compile.</summary>
     internal static EnemySpritemapParts Compile(int frameIdentity, int componentIndex, EnemySpritemapParts supplied)
     {
         int offset = frameIdentity - FirstFrame;
@@ -73,13 +71,10 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         return seen == expected ? new FootParts(supplied, phase, footIndices.ToArray()) : supplied;
     }
 
-    /// <summary>Represents foot appearance.</summary>
     private readonly record struct FootAppearance(ushort XFlags, byte Y, SnesObjAttributeWord Attributes)
     {
-        /// <summary>From.</summary>
         internal static FootAppearance From(EnemySpritemapPart part) =>
             new((ushort)(part.X.Raw & ~0x1ff), part.Y, part.Attributes);
-        /// <summary>At.</summary>
         internal EnemySpritemapPart At(int phase)
         {
             int supportPalette = phase < 5 ? 1 : 2;
@@ -89,18 +84,12 @@ internal static class GoldenTorizoStrideGeometryDefinitions
         }
     }
 
-    /// <summary>Represents foot parts.</summary>
     private sealed class FootParts : EnemySpritemapParts
     {
-        /// <summary>Stores other parts.</summary>
         private readonly EnemySpritemapPart[] otherParts;
-        /// <summary>Stores foot appearance.</summary>
         private readonly FootAppearance[] footAppearance;
-        /// <summary>Stores foot indices.</summary>
         private readonly int[] footIndices;
-        /// <summary>Stores phase.</summary>
         private readonly int phase;
-        /// <summary>Initializes a new foot parts instance.</summary>
         internal FootParts(EnemySpritemapParts supplied, int phase, int[] footIndices)
         {
             this.phase = phase;
@@ -115,9 +104,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
                 else otherParts[other++] = supplied[index];
             }
         }
-        /// <summary>Gets count.</summary>
         public override int Count => otherParts.Length + footIndices.Length;
-        /// <summary>Gets an indexed value.</summary>
         public override EnemySpritemapPart this[int index]
         {
             get

@@ -55,10 +55,8 @@ public enum BabyTurtleAiFunction : ushort
 /// </summary>
 public sealed class MamaTurtleEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new mama turtle enemy state instance.</summary>
     internal MamaTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the current bank-$A2 Mama Turtle AI function pointer.</summary>
@@ -84,9 +82,7 @@ public sealed class MamaTurtleEnemyState
     }
 
     // Extension words behind Velocity: the horizontal fraction and the vertical 16.16 axis.
-    /// <summary>Stores horizontal subvelocity.</summary>
     private ushort _horizontalSubvelocity;
-    /// <summary>Stores vertical velocity.</summary>
     private SnesSignedSixteenSixteen _verticalVelocity;
 
     /// <summary>Wake counter at variable F; each Baby touch or shot decrements it.</summary>
@@ -113,10 +109,8 @@ public sealed class MamaTurtleEnemyState
 /// <summary>Typed view of a Baby Turtle's ordinary variables and required extension words.</summary>
 public sealed class BabyTurtleEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new baby turtle enemy state instance.</summary>
     internal BabyTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the current bank-$A2 Baby Turtle AI function pointer.</summary>
@@ -162,7 +156,6 @@ public sealed class BabyTurtleEnemyState
     }
 
     // Extension word behind Velocity's vertical axis.
-    /// <summary>Stores vertical velocity.</summary>
     private short _verticalVelocity;
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>

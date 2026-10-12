@@ -14,7 +14,6 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static RoomFxAnimatedTileArtworkVerification;
 
-/// <summary>Represents sand animated tiles verification.</summary>
 internal static class SandAnimatedTilesVerification
 {
     /// <summary>ROM-free bank-$83 selection, bank-$87 cadence, and NMI transfer regression for sand.</summary>
@@ -92,7 +91,6 @@ internal static class SandAnimatedTilesVerification
         Console.WriteLine("  Sand animation: FX selection, timed loops, NMI visibility, and room reset agree.");
     }
 
-    /// <summary>sand animated tiles command.</summary>
     [VerificationCommand("--sand-animated-tiles")]
     internal static int SandAnimatedTilesCommand()
     {

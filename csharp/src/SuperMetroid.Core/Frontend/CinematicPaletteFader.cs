@@ -15,17 +15,11 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class CinematicPaletteFader
 {
-    /// <summary>Stores current red.</summary>
     private readonly ushort[] currentRed = new ushort[CgramPalettes.ColorCount];
-    /// <summary>Stores current green.</summary>
     private readonly ushort[] currentGreen = new ushort[CgramPalettes.ColorCount];
-    /// <summary>Stores current blue.</summary>
     private readonly ushort[] currentBlue = new ushort[CgramPalettes.ColorCount];
-    /// <summary>Stores red step.</summary>
     private readonly ushort[] redStep = new ushort[CgramPalettes.ColorCount];
-    /// <summary>Stores green step.</summary>
     private readonly ushort[] greenStep = new ushort[CgramPalettes.ColorCount];
-    /// <summary>Stores blue step.</summary>
     private readonly ushort[] blueStep = new ushort[CgramPalettes.ColorCount];
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
@@ -112,7 +106,6 @@ public sealed class CinematicPaletteFader
         new CgramPalettes(cgram).LoadImage(image);
     }
 
-    /// <summary>Validates range.</summary>
     private static (int FirstColor, int ExclusiveEnd) ValidateRange(
         ushort paletteByteOffset,
         ushort colorCount)

@@ -21,22 +21,14 @@ internal abstract class RinkaInstructionProgramDefinitions
     // Authored timing/content choices (reviewed under #1165): initial hidden hold, seed hold, minimum
     // pulse hold and eight-pose cycle. Mirrored dwell follows the same returning
     // sprite stages in A2:B9EC-BA04 and BA18-BA30; no chosen magnitude is exempt.
-    /// <summary>Defines hidden hold.</summary>
     private const ushort HiddenHold = 64;
-    /// <summary>Defines seed hold.</summary>
     private const ushort SeedHold = 16;
-    /// <summary>Defines minimum pulse hold.</summary>
     private const int MinimumPulseHold = 5;
-    /// <summary>Defines pose count.</summary>
     internal const int PoseCount = 8;
-    /// <summary>Defines setup bytes.</summary>
     internal const int SetupBytes = 8;
-    /// <summary>Defines list bytes.</summary>
     internal const int ListBytes = SetupBytes + PoseCount * 4 + 4;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 2 * (PoseCount + 1);
 
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -45,7 +37,6 @@ internal abstract class RinkaInstructionProgramDefinitions
             (part == 0 ? 4 : SetupBytes + (part - 1) * 4 + 2));
     }
 
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int relative = address - OrdinaryInitial;
@@ -68,7 +59,6 @@ internal abstract class RinkaInstructionProgramDefinitions
         throw new InvalidDataException($"Rinka instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
-    /// <summary>is presentation offset.</summary>
     internal static bool IsPresentationOffset(int offset) => offset == 4 ||
         (offset >= SetupBytes && offset < ListBytes - 4 && (offset - SetupBytes) % 4 == 2);
 }

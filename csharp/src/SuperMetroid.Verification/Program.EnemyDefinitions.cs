@@ -15,10 +15,8 @@ using static AssertionsVerification;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy definitions verification.</summary>
 internal static class EnemyDefinitionsVerification
 {
-    /// <summary>Verifies compiled enemy definitions.</summary>
     internal static void VerifyCompiledEnemyDefinitions()
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -95,7 +93,6 @@ internal static class EnemyDefinitionsVerification
             "cartridge parsing is isolated in the importer.");
     }
 
-    /// <summary>Verifies mother brain falling tube population definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain falling tube population definitions")]
     internal static void VerifyMotherBrainFallingTubePopulationDefinitions(
         ISnesAddressSpace rom)
@@ -157,7 +154,6 @@ internal static class EnemyDefinitionsVerification
             "spawns and one independent constructed placement pass.");
     }
 
-    /// <summary>Reads native enemy definition.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy definition records")]
     internal static RoomEnemyDefinition ReadNativeEnemyDefinition(
         ISnesAddressSpace bus, EnemyDefinitionId pointer)
@@ -168,7 +164,6 @@ internal static class EnemyDefinitionsVerification
         return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), Byte(12), Byte(13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
     }
 
-    /// <summary>Enemy definitions command.</summary>
     [VerificationCommand("--enemy-definitions")]
     internal static int EnemyDefinitionsCommand()
     {

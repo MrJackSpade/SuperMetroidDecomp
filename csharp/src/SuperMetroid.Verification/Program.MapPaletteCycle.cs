@@ -8,10 +8,8 @@ using SuperMetroid.Desktop;
 using static MapPresentationVerification;
 using static RetailPresentationFixtureVerification;
 
-/// <summary>Represents map palette cycle verification.</summary>
 internal static class MapPaletteCycleVerification
 {
-    /// <summary>Verifies map palette cycle integration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map palette cycle")]
     internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,

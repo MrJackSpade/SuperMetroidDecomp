@@ -38,7 +38,6 @@ public static class ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 34;
 
-    /// <summary>Stores definitions.</summary>
     private static readonly ZebesExplosionLayerFadePaletteFxProgramDefinition[] Definitions =
     [
         new(
@@ -75,7 +74,6 @@ public static class ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
 /// <summary>One complete exploding-Zebes layer-fade control program.</summary>
 public sealed class ZebesExplosionLayerFadePaletteFxProgramDefinition
 {
-    /// <summary>Initializes a new zebes explosion layer fade palette fx program definition instance.</summary>
     internal ZebesExplosionLayerFadePaletteFxProgramDefinition(
         ZebesExplosionLayerFadePaletteFxProgramOwner owner,
         ushort definitionPointer,

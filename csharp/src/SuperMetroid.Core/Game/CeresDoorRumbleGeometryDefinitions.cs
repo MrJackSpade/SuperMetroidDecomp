@@ -10,14 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class CeresDoorRumbleGeometryDefinitions
 {
-    /// <summary>Defines count.</summary>
     internal const int Count = 4;
-    /// <summary>Defines column spacing.</summary>
     private const int ColumnSpacing = 2;
-    /// <summary>Stores vertical placements.</summary>
     private static readonly short[] VerticalPlacements = [-8, 4, 22, 12];
 
-    /// <summary>offset.</summary>
     internal static (short X, short Y) Offset(int index)
     {
         if ((uint)index >= Count)

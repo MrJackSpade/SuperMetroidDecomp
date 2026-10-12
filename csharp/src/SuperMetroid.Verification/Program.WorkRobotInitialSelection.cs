@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents work robot initial selection verification.</summary>
 internal static class WorkRobotInitialSelectionVerification
 {
-    /// <summary>verify work robot initial selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot initial selection")]
     internal static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
     {

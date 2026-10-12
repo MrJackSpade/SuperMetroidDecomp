@@ -3,10 +3,8 @@ using System.Numerics;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents spc pitch basis algorithm verification.</summary>
 internal static class SpcPitchBasisAlgorithmVerification
 {
-    /// <summary>Verifies spc pitch basis algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pitch basis algorithm")]
     internal static void VerifySpcPitchBasisAlgorithm(SuperMetroidAddressSpace rom)
     {

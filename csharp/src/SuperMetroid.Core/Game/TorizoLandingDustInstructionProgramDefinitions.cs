@@ -16,7 +16,6 @@ internal abstract class TorizoLandingDustInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
-    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xaf9d),
         Entry(RightFoot),
@@ -37,17 +36,13 @@ internal abstract class TorizoLandingDustInstructionProgramDefinitions
         Op((ushort)EnemyProjectileInstruction.TorizoLandingDustClouds),
         Frame(4),
         Op((ushort)EnemyProjectileInstruction.Delete));
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoRightFootDust or
         RoomEnemyProjectileKind.BombTorizoLeftFootDust;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

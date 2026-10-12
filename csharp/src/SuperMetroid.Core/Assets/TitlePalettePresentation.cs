@@ -10,12 +10,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitlePalettePresentation : IPaletteFxColorSource
 {
-    /// <summary>Stores colors.</summary>
     private readonly Bgr555[] colors;
-    /// <summary>Stores animated colors.</summary>
     private readonly Dictionary<ushort, Bgr555> animatedColors;
 
-    /// <summary>Initializes a new title palette presentation instance.</summary>
     private TitlePalettePresentation(
         Bgr555[] colors,
         Dictionary<ushort, Bgr555> animatedColors,
@@ -145,7 +142,6 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
             PackColor(document.SkipCopyrightRed, "skip copyright red"));
     }
 
-    /// <summary>Pack color.</summary>
     private static Bgr555 PackColor(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||

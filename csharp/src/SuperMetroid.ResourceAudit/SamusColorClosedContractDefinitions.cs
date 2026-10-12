@@ -3,11 +3,9 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete loader-owned player color domains; no palette clocks or gameplay paths are executed.</summary>
 internal static class SamusColorClosedContractDefinitions
 {
-    /// <summary>Stores palette definitions.</summary>
     private static readonly ReviewedSource PaletteDefinitions = new(
         "csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs");
 
-    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.SamusFullBodyCycleColorCatalog", "samus-body-cycle-complete-palettes", ["Apply", "Resolve"],

@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
 
-/// <summary>Represents room fx snapshot tests verification.</summary>
 internal static class RoomFxSnapshotTestsVerification
 {
-    /// <summary>Verifies room fx snapshots.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void VerifyRoomFxSnapshots()
     {

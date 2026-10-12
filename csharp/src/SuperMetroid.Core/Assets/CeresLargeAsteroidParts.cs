@@ -18,7 +18,6 @@ internal sealed class CeresLargeAsteroidParts(
     (int X, int Y) left, (int X, int Y) right, (int X, int Y) lower, int priority)
     : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates replacement sprite parts when the pointer matches this artwork series; otherwise returns the supplied composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         // Shared OAM-record pointer space: other compositions belong to other owners.
@@ -39,9 +38,7 @@ internal sealed class CeresLargeAsteroidParts(
                 _ => throw new InvalidOperationException($"Undefined {nameof(CeresLargeAsteroidComposition)} {(int)composition}."),
             }));
     }
-    /// <summary>Gets the number of items in this collection.</summary>
     public int Count => 19;
-    /// <summary>Accesses a value by index or range.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -80,12 +77,10 @@ internal sealed class CeresLargeAsteroidParts(
                 SnesObjAttributeWord.Create(tile + column + 16 * row, 0, priority, 0), true);
         }
     }
-    /// <summary>Returns an enumerator over this collection.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Returns an enumerator over this collection.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

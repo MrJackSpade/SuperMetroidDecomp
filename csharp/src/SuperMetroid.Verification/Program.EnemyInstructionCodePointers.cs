@@ -2,7 +2,6 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents enemy instruction code pointers verification.</summary>
 internal static class EnemyInstructionCodePointersVerification
 {
     /// <summary>
@@ -180,7 +179,6 @@ internal static class EnemyInstructionCodePointersVerification
         return readableEntries;
     }
 
-    /// <summary>Asserts unique mapped instruction pointers.</summary>
     private static void AssertUniqueMappedInstructionPointers(Type catalog)
     {
         FieldInfo[] fields = GetUshortConstants(catalog);
@@ -194,7 +192,6 @@ internal static class EnemyInstructionCodePointersVerification
             AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
     }
 
-    /// <summary>Gets ushort constants.</summary>
     internal static FieldInfo[] GetUshortConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsLiteral && (field.FieldType == typeof(ushort) ||
             field.FieldType.IsEnum && Enum.GetUnderlyingType(field.FieldType) == typeof(ushort)))

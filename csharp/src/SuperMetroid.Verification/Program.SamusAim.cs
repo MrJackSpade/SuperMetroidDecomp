@@ -15,7 +15,6 @@ using static AssertionsVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents samus aim verification.</summary>
 internal static class SamusAimVerification
 {
 
@@ -851,7 +850,6 @@ internal static void VerifySamusGunExtendedMovement()
 // Fixes the two ROM tables and signed formulas used by Landing Site's actual BTS-$12
 // non-square floor path at $94:84D6 and $94:87F4.
 
-    /// <summary>samus aimed aerial command.</summary>
     [VerificationCommand("--samus-aimed-aerial")]
     internal static int SamusAimedAerialCommand()
     {
@@ -859,7 +857,6 @@ internal static void VerifySamusGunExtendedMovement()
         return 0;
     }
 
-    /// <summary>samus gun extended command.</summary>
     [VerificationCommand("--samus-gun-extended")]
     internal static int SamusGunExtendedCommand()
     {

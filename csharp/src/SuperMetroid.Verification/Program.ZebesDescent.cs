@@ -6,10 +6,8 @@ using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents zebes descent verification.</summary>
 internal static class ZebesDescentVerification
 {
-    /// <summary>verify zebes does not wrap during descent.</summary>
     internal static void VerifyZebesDoesNotWrapDuringDescent()
     {
         Suite(nameof(VerifyOffScreenCinematicOam), () => VerifyOffScreenCinematicOam());
@@ -47,7 +45,6 @@ internal static class ZebesDescentVerification
         Console.WriteLine($"  Zebes descent: {slideFrames} frames, {visibleFrames} with planet, no lower-screen reappearance.");
     }
 
-    /// <summary>verify off screen cinematic oam.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyOffScreenCinematicOam()
     {

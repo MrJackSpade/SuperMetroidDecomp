@@ -5,10 +5,8 @@ using static KraidNailContourMappingsVerification;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid nail contour verification.</summary>
 internal static class KraidNailContourVerification
 {
-    /// <summary>Verifies kraid nail contour.</summary>
     internal static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1)));
@@ -55,7 +53,6 @@ internal static class KraidNailContourVerification
         Console.WriteLine($"Kraid nail contour: 983040 actual edge/direction probes pass bus-free; {overreadCases} relative-Y words select adjacent records.");
     }
 
-    /// <summary>Kraid nail contour rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail contour")]
     private static byte KraidNailContourRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -27,26 +27,19 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
     // chosen spike-clearing spawn points within each drawn stride pose: compared with the support-foot
     // origins -31/-28/-14/-7 in ChozoStrideGeometryDefinitions they differ by +23/+8/-2/+7, so no
     // stride geometry derives them; they are placement choices attached to the artwork.
-    /// <summary>Stores acquisition holds.</summary>
     private static readonly ushort[] AcquisitionHolds = [32, 8, 80];
-    /// <summary>Stores stride holds.</summary>
     private static readonly ushort[] StrideHolds = [8, 11, 8, 6];
-    /// <summary>Stores footstep offsets.</summary>
     private static readonly short[] FootstepOffsets = [-8, -20, -16, 0];
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 166;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 52;
 
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return BuildLayout(index, false).Selected;
     }
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -67,7 +60,6 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         return layout;
     }
 
-    /// <summary>Builds scene.</summary>
     private static void BuildScene(ref Layout layout, bool wreckedShip)
     {
         layout.Address = wreckedShip ? WreckedShipInitial : LowerNorfairInitial;
@@ -117,7 +109,6 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         layout.Word((ushort)CommonEnemyInstruction.Sleep);
     }
 
-    /// <summary>Builds stride pose.</summary>
     private static void BuildStridePose(ref Layout layout, int pose, bool footsteps)
     {
         layout.Command((ushort)ChozoStatueInstruction.Chozo_Movement_IndexInY, (ushort)(pose == 0 ? 22 : 6 + pose * 2));
@@ -127,25 +118,18 @@ internal abstract class ChozoStatueInstructionProgramDefinitions
         if (footsteps && pose % 4 == 0) layout.Word((ushort)ChozoStatueInstruction.Chozo_PlayChozoFootstepsSFX);
     }
 
-    /// <summary>Represents layout.</summary>
     private struct Layout(int target, bool presentation)
     {
-        /// <summary>Stores remaining.</summary>
         private int remaining = target;
-        /// <summary>Stores address.</summary>
         internal ushort Address;
-        /// <summary>Stores selected.</summary>
         internal InstructionMechanicsWord Selected;
 
-        /// <summary>Word.</summary>
         internal void Word(ushort value)
         {
             if (!presentation && remaining-- == 0) Selected = new(Address, value);
             Address += 2;
         }
-        /// <summary>Command.</summary>
         internal void Command(ushort instruction, ushort operand) { Word(instruction); Word(operand); }
-        /// <summary>Pose.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);

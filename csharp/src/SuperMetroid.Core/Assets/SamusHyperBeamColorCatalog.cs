@@ -39,16 +39,11 @@ namespace SuperMetroid.Core.Assets;
 public sealed class SamusHyperBeamColorCatalog
 {
 
-    /// <summary>Stores colors.</summary>
     private readonly Dictionary<int, Bgr555> colors = new();
-    /// <summary>Stores intermediate inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> intermediateInputs = new();
-    /// <summary>Stores endpoint inputs.</summary>
     private readonly Dictionary<int, EndpointChannels> endpointInputs = new();
-    /// <summary>Stores shade inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
-    /// <summary>Initializes a new samus hyper beam color catalog instance.</summary>
     private SamusHyperBeamColorCatalog(Bgr555[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
@@ -122,7 +117,6 @@ public sealed class SamusHyperBeamColorCatalog
         }
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -259,14 +253,10 @@ public sealed class SamusHyperBeamColorCatalog
     /// class-level artwork disposition; intermediate relationships are calculated.</remarks>
     internal readonly struct EndpointChannels
     {
-        /// <summary>Stores red.</summary>
         private readonly int? red;
-        /// <summary>Stores green.</summary>
         private readonly int? green;
-        /// <summary>Stores blue.</summary>
         private readonly int? blue;
 
-        /// <summary>Initializes a new endpoint channels instance.</summary>
         internal EndpointChannels(Bgr555 supplied, bool redHue, int? expectedRed, int? expectedGreen = null)
         {
             int suppliedRed = supplied.Red;
@@ -277,7 +267,6 @@ public sealed class SamusHyperBeamColorCatalog
             blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
         }
 
-        /// <summary>Resolves.</summary>
         internal Bgr555 Resolve(bool redHue, int expectedRed, int expectedGreen = 0)
         {
             int resolvedRed = red ?? expectedRed;
@@ -285,7 +274,6 @@ public sealed class SamusHyperBeamColorCatalog
             return new(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed));
         }
     }
-    /// <summary>Rejects duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus Hyper Beam color property {name}."));

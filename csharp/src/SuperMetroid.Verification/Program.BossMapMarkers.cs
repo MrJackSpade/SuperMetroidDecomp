@@ -16,10 +16,8 @@ using SuperMetroid.Core.Spatial;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents boss map markers verification.</summary>
 internal static class BossMapMarkersVerification
 {
-    /// <summary>verify pause boss markers.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause-map boss marker coordinate lists")]
     internal static void VerifyPauseBossMarkers()
     {
@@ -117,7 +115,6 @@ internal static class BossMapMarkersVerification
         Console.WriteLine($"Boss markers: {markers} defeat transitions, pause reopenings and JSON/SRAM/file-select pixel round trips pass.");
     }
 
-    /// <summary>pause boss markers command.</summary>
     [VerificationCommand("--pause-boss-markers")]
     internal static int PauseBossMarkersCommand()
     {

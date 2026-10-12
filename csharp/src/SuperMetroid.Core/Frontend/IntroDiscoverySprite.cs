@@ -14,10 +14,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroDiscoverySprite
 {
-    /// <summary>Stores instruction timer.</summary>
     private ushort instructionTimer = 1;
 
-    /// <summary>Initializes a new intro discovery sprite instance.</summary>
     public IntroDiscoverySprite(
         Position16<ScreenPixels> position,
         ushort paletteBits,
@@ -28,7 +26,6 @@ internal sealed class IntroDiscoverySprite
         InstructionPointer = instructionPointer;
     }
 
-    /// <summary>Gets or sets is active.</summary>
     public bool IsActive { get; private set; } = true;
 
     /// <summary>The native whole and subpixel words of the sprite's position on both axes.</summary>
@@ -41,13 +38,11 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
-    /// <summary>Gets or sets palette bits.</summary>
     public ushort PaletteBits { get; private set; }
 
     /// <summary>Applies a cinematic callback's native OBJ palette/attribute write.</summary>
     public void SetAttributes(SnesObjAttributeWord attributes) => PaletteBits = attributes.Raw;
 
-    /// <summary>Gets or sets sprite map pointer.</summary>
     public ushort SpriteMapPointer { get; private set; }
 
     /// <summary>The next list word, matching <c>CinematicSpriteObject_InstListPointers</c>.</summary>
@@ -59,7 +54,6 @@ internal sealed class IntroDiscoverySprite
     /// <summary>The selected native pre-instruction address, when the list changes it.</summary>
     public ushort PreInstructionPointer { get; private set; }
 
-    /// <summary>Redirect.</summary>
     public void Redirect(ushort pointer)
     {
         InstructionPointer = pointer;
@@ -92,7 +86,6 @@ internal sealed class IntroDiscoverySprite
     public void PreInstructionPointerForDiscovery(ushort pointer) =>
         PreInstructionPointer = pointer;
 
-    /// <summary>Delete.</summary>
     public void Delete()
     {
         IsActive = false;
@@ -210,7 +203,6 @@ internal sealed class IntroDiscoverySprite
             .Draw(SpriteMapPointer, oam, origin.ToOam(), PaletteBits, originIsOnScreen);
     }
 
-    /// <summary>Adds.</summary>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

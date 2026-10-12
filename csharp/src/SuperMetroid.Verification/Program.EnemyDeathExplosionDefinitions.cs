@@ -15,10 +15,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents enemy death explosion definitions verification.</summary>
 internal static class EnemyDeathExplosionDefinitionsVerification
 {
-    /// <summary>Verifies enemy death explosion definitions.</summary>
     internal static void VerifyEnemyDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -67,13 +65,11 @@ internal static class EnemyDeathExplosionDefinitionsVerification
             "Enemy death explosion definitions: five native selectors, five real variants and the generic clamp path pass with the pointer table forbidden.");
     }
 
-    /// <summary>New enemy death explosion read guard.</summary>
     private static CartridgeReadGuard NewEnemyDeathExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86efd5 and < 0x86efdf,
                 address => $"Enemy death explosion attempted migrated selector read ${address:X6}.");
 
-    /// <summary>Enemy death explosion definitions command.</summary>
     [VerificationCommand("--enemy-death-explosion-definitions")]
     internal static int EnemyDeathExplosionDefinitionsCommand()
     {

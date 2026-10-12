@@ -19,19 +19,13 @@ internal sealed class IntroRinkaSystem
     // Native cinematic sprite slots: Mother Brain owns slot 0 and the text caret slot 15,
     // so the spawner and its Rinkas live in 1..14. $8B:938A spawns into the highest free
     // slot and $8B:93EF/$8B:9746 walk from the highest slot down.
-    /// <summary>Defines spawner slot.</summary>
     private const int SpawnerSlot = 14;
-    /// <summary>Defines lowest slot.</summary>
     private const int LowestSlot = 1;
 
-    /// <summary>Stores slots.</summary>
     private readonly IntroDiscoverySprite?[] slots = new IntroDiscoverySprite?[SpawnerSlot + 1];
-    /// <summary>Stores spawner.</summary>
     private readonly IntroDiscoverySprite spawner;
-    /// <summary>Stores spawns forbidden.</summary>
     private bool spawnsForbidden;
 
-    /// <summary>Initializes a new intro rinka system instance.</summary>
     public IntroRinkaSystem()
     {
         // $8B:AEB8 spawns the invisible spawner while slots 1..14 are all free. Reusing the
@@ -95,7 +89,6 @@ internal sealed class IntroRinkaSystem
         }
     }
 
-    /// <summary>handle spawner instruction.</summary>
     private ushort HandleSpawnerInstruction(IntroRinkaSpawnerInstruction opcode, ushort next)
     {
         switch (opcode)
@@ -115,7 +108,6 @@ internal sealed class IntroRinkaSystem
         }
     }
 
-    /// <summary>handle rinka instruction.</summary>
     private static ushort HandleRinkaInstruction(
         IntroDiscoverySprite rinka,
         IntroRinkaInstruction opcode,
@@ -133,7 +125,6 @@ internal sealed class IntroRinkaSystem
         return next;
     }
 
-    /// <summary>spawn.</summary>
     private void Spawn(int parameter)
     {
         if (spawnsForbidden)
@@ -161,7 +152,6 @@ internal sealed class IntroRinkaSystem
         slots[slot] = rinka;
     }
 
-    /// <summary>run pre instruction.</summary>
     private static void RunPreInstruction(
         IntroDiscoverySprite rinka,
         SamusState samus,
@@ -208,7 +198,6 @@ internal sealed class IntroRinkaSystem
         }
     }
 
-    /// <summary>move half pixel x.</summary>
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
     {
         SnesFixedPosition x = rinka.Position.X;
@@ -218,7 +207,6 @@ internal sealed class IntroRinkaSystem
             unchecked((ushort)(x.Whole + wholeDelta + carry)), unchecked((ushort)subSum)));
     }
 
-    /// <summary>move half pixel y.</summary>
     private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
     {
         SnesFixedPosition y = rinka.Position.Y;

@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Assets;
 /// then continues down its first column. Shared OAM fields are calculated.</summary>
 internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 11; frame++)
@@ -16,9 +15,7 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
                 return supplied.CalculateIfMatching(new IntroEggEffectParts(frame));
         return supplied;
     }
-    /// <summary>Gets count.</summary>
     public int Count => 1;
-    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -35,13 +32,10 @@ internal sealed class IntroEggEffectParts(int frame) : IReadOnlyList<CompiledSpr
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Represents intro egg effect atlas.</summary>
 internal static class IntroEggEffectAtlas
 {
     /// <summary>Tile$105, upper-left of the two-column shell-fragment patch.</summary>

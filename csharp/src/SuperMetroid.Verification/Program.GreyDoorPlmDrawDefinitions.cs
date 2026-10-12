@@ -13,10 +13,8 @@ using static LookupTorizoDoorProgramVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
-/// <summary>Represents grey door plm draw definitions verification.</summary>
 internal static class GreyDoorPlmDrawDefinitionsVerification
 {
-    /// <summary>Verifies grey door plm draw definitions.</summary>
     internal static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
@@ -167,11 +165,9 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             "  Grey doors: 420 ordinary and 117 Bomb Torizo program bytes, five close/unlock/open/reload paths, 20 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
-    /// <summary>Grey door plm draw definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grey door PLM draw definitions")]
     private static byte GreyDoorPlmDrawDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>New grey door draw guard.</summary>
     private static CartridgeReadGuard NewGreyDoorDrawGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
@@ -185,7 +181,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                     address < (0x840000 | list.Pointer) + GreyDoorPlmDrawDefinitions.DrawListBytes),
                 address => $"Resident grey door reread draw payload ${address:X6}.");
 
-    /// <summary>Verifies bomb torizo grey door lifecycle.</summary>
     private static void VerifyBombTorizoGreyDoorLifecycle(CartridgeReadGuard guarded, TorizoGreyDoorRoom room, ushort population, int origin, byte[] blockDefinitions)
     {
         var enteringDoor = new CartridgeDoorHeader(
@@ -239,7 +234,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             "Bomb Torizo reload avoids both compiled program and draw sources");
     }
 
-    /// <summary>Verifies grey door program definitions.</summary>
     private static void VerifyGreyDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGreyProgramControls), () => VerifyGreyProgramControls(rom));
@@ -250,7 +244,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyGreyProgramCallback), () => VerifyGreyProgramCallback(rom));
     }
 
-    /// <summary>Verifies bomb torizo grey door program definitions.</summary>
     private static void VerifyBombTorizoGreyDoorProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -262,7 +255,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyTorizoDoorCallback), () => VerifyTorizoDoorCallback(rom));
     }
 
-    /// <summary>Verifies shared door clear visual.</summary>
     private static void VerifySharedDoorClearVisual(
         SuperMetroidAddressSpace rom,
         RoomPlmGreyDoorVisualEntry[] entries,
@@ -303,7 +295,6 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             "blue-door shared clear draw does not reread bank-$84 payload bytes");
     }
 
-    /// <summary>Verifies grey door visual installation.</summary>
     private static void VerifyGreyDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("grey-door-visual");

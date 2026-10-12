@@ -19,10 +19,8 @@ using static IntroProjectileArtworkVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents projectile compositions verification.</summary>
 internal static class ProjectileCompositionsVerification
 {
-    /// <summary>Verifies projectile compositions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false, string sourceRom = "Super Metroid.smc")
@@ -112,7 +110,6 @@ internal static class ProjectileCompositionsVerification
         }
     }
 
-    /// <summary>Verifies projectile composition owners.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
     {
@@ -160,13 +157,11 @@ internal static class ProjectileCompositionsVerification
         Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
     }
 
-    /// <summary>New projectile composition forbidden bus.</summary>
     internal static CartridgeReadGuard NewProjectileCompositionForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Composition draw read ROM {address:X6}.")
             .RejectWrites(_ => "Composition draw mutated the bus.");
 
-    /// <summary>Verifies runtime projectile compositions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeProjectileCompositions(ISnesAddressSpace bus,
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
@@ -274,7 +269,6 @@ internal static class ProjectileCompositionsVerification
         }
     }
 
-    /// <summary>Verifies projectile files.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
     {
@@ -519,7 +513,6 @@ internal static class ProjectileCompositionsVerification
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 
-    /// <summary>Projectile compositions fixture command.</summary>
     [VerificationCommand("--projectile-compositions-fixture")]
     internal static int ProjectileCompositionsFixtureCommand()
     {

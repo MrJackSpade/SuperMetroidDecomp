@@ -15,10 +15,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-/// <summary>Represents samus hurt colors verification.</summary>
 internal static class SamusHurtColorsVerification
 {
-    /// <summary>Verifies samus hurt colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hurt colors")]
     internal static void VerifySamusHurtColors()
     {
@@ -58,7 +56,6 @@ internal static class SamusHurtColorsVerification
         Console.WriteLine("  Samus hurt colors: both native palettes and guarded ordinary/cinematic cycles pass.");
     }
 
-    /// <summary>Compare hurt cycle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void CompareHurtCycle(ISnesAddressSpace rom,
         SamusHurtColorCatalog catalog, bool cinematic)
@@ -102,7 +99,6 @@ internal static class SamusHurtColorsVerification
             $"installed {(cinematic ? "intro" : "ordinary")} hurt cycle does not read native art");
     }
 
-    /// <summary>Verifies samus hurt color override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusHurtColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom)
@@ -149,19 +145,16 @@ internal static class SamusHurtColorsVerification
         Console.WriteLine("Samus hurt override: edited flash/intro colors reach CGRAM and stock restores.");
     }
 
-    /// <summary>New forbidden hurt color bus.</summary>
     private static CartridgeReadGuard NewForbiddenHurtColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= SamusHurtColorFormat.HurtSourceAddress and
                 < (SamusHurtColorFormat.IntroSourceAddress +
                     SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort)),
             address => $"Installed hurt handler read native artwork ${address:X6}.");
 
-    /// <summary>Reads native hurt cycle color.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hurt-cycle palette colors")]
     private static ushort ReadNativeHurtCycleColor(ISnesAddressSpace rom, int paletteAddress, int index) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), paletteAddress + index * sizeof(ushort));
 
-    /// <summary>Samus hurt colors command.</summary>
     [VerificationCommand("--samus-hurt-colors")]
     internal static int SamusHurtColorsCommand()
     {

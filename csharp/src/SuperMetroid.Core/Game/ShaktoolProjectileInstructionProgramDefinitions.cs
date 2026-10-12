@@ -25,11 +25,8 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
     private const ushort BackLaunchTicks = 10;
     /// <summary>$86:BD70/84/94: repeated final-pose hold. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort HeldPoseTicks = 119;
-    /// <summary>Stores presentation operand.</summary>
     internal const int PresentationOperand = -1;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 8;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -37,12 +34,10 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         if (index < 6) return (ushort)(Middle + (index == 3 ? 2 : 10 + (index - 4) * 4));
         return (ushort)(Back + 2 + (index - 6) * 8);
     }
-    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) =>
         kind is RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or
             RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or
             RoomEnemyProjectileKind.ShaktoolAttackBackCircle;
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address >= Front && address < End && (address & 1) == 0)
@@ -63,7 +58,6 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         Back,
     }
 
-    /// <summary>Start of.</summary>
     private static ushort StartOf(CircleProgram program) => program switch
     {
         CircleProgram.Front => Front,
@@ -72,7 +66,6 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(CircleProgram)} {program}."),
     };
 
-    /// <summary>Program word.</summary>
     internal static int ProgramWord(ushort address)
     {
         CircleProgram program = address < Middle ? CircleProgram.Front
@@ -105,20 +98,14 @@ internal abstract class ShaktoolProjectileInstructionProgramDefinitions
         writer.Command(heldPose);
         return writer.Value;
     }
-    /// <summary>Represents word selector.</summary>
     private struct WordSelector(ushort address, ushort start)
     {
-        /// <summary>Stores remaining.</summary>
         private int remaining = (address - start) / 2;
 
-        /// <summary>Gets or sets value.</summary>
         public int Value { get => field == int.MinValue
             ? throw new InvalidOperationException("Shaktool projectile program shape is incomplete.") : field; private set; } = int.MinValue;
-        /// <summary>Command.</summary>
         public void Command(ushort command) => Emit(command);
-        /// <summary>Timed.</summary>
         public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
-        /// <summary>Emit.</summary>
         private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
 }

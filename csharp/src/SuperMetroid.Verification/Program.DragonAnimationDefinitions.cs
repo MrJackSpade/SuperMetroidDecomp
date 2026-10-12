@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents dragon animation definitions verification.</summary>
 internal static class DragonAnimationDefinitionsVerification
 {
-    /// <summary>Verifies dragon animation definitions.</summary>
     internal static void VerifyDragonAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
@@ -47,7 +45,6 @@ internal static class DragonAnimationDefinitionsVerification
             "Dragon animation definitions: six native selectors, phase/facing mappings, all six installs, and both live body/wing facing and attack handoffs pass with the pointer table forbidden.");
     }
 
-    /// <summary>Verifies all dragon animation installs.</summary>
     private static void VerifyAllDragonAnimationInstalls()
     {
         for (int index = 0; index < 6; index++)
@@ -62,7 +59,6 @@ internal static class DragonAnimationDefinitionsVerification
         }
     }
 
-    /// <summary>Verifies live dragon animation handoffs.</summary>
     private static void VerifyLiveDragonAnimationHandoffs(
         SuperMetroidAddressSpace rom,
         bool facingLeft)
@@ -122,7 +118,6 @@ internal static class DragonAnimationDefinitionsVerification
             facingLeft ? "live left-facing Dragon attack" : "live right-facing Dragon attack");
     }
 
-    /// <summary>New dragon animation slot.</summary>
     private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index)
     {
         CurrentInstruction = 0x7777,
@@ -130,13 +125,11 @@ internal static class DragonAnimationDefinitionsVerification
         Timer = 0x3333,
     };
 
-    /// <summary>New dragon animation state.</summary>
     private static DragonEnemyState NewDragonAnimationState(RoomEnemySlot slot) =>
         new(slot, new ushort[RoomEnemySystem.MaximumEnemyCount],
             new ushort[RoomEnemySystem.MaximumEnemyCount],
             new ushort[RoomEnemySystem.MaximumEnemyCount]);
 
-    /// <summary>Asserts dragon animation handoff.</summary>
     private static void AssertDragonAnimationHandoff(
         RoomEnemySlot slot,
         DragonEnemyState state,
@@ -156,7 +149,6 @@ internal static class DragonAnimationDefinitionsVerification
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
 
-    /// <summary>New dragon animation read guard.</summary>
     private static CartridgeReadGuard NewDragonAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2e5ef and < 0xa2e5fb,

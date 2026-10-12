@@ -15,7 +15,6 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents door waits for message box verification.</summary>
 internal static class DoorWaitsForMessageBoxVerification
 {
     /// <summary>
@@ -61,7 +60,6 @@ internal static class DoorWaitsForMessageBoxVerification
         Console.WriteLine("  Door waits for message box: state $09 follows the station notice.");
     }
 
-    /// <summary>Door waits for message box command.</summary>
     [VerificationCommand("--door-waits-for-message-box")]
     internal static int DoorWaitsForMessageBoxCommand()
     {

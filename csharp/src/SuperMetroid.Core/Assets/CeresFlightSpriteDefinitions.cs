@@ -23,15 +23,11 @@ public static class CeresFlightSpriteDefinitions
     /// <summary>Immutable six-name bank-$8C catalog in stable stars, large-asteroid, station, small-asteroid, and two-vortex order; maps editable composition names to native visual identities and descriptive stock OAM counts, not instruction timing.</summary>
     public static IReadOnlyList<CeresFlightSpriteFrameDefinition> Frames { get; } = new FrameList();
 
-    /// <summary>Represents visual.</summary>
-    private enum Visual { /** <summary>Identifies stars.</summary> */ Stars, /** <summary>Identifies large asteroids.</summary> */ LargeAsteroids, /** <summary>Identifies station under attack.</summary> */ StationUnderAttack, /** <summary>Identifies small asteroids.</summary> */ SmallAsteroids, /** <summary>Identifies vortex even.</summary> */ VortexEven, /** <summary>Identifies vortex odd.</summary> */ VortexOdd }
+    private enum Visual { Stars, LargeAsteroids, StationUnderAttack, SmallAsteroids, VortexEven, VortexOdd }
 
-    /// <summary>Represents frame list.</summary>
     private sealed class FrameList : IReadOnlyList<CeresFlightSpriteFrameDefinition>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => 6;
-        /// <summary>Accesses a value by index or range.</summary>
         public CeresFlightSpriteFrameDefinition this[int index]
         {
             get
@@ -49,12 +45,10 @@ public static class CeresFlightSpriteDefinitions
                 };
             }
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<CeresFlightSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

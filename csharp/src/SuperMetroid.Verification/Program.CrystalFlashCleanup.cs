@@ -16,10 +16,8 @@ using static EnemyDropsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents crystal flash cleanup verification.</summary>
 internal static class CrystalFlashCleanupVerification
 {
-    /// <summary>Verifies crystal flash runtime.</summary>
     internal static void VerifyCrystalFlashRuntime()
     {
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false));
@@ -27,7 +25,6 @@ internal static class CrystalFlashCleanupVerification
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false));
     }
 
-    /// <summary>Verifies crystal flash runtime route.</summary>
     private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -160,7 +157,6 @@ internal static class CrystalFlashCleanupVerification
         Console.WriteLine($"Runtime Crystal Flash: capacity={capacity}, refill={refill}, activation={started}, completion={finished}; placement, bubble, resources and movement ownership pass.");
     }
 
-    /// <summary>Crystal flash runtime command.</summary>
     [VerificationCommand("--crystal-flash-runtime")]
     internal static int CrystalFlashRuntimeCommand()
     {
@@ -174,11 +170,9 @@ internal static class CrystalFlashCleanupVerification
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Position16<RoomPixels> position) :
     ISnesAddressSpace, IRoomEnemyFixtureSource
 {
-    /// <summary>Reads enemy definition.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         RoomEnemyDefinitionCatalog.Get(pointer);
 
-    /// <summary>Reads enemy population.</summary>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
@@ -189,7 +183,6 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
         ], 0);
     }
 
-    /// <summary>Reads enemy graphics set.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
@@ -200,7 +193,6 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
         ]);
     }
 
-    /// <summary>Reads byte.</summary>
     public byte ReadByte(int address)
     {
         ReadOnlySpan<ushort> population = [(ushort)CrystalFlashContactDefinitions.RipperHeader, position.X, position.Y, 0,
@@ -214,7 +206,6 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
             return (byte)(tileset[offset / 2] >> ((offset & 1) * 8));
         return CpuBusRegionRead.Read(inner, address);
     }
-    /// <summary>Writes byte.</summary>
     public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
 }
 

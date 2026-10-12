@@ -21,17 +21,12 @@ public sealed class ChozoAndTubeColorCatalog
             content.AppendColors("lowerNorfair", Statue(ChozoStatuePalette.LowerNorfair));
         });
 
-    /// <summary>Stores tube color seeds.</summary>
     private readonly Bgr555[] tubeColorSeeds;
-    /// <summary>Stores tube color edits.</summary>
     private readonly Dictionary<int, Bgr555> tubeColorEdits = [];
     // Statue colors calculate from ChozoStatuePaintDefinitions; only supplied deviations are stored.
-    /// <summary>Stores wrecked ship edits.</summary>
     private readonly Dictionary<int, Bgr555> wreckedShipEdits = [];
-    /// <summary>Stores lower norfair edits.</summary>
     private readonly Dictionary<int, Bgr555> lowerNorfairEdits = [];
 
-    /// <summary>Initializes a new chozo and tube color catalog instance.</summary>
     private ChozoAndTubeColorCatalog(Bgr555[] tubeCracks, Bgr555[] wreckedShip,
         Bgr555[] lowerNorfair)
     {
@@ -50,7 +45,6 @@ public sealed class ChozoAndTubeColorCatalog
         }
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -78,7 +72,6 @@ public sealed class ChozoAndTubeColorCatalog
         return new Bgr555(red, green, blue);
     }
 
-    /// <summary>Resolves statue.</summary>
     private Bgr555 ResolveStatue(ChozoStatuePalette palette, int color)
     {
         if ((uint)color >= ChozoAndTubeColorRomData.ColorCount)
@@ -87,7 +80,6 @@ public sealed class ChozoAndTubeColorCatalog
         return edits.TryGetValue(color, out Bgr555 edited) ? edited : ChozoStatuePaintDefinitions.Color(palette, color);
     }
 
-    /// <summary>Statue.</summary>
     private Bgr555[] Statue(ChozoStatuePalette palette) =>
         Enumerable.Range(0, ChozoAndTubeColorRomData.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
 
@@ -137,7 +129,6 @@ public sealed class ChozoAndTubeColorCatalog
         return bytes;
     }
 
-    /// <summary>Applies.</summary>
     private void Apply(SnesCgram cgram, ChozoStatuePalette palette)
     {
         Ensure.NotNull(cgram);
@@ -145,7 +136,6 @@ public sealed class ChozoAndTubeColorCatalog
             new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveStatue(palette, color));
     }
 
-    /// <summary>Compiles.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != ChozoAndTubeColorRomData.ColorCount)
@@ -164,7 +154,6 @@ public sealed class ChozoAndTubeColorCatalog
         return compiled;
     }
 
-    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Chozo/tube color property {name}."));

@@ -10,18 +10,13 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidControllerPreferences
 {
-    /// <summary>Stores overrides.</summary>
     private readonly Dictionary<string, SnesButton> overrides;
 
-    /// <summary>Initializes a new android controller preferences instance.</summary>
     public AndroidControllerPreferences() : this([]) { }
-    /// <summary>Initializes a new android controller preferences instance.</summary>
     private AndroidControllerPreferences(Dictionary<string, SnesButton> values) => overrides = values;
 
-    /// <summary>Resolves.</summary>
     public SnesButton Resolve(string key, SnesButton fallback) => overrides.GetValueOrDefault(key, fallback);
 
-    /// <summary>With binding.</summary>
     public AndroidControllerPreferences WithBinding(string key, SnesButton button)
     {
         if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("A physical key name is required.", nameof(key));
@@ -30,12 +25,10 @@ internal sealed class AndroidControllerPreferences
         return new AndroidControllerPreferences(updated);
     }
 
-    /// <summary>Serialize.</summary>
     public string Serialize() => JsonSerializer.Serialize(
         overrides.ToDictionary(pair => pair.Key, pair => pair.Value.ToString()),
         new JsonSerializerOptions { WriteIndented = true });
 
-    /// <summary>Parses.</summary>
     public static AndroidControllerPreferences Parse(string json)
     {
         var values = JsonSerializer.Deserialize<Dictionary<string, string>>(json)
@@ -50,7 +43,6 @@ internal sealed class AndroidControllerPreferences
         return result;
     }
 
-    /// <summary>Validates.</summary>
     private static void Validate(SnesButton button)
     {
         int bits = (ushort)button;

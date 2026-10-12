@@ -24,7 +24,6 @@ public static class AudioMusicInstructionOperations
     public const string Repeat = "repeat";
 
     // Each manifest instruction names its effect; build the camel-case names once.
-    /// <summary>Stores effect operations.</summary>
     private static readonly Dictionary<SpcMusicEffect, string> effectOperations =
         Enum.GetValues<SpcMusicEffect>().Distinct().ToDictionary(effect => effect, effect =>
         {
@@ -32,7 +31,6 @@ public static class AudioMusicInstructionOperations
             return char.ToLowerInvariant(name[0]) + name[1..];
         });
 
-    /// <summary>For effect.</summary>
     internal static string ForEffect(SpcMusicEffect effect)
     {
         if (effectOperations.TryGetValue(effect, out string? operation))
@@ -42,7 +40,6 @@ public static class AudioMusicInstructionOperations
     }
 }
 
-/// <summary>Represents spc music definition bundle.</summary>
 internal sealed record SpcMusicDefinitionBundle(
     IReadOnlyList<AudioMusicTrackMetadata> Tracks,
     IReadOnlyList<AudioMusicPhraseMetadata> Phrases,
@@ -55,7 +52,6 @@ internal sealed record SpcMusicDefinitionBundle(
 /// </summary>
 internal static class SpcMusicDefinitionCodec
 {
-    /// <summary>Decodes bank.</summary>
     internal static SpcMusicDefinitionBundle DecodeBank(
         byte dataIndex,
         IReadOnlyList<ushort> trackPointers,
@@ -80,7 +76,6 @@ internal static class SpcMusicDefinitionCodec
             Array.AsReadOnly(programs.Values.OrderBy(program => program.Address).ToArray()));
     }
 
-    /// <summary>Encode track.</summary>
     internal static byte[] EncodeTrack(AudioMusicTrackMetadata track)
     {
         Ensure.NotNull(track);
@@ -144,7 +139,6 @@ internal static class SpcMusicDefinitionCodec
         return [.. bytes];
     }
 
-    /// <summary>Encode program.</summary>
     internal static byte[] EncodeProgram(AudioMusicProgramMetadata program)
     {
         Ensure.NotNull(program);
@@ -198,7 +192,6 @@ internal static class SpcMusicDefinitionCodec
         return [.. bytes];
     }
 
-    /// <summary>Compiles bank.</summary>
     internal static IReadOnlyDictionary<int, byte> CompileBank(AudioBankMetadata bank)
     {
         Dictionary<string, AudioMusicProgramMetadata> programs = bank.MusicPrograms
@@ -241,7 +234,6 @@ internal static class SpcMusicDefinitionCodec
         return writes;
     }
 
-    /// <summary>Decodes track.</summary>
     private static AudioMusicTrackMetadata DecodeTrack(
         byte dataIndex,
         int track,
@@ -290,7 +282,6 @@ internal static class SpcMusicDefinitionCodec
         throw new InvalidDataException($"Music track '{id}' has no bounded end record.");
     }
 
-    /// <summary>Decodes phrase.</summary>
     private static void DecodePhrase(
         byte dataIndex,
         ushort address,
@@ -325,7 +316,6 @@ internal static class SpcMusicDefinitionCodec
             DecodeProgram(dataIndex, programAddress, ram, written, programs);
     }
 
-    /// <summary>Decodes program.</summary>
     private static void DecodeProgram(
         byte dataIndex,
         ushort address,
@@ -391,7 +381,6 @@ internal static class SpcMusicDefinitionCodec
         throw new InvalidDataException($"Music program '{id}' has no bounded end command.");
     }
 
-    /// <summary>Gets note operation.</summary>
     private static string GetNoteOperation(byte opcode)
     {
         if (Enum.IsDefined((NoteCommand)opcode))
@@ -417,7 +406,6 @@ internal static class SpcMusicDefinitionCodec
         Rest = SpcDriverData.Music.RestNote,
     }
 
-    /// <summary>Validates timing.</summary>
     private static void ValidateTiming(string id, IReadOnlyList<byte> timing)
     {
         if (timing.Count > 2 || timing.Any(value =>
@@ -425,7 +413,6 @@ internal static class SpcMusicDefinitionCodec
             throw new InvalidDataException($"Music program '{id}' has an invalid timing prefix.");
     }
 
-    /// <summary>Merge.</summary>
     private static void Merge(Dictionary<int, byte> writes, int address, byte[] bytes, string owner)
     {
         if (address < 0 || address > SpcDriverData.ApuRamSize - bytes.Length)
@@ -442,7 +429,6 @@ internal static class SpcMusicDefinitionCodec
         }
     }
 
-    /// <summary>Reads byte.</summary>
     private static byte ReadByte(
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written,
@@ -454,7 +440,6 @@ internal static class SpcMusicDefinitionCodec
         return ram[cursor++];
     }
 
-    /// <summary>Reads word.</summary>
     private static ushort ReadWord(
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written,
@@ -466,21 +451,18 @@ internal static class SpcMusicDefinitionCodec
         return unchecked((ushort)(SnesLittleEndian.Word(low, high)));
     }
 
-    /// <summary>Writes word.</summary>
     private static void WriteWord(List<byte> bytes, ushort value)
     {
         bytes.Add(unchecked((byte)value));
         bytes.Add(SnesLittleEndian.HighByte(value));
     }
 
-    /// <summary>Invalid track instruction.</summary>
     private static InvalidDataException InvalidTrackInstruction(
         AudioMusicTrackMetadata track,
         AudioMusicTrackInstructionMetadata instruction) =>
         new InvalidDataException(
             $"Music track '{track.Id}' has invalid '{instruction.Operation}' operands.");
 
-    /// <summary>Invalid program instruction.</summary>
     private static InvalidDataException InvalidProgramInstruction(
         AudioMusicProgramMetadata program,
         AudioMusicInstructionMetadata instruction) =>
@@ -488,7 +470,6 @@ internal static class SpcMusicDefinitionCodec
             $"Music program '{program.Id}' operation '{instruction.Operation}' does not match " +
             $"opcode ${instruction.Opcode:X2} or its operand shape.");
 
-    /// <summary>Validates capacity.</summary>
     private static void ValidateCapacity(string id, int expected, int actual)
     {
         if (expected <= 0 || expected != actual)

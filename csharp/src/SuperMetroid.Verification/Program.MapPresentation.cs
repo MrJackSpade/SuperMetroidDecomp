@@ -71,10 +71,8 @@ using static SuiteTimingVerification;
 using static TitleGradientVerification;
 using static WorldMapLabelsVerification;
 
-/// <summary>Represents map presentation verification.</summary>
 internal static class MapPresentationVerification
 {
-    /// <summary>Verifies map presentation.</summary>
     internal static void VerifyMapPresentation()
     {
         Suite(nameof(VerifyIndexedPng), () => VerifyIndexedPng());
@@ -151,18 +149,12 @@ internal static class MapPresentationVerification
         Console.WriteLine("Map presentation: JSON edits reach minimap/shared projection; independent exploration and strict validation pass.");
     }
 
-    /// <summary>Represents presentation map rules.</summary>
     internal sealed class PresentationMapRules : IAreaMapView
     {
-        /// <summary>Gets area.</summary>
         public AreaId Area => AreaId.Crateria;
-        /// <summary>Gets tile.</summary>
         public MapTileWord GetTile(Position16<MapTiles> cell) => MapTileWords.PauseBlank;
-        /// <summary>Indicates whether discoverable.</summary>
         public bool IsDiscoverable(Position16<MapTiles> cell) => cell.X == 5 && cell.Y is 5 or 6;
-        /// <summary>Indicates whether revealed by map station.</summary>
         public bool IsRevealedByMapStation(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
-        /// <summary>Reveals cell above.</summary>
         public bool RevealsCellAbove(Position16<MapTiles> cell) => cell == new Position16<MapTiles>(5, 6);
     }
 
@@ -173,33 +165,20 @@ internal static class MapPresentationVerification
     /// </summary>
     internal sealed class MapPresentationInstalledRoomAssets
     {
-        /// <summary>Stores standard objects.</summary>
         private readonly RoomCharacterAtlas standardObjects;
-        /// <summary>Stores room characters.</summary>
         private readonly RoomCharacterAtlasCatalog roomCharacters;
-        /// <summary>Stores room palettes.</summary>
         private readonly RoomStaticPaletteCatalog roomPalettes;
-        /// <summary>Stores room metatiles.</summary>
         private readonly RoomMetatileCatalog roomMetatiles;
-        /// <summary>Stores visual layouts.</summary>
         private readonly RoomVisualLayoutCatalog visualLayouts;
-        /// <summary>Stores backgrounds.</summary>
         private readonly RoomBackgroundTilemapCatalog backgrounds;
-        /// <summary>Stores skies.</summary>
         private readonly RoomSkyTilemapCatalog skies;
-        /// <summary>Stores beam tiles.</summary>
         private readonly BeamTileCatalog beamTiles;
-        /// <summary>Stores elevator platform.</summary>
         private readonly RoomPlmElevatorPlatformVisualCatalog elevatorPlatform;
 
-        /// <summary>Gets initial palettes.</summary>
         public GameplayBasePaletteCatalog InitialPalettes { get; }
-        /// <summary>Gets enemy tiles.</summary>
         public EnemyTileArtworkCatalog EnemyTiles { get; }
-        /// <summary>Gets samus body.</summary>
         public SamusBodyArtworkCatalog SamusBody { get; }
 
-        /// <summary>Initializes a new map presentation installed room assets instance.</summary>
         public MapPresentationInstalledRoomAssets(SuperMetroid.AssetExtraction.GameInstallation installation)
         {
             InitialPalettes = installation.LoadGameplayBasePalettes();
@@ -216,7 +195,6 @@ internal static class MapPresentationVerification
             elevatorPlatform = installation.LoadRoomPlmElevatorPlatformVisuals();
         }
 
-        /// <summary>Bind.</summary>
         public void Bind(SuperMetroidRuntime runtime)
         {
             runtime.Artwork.StandardObjectArt = standardObjects;
@@ -233,7 +211,6 @@ internal static class MapPresentationVerification
         }
     }
 
-    /// <summary>Verifies map presentation catalog.</summary>
     private static void VerifyMapPresentationCatalog(ISnesAddressSpace bus)
     {
         using var temporaryDirectory = new TestScratchDirectory("map-catalog");
@@ -362,7 +339,6 @@ internal static class MapPresentationVerification
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 
-    /// <summary>Verifies mother brain rainbow palette override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain rainbow, grey and beam palettes")]
     private static void VerifyMotherBrainRainbowPaletteOverride(
@@ -650,7 +626,6 @@ internal static class MapPresentationVerification
         Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades, live edits, legacy overrides and strict validation pass.");
     }
 
-    /// <summary>Verifies mother brain health palette override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyMotherBrainHealthPaletteOverride(
         ISnesAddressSpace bus,
@@ -743,7 +718,6 @@ internal static class MapPresentationVerification
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies, live body/leg edits, schema checks and content identity pass.");
     }
 
-    /// <summary>Verifies room palette fx override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyRoomPaletteFxOverride(
         ISnesAddressSpace bus,
@@ -1131,7 +1105,6 @@ internal static class MapPresentationVerification
         }
     }
 
-    /// <summary>Verifies title gradient override.</summary>
     private static void VerifyTitleGradientOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1169,7 +1142,6 @@ internal static class MapPresentationVerification
         Console.WriteLine("Title gradient override: content identity and production title output change immediately, then restore exactly.");
     }
 
-    /// <summary>Verifies title palette override.</summary>
     private static void VerifyTitlePaletteOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1269,7 +1241,6 @@ internal static class MapPresentationVerification
         Console.WriteLine("Title palette override: content identity and production title output change immediately, then restore exactly.");
     }
 
-    /// <summary>Verifies title graphics override.</summary>
     private static void VerifyTitleGraphicsOverride(
         ISnesAddressSpace bus,
         string stock,
@@ -1313,7 +1284,6 @@ internal static class MapPresentationVerification
         Console.WriteLine("Title graphics override: content identity and production title output change immediately, then restore exactly.");
     }
 
-    /// <summary>Verifies title sprite composition override.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native title year sprite pointer")]
     private static void VerifyTitleSpriteCompositionOverride(
         ISnesAddressSpace bus,
@@ -1363,7 +1333,6 @@ internal static class MapPresentationVerification
         Console.WriteLine("Title sprite override: installed JSON changes live OAM without changing timing, then restores exactly.");
     }
 
-    /// <summary>Verifies live map catalog.</summary>
     private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, AreaMapCartridgeData[] rules,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
@@ -1406,7 +1375,6 @@ internal static class MapPresentationVerification
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 
-    /// <summary>Verifies file select map catalog.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapCatalog(ISnesAddressSpace bus, ISnesAddressSpace guard,
         AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
@@ -1436,13 +1404,11 @@ internal static class MapPresentationVerification
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }
 
-    /// <summary>Creates forbidden map bus.</summary>
     internal static CartridgeReadGuard NewForbiddenMapBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Unexpected map ROM read {address:X6}.")
             .RejectWrites(_ => "Unexpected map bus write.");
 
-    /// <summary>Creates palette read forbidden bus.</summary>
     internal static CartridgeReadGuard NewPaletteReadForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address =>
@@ -1451,7 +1417,6 @@ internal static class MapPresentationVerification
                     MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram + 1),
                 address => new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}."));
 
-    /// <summary>Creates map data guard.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps)
     {
@@ -1480,7 +1445,6 @@ internal static class MapPresentationVerification
         return guard;
     }
 
-    /// <summary>Map presentation command.</summary>
     [VerificationCommand("--map-presentation")]
     internal static int MapPresentationCommand()
     {

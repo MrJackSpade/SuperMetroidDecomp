@@ -6,10 +6,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 
-/// <summary>Represents ceres ridley mode7 colors verification.</summary>
 internal static class CeresRidleyMode7ColorsVerification
 {
-    /// <summary>Verifies ceres ridley mode7 color override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCeresRidleyMode7ColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
@@ -113,12 +111,10 @@ internal static class CeresRidleyMode7ColorsVerification
         Console.WriteLine("Ceres Mode-7 colors: 135 stock words and all 112 getaway frames match, with every source color guarded and override repair preserved.");
     }
 
-    /// <summary>Creates ceres ridley mode7 color read guard.</summary>
     private static CartridgeReadGuard NewCeresRidleyMode7ColorReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
         new MutableCartridgeReadGuard(source)
             .Forbid(forbidden.Contains, address => $"Ceres Mode-7 color reread ${address:X6}.");
 
-    /// <summary>Reads native ceres ridley mode7 color.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's native Mode-7 zoom colors")]
     private static ushort ReadNativeCeresRidleyMode7Color(ISnesAddressSpace rom, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);

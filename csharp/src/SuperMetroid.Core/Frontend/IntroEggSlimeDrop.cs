@@ -7,12 +7,9 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>One of four Baby-Metroid slime drops created by $8B:BA73.</summary>
 internal sealed class IntroEggSlimeDrop
 {
-    /// <summary>Stores sprite.</summary>
     private readonly IntroDiscoverySprite sprite;
-    /// <summary>Stores motion enabled.</summary>
     private bool motionEnabled = true;
 
-    /// <summary>Initializes a new intro egg slime drop instance.</summary>
     public IntroEggSlimeDrop(Position16<ScreenPixels> babyPosition, byte index)
     {
         if (index >= IntroEggEffectDefinitions.SlimeDropCount)
@@ -32,7 +29,6 @@ internal sealed class IntroEggSlimeDrop
         sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
-    /// <summary>Steps.</summary>
     public void Step()
     {
         if (!sprite.IsActive)
@@ -70,12 +66,10 @@ internal sealed class IntroEggSlimeDrop
         sprite.Step(instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
-    /// <summary>Draws.</summary>
     public void Draw(OamBuffer oam,
         IntroEggEffectSpritePresentation? installedArt = null) =>
         sprite.Draw(oam, installedArt: installedArt);
 
-    /// <summary>Adds velocity.</summary>
     private void AddVelocity(bool horizontal, (ushort Whole, ushort Fraction) velocity)
     {
         (ushort wholeVelocity, ushort fractionVelocity) = velocity;

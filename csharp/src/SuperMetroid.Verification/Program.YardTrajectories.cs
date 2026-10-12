@@ -17,10 +17,8 @@ using static SuiteTimingVerification;
 using static YardAirborneVerification;
 using static YardKickVerification;
 
-/// <summary>Represents yard trajectories verification.</summary>
 internal static class YardTrajectoriesVerification
 {
-    /// <summary>verify yard trajectories.</summary>
     internal static void VerifyYardTrajectories()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -59,7 +57,6 @@ internal static class YardTrajectoriesVerification
         }
     }
 
-    /// <summary>verify yard landing.</summary>
     private static void VerifyYardLanding(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var words = new ushort[32 * 32];
@@ -92,12 +89,10 @@ internal static class YardTrajectoriesVerification
         }
     }
 
-    /// <summary>read native yard crawl speed.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $A3:E5F0 Yard crawl-speed table")]
     private static ushort ReadNativeYardCrawlSpeed(ISnesAddressSpace bus, int parameter) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + parameter * 2);
 
-    /// <summary>yard trajectories command.</summary>
     [VerificationCommand("--yard-trajectories")]
     internal static int YardTrajectoriesCommand()
     {

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using System.Buffers.Binary;
@@ -8,16 +8,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The dead Torizo species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DeadTorizoBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
-    /// <summary>Initializes a new dead torizo behavior instance.</summary>
     internal DeadTorizoBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
     {
         _room = room;
@@ -26,15 +21,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
-    /// <summary>Stores dead torizo frame vram transfers.</summary>
     internal readonly List<VramWriteEntry> _deadTorizoFrameVramTransfers = [];
-    /// <summary>Stores dead torizo.</summary>
     internal DeadTorizoEnemyState? _deadTorizo;
 
     /// <summary>Last library-two sound emitted by a completed corpse row.</summary>
     public ushort? LastDeadTorizoSoundEffect { get; private set; }
 
-    /// <summary>reset dead torizo room state.</summary>
     internal void ResetDeadTorizoRoomState()
     {
         _deadTorizo = null;
@@ -122,7 +114,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         BuildDeadTorizoVramTransfers(state);
     }
 
-    /// <summary>run dead torizo rotting.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
         state.SandFrameCounter = unchecked((ushort)(state.SandFrameCounter + 1));
@@ -166,7 +157,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
             TriggerDeadTorizoRotting(slot);
     }
 
-    /// <summary>dead torizo custom hitbox overlaps.</summary>
     private static bool DeadTorizoCustomHitboxOverlaps(RoomEnemySlot slot, SamusState samus)
     {
         SamusKinematicsState kinematics = samus.Kinematics;
@@ -217,7 +207,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         return false;
     }
 
-    /// <summary>initialize dead torizo graphics.</summary>
     internal void InitializeDeadTorizoGraphics()
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
@@ -252,7 +241,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         return tiles.Span;
     }
 
-    /// <summary>copy or move dead torizo pixel row.</summary>
     internal void CopyOrMoveDeadTorizoPixelRow(
         DeadTorizoEnemyState state,
         ushort yOffset,
@@ -285,7 +273,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>finish dead torizo corpse row.</summary>
     private void FinishDeadTorizoCorpseRow(DeadTorizoEnemyState state, ushort entryIndex)
     {
         state.FinishedEntryCount++;
@@ -299,7 +286,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
             LastDeadTorizoSoundEffect = 0x0010;
     }
 
-    /// <summary>copy dead torizo sand line.</summary>
     internal void CopyDeadTorizoSandLine(ushort lineIndex)
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
@@ -333,7 +319,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 
-    /// <summary>build dead torizo vram transfers.</summary>
     internal void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
     {
         state.VramTransferPhase = unchecked((ushort)(state.VramTransferPhase + 1));
@@ -344,7 +329,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
                 record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
     }
 
-    /// <summary>queue dead torizo frame vram transfers.</summary>
     [PpuLayoutBoundary("codec: staged Dead Torizo corpse DMA records' native destinations")]
     internal void QueueDeadTorizoFrameVramTransfers(VramWriteQueue? queue)
     {
@@ -371,7 +355,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = DeadTorizoArtworkDefinitions.SpritemapBank, Pointer = DeadTorizoArtworkDefinitions.HookSpritemap, Origin = new(unchecked((ushort)(296 - camera.X)), screenY), PaletteBits = 0, BaseTileIndex = 0 });
     }
 
-    /// <summary>require dead torizo state.</summary>
     private DeadTorizoEnemyState RequireDeadTorizoState(RoomEnemySlot slot)
     {
         DeadTorizoEnemyState state = _deadTorizo ??
@@ -381,15 +364,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         return state;
     }
 
-    /// <summary>read work word.</summary>
     private ushort ReadWorkWord(int wordOffset) =>
         _room.Scratch.CorpseTiles.ReadWord(wordOffset * 2);
 
-    /// <summary>write work word.</summary>
     private void WriteWorkWord(int wordOffset, ushort value) =>
         _room.Scratch.CorpseTiles.WriteWord(wordOffset * 2, value);
 
-    /// <summary>native absolute.</summary>
     private static ushort NativeAbsolute(ushort value) =>
         (value & 0x8000) == 0 ? value : unchecked((ushort)(~value + 1));
 
@@ -406,7 +386,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         _deadTorizoFrameVramTransfers.Clear();
     }
 
-    /// <summary>register dead torizo bomb reactions.</summary>
     internal void RegisterDeadTorizoBombReactions(EnemyAiTable table)
     {
         // Specials consulted after the selected literal no-op gate.
@@ -417,7 +396,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
             c => TriggerDeadTorizoRotting(c.Enemy));
     }
 
-    /// <summary>register dead torizo initialization ai.</summary>
     internal void RegisterDeadTorizoInitializationAi(EnemyAiTable table)
     {
 
@@ -427,7 +405,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead torizo main ai.</summary>
     internal void RegisterDeadTorizoMainAi(EnemyAiTable table)
     {
 
@@ -437,7 +414,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead torizo power bomb reactions.</summary>
     internal void RegisterDeadTorizoPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
@@ -447,7 +423,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead torizo shot reactions.</summary>
     internal void RegisterDeadTorizoShotReactions(EnemyAiTable table)
     {
         // The dead corpses and Shitroid receive the bank-$A0 projectile prelude but never an impact or vulnerability.
@@ -465,7 +440,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead torizo touch.</summary>
     internal void RegisterDeadTorizoTouch(EnemyAiTable table)
     {
         // `$A9:D433` is shared by touch and shot. Contact does not enter common damage; it makes the corpse solid

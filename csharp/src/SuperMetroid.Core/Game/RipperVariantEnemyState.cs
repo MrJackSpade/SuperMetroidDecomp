@@ -10,14 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class RipperVariantEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Stores minimum xpositions.</summary>
     private readonly ushort[] _minimumXPositions;
-    /// <summary>Stores maximum xpositions.</summary>
     private readonly ushort[] _maximumXPositions;
 
-    /// <summary>Initializes a new ripper variant enemy state instance.</summary>
     internal RipperVariantEnemyState(
         RoomEnemySlot slot,
         ushort[] minimumXPositions,

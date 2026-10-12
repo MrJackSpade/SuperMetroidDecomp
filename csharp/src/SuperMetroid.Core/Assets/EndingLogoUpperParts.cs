@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// native overlap order. The lower S uses the existing half-turn calculation.</summary>
 internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Gets count.</summary>
     public int Count => 14;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -61,11 +59,9 @@ internal sealed class EndingLogoUpperParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

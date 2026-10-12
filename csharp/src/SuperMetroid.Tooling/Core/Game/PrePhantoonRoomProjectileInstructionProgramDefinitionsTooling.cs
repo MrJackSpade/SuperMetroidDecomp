@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -14,9 +14,7 @@ internal abstract class PrePhantoonRoomProjectileInstructionProgramDefinitionsTo
         PrePhantoonRoomProjectileInstructionProgramDefinitions.Initial + 4,
     ];
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => WordAddresses.Length;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) =>
         new(WordAddresses[index], PrePhantoonRoomProjectileInstructionProgramDefinitions.ReadMechanicsWord(WordAddresses[index]));
 
@@ -24,7 +22,6 @@ internal abstract class PrePhantoonRoomProjectileInstructionProgramDefinitionsTo
     static ushort ISinglePresentationOperand.PresentationWord =>
         PrePhantoonRoomProjectileInstructionProgramDefinitions.Initial + 2;
 
-    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

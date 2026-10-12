@@ -3,7 +3,6 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents game over menu indexes verification.</summary>
 internal static class GameOverMenuIndexesVerification
 {
     /// <summary>

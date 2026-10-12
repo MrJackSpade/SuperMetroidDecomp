@@ -12,7 +12,6 @@ internal abstract class YellowPipeBugInstructionProgramDefinitions
     /// <summary><c>$B3:8F38</c>, arcing flight facing right.</summary>
     internal const ushort ArcingRight = 0x8f38;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FlyingLeft;

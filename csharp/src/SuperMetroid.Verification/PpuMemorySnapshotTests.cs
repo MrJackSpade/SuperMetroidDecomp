@@ -2,10 +2,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static ColorWordsVerification;
 
-/// <summary>Represents ppu memory snapshot tests verification.</summary>
 internal static class PpuMemorySnapshotTestsVerification
 {
-    /// <summary>Verifies ppu memory snapshot ownership.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyPpuMemorySnapshotOwnership()
     {

@@ -10,9 +10,7 @@ public sealed class BeamPaletteCatalog
 {
     // Reviewed exact material paint and copied target metadata have bounded dispositions;
     // every stock output calculates, while independently supplied words stay exact.
-    /// <summary>Stores palettes.</summary>
     private readonly Dictionary<int, Bgr555> palettes = new();
-    /// <summary>Initializes a new beam palette catalog instance.</summary>
     private BeamPaletteCatalog(Bgr555[][] rows)
     {
         for (int index = 0; index < rows.Length; index++)
@@ -21,11 +19,9 @@ public sealed class BeamPaletteCatalog
                 palettes.Add(index * BeamPaletteDefinitions.ColorCount + color, rows[index][color]);
     }
 
-    /// <summary>Color.</summary>
     private Bgr555 Color(SamusBeamCombination selection, int color) =>
         palettes.TryGetValue(selection.TableIndex * BeamPaletteDefinitions.ColorCount + color, out Bgr555 supplied)
             ? supplied : BeamPaintDefinitions.Color(selection, color);
-    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -88,7 +84,6 @@ public sealed class BeamPaletteCatalog
         return bytes;
     }
 
-    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate beam palette property."));

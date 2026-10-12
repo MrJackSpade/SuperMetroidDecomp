@@ -29,19 +29,13 @@ public sealed class SporeSpawnColorCatalog
                     .Select(color => ResolveDeathBackground(frame, color)).ToArray()).ToArray());
         });
 
-    /// <summary>Stores spores.</summary>
     private readonly Dictionary<int, Bgr555> spores = new();
-    /// <summary>Stores health.</summary>
     private readonly HealthRows health;
     // Endpoint colors remain required inputs; intermediate entries store independent edits only.
-    /// <summary>Stores death sprite.</summary>
     private readonly Dictionary<int, Bgr555> deathSprite = new();
-    /// <summary>Stores death level.</summary>
     private readonly Dictionary<int, Bgr555> deathLevel = new();
-    /// <summary>Stores death background.</summary>
     private readonly Dictionary<int, Bgr555> deathBackground = new();
 
-    /// <summary>Initializes a new spore spawn color catalog instance.</summary>
     private SporeSpawnColorCatalog(Bgr555[] spores, Bgr555[][] health,
         Bgr555[][] deathSprite, Bgr555[][] deathLevel, Bgr555[][] deathBackground)
     {
@@ -77,7 +71,6 @@ public sealed class SporeSpawnColorCatalog
         }
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -114,20 +107,13 @@ public sealed class SporeSpawnColorCatalog
     /// </summary>
     private sealed class HealthRows
     {
-        /// <summary>Stores first interpolated color.</summary>
         private const int FirstInterpolatedColor = 9;
-        /// <summary>Stores last painted color.</summary>
         private const int LastPaintedColor = 8;
-        /// <summary>Stores healthy.</summary>
         private readonly Bgr555[] healthy;
-        /// <summary>Stores critical.</summary>
         private readonly Bgr555[] critical;
-        /// <summary>Stores intermediate paint.</summary>
         private readonly Bgr555[][] intermediatePaint;
-        /// <summary>Stores intermediate edits.</summary>
         private readonly Dictionary<int, Bgr555> intermediateEdits = new();
 
-        /// <summary>Initializes a new health rows instance.</summary>
         internal HealthRows(Bgr555[][] supplied)
         {
             int last = SporeSpawnColorRomData.HealthFrameCount - 1;
@@ -143,7 +129,6 @@ public sealed class SporeSpawnColorCatalog
             }
         }
 
-        /// <summary>Resolves.</summary>
         internal Bgr555 Resolve(int frame, int color)
         {
             int last = SporeSpawnColorRomData.HealthFrameCount - 1;
@@ -154,10 +139,8 @@ public sealed class SporeSpawnColorCatalog
                 ? edit : Calculate(frame, color);
         }
 
-        /// <summary>Indicates whether calculated.</summary>
         private static bool IsCalculated(int color) => color is 0 or >= FirstInterpolatedColor;
 
-        /// <summary>Calculates.</summary>
         private Bgr555 Calculate(int frame, int color)
         {
             if (color == 0) return critical[0];
@@ -268,11 +251,9 @@ public sealed class SporeSpawnColorCatalog
         return bytes;
     }
 
-    /// <summary>Checks frame.</summary>
     private static int CheckFrame(int frame, int count) =>
         (uint)frame < count ? frame : throw new ArgumentOutOfRangeException(nameof(frame));
 
-    /// <summary>Compile frames.</summary>
     private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -281,7 +262,6 @@ public sealed class SporeSpawnColorCatalog
             .ToArray();
     }
 
-    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SporeSpawnColorRomData.ColorsPerFrame)
@@ -300,7 +280,6 @@ public sealed class SporeSpawnColorCatalog
         return compiled;
     }
 
-    /// <summary>Rejects duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Spore Spawn color property {name}."));

@@ -225,7 +225,6 @@ public sealed class ScrollBoundaryCamera
 
     // The subtraction is unsigned: Samus left of or above the camera borrows and scrolls
     // back, as do screen offsets below the near edge; offsets at the far edge advance.
-    /// <summary>step toward dead zone.</summary>
     private static ushort StepTowardDeadZone(ushort camera, ushort samus, ushort nearEdge, ushort farEdge)
     {
         if (samus < camera)
@@ -421,7 +420,6 @@ public sealed class ScrollBoundaryCamera
             : NextScreenStart(proposed));
     }
 
-    /// <summary>handle scrolling right.</summary>
     private void HandleScrollingRight()
     {
         ushort proposed = Position.X.Whole;
@@ -455,7 +453,6 @@ public sealed class ScrollBoundaryCamera
         SetWholeX(candidate);
     }
 
-    /// <summary>handle scrolling left.</summary>
     private void HandleScrollingLeft()
     {
         ushort proposed = Position.X.Whole;
@@ -483,7 +480,6 @@ public sealed class ScrollBoundaryCamera
         SetWholeX(candidate);
     }
 
-    /// <summary>handle scrolling down.</summary>
     private void HandleScrollingDown()
     {
         ushort proposed = Position.Y.Whole;
@@ -527,7 +523,6 @@ public sealed class ScrollBoundaryCamera
         }
     }
 
-    /// <summary>handle scrolling up.</summary>
     private void HandleScrollingUp()
     {
         ushort proposed = Position.Y.Whole;
@@ -554,7 +549,6 @@ public sealed class ScrollBoundaryCamera
         SetWholeY(candidate);
     }
 
-    /// <summary>vertical cell index.</summary>
     private int VerticalCellIndex()
     {
         int xScreenAtCenter = SnesEightEight.WholeOf((ushort)(Position.X.Whole + 0x0080));
@@ -562,7 +556,6 @@ public sealed class ScrollBoundaryCamera
         return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
 
-    /// <summary>signed difference.</summary>
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the AND #$FF00 alignment).</summary>
@@ -589,10 +582,8 @@ public sealed class ScrollBoundaryCamera
 
     // The scroll handlers are per-axis ports: each writes one integer layer-one word, leaving
     // the other axis and (unless stated) both fraction words untouched.
-    /// <summary>set whole x.</summary>
     private void SetWholeX(ushort x) => Position = Position.WithX(Position.X.WithWhole(x));
 
-    /// <summary>set whole y.</summary>
     private void SetWholeY(ushort y) => Position = Position.WithY(Position.Y.WithWhole(y));
 }
 

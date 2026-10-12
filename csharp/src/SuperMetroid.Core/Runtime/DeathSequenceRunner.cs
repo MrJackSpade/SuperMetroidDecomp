@@ -11,28 +11,17 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class DeathSequenceRunner
 {
-    /// <summary>Stores actor drawing.</summary>
     private readonly GameplayActorDrawing _actorDrawing;
-    /// <summary>Stores artwork.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
-    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Stores nmi handler.</summary>
     private readonly NmiHandler _nmiHandler;
-    /// <summary>Stores oam.</summary>
     private readonly OamBuffer _oam;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new death sequence runner instance.</summary>
     internal DeathSequenceRunner(DeathSequenceRunnerDependencies dependencies)
     {
         _actorDrawing = dependencies.ActorDrawing;

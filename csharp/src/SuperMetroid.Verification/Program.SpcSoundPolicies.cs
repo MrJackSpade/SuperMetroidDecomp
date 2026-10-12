@@ -2,17 +2,12 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
 
-/// <summary>Represents spc sound policies verification.</summary>
 internal static class SpcSoundPoliciesVerification
 {
-    /// <summary>verify spc sound policy1.</summary>
     internal static void VerifySpcSoundPolicy1(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 0, 66, 0x1f4d, 0x03a1, 0x04bb);
-    /// <summary>verify spc sound policy2.</summary>
     internal static void VerifySpcSoundPolicy2(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 1, 127, 0x31b1, 0x0441, 0x04bc);
-    /// <summary>verify spc sound policy3.</summary>
     internal static void VerifySpcSoundPolicy3(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 2, 47, 0x4776, 0x0479, 0x04bd);
 
-    /// <summary>verify spc sound policy.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC sound policy")]
     private static void VerifySpcSoundPolicy(ISnesAddressSpace rom, int library, int count, int dispatch, int voicesAddress, int priorityAddress)
     {

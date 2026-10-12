@@ -12,21 +12,13 @@ namespace SuperMetroid.Core.Rendering;
 /// </remarks>
 public sealed class LatestRenderFrameMailbox
 {
-    /// <summary>Stores sync.</summary>
     private readonly Lock sync = new();
-    /// <summary>Stores pending.</summary>
     private RenderFrameSnapshot? pending;
-    /// <summary>Stores generation.</summary>
     private long generation;
-    /// <summary>Stores last sequence.</summary>
     private long lastSequence;
-    /// <summary>Stores published.</summary>
     private long published;
-    /// <summary>Stores taken.</summary>
     private long taken;
-    /// <summary>Stores replaced.</summary>
     private long replaced;
-    /// <summary>Stores invalidated.</summary>
     private long invalidated;
 
     /// <summary>Creates an empty visual mailbox for one positive simulation load/reset generation.</summary>

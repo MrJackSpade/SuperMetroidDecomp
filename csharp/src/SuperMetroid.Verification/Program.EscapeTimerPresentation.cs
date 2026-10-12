@@ -18,10 +18,8 @@ using static MapPresentationVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents escape timer presentation verification.</summary>
 internal static class EscapeTimerPresentationVerification
 {
-    /// <summary>Verifies escape timer presentation assets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed escape-timer characters")]
     internal static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
@@ -188,7 +186,6 @@ internal static class EscapeTimerPresentationVerification
         }
     }
 
-    /// <summary>Verifies escape timer pointer definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled escape-timer digit pointers")]
     internal static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
@@ -261,7 +258,6 @@ internal static class EscapeTimerPresentationVerification
         }
     }
 
-    /// <summary>Escape timer pointer definitions command.</summary>
     [VerificationCommand("--escape-timer-pointer-definitions")]
     internal static int EscapeTimerPointerDefinitionsCommand()
     {

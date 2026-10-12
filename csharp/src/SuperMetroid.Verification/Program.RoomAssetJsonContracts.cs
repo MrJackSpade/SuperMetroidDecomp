@@ -17,7 +17,6 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using static TilemapJsonContractsVerification;
 
-/// <summary>Represents room asset json contracts verification.</summary>
 internal static class RoomAssetJsonContractsVerification
 {
     /// <summary>
@@ -113,10 +112,8 @@ internal static class RoomAssetJsonContractsVerification
         }
     }
 
-    /// <summary>Represents room json file contract.</summary>
     internal sealed record RoomJsonFileContract(string Name, string Source, string Manifest, Func<string, string?, string> Identity);
 
-    /// <summary>room json corruptions.</summary>
     private static IEnumerable<string> RoomJsonCorruptions(string json, string versionField = "version")
     {
         yield return "{\"" + versionField + "\":999," + json[1..];
@@ -138,7 +135,6 @@ internal static class RoomAssetJsonContractsVerification
             yield return TilemapContractMutate(json, copy => copy["entries"]![0]!["damage"] = 7);
     }
 
-    /// <summary>room json missing visual fields.</summary>
     private static IEnumerable<string> RoomJsonMissingVisualFields(string json, string domain)
     {
         if (domain == "layouts")
@@ -156,18 +152,15 @@ internal static class RoomAssetJsonContractsVerification
         }
     }
 
-    /// <summary>snapshot room json files.</summary>
     internal static Dictionary<string, string> SnapshotRoomJsonFiles(string directory) => Directory.GetFiles(directory)
         .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
-    /// <summary>assert room json unchanged.</summary>
     internal static void AssertRoomJsonUnchanged(Dictionary<string, string> expected, string directory, string description)
     {
         Dictionary<string, string> actual = SnapshotRoomJsonFiles(directory);
         AssertTrue(expected.Count == actual.Count && expected.All(pair => actual.TryGetValue(pair.Key, out string? value) && value == pair.Value), description);
     }
 
-    /// <summary>room asset json contracts command.</summary>
     [VerificationCommand("--room-asset-json-contracts")]
     internal static int RoomAssetJsonContractsCommand()
     {

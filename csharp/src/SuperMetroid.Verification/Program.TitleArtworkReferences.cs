@@ -13,7 +13,6 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents title artwork references verification.</summary>
 internal static class TitleArtworkReferencesVerification
 {
     /// <summary>Validates statically identified title selectors without running gameplay or reading a ROM.</summary>
@@ -99,7 +98,6 @@ internal static class TitleArtworkReferencesVerification
         }
     }
 
-    /// <summary>Title artwork references command.</summary>
     [VerificationCommand("--title-artwork-references")]
     internal static int TitleArtworkReferencesCommand()
     {

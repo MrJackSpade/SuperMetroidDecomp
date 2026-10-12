@@ -62,7 +62,6 @@ public static class GameplayWindowRegisterLayout
         _ => throw new ArgumentOutOfRangeException(nameof(register), register, "Not a gameplay window-cache register."),
     };
 
-    /// <summary>Registers.</summary>
     private static PpuLayoutCell Register(string name, int number, string encoding) =>
         new(name, PpuLayoutRegion.Register, number, 1, encoding);
 }

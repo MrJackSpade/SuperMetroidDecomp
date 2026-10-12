@@ -7,20 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Cosmetic world-map label anchors. Area availability and navigation are not content.</summary>
 public sealed class WorldMapLabelLayout
 {
-    /// <summary>Stores crateria.</summary>
     private readonly Position16<OamPixels> crateria;
-    /// <summary>Stores brinstar.</summary>
     private readonly Position16<OamPixels> brinstar;
-    /// <summary>Stores norfair.</summary>
     private readonly Position16<OamPixels> norfair;
-    /// <summary>Stores wrecked ship.</summary>
     private readonly Position16<OamPixels> wreckedShip;
-    /// <summary>Stores maridia.</summary>
     private readonly Position16<OamPixels> maridia;
-    /// <summary>Stores tourian.</summary>
     private readonly Position16<OamPixels> tourian;
 
-    /// <summary>Initializes a new world map label layout instance.</summary>
     private WorldMapLabelLayout(Position16<OamPixels> crateria, Position16<OamPixels> brinstar, Position16<OamPixels> norfair,
         Position16<OamPixels> wreckedShip, Position16<OamPixels> maridia, Position16<OamPixels> tourian)
     {

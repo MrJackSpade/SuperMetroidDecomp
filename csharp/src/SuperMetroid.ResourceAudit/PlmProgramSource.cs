@@ -13,20 +13,13 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal sealed class PlmProgramSource
 {
-    /// <summary>Stores report.</summary>
     private readonly PlmProgramAuditReport report;
-    /// <summary>Stores types.</summary>
     private readonly Dictionary<string, Type> types;
-    /// <summary>Stores methods.</summary>
     private readonly MethodDeclarationSyntax[] methods;
-    /// <summary>Stores draw providers.</summary>
     private readonly List<MethodInfo> drawProviders = [];
-    /// <summary>Stores direct draws.</summary>
     private readonly HashSet<ushort> directDraws = [];
-    /// <summary>Stores draws.</summary>
     private readonly Dictionary<ushort, bool> draws = [];
 
-    /// <summary>Initializes a new plm program source instance.</summary>
     internal PlmProgramSource(string root, PlmProgramAuditReport report)
     {
         this.report = report;
@@ -78,7 +71,6 @@ internal sealed class PlmProgramSource
             throw new InvalidDataException("The production PLM draw dispatcher could not be inventoried.");
     }
 
-    /// <summary>Inventory words.</summary>
     internal Dictionary<ushort, string> InventoryWords()
     {
         MethodDeclarationSyntax resolver = methods.Single(method => method.Identifier.Text == "TryReadWord");
@@ -98,7 +90,6 @@ internal sealed class PlmProgramSource
         return result;
     }
 
-    /// <summary>Assigned constant roots.</summary>
     internal IEnumerable<(ushort Address, string Owner)> AssignedConstantRoots()
     {
         foreach (MethodDeclarationSyntax method in methods)
@@ -127,7 +118,6 @@ internal sealed class PlmProgramSource
         }
     }
 
-    /// <summary>Root expressions.</summary>
     private static IEnumerable<ExpressionSyntax> RootExpressions(ExpressionSyntax expression)
     {
         // Conditions can compare a header ID; that is not an instruction root.
@@ -140,7 +130,6 @@ internal sealed class PlmProgramSource
         else yield return expression;
     }
 
-    /// <summary>Owns draw.</summary>
     internal bool OwnsDraw(ushort pointer)
     {
         if (draws.TryGetValue(pointer, out bool owned)) return owned;
@@ -154,7 +143,6 @@ internal sealed class PlmProgramSource
         return owned;
     }
 
-    /// <summary>Verifies interpreter.</summary>
     internal void VerifyInterpreter()
     {
         foreach (MethodDeclarationSyntax method in methods.Where(RequiresGuard))
@@ -170,7 +158,6 @@ internal sealed class PlmProgramSource
     }
 
 
-    /// <summary>Requires guard.</summary>
     private static bool RequiresGuard(MethodDeclarationSyntax method) =>
         method.Identifier.Text is "ExecuteInstructionStream" or "ReadProgramWord" or "ReadProgramByte" or
         "DrawPlmInstruction" or "TryIdentifyPermanentCollectible" or
@@ -181,7 +168,6 @@ internal sealed class PlmProgramSource
         method.DescendantNodes().OfType<InvocationExpressionSyntax>().Any(call =>
             call.Expression.ToString() is "ReadProgramWord" or "ReadProgramByte");
 
-    /// <summary>Resolves method.</summary>
     private MethodInfo ResolveMethod(string type, string name) => types[type].GetMethods(
         BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
         .Single(method => method.Name == name && method.GetParameters() is

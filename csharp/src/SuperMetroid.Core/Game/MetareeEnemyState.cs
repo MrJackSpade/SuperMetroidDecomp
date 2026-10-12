@@ -23,10 +23,8 @@ public enum MetareeEnemyFunction : ushort
 /// </summary>
 public sealed class MetareeEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new metaree enemy state instance.</summary>
     internal MetareeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
@@ -57,7 +55,7 @@ public sealed class MetareeEnemyState
         internal set => _slot.VariableD = (ushort)value;
     }
 
-    /// <summary>Sets by instruction <c>$A3:8956</c> after the launch crouch completes.</summary>
+    /// <summary>Set by instruction <c>$A3:8956</c> after the launch crouch completes.</summary>
     public bool AttackReady
     {
         get => _slot.VariableE != 0;

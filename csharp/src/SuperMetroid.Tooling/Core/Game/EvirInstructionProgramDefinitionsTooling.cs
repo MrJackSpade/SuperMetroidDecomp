@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,15 +7,10 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(EvirInstructionProgramDefinitions))]
 internal abstract class EvirInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => EvirInstructionProgramDefinitions.MechanicsWordCount;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => EvirInstructionProgramDefinitions.MechanicsWord(index);
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => EvirInstructionProgramDefinitions.PresentationWordCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => EvirInstructionProgramDefinitions.PresentationWordAddress(index);
-    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa80000)

@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class ZebetitePulsePaintDefinitions
 {
-    /// <summary>Defines channel maximum.</summary>
     private const int ChannelMaximum = 31;
     /// <summary>$A6:FD87/$A2:BA73: warm-green bias2 on the saturated-red core.
     /// The neighboring darker facet uses half this green bias.</summary>
@@ -18,10 +17,8 @@ internal static class ZebetitePulsePaintDefinitions
     /// <summary>$A6:FD89/$A2:BA75: the darker facet begins at floor(3/4 of red31)=23.
     /// Three-quarter shade is the selected material contrast, not a health ratio.</summary>
     private const int DarkShadeNumerator = 3;
-    /// <summary>Defines dark shade denominator.</summary>
     private const int DarkShadeDenominator = 4;
 
-    /// <summary>color.</summary>
     internal static Bgr555 Color(int frame, int color)
     {
         int intervals = ZebetiteColorFormat.FrameCount / 2;

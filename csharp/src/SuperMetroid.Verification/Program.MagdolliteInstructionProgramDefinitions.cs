@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents magdollite instruction program definitions verification.</summary>
 internal static class MagdolliteInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies magdollite instruction program definitions.</summary>
     internal static void VerifyMagdolliteInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMagdolliteInstructionProgramDefinitions), () => VerifyMagdolliteInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies magdollite instruction program definitions.</summary>
     internal static void VerifyMagdolliteInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -211,7 +208,6 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe magdollite instruction mechanics allocation.</summary>
     private static int ProbeMagdolliteInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -223,7 +219,6 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New magdollite instruction program guard.</summary>
     private static CartridgeReadGuard NewMagdolliteInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => MagdolliteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -232,7 +227,6 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                  MagdolliteInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)(address - 1)))),
             address => $"Production read compiled Magdollite instruction byte ${address:X6}.");
 
-    /// <summary>Magdollite instruction mechanics command.</summary>
     [VerificationCommand("--magdollite-instruction-mechanics")]
     internal static int MagdolliteInstructionMechanicsCommand()
     {

@@ -8,24 +8,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable three-color room-FX blends selected by native FX records.</summary>
 public sealed class RoomFxPaletteBlendCatalog
 {
-    /// <summary>Stores lava.</summary>
     private readonly RoomFxBlendColors lava;
-    /// <summary>Stores landing site rain.</summary>
     private readonly RoomFxBlendColors landingSiteRain;
-    /// <summary>Stores maridia water a.</summary>
     private readonly RoomFxBlendColors maridiaWaterA;
-    /// <summary>Stores water and acid.</summary>
     private readonly RoomFxBlendColors waterAndAcid;
-    /// <summary>Stores fog.</summary>
     private readonly RoomFxBlendColors fog;
-    /// <summary>Stores maridia water b.</summary>
     private readonly RoomFxBlendColors maridiaWaterB;
-    /// <summary>Stores maridia water c.</summary>
     private readonly RoomFxBlendColors maridiaWaterC;
-    /// <summary>Stores maridia water d.</summary>
     private readonly RoomFxBlendColors maridiaWaterD;
 
-    /// <summary>Initializes a new room fx palette blend catalog instance.</summary>
     private RoomFxPaletteBlendCatalog(RoomFxPaletteBlendParts parts)
     {
         this.lava = parts.Lava;
@@ -46,7 +37,6 @@ public sealed class RoomFxPaletteBlendCatalog
     /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
     public PaletteRgb5 CeresHazeRed { get; }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -121,7 +111,6 @@ public sealed class RoomFxPaletteBlendCatalog
         SelectColors(selection).Apply(cgram);
     }
 
-    /// <summary>Selects colors.</summary>
     private RoomFxBlendColors SelectColors(RoomFxPaletteBlend selection) => selection switch
     {
         RoomFxPaletteBlend.Lava => lava,
@@ -134,7 +123,6 @@ public sealed class RoomFxPaletteBlendCatalog
         RoomFxPaletteBlend.MaridiaWaterD => maridiaWaterD,
         _ => throw new InvalidDataException($"Room-FX palette blend ${(int)selection:X2} is not an authored retail selection."),
     };
-    /// <summary>Validates haze tint.</summary>
     private static PaletteRgb5 ValidateHazeTint(PaletteRgb5 color, string name)
     {
         if ((uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
@@ -142,7 +130,6 @@ public sealed class RoomFxPaletteBlendCatalog
         return color;
     }
 
-    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate room-FX blend property {name}."));
@@ -159,14 +146,10 @@ public sealed class RoomFxPaletteBlendCatalog
 /// </remarks>
 internal sealed class RoomFxBlendColors
 {
-    /// <summary>Stores primary.</summary>
     private readonly RoomFxPairColor primary;
-    /// <summary>Stores secondary.</summary>
     private readonly RoomFxPairColor secondary;
-    /// <summary>Stores third override.</summary>
     private readonly RoomFxThirdColor? thirdOverride;
 
-    /// <summary>Initializes a new room fx blend colors instance.</summary>
     public RoomFxBlendColors(RoomFxPaletteBlend selection, Bgr555 primary, Bgr555 secondary, Bgr555 third)
     {
         this.primary = new(selection, primary, true);
@@ -174,7 +157,6 @@ internal sealed class RoomFxBlendColors
         thirdOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(selection) == third ? null : new(selection, third);
     }
 
-    /// <summary>Apply.</summary>
     public void Apply(SnesCgram cgram)
     {
         new RoomFxPalettes(cgram).Layer3Blend.Write(0, primary.CreateColor());
@@ -185,18 +167,12 @@ internal sealed class RoomFxBlendColors
 /// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>
 internal sealed class RoomFxPairColor
 {
-    /// <summary>Stores selection.</summary>
     private readonly RoomFxPaletteBlend selection;
-    /// <summary>Stores is primary.</summary>
     private readonly bool isPrimary;
-    /// <summary>Stores red override.</summary>
     private readonly int? redOverride;
-    /// <summary>Stores green override.</summary>
     private readonly int? greenOverride;
-    /// <summary>Stores blue override.</summary>
     private readonly int? blueOverride;
 
-    /// <summary>Initializes a new room fx pair color instance.</summary>
     public RoomFxPairColor(RoomFxPaletteBlend selection, Bgr555 color, bool isPrimary)
     {
         this.selection = selection;
@@ -207,7 +183,6 @@ internal sealed class RoomFxPairColor
         blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary) == blue ? null : blue;
     }
 
-    /// <summary>Creates color.</summary>
     public Bgr555 CreateColor()
     {
         int red = redOverride ?? RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary)!.Value;
@@ -219,16 +194,11 @@ internal sealed class RoomFxPairColor
 /// <summary>Independent third-color red and calculated weather green/blue, preserving edits.</summary>
 internal sealed class RoomFxThirdColor
 {
-    /// <summary>Stores selection.</summary>
     private readonly RoomFxPaletteBlend selection;
-    /// <summary>Stores red.</summary>
     private readonly int red;
-    /// <summary>Stores green override.</summary>
     private readonly int? greenOverride;
-    /// <summary>Stores blue override.</summary>
     private readonly int? blueOverride;
 
-    /// <summary>Initializes a new room fx third color instance.</summary>
     public RoomFxThirdColor(RoomFxPaletteBlend selection, Bgr555 color)
     {
         this.selection = selection;
@@ -239,7 +209,6 @@ internal sealed class RoomFxThirdColor
         blueOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, color.Red) == blue ? null : blue;
     }
 
-    /// <summary>Creates color.</summary>
     public Bgr555 CreateColor() => new(red,
         greenOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdGreen(selection)!.Value,
         blueOverride ?? RoomFxPaletteBlendDefinitions.CalculatedThirdBlue(selection, red)!.Value);
@@ -312,7 +281,6 @@ public static class RoomFxPaletteBlendDefinitions
         return $"blend-{(byte)id:X2}";
     }
 
-    /// <summary>Validates selector.</summary>
     private static void ValidateSelector(RoomFxPaletteBlend id)
     {
         if (id is not (RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.Fog or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD))

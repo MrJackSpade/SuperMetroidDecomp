@@ -363,7 +363,6 @@ public static class SamusMorphBallMovement
         return new MorphBallMovementResult(vertical, landed, HitCeiling: false);
     }
 
-    /// <summary>Moves vertically with gravity.</summary>
     private static BlockMoveResult MoveVerticallyWithGravity(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -419,7 +418,6 @@ public static class SamusMorphBallMovement
         return vertical;
     }
 
-    /// <summary>Runs no speed calculation grounding probe.</summary>
     private static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -440,7 +438,6 @@ public static class SamusMorphBallMovement
     }
 
 
-    /// <summary>Validate.</summary>
     private static void Validate(
         ISnesAddressSpace bus,
         RoomLevelData level,

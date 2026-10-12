@@ -30,7 +30,6 @@ public static class AudioSoundInstructionOperations
 /// </summary>
 internal static class SpcSoundEffectProgramCodec
 {
-    /// <summary>Decode.</summary>
     internal static AudioSoundProgramMetadata Decode(
         string id,
         ushort address,
@@ -96,7 +95,6 @@ internal static class SpcSoundEffectProgramCodec
             $"SPC sound program '{id}' at ${address:X4} has no terminal instruction.");
     }
 
-    /// <summary>Encode.</summary>
     internal static byte[] Encode(AudioSoundProgramMetadata program)
     {
         Ensure.NotNull(program);
@@ -167,7 +165,6 @@ internal static class SpcSoundEffectProgramCodec
         return [.. bytes];
     }
 
-    /// <summary>Read.</summary>
     private static AudioSoundInstructionMetadata Read(
         string operation,
         int count,
@@ -182,7 +179,6 @@ internal static class SpcSoundEffectProgramCodec
         return new(operation, arguments);
     }
 
-    /// <summary>Reads byte.</summary>
     private static byte ReadByte(
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written,

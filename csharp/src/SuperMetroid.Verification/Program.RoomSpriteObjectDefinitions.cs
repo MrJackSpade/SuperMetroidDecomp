@@ -15,10 +15,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents room sprite object definitions verification.</summary>
 internal static class RoomSpriteObjectDefinitionsVerification
 {
-    /// <summary>verify room sprite object definitions.</summary>
     internal static void VerifyRoomSpriteObjectDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -138,7 +136,6 @@ internal static class RoomSpriteObjectDefinitionsVerification
         }
     }
 
-    /// <summary>probe room sprite object instruction allocation.</summary>
     private static int ProbeRoomSpriteObjectInstructionAllocation()
     {
         int checksum = 0;
@@ -150,7 +147,6 @@ internal static class RoomSpriteObjectDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>new room sprite object definition read guard.</summary>
     private static CartridgeReadGuard NewRoomSpriteObjectDefinitionReadGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -166,7 +162,6 @@ internal static class RoomSpriteObjectDefinitionsVerification
             });
     }
 
-    /// <summary>room sprite object definitions command.</summary>
     [VerificationCommand("--room-sprite-object-definitions")]
     internal static int RoomSpriteObjectDefinitionsCommand()
     {

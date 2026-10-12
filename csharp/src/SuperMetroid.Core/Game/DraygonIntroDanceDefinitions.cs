@@ -50,7 +50,6 @@ internal static class DraygonIntroDanceDefinitions
         "95969595959585968777777879797A6A6B6A6B6A7B7C7B7B8B8B8B8B9B8A9B9A9A9AA9A9A9A898A797A797A7A6A6A69596959595848585858575867666766677" +
         "777879696A7A7B8B7A8A8B9A9AAA9AAA";
 
-    /// <summary>Stores packed movement.</summary>
     private static readonly byte[] PackedMovement = Convert.FromHexString(PackedMovementHex);
 
     /// <summary>Returns the signed stream latency for native sprite slot 28 through 31.</summary>

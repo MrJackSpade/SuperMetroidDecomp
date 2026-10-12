@@ -18,10 +18,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
 
-/// <summary>Represents intro narration presentation verification.</summary>
 internal static class IntroNarrationPresentationVerification
 {
-    /// <summary>Verifies intro narration presentation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the decompressed opening-font planar bytes")]
     internal static void VerifyIntroNarrationPresentation(string romPath)
@@ -146,7 +144,6 @@ internal static class IntroNarrationPresentationVerification
             "Opening font: 144 PNG tiles compile to exact native 2-bpp bytes; installed upload, active pixel edit and ROM-read guard pass.");
     }
 
-    /// <summary>Creates blank intro tilemap.</summary>
     private static ushort[] CreateBlankIntroTilemap()
     {
         var result = new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
@@ -154,7 +151,6 @@ internal static class IntroNarrationPresentationVerification
         return result;
     }
 
-    /// <summary>Starts page.</summary>
     private static void StartPage(IntroCinematicObjectSystem state, IntroNarrationPageId page)
     {
         switch (page)
@@ -169,7 +165,6 @@ internal static class IntroNarrationPresentationVerification
         }
     }
 
-    /// <summary>Indicates whether page complete.</summary>
     private static bool IsPageComplete(
         IntroCinematicObjectSystem state,
         IntroNarrationPageId page) => page switch
@@ -183,7 +178,6 @@ internal static class IntroNarrationPresentationVerification
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, null),
     };
 
-    /// <summary>Verifies intro narration assets.</summary>
     internal static void VerifyIntroNarrationAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -219,7 +213,6 @@ internal static class IntroNarrationPresentationVerification
             "Opening-narration catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
-    /// <summary>Verifies intro font assets.</summary>
     internal static void VerifyIntroFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -253,19 +246,16 @@ internal static class IntroNarrationPresentationVerification
             "Opening-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
-    /// <summary>Creates intro narration guard.</summary>
     private static CartridgeReadGuard NewIntroNarrationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => SnesAddressMath.BankNumber(address) == 0x8c &&
                 (SnesAddressMath.OffsetInBank(address)) is >= 0xc383 and <= 0xd5dd or >= 0xd67d and <= 0xd780,
             address => $"Installed opening narration read cartridge text address ${address:X6}.");
 
-    /// <summary>Creates intro font guard.</summary>
     private static CartridgeReadGuard NewIntroFontGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0x95d089, 0x95d713 - 0x95d089,
             address => $"Installed opening font read cartridge address ${address:X6}.");
 
-    /// <summary>Intro narration presentation command.</summary>
     [VerificationCommand("--intro-narration-presentation")]
     internal static int IntroNarrationPresentationCommand()
     {

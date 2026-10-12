@@ -9,16 +9,11 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidFrameMailbox(int pixelCount, AndroidFrameHandoffTrace? trace = null)
 {
-    /// <summary>Stores gate.</summary>
     private readonly Lock gate = new();
-    /// <summary>Stores pending.</summary>
     private readonly Rgba32[] pending = new Rgba32[pixelCount];
-    /// <summary>Stores available.</summary>
     private bool available;
-    /// <summary>Stores sequence.</summary>
     private long sequence;
 
-    /// <summary>Publishes.</summary>
     public bool Publish(ReadOnlySpan<Rgba32> frame)
     {
         if (frame.Length != pending.Length) throw new InvalidDataException("Unexpected Android framebuffer dimensions.");
@@ -50,7 +45,6 @@ internal sealed class AndroidFrameMailbox(int pixelCount, AndroidFrameHandoffTra
         }
     }
 
-    /// <summary>Flush trace.</summary>
     public void FlushTrace(Action<string> write)
     {
         lock (gate) trace?.Flush(write);

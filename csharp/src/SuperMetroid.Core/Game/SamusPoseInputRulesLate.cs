@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Ordered native pose-input decisions; the first satisfied chord wins.</summary>
 internal static class SamusPoseInputRulesLate
 {
-    /// <summary>Match.</summary>
     internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, ushort held, ushort newlyPressed) => pointer switch
     {
         SpringBallGroundRightPoseList => MatchSpringBallGroundRightPoseList(held, newlyPressed),

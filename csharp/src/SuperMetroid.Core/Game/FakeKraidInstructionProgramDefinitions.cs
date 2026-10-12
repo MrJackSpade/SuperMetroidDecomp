@@ -27,7 +27,6 @@ internal abstract class FakeKraidInstructionProgramDefinitions
     /// <summary><c>InstList_MiniKraid_FireSpit_FacingRight</c> at $A6:9A2A.</summary>
     internal const ushort FireSpitFacingRight = 0x9a2a;
 
-    /// <summary>is presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - ChooseActionFacingLeft;
@@ -49,7 +48,6 @@ internal abstract class FakeKraidInstructionProgramDefinitions
             $"Fake Kraid instruction mechanics pointer $A6:{address:X4} is not compiled.");
     }
 
-    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         bool right = address >= ChooseActionFacingRight;

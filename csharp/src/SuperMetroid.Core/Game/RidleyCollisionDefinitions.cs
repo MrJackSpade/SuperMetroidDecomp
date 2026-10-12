@@ -17,9 +17,7 @@ internal static class RidleyCollisionDefinitions
 {
     /// <summary>$A6, shared native bank for both Ceres and Lower Norfair Ridley body maps.</summary>
     internal const byte Bank = 0xa6;
-    /// <summary>Defines touch.</summary>
     private const ushort Touch = EnemyAiCodePointers.BankA6.RidleyExtendedTouch;
-    /// <summary>Defines shot.</summary>
     private const ushort Shot = EnemyAiCodePointers.BankA6.RidleyShot;
 
     /// <summary>The 32-pixel margin $A6:DE7A adds on each axis before the camera-relative test.</summary>
@@ -38,7 +36,6 @@ internal static class RidleyCollisionDefinitions
             unchecked((short)(relativeY - 288)) >= 0;
     }
 
-    /// <summary>Represents body frame.</summary>
     private enum BodyFrame : ushort
     {
         /// <summary>$A6:E983, ExtendedSpritemap_Ridley_FacingLeft.</summary>
@@ -83,34 +80,24 @@ internal static class RidleyCollisionDefinitions
 
     // The four left-facing component origins (legs, hand, torso, head) are authored placements
     // for the drawing; right-facing frames negate X.
-    /// <summary>Stores left base.</summary>
     private static readonly Offset16<RoomPixels>[] LeftBase =
         [new(15, 22), new(-8, 7), new(16, 0), new(-3, -24)];
 
-    /// <summary>Represents component sequence.</summary>
     internal readonly record struct ComponentSequence(ushort Frame)
     {
-        /// <summary>Gets the number of elements in this view.</summary>
         internal int Length => Frame == (ushort)BodyFrame.Forward ? 1 : 4;
-        /// <summary>Accesses a value by index or range.</summary>
         internal RidleyCollisionComponent this[int index] => (uint)index < Length
             ? ComponentAt((BodyFrame)Frame, index)
             : throw new IndexOutOfRangeException();
-        /// <summary>Returns an enumerator over this collection.</summary>
         public Enumerator GetEnumerator() => new(this);
-        /// <summary>Represents enumerator.</summary>
         internal struct Enumerator(ComponentSequence sequence)
         {
-            /// <summary>Stores index.</summary>
             private int index = -1;
-            /// <summary>Gets current.</summary>
             public readonly RidleyCollisionComponent Current => sequence[index];
-            /// <summary>move next.</summary>
             public bool MoveNext() => ++index < sequence.Length;
         }
     }
 
-    /// <summary>component at.</summary>
     private static RidleyCollisionComponent ComponentAt(BodyFrame frame, int component)
     {
         if (frame == BodyFrame.Forward) return new(new(0, ForwardYOffset), ForwardHitbox);
@@ -173,15 +160,12 @@ internal static class RidleyCollisionDefinitions
             [new(1, -2, 14, 9, Touch, Shot)],
             [new(-13, -22, 14, 21, Touch, Shot)],
         ]));
-    /// <summary>has frame.</summary>
     internal static bool HasFrame(ushort frame) => frame >= (ushort)BodyFrame.Left
         && frame <= (ushort)BodyFrame.Forward && (frame - (ushort)BodyFrame.Left) % SideFrameBytes == 0;
 
-    /// <summary>components at.</summary>
     internal static ComponentSequence ComponentsAt(ushort frame) => HasFrame(frame)
         ? new(frame)
         : throw new InvalidDataException($"Ridley frame $A6:{frame:X4} has no compiled collision.");
-    /// <summary>hitboxes at.</summary>
     internal static ReadOnlySpan<RidleyCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGet(list, out RidleyCollisionHitbox[] hitboxes)
             ? hitboxes

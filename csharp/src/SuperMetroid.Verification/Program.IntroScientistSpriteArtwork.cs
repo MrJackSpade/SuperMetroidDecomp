@@ -10,10 +10,8 @@ using static IntroRinkaSpriteArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
-/// <summary>Represents intro scientist sprite artwork verification.</summary>
 internal static class IntroScientistSpriteArtworkVerification
 {
-    /// <summary>Verifies intro scientist sprite artwork.</summary>
     internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

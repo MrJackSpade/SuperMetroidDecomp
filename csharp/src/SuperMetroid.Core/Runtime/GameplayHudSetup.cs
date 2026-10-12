@@ -11,24 +11,15 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayHudSetup
 {
-    /// <summary>Stores artwork.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores hud.</summary>
     private readonly HudState _hud;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
-    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new gameplay hud setup instance.</summary>
     internal GameplayHudSetup(GameplayHudSetupDependencies dependencies)
     {
         _artwork = dependencies.Artwork;

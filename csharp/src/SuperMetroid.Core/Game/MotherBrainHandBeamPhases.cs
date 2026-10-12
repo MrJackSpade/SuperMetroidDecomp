@@ -130,7 +130,6 @@ public enum MotherBrainBrainFunction : ushort
 /// </summary>
 public sealed class MotherBrainEnemyState
 {
-    /// <summary>Initializes a new mother brain enemy state instance.</summary>
     internal MotherBrainEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Physical slot zero, enemy definition <c>$EC7F</c>.</summary>
@@ -479,21 +478,16 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public ushort OnionRingsTargetAngle { get; internal set; }
 
-    /// <summary>Stores initial turret parameters.</summary>
     private readonly ushort[] _initialTurretParameters = new ushort[12];
-    /// <summary>Stores music requests.</summary>
     private readonly List<MotherBrainMusicRequest> _musicRequests = new();
-    /// <summary>Stores plm requests.</summary>
     private readonly List<MotherBrainPlmRequest> _plmRequests = new();
 
-    /// <summary>Record initial turret requests.</summary>
     internal void RecordInitialTurretRequests()
     {
         for (ushort parameter = 0; parameter < _initialTurretParameters.Length; parameter++)
             _initialTurretParameters[parameter] = parameter;
     }
 
-    /// <summary>Begins frame.</summary>
     internal void BeginFrame()
     {
         _musicRequests.Clear();
@@ -508,11 +502,9 @@ public sealed class MotherBrainEnemyState
         LastRainbowBeamExplosion = null;
     }
 
-    /// <summary>Request music.</summary>
     internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
         _musicRequests.Add(new MotherBrainMusicRequest(command, delay));
 
-    /// <summary>Request plm.</summary>
     internal void RequestPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
         _plmRequests.Add(new MotherBrainPlmRequest(block, header));
 }

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -12,16 +12,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyPopulationLoader
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores room status.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Stores dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
 
-    /// <summary>Initializes a new enemy population loader instance.</summary>
     internal EnemyPopulationLoader(EnemyRoomBinding room, EnemyRoomStatus roomStatus, EnemySlotTable slotTable, IEnemyDispatch dispatch)
     {
         _room = room;
@@ -29,7 +24,6 @@ internal sealed class EnemyPopulationLoader
         _slotTable = slotTable;
         _dispatch = dispatch;
     }
-    /// <summary>Stores graphics set.</summary>
     internal readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
 
     /// <summary>Bank-$A1 population identity supplied by the current room state, matching native EnemyPopulationPointer ($07CF).</summary>
@@ -64,7 +58,6 @@ internal sealed class EnemyPopulationLoader
         }
     }
 
-    /// <summary>Loads graphics set.</summary>
     internal void LoadGraphicsSet(
         ISnesAddressSpace bus,
         ushort tilesetPointer,
@@ -129,7 +122,6 @@ internal sealed class EnemyPopulationLoader
         }
     }
 
-    /// <summary>Loads population.</summary>
     internal void LoadPopulation(
         ISnesAddressSpace bus,
         RoomEnemyPopulationDefinition populationDefinition,
@@ -178,7 +170,6 @@ internal sealed class EnemyPopulationLoader
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)(records.Length * RoomEnemySystem.NativeSlotSize));
     }
 
-    /// <summary>Finds graphics indexes.</summary>
     internal (ushort TileIndex, ushort PaletteIndex) FindGraphicsIndexes(EnemyDefinitionId definitionPointer)
     {
         foreach (RoomEnemyGraphicsSetEntry entry in _graphicsSet)
@@ -208,14 +199,12 @@ internal sealed class EnemyPopulationLoader
             : RoomEnemyDefinitionCatalog.Get(pointer);
     }
 
-    /// <summary>Resolves room enemy population.</summary>
     internal static RoomEnemyPopulationDefinition ResolveRoomEnemyPopulation(
         ISnesAddressSpace bus, ushort pointer) =>
         bus is IRoomEnemyFixtureSource fixture
             ? fixture.ReadEnemyPopulation(pointer)
             : RoomEnemyPopulationDefinitions.Get(pointer);
 
-    /// <summary>Resolves room enemy graphics set.</summary>
     private static RoomEnemyGraphicsSetDefinition ResolveRoomEnemyGraphicsSet(
         ISnesAddressSpace bus, ushort pointer) =>
         bus is IRoomEnemyFixtureSource fixture

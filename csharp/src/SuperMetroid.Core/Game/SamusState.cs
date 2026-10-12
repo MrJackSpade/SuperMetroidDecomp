@@ -741,15 +741,11 @@ public sealed class SamusState
         Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
-    /// <summary>Stores pose collision previous yposition.</summary>
     private ushort? _poseCollisionPreviousYPosition;
-    /// <summary>Stores pose alignment previous ydelta.</summary>
     private int _poseAlignmentPreviousYDelta;
-    /// <summary>Stores previous xposition write.</summary>
     private ushort? _previousXPositionWrite;
     // Pending writes to the previous fractions ($0B12/$0B16): bits set in a mask are replaced
     // by the matching value bits when the checkpoint is applied. A zero mask means no write.
-    /// <summary>Stores previous fraction writes.</summary>
     private PreviousFractionWrites _previousFractionWrites;
 
     /// <summary>
@@ -833,7 +829,6 @@ public sealed class SamusState
         public MaskedWordWrite Write(ushort mask, ushort value) =>
             new((ushort)(Mask | mask), (ushort)((Value & ~mask) | (value & mask)));
 
-        /// <summary>Applies to.</summary>
         public ushort ApplyTo(ushort word) => (ushort)((word & ~Mask) | Value);
     }
 

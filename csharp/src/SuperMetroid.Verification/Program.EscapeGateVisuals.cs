@@ -10,10 +10,8 @@ using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
-/// <summary>Represents escape gate visuals verification.</summary>
 internal static class EscapeGateVisualsVerification
 {
-    /// <summary>Verifies escape gate visuals.</summary>
     internal static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmEscapeGateVisualEntry[] entries =
@@ -62,7 +60,6 @@ internal static class EscapeGateVisualsVerification
             "Escape-gate visuals: closed/closing edits preserve physical collision, installed overrides survive refresh, and invalid content fails loudly.");
     }
 
-    /// <summary>Verifies escape gate live visual.</summary>
     private static void VerifyEscapeGateLiveVisual(
         RoomPlmEscapeGateVisualCatalog edited)
     {
@@ -132,7 +129,6 @@ internal static class EscapeGateVisualsVerification
             "escape-gate visuals never reread compiled program or draw payloads");
     }
 
-    /// <summary>Verifies escape gate visual installation.</summary>
     private static void VerifyEscapeGateVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("escape-gate-visual");

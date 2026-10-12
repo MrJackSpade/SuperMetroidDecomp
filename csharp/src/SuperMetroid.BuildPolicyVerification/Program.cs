@@ -10,7 +10,6 @@ namespace SuperMetroid.BuildPolicyVerification;
 /// </summary>
 internal static class Program
 {
-    /// <summary>Main.</summary>
     private static int Main(string[] args)
     {
         try
@@ -39,7 +38,6 @@ internal static class Program
         }
     }
 
-    /// <summary>Verifies policy configuration.</summary>
     private static void VerifyPolicyConfiguration(string root)
     {
         string editorConfig = File.ReadAllText(Path.Combine(root, "csharp", ".editorconfig"));
@@ -105,7 +103,6 @@ internal static class Program
                 string.Join(Environment.NewLine, findings));
     }
 
-    /// <summary>Verifies violations fail.</summary>
     private static void VerifyViolationsFail(string root)
     {
         BuildResult result = Build(root, "Violations");
@@ -125,7 +122,6 @@ internal static class Program
                 Environment.NewLine + result.Output);
     }
 
-    /// <summary>Verifies compliant builds.</summary>
     private static void VerifyCompliantBuilds(string root)
     {
         BuildResult result = Build(root, "Compliant");
@@ -161,7 +157,6 @@ internal static class Program
         return new BuildResult(process.ExitCode, output + error.Result);
     }
 
-    /// <summary>Maintained files.</summary>
     private static IEnumerable<string> MaintainedFiles(string root)
     {
         var pending = new Stack<string>([Path.Combine(root, "csharp"), Path.Combine(root, ".github")]);
@@ -179,7 +174,6 @@ internal static class Program
         }
     }
 
-    /// <summary>Finds repository root.</summary>
     private static string FindRepositoryRoot(string start)
     {
         for (DirectoryInfo? directory = new(start); directory is not null; directory = directory.Parent)
@@ -190,11 +184,9 @@ internal static class Program
         throw new DirectoryNotFoundException($"No repository root above {start}.");
     }
 
-    /// <summary>Relative.</summary>
     private static string Relative(string root, string path) =>
         Path.GetRelativePath(root, path).Replace('\\', '/');
 
-    /// <summary>Represents build result.</summary>
     private sealed record BuildResult(int ExitCode, string Output);
 }
 
@@ -205,6 +197,6 @@ internal static class BuildPolicyDiagnostics
     internal static readonly string[] Gated =
     [
         "IDE0211", "CA1512", "CA1822", "CA1859", "CA1826",
-        "IDE0032", "IDE0060", "IDE0078", "SYSLIB1054", "IDE0330", "SME6370",
+        "IDE0032", "IDE0060", "IDE0078", "SYSLIB1054", "IDE0330",
     ];
 }

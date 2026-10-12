@@ -14,10 +14,8 @@ using SuperMetroid.Core.Rooms;
 using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents save station animation definitions verification.</summary>
 internal static class SaveStationAnimationDefinitionsVerification
 {
-    /// <summary>Verifies save station animation definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for save station animation definitions")]
     internal static void VerifySaveStationAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -33,7 +31,6 @@ internal static class SaveStationAnimationDefinitionsVerification
             "cartridge; the real station fixture completes with the retired byte absent.");
     }
 
-    /// <summary>Saves station animation definitions command.</summary>
     [VerificationCommand("--save-station-animation-definitions")]
     internal static int SaveStationAnimationDefinitionsCommand()
     {

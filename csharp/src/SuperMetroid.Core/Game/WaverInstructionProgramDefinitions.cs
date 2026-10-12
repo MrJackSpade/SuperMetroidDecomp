@@ -19,7 +19,6 @@ internal abstract class WaverInstructionProgramDefinitions
     /// <summary><c>$A3:86C7</c>, four-frame spin facing right.</summary>
     internal const ushort SpinningFacingRight = 0x86c7;
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 16;
 
     /// <summary>Two steady frame/sleep programs followed by two four-frame spin/completion/sleep programs.</summary>

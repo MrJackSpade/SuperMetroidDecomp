@@ -12,10 +12,8 @@ using static MotherBrainGlassPlmProgramVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
-/// <summary>Represents mother brain glass plm draw definitions verification.</summary>
 internal static class MotherBrainGlassPlmDrawDefinitionsVerification
 {
-    /// <summary>verify mother brain glass plm draw definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass PLM draw definitions")]
     internal static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
@@ -58,7 +56,6 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             "  Mother Brain glass PLM: 11 guarded native layouts and editable stock/override appearance preserve physical blocks.");
     }
 
-    /// <summary>verify mother brain glass native draw path.</summary>
     private static void VerifyMotherBrainGlassNativeDrawPath(
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
@@ -125,7 +122,6 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         }
     }
 
-    /// <summary>verify mother brain glass visual installation.</summary>
     private static void VerifyMotherBrainGlassVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
@@ -185,7 +181,6 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         }
     }
 
-    /// <summary>new mother brain glass draw read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassDrawReadGuard(
         ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>

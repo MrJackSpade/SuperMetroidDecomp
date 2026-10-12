@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Shutters species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ShuttersBehavior : IEnemySpecies
 {
-    /// <summary>Defines growing shutter section length.</summary>
     private const ushort GrowingShutterSectionLength = 0x0010;
-    /// <summary>Defines growing shutter intermediate inset.</summary>
     private const ushort GrowingShutterIntermediateInset = 0x0007;
 
     /// <summary>Ports <c>GrowingShutter_Init</c> at $A2:E9DA.</summary>
@@ -101,7 +99,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         return false;
     }
 
-    /// <summary>activate growing shutter.</summary>
     private void ActivateGrowingShutter(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -158,7 +155,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         CarrySamusWithGrowingShutter(slot, state, samus);
     }
 
-    /// <summary>carry samus with growing shutter.</summary>
     private static void CarrySamusWithGrowingShutter(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -174,7 +170,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>finish growing shutter section.</summary>
     internal static void FinishGrowingShutterSection(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -204,7 +199,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         InstallGrowingShutterInstruction(slot, instruction, radius);
     }
 
-    /// <summary>install growing shutter instruction.</summary>
     private static void InstallGrowingShutterInstruction(
         RoomEnemySlot slot,
         ushort instruction,
@@ -215,7 +209,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         slot.Timer = 0;
         slot.Radius = slot.Radius.WithY(yRadius);
     }
-    /// <summary>Defines horizontal shutter manual push pixels.</summary>
     private const short HorizontalShutterManualPushPixels = 4;
 
     /// <summary>Ports <c>HorizontalShutter_Init</c> at $A2:F111/$A2:F11E.</summary>
@@ -347,7 +340,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         state.PreviousSamusXSubposition = samus.Kinematics.Position.X.Fraction;
     }
 
-    /// <summary>select initial horizontal shutter function.</summary>
     internal static void SelectInitialHorizontalShutterFunction(HorizontalShutterEnemyState state)
     {
         state.Function = state.InitialFunctionTableOffset switch
@@ -361,13 +353,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         };
     }
 
-    /// <summary>activate horizontal shutter.</summary>
     private static void ActivateHorizontalShutter(HorizontalShutterEnemyState state) =>
         state.Function = state.PrimaryDirection == 0
             ? HorizontalShutterFunction.MovingLeft
             : HorizontalShutterFunction.MovingRight;
 
-    /// <summary>move horizontal shutter left.</summary>
     private static void MoveHorizontalShutterLeft(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
@@ -403,7 +393,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         state.Function = HorizontalShutterFunction.StoppedAfterMovingLeft;
     }
 
-    /// <summary>move horizontal shutter right.</summary>
     private static void MoveHorizontalShutterRight(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
@@ -439,7 +428,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         state.Function = HorizontalShutterFunction.StoppedAfterMovingRight;
     }
 
-    /// <summary>run horizontal shutter stopped after left.</summary>
     private static void RunHorizontalShutterStoppedAfterLeft(HorizontalShutterEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -451,7 +439,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             : HorizontalShutterFunction.MovingRight;
     }
 
-    /// <summary>run horizontal shutter stopped after right.</summary>
     private static void RunHorizontalShutterStoppedAfterRight(HorizontalShutterEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -463,7 +450,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             : HorizontalShutterFunction.MovingLeft;
     }
 
-    /// <summary>horizontal shutter overlaps samus.</summary>
     private static bool HorizontalShutterOverlapsSamus(RoomEnemySlot slot, SamusState samus) =>
         EnemyCollision.RadiusBoxesOverlap(
             slot.Position.Whole,
@@ -515,7 +501,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             : HorizontalShutterFunction.MovingRight;
     }
 
-    /// <summary>install horizontal shutter instruction.</summary>
     private static void InstallHorizontalShutterInstruction(RoomEnemySlot slot)
     {
         slot.CurrentInstruction = HorizontalShutterInstructionProgramDefinitions.Stationary;
@@ -524,24 +509,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines shutter activation sound.</summary>
     private const ushort ShutterActivationSound = 0x000e;
-    /// <summary>Defines permanent stop rest time.</summary>
     private const ushort PermanentStopRestTime = 0x0ff0;
 
-    /// <summary>Stores growing shutter states.</summary>
     internal readonly GrowingShutterEnemyState?[] _growingShutterStates = new GrowingShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores vertical shutter states.</summary>
     internal readonly VerticalShutterEnemyState?[] _verticalShutterStates = new VerticalShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores horizontal shutter states.</summary>
     private readonly HorizontalShutterEnemyState?[] _horizontalShutterStates = new HorizontalShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores shutter camera.</summary>
     private Position16<RoomPixels> _shutterCamera;
 
     /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
     public ushort? LastShutterSoundEffect { get; private set; }
 
-    /// <summary>reset shutter room state.</summary>
     internal void ResetShutterRoomState(Position16<RoomPixels> camera)
     {
         Array.Clear(_growingShutterStates);
@@ -551,14 +529,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         LastShutterSoundEffect = null;
     }
 
-    /// <summary>begin shutter frame.</summary>
     internal void BeginShutterFrame(Position16<RoomPixels> camera)
     {
         _shutterCamera = camera;
         LastShutterSoundEffect = null;
     }
 
-    /// <summary>is vertical shutter definition.</summary>
     internal static bool IsVerticalShutterDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or
         EnemyDefinitionId.Kamer;
@@ -590,7 +566,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
     }
 
-    /// <summary>is samus within shutter horizontal distance.</summary>
     private static bool IsSamusWithinShutterHorizontalDistance(
         RoomEnemySlot slot,
         SamusState samus,
@@ -614,7 +589,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
         unchecked((short)(camera.Y + 0x0100 - slot.Position.Y.Whole)) >= 0;
 
-    /// <summary>queue shutter activation sound if on screen.</summary>
     private void QueueShutterActivationSoundIfOnScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera)
@@ -623,22 +597,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             LastShutterSoundEffect = ShutterActivationSound;
     }
 
-    /// <summary>require growing shutter state.</summary>
     private GrowingShutterEnemyState RequireGrowingShutterState(RoomEnemySlot slot) =>
         _growingShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized growing-shutter state.");
 
-    /// <summary>require vertical shutter state.</summary>
     private VerticalShutterEnemyState RequireVerticalShutterState(RoomEnemySlot slot) =>
         _verticalShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized vertical-shutter state.");
 
-    /// <summary>require horizontal shutter state.</summary>
     private HorizontalShutterEnemyState RequireHorizontalShutterState(RoomEnemySlot slot) =>
         _horizontalShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized horizontal-shutter state.");
 
-    /// <summary>register shutters bomb reactions.</summary>
     internal void RegisterShuttersBombReactions(EnemyAiTable table)
     {
         // `$A2:F0A2` never calls common shot AI. Bomb collision has already marked the physical bomb, then the
@@ -648,7 +618,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             c => ReactVerticalShutter(c.Enemy, _shutterCamera));
     }
 
-    /// <summary>register destroyable shutter bomb reactions.</summary>
     internal void RegisterDestroyableShutterBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
@@ -658,7 +627,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register shutters initialization ai.</summary>
     internal void RegisterShuttersInitializationAi(EnemyAiTable table)
     {
 
@@ -682,7 +650,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register shutters main ai.</summary>
     internal void RegisterShuttersMainAi(EnemyAiTable table)
     {
 
@@ -714,7 +681,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register shutters power bomb reactions.</summary>
     internal void RegisterShuttersPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsVerticalShutterDefinition(enemy.EnemyDefinitionPointer) &&
@@ -729,7 +695,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register shutters shot reactions.</summary>
     internal void RegisterShuttersShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
@@ -746,7 +711,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register destroyable and horizontal shutter shot reactions.</summary>
     internal void RegisterDestroyableAndHorizontalShutterShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
@@ -763,7 +727,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register shutters touch.</summary>
     internal void RegisterShuttersTouch(EnemyAiTable table)
     {
         // $F09D does not enter common contact damage. Body overlap is itself the trigger, and $F0B6 decides
@@ -919,7 +882,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>select initial vertical shutter function.</summary>
     internal static VerticalShutterFunction SelectInitialVerticalShutterFunction(VerticalShutterEnemyState state)
     {
         return state.InitialFunctionTableOffset switch
@@ -933,7 +895,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         };
     }
 
-    /// <summary>activate vertical shutter.</summary>
     private void ActivateVerticalShutter(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -945,7 +906,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
-    /// <summary>move vertical shutter up.</summary>
     private static void MoveVerticalShutterUp(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -964,7 +924,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         StopVerticalShutterAfterUp(state);
     }
 
-    /// <summary>move vertical shutter down.</summary>
     private static void MoveVerticalShutterDown(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -983,7 +942,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         StopVerticalShutterAfterDown(state);
     }
 
-    /// <summary>carry samus vertically.</summary>
     private static void CarrySamusVertically(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -995,7 +953,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             slot.Position.Y.Whole - state.PreviousYPosition)));
     }
 
-    /// <summary>stop vertical shutter after up.</summary>
     private static void StopVerticalShutterAfterUp(VerticalShutterEnemyState state)
     {
         if (state.MovedUpRestTime == PermanentStopRestTime)
@@ -1007,7 +964,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         state.Function = VerticalShutterFunction.StoppedAfterMovingUp;
     }
 
-    /// <summary>stop vertical shutter after down.</summary>
     private static void StopVerticalShutterAfterDown(VerticalShutterEnemyState state)
     {
         if (state.MovedDownRestTime == PermanentStopRestTime)
@@ -1019,7 +975,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         state.Function = VerticalShutterFunction.StoppedAfterMovingDown;
     }
 
-    /// <summary>run vertical shutter stopped after up.</summary>
     private void RunVerticalShutterStoppedAfterUp(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -1036,7 +991,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
-    /// <summary>run vertical shutter stopped after down.</summary>
     private void RunVerticalShutterStoppedAfterDown(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -1085,7 +1039,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
-    /// <summary>install vertical shutter instruction.</summary>
     private static void InstallVerticalShutterInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;

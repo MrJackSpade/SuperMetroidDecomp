@@ -11,10 +11,8 @@ using static InstalledFileSelectMapVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents map screens verification.</summary>
 internal static class MapScreensVerification
 {
-    /// <summary>verify map screens.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMapScreens(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -139,7 +137,6 @@ internal static class MapScreensVerification
                 catalog.WorldArtwork, catalog.Sprites);
     }
 
-    /// <summary>verify screen menu rebinding.</summary>
     private static void VerifyScreenMenuRebinding(ISnesAddressSpace bus, ISnesAddressSpace guard, AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
@@ -173,7 +170,6 @@ internal static class MapScreensVerification
         AssertTrue(saves.ReadSlot(0)!.ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
     }
 
-    /// <summary>new map screen guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle reading the native room-label pointers to forbid every map-screen presentation source")]
     private static MutableCartridgeReadGuard NewMapScreenGuard(ISnesAddressSpace source)
     {

@@ -8,18 +8,14 @@ namespace SuperMetroid.Core.Assets;
 /// Font3 large glyphs occupy the OBJ atlas at tile$100 plus their reviewed font index.</summary>
 internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Stores frame.</summary>
     private readonly int frame;
-    /// <summary>Initializes a new ending completion text parts instance.</summary>
     internal EndingCompletionTextParts(int frame)
     {
         if ((uint)frame >= 56) throw new ArgumentOutOfRangeException(nameof(frame));
         this.frame = frame;
     }
-    /// <summary>Gets count.</summary>
     public int Count => frame < 15 ? 2 * (frame + 1) : frame < 36 ? 2 * (frame - 14) : frame < 45 ? 2 * (frame - 35) : 2;
 
-    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -60,11 +56,9 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

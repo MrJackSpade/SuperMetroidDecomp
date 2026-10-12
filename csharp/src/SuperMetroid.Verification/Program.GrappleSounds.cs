@@ -15,10 +15,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents grapple sounds verification.</summary>
 internal static class GrappleSoundsVerification
 {
-    /// <summary>verify grapple sounds.</summary>
     internal static void VerifyGrappleSounds()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -60,14 +58,12 @@ internal static class GrappleSoundsVerification
         }
     }
 
-    /// <summary>grapple sound refire fixtures command.</summary>
     [VerificationCommand("--grapple-sound-refire-fixtures")]
     internal static int GrappleSoundRefireFixturesCommand()
     {
      VerifyGrappleSounds(); VerifyGrapplePoseRefire(); return 0; 
     }
 
-    /// <summary>grapple sounds command.</summary>
     [VerificationCommand("--grapple-sounds")]
     internal static int GrappleSoundsCommand()
     {

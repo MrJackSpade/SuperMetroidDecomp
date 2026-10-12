@@ -3,7 +3,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyContentIdentityFixtureVerification;
 
-/// <summary>Represents enemy projectile legacy overrides verification.</summary>
 internal static class EnemyProjectileLegacyOverridesVerification
 {
     /// <summary>Checks named historical frame sets rather than assuming current sorted frames form a prefix.</summary>
@@ -92,7 +91,6 @@ internal static class EnemyProjectileLegacyOverridesVerification
         }
     }
 
-    /// <summary>Historical programs.</summary>
     private static EnemyProjectilePresentationFrameDefinition[] HistoricalPrograms(EnemyProjectileSpritemapVersion version) => version switch
     {
         EnemyProjectileSpritemapVersion.CeresOnly or EnemyProjectileSpritemapVersion.PreProgramFrames => [],

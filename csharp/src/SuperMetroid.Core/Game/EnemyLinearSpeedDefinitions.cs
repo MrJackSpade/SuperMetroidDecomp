@@ -31,10 +31,8 @@ public static class EnemyLinearSpeedDefinitions
         return (unchecked((short)ReadWord(byteOffset)), ReadWord(byteOffset + 2));
     }
 
-    /// <summary>Reads word.</summary>
     private static ushort ReadWord(int offset) => SnesLittleEndian.Word(ReadByte(offset), ReadByte(offset + 1));
 
-    /// <summary>Reads byte.</summary>
     private static byte ReadByte(int offset)
     {
         int velocity = offset / RecordSize * FixedPointStep;

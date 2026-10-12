@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents boyon speed definitions verification.</summary>
 internal static class BoyonSpeedDefinitionsVerification
 {
-    /// <summary>verify compiled boyon speeds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boyon speeds")]
     internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {

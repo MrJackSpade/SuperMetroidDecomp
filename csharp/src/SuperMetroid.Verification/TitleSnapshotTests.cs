@@ -14,10 +14,8 @@ using static RenderPacketCodecTestsVerification;
 using static TitleFixtureVerification;
 using static TitleSequenceRomDataVerification;
 
-/// <summary>Represents title snapshot tests verification.</summary>
 internal static class TitleSnapshotTestsVerification
 {
-    /// <summary>Verifies title render snapshots.</summary>
     internal static void VerifyTitleRenderSnapshots()
     {
         Verify(CreateConstructedTitleRom(), "constructed");
@@ -94,7 +92,6 @@ internal static class TitleSnapshotTestsVerification
         }
     }
 
-    /// <summary>Title fixtures command.</summary>
     [VerificationCommand("--title-fixtures")]
     internal static int TitleFixturesCommand()
     {

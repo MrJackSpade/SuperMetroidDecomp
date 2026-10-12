@@ -6,10 +6,8 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal sealed class AudioFrameRecovery
 {
-    /// <summary>Stores logged.</summary>
     private readonly HashSet<string> logged = [];
 
-    /// <summary>Run.</summary>
     internal void Run(Action renderAndSubmit, Action<Exception>? report)
     {
         try

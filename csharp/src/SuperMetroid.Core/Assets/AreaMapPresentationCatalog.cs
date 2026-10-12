@@ -10,9 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable map content snapshot. Overrides never alter stock provenance or exploration rules.</summary>
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
-    /// <summary>Stores areas.</summary>
     private readonly IAreaMapView[] areas;
-/// <summary>Initializes a new area map presentation catalog instance.</summary>
 private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
     {
         this.areas = parts.Areas;
@@ -387,24 +385,18 @@ private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
     /// <summary>Reads stock files that must match the extraction manifest's SHA-256 values.</summary>
     private sealed class VerifiedStockReader : IDisposable
     {
-        /// <summary>Stores directory.</summary>
         private readonly string directory;
-        /// <summary>Stores manifest.</summary>
         private readonly AreaMapCatalogManifest manifest;
-        /// <summary>Stores read.</summary>
         private readonly HashSet<string> read = new(StringComparer.Ordinal);
         // Stock bytes live only for one catalog load; every buffer returns to the pool on dispose.
-        /// <summary>Stores rented.</summary>
         private readonly List<byte[]> rented = [];
 
-        /// <summary>Initializes a new verified stock reader instance.</summary>
         private VerifiedStockReader(string directory, AreaMapCatalogManifest manifest)
         {
             this.directory = directory;
             this.manifest = manifest;
         }
 
-        /// <summary>Open.</summary>
         public static VerifiedStockReader Open(string directory)
         {
             AreaMapCatalogManifest manifest;
@@ -420,7 +412,6 @@ private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
             return new VerifiedStockReader(directory, manifest);
         }
 
-        /// <summary>Reads.</summary>
         public ArraySegment<byte> Read(string file)
         {
             if (!manifest.Sha256.TryGetValue(file, out string? expected))
@@ -439,14 +430,12 @@ private AreaMapPresentationCatalog(AreaMapPresentationParts parts)
             return bytes;
         }
 
-        /// <summary>Dispose.</summary>
         public void Dispose()
         {
             foreach (byte[] buffer in rented) ArrayPool<byte>.Shared.Return(buffer);
             rented.Clear();
         }
 
-        /// <summary>Reads station cells.</summary>
         public Dictionary<AreaId, HashSet<int>> ReadStationCells()
         {
             Dictionary<string, int[]> masks;

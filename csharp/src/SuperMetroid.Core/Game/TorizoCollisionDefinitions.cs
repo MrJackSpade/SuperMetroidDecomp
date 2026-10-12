@@ -28,7 +28,6 @@ internal readonly record struct GoldenTorizoCollisionHitbox(
 /// </remarks>
 internal static class TorizoCollisionDefinitions
 {
-    /// <summary>Defines bank.</summary>
     internal const byte Bank = TorizoInstructionProgramDefinitions.Bank;
 
     /// <summary>The two frames whose collision is a single empty component.</summary>
@@ -50,7 +49,6 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Right-facing hitbox lists follow the left-facing block by this many bytes.</summary>
     internal const ushort RightFacingListOffset = 0x015e;
 
-    /// <summary>Stores single empty.</summary>
     private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(new(0, 0), EmptyList)];
 
     /// <summary>The 42 left-facing frames from $AA:A4FA, in native order.</summary>
@@ -123,7 +121,6 @@ internal static class TorizoCollisionDefinitions
         [new(new(15, -29), 0x87c7), new(new(3, -24), 0x89b6), new(new(0, 0), 0x8a7a)],
     ];
 
-    /// <summary>Gets mirrored count.</summary>
     private static int MirroredCount => LeftFrames.Length + AwakeningFrames.Length;
 
     /// <summary>Components of <paramref name="frame"/>; right-facing frames mirror on read.</summary>
@@ -152,7 +149,6 @@ internal static class TorizoCollisionDefinitions
     private static GoldenTorizoCollisionComponent[] LeftFacing(int index) =>
         index < LeftFrames.Length ? LeftFrames[index] : AwakeningFrames[index - LeftFrames.Length];
 
-    /// <summary>try find.</summary>
     private static bool TryFind(GoldenTorizoCollisionComponent[][] run, ushort start, ushort frame,
         out GoldenTorizoCollisionComponent[]? components)
     {
@@ -170,48 +166,27 @@ internal static class TorizoCollisionDefinitions
         return false;
     }
 
-    /// <summary>next.</summary>
     private static ushort Next(ushort frame, int components) => (ushort)(frame + 2 + 8 * components);
 
-    /// <summary>Stores list87 e8.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List87E8 = [new(-16, -27, 16, 27, 0xc977, 0xc9c2)];
-    /// <summary>Stores list87 f6.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List87F6 = [new(-14, -27, 13, 27, 0xc977, 0xc9c2)];
-    /// <summary>Stores list8804.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8804 = [new(-13, -34, 9, 33, 0xc977, 0xc9c2)];
-    /// <summary>Stores list8812.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8812 = [new(-11, -38, 11, 39, 0xc977, 0xc9c2)];
-    /// <summary>Stores list8820.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8820 = [new(-15, -44, 8, 47, 0xc977, 0xc9c2)];
-    /// <summary>Stores list882 e.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List882E = [new(-18, -43, 3, 24, 0xc977, 0xc9c2)];
-    /// <summary>Stores list883 c.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List883C = [new(-17, -42, 5, 15, 0xc977, 0xc9c2)];
-    /// <summary>Stores list884 a.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List884A = [new(-15, -39, 7, 21, 0xc977, 0xc97c)];
-    /// <summary>Stores list891 c.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List891C = [new(-18, -38, 7, 9, 0xc977, 0xc97c)];
-    /// <summary>Stores list892 a.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List892A = [new(-18, -37, 7, 18, 0xc977, 0xc97c)];
-    /// <summary>Stores list8946.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8946 = [new(-15, -27, 13, 27, 0xc977, 0xc9c2)];
-    /// <summary>Stores list8954.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8954 = [new(-13, -27, 13, 27, 0xc977, 0xc9c2)];
-    /// <summary>Stores list8962.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8962 = [new(-14, -32, 13, 33, 0xc977, 0xc9c2)];
-    /// <summary>Stores list8970.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8970 = [new(-14, -35, 11, 39, 0xc977, 0xc9c2)];
-    /// <summary>Stores list897 e.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List897E = [new(-6, -42, 13, 47, 0xc977, 0xc9c2)];
-    /// <summary>Stores list898 c.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List898C = [new(-7, -41, 11, 47, 0xc977, 0xc9c2)];
-    /// <summary>Stores list899 a.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List899A = [new(-8, -41, 22, 47, 0xc977, 0xc9c2)];
-    /// <summary>Stores list89 a8.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List89A8 = [new(-10, -38, 13, 23, 0xc977, 0xc97c)];
-    /// <summary>Stores list8 a7 a.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8A7A = [new(-8, -37, 15, 14, 0xc977, 0xc97c)];
-    /// <summary>Stores list8 a88.</summary>
     private static readonly GoldenTorizoCollisionHitbox[] List8A88 = [new(-9, -40, 16, 25, 0xc977, 0xc97c)];
 
     /// <summary>Hitbox list rectangles, fitted per facing to the drawings.</summary>
@@ -274,10 +249,8 @@ internal static class TorizoCollisionDefinitions
 /// <summary>Allocation-free view of one frame's components, mirrored for right-facing frames.</summary>
 internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponent[] source, bool mirrored)
 {
-    /// <summary>Gets the number of elements in this view.</summary>
     internal int Length => source.Length;
 
-    /// <summary>Accesses a value by index or range.</summary>
     internal GoldenTorizoCollisionComponent this[int index]
     {
         get
@@ -291,17 +264,12 @@ internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponen
         }
     }
 
-    /// <summary>Returns an enumerator over this collection.</summary>
     public Enumerator GetEnumerator() => new(this);
 
-    /// <summary>Represents enumerator.</summary>
     internal struct Enumerator(TorizoCollisionComponents view)
     {
-        /// <summary>Stores index.</summary>
         private int index = -1;
-        /// <summary>move next.</summary>
         public bool MoveNext() => ++index < view.Length;
-        /// <summary>Gets current.</summary>
         public readonly GoldenTorizoCollisionComponent Current => view[index];
     }
 }

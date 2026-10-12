@@ -1,7 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents enemy ai code pointers verification.</summary>
 internal static class EnemyAiCodePointersVerification
 {
     /// <summary>

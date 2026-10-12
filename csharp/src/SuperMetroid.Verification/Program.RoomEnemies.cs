@@ -22,7 +22,6 @@ using static SignedSineFixtureVerification;
 using static SyntheticEnemyCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents room enemies verification.</summary>
 internal static class RoomEnemiesVerification
 {
 
@@ -53,7 +52,6 @@ static void SeedRoomEnemyLoadingArtworkAndSpawnData(
         WriteTestWord(bus, 0xb49200 + word * 2, unchecked((ushort)(0x3100 + word)));
 }
 
-/// <summary>Verifies room enemy loading.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyRoomEnemyLoading()
 {
@@ -226,49 +224,39 @@ internal static void VerifyRoomEnemyLoading()
         "boss state, placeholders, and empty-room behavior agree.");
 }
 
-/// <summary>Represents enemy tile source read guard.</summary>
 [CpuBusBoundary("exact bus test: enemy fixture source that forwards fixture tables and forbids the native enemy tile-upload ROM ranges")]
 internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
     ISnesMutableMemory
 {
-    /// <summary>Reads enemy definition.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         source.ReadEnemyDefinition(pointer);
 
 
-    /// <summary>Reads enemy population.</summary>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
         source.ReadEnemyPopulation(pointer);
 
-    /// <summary>Reads enemy graphics set.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
         source.ReadEnemyGraphicsSet(pointer);
 
-    /// <summary>Reads byte.</summary>
     public byte ReadByte(int address)
     {
         RejectTileSource(address);
         return source.ReadByte(address);
     }
 
-    /// <summary>Reads cartridge byte.</summary>
     public byte ReadCartridgeByte(int address)
     {
         RejectTileSource(address);
         return source.ReadCartridgeByte(address);
     }
 
-    /// <summary>Reads work ram byte.</summary>
     public byte ReadWorkRamByte(int address) => source.ReadWorkRamByte(address);
 
-    /// <summary>Reads save ram byte.</summary>
     public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
 
-    /// <summary>Writes byte.</summary>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
-    /// <summary>Rejects tile source.</summary>
     private static void RejectTileSource(int address)
     {
         if (address is >= 0xa29100 and < 0xa29140 or >= 0xa39320 and < 0xa39340 or
@@ -277,7 +265,6 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     }
 }
 
-/// <summary>Verifies enemy mapped source routing.</summary>
 internal static void VerifyEnemyMappedSourceRouting()
 {
     const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
@@ -288,7 +275,6 @@ internal static void VerifyEnemyMappedSourceRouting()
     Console.WriteLine("Enemy memory boundary: generic source readers are absent; explicit WRAM wrap, mirror and region rejection pass.");
 }
 
-/// <summary>Verifies enemy work ram word mapping.</summary>
 [CpuBusBoundary("exact bus test: enemy WRAM word bank wrap, low-window mirror and ROM/SRAM/hardware rejection")]
 private static void VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace memory)
 {
@@ -659,7 +645,6 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         "vulnerabilities, freeze, damage, and death agree.");
 }
 
-/// <summary>Creates ceres door fixture artwork.</summary>
 private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddressSpace bus)
 {
     using var directoryScratch = new TestScratchDirectory("ceres-door-fixture");
@@ -1327,7 +1312,6 @@ static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
     Word(0);
 }
 
-/// <summary>Writes zebes escape warning.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Zebes escape typewriter program")]
 static void WriteZebesEscapeWarning(TestAddressSpace bus)
 {
@@ -1692,7 +1676,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
     WriteTestWord(bus, 0x90c28f, 0x000b);
 }
 
-    /// <summary>Room enemy loading command.</summary>
     [VerificationCommand("--room-enemy-loading")]
     internal static int RoomEnemyLoadingCommand()
     {
@@ -1700,7 +1683,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
-    /// <summary>Enemy source routing command.</summary>
     [VerificationCommand("--enemy-source-routing")]
     internal static int EnemySourceRoutingCommand()
     {
@@ -1708,7 +1690,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
-    /// <summary>Enemy contact phase command.</summary>
     [VerificationCommand("--enemy-contact-phase")]
     internal static int EnemyContactPhaseCommand()
     {
@@ -1716,7 +1697,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
-    /// <summary>Ripper enemy command.</summary>
     [VerificationCommand("--ripper-enemy")]
     internal static int RipperEnemyCommand()
     {
@@ -1724,7 +1704,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
-    /// <summary>Ceres elevator platform command.</summary>
     [VerificationCommand("--ceres-elevator-platform")]
     internal static int CeresElevatorPlatformCommand()
     {
@@ -1732,7 +1711,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
-    /// <summary>Ceres door boss command.</summary>
     [VerificationCommand("--ceres-door-boss")]
     internal static int CeresDoorBossCommand()
     {
@@ -1740,7 +1718,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
-    /// <summary>Xplasma timers command.</summary>
     [VerificationCommand("--x-plasma-timers")]
     internal static int XPlasmaTimersCommand()
     {
@@ -1748,7 +1725,6 @@ static void SeedCeresRidleyRoomEntryCartridge(
         return 0;
     }
 
-    /// <summary>Ceres ridley room entry command.</summary>
     [VerificationCommand("--ceres-ridley-room-entry")]
     internal static int CeresRidleyRoomEntryCommand()
     {

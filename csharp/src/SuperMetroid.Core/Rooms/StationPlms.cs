@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -7,16 +7,11 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Save, refill, map and recharge station PLMs: activation, lockout, collision notification and their draws.</summary>
 internal sealed class StationPlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Stores drawing.</summary>
     private readonly PlmBlockDrawing _drawing;
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
-    /// <summary>Stores sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
-    /// <summary>Initializes a new station plms instance.</summary>
     internal StationPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -24,17 +19,11 @@ internal sealed class StationPlms
         _slotTable = slotTable;
         _sounds = sounds;
     }
-    /// <summary>Defines station normal animation offset.</summary>
     private const int StationNormalAnimationOffset = 4;
-    /// <summary>Defines map station acquired animation offset.</summary>
     private const int MapStationAcquiredAnimationOffset = 20;
-    /// <summary>Defines station access movement frames.</summary>
     private const ushort StationAccessMovementFrames = 6;
-    /// <summary>Defines station access extended hold frames.</summary>
     private const ushort StationAccessExtendedHoldFrames = 0x60;
-    /// <summary>Stores station activation events.</summary>
     internal readonly List<StationActivationEvent> _stationActivationEvents = [];
-    /// <summary>Stores save station locked out.</summary>
     internal bool _saveStationLockedOut;
 
     /// <summary>
@@ -127,7 +116,6 @@ internal sealed class StationPlms
         _saveStationLockedOut = true;
     }
 
-    /// <summary>Finds save station.</summary>
     private StationPlmState FindSaveStation(StationActivationEvent activation)
     {
         StationPlmState[] matches = _slotTable._slots
@@ -146,7 +134,6 @@ internal sealed class StationPlms
         };
     }
 
-    /// <summary>Tries to setup station or elevator.</summary>
     internal static bool TrySetupStationOrElevator(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -189,7 +176,6 @@ internal sealed class StationPlms
         }
     }
 
-    /// <summary>Sets up station.</summary>
     private static void SetupStation(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -256,7 +242,6 @@ internal sealed class StationPlms
             animationFrameCount: 3);
     }
 
-    /// <summary>Writes access block.</summary>
     private static void WriteAccessBlock(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -278,7 +263,6 @@ internal sealed class StationPlms
             new RoomBlockBehavior((byte)behavior));
     }
 
-    /// <summary>Writes station block.</summary>
     private static void WriteStationBlock(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -311,7 +295,6 @@ internal sealed class StationPlms
             roomWidthInBlocks,
             bypassSetupGate: false);
 
-    /// <summary>Tries to notify station collision.</summary>
     private bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
@@ -415,7 +398,6 @@ internal sealed class StationPlms
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 
-    /// <summary>Tries to step station.</summary>
     internal bool TryStepStation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         StationPlmState? station = slot.Station;
@@ -549,7 +531,6 @@ internal sealed class StationPlms
         return true;
     }
 
-    /// <summary>Steps save station animation.</summary>
     private bool StepSaveStationAnimation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, StationPlmState station, PlmView view)
     {
         if (station.SavePhase is SaveStationPhase.Idle or
@@ -607,7 +588,6 @@ internal sealed class StationPlms
             station.SaveAnimationLoopsRemaining--;
     }
 
-    /// <summary>Publish station activation.</summary>
     private void PublishStationActivation(
         StationPlmState station,
         PlmSlot slot,
@@ -652,7 +632,6 @@ internal sealed class StationPlms
             slot.BlockIndex));
     }
 
-    /// <summary>Draws station access.</summary>
     private void DrawStationAccess(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, StationPlmState station, bool extended, PlmView view)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
@@ -663,7 +642,6 @@ internal sealed class StationPlms
         _drawing.DrawPlmInstruction(bus, level, streamer, station.AccessBlockIndex, drawPointer, view);
     }
 
-    /// <summary>Represents station plm state.</summary>
     internal sealed class StationPlmState(
         StationKind kind,
         AreaId area,
@@ -671,55 +649,32 @@ internal sealed class StationPlms
         StationAnimationList completedAnimationList,
         int animationFrameCount)
     {
-        /// <summary>Gets kind.</summary>
         public StationKind Kind { get; } = kind;
-        /// <summary>Gets area index.</summary>
         public AreaId AreaIndex { get; } = area;
-        /// <summary>Gets or sets animation list.</summary>
         public StationAnimationList AnimationList { get; set; } = animationList;
-        /// <summary>Gets completed animation list.</summary>
         public StationAnimationList CompletedAnimationList { get; } = completedAnimationList;
-        /// <summary>Gets animation frame count.</summary>
         public int AnimationFrameCount { get; } = animationFrameCount;
-        /// <summary>Gets or sets animation frame.</summary>
         public int AnimationFrame { get; set; }
-        /// <summary>Gets or sets animation timer.</summary>
         public ushort AnimationTimer { get; set; } = 1;
-        /// <summary>Gets or sets initial draw completed.</summary>
         public bool InitialDrawCompleted { get; set; }
-        /// <summary>Gets or sets triggered.</summary>
         public bool Triggered { get; set; }
-        /// <summary>Gets or sets operation phase.</summary>
         public StationOperationPhase OperationPhase { get; set; }
-        /// <summary>Gets or sets operation timer.</summary>
         public ushort OperationTimer { get; set; }
-        /// <summary>Gets or sets access block index.</summary>
         public int AccessBlockIndex { get; set; } = -1;
-        /// <summary>Gets or sets access behavior.</summary>
         public StationAccessBehavior? AccessBehavior { get; set; }
-        /// <summary>Gets or sets save phase.</summary>
         public SaveStationPhase SavePhase { get; set; }
-        /// <summary>Gets or sets save animation loops remaining.</summary>
         public ushort SaveAnimationLoopsRemaining { get; set; }
     }
 
-    /// <summary>Represents station operation phase.</summary>
     internal enum StationOperationPhase : byte
     {
-        /// <summary>Identifies idle.</summary>
         Idle,
-        /// <summary>Identifies extending.</summary>
         Extending,
-        /// <summary>Identifies extended.</summary>
         Extended,
-        /// <summary>Identifies post activation hold.</summary>
         PostActivationHold,
-        /// <summary>Identifies retracting.</summary>
         Retracting,
-        /// <summary>Identifies final retraction hold.</summary>
         FinalRetractionHold,
         // The access actor has finished; command $0C still owns the Samus release.
-        /// <summary>Identifies awaiting map unpause.</summary>
         AwaitingMapUnpause,
     }
 }

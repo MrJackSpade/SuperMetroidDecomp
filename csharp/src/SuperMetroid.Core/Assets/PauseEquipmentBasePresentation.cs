@@ -8,9 +8,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class PauseEquipmentBasePresentation
 {
     // Only independent supplied edits remain; every stock word comes from the composed page.
-    /// <summary>Stores remaining cells.</summary>
     private readonly Dictionary<int, ushort> remainingCells = [];
-    /// <summary>Initializes a new pause equipment base presentation instance.</summary>
     private PauseEquipmentBasePresentation(ReadOnlySpan<byte> selected)
     {
         // Compare each supplied word independently with immutable stock composition.
@@ -31,10 +29,8 @@ public sealed class PauseEquipmentBasePresentation
         return result;
     }
 
-    /// <summary>Word.</summary>
     private ushort Word(int cell) => remainingCells.TryGetValue(cell, out ushort value) ? value : DefaultWord(cell);
 
-    /// <summary>Default word.</summary>
     private static ushort DefaultWord(int cell)
     {
         int relative = cell - PauseWireframeDefinitions.DestinationByte / sizeof(ushort);

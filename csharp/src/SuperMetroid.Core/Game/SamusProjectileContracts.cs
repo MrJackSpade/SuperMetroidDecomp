@@ -3,7 +3,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One debugger-readable ordinary slot corresponding to a native even byte index.</summary>
 public sealed class SamusProjectileSlot
 {
-    /// <summary>Initializes a new samus projectile slot instance.</summary>
     internal SamusProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Host slot 0..4; native byte index is this value times two.</summary>
@@ -159,7 +158,6 @@ public enum SamusProjectilePreInstruction : byte
 /// </summary>
 public sealed class SamusProjectileTrailSlot
 {
-    /// <summary>Initializes a new samus projectile trail slot instance.</summary>
     internal SamusProjectileTrailSlot(int slotIndex)
     {
         SlotIndex = slotIndex;
@@ -174,7 +172,6 @@ public sealed class SamusProjectileTrailSlot
     /// <summary>Gets the right-side trail animation state.</summary>
     public SamusProjectileTrailSide Right { get; }
 
-    /// <summary>clear fields.</summary>
     internal void ClearFields()
     {
         Left.ClearFields();
@@ -194,7 +191,6 @@ public sealed class SamusProjectileTrailSide
     /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
     public ushort TileNumberAttributes { get; internal set; }
 
-    /// <summary>clear fields.</summary>
     internal void ClearFields()
     {
         Position = Position16<RoomPixels>.Zero;

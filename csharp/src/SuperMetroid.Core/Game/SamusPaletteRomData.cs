@@ -188,7 +188,6 @@ public static class SamusPaletteRomData
             TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9c20,
                 pingPong: false, out pointer);
 
-        /// <summary>Attempts to palette pointer.</summary>
         private static bool TryPalettePointer(
             ushort suitByteOffset,
             ushort phaseByteOffset,
@@ -210,7 +209,6 @@ public static class SamusPaletteRomData
             return true;
         }
 
-        /// <summary>Reads compiled list word.</summary>
         private static ushort ReadCompiledListWord(
             ushort suitByteOffset,
             ushort phaseByteOffset,

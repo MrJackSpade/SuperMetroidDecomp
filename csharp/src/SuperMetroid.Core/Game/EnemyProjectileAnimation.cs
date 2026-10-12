@@ -35,7 +35,6 @@ internal abstract class EnemyProjectileAnimation
 /// <summary>A Botwoon body segment's or spit's typed animation.</summary>
 internal sealed class BotwoonProjectileAnimation : EnemyProjectileAnimation
 {
-    /// <summary>Initializes a new botwoon projectile animation instance.</summary>
     private BotwoonProjectileAnimation(BotwoonSegmentProgram? segment) => Segment = segment;
 
     /// <summary>The segment program shown, or null for a spit.</summary>
@@ -66,7 +65,6 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileAnimation
         return true;
     }
 
-    /// <summary>try show next frame.</summary>
     private protected override bool TryShowNextFrame(out int duration, out ushort presentationKey)
     {
         var timeline = Segment is { } segment ? BotwoonAnimations.Segment(segment) : BotwoonAnimations.Spit;
@@ -78,7 +76,6 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileAnimation
         return !advance.Held;
     }
 
-    /// <summary>no cues.</summary>
     private static void NoCues(NoAnimationCue cue) =>
         throw new InvalidOperationException($"A Botwoon projectile timeline published cue {cue}.");
 }

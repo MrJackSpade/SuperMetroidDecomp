@@ -13,7 +13,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents air spike alpha radius verification.</summary>
 internal static class AirSpikeAlphaRadiusVerification
 {
     /// <summary>
@@ -65,7 +64,6 @@ internal static class AirSpikeAlphaRadiusVerification
         Console.WriteLine("  Air spike alpha radius: the refreshed standing body reaches the spike.");
     }
 
-    /// <summary>Air spike alpha radius command.</summary>
     [VerificationCommand("--air-spike-alpha-radius")]
     internal static int AirSpikeAlphaRadiusCommand()
     {

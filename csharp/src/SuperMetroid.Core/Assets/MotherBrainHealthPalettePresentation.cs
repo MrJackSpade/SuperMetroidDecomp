@@ -7,12 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable damage-state colors for Mother Brain's final-phase body and rear legs.</summary>
 public sealed class MotherBrainHealthPalettePresentation
 {
-    /// <summary>Stores body.</summary>
     private readonly TintPalette body;
-    /// <summary>Stores back legs.</summary>
     private readonly TintPalette backLegs;
 
-    /// <summary>Initializes a new mother brain health palette presentation instance.</summary>
     private MotherBrainHealthPalettePresentation(Bgr555[][] body, Bgr555[][] backLegs)
     {
         this.body = new TintPalette(body, backLeg: false);
@@ -30,7 +27,6 @@ public sealed class MotherBrainHealthPalettePresentation
     internal static Bgr555 StockDeathStartColor(bool backLeg, int color) =>
         TintColor(StockBaseColor(backLeg, color), 3, backLeg);
 
-    /// <summary>tint color.</summary>
     private static Bgr555 TintColor(Bgr555 initial, int state, bool backLeg)
     {
         int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
@@ -65,14 +61,10 @@ public sealed class MotherBrainHealthPalettePresentation
     /// </summary>
     private sealed class TintPalette
     {
-        /// <summary>Stores basis.</summary>
         private readonly BasePalette basis;
-        /// <summary>Stores back leg.</summary>
         private readonly bool backLeg;
-        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[][]? supplied;
 
-        /// <summary>Initializes a new tint palette instance.</summary>
         public TintPalette(Bgr555[][] rows, bool backLeg, TintPalette? front = null)
         {
             this.backLeg = backLeg;
@@ -83,36 +75,24 @@ public sealed class MotherBrainHealthPalettePresentation
                     { supplied = rows; return; }
         }
 
-        /// <summary>color.</summary>
         public Bgr555 Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
 
-        /// <summary>calculate.</summary>
         private Bgr555 Calculate(int state, int color) => TintColor(basis.Color(color), state, backLeg);
     }
     /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
     private sealed class BasePalette
     {
-        /// <summary>Stores highlight.</summary>
         private readonly Bgr555 highlight;
-        /// <summary>Stores midtone.</summary>
         private readonly Bgr555 midtone;
-        /// <summary>Stores shadow.</summary>
         private readonly Bgr555 shadow;
-        /// <summary>Stores brown.</summary>
         private readonly Bgr555 brown;
-        /// <summary>Stores back leg.</summary>
         private readonly bool backLeg;
-        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
-        /// <summary>Stores front.</summary>
         private readonly BasePalette? front;
 
-        /// <summary>Gets stock body.</summary>
         internal static BasePalette StockBody { get; } = new(false);
-        /// <summary>Gets stock rear.</summary>
         internal static BasePalette StockRear { get; } = new(true);
 
-        /// <summary>Initializes a new base palette instance.</summary>
         private BasePalette(bool backLeg)
         {
             this.backLeg = backLeg;
@@ -126,7 +106,6 @@ public sealed class MotherBrainHealthPalettePresentation
             brown = MotherBrainHealthPaintDefinitions.TissueHighlight;
         }
 
-        /// <summary>create.</summary>
         internal static BasePalette Create(Bgr555[] colors, bool backLeg, BasePalette? front)
         {
             BasePalette stock = backLeg ? StockRear : StockBody;
@@ -136,7 +115,6 @@ public sealed class MotherBrainHealthPalettePresentation
             return matches ? stock : new BasePalette(colors, backLeg, front);
         }
 
-        /// <summary>Initializes a new base palette instance.</summary>
         public BasePalette(Bgr555[] colors, bool backLeg, BasePalette? front)
         {
             this.backLeg = backLeg;
@@ -152,10 +130,8 @@ public sealed class MotherBrainHealthPalettePresentation
                 { supplied = colors; return; }
         }
 
-        /// <summary>color.</summary>
         public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
 
-        /// <summary>calculate.</summary>
         private Bgr555 Calculate(int color) => color switch
         {
             0 => backLeg ? Bgr555.Black : highlight,
@@ -170,7 +146,6 @@ public sealed class MotherBrainHealthPalettePresentation
 
         // The rear outline keeps the front red/blue and adds one RGB5 green
         // step. This names the chosen rear tint; it is not a universal lighting law.
-        /// <summary>Gets the rear outline color derived from the front palette when available.</summary>
         private Bgr555 Outline
         {
             get
@@ -182,7 +157,6 @@ public sealed class MotherBrainHealthPalettePresentation
         }
         // Rear illumination halves the front gray endpoint, rounding R/G upward
         // and B downward before generating its own four shade levels.
-        /// <summary>Gets the rear gray color derived from the front palette when available.</summary>
         private Bgr555 Gray
         {
             get
@@ -192,7 +166,6 @@ public sealed class MotherBrainHealthPalettePresentation
                 return new((lit.Red + 1) / 2, (lit.Green + 1) / 2, lit.Blue / 2);
             }
         }
-        /// <summary>shade.</summary>
         private static Bgr555 Shade(Bgr555 source, int numerator, int denominator)
         {
             return source.Map((_, a) => ((a * numerator + denominator / 2) / denominator));

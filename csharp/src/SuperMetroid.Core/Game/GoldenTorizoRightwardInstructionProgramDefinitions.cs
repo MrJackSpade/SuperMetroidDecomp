@@ -37,7 +37,6 @@ internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
-    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd2ad),
         Entry(GoldenTorizoCombatInstructionPointers.DodgeTurningRight),
@@ -95,8 +94,6 @@ internal abstract class GoldenTorizoRightwardInstructionProgramDefinitions
         Frame(4),
         Op((ushort)TorizoInstruction.Instruction_GoldenTorizo_WalkingMovement_IndexInY, 0x0014),
         Op((ushort)CommonEnemyInstruction.Goto, TorizoWalkingRightLeftLegMoving));
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

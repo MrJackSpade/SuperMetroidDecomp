@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Development-tool instance members of <see cref="RoomPaletteFxPresentation"/>.</summary>
 internal static class RoomPaletteFxPresentationToolingExtensions
 {
-    /// <summary>Provides extension members for <c>RoomPaletteFxPresentation</c>.</summary>
     extension(RoomPaletteFxPresentation self)
     {
         /// <summary>

@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kago instruction program definitions verification.</summary>
 internal static class KagoInstructionProgramDefinitionsVerification
 {
-    /// <summary>verify kago instruction program definitions.</summary>
     internal static void VerifyKagoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKagoInstructionProgramDefinitions), () => VerifyKagoInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>verify kago instruction program definitions.</summary>
     internal static void VerifyKagoInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -103,7 +100,6 @@ internal static class KagoInstructionProgramDefinitionsVerification
             "selectors pass without instruction or presentation ROM reads.");
     }
 
-    /// <summary>probe kago instruction mechanics allocation.</summary>
     private static int ProbeKagoInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -113,20 +109,17 @@ internal static class KagoInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>read kago instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kago instruction words")]
     internal static ushort ReadKagoInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>new kago instruction program guard.</summary>
     private static CartridgeReadGuard NewKagoInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KagoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Kago mechanics byte ${address:X6}.")
             .ObserveWords(0xa80000, KagoInstructionProgramDefinitionsTooling.PresentationWordCount, KagoInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
-    /// <summary>kago instruction mechanics command.</summary>
     [VerificationCommand("--kago-instruction-mechanics")]
     internal static int KagoInstructionMechanicsCommand()
     {

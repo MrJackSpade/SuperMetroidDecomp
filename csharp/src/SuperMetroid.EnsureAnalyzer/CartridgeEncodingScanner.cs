@@ -109,14 +109,11 @@ internal static class CartridgeEncodingScanner
         _ => throw new InvalidOperationException($"Undefined {nameof(CartridgeEncodingRule)} {rule}."),
     };
 
-    /// <summary>Stores allowance markers.</summary>
     private static readonly string[] AllowanceMarkers = ["cartridge-encoding: allow(", "magic-number-audit: allow("];
 
-    /// <summary>Stores code catalog name fragments.</summary>
     private static readonly string[] CodeCatalogNameFragments =
         ["Instruction", "Program", "CodePointer", "Pointer", "Address", "Routine", "Code"];
 
-    /// <summary>Stores pointer context fragments.</summary>
     private static readonly string[] PointerContextFragments =
         ["pointer", "instruction", "address", "routine", "function", "code", "bank", "instlist", "list"];
 
@@ -259,7 +256,6 @@ internal static class CartridgeEncodingScanner
     }
 
     // A numeric literal, or a primitive type's MaxValue, which names a storage width rather than a domain fact.
-    /// <summary>is raw width.</summary>
     private static bool IsRawWidth(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken)
     {
         while (expression is ParenthesizedExpressionSyntax or CastExpressionSyntax or CheckedExpressionSyntax)
@@ -283,7 +279,6 @@ internal static class CartridgeEncodingScanner
     }
 
     // (x >> 8) & 0xff is one operation: only the outermost of a nested width chain is counted.
-    /// <summary>is inside width operation.</summary>
     private static bool IsInsideWidthOperation(BinaryExpressionSyntax binary, SemanticModel model, CancellationToken cancellationToken)
     {
         SyntaxNode? parent = binary.Parent;
@@ -292,7 +287,6 @@ internal static class CartridgeEncodingScanner
         return parent is BinaryExpressionSyntax outer && IsWidthOperation(outer, model, cancellationToken);
     }
 
-    /// <summary>width basis.</summary>
     private static string WidthBasis(BinaryExpressionSyntax binary) => binary.Kind() switch
     {
         SyntaxKind.BitwiseAndExpression => $"'{binary}' keeps a byte, word or bank lane",
@@ -300,7 +294,6 @@ internal static class CartridgeEncodingScanner
         _ => $"'{binary}' moves a value down by a byte, word or bank width",
     };
 
-    /// <summary>is in encoding owner.</summary>
     private static bool IsInEncodingOwner(SyntaxNode? node, SemanticModel model, CancellationToken cancellationToken)
     {
         for (SyntaxNode? current = node; current is not null; current = current.Parent)
@@ -313,11 +306,9 @@ internal static class CartridgeEncodingScanner
         return false;
     }
 
-    /// <summary>is hex.</summary>
     private static bool IsHex(string text) =>
         text.Length > 2 && text[0] == '0' && (text[1] == 'x' || text[1] == 'X');
 
-    /// <summary>has allowance.</summary>
     private static bool HasAllowance(string line, string marker)
     {
         int start = line.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
@@ -327,14 +318,12 @@ internal static class CartridgeEncodingScanner
         return close > start + marker.Length && line.IndexOf(" - ", close, StringComparison.Ordinal) == close + 1;
     }
 
-    /// <summary>hex value.</summary>
     private static ulong HexValue(string text)
     {
         string digits = text.Substring(2).TrimEnd('u', 'U', 'l', 'L').Replace("_", string.Empty);
         return ulong.Parse(digits, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
     }
 
-    /// <summary>classify hex.</summary>
     private static (CartridgeEncodingClass Class, string Basis) ClassifyHex(SyntaxToken token)
     {
         ulong value = HexValue(token.Text);
@@ -378,7 +367,6 @@ internal static class CartridgeEncodingScanner
         return (CartridgeEncodingClass.Unknown, "no classifying context");
     }
 
-    /// <summary>climb.</summary>
     private static SyntaxNode Climb(SyntaxNode node)
     {
         while (node.Parent is ParenthesizedExpressionSyntax or CastExpressionSyntax or CheckedExpressionSyntax or
@@ -389,7 +377,6 @@ internal static class CartridgeEncodingScanner
         return node;
     }
 
-    /// <summary>is bitwise.</summary>
     private static bool IsBitwise(SyntaxNode? parent) => parent switch
     {
         BinaryExpressionSyntax binary => binary.Kind() is SyntaxKind.BitwiseAndExpression or SyntaxKind.BitwiseOrExpression or
@@ -402,7 +389,6 @@ internal static class CartridgeEncodingScanner
         _ => false,
     };
 
-    /// <summary>names pointer.</summary>
     private static bool NamesPointer(SyntaxNode context)
     {
         SyntaxNode scope = context.Ancestors().FirstOrDefault(ancestor =>
@@ -411,13 +397,11 @@ internal static class CartridgeEncodingScanner
         return PointerContextFragments.Any(fragment => lower.Contains(fragment));
     }
 
-    /// <summary>is dispatch operator.</summary>
     private static bool IsDispatchOperator(SyntaxKind kind) => kind is SyntaxKind.EqualsExpression or
         SyntaxKind.NotEqualsExpression or SyntaxKind.AddExpression or SyntaxKind.SubtractExpression or
         SyntaxKind.LessThanExpression or SyntaxKind.LessThanOrEqualExpression or SyntaxKind.GreaterThanExpression or
         SyntaxKind.GreaterThanOrEqualExpression;
 
-    /// <summary>is pointer dispatch.</summary>
     private static bool IsPointerDispatch(
         ExpressionSyntax constantSide,
         ExpressionSyntax variableSide,
@@ -435,12 +419,10 @@ internal static class CartridgeEncodingScanner
             ReferencesCodeConstant(constantSide, model, cancellationToken);
     }
 
-    /// <summary>is primitive switch arm.</summary>
     private static bool IsPrimitiveSwitchArm(CaseSwitchLabelSyntax label, SemanticModel model, CancellationToken cancellationToken) =>
         label.Parent?.Parent is SwitchStatementSyntax switchStatement &&
         IsIntegralPrimitive(model.GetTypeInfo(switchStatement.Expression, cancellationToken).Type);
 
-    /// <summary>is primitive pattern subject.</summary>
     private static bool IsPrimitivePatternSubject(ConstantPatternSyntax pattern, SemanticModel model, CancellationToken cancellationToken)
     {
         ExpressionSyntax? subject = pattern.Ancestors().Select(ancestor => ancestor switch
@@ -453,13 +435,11 @@ internal static class CartridgeEncodingScanner
         return subject is not null && IsIntegralPrimitive(model.GetTypeInfo(subject, cancellationToken).Type);
     }
 
-    /// <summary>references code constant.</summary>
     private static bool ReferencesCodeConstant(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken) =>
         expression.DescendantNodesAndSelf().OfType<SimpleNameSyntax>().Any(identifier =>
             model.GetSymbolInfo(identifier, cancellationToken).Symbol is IFieldSymbol { HasConstantValue: true } field &&
             IsCodeConstant(field));
 
-    /// <summary>is code constant.</summary>
     private static bool IsCodeConstant(IFieldSymbol field)
     {
         ulong value;
@@ -481,12 +461,10 @@ internal static class CartridgeEncodingScanner
         return CodeCatalogNameFragments.Any(fragment => owner.Contains(fragment));
     }
 
-    /// <summary>is integral primitive.</summary>
     private static bool IsIntegralPrimitive(ITypeSymbol? type) => type?.SpecialType is SpecialType.System_Byte or
         SpecialType.System_SByte or SpecialType.System_Int16 or SpecialType.System_UInt16 or SpecialType.System_Int32 or
         SpecialType.System_UInt32 or SpecialType.System_Int64 or SpecialType.System_UInt64;
 
-    /// <summary>initializer element type.</summary>
     private static ITypeSymbol? InitializerElementType(
         InitializerExpressionSyntax initializer,
         SemanticModel model,
@@ -509,7 +487,6 @@ internal static class CartridgeEncodingScanner
         return CollectionElementType(arrayType);
     }
 
-    /// <summary>collection element type.</summary>
     private static ITypeSymbol? CollectionElementType(ITypeSymbol? collection) => collection switch
     {
         IArrayTypeSymbol array => array.ElementType,
@@ -518,7 +495,6 @@ internal static class CartridgeEncodingScanner
         _ => null,
     };
 
-    /// <summary>is opaque word array.</summary>
     private static bool IsOpaqueWordArray(IReadOnlyList<ExpressionSyntax> elements, ITypeSymbol? elementType) =>
         elements.Count >= 4 && IsIntegralPrimitive(elementType) &&
         elements.Any(element => element.DescendantTokens().Any(token =>

@@ -7,26 +7,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable reserve labels, digits and arrow appearance; energy and mode behavior stay compiled.</summary>
 public sealed class PauseReserveUiPresentation
 {
-    /// <summary>Stores labels.</summary>
     private readonly Dictionary<string, ReserveLabel> labels;
-    /// <summary>Stores digit offset.</summary>
     private readonly int digitOffset;
-    /// <summary>Stores digits.</summary>
     private readonly byte[][]? digits;
-    /// <summary>Stores arrow offsets.</summary>
     private readonly int[]? arrowOffsets;
-    /// <summary>Stores enabled palette.</summary>
     private readonly int enabledPalette, disabledPalette;
-    /// <summary>Stores solid color6.</summary>
     private readonly Bgr555 solidColor6, solidColor11;
-    /// <summary>Stores arrow start edits.</summary>
     private readonly (Bgr555? Color6, Bgr555? Color11) arrowStartEdits;
-    /// <summary>Stores arrow grey levels.</summary>
     private readonly (int Color6, int Color11) arrowGreyLevels;
-    /// <summary>Stores arrow color edits.</summary>
     private readonly Dictionary<int, Bgr555> arrowColorEdits = [];
 
-    /// <summary>Initializes a new pause reserve ui presentation instance.</summary>
     private PauseReserveUiPresentation(PauseReserveUiParts parts)
     {
         this.labels = parts.Labels; this.digitOffset = parts.DigitOffset;
@@ -161,7 +151,6 @@ public sealed class PauseReserveUiPresentation
         });
     }
 
-    /// <summary>Arrow color.</summary>
     private Bgr555 ArrowColor(int frame, bool second)
     {
         frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
@@ -217,18 +206,13 @@ public sealed class PauseReserveUiPresentation
         }
     }
 
-    /// <summary>Represents reserve label.</summary>
     private sealed class ReserveLabel(string name, int? offsetEdit, Dictionary<int, ushort> edits)
     {
-        /// <summary>Gets offset.</summary>
         internal int Offset => offsetEdit ?? PauseReserveUiDefinitions.StockLabelOffset(name);
-        /// <summary>Gets word count.</summary>
         internal int WordCount => PauseReserveUiDefinitions.StockLabelWords(name);
-        /// <summary>Word.</summary>
         internal ushort Word(int index) => edits.TryGetValue(index, out ushort selected)
             ? selected : PauseReserveUiDefinitions.StockLabelWord(name, index);
 
-        /// <summary>Load.</summary>
         internal static ReserveLabel Load(string name, int offset, ReadOnlySpan<byte> bytes)
         {
             var edits = new Dictionary<int, ushort>();

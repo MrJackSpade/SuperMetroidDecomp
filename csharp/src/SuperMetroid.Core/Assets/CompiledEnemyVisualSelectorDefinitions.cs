@@ -15,7 +15,6 @@ internal readonly record struct CompiledEnemyVisualSelector(int Address, ushort 
 /// </summary>
 internal static partial class CompiledEnemyVisualSelectors
 {
-    /// <summary>Stores entries.</summary>
     internal static readonly CompiledEnemyVisualSelector[] Entries =
     [
         .. Bank86,
@@ -33,7 +32,6 @@ internal static partial class CompiledEnemyVisualSelectors
         .. BankB4,
     ];
 
-    /// <summary>Checks whether the selector is calculated at runtime.</summary>
     internal static bool IsCalculatedSelector(int address) => (SnesAddressMath.BankNumber(address)) switch
     {
         0x86 => BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
@@ -46,7 +44,6 @@ internal static partial class CompiledEnemyVisualSelectors
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => false,
     };
-    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
         if (bank == 0xa2 && operandAddress == PolypInstructionProgramDefinitions.PresentationWord)

@@ -11,10 +11,8 @@ internal static class SpeedBoosterEscapePlmProgramDefinitions
     /// <summary><c>$84:B88A</c>: first instruction of the controller list.</summary>
     internal const ushort Start = RoomPlmInstructionLists.SpeedBoosterEscape;
 
-    /// <summary>Defines word count.</summary>
     internal const int WordCount = 9;
 
-    /// <summary>Tries to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - Start;

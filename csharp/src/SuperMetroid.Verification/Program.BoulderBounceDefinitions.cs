@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents boulder bounce definitions verification.</summary>
 internal static class BoulderBounceDefinitionsVerification
 {
-    /// <summary>Verifies compiled boulder bounces.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boulder bounces")]
     internal static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
     {

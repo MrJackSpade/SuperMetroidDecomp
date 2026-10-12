@@ -12,32 +12,19 @@ internal sealed class MapObjectTileArtwork
     internal const int FirstHighlightTile = 0x5b, HighlightTileCount = 4;
     /// <summary>Shared reserve cursor46 atB6:C8C0, reused in the left selector corner with swapped colors1/2.</summary>
     private const int CursorTile = 0x46;
-    /// <summary>Stores other characters.</summary>
     private readonly byte[] otherCharacters;
-    /// <summary>Stores small font.</summary>
     private readonly MenuSmallFontArtwork smallFont;
-    /// <summary>Stores large font.</summary>
     private readonly MenuLargeFontArtwork largeFont;
-    /// <summary>Stores elevator lettering.</summary>
     private readonly MenuCompactLetteringArtwork elevatorLettering;
-    /// <summary>Stores panel.</summary>
     private readonly MenuPanelTileArtwork panel;
-    /// <summary>Stores shoulder buttons.</summary>
     private readonly MenuShoulderButtonArtwork shoulderButtons;
-    /// <summary>Stores shoulder highlight.</summary>
     private readonly MenuShoulderHighlightArtwork shoulderHighlight;
-    /// <summary>Stores markers.</summary>
     private readonly MapMarkerTileArtwork markers;
-    /// <summary>Stores squares.</summary>
     private readonly MenuBeveledSquareArtwork squares;
-    /// <summary>Stores thin border.</summary>
     private readonly MenuThinBorderArtwork thinBorder;
-    /// <summary>Stores reserve edits.</summary>
     private readonly Dictionary<int, byte>? reserveEdits;
-    /// <summary>Stores highlight edits.</summary>
     private readonly Dictionary<int, byte>? highlightEdits;
 
-    /// <summary>Initializes a new map object tile artwork instance.</summary>
     internal MapObjectTileArtwork(IndexedPngImage image)
     {
         byte[] encoded = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
@@ -76,9 +63,7 @@ internal sealed class MapObjectTileArtwork
         }
     }
 
-    /// <summary>is reserve.</summary>
     private static bool IsReserve(int tile) => tile is >= FirstReserveTile and < (FirstReserveTile + ReserveTileCount);
-    /// <summary>is highlight.</summary>
     private static bool IsHighlight(int tile) => tile is >= FirstHighlightTile and < (FirstHighlightTile + HighlightTileCount);
 
     /// <summary>Border index12; left corner reuses cursor46 shifted right with colors1/2 exchanged.
@@ -112,7 +97,6 @@ internal sealed class MapObjectTileArtwork
         return point.X <= fill ? (byte)9 : (byte)14;
     }
 
-    /// <summary>load to.</summary>
     internal void LoadTo(VramRegion destination)
     {
         // This is the immediate transfer payload, never a retained calculated lookup.

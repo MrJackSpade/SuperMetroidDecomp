@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents yellow pipe bug instruction program definitions verification.</summary>
 internal static class YellowPipeBugInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies yellow pipe bug instruction program definitions.</summary>
     internal static void VerifyYellowPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYellowPipeBugInstructionProgramDefinitions), () => VerifyYellowPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies yellow pipe bug instruction program definitions.</summary>
     internal static void VerifyYellowPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -117,7 +114,6 @@ internal static class YellowPipeBugInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe yellow pipe bug instruction mechanics allocation.</summary>
     private static int ProbeYellowPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -129,7 +125,6 @@ internal static class YellowPipeBugInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New yellow pipe bug instruction program read guard.</summary>
     private static CartridgeReadGuard NewYellowPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(YellowPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -137,7 +132,6 @@ internal static class YellowPipeBugInstructionProgramDefinitionsVerification
             .ForbidWords(0xb30000, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read installed Yellow Pipe Bug selector ${address:X6}.");
 
-    /// <summary>Yellow pipe bug instruction mechanics command.</summary>
     [VerificationCommand("--yellow-pipe-bug-instruction-mechanics")]
     internal static int YellowPipeBugInstructionMechanicsCommand()
     {

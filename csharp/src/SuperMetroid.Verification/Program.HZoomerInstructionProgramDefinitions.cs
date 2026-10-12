@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents hzoomer instruction program definitions verification.</summary>
 internal static class HZoomerInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies hzoomer instruction program definitions.</summary>
     internal static void VerifyHZoomerInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyHZoomerInstructionProgramDefinitions), () => VerifyHZoomerInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies hzoomer instruction program definitions.</summary>
     internal static void VerifyHZoomerInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -105,7 +102,6 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
               "selector reads forbidden.");
     }
 
-    /// <summary>Execute hzoomer program.</summary>
     private static void ExecuteHZoomerProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -120,7 +116,6 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes hzoomer instruction mechanics allocation.</summary>
     private static int ProbeHZoomerInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -134,14 +129,12 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads hzoomer instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for H Zoomer instruction words")]
     internal static ushort ReadHZoomerInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
 
-    /// <summary>Creates hzoomer instruction guard.</summary>
     private static CartridgeReadGuard NewHZoomerInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(HZoomerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -150,7 +143,6 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
                 HZoomerInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"HZoomer read visual-selector byte ${address:X6}.");
 
-    /// <summary>Hzoomer instruction program definitions command.</summary>
     [VerificationCommand("--hzoomer-instruction-program-definitions")]
     internal static int HzoomerInstructionProgramDefinitionsCommand()
     {

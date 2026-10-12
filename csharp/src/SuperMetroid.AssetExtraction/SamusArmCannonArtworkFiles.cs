@@ -14,9 +14,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM arm-cannon pose/OAM selectors and character tiles → arm cannon artwork files")]
 public static class SamusArmCannonArtworkFiles
 {
-    /// <summary>Defines manifest file name.</summary>
     private const string ManifestFileName = "samus-arm-cannon-manifest.json";
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -136,7 +134,6 @@ public static class SamusArmCannonArtworkFiles
         }
     }
 
-    /// <summary>Represents manifest.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         string JsonSha256, string PngSha256);
 }

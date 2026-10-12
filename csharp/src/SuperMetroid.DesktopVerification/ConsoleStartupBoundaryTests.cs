@@ -6,12 +6,9 @@ using System.Diagnostics;
 /// </summary>
 internal static class ConsoleStartupBoundaryTests
 {
-    /// <summary>Stores failing child flag.</summary>
     public const string FailingChildFlag = "--console-startup-failure-child";
-    /// <summary>Stores expected failure.</summary>
     public const string ExpectedFailure = "Expected console startup-boundary fixture failure.";
 
-    /// <summary>Runs.</summary>
     public static void Run()
     {
         var start = new ProcessStartInfo("dotnet")

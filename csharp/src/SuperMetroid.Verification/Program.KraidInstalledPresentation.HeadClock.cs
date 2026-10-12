@@ -7,7 +7,6 @@ using SuperMetroid.Core.Hardware;
 using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyTileArtworkKraidVerification;
 
-/// <summary>Represents kraid installed presentation head clock verification.</summary>
 internal static class KraidInstalledPresentationHeadClockVerification
 {
     /// <summary>Replacing every head image must not replace the compiled clock, callback or mouth window.</summary>
@@ -121,28 +120,18 @@ internal static class KraidInstalledPresentationHeadClockVerification
             $"{callbacks} timed sound callbacks, {collisions} mouth samples; four installed replacements retain native control/VRAM cadence.");
     }
 
-    /// <summary>Represents kraid head clock fixture.</summary>
     internal sealed class KraidHeadClockFixture
     {
-        /// <summary>Gets enemies.</summary>
         internal RoomEnemySystem Enemies { get; }
-        /// <summary>Gets body.</summary>
         internal RoomEnemySlot Body => Enemies.SlotTable.Slots[0];
-        /// <summary>Gets state.</summary>
         internal KraidEnemyState State { get; }
-        /// <summary>Gets vram.</summary>
         internal SnesVram Vram { get; } = new();
-        /// <summary>Gets memory.</summary>
         internal SuperMetroid.Core.Hardware.SuperMetroidAddressSpace Memory { get; } =
             SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
-        /// <summary>Stores step.</summary>
         private readonly Func<RoomEnemySlot, KraidEnemyState, ushort> step;
-        /// <summary>Stores hit.</summary>
         private readonly Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> hit;
-        /// <summary>Stores transfer.</summary>
         private readonly Action<KraidEnemyState, ushort> transfer;
 
-        /// <summary>Initializes a new kraid head clock fixture instance.</summary>
         [PpuLayoutBoundary("exact hardware test: fills VRAM with a sentinel image before the head transfer")]
         internal KraidHeadClockFixture(EnemyTileArtworkCatalog art)
         {
@@ -158,13 +147,9 @@ internal static class KraidInstalledPresentationHeadClockVerification
             byte[] sentinel = new byte[SnesVram.ByteCount]; Array.Fill(sentinel, (byte)0xcd); Vram.LoadBytes(0, sentinel);
         }
 
-        /// <summary>Advances.</summary>
         internal ushort Step() => step(Body, State);
-        /// <summary>Transfers.</summary>
         internal void Transfer(ushort pointer) => transfer(State, pointer);
-        /// <summary>Hit.</summary>
         internal bool Hit(ushort pointer, SamusProjectileSlot shot) => hit(Body, pointer, shot);
-        /// <summary>Expected upload.</summary>
         internal static void ExpectedUpload(byte[] destination, ReadOnlySpan<ushort> words)
         {
             for (int word = 0; word < words.Length; word++)

@@ -5,10 +5,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents spike shinespark suit verification.</summary>
 internal static class SpikeShinesparkSuitVerification
 {
-    /// <summary>Verifies spike shinespark suit.</summary>
     internal static void VerifySpikeShinesparkSuit()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -105,7 +103,6 @@ internal static class SpikeShinesparkSuitVerification
             "Spike Shinespark Suit: dry one-frame window, command-zero freeze, and suitless underwater Reserve window.");
     }
 
-    /// <summary>Runs reserve spike suit case.</summary>
     private static SamusState RunReserveSpikeSuitCase(
         SuperMetroidAddressSpace bus,
         int freezeAfter,
@@ -140,7 +137,6 @@ internal static class SpikeShinesparkSuitVerification
         return samus;
     }
 
-    /// <summary>Creates spike suit runtime.</summary>
     private static SuperMetroidRuntime CreateSpikeSuitRuntime(
         SuperMetroidAddressSpace bus,
         bool underwater)

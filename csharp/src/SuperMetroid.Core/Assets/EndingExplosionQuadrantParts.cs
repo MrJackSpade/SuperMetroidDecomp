@@ -10,15 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// and supernova one, top-left for supernova two, then proceeds clockwise.</summary>
 internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Stores basis.</summary>
     private readonly CompiledSpritePart[]? basis;
-    /// <summary>Stores pose.</summary>
     private readonly Pose pose;
-    /// <summary>Stores basis count.</summary>
     private readonly int basisCount;
-    /// <summary>Stores first quadrant.</summary>
     private readonly int firstQuadrant;
-    /// <summary>Initializes a new ending explosion quadrant parts instance.</summary>
     private EndingExplosionQuadrantParts(CompiledSpritePart[] suppliedBasis, Pose pose, int firstQuadrant)
     {
         this.pose = pose;
@@ -30,10 +25,8 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         this.firstQuadrant = firstQuadrant;
     }
 
-    /// <summary>Represents glow piece.</summary>
-    private enum GlowPiece { /** <summary>Identifies top cap.</summary> */ TopCap, /** <summary>Identifies outer body.</summary> */ OuterBody, /** <summary>Identifies inner body.</summary> */ InnerBody }
-    /// <summary>Represents supernova piece.</summary>
-    private enum SupernovaPiece { /** <summary>Identifies lower outer edge.</summary> */ LowerOuterEdge, /** <summary>Identifies upper outer edge.</summary> */ UpperOuterEdge, /** <summary>Identifies inner top edge.</summary> */ InnerTopEdge, /** <summary>Identifies outer top edge.</summary> */ OuterTopEdge, /** <summary>Identifies interior.</summary> */ Interior }
+    private enum GlowPiece { TopCap, OuterBody, InnerBody }
+    private enum SupernovaPiece { LowerOuterEdge, UpperOuterEdge, InnerTopEdge, OuterTopEdge, Interior }
 
     /// <summary>Original base-quadrant packing at atlas origins$80/$83/$86.
     /// A24-pixel quadrant uses three overlapping large glow pieces, or four small
@@ -73,7 +66,6 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
                 right ? SnesTileFlipFlags.Horizontal : 0), true);
     }
 
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         int count, first;
@@ -96,9 +88,7 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
         return supplied.CalculateIfMatching(new EndingExplosionQuadrantParts(basis, pose, first));
     }
 
-    /// <summary>Gets count.</summary>
     public int Count => basisCount * 4;
-    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -118,11 +108,9 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
                 part.InheritPalette);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

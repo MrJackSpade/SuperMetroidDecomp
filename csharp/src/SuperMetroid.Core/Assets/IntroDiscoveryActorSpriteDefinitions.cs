@@ -27,14 +27,10 @@ internal static class IntroDiscoveryActorSpriteDefinitions
         return (ushort)(BabyStart + 7 * frame);
     }
 
-    /// <summary>Gets frames.</summary>
     internal static IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition> Frames { get; } = new FrameList();
-    /// <summary>Represents frame list.</summary>
     private sealed class FrameList : IReadOnlyList<IntroDiscoveryActorSpriteFrameDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 20;
-        /// <summary>Gets or sets an indexed value.</summary>
         public IntroDiscoveryActorSpriteFrameDefinition this[int index]
         {
             get
@@ -47,16 +43,13 @@ internal static class IntroDiscoveryActorSpriteDefinitions
                 return new(EggFramePointer(index), name, index == 0 ? 6 : index < 9 ? 9 : 3);
             }
         }
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<IntroDiscoveryActorSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Gets enumerator.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
 
-/// <summary>Represents intro discovery actor sprite frame definition.</summary>
 internal readonly record struct IntroDiscoveryActorSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

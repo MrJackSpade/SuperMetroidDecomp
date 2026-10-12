@@ -14,10 +14,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents ridley player opening verification.</summary>
 internal static class RidleyPlayerOpeningVerification
 {
-    /// <summary>Verifies ridley player opening.</summary>
     internal static void VerifyRidleyPlayerOpening()
     {
         Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyBehavior.IsWithinRidleyRectangle;
@@ -75,7 +73,6 @@ internal static class RidleyPlayerOpeningVerification
         Console.WriteLine("Ridley player opening trajectory matches native movie frames 375..744.");
     }
 
-    /// <summary>Ridley player opening command.</summary>
     [VerificationCommand("--ridley-player-opening")]
     internal static int RidleyPlayerOpeningCommand()
     {

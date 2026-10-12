@@ -25,7 +25,6 @@ internal static class GreyDoorPlmProgramDefinitions
     /// <summary>$84:BD0F: follow the installed link when shot.</summary>
     private const ushort FollowLinkWhenShot = 0xbd0f;
 
-    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

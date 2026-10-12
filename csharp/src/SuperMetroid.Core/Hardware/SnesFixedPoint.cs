@@ -36,9 +36,7 @@ public static class SnesUnsignedEightEight
 [SnesEncodingOwner]
 public static class SnesSixteenSixteen
 {
-    /// <summary>Stores fraction bits.</summary>
     private const int FractionBits = 16;
-    /// <summary>Stores fraction mask.</summary>
     private const int FractionMask = 0xffff;
 
     /// <summary>The raw 16.16 value with whole part <paramref name="whole"/> and no fraction.</summary>
@@ -79,9 +77,7 @@ public static class SnesSixteenSixteen
 [SnesEncodingOwner]
 public static class SnesEightEight
 {
-    /// <summary>Stores fraction bits.</summary>
     private const int FractionBits = 8;
-    /// <summary>Stores fraction mask.</summary>
     private const int FractionMask = 0xff;
 
     /// <summary>The raw 8.8 value with whole part <paramref name="whole"/> and no fraction.</summary>
@@ -113,7 +109,6 @@ public static class SnesEightEight
 [SnesEncodingOwner]
 public readonly record struct SnesSignedSixteenSixteen
 {
-    /// <summary>Initializes a new snes signed sixteen sixteen instance.</summary>
     private SnesSignedSixteenSixteen(int rawValue) => RawValue = rawValue;
 
     /// <summary>Gets the signed native word containing sixteen whole and sixteen fractional bits.</summary>

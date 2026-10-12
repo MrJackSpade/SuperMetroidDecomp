@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,13 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(StokeInstructionProgramDefinitions))]
 internal abstract class StokeInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => StokeInstructionProgramDefinitions.MechanicsWordCount;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => StokeInstructionProgramDefinitions.MechanicsWord(index);
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 12;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -22,7 +18,6 @@ internal abstract class StokeInstructionProgramDefinitionsTooling : IInstruction
         ushort attack = index < 6 ? StokeInstructionProgramDefinitions.AttackingLeft : StokeInstructionProgramDefinitions.AttackingRight;
         return (ushort)(local < 4 ? move + 4 + 4 * local : attack + 2 + 8 * (local - 4));
     }
-    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

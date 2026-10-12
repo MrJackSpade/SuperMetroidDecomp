@@ -7,16 +7,11 @@ using SuperMetroid.Rendering.Direct3D11;
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
 internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRenderer renderer)
 {
-    /// <summary>Stores sequence.</summary>
     private long sequence;
-    /// <summary>Gets or sets comparisons.</summary>
     internal int Comparisons { get; private set; }
-    /// <summary>Gets or sets changed pixels.</summary>
     internal long ChangedPixels { get; private set; }
-    /// <summary>Stores colors.</summary>
     private readonly SnesCgram colors = MakeColors();
 
-    /// <summary>Pair.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal void Pair(SnesVram stock, SnesVram edited, OamBuffer oam, string context)
     {
@@ -46,14 +41,12 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
                 [new ObjRenderLayer()], 3, 15));
     }
 
-    /// <summary>Compare.</summary>
     private void Compare(RenderFrameSnapshot frame, Rgba32[] expected, string context)
     {
         PixelComparison.Verify(frame, expected, renderer.RenderForReadback(frame), $"{device.Kind}: {context}");
         Comparisons++;
     }
 
-    /// <summary>Make colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     private static SnesCgram MakeColors()
     {

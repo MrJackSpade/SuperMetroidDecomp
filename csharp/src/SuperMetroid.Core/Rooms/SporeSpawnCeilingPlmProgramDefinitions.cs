@@ -16,7 +16,6 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
     /// <summary>Native duration of each ceiling appearance.</summary>
     internal const ushort FrameDuration = 4;
 
-    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address is >= (Crumble + 3) and < Clear)
@@ -47,7 +46,6 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
         return word.HasValue;
     }
 
-    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == Crumble + 2)

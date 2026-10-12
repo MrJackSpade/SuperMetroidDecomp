@@ -9,7 +9,6 @@ internal static class MotherBrainVisualDefinitions
     /// <summary>$A9, the native bank containing Mother Brain's OAM maps.</summary>
     internal const byte Bank = 0xa9;
 
-    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 18;
 
     /// <summary>$A9:A586, Spritemaps_MotherBrain_0; eleven-character head frames.</summary>
@@ -30,7 +29,6 @@ internal static class MotherBrainVisualDefinitions
     /// <summary>Each ordinary OAM record has a two-byte count and five bytes per character.</summary>
     private static int RecordBytes(int characters) => 2 + characters * 5;
 
-    /// <summary>Frame.</summary>
     internal static EnemySpritemapDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
@@ -50,7 +48,6 @@ internal static class MotherBrainVisualDefinitions
         if ((uint)index >= 5) throw new IndexOutOfRangeException();
         return Frame(FrameCount - 5 + index);
     }
-    /// <summary>Frames.</summary>
     internal static IEnumerable<EnemySpritemapDefinition> Frames()
     {
         for (int index = 0; index < FrameCount; index++) yield return Frame(index);

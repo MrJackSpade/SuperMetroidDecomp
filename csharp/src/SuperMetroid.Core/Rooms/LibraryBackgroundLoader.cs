@@ -84,7 +84,6 @@ public static class LibraryBackgroundLoader
 bg3CharacterBaseWord);
     }
 
-    /// <summary>transfer to vram.</summary>
     [PpuLayoutBoundary("codec: library-background command 2 VRAM DMA (native source and VMADD)")]
     private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundTransfer transfer, RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt)
     {
@@ -133,7 +132,6 @@ bg3CharacterBaseWord);
                 $"Library-background transfer ${transfer.SourceAddress:X6} has no installed artwork.");
     }
 
-    /// <summary>decompress to work ram.</summary>
     private static void DecompressToWorkRam(ISnesAddressSpace bus, int sourceAddress,
         ushort destination, RoomBackgroundTilemapCatalog? tilemapArt)
     {
@@ -143,7 +141,6 @@ bg3CharacterBaseWord);
         new LibraryBackgroundMemory(RequireWorkMemory(bus)).WriteDecompressed(destination, decompressed, sourceAddress);
     }
 
-    /// <summary>clear bg2.</summary>
     [PpuLayoutBoundary("codec: Clear_BG2_Tilemap native fill-and-DMA")]
     private static void ClearBg2(ISnesAddressSpace bus, SnesVram vram, bool includeKraidPage)
     {
@@ -181,11 +178,9 @@ bg3CharacterBaseWord);
             transfer.VramDestinationWord);
     }
 
-    /// <summary>require work memory.</summary>
     private static ISnesMemoryBus RequireWorkMemory(ISnesAddressSpace bus) =>
         SnesMemoryBusRequirement.Require(bus, "Library-background staging transfers require live WRAM.");
 
-    /// <summary>fill words.</summary>
     private static void FillWords(
         ISnesAddressSpace bus,
         ushort destination,

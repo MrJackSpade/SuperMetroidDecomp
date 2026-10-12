@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents gameplay audio publication verification.</summary>
 internal static class GameplayAudioPublicationVerification
 {
-    /// <summary>Verifies gameplay audio publication.</summary>
     internal static void VerifyGameplayAudioPublication(SuperMetroidAddressSpace audioBus)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -19,10 +19,8 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents gmode gate glitch verification.</summary>
 internal static class GModeGateGlitchVerification
 {
-    /// <summary>Verifies gmode gate glitch.</summary>
     internal static void VerifyGModeGateGlitch()
     {
         string[] nativeRows = File.ReadAllLines(
@@ -52,7 +50,6 @@ internal static class GModeGateGlitchVerification
             "  G-Mode: native gate timing, direct/indirect ownership, sand overload, and default block collision pass.");
     }
 
-    /// <summary>Verifies direct gmode gate timing.</summary>
     private static void VerifyDirectGModeGateTiming(
         int reactivateFrame,
         int expectedPassedFrame,
@@ -133,7 +130,6 @@ internal static class GModeGateGlitchVerification
             $"reactivation frame {reactivateFrame} matches native switch timing");
     }
 
-    /// <summary>Verifies indirect gmode omits gate actor.</summary>
     private static void VerifyIndirectGModeOmitsGateActor()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -160,7 +156,6 @@ internal static class GModeGateGlitchVerification
             "indirect room load retains independent PLM/enemy-projectile disable words");
     }
 
-    /// <summary>Verifies gmode sand overload.</summary>
     private static void VerifyGModeSandOverload()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -224,7 +219,6 @@ internal static class GModeGateGlitchVerification
             "first restored PLM pass executes all forty transient sand delete lists");
     }
 
-    /// <summary>Verifies gmode blue door allocation.</summary>
     private static void VerifyGModeBlueDoorAllocation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -269,7 +263,6 @@ internal static class GModeGateGlitchVerification
             "dropped blue-door request leaves its shootable-solid cap untouched");
     }
 
-    /// <summary>Verifies gmode default block collision.</summary>
     private static void VerifyGModeDefaultBlockCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -345,7 +338,6 @@ internal static class GModeGateGlitchVerification
         }
     }
 
-    /// <summary>Verifies gmode station softlock.</summary>
     private static void VerifyGModeStationSoftlock()
     {
         var bus = new TestAddressSpace();
@@ -391,7 +383,6 @@ internal static class GModeGateGlitchVerification
             "resumed station owns Samus until the full access sequence finishes");
     }
 
-    /// <summary>Verifies gmode remote item acquisition.</summary>
     private static void VerifyGModeRemoteItemAcquisition()
     {
         var bus = new TestAddressSpace();
@@ -416,7 +407,6 @@ internal static class GModeGateGlitchVerification
             "remote acquisition publishes exactly one cartridge pickup event");
     }
 
-    /// <summary>Verifies gmode noob tube suspension.</summary>
     private static void VerifyGModeNoobTubeSuspension()
     {
         var bus = new TestAddressSpace();
@@ -461,7 +451,6 @@ internal static class GModeGateGlitchVerification
             "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
     }
 
-    /// <summary>Fills suspended plm pool.</summary>
     private static void FillSuspendedPlmPool(
         RoomPlmSystem plms)
     {
@@ -476,7 +465,6 @@ internal static class GModeGateGlitchVerification
             "G-Mode fixture occupies all forty native PLM slots");
     }
 
-    /// <summary>Enter direct gmode.</summary>
     private static void EnterDirectGMode(ISnesAddressSpace bus, SamusState samus)
     {
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
@@ -504,7 +492,6 @@ internal static class GModeGateGlitchVerification
             "direct G-Mode owns all four cartridge disable words");
     }
 
-    /// <summary>Gmode gate glitch command.</summary>
     [VerificationCommand("--gmode-gate-glitch")]
     internal static int GmodeGateGlitchCommand()
     {

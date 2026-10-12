@@ -23,21 +23,15 @@ public enum WreckedShipTreadmillDirection
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
 
-    /// <summary>Stores object pointer.</summary>
     private AnimatedTileObject _objectPointer;
-    /// <summary>Stores instruction pointer.</summary>
     private ushort _instructionPointer;
-    /// <summary>Stores instruction timer.</summary>
     private ushort _instructionTimer;
-    /// <summary>Stores transfer byte count.</summary>
     private ushort _transferByteCount;
-    /// <summary>Stores encoded vram destination.</summary>
     private ushort _encodedVramDestination;
 
     /// <summary>The queued-DMA destination the treadmill object's native word decodes to.</summary>
     [PpuLayoutBoundary("codec: Wrecked Ship treadmill animated-tile object's native VRAM destination")]
     private VramDmaDestination Destination => VramDmaDestination.FromNative(_encodedVramDestination);
-    /// <summary>Stores compiled mechanics.</summary>
     private WreckedShipTreadmillObjectDefinition? _compiledMechanics;
 
     /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
@@ -188,7 +182,6 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             $"instructions at $87:{cursor:X4}.");
     }
 
-    /// <summary>Reads mechanics word.</summary>
     private ushort ReadMechanicsWord(ushort pointer)
     {
         if (_compiledMechanics is null)

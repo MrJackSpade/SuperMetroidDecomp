@@ -14,24 +14,15 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameOptionsPresentation
 {
-    /// <summary>Stores pages.</summary>
     private readonly Dictionary<string, byte[]> pages;
-    /// <summary>Stores controller labels.</summary>
     private readonly Dictionary<string, ushort[]> controllerLabels;
-    /// <summary>Stores controller label anchors.</summary>
     private readonly Position16<TilemapCells>[]? controllerLabelAnchors;
-    /// <summary>Stores language regions.</summary>
     private readonly GameOptionsLanguageRegionDocument[]? languageRegions;
-    /// <summary>Stores special toggles.</summary>
     private readonly Dictionary<string, GameOptionsToggleVisualDocument>? specialToggles;
-    /// <summary>Stores sprites.</summary>
     private readonly Dictionary<string, SpriteComposition> sprites;
-    /// <summary>Stores heading anchors.</summary>
     private readonly Dictionary<string, Position16<OamPixels>>? headingAnchors;
-    /// <summary>Stores cursor anchors.</summary>
     private readonly Dictionary<string, Position16<OamPixels>[]>? cursorAnchors;
 
-    /// <summary>Initializes a new game options presentation instance.</summary>
     private GameOptionsPresentation(
         Dictionary<string, byte[]> pages,
         Dictionary<string, ushort[]> controllerLabels,
@@ -79,17 +70,14 @@ public sealed class GameOptionsPresentation
     /// <summary>Menu updates per frame of the four-frame looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
 
-    /// <summary>Creates page.</summary>
     internal byte[] CreatePage(string name) =>
         pages.TryGetValue(name, out byte[]? page)
             ? (byte[])page.Clone()
             : throw new InvalidDataException($"Unknown options page {name}.");
 
-    /// <summary>Loads background.</summary>
     internal void LoadBackground(SnesVram vram) =>
         new MenuVram(vram).Bg2Tilemap.Load(pages[GameOptionsPresentationDefinitions.BackgroundPage]);
 
-    /// <summary>Applies language.</summary>
     internal void ApplyLanguage(Span<byte> primaryPage, bool japanese)
     {
         if (languageRegions is null)
@@ -110,7 +98,6 @@ public sealed class GameOptionsPresentation
         }
     }
 
-    /// <summary>Applies controller label.</summary>
     internal void ApplyControllerLabel(Span<byte> page, int action, int button)
     {
         if ((uint)action >= GameOptionsRomData.Rows.ControllerActionCount)
@@ -130,7 +117,6 @@ public sealed class GameOptionsPresentation
         }
     }
 
-    /// <summary>Applies special toggle.</summary>
     internal void ApplySpecialToggle(Span<byte> page, string name, bool enabled)
     {
         if (specialToggles is null)
@@ -149,7 +135,6 @@ public sealed class GameOptionsPresentation
             enabled ? UnselectedPalette : SelectedPalette);
     }
 
-    /// <summary>Cursor position.</summary>
     internal Position16<OamPixels> CursorPosition(string page, int selectedItem)
     {
         if (cursorAnchors is null)
@@ -159,7 +144,6 @@ public sealed class GameOptionsPresentation
             ? points[selectedItem]
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
     }
-    /// <summary>Draws heading.</summary>
     internal void DrawHeading(OamBuffer oam, string page, int verticalScroll)
     {
         Position16<OamPixels> point = headingAnchors is null
@@ -173,7 +157,6 @@ public sealed class GameOptionsPresentation
             PaletteBits(CursorPalette));
     }
 
-    /// <summary>Draws cursor.</summary>
     internal void DrawCursor(OamBuffer oam, int frame, Position16<OamPixels> point)
     {
         sprites[GameOptionsPresentationDefinitions.CursorFrameName(frame)].DrawOnScreen(
@@ -311,7 +294,6 @@ public sealed class GameOptionsPresentation
         output.Write(bytes);
     }
 
-    /// <summary>Compiles cells.</summary>
     private static byte[] CompileCells(MapPresentationCell[] cells, string owner)
     {
         var bytes = new byte[cells.Length * sizeof(ushort)];
@@ -335,7 +317,6 @@ public sealed class GameOptionsPresentation
         return bytes;
     }
 
-    /// <summary>Applies palette.</summary>
     private static void ApplyPalette(Span<byte> page, IEnumerable<int> cells, int palette)
     {
         foreach (int cell in cells)
@@ -348,7 +329,6 @@ public sealed class GameOptionsPresentation
         }
     }
 
-    /// <summary>Validates exact keys.</summary>
     private static void ValidateExactKeys<T>(Dictionary<string, T>? values,
         ReadOnlySpan<string> expected, string owner)
     {
@@ -359,7 +339,6 @@ public sealed class GameOptionsPresentation
                 throw new InvalidDataException($"{owner} is missing {name}.");
     }
 
-    /// <summary>Validates cell set.</summary>
     private static void ValidateCellSet(int[] cells, HashSet<int> claimed, string owner)
     {
         foreach (int cell in cells)
@@ -367,7 +346,6 @@ public sealed class GameOptionsPresentation
                 throw new InvalidDataException($"Options {owner} contains an invalid or duplicate cell {cell}.");
     }
 
-    /// <summary>Validates point.</summary>
     private static void ValidatePoint(Position16<OamPixels> point, string owner, bool allowOffscreenX)
     {
         int maximumX = allowOffscreenX ? 0x1ff : byte.MaxValue;
@@ -376,7 +354,6 @@ public sealed class GameOptionsPresentation
                 $"Options {owner} requires X=0..{maximumX} and Y=0..255.");
     }
 
-    /// <summary>Validates tile point.</summary>
     private static void ValidateTilePoint(Position16<TilemapCells> point, string owner, Extent16<TilemapCells> size)
     {
         if (point.X < 0 || point.Y < 0 ||
@@ -385,14 +362,12 @@ public sealed class GameOptionsPresentation
             throw new InvalidDataException($"Options {owner} escapes the 32x32 page.");
     }
 
-    /// <summary>Validates palette.</summary>
     private static void ValidatePalette(int palette, string owner)
     {
         if ((uint)palette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException($"Options {owner} must be 0..7.");
     }
 
-    /// <summary>Palette bits.</summary>
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 }
@@ -491,20 +466,15 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>Size of one controller-label glyph patch in tile cells.</summary>
     public static Extent16<TilemapCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
 
-    /// <summary>Stores page names.</summary>
     private static readonly string[] pageNames =
         [BackgroundPage, PrimaryPage, ControllerEnglishPage, ControllerJapanesePage,
             SpecialEnglishPage, SpecialJapanesePage];
-    /// <summary>Stores menu page names.</summary>
     private static readonly string[] menuPageNames =
         [PrimaryMenu, ControllerMenu, SpecialMenu];
-    /// <summary>Stores controller label names.</summary>
     private static readonly string[] controllerLabelNames =
         ["X", "A", "B", "Select", "Y", "L", "R"];
-    /// <summary>Stores special toggle names.</summary>
     private static readonly string[] specialToggleNames =
         [IconCancelToggle, MoonwalkToggle];
-    /// <summary>Stores sprite names.</summary>
     private static readonly string[] spriteNames =
         ["Heading.Primary", "Heading.Controller", "Heading.Special",
             "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];

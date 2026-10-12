@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
@@ -12,7 +12,6 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// </summary>
 internal static class D3D11FrameReadback
 {
-    /// <summary>Provides extension members for <c>D3D11FrameRenderer</c>.</summary>
     extension(D3D11FrameRenderer self)
     {
         /// <summary>Diagnostic convenience; production presentation must use Render without readback.</summary>

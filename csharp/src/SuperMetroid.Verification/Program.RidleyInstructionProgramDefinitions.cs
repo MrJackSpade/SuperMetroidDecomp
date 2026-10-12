@@ -15,7 +15,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 
-/// <summary>Represents ridley instruction program definitions verification.</summary>
 internal static class RidleyInstructionProgramDefinitionsVerification
 {
     /// <summary>
@@ -111,7 +110,6 @@ internal static class RidleyInstructionProgramDefinitionsVerification
             "extended-sprite selections pass with zero live operand reads.");
     }
 
-    /// <summary>run program.</summary>
     private static void RunProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -165,7 +163,6 @@ internal static class RidleyInstructionProgramDefinitionsVerification
             $"Ridley program $A6:{program:X4}, facing {facingDirection}, did not sleep.");
     }
 
-    /// <summary>probe ridley instruction mechanics allocation.</summary>
     private static int ProbeRidleyInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -177,7 +174,6 @@ internal static class RidleyInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>new ridley instruction read guard.</summary>
     private static CartridgeReadGuard NewRidleyInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(RidleyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -185,7 +181,6 @@ internal static class RidleyInstructionProgramDefinitionsVerification
             .ObserveWords(0xa60000, RidleyInstructionProgramDefinitionsTooling.PresentationWordCount,
                 RidleyInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
-    /// <summary>ridley instruction mechanics command.</summary>
     [VerificationCommand("--ridley-instruction-mechanics")]
     internal static int RidleyInstructionMechanicsCommand()
     {

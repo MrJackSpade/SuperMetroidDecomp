@@ -13,10 +13,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
 
-/// <summary>Represents spc sound library2 pointers verification.</summary>
 internal static class SpcSoundLibrary2PointersVerification
 {
-    /// <summary>Verifies spc sound library2 pointers.</summary>
     internal static void VerifySpcSoundLibrary2Pointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -25,14 +23,10 @@ internal static class SpcSoundLibrary2PointersVerification
         Suite(nameof(VerifySpcSoundStream2), () => VerifySpcSoundStream2(rom));
     }
 
-    /// <summary>Verifies spc sound stream1.</summary>
     internal static void VerifySpcSoundStream1(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 0, 66, 0xcf96f5);
-    /// <summary>Verifies spc sound stream2.</summary>
     internal static void VerifySpcSoundStream2(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 1, 127, 0xcfa5bb);
-    /// <summary>Verifies spc sound stream3.</summary>
     internal static void VerifySpcSoundStream3(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 2, 47, 0xcfba97);
 
-    /// <summary>Verifies spc sound streams.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC sound streams")]
     private static void VerifySpcSoundStreams(ISnesAddressSpace rom, int library, int count, int source)
     {
@@ -67,7 +61,6 @@ internal static class SpcSoundLibrary2PointersVerification
             "runtime rejects the first undefined sound command before stream dispatch");
     }
 
-    /// <summary>Spc sound library2 pointers command.</summary>
     [VerificationCommand("--spc-sound-library-2-pointers")]
     internal static int SpcSoundLibrary2PointersCommand()
     {

@@ -8,31 +8,19 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class KraidBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Stores zebetite behavior.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
 
-    /// <summary>Initializes a new kraid behavior instance.</summary>
     internal KraidBehavior(KraidBehaviorDependencies dependencies)
     {
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
@@ -48,20 +36,16 @@ internal sealed class KraidBehavior : IEnemySpecies
         _deathsAndDrops = dependencies.DeathsAndDrops;
     }
 
-    /// <summary>Defines kraid initial arm instruction.</summary>
     private const ushort KraidInitialArmInstruction =
         KraidArmInstructionProgramDefinitions.RisingOrSinking;
-    /// <summary>Defines kraid initial lint instruction.</summary>
     private const ushort KraidInitialLintInstruction =
         KraidLintInstructionLists.InitialLint;
-    /// <summary>Defines kraid initial foot instruction.</summary>
     private const ushort KraidInitialFootInstruction =
         KraidFootInstructionProgramDefinitions.Initial;
 
     /// <summary>Most recent Kraid-private sound request in the current enemy frame.</summary>
     public KraidSoundRequest? LastKraidSoundEffect { get; private set; }
 
-    /// <summary>initialize kraid body.</summary>
     private void InitializeKraidBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
@@ -116,7 +100,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         _earthquake.EarthquakeType = 5;
     }
 
-    /// <summary>apply kraid scrolls.</summary>
     private void ApplyKraidScrolls(bool grown)
     {
         for (int index = 0; index < KraidCameraDefinitions.ScreenCount; index++)
@@ -125,7 +108,6 @@ internal sealed class KraidBehavior : IEnemySpecies
                 : KraidCameraDefinitions.InitialScroll(index));
     }
 
-    /// <summary>initialize kraid arm.</summary>
     private void InitializeKraidArm(RoomEnemySlot arm)
     {
         KraidEnemyState state = RequireKraidState(arm);
@@ -143,7 +125,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         state.Parts[arm.SlotIndex].NextFunction = KraidAiFunction.NoOperation;
     }
 
-    /// <summary>initialize kraid lint.</summary>
     private void InitializeKraidLint(RoomEnemySlot lint, int expectedSlot)
     {
         _ = RequireKraidState(lint);
@@ -161,7 +142,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         lint.VariableC = expectedSlot == 2 ? (ushort)0 : (ushort)0xfff0;
     }
 
-    /// <summary>initialize kraid foot.</summary>
     private void InitializeKraidFoot(RoomEnemySlot foot)
     {
         KraidEnemyState state = RequireKraidState(foot);
@@ -198,7 +178,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         nail.VariableF = 64;
     }
 
-    /// <summary>ensure kraid slot.</summary>
     private static void EnsureKraidSlot(RoomEnemySlot slot, int expectedSlot, string part)
     {
         if (slot.SlotIndex != expectedSlot)
@@ -261,7 +240,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         RunKraidCombatFunction(body, state, vramWriteQueue, camera.X);
     }
 
-    /// <summary>run kraid palette handling.</summary>
     private void RunKraidPaletteHandling(RoomEnemySlot body, KraidEnemyState state)
     {
         if (body.Health == 0)
@@ -281,7 +259,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>update kraid health palettes.</summary>
     internal void UpdateKraidHealthPalettes(RoomEnemySlot body, KraidEnemyState state)
     {
         int thresholdWordOffset = 14;
@@ -310,7 +287,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>register kraid bomb reactions.</summary>
     internal void RegisterKraidBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot,
@@ -333,7 +309,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             });
     }
 
-    /// <summary>register kraid projectiles.</summary>
     internal static void RegisterKraidProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -347,7 +322,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.KraidCeilingRocks);
     }
 
-    /// <summary>register kraid initialization ai.</summary>
     internal void RegisterKraidInitializationAi(EnemyAiTable table)
     {
 
@@ -392,7 +366,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register kraid main ai.</summary>
     internal void RegisterKraidMainAi(EnemyAiTable table)
     {
 
@@ -432,7 +405,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         table.RegisterMain(EnemyAiRoutine.MainAI_KraidNailBad, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad, shared112);
     }
 
-    /// <summary>register kraid owned instructions.</summary>
     internal void RegisterKraidOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -448,7 +420,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register kraid shot reactions.</summary>
     internal void RegisterKraidShotReactions(EnemyAiTable table)
     {
         // Kraid's arm and foot are admitted by their literal no-op header callback, but their authored hitboxes
@@ -476,7 +447,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register kraid touch.</summary>
     internal void RegisterKraidTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
@@ -623,11 +593,9 @@ internal sealed class KraidBehavior : IEnemySpecies
         state.BottomTilemapUploadCount++;
     }
 
-    /// <summary>without kraid bg2 priority.</summary>
     private static ushort WithoutKraidBg2Priority(ushort word) =>
         unchecked((ushort)(word & ~KraidBackgroundRomData.PriorityBit));
 
-    /// <summary>read little endian word.</summary>
     private static ushort ReadLittleEndianWord(ReadOnlySpan<byte> source, int word)
     {
         int offset = checked(word * 2);
@@ -657,12 +625,9 @@ internal sealed class KraidBehavior : IEnemySpecies
     /// </summary>
     internal readonly struct KraidShotSlots
     {
-        /// <summary>Stores projectiles.</summary>
         private readonly SamusProjectileSystem _projectiles;
-        /// <summary>Stores shared projectiles.</summary>
         private readonly SamusBombProjectileSystem _sharedProjectiles;
 
-        /// <summary>Initializes a new kraid shot slots instance.</summary>
         public KraidShotSlots(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles)
         {
             _projectiles = projectiles;
@@ -672,10 +637,8 @@ internal sealed class KraidBehavior : IEnemySpecies
                 throw new InvalidDataException($"Kraid projectile counter {LastSlot} exceeds the bounded native slot domain.");
         }
 
-        /// <summary>Gets last slot.</summary>
         public int LastSlot { get; }
 
-        /// <summary>read.</summary>
         public KraidCollisionShot Read(int index)
         {
             if (index < SamusProjectileSystem.SlotCount)
@@ -687,7 +650,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             return new(bomb.Position.Whole, bomb.Radius, bomb.Type, bomb.Damage);
         }
 
-        /// <summary>mark collision.</summary>
         public void MarkCollision(int index)
         {
             if (index < SamusProjectileSystem.SlotCount)
@@ -831,7 +793,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         return bodyHits;
     }
 
-    /// <summary>load kraid collision scratch.</summary>
     internal KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer)
     {
         (short left, short top, short bottom) = KraidMouthHitboxes.ResolveCollision(_room.Bus!, pointer);
@@ -843,28 +804,21 @@ internal sealed class KraidBehavior : IEnemySpecies
         };
     }
 
-    /// <summary>Represents kraid collision shot.</summary>
     internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, ushort Type, ushort Damage);
 
     // These are the bounded DP $12/$14/$16 words local to a native collision pass.
     // Compare the wrapped subtraction's sign, not an unbounded host integer ordering.
-    /// <summary>Represents kraid collision scratch.</summary>
     internal struct KraidCollisionScratch
     {
-        /// <summary>Stores bottom.</summary>
         public ushort Bottom;
-        /// <summary>Stores top.</summary>
         public ushort Top;
-        /// <summary>Stores left.</summary>
         public ushort Left;
 
-        /// <summary>overlaps mouth.</summary>
         public readonly bool OverlapsMouth(KraidCollisionShot shot) =>
             unchecked((short)(shot.Position.Y - shot.Radius.Y - 1 - Bottom)) < 0 &&
             unchecked((short)(shot.Position.Y + shot.Radius.Y - Top)) >= 0 &&
             unchecked((short)(shot.Position.X + shot.Radius.X - Left)) >= 0;
 
-        /// <summary>overlaps body.</summary>
         public bool OverlapsBody(RoomEnemySlot body, KraidCollisionShot shot)
         {
             if (unchecked((short)(shot.Position.Y - shot.Radius.Y - 1 - Bottom)) < 0)
@@ -877,7 +831,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>begin kraid death.</summary>
     private void BeginKraidDeath(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.DeathInitialize;
@@ -902,13 +855,11 @@ internal sealed class KraidBehavior : IEnemySpecies
         return colors.Resolve(source, index);
     }
 
-    /// <summary>load kraid color band.</summary>
     internal void LoadKraidColorBand(KraidPaletteSource source, CgramPalette destination)
     {
         for (int color = 0; color < KraidPaletteRomData.BandColors; color++)
             destination.Write(color, ReadKraidColor(source, color));
     }
-    /// <summary>run kraid combat function.</summary>
     internal void RunKraidCombatFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -991,7 +942,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>setup kraid first phase thinking.</summary>
     private void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
@@ -1001,7 +951,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 
-    /// <summary>setup kraid second phase thinking.</summary>
     private void SetupKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.SecondPhaseThinking;
@@ -1011,7 +960,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 
-    /// <summary>run kraid second phase thinking.</summary>
     internal static void RunKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
@@ -1022,7 +970,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>run kraid mouth open attack.</summary>
     private void RunKraidMouthOpenAttack(RoomEnemySlot body, KraidEnemyState state)
     {
         ushort result = ProcessKraidHeadInstruction(body, state);
@@ -1063,7 +1010,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>process kraid head instruction.</summary>
     internal ushort ProcessKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
         ushort result = body.VariableC;
@@ -1073,7 +1019,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         return result == 1 ? ExecuteKraidHeadInstruction(body, state) : result;
     }
 
-    /// <summary>execute kraid head instruction.</summary>
     internal ushort ExecuteKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
         for (int commandCount = 0; commandCount < 16; commandCount++)
@@ -1114,7 +1059,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         throw new InvalidDataException("Kraid head instruction stream exceeded its command guard.");
     }
 
-    /// <summary>run kraid mouth open reaction.</summary>
     private void RunKraidMouthOpenReaction(RoomEnemySlot body, KraidEnemyState state)
     {
         if (ProcessKraidHeadInstruction(body, state) != ushort.MaxValue)
@@ -1136,7 +1080,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         state.MouthFlags = 0;
     }
 
-    /// <summary>initialize kraid eye glow.</summary>
     internal void InitializeKraidEyeGlow(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.GlowEye;
@@ -1145,7 +1088,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         GlowKraidEye(body, state);
     }
 
-    /// <summary>glow kraid eye.</summary>
     private void GlowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
         _ = ProcessKraidHeadInstruction(body, state);
@@ -1180,7 +1122,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             body.VariableA = (ushort)KraidAiFunction.UnglowEye;
     }
 
-    /// <summary>unglow kraid eye.</summary>
     internal void UnglowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
         int thresholdWordOffset = 14;
@@ -1223,7 +1164,6 @@ internal sealed class KraidBehavior : IEnemySpecies
     // These collision checks belong to actor AI rather than generic interactive hitboxes.
     // The body's permanent intangible flag and lint's no-op touch callback do not
     // suppress these private native paths.
-    /// <summary>resolve kraid body contact.</summary>
     private void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
         if (unchecked((short)(body.VariableA - (ushort)KraidAiFunction.DeathInitialize)) >= 0)
@@ -1242,7 +1182,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             _collision.ResolveNormalEnemyTouch(body, samus);
     }
 
-    /// <summary>resolve kraid lint contact.</summary>
     private void ResolveKraidLintContact(RoomEnemySlot lint, SamusState samus)
     {
         if (lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) || samus.InvincibilityTimer != 0)
@@ -1262,7 +1201,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         _collision.ResolveNormalEnemyTouch(lint, samus);
         lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
-    /// <summary>run kraid death function.</summary>
     private void RunKraidDeathFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -1396,7 +1334,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         MarkKraidPartDead(body);
     }
 
-    /// <summary>initialize kraid death.</summary>
     internal void InitializeKraidDeath(RoomEnemySlot body, KraidEnemyState state)
     {
         if (state.HurtFrame != 0)
@@ -1422,7 +1359,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         _kraidPlmRequests.Add(KraidPlmDefinitions.LiveDeathSpikes);
     }
 
-    /// <summary>run kraid death sink.</summary>
     private void RunKraidDeathSink(RoomEnemySlot body, KraidEnemyState state)
     {
         _ = ProcessKraidHeadInstruction(body, state);
@@ -1467,7 +1403,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         _presentation.GradualColorChange.Numerator = 0;
     }
 
-    /// <summary>process kraid sink table.</summary>
     internal void ProcessKraidSinkTable(RoomEnemySlot body, KraidEnemyState state)
     {
         if (KraidSinkSchedule.CallbackAt(body.Position.Y.Whole) is KraidSinkCallback function)
@@ -1487,7 +1422,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>advance kraid death bg3 transfer.</summary>
     internal void AdvanceKraidDeathBg3Transfer(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -1518,7 +1452,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         state.DeathBg3TransferCount++;
         body.VariableA = (ushort)next;
     }
-    /// <summary>try begin kraid growth.</summary>
     internal bool TryBeginKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
     {
         if (unchecked((short)(body.Health - state.HealthEighthThreshold(6))) >= 0)
@@ -1550,7 +1483,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>run kraid growth function.</summary>
     internal void RunKraidGrowthFunction(RoomEnemySlot body, KraidEnemyState state)
     {
         switch ((KraidAiFunction)body.VariableA)
@@ -1626,7 +1558,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>advance kraid room background fade.</summary>
     internal bool AdvanceKraidRoomBackgroundFade(
         bool fadeToBlack)
     {
@@ -1648,11 +1579,9 @@ internal sealed class KraidBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>transition kraid color.</summary>
     private static Bgr555 TransitionKraidColor(ushort step, Bgr555 current, Bgr555 target) =>
         current.Zip(target, (_, from, to) => TransitionKraidComponent(step, from, to));
 
-    /// <summary>transition kraid component.</summary>
     private static int TransitionKraidComponent(ushort step, int current, int target)
     {
         if (step == 0)
@@ -1665,7 +1594,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         return SnesEightEight.WholeOf(signedDelta + SnesEightEight.FromWhole(current));
     }
 
-    /// <summary>finish kraid growth.</summary>
     internal void FinishKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
     {
         SetupKraidSecondPhaseThinking(body, state);
@@ -1724,7 +1652,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>select kraid arm speed instruction.</summary>
     private ushort SelectKraidArmSpeedInstruction(ushort cursor)
     {
         RoomEnemySlot body = _slotTable._slots[0];
@@ -1739,7 +1666,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         return unchecked((ushort)(cursor + 2));
     }
 
-    /// <summary>process kraid foot instruction.</summary>
     private void ProcessKraidFootInstruction(KraidFootInstruction instruction, RoomLevelData? level)
     {
         RoomEnemySlot body = _slotTable._slots[0];
@@ -1788,7 +1714,6 @@ internal sealed class KraidBehavior : IEnemySpecies
                 throw new InvalidOperationException($"Undefined {nameof(KraidFootInstruction)} {(int)instruction:X4}.");
         }
     }
-    /// <summary>run kraid nail main.</summary>
     private void RunKraidNailMain(RoomEnemySlot nail, RoomLevelData? level)
     {
         KraidEnemyState state = RequireKraidState(nail);
@@ -1834,7 +1759,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>initialize kraid nail flight.</summary>
     internal void InitializeKraidNailFlight(RoomEnemySlot nail, KraidPartState part)
     {
         // The pair coordinates its next launch through the other actor's previous
@@ -1873,7 +1797,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
     }
 
-    /// <summary>tick kraid nail flight.</summary>
     internal void TickKraidNailFlight(RoomEnemySlot nail, RoomLevelData level)
     {
         int horizontal = CombineKraidVelocity(nail.VariableB, nail.VariableC);
@@ -1896,7 +1819,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>kraid body contour reflects nail.</summary>
     internal bool KraidBodyContourReflectsNail(RoomEnemySlot nail)
     {
         RoomEnemySlot body = _slotTable._slots[0];
@@ -1907,7 +1829,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             unchecked((short)nail.VariableC) >= 0;
     }
 
-    /// <summary>combine kraid velocity.</summary>
     private static int CombineKraidVelocity(ushort low, ushort high) =>
         unchecked((int)(SnesSixteenSixteen.Compose(high, low)));
 
@@ -1919,7 +1840,6 @@ internal sealed class KraidBehavior : IEnemySpecies
     private static (ushort Low, ushort High) ReflectKraidNailHorizontalVelocity(ushort low, ushort high) =>
         (unchecked((ushort)-low), unchecked((ushort)-high));
 
-    /// <summary>negate kraid velocity.</summary>
     private static (ushort Low, ushort High) NegateKraidVelocity(ushort low, ushort high)
     {
         int negated = unchecked(-CombineKraidVelocity(low, high));
@@ -1927,29 +1847,21 @@ internal sealed class KraidBehavior : IEnemySpecies
             unchecked((ushort)negated),
             SnesFixedPosition.WholeOf(unchecked((int)((uint)negated))));
     }
-    /// <summary>Defines kraid arm normal instruction.</summary>
     private const ushort KraidArmNormalInstruction =
         KraidArmInstructionProgramDefinitions.Normal;
-    /// <summary>Defines kraid arm retracted instruction.</summary>
     private const ushort KraidArmRetractedInstruction =
         KraidArmInstructionProgramDefinitions.DyingOrPreparingToLunge;
-    /// <summary>Defines kraid foot neutral instruction.</summary>
     private const ushort KraidFootNeutralInstruction =
         KraidFootInstructionProgramDefinitions.Neutral;
-    /// <summary>Defines kraid foot lunge instruction.</summary>
     private const ushort KraidFootLungeInstruction =
         KraidFootInstructionProgramDefinitions.LungeForward;
-    /// <summary>Defines kraid foot lunge finished instruction.</summary>
     private const ushort KraidFootLungeFinishedInstruction =
         KraidFootInstructionProgramDefinitions.LungeForwardFinished;
-    /// <summary>Defines kraid foot walk back instruction.</summary>
     private const ushort KraidFootWalkBackInstruction =
         KraidFootInstructionProgramDefinitions.WalkingBackward;
-    /// <summary>Defines kraid foot walk back loop instruction.</summary>
     private const ushort KraidFootWalkBackLoopInstruction =
         KraidFootInstructionProgramDefinitions.WalkingBackwardLoop;
 
-    /// <summary>run kraid arm main.</summary>
     private void RunKraidArmMain(RoomEnemySlot arm, ushort cameraY)
     {
         KraidEnemyState state = RequireKraidState(arm);
@@ -1970,7 +1882,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             arm.InstructionTimer = unchecked((ushort)(arm.InstructionTimer + 1));
     }
 
-    /// <summary>run kraid lint main.</summary>
     internal void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
     {
         KraidEnemyState state = RequireKraidState(lint);
@@ -2001,14 +1912,12 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>align kraid part.</summary>
     internal void AlignKraidPart(RoomEnemySlot partSlot, KraidPartState part)
     {
         partSlot.Position = partSlot.Position.WithWholeX(unchecked((ushort)(_slotTable._slots[0].Position.X.Whole - partSlot.Radius.X)));
         TickKraidFunctionTimer(partSlot, part);
     }
 
-    /// <summary>produce kraid lint.</summary>
     private void ProduceKraidLint(RoomEnemySlot lint)
     {
         lint.Properties = lint.Properties.Without(
@@ -2023,7 +1932,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>charge kraid lint.</summary>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
         lint.PaletteIndex = (lint.VariableF & 1) != 0 ? (ushort)3584 : (ushort)0;
@@ -2038,7 +1946,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>fire kraid lint.</summary>
     private static void FireKraidLint(RoomEnemySlot lint, KraidPartState part, SamusState? samus)
     {
         AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
@@ -2067,7 +1974,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>run kraid foot main.</summary>
     internal void RunKraidFootMain(RoomEnemySlot foot, ushort cameraY)
     {
         KraidEnemyState state = RequireKraidState(foot);
@@ -2125,7 +2031,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>prepare kraid first phase lunge.</summary>
     private void PrepareKraidFirstPhaseLunge(RoomEnemySlot body, RoomEnemySlot foot)
     {
         if (TryBeginKraidGrowth(body, RequireKraidState(body)))
@@ -2142,7 +2047,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         foot.VariableF = 0;
     }
 
-    /// <summary>run kraid first phase lunge.</summary>
     private void RunKraidFirstPhaseLunge(
         RoomEnemySlot body,
         RoomEnemySlot foot,
@@ -2168,7 +2072,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         foot.InstructionTimer = 1;
     }
 
-    /// <summary>tick kraid foot transition timer.</summary>
     private static void TickKraidFootTransitionTimer(RoomEnemySlot foot, KraidPartState part)
     {
         if (foot.VariableF == 0)
@@ -2183,7 +2086,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>run kraid first phase retreat.</summary>
     private void RunKraidFirstPhaseRetreat(
         RoomEnemySlot body,
         RoomEnemySlot foot,
@@ -2213,7 +2115,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>run kraid second phase walk to start.</summary>
     private void RunKraidSecondPhaseWalkToStart(
         RoomEnemySlot body,
         RoomEnemySlot foot,
@@ -2235,7 +2136,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         foot.InstructionTimer = 1;
     }
 
-    /// <summary>run kraid second phase thinking.</summary>
     internal void RunKraidSecondPhaseThinking(
         RoomEnemySlot body,
         RoomEnemySlot foot,
@@ -2252,7 +2152,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             SetKraidWalkingLeft(foot, part, targetX, thinkTimer);
     }
 
-    /// <summary>set kraid walking right.</summary>
     private void SetKraidWalkingRight(
         RoomEnemySlot foot,
         KraidPartState part,
@@ -2266,7 +2165,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         foot.InstructionTimer = 1;
     }
 
-    /// <summary>set kraid walking left.</summary>
     private void SetKraidWalkingLeft(
         RoomEnemySlot foot,
         KraidPartState part,
@@ -2280,7 +2178,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         foot.InstructionTimer = 1;
     }
 
-    /// <summary>run kraid second phase walking right.</summary>
     private void RunKraidSecondPhaseWalkingRight(RoomEnemySlot body, RoomEnemySlot foot)
     {
         ushort targetX = RequireKraidState(body).TargetX;
@@ -2298,7 +2195,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>run kraid second phase walking left.</summary>
     private void RunKraidSecondPhaseWalkingLeft(RoomEnemySlot body, RoomEnemySlot foot)
     {
         ushort targetX = RequireKraidState(body).TargetX;
@@ -2323,7 +2219,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>add signed kraid horizontal displacement.</summary>
     private static void AddSignedKraidHorizontalDisplacement(
         RoomEnemySlot slot,
         int displacement)
@@ -2332,7 +2227,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         position = unchecked(position + (uint)displacement);
         slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
-    /// <summary>spawn kraid spit rock.</summary>
     internal bool SpawnKraidSpitRock(RoomEnemySlot body)
     {
         RoomEnemyProjectileSlot? rock = _projectiles.AllocateEnemyProjectile();
@@ -2351,7 +2245,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>request kraid rising rock.</summary>
     internal void RequestKraidRisingRock(RoomEnemySlot body, KraidEnemyState state)
     {
         state.RiseRockSpawnRequestCount++;
@@ -2375,7 +2268,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         LastKraidSoundEffect = new KraidSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x001e));
     }
 
-    /// <summary>spawn kraid ceiling rock.</summary>
     internal bool SpawnKraidCeilingRock(ushort xPosition)
     {
         RoomEnemyProjectileSlot? rock = _projectiles.AllocateEnemyProjectile();
@@ -2392,7 +2284,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>run kraid rock pre instruction.</summary>
     internal static void RunKraidRockPreInstruction(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
@@ -2411,7 +2302,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(rock.Velocity.Y.RawValue + 0x0040))));
     }
 
-    /// <summary>run kraid ceiling rock pre instruction.</summary>
     internal static void RunKraidCeilingRockPreInstruction(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
@@ -2424,10 +2314,8 @@ internal sealed class KraidBehavior : IEnemySpecies
         rock.Velocity = rock.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((rock.Velocity.Y.RawValue + 0x0018) & 0x3fff))));
     }
 
-    /// <summary>read kraid random number.</summary>
     private ushort ReadKraidRandomNumber() =>
         _room.Random.Read();
-    /// <summary>run kraid rise function.</summary>
     internal void RunKraidRiseFunction(
         RoomEnemySlot body,
         KraidEnemyState state,
@@ -2532,7 +2420,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>tick kraid function timer.</summary>
     private static void TickKraidFunctionTimer(
         RoomEnemySlot slot,
         KraidPartState part)
@@ -2544,7 +2431,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             slot.VariableA = (ushort)part.NextFunction;
     }
 
-    /// <summary>add signed kraid vertical displacement.</summary>
     private static void AddSignedKraidVerticalDisplacement(
         RoomEnemySlot body,
         int displacement)
@@ -2554,7 +2440,6 @@ internal sealed class KraidBehavior : IEnemySpecies
         body.Position = body.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
-    /// <summary>read kraid thinking timer.</summary>
     private ushort ReadKraidThinkingTimer()
     {
         ushort random = _room.Random.Read();
@@ -2563,7 +2448,6 @@ internal sealed class KraidBehavior : IEnemySpecies
             value = 2;
         return unchecked((ushort)(value << 6));
     }
-    /// <summary>Stores kraid plm requests.</summary>
     internal readonly List<KraidPlmRequest> _kraidPlmRequests = [];
 
     /// <summary>Active typed state when the loaded room owns retail Kraid slot zero.</summary>
@@ -2572,7 +2456,6 @@ internal sealed class KraidBehavior : IEnemySpecies
     /// <summary>Hardcoded Kraid room mutations published during the current enemy frame.</summary>
     public IReadOnlyList<KraidPlmRequest> KraidPlmRequests => _kraidPlmRequests;
 
-    /// <summary>reset kraid room state.</summary>
     internal void ResetKraidRoomState()
     {
         Kraid = null;
@@ -2630,7 +2513,6 @@ internal sealed class KraidBehavior : IEnemySpecies
     }
 
 
-    /// <summary>register kraid nail touch.</summary>
     internal void RegisterKraidNailTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail &&
@@ -2648,7 +2530,6 @@ internal sealed class KraidBehavior : IEnemySpecies
     }
 
 
-    /// <summary>register kraid rock spit pre instruction.</summary>
     internal static void RegisterKraidRockSpitPreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>

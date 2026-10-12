@@ -1,6 +1,5 @@
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>Represents ending explosion display definitions.</summary>
 internal static class EndingExplosionDisplayDefinitions
 {
     /// <summary>Native visible scanout begins at physical line one. With BG VOFS=0, the first displayed BG row is source row one, while OBJ remains screen-relative.</summary>

@@ -13,7 +13,6 @@ public static class EnemyTileSourceDefinitions
     /// <summary>Every distinct bank-$A0 graphics-set definition, with its native source and masked byte length.</summary>
     public static IReadOnlyList<EnemyTileSourceDefinition> All { get; } = Build();
 
-    /// <summary>Builds.</summary>
     private static System.Collections.ObjectModel.ReadOnlyCollection<EnemyTileSourceDefinition> Build()
     {
         EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetDefinitions.Pointers

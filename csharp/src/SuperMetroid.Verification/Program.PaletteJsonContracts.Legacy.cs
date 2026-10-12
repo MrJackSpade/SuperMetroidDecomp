@@ -5,10 +5,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static PaletteJsonContractsFixturesVerification;
 
-/// <summary>Represents palette json contracts legacy verification.</summary>
 internal static class PaletteJsonContractsLegacyVerification
 {
-    /// <summary>Reads palette contract.</summary>
     internal static T ReadPaletteContract<T>(JsonObject document, Func<Stream, T> load)
     {
         using var json = new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()), writable: false);
@@ -92,7 +90,6 @@ internal static class PaletteJsonContractsLegacyVerification
             legacyCgram.Colors[MotherBrainRainbowPaletteRomData.BodyColor], "legacy retains edited normal colors");
     }
 
-    /// <summary>Pack palette contract color.</summary>
     private static ushort PackPaletteContractColor(JsonObject color) => (ushort)(color["red"]!.GetValue<int>() |
         color["green"]!.GetValue<int>() << 5 | color["blue"]!.GetValue<int>() << 10);
 }

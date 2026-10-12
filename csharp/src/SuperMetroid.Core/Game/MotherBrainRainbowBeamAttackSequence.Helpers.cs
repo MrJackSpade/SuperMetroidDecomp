@@ -9,10 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal readonly record struct MotherBrainWalkResult(bool ReachedTarget, bool Requested)
 {
-    /// <summary>Gets reached.</summary>
     internal static MotherBrainWalkResult Reached => new(true, false);
-    /// <summary>Gets waiting.</summary>
     internal static MotherBrainWalkResult Waiting => new(false, false);
-    /// <summary>Gets walk installed.</summary>
     internal static MotherBrainWalkResult WalkInstalled => new(false, true);
 }

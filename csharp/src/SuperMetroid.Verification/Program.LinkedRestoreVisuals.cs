@@ -8,10 +8,8 @@ using static BabyMetroidRouteDefinitionsVerification;
 using static ShotBlockPlmProgramsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents linked restore visuals verification.</summary>
 internal static class LinkedRestoreVisualsVerification
 {
-    /// <summary>Verifies linked restore stock mapping.</summary>
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
     {
         (ushort Pointer, string Id)[] frames = [(0xa4c7,"bomb-horizontal"), (0xa4cf,"bomb-vertical"),
@@ -70,7 +68,6 @@ internal static class LinkedRestoreVisualsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmLinkedRestoreVisualCatalog(entries), "linked restore rejects collision bits in artwork");
     }
 
-    /// <summary>Verifies linked restore visual installation.</summary>
     internal static void VerifyLinkedRestoreVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
@@ -146,7 +143,6 @@ internal static class LinkedRestoreVisualsVerification
         }
     }
 
-    /// <summary>Verifies linked restore visual separation.</summary>
     internal static void VerifyLinkedRestoreVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden, bool bomb)
     {

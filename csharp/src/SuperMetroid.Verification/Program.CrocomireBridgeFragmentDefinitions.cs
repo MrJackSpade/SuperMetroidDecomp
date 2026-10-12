@@ -15,10 +15,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents crocomire bridge fragment definitions verification.</summary>
 internal static class CrocomireBridgeFragmentDefinitionsVerification
 {
-    /// <summary>Verifies crocomire bridge fragment definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge fragment definitions")]
     internal static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -73,13 +71,11 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             "Crocomire bridge fragments: all eleven native positions, eleven real allocations and the cursor cutoff pass with the source table forbidden.");
     }
 
-    /// <summary>New crocomire bridge fragment read guard.</summary>
     private static CartridgeReadGuard NewCrocomireBridgeFragmentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa49156 and < 0xa4916c,
                 address => $"Crocomire bridge fragment attempted migrated position read ${address:X6}.");
 
-    /// <summary>Crocomire bridge fragment definitions command.</summary>
     [VerificationCommand("--crocomire-bridge-fragment-definitions")]
     internal static int CrocomireBridgeFragmentDefinitionsCommand()
     {

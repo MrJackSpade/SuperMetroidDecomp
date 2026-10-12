@@ -13,7 +13,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents intro content identity verification.</summary>
 internal static class IntroContentIdentityVerification
 {
     /// <summary>Verifies source-identified opening/Ceres presentation coverage; no gameplay read discovery.</summary>
@@ -78,7 +77,6 @@ internal static class IntroContentIdentityVerification
             [KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, digest)]);
     }
 
-    /// <summary>Creates intro identity fixture.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static IntroCinematicArtworkCatalog CreateIntroIdentityFixture(string? edit = null, bool reverse = false)
     {
@@ -210,7 +208,6 @@ internal static class IntroContentIdentityVerification
             })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name), (int)IntroCaretSpriteVersion.Current)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), Palette = IntroCinematicPalette.Load(PaletteJson("intro-palette")), CeresFlight = flight, CeresDestruction = destruction });
     }
 
-    /// <summary>Intro content identity command.</summary>
     [VerificationCommand("--intro-content-identity")]
     internal static int IntroContentIdentityCommand()
     {

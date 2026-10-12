@@ -2,10 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents reserve tile pixels verification.</summary>
 internal static class ReserveTilePixelsVerification
 {
-    /// <summary>Verifies reserve tile pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reserve tile pixels")]
     internal static void VerifyReserveTilePixels(ISnesAddressSpace rom)

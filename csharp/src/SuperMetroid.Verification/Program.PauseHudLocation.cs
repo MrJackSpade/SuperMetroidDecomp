@@ -9,10 +9,8 @@ using SuperMetroid.Core.Rom;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents pause hud location verification.</summary>
 internal static class PauseHudLocationVerification
 {
-    /// <summary>Verifies pause hud location.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause palette and HUD tile graphics")]
     internal static void VerifyPauseHudLocation()

@@ -1,4 +1,4 @@
-using static SuperMetroid.Core.Game.InstructionItem;
+﻿using static SuperMetroid.Core.Game.InstructionItem;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(SporeSpawnInstructionProgramDefinitions))]
 internal abstract class SporeSpawnInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe, IDeclaredProgramBank
 {
-    /// <summary>Gets the cartridge bank containing this instruction program.</summary>
     static int IDeclaredProgramBank.Bank => SporeSpawnInstructionProgramDefinitions.Bank;
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => SporeSpawnInstructionProgramDefinitions.Layout.MechanicsWordCount;
     /// <summary>Number of interleaved presentation words, compiled separately for installed play.</summary>
     public static int PresentationWordCount => SporeSpawnInstructionProgramDefinitions.Layout.PresentationSlotCount;

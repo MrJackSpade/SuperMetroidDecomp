@@ -76,7 +76,6 @@ internal static class SamusProjectileSelectionDefinitions
     /// <summary>$93:A16D UNUSED_InstList_SamusProjectile_Projectile27_93A16D: unused kind27 program.</summary>
     private const ushort Projectile27Program = 0xa16d;
 
-    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(int address)
     {
         if (address < BeamSelectors || address >= (int)SamusProjectileHeader.Projectile27 + 4 || (address & 1) == 0)
@@ -164,7 +163,6 @@ internal static class SamusProjectileSelectionDefinitions
         throw new InvalidDataException($"Projectile selector ${address:X6} is not a four-byte header's program field.");
     }
 
-    /// <summary>Beam header.</summary>
     private static ushort BeamHeader(bool charged, SamusBeamCombination beam)
     {
         int row = beam switch
@@ -189,7 +187,6 @@ internal static class SamusProjectileSelectionDefinitions
         return (ushort)(BeamHeaderStart + (row + (charged ? 12 : 0)) * BeamHeaderStride);
     }
 
-    /// <summary>Beam program.</summary>
     private static ushort BeamProgram(bool charged, SamusBeamCombination beam, int octant)
     {
         int axis = octant & 3;

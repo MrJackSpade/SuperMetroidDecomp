@@ -32,7 +32,6 @@ internal static class AndroidFileImport
                 directory));
     }
 
-    /// <summary>Imports state core.</summary>
     private static string ImportStateCore(
         string root,
         string source,
@@ -62,7 +61,6 @@ internal static class AndroidFileImport
         StageRegularSaveCore(root, source, SuperMetroidAddressSpace.CreateWithoutCartridge(),
             new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps());
 
-    /// <summary>Stage regular save core.</summary>
     private static string StageRegularSaveCore(
         string root,
         string source,
@@ -75,7 +73,6 @@ internal static class AndroidFileImport
         return "Regular save validated and staged for next app launch. Current gameplay is unchanged. Previous save will be backed up before activation.";
     }
 
-    /// <summary>Activate pending save.</summary>
     public static void ActivatePendingSave(string root, SuperMetroidAddressSpace bus, string savePath, AreaMapPresentationCatalog maps)
     {
         string pending = PendingPath(root);
@@ -86,10 +83,8 @@ internal static class AndroidFileImport
         File.Delete(pending);
     }
 
-    /// <summary>Pending path.</summary>
     private static string PendingPath(string root) => Path.Combine(root, "SuperMetroid.import.save.json");
 
-    /// <summary>Replace with backup.</summary>
     private static void ReplaceWithBackup(string root, string source, string destination)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
@@ -103,7 +98,6 @@ internal static class AndroidFileImport
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
 
-    /// <summary>Backup.</summary>
     private static void Backup(string root, string source)
     {
         string directory = Path.Combine(root, "import-backups");

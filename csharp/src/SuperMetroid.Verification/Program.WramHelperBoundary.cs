@@ -12,7 +12,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents wram helper boundary verification.</summary>
 internal static class WramHelperBoundaryVerification
 {
     /// <summary>Checks the statically identified WRAM-only helpers without importing a cartridge or running gameplay.</summary>
@@ -42,7 +41,6 @@ internal static class WramHelperBoundaryVerification
         Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection, corpse scheduling, 50 projectile-inheritance records and Fireflea cadence pass without a cartridge.");
     }
 
-    /// <summary>Verifies wram word mapping.</summary>
     [CpuBusBoundary("exact bus test: WRAM word bank wrap, system-bank mirror and non-WRAM source rejection")]
     private static void VerifyWramWordMapping(SuperMetroidAddressSpace memory)
     {
@@ -58,7 +56,6 @@ internal static class WramHelperBoundaryVerification
                 "WRAM helper rejects cartridge, SRAM and peripheral sources");
     }
 
-    /// <summary>Verifies wram corpse scheduler.</summary>
     private static void VerifyWramCorpseScheduler(SuperMetroidAddressSpace memory)
     {
         CorpseRotTable table = new EnemyScratchMemory(memory).RotTable(0x9000, 3);
@@ -80,7 +77,6 @@ internal static class WramHelperBoundaryVerification
             CorpseRottingTableProcessor.ReadEntry(table, 1), "second row retains its decremented WRAM delay");
     }
 
-    /// <summary>Verifies wram projectile inheritance.</summary>
     private static void VerifyWramProjectileInheritance(SuperMetroidAddressSpace memory)
     {
         ushort[][] snapshots =
@@ -122,7 +118,6 @@ internal static class WramHelperBoundaryVerification
         }
     }
 
-    /// <summary>WRAM helper boundary command.</summary>
     [VerificationCommand("--wram-helper-boundary")]
     internal static int WramHelperBoundaryCommand()
     {

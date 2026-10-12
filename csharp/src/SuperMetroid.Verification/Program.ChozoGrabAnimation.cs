@@ -12,10 +12,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-/// <summary>Represents chozo grab animation verification.</summary>
 internal static class ChozoGrabAnimationVerification
 {
-    /// <summary>Verifies chozo grab animation.</summary>
     internal static void VerifyChozoGrabAnimation(bool powerBomb = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -123,14 +121,12 @@ internal static class ChozoGrabAnimationVerification
         Console.WriteLine($"Walking Chozo: native hand, frozen frame/timer through {frames} carry frames, movement and release verified.");
     }
 
-    /// <summary>Chozo power bomb command.</summary>
     [VerificationCommand("--chozo-power-bomb")]
     internal static int ChozoPowerBombCommand()
     {
      VerifyChozoGrabAnimation(powerBomb: true); return 0; 
     }
 
-    /// <summary>Chozo grab animation command.</summary>
     [VerificationCommand("--chozo-grab-animation")]
     internal static int ChozoGrabAnimationCommand()
     {

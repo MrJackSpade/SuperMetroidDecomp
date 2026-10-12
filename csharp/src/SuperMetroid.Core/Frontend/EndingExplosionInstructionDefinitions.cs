@@ -30,7 +30,6 @@ internal static class EndingExplosionInstructionDefinitions
     /// pre-instruction installed after the right starfield ends the explosion.</summary>
     private const ushort StarsPreInstruction = 0xf35a;
 
-    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         int offset = pointer - Start;
@@ -76,7 +75,6 @@ internal static class EndingExplosionInstructionDefinitions
         return pointer < Afterglow ? HoldWord(pointer, LeftStars, EndingExplosionSpriteDefinitions.Pointer(Pose.Stars)) : HoldWord(pointer, Afterglow, EndingExplosionSpriteDefinitions.Pointer(Pose.Afterglow));
     }
 
-    /// <summary>Planet word.</summary>
     private static ushort PlanetWord(int word)
     {
         if (word == 0) return (ushort)CinematicSpriteInstruction.SetTimer;
@@ -90,10 +88,8 @@ internal static class EndingExplosionInstructionDefinitions
         return word == 21 ? (ushort)EndingSpriteInstruction.SpawnExplosionSilhouette : (ushort)CinematicSpriteInstruction.Delete;
     }
 
-    /// <summary>Planet frame.</summary>
     private static ushort PlanetFrame(int record) => EndingExplosionSpriteDefinitions.PlanetPointer(record);
 
-    /// <summary>Hold word.</summary>
     private static ushort HoldWord(ushort pointer, ushort start, ushort frame) => ((pointer - start) / 2) switch
     {
         0 => 16,

@@ -9,17 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// separate background, pulse, health and fade colors are excluded.</summary>
 internal sealed class BabyMetroidInitialPalette
 {
-    /// <summary>Stores supplied.</summary>
     private readonly Bgr555[]? supplied;
 
-    /// <summary>Initializes a new baby metroid initial palette instance.</summary>
     internal BabyMetroidInitialPalette(Bgr555[] colors)
     {
         for (int color = 0; color < colors.Length; color++)
             if (Calculate(color) != colors[color]) { supplied = colors.ToArray(); return; }
     }
 
-    /// <summary>resolve.</summary>
     internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= BabyMetroidCutsceneColorRomData.InitialColorCount)
@@ -27,7 +24,6 @@ internal sealed class BabyMetroidInitialPalette
         return supplied is null ? Calculate(color) : supplied[color];
     }
 
-    /// <summary>calculate.</summary>
     private static Bgr555 Calculate(int color)
     {
         var slot = (BabyMetroidInitialColorSlot)color;
@@ -54,11 +50,9 @@ internal sealed class BabyMetroidInitialPalette
         };
     }
 
-    /// <summary>glint.</summary>
     private static Bgr555 Glint(Bgr555 light) =>
         light.Map((_, channel) => Math.Min(Bgr555.MaxChannel, channel + InnardGlintAddition));
 
-    /// <summary>innard shade.</summary>
     private static Bgr555 InnardShade(Bgr555 light, Bgr555 dark, int shade)
     {
         int lightRed = light.Red, darkRed = dark.Red;
@@ -72,11 +66,9 @@ internal sealed class BabyMetroidInitialPalette
             (lightChannel * (red - darkRed) + darkChannel * (lightRed - red)) / intervals);
     }
 
-    /// <summary>midpoint.</summary>
     internal static Bgr555 Midpoint(Bgr555 light, Bgr555 dark) =>
         light.Zip(dark, (_, lightChannel, darkChannel) => (lightChannel + darkChannel) / 2);
 
-    /// <summary>append identity.</summary>
     internal void AppendIdentity(SelectedPresentationHash content)
     {
         Span<Bgr555> colors = stackalloc Bgr555[BabyMetroidCutsceneColorRomData.InitialColorCount];

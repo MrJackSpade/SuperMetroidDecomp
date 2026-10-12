@@ -9,7 +9,6 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Checks the current-position cell in actual published gameplay HUD pixels.</summary>
 internal static class MinimapBlinkAudit
 {
-    /// <summary>Run.</summary>
     public static int Run(string romPath, Func<SuperMetroidRuntime, Rgba32[]>? render = null)
     {
         foreach (ushort room in MapCrossViewAuditDefinitions.RepresentativeRooms)
@@ -18,7 +17,6 @@ internal static class MinimapBlinkAudit
         return 0;
     }
 
-    /// <summary>Verify room.</summary>
     private static void VerifyRoom(string romPath, ushort room, Func<SuperMetroidRuntime, Rgba32[]> render)
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));

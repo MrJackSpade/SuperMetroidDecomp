@@ -21,21 +21,17 @@ internal static class OldTourianEscapeShaftWallExplosionDefinitions
 
     /// <summary>$86:B4A0/$B4A6: the wall-middle X/Y written to position and Var0/Var1.</summary>
     internal const ushort XPosition = 0x0110;
-    /// <summary>Stores yposition.</summary>
     internal const ushort YPosition = 0x0888;
 
     /// <summary>$86:B44F-$B451: library-two small explosion $24, Max6.</summary>
     internal static SoundEffectId ExplosionSound => SoundEffectLibrary2Sounds.SmallExplosion;
-    /// <summary>Stores explosion sound maximum.</summary>
     internal const byte ExplosionSoundMaximum = 6;
 
     /// <summary>$86:B452-$B468: six small-explosion poses holding 4, 6, 5, 5, 5 and 6 frames.</summary>
     private static ReadOnlySpan<ushort> FrameDurations => [4, 6, 5, 5, 5, 6];
 
-    /// <summary>Stores first frame.</summary>
     private const ushort FirstFrame = 0xb452;
 
-    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) =>
         kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion;
 
@@ -63,10 +59,8 @@ internal static class OldTourianEscapeShaftWallExplosionDefinitions
             $"Old Tourian escape-shaft wall explosion has no mechanics word at $86:{address:X4}.");
     }
 
-    /// <summary>Gets presentation word count.</summary>
     internal static int PresentationWordCount => FrameDurations.Length;
 
-    /// <summary>Presentation word address.</summary>
     internal static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();

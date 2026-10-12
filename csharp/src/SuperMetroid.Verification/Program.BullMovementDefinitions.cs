@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents bull movement definitions verification.</summary>
 internal static class BullMovementDefinitionsVerification
 {
-    /// <summary>Verifies compiled bull movement.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Bull movement")]
     internal static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {

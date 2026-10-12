@@ -53,7 +53,6 @@ internal readonly struct SpacetimeBeamCorruptionMemory(ISnesMemoryBus bus)
         return SaveMirrorMemory.Overlaps(destinationAddress, destinationAddress + 1);
     }
 
-    /// <summary>read source byte.</summary>
     private byte ReadSourceByte(int address) =>
         SnesLiveDataRead.TryRead(bus, address, "SpaceTime source", out byte value)
             ? value

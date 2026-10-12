@@ -26,12 +26,10 @@ internal static class DownwardGatePlmProgramDefinitions
     private const ushort TriggerEnd = 0xbcdf;
 
     /// <summary>The two movement-sound operands packed after the spawn and wake commands.</summary>
-    private enum PackedSound { /** <summary>Identifies closing.</summary> */ Closing, /** <summary>Identifies opening.</summary> */ Opening }
+    private enum PackedSound { Closing, Opening }
 
-    /// <summary>Stores packed sounds.</summary>
     private static readonly PackedSound[] PackedSounds = Enum.GetValues<PackedSound>();
 
-    /// <summary>Address of.</summary>
     private static ushort AddressOf(PackedSound sound) => sound switch
     {
         PackedSound.Closing => ClosingSoundAddress,
@@ -39,7 +37,6 @@ internal static class DownwardGatePlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(PackedSound)} {(int)sound}."),
     };
 
-    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         bool owned = false;
@@ -49,7 +46,6 @@ internal static class DownwardGatePlmProgramDefinitions
         return owned;
     }
 
-    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int triggerOffset = address - RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft;

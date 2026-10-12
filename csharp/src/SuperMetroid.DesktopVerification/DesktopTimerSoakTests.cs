@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -12,10 +12,8 @@ using SuperMetroid.Core.Spatial;
 
 using static DesktopVerificationSupport;
 
-/// <summary>Represents desktop timer soak tests.</summary>
 internal static class DesktopTimerSoakTests
 {
-    /// <summary>Runs desktop timer soak.</summary>
     internal static async Task RunDesktopTimerSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds));
@@ -121,7 +119,6 @@ internal static class DesktopTimerSoakTests
             new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
     }
 
-    /// <summary>Creates desktop soak seed.</summary>
     private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.GameInstallation installation,
         SuperMetroidGameOptions options, bool paused)
     {

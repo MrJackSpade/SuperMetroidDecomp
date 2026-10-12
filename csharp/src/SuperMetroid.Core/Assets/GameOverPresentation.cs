@@ -14,14 +14,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameOverPresentation
 {
-    /// <summary>Stores tilemap.</summary>
     private readonly byte[]? tilemap;
-    /// <summary>Stores sprites.</summary>
     private readonly Dictionary<string, SpriteComposition> sprites;
-    /// <summary>Stores baby palettes.</summary>
     private readonly GameOverBabyColorCatalog babyPalettes;
 
-    /// <summary>Initializes a new game over presentation instance.</summary>
     private GameOverPresentation(
         byte[] tilemap,
         Dictionary<string, SpriteComposition> sprites,
@@ -228,25 +224,21 @@ public sealed class GameOverPresentation
         output.Write(bytes);
     }
 
-    /// <summary>Palette bits.</summary>
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
 
-    /// <summary>Validates point.</summary>
     private static void ValidatePoint(Position16<OamPixels> point, string name)
     {
         ValidateCoordinate(point.X, $"{name} X");
         ValidateCoordinate(point.Y, $"{name} Y");
     }
 
-    /// <summary>Validates coordinate.</summary>
     private static void ValidateCoordinate(int value, string name)
     {
         if ((uint)value > byte.MaxValue)
             throw new InvalidDataException($"{name} must be 0..255.");
     }
 
-    /// <summary>Validates palette index.</summary>
     private static void ValidatePaletteIndex(int value, string name)
     {
         if ((uint)value > 7)
@@ -300,14 +292,12 @@ public static class GameOverPresentationDefinitions
     /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>
     public const string EggFrame = "Egg";
 
-    /// <summary>Stores sprite names.</summary>
     private static readonly string[] spriteNames =
     [
         "Baby.Closed", "Baby.Middle", "Baby.Open", EggFrame,
         "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
     ];
 
-    /// <summary>Stores palette names.</summary>
     private static readonly string[] paletteNames =
         ["Baby.Idle", "Baby.ClosedCry", "Baby.MiddleCry", "Baby.OpenCry"];
 
@@ -369,7 +359,6 @@ public static class GameOverPresentationDefinitions
         return GameOverRomData.BlankTile.Raw;
     }
 
-    /// <summary>Small letter.</summary>
     private static ushort SmallLetter(char letter) => letter switch
     {
         >= 'A' and <= 'Z' => (ushort)(SmallLetterA + letter - 'A'),

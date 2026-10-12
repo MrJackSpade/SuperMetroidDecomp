@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,10 +7,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Platforms species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PlatformsBehavior : IEnemySpecies
 {
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
-    /// <summary>Initializes a new platforms behavior instance.</summary>
     internal PlatformsBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
@@ -45,25 +43,16 @@ internal sealed class PlatformsBehavior : IEnemySpecies
 
 
 
-    /// <summary>Stores platform movement functions.</summary>
     internal readonly PlatformMovementFunctions[] _platformMovementFunctions = new PlatformMovementFunctions[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores platform previous positions.</summary>
     internal readonly ushort[] _platformPreviousPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores platform vertically moving flags.</summary>
     internal readonly ushort[] _platformVerticallyMovingFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores platform vertically still flags.</summary>
     internal readonly ushort[] _platformVerticallyStillFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores platform maximum yspeed table indexes.</summary>
     internal readonly ushort[] _platformMaximumYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores platform previous ymovement functions.</summary>
     internal readonly ushort[] _platformPreviousYMovementFunctions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores platform suspensor platform flags.</summary>
     internal readonly ushort[] _platformSuspensorPlatformFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores platform states.</summary>
     internal readonly PlatformEnemyState?[] _platformStates =
         new PlatformEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>is platform definition.</summary>
     internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.Tripper or EnemyDefinitionId.Kamer2;
 
@@ -158,7 +147,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         return yRemainder <= slot.Radius.Y;
     }
 
-    /// <summary>move platform horizontally.</summary>
     private void MovePlatformHorizontally(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -185,7 +173,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         InstallPlatformVerticallyStillForCurrentDirection(slot, state);
     }
 
-    /// <summary>move platform vertically.</summary>
     private void MovePlatformVertically(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -206,7 +193,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>raise platform.</summary>
     private void RaisePlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -233,7 +219,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         SetPlatformVerticallyStillInstruction(slot, state);
     }
 
-    /// <summary>sink platform.</summary>
     private void SinkPlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
@@ -266,7 +251,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 
-    /// <summary>increment and clamp platform yspeed.</summary>
     private static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {
         state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex + 1));
@@ -277,7 +261,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>set platform vertically moving instruction.</summary>
     private static void SetPlatformVerticallyMovingInstruction(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -292,7 +275,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         state.VerticallyStillArtInstalled = false;
     }
 
-    /// <summary>set platform vertically still instruction.</summary>
     private static void SetPlatformVerticallyStillInstruction(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -306,7 +288,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         state.VerticallyMovingArtInstalled = false;
     }
 
-    /// <summary>install platform vertically moving for current direction.</summary>
     internal static void InstallPlatformVerticallyMovingForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -316,7 +297,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         InstallPlatformInstruction(slot, instruction);
     }
 
-    /// <summary>install platform vertically still for current direction.</summary>
     internal static void InstallPlatformVerticallyStillForCurrentDirection(
         RoomEnemySlot slot,
         PlatformEnemyState state)
@@ -326,7 +306,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         InstallPlatformInstruction(slot, instruction);
     }
 
-    /// <summary>install platform instruction.</summary>
     private static void InstallPlatformInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -342,12 +321,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         RequirePlatformState(slot).XMovement = movement;
     }
 
-    /// <summary>require platform state.</summary>
     private PlatformEnemyState RequirePlatformState(RoomEnemySlot slot) =>
         _platformStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Tripper/Kamer state.");
 
-    /// <summary>register platforms bomb reactions.</summary>
     internal void RegisterPlatformsBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
@@ -361,7 +338,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register platforms initialization ai.</summary>
     internal void RegisterPlatformsInitializationAi(EnemyAiTable table)
     {
 
@@ -375,7 +351,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         table.RegisterInitialization(EnemyAiRoutine.InitAI_Tripper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Tripper, shared67);
     }
 
-    /// <summary>register platforms main ai.</summary>
     internal void RegisterPlatformsMainAi(EnemyAiTable table)
     {
 
@@ -385,7 +360,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register platforms owned instructions.</summary>
     internal void RegisterPlatformsOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -395,7 +369,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register platforms shot reactions.</summary>
     internal void RegisterPlatformsShotReactions(EnemyAiTable table)
     {
         // Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
@@ -411,7 +384,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register platforms touch.</summary>
     internal static void RegisterPlatformsTouch(EnemyAiTable table)
     {
         // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider test live in other handlers;

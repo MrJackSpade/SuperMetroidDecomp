@@ -15,7 +15,6 @@ using SuperMetroid.Core.Rom;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents mother brain special sprite artwork verification.</summary>
 internal static class MotherBrainSpecialSpriteArtworkVerification
 {
     /// <summary>
@@ -26,7 +25,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static void SeedMotherBrainCorpseCartridgeSentinel(TestAddressSpace source) =>
         source.WriteBytes(0xa0c000, [0x6b]);
 
-    /// <summary>Verifies mother brain sprite transfer sources.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainSpriteTransferSources()
     {
@@ -49,7 +47,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             "Mother Brain refuses a cartridge-source transfer with no installed artwork binding");
     }
 
-    /// <summary>Verifies installed mother brain special sprite artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain special sprite sheets and Baby tile records")]
     internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
@@ -160,7 +157,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             "  Mother Brain special sprites: legs, Baby, attack and exploded-door pages match cartridge records, guarded live uploads, PNG edits, reload, invalid override and strict installed-source boundary pass.");
     }
 
-    /// <summary>Verifies mother brain leg tile transfers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain leg tile-transfer records and pixels")]
     private static void VerifyMotherBrainLegTileTransfers(
@@ -224,7 +220,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             "Misaligned Mother Brain leg transfer pointer should fail explicitly.");
     }
 
-    /// <summary>Verifies mother brain installed transfer boundary.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMotherBrainInstalledTransferBoundary(
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
@@ -277,13 +272,11 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             "installed Mother Brain still copies mutable corpse WRAM to VRAM");
     }
 
-    /// <summary>Reads native mother brain transfer source.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for a Mother Brain sprite tile-transfer source")]
     private static byte[] ReadNativeMotherBrainTransferSource(
         CartridgeImportAddressSpace rom, MotherBrainSpriteTileTransferRequest request) =>
         RomDataReader.ReadFixedBank(rom, checked((int)request.SourceAddress), request.Size);
 
-    /// <summary>Asserts mother brain installed transfer rejected.</summary>
     private static void AssertMotherBrainInstalledTransferRejected(
         RoomEnemySystem enemies, MotherBrainSpriteTileTransferRequest request, string label)
     {
@@ -298,7 +291,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         throw new InvalidOperationException($"Expected InvalidDataException: {label}.");
     }
 
-    /// <summary>Reference mother brain special pages.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle: independent cartridge transfer of a Mother Brain special sprite sheet")]
     private static SnesVram ReferenceMotherBrainSpecialPages(
@@ -316,7 +308,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         }
         return vram;
     }
-    /// <summary>Transfer mother brain special pages.</summary>
     private static SnesVram TransferMotherBrainSpecialPages(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
@@ -340,13 +331,11 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         return vram;
     }
 
-    /// <summary>New mother brain special artwork read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainSpecialArtworkReadGuard(
         ISnesAddressSpace source, MotherBrainSpecialSpriteSheetDefinition sheet) =>
         new CartridgeReadGuard(source).ForbidRange(sheet.SourceAddress, sheet.ByteCount,
             address => $"{sheet.FileName} attempted a visual ROM read at ${address:X6}.");
 
-    /// <summary>New mother brain timer artwork read guard.</summary>
     private static MutableCartridgeReadGuard NewMotherBrainTimerArtworkReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -356,7 +345,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         return guard;
     }
 
-    /// <summary>New mother brain leg transfer read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainLegTransferReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address >= MotherBrainLegTileTransferDefinitions.NativeListAddress &&
@@ -368,7 +356,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 MotherBrainSpecialSpriteArtworkDefinitions.Attack.ByteCount,
                 address => $"Mother Brain leg loading reread migrated ROM data at ${address:X6}.");
 
-    /// <summary>Mother brain transfer sources command.</summary>
     [VerificationCommand("--mother-brain-transfer-sources")]
     internal static int MotherBrainTransferSourcesCommand()
     {

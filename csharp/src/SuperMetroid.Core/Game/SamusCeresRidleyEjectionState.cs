@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusCeresRidleyEjectionState
 {
-    /// <summary>Stores terminal downward speed.</summary>
     private const ushort TerminalDownwardSpeed = 5;
 
     /// <summary>True while `$90:E12E/$E1C8` owns Samus movement.</summary>

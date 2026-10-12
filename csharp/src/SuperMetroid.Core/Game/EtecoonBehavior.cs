@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,15 +7,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Etecoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EtecoonBehavior : IEnemySpecies
 {
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
 
-    /// <summary>Stores elevator behavior.</summary>
     private readonly ElevatorBehavior _elevatorBehavior;
 
-    /// <summary>Initializes a new etecoon behavior instance.</summary>
     internal EtecoonBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, ElevatorBehavior elevatorBehavior)
     {
         _elevatorBehavior = elevatorBehavior;
@@ -23,53 +19,31 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         _earthquake = earthquake;
     }
 
-    /// <summary>Stores etecoon wake sound.</summary>
     internal const ushort EtecoonWakeSound = 0x0035;
-    /// <summary>Stores etecoon jump sound.</summary>
     private const ushort EtecoonJumpSound = 0x0033;
-    /// <summary>Stores etecoon wall sound.</summary>
     private const ushort EtecoonWallSound = 0x0032;
-    /// <summary>Stores etecoon activation ydistance.</summary>
     private const int EtecoonActivationYDistance = 0x80;
-    /// <summary>Stores etecoon nearby distance.</summary>
     private const int EtecoonNearbyDistance = 0x40;
-    /// <summary>Stores etecoon direction band.</summary>
     private const int EtecoonDirectionBand = 0x20;
-    /// <summary>Stores etecoon long run trigger distance.</summary>
     private const int EtecoonLongRunTriggerDistance = 0x30;
-    /// <summary>Stores etecoon right wall probe.</summary>
     private const int EtecoonRightWallProbe = 32 << 16;
-    /// <summary>Stores etecoon first teaching x.</summary>
     private const ushort EtecoonFirstTeachingX = 537;
-    /// <summary>Stores etecoon run start x.</summary>
     private const ushort EtecoonRunStartX = 600;
-    /// <summary>Stores etecoon long jump midpoint x.</summary>
     private const ushort EtecoonLongJumpMidpointX = 680;
-    /// <summary>Stores etecoon long jump end x.</summary>
     private const ushort EtecoonLongJumpEndX = 840;
-    /// <summary>Stores etecoon long run maximum x.</summary>
     private const ushort EtecoonLongRunMaximumX = 832;
 
     // These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside
     // their consumers avoids replacing authored fixed-point values with host-side tuning.
-    /// <summary>Stores etecoon jump yvelocity.</summary>
     private const ushort EtecoonJumpYVelocity = 0xfffd;
-    /// <summary>Stores etecoon jump ysubvelocity.</summary>
     private const ushort EtecoonJumpYSubvelocity = 0x0000;
-    /// <summary>Stores etecoon long jump yvelocity.</summary>
     private const ushort EtecoonLongJumpYVelocity = 0xfffc;
-    /// <summary>Stores etecoon long jump ysubvelocity.</summary>
     private const ushort EtecoonLongJumpYSubvelocity = 0x0000;
-    /// <summary>Stores etecoon right velocity.</summary>
     private const ushort EtecoonRightVelocity = 0x0002;
-    /// <summary>Stores etecoon right subvelocity.</summary>
     private const ushort EtecoonRightSubvelocity = 0x0000;
-    /// <summary>Stores etecoon left velocity.</summary>
     private const ushort EtecoonLeftVelocity = 0xfffe;
-    /// <summary>Stores etecoon left subvelocity.</summary>
     private const ushort EtecoonLeftSubvelocity = 0x0000;
 
-    /// <summary>Stores etecoon states.</summary>
     internal readonly EtecoonEnemyState?[] _etecoonStates =
         new EtecoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -212,7 +186,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.FunctionTimer = 256;
     }
 
-    /// <summary>Runs etecoon pre jump countdown.</summary>
     private void RunEtecoonPreJumpCountdown(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -229,7 +202,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
-    /// <summary>Runs etecoon initial jump.</summary>
     private void RunEtecoonInitialJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -272,7 +244,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
     }
 
-    /// <summary>Runs etecoon face samus pause.</summary>
     private static void RunEtecoonFaceSamusPause(
         RoomEnemySlot slot,
         EtecoonEnemyState state)
@@ -295,7 +266,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
-    /// <summary>Runs etecoon left to wall.</summary>
     private void RunEtecoonLeftToWall(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -310,7 +280,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.Parameter1 = 1;
     }
 
-    /// <summary>Runs etecoon right to wall.</summary>
     private void RunEtecoonRightToWall(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -329,7 +298,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         MoveEtecoonHorizontally(slot, state, level);
     }
 
-    /// <summary>Runs etecoon airborne.</summary>
     private void RunEtecoonAirborne(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -369,7 +337,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
-    /// <summary>Runs etecoon wall pause.</summary>
     private void RunEtecoonWallPause(RoomEnemySlot slot, EtecoonEnemyState state)
     {
         PauseEtecoonForEarthquake(slot);
@@ -390,7 +357,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
     }
 
-    /// <summary>Runs etecoon route after landing.</summary>
     private static void RunEtecoonRouteAfterLanding(
         RoomEnemySlot slot,
         EtecoonEnemyState state)
@@ -423,7 +389,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
-    /// <summary>Runs etecoon move left to teaching start.</summary>
     private void RunEtecoonMoveLeftToTeachingStart(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -438,7 +403,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
     }
 
-    /// <summary>Runs etecoon move right to teaching start.</summary>
     private void RunEtecoonMoveRightToTeachingStart(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -453,7 +417,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
     }
 
-    /// <summary>Runs etecoon right to long jump.</summary>
     private void RunEtecoonRightToLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -468,7 +431,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
     }
 
-    /// <summary>Runs etecoon long jump.</summary>
     private void RunEtecoonLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -484,7 +446,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Function = EtecoonAiFunction.RunRightAfterLongJump;
     }
 
-    /// <summary>Runs etecoon right after long jump.</summary>
     private void RunEtecoonRightAfterLongJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -499,7 +460,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, 0xffff, EtecoonLongJumpYSubvelocity);
     }
 
-    /// <summary>Runs etecoon long jump landing.</summary>
     private void RunEtecoonLongJumpLanding(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -515,7 +475,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Function = EtecoonAiFunction.IdleBetweenTeachingJumps;
     }
 
-    /// <summary>Runs etecoon teaching jump.</summary>
     private void RunEtecoonTeachingJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -542,7 +501,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.CurrentInstruction = EtecoonInstructionProgramDefinitions.HitCeiling;
     }
 
-    /// <summary>Runs etecoon idle between teaching jumps.</summary>
     private void RunEtecoonIdleBetweenTeachingJumps(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -580,7 +538,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
-    /// <summary>Runs etecoon wait for samus before long run.</summary>
     private void RunEtecoonWaitForSamusBeforeLongRun(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -607,7 +564,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
-    /// <summary>Runs etecoon right to return jump.</summary>
     private void RunEtecoonRightToReturnJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -621,7 +577,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.JumpingRight);
     }
 
-    /// <summary>Runs etecoon return jump.</summary>
     private void RunEtecoonReturnJump(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -676,7 +631,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         return _terrain.MoveEnemyVertically(level, slot, displacement);
     }
 
-    /// <summary>Adds etecoon fixed.</summary>
     private static void AddEtecoonFixed(
         EtecoonEnemyState state,
         ushort wholeIncrement,
@@ -687,7 +641,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + increment);
     }
 
-    /// <summary>Sets etecoon vertical velocity.</summary>
     private static void SetEtecoonVerticalVelocity(
         EtecoonEnemyState state,
         ushort whole,
@@ -696,7 +649,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction));
     }
 
-    /// <summary>Sets etecoon horizontal velocity.</summary>
     private static void SetEtecoonHorizontalVelocity(
         EtecoonEnemyState state,
         ushort whole,
@@ -705,7 +657,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction));
     }
 
-    /// <summary>Decrement etecoon timer and test expired.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)
     {
         bool wasOne = state.FunctionTimer == 1;
@@ -713,14 +664,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         return wasOne || (state.FunctionTimer & 0x8000) != 0;
     }
 
-    /// <summary>Etecoon is within x.</summary>
     private static bool EtecoonIsWithinX(
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
         Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) < distance;
 
-    /// <summary>Etecoon is within y.</summary>
     private static bool EtecoonIsWithinY(
         RoomEnemySlot slot,
         SamusState samus,
@@ -743,7 +692,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         return deltaY < 0 ? (ushort)1 : (ushort)3;
     }
 
-    /// <summary>Installs etecoon instruction.</summary>
     private static void InstallEtecoonInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -752,12 +700,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
-    /// <summary>Requires etecoon state.</summary>
     private EtecoonEnemyState RequireEtecoonState(RoomEnemySlot slot) =>
         _etecoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Etecoon state.");
 
-    /// <summary>Registers etecoon initialization ai.</summary>
     internal void RegisterEtecoonInitializationAi(EnemyAiTable table)
     {
 
@@ -767,7 +713,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers etecoon main ai.</summary>
     internal void RegisterEtecoonMainAi(EnemyAiTable table)
     {
 

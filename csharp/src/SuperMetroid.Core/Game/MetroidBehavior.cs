@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -8,20 +8,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Metroid species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MetroidBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
-    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Initializes a new metroid behavior instance.</summary>
     internal MetroidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, RoomSpriteObjectPool spriteObjects, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
@@ -61,31 +54,19 @@ internal sealed class MetroidBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines metroid outer body afrozen instruction list.</summary>
     private const ushort MetroidOuterBodyAFrozenInstructionList = 0xc3ba;
-    /// <summary>Defines metroid outer body bfrozen instruction list.</summary>
     private const ushort MetroidOuterBodyBFrozenInstructionList = 0xc4b6;
-    /// <summary>Defines metroid frozen sprite palette.</summary>
     private const ushort MetroidFrozenSpritePalette = 0x0c00;
-    /// <summary>Defines metroid ice sound effect.</summary>
     private const ushort MetroidIceSoundEffect = 0x000a;
-    /// <summary>Defines metroid recoil sound effect.</summary>
     private const ushort MetroidRecoilSoundEffect = 0x005a;
-    /// <summary>Defines metroid animation sound effect.</summary>
     private const ushort MetroidAnimationSoundEffect = 0x0050;
-    /// <summary>Defines metroid frozen duration.</summary>
     private const ushort MetroidFrozenDuration = 400;
-    /// <summary>Defines metroid escape duration.</summary>
     private const ushort MetroidEscapeDuration = 4;
-    /// <summary>Defines metroid maximum velocity.</summary>
     private const int MetroidMaximumVelocity = 3;
-    /// <summary>Defines metroid special drop count.</summary>
     private const int MetroidSpecialDropCount = 5;
 
-    /// <summary>Stores metroid states.</summary>
     internal readonly MetroidEnemyState?[] _metroidStates =
         new MetroidEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores metroid drop requests.</summary>
     internal readonly List<MetroidDropRequest> _metroidDropRequests = new();
 
     /// <summary>Most recent library-two Metroid sound requested during this enemy frame.</summary>
@@ -200,7 +181,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
             StoreMetroidXVelocity(state, 0);
     }
 
-    /// <summary>Calculates metroid closing velocity.</summary>
     private static int CalculateMetroidClosingVelocity(ushort target, ushort current)
     {
         int lowByteDifference = unchecked((byte)(target - (byte)current));
@@ -322,7 +302,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         SetMetroidInstructionList(slot, MetroidInstructionProgramDefinitions.DrainingSamus);
     }
 
-    /// <summary>Drain samus with metroid.</summary>
     private static void DrainSamusWithMetroid(MetroidEnemyState state, SamusState samus)
     {
         ushort drainRate = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -388,7 +367,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         LastMetroidSoundEffectLibrary2 = MetroidRecoilSoundEffect;
     }
 
-    /// <summary>Detach metroid with power bomb.</summary>
     private static void DetachMetroidWithPowerBomb(
         RoomEnemySlot slot,
         MetroidEnemyState state,
@@ -430,7 +408,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Clamp metroid velocity.</summary>
     private static int ClampMetroidVelocity(int velocity)
     {
         short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
@@ -441,15 +418,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
         return velocity;
     }
 
-    /// <summary>Store metroid xvelocity.</summary>
     private static void StoreMetroidXVelocity(MetroidEnemyState state, int velocity) =>
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromRaw(velocity));
 
-    /// <summary>Store metroid yvelocity.</summary>
     private static void StoreMetroidYVelocity(MetroidEnemyState state, int velocity) =>
         state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromRaw(velocity));
 
-    /// <summary>Position metroid outer body.</summary>
     private static void PositionMetroidOuterBody(
         RoomSpriteObjectSlot outerBody,
         RoomEnemySlot metroid,
@@ -460,7 +434,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         outerBody.DisableFlags = 0;
     }
 
-    /// <summary>Freeze metroid outer body.</summary>
     private static void FreezeMetroidOuterBody(
         RoomSpriteObjectSlot outerBody,
         ushort frozenInstructionList)
@@ -474,19 +447,16 @@ internal sealed class MetroidBehavior : IEnemySpecies
             unchecked((ushort)(frozenInstructionList + 2)));
     }
 
-    /// <summary>Sets metroid instruction list.</summary>
     private static void SetMetroidInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
         slot.InstructionTimer = 1;
     }
 
-    /// <summary>Requires metroid state.</summary>
     internal MetroidEnemyState RequireMetroidState(RoomEnemySlot slot) =>
         _metroidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Metroid state.");
 
-    /// <summary>Register metroid bomb reactions.</summary>
     internal void RegisterMetroidBombReactions(EnemyAiTable table)
     {
         // Metroid shot AI ignores bombs while frozen, detaches an attached body for family $0500, or applies its
@@ -503,7 +473,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
             });
     }
 
-    /// <summary>Register metroid initialization ai.</summary>
     internal void RegisterMetroidInitializationAi(EnemyAiTable table)
     {
 
@@ -513,7 +482,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register metroid main ai.</summary>
     internal void RegisterMetroidMainAi(EnemyAiTable table)
     {
 
@@ -523,7 +491,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register metroid owned instructions.</summary>
     internal void RegisterMetroidOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -533,7 +500,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register metroid power bomb reactions.</summary>
     internal void RegisterMetroidPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
@@ -543,7 +509,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register metroid touch.</summary>
     internal void RegisterMetroidTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
@@ -567,7 +532,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         LastMetroidSoundEffectLibrary3 = null;
     }
 
-    /// <summary>Resolves metroid ordinary shot.</summary>
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
     {
         RoomEnemySlot enemy = c.Enemy;
@@ -625,7 +589,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Register metroid shot reactions.</summary>
     internal void RegisterMetroidShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
@@ -639,11 +602,9 @@ internal sealed class MetroidBehavior : IEnemySpecies
     // The native dispatcher selects the lowest set AI bit. Metroid's
     // custom hurt entry therefore owns the actor before frozen bit four
     // when both are present, while instruction bytecode still advances.
-    /// <summary>Register metroid hurt ai.</summary>
     internal void RegisterMetroidHurtAi(EnemyAiTable table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, (slot, _) => ApplyMetroidHurt(slot));
 
-    /// <summary>Register metroid frozen ai.</summary>
     internal void RegisterMetroidFrozenAi(EnemyAiTable table) =>
         table.AddFrozen(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, RunMetroidFrozen);
 }

@@ -11,7 +11,6 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </remarks>
 internal static class Program
 {
-    /// <summary>Main.</summary>
     private static async Task<int> Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();

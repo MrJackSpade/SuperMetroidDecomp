@@ -2,10 +2,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
-/// <summary>Represents lookup downward gate stock verification.</summary>
 internal static class LookupDownwardGateStockVerification
 {
-    /// <summary>verify downward gate stock mapping.</summary>
     internal static void VerifyDownwardGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDownwardGateVisualCatalog installed)
     {
@@ -83,7 +81,6 @@ internal static class LookupDownwardGateStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmDownwardGateVisualCatalog(entries), "Gate visual bits only");
     }
 
-    /// <summary>downward gate stock mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate stock mapping")]
     private static byte DownwardGateStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

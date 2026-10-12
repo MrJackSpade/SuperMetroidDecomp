@@ -20,9 +20,7 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class IntroCinematicState
 {
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
-    /// <summary>Stores frame buffer.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
-    /// <summary>Stores trail artwork refresh pending.</summary>
     [NonSerialized] private bool trailArtworkRefreshPending;
     /// <summary>Gets or sets the host-owned projectile-trail artwork used by flashbacks.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
@@ -40,15 +38,10 @@ public sealed class IntroCinematicState
         set => flashbackProjectiles.Animation.FrameBindings = value;
     }
 
-    /// <summary>Stores intro font.</summary>
     [NonSerialized] private IntroFontAtlas? introFont;
-    /// <summary>Stores character artwork.</summary>
     [NonSerialized] private IntroCinematicArtworkCatalog? characterArtwork;
-    /// <summary>Stores beam artwork.</summary>
     [NonSerialized] private BeamTileCatalog? beamArtwork;
-    /// <summary>Stores samus body artwork.</summary>
     [NonSerialized] private SamusBodyArtworkCatalog? samusBodyArtwork;
-    /// <summary>Stores samus hurt colors.</summary>
     [NonSerialized] private SamusHurtColorCatalog? samusHurtColors;
     /// <summary>Editable suit-flash colors used by the cinematic's ordinary Samus hurt handler.</summary>
     public void BindSamusHurtColors(SamusHurtColorCatalog? value) => samusHurtColors = value;
@@ -129,9 +122,7 @@ public sealed class IntroCinematicState
         else
             objects?.BindEyeArtwork(null);
     }
-    /// <summary>Defines screen width.</summary>
     private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
-    /// <summary>Defines screen height.</summary>
     private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
 
     // `$8B:A66F` writes cinematic_var10/BG1VOFS=8 when it creates the first illustrated
@@ -139,67 +130,39 @@ public sealed class IntroCinematicState
     // word, so both gameplay-style flashbacks deliberately inherit the same eight-pixel
     // source offset. Their actor coordinates are already screen-relative and must not be
     // moved with it.
-    /// <summary>Defines gameplay flashback bg1 vertical scroll.</summary>
     internal const ushort GameplayFlashbackBg1VerticalScroll = 8;
 
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState? audio;
-    /// <summary>Stores vram.</summary>
     private readonly SnesVram vram = new();
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram cgram = new();
-    /// <summary>Stores controller.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Stores flashback projectiles.</summary>
     private readonly SamusProjectileSystem flashbackProjectiles = new();
-    /// <summary>Stores flashback bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
-    /// <summary>Stores text tilemap.</summary>
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
-    /// <summary>Stores japanese blank character.</summary>
     private byte[] japaneseBlankCharacter = [];
-    /// <summary>Stores intro palette.</summary>
     private readonly Bgr555[] introPalette = new Bgr555[CgramPalettes.ColorCount];
-    /// <summary>Stores objects.</summary>
     private IntroCinematicObjectSystem? objects;
-    /// <summary>Stores subtitles.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
-    /// <summary>Stores palette fader.</summary>
     private CinematicPaletteFader? paletteFader;
-    /// <summary>Stores flashback samus.</summary>
     private SamusState? flashbackSamus;
     /// <summary>$1A57 during the Mother Brain flashback: $8B:AF65 sets it, $8B:B842 clears it.</summary>
     private IntroSamusDisplay flashbackSamusDisplay;
-    /// <summary>Stores flashback mother brain.</summary>
     private IntroMotherBrainSpriteState? flashbackMotherBrain;
-    /// <summary>Stores flashback mother brain explosions.</summary>
     private IntroMotherBrainExplosionSystem? flashbackMotherBrainExplosions;
-    /// <summary>Stores flashback rinkas.</summary>
     private IntroRinkaSystem? flashbackRinkas;
-    /// <summary>Stores baby discovery.</summary>
     private IntroBabyDiscoveryState? babyDiscovery;
-    /// <summary>Stores scientist cutscene.</summary>
     private IntroScientistCutsceneState? scientistCutscene;
-    /// <summary>Stores ceres flight.</summary>
     private IntroCeresFlightState? ceresFlight;
-    /// <summary>Stores flashback demo input.</summary>
     private DemoInputState? flashbackDemoInput;
-    /// <summary>Stores flashback level.</summary>
     private RoomLevelData? flashbackLevel;
-    /// <summary>Stores crossfade counter.</summary>
     private ushort crossfadeCounter;
-    /// <summary>Stores intro crossfade counter.</summary>
     private ushort introCrossfadeCounter;
-    /// <summary>Stores nmi frame counter.</summary>
     private ushort nmiFrameCounter;
     /// <summary>$51: the INIDISP byte the cinematic fades; the intro starts in forced blank.</summary>
     private int inidisp = ScreenFade.ForcedBlank;
-    /// <summary>Stores fade.</summary>
     private readonly ScreenFade fade = new();
-    /// <summary>Stores timer.</summary>
     private int timer = 8;
 
     /// <summary>Creates the opening cinematic and performs its initial native graphics and music setup.</summary>
@@ -276,7 +239,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.Initial;
     }
 
-    /// <summary>Applies intro font.</summary>
     private void ApplyIntroFont(ReadOnlySpan<byte> transfer)
     {
         if (transfer.Length != IntroFontAtlasFormat.ByteCount)
@@ -666,7 +628,6 @@ public sealed class IntroCinematicState
         return pixels;
     }
 
-    /// <summary>Sets up mother brain flashback.</summary>
     private void SetupMotherBrainFlashback()
     {
         // Shared native setup $8B:B018 moves the persistent narration caret to Y=$F8.
@@ -732,7 +693,6 @@ public sealed class IntroCinematicState
     /// </summary>
     public byte[]? MotherBrainLevelData { get; private set; }
 
-    /// <summary>Steps mother brain crossfade.</summary>
     private void StepMotherBrainCrossfade()
     {
         // $8B:B250 updates only when the pre-decrement counter is divisible by four.
@@ -754,7 +714,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.MotherBrainFlashback;
     }
 
-    /// <summary>Sets up page two crossfade.</summary>
     private void SetupPageTwoCrossfade()
     {
         // $8B:B35F spawns page-two's bank-$8C BG object, selects the reverse gameplay-to-
@@ -767,7 +726,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.PageTwoCrossfade;
     }
 
-    /// <summary>Steps page two crossfade.</summary>
     private void StepPageTwoCrossfade()
     {
         // $8B:B3F4 is the exact inverse of the earlier transition: text/portrait ranges
@@ -775,7 +733,6 @@ public sealed class IntroCinematicState
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageTwoText);
     }
 
-    /// <summary>Steps reverse gameplay to text crossfade.</summary>
     private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
     {
         if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
@@ -790,7 +747,6 @@ public sealed class IntroCinematicState
             Phase = completedPhase;
     }
 
-    /// <summary>Sets up baby discovery crossfade.</summary>
     private void SetupBabyDiscoveryCrossfade()
     {
         objects!.PlaceCaretOffScreen();
@@ -820,7 +776,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
-    /// <summary>Steps baby discovery crossfade.</summary>
     private void StepBabyDiscoveryCrossfade()
     {
         if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
@@ -840,7 +795,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.BabyDiscovery;
     }
 
-    /// <summary>Sets up page three crossfade.</summary>
     private void SetupPageThreeCrossfade()
     {
         // Egg opcode $B33E selects page three. On the next cinematic-function call $B370
@@ -854,7 +808,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.PageThreeCrossfade;
     }
 
-    /// <summary>Steps page three crossfade.</summary>
     private void StepPageThreeCrossfade()
     {
         // $B3F4 is shared byte-for-byte by pages two and three. The named outer phase keeps
@@ -862,7 +815,6 @@ public sealed class IntroCinematicState
         StepReverseGameplayToTextCrossfade(IntroCinematicPhase.PageThreeText);
     }
 
-    /// <summary>Sets up baby metroid delivery.</summary>
     private void SetupBabyMetroidDelivery()
     {
         // Scientist crossfades use the sibling native setup at $8B:B151, which performs
@@ -886,7 +838,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
-    /// <summary>Steps baby metroid delivery crossfade.</summary>
     private void StepBabyMetroidDeliveryCrossfade()
     {
         // $B2D2 fades the portrait/text ranges away while bringing in laboratory BG/OBJ
@@ -894,7 +845,6 @@ public sealed class IntroCinematicState
         StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidDelivery);
     }
 
-    /// <summary>Steps text to scientist crossfade.</summary>
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
         if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
@@ -912,7 +862,6 @@ public sealed class IntroCinematicState
         Phase = completedPhase;
     }
 
-    /// <summary>Sets up page four crossfade.</summary>
     private void SetupPageFourCrossfade()
     {
         // Actor opcode $B346 selects page four. $B381 starts its text stream and seeds the
@@ -926,7 +875,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.PageFourCrossfade;
     }
 
-    /// <summary>Steps page four crossfade.</summary>
     private void StepPageFourCrossfade()
     {
         // $B458 is the scientist-specific inverse: text/portrait colors fade in as the
@@ -934,7 +882,6 @@ public sealed class IntroCinematicState
         StepScientistToTextCrossfade(IntroCinematicPhase.PageFourText);
     }
 
-    /// <summary>Steps scientist to text crossfade.</summary>
     private void StepScientistToTextCrossfade(IntroCinematicPhase completedPhase)
     {
         if ((introCrossfadeCounter & 3) == 0)
@@ -949,7 +896,6 @@ public sealed class IntroCinematicState
             Phase = completedPhase;
     }
 
-    /// <summary>Sets up baby metroid examination.</summary>
     private void SetupBabyMetroidExamination()
     {
         objects!.PlaceCaretOffScreen();
@@ -965,11 +911,9 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
     }
 
-    /// <summary>Steps baby metroid examination crossfade.</summary>
     private void StepBabyMetroidExaminationCrossfade() =>
         StepTextToScientistCrossfade(IntroCinematicPhase.BabyMetroidExamination);
 
-    /// <summary>Sets up page five crossfade.</summary>
     private void SetupPageFiveCrossfade()
     {
         objects!.StartEnglishPageFive();
@@ -980,11 +924,9 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.PageFiveCrossfade;
     }
 
-    /// <summary>Steps page five crossfade.</summary>
     private void StepPageFiveCrossfade() =>
         StepScientistToTextCrossfade(IntroCinematicPhase.PageFiveText);
 
-    /// <summary>Sets up page six.</summary>
     private void SetupPageSix()
     {
         // $8B:B1EB seeds IntroCrossFadeTimer. English takes B1F4's direct fall-through into
@@ -996,7 +938,6 @@ public sealed class IntroCinematicState
             StartPageSix();
     }
 
-    /// <summary>Starts page six.</summary>
     private void StartPageSix()
     {
         // $8B:B207 has no palette transition. Only the English text region, caret, eye
@@ -1006,7 +947,6 @@ public sealed class IntroCinematicState
         Phase = IntroCinematicPhase.PageSixText;
     }
 
-    /// <summary>Steps mother brain demo.</summary>
     private void StepMotherBrainDemo()
     {
         flashbackDemoInput!.Step(bus, new FlashbackDemoProgram(this));
@@ -1147,7 +1087,6 @@ public sealed class IntroCinematicState
         samus.DecrementHurtTimers();
     }
 
-    /// <summary>Handles mother brain demo instruction.</summary>
     private DemoInputInstructionResult HandleMotherBrainDemoInstruction(
         DemoInputState demo,
         ushort instructionPointer,
@@ -1171,7 +1110,6 @@ public sealed class IntroCinematicState
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
     }
 
-    /// <summary>Creates mother brain level.</summary>
     private static RoomLevelData CreateMotherBrainLevel(ReadOnlySpan<byte> source)
     {
         const int width = 16;
@@ -1189,7 +1127,6 @@ public sealed class IntroCinematicState
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[width * height], new ushort[width * height]), Array.Empty<byte>());
     }
 
-    /// <summary>Renders mother brain flashback.</summary>
     private Rgba32[] RenderMotherBrainFlashback()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
@@ -1208,7 +1145,6 @@ public sealed class IntroCinematicState
 
     // Preparation remains on the simulation/display boundary: trail drawing advances
     // trail state, so a consumer must never call it to redraw an already captured frame.
-    /// <summary>Prepares mother brain oam.</summary>
     private OamBuffer PrepareMotherBrainOam()
     {
         // Both direct rendering and detached capture enter here once per display.
@@ -1249,7 +1185,6 @@ public sealed class IntroCinematicState
         return oam;
     }
 
-    /// <summary>Renders baby discovery.</summary>
     private Rgba32[] RenderBabyDiscovery()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
@@ -1266,7 +1201,6 @@ public sealed class IntroCinematicState
         return pixels;
     }
 
-    /// <summary>Prepares baby discovery oam.</summary>
     private OamBuffer PrepareBabyDiscoveryOam()
     {
         var oam = new OamBuffer();
@@ -1284,7 +1218,6 @@ public sealed class IntroCinematicState
         return oam;
     }
 
-    /// <summary>Draws baby discovery samus.</summary>
     private void DrawBabyDiscoverySamus(OamBuffer oam)
     {
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
@@ -1294,7 +1227,6 @@ public sealed class IntroCinematicState
         babyDiscovery.Samus.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
     }
 
-    /// <summary>Renders scientist cutscene.</summary>
     private Rgba32[] RenderScientistCutscene()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
@@ -1313,7 +1245,6 @@ public sealed class IntroCinematicState
         return pixels;
     }
 
-    /// <summary>Prepares scientist oam.</summary>
     private OamBuffer PrepareScientistOam()
     {
         var oam = new OamBuffer();
@@ -1323,7 +1254,6 @@ public sealed class IntroCinematicState
         return oam;
     }
 
-    /// <summary>Composite scientist room priority.</summary>
     private void CompositeScientistRoomPriority(Span<Rgba32> pixels, bool priority)
     {
         // Composited directly; transparent pixels leave the frame untouched, as a plane would.
@@ -1331,14 +1261,12 @@ public sealed class IntroCinematicState
                 IntroCinematicRomData.Layers.ScientistTilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = scientistCutscene?.Background.AsBgPlaneScroll() ?? default, Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
-    /// <summary>Composite baby discovery room priority.</summary>
     private void CompositeBabyDiscoveryRoomPriority(Span<Rgba32> pixels, bool priority)
     {
         // Composited directly; transparent pixels leave the frame untouched, as a plane would.
         SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
-    /// <summary>Composite mother brain room priority.</summary>
     private void CompositeMotherBrainRoomPriority(Span<Rgba32> pixels, bool priority)
     {
         // Composited directly; transparent pixels leave the frame untouched, as a plane would.
@@ -1346,7 +1274,6 @@ public sealed class IntroCinematicState
                 GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
     }
 
-    /// <summary>Renders first narration.</summary>
     private Rgba32[] RenderFirstNarration()
     {
         // Initial SetupPpu_Intro sets TM=$04: only BG3 is visible. BG3SC=$4C and BG34NBA=$04
@@ -1357,7 +1284,6 @@ public sealed class IntroCinematicState
         return pixels;
     }
 
-    /// <summary>Renders first illustrated page.</summary>
     private Rgba32[] RenderFirstIllustratedPage()
     {
         // TM=$16 enables BG2, BG3, and OBJ. BG2 is the 4-bpp Samus portrait at SC=$48;
@@ -1376,7 +1302,6 @@ public sealed class IntroCinematicState
         return pixels;
     }
 
-    /// <summary>Prepares illustrated page oam.</summary>
     private OamBuffer PrepareIllustratedPageOam()
     {
         var oam = new OamBuffer();
@@ -1397,7 +1322,6 @@ public sealed class IntroCinematicState
         return oam;
     }
 
-    /// <summary>Composite portrait priority.</summary>
     private void CompositePortraitPriority(Span<Rgba32> pixels, bool priority)
     {
         // Composited directly; transparent pixels leave the frame untouched, as a plane would.
@@ -1405,12 +1329,9 @@ public sealed class IntroCinematicState
     }
 
     // Raster scratch reused across draws; never part of saved state (restores reallocate it).
-    /// <summary>Stores text scratch.</summary>
     [NonSerialized] private Rgba32[]? textScratch;
-    /// <summary>Stores obj scratch.</summary>
     [NonSerialized] private Rgba32[]? objScratch;
 
-    /// <summary>Composite text priority.</summary>
     private void CompositeTextPriority(Span<Rgba32> pixels, bool priority)
     {
         // The renderer skips tiles of the other priority, so clear the reused plane first.
@@ -1420,7 +1341,6 @@ public sealed class IntroCinematicState
         SnesLayerCompositor.Composite(pixels, fullText.AsSpan(8 * ScreenWidth, ScreenWidth * ScreenHeight));
     }
 
-    /// <summary>Composite obj priority.</summary>
     private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
     {
         Rgba32[] sprites = objScratch ??= new Rgba32[ScreenWidth * ScreenHeight];
@@ -1435,7 +1355,6 @@ public sealed class IntroCinematicState
         SnesLayerCompositor.Composite(pixels, sprites);
     }
 
-    /// <summary>Sets up first illustrated page.</summary>
     private void SetupFirstIllustratedPage()
     {
         // BlankOut_JapanText_Tiles writes the same 16-byte 2-bpp character 96 times to
@@ -1512,28 +1431,24 @@ public sealed class IntroCinematicState
             textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount));
     }
 
-    /// <summary>Clears palette spans.</summary>
     private void ClearPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
             paletteFader!.Clear(span.ByteOffset, span.ByteCount);
     }
 
-    /// <summary>Fade in palette spans.</summary>
     private void FadeInPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
             paletteFader!.FadeIn(span.ByteOffset, span.ByteCount);
     }
 
-    /// <summary>Fade out palette spans.</summary>
     private void FadeOutPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
             paletteFader!.FadeOut(span.ByteOffset, span.ByteCount);
     }
 
-    /// <summary>Applies master brightness.</summary>
     private void ApplyMasterBrightness(Span<Rgba32> pixels)
     {
         for (int pixel = 0; pixel < pixels.Length; pixel++)
@@ -1551,7 +1466,6 @@ public sealed class IntroCinematicState
         }
     }
 
-    /// <summary>Requires minimum.</summary>
     private static void RequireMinimum(byte[] bytes, int minimum, string name)
     {
         if (bytes.Length < minimum)
@@ -1561,13 +1475,10 @@ public sealed class IntroCinematicState
     /// <summary>The flashback Mother Brain demo's owner: its compiled list and end routine; no private pre-instructions (#633).</summary>
     private sealed class FlashbackDemoProgram(IntroCinematicState owner) : IDemoInputProgram
     {
-        /// <summary>Reads instruction word.</summary>
         public ushort ReadInstructionWord(ushort pointer) => IntroMotherBrainInputDefinitions.ReadWord(pointer);
 
-        /// <summary>Tries to run pre instruction.</summary>
         public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
 
-        /// <summary>Runs special instruction.</summary>
         public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
             owner.HandleMotherBrainDemoInstruction(demo, opcode, cursor);
     }
@@ -1632,7 +1543,6 @@ public sealed class IntroCinematicState
         }, MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
     }
 
-    /// <summary>Plane.</summary>
     private static Bg4BppRenderLayer Plane(ushort tilemap, Position16<BgPlanePixels> scroll) =>
         new(tilemap, 0, scroll, new Extent16<TilemapCells>(32, 32), false);
 }

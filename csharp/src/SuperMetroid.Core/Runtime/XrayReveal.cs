@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
@@ -10,22 +10,14 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class XrayReveal
 {
-    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new xray reveal instance.</summary>
     internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, RoomPlmSystem plms, ActiveRoomState room, Bank80SystemState system, SnesVram vram, ISnesAddressSpace addressSpace)
     {
         _backgroundScroll = backgroundScroll;

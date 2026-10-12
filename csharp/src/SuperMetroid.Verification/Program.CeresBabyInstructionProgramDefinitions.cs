@@ -16,10 +16,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
-/// <summary>Represents ceres baby instruction program definitions verification.</summary>
 internal static class CeresBabyInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies ceres baby instruction program definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyCeresBabyInstructionProgramDefinitions()
     {
@@ -252,7 +250,6 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
             "selectors pass through the complete production loop.");
     }
 
-    /// <summary>New ceres baby instruction read guard.</summary>
     private static CartridgeReadGuard NewCeresBabyInstructionReadGuard(
         ISnesAddressSpace source, bool blockBabyFrames = false) =>
         new CartridgeReadGuard(source)
@@ -267,7 +264,6 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
                     (blockBabyFrames && address is >= 0xa6bffd and < 0xa6c04e),
                 address => $"Production read compiled Ceres Baby control/selector byte ${address:X6}.");
 
-    /// <summary>Ceres baby instruction mechanics command.</summary>
     [VerificationCommand("--ceres-baby-instruction-mechanics")]
     internal static int CeresBabyInstructionMechanicsCommand()
     {

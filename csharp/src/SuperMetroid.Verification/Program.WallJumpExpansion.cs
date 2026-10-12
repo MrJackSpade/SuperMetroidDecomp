@@ -2,10 +2,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents wall jump expansion verification.</summary>
 internal static class WallJumpExpansionVerification
 {
-    /// <summary>Verifies wall jump expansion.</summary>
     internal static void VerifyWallJumpExpansion(ISnesAddressSpace bus)
     {
         foreach (bool ceiling in new[] { false, true })

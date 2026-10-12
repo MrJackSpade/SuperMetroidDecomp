@@ -5,7 +5,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 
-/// <summary>Represents bgr555 domain verification.</summary>
 internal static class Bgr555DomainVerification
 {
     /// <summary>

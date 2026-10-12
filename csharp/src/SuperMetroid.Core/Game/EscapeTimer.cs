@@ -166,7 +166,6 @@ public sealed class EscapeTimer
         return unchecked((byte)result);
     }
 
-    /// <summary>Start.</summary>
     private bool Start(byte minutesBcd)
     {
         // Both start functions clear all timer RAM, set a whole-minute value through the
@@ -177,7 +176,6 @@ public sealed class EscapeTimer
         return false;
     }
 
-    /// <summary>Process initial delay.</summary>
     private bool ProcessInitialDelay()
     {
         IncrementXLowByte();
@@ -188,7 +186,6 @@ public sealed class EscapeTimer
         return false;
     }
 
-    /// <summary>Process movement delay.</summary>
     private bool ProcessMovementDelay(ushort nmiFrameCounter)
     {
         IncrementXLowByte();
@@ -203,7 +200,6 @@ public sealed class EscapeTimer
         return Decrement(nmiFrameCounter);
     }
 
-    /// <summary>Process movement.</summary>
     private bool ProcessMovement(ushort nmiFrameCounter)
     {
         int axesInPosition = 0;
@@ -237,7 +233,6 @@ public sealed class EscapeTimer
         return Decrement(nmiFrameCounter);
     }
 
-    /// <summary>Decrement.</summary>
     private bool Decrement(ushort nmiFrameCounter)
     {
         byte correction = EscapeTimerCadenceDefinitions.Centiseconds(nmiFrameCounter);
@@ -271,21 +266,18 @@ public sealed class EscapeTimer
         return (CentisecondsBcd | SecondsBcd | MinutesBcd) == 0;
     }
 
-    /// <summary>Increments xlow byte.</summary>
     private void IncrementXLowByte()
     {
         byte nextCounter = unchecked((byte)((byte)Position.X + 1));
         Position = Position.WithX((ushort)((SnesLittleEndian.HighByteInPlace(Position.X)) | nextCounter));
     }
 
-    /// <summary>Increments status low byte.</summary>
     private void IncrementStatusLowByte()
     {
         byte nextState = unchecked((byte)((byte)RawStatus + 1));
         RawStatus = (ushort)((SnesLittleEndian.HighByteInPlace(RawStatus)) | nextState);
     }
 
-    /// <summary>Validates bcd.</summary>
     private static void ValidateBcd(byte value, string parameterName)
     {
         if ((value & 0x0f) > 9 || ((value >> 4) & 0x0f) > 9)
@@ -296,18 +288,18 @@ public sealed class EscapeTimer
 /// <summary>Low-byte entries in the dispatch table at <c>$80:9DFB</c>.</summary>
 public enum EscapeTimerState : byte
 {
-    /// <summary>Dispatches state 0, native <c>ProcessTimer_Inactive</c> at <c>$80:9E1A</c>: leaves timer fields unchanged and reports no expiration.</summary>
+    /// <summary>Dispatch state 0, native <c>ProcessTimer_Inactive</c> at <c>$80:9E1A</c>: leaves timer fields unchanged and reports no expiration.</summary>
     Inactive = 0,
-    /// <summary>Dispatches state 1, native <c>ProcessTimer_CeresStart</c> at <c>$80:9E09</c>: clears timer-owned state, installs 01:00.00 in packed BCD, and activates the initial delay as raw status <c>$8003</c>.</summary>
+    /// <summary>Dispatch state 1, native <c>ProcessTimer_CeresStart</c> at <c>$80:9E09</c>: clears timer-owned state, installs 01:00.00 in packed BCD, and activates the initial delay as raw status <c>$8003</c>.</summary>
     CeresStart = 1,
-    /// <summary>Dispatches state 2, native <c>ProcessTimer_MotherBrainStart</c> at <c>$80:9E1C</c>: clears timer-owned state, installs 03:00.00 in packed BCD, and activates the initial delay as raw status <c>$8003</c>.</summary>
+    /// <summary>Dispatch state 2, native <c>ProcessTimer_MotherBrainStart</c> at <c>$80:9E1C</c>: clears timer-owned state, installs 03:00.00 in packed BCD, and activates the initial delay as raw status <c>$8003</c>.</summary>
     MotherBrainStart = 2,
-    /// <summary>Dispatches state 3, native <c>ProcessTimer_InitialDelay</c> at <c>$80:9E2F</c>: increments the aliased X low-byte counter to <c>$10</c> without decrementing time, then selects the running movement delay.</summary>
+    /// <summary>Dispatch state 3, native <c>ProcessTimer_InitialDelay</c> at <c>$80:9E2F</c>: increments the aliased X low-byte counter to <c>$10</c> without decrementing time, then selects the running movement delay.</summary>
     InitialDelay = 3,
-    /// <summary>Dispatches state 4, native <c>ProcessTimer_RunningMovementDelayed</c> at <c>$80:9E41</c>: counts down time at the original center position while the X low-byte counter advances to <c>$60</c>, then clears that fraction and starts movement.</summary>
+    /// <summary>Dispatch state 4, native <c>ProcessTimer_RunningMovementDelayed</c> at <c>$80:9E41</c>: counts down time at the original center position while the X low-byte counter advances to <c>$60</c>, then clears that fraction and starts movement.</summary>
     RunningMovementDelayed = 4,
-    /// <summary>Dispatches state 5, native <c>ProcessTimer_RunningMovingIntoPlace</c> at <c>$80:9E58</c>: decrements time while moving the 8.8 display origin toward screen pixel (220, 48), selecting state 6 after both axes clamp.</summary>
+    /// <summary>Dispatch state 5, native <c>ProcessTimer_RunningMovingIntoPlace</c> at <c>$80:9E58</c>: decrements time while moving the 8.8 display origin toward screen pixel (220, 48), selecting state 6 after both axes clamp.</summary>
     RunningMovingIntoPlace = 5,
-    /// <summary>Dispatches state 6, native <c>ProcessTimer_RunningMovingIntoPlace_return</c> at <c>$80:9E89</c>: decrements packed-BCD time at the settled display origin without further movement.</summary>
+    /// <summary>Dispatch state 6, native <c>ProcessTimer_RunningMovingIntoPlace_return</c> at <c>$80:9E89</c>: decrements packed-BCD time at the settled display origin without further movement.</summary>
     RunningInPlace = 6,
 }

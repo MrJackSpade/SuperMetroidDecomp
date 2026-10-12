@@ -11,10 +11,8 @@ internal static class ChozoStatueVisualDefinitions
 {
     /// <summary>Native shared Chozo statue spritemap bank $AA.</summary>
     internal const byte Bank = 0xaa;
-    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 26;
 
-    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();

@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents pipe bug animation definitions verification.</summary>
 internal static class PipeBugAnimationDefinitionsVerification
 {
-    /// <summary>Verifies pipe bug animation definitions.</summary>
     internal static void VerifyPipeBugAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         const int normalTable = 0xb3882b;
@@ -76,7 +74,6 @@ internal static class PipeBugAnimationDefinitionsVerification
             "Pipe Bug animation definitions: eight native selectors and all eight production handoffs pass with both pointer tables forbidden.");
     }
 
-    /// <summary>New pipe bug animation read guard.</summary>
     private static CartridgeReadGuard NewPipeBugAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xb3882b and < 0xb3883b,
             address => $"Pipe Bug attempted migrated animation read ${address:X6}.");

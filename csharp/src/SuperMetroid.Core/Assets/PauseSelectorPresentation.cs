@@ -8,11 +8,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Equipment-selector anchors, visual animation and compositions; selection rules stay compiled.</summary>
 public sealed class PauseSelectorPresentation
 {
-    /// <summary>Stores anchor overrides.</summary>
     private readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
-    /// <summary>Stores reserve.</summary>
     private readonly PhaseComposition reserve, beam, equipment;
-    /// <summary>Stores duration overrides.</summary>
     private readonly Dictionary<int, int>? durationOverrides;
     /// <summary>Gets the initial selector dwell time in accepted update ticks.</summary>
     public int InitialDurationTicks { get; }
@@ -20,7 +17,6 @@ public sealed class PauseSelectorPresentation
     public ushort PaletteBits { get; }
     /// <summary>Gets the number of cyclic visual animation phases.</summary>
     public int PhaseCount { get; }
-    /// <summary>Initializes a new pause selector presentation instance.</summary>
     private PauseSelectorPresentation(PauseSelectorParts parts)
     { this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; PaletteBits = SnesObjAttributeWord.Create(0, parts.Palette, 0).PaletteBits; }
     /// <summary>Gets the selected screen-pixel anchor for an equipment category and item.</summary>
@@ -107,16 +103,12 @@ public sealed class PauseSelectorPresentation
     /// holds its base composition. Capture only explicitly authored phase differences.</summary>
     private sealed class PhaseComposition(PauseSelectorVisual basis)
     {
-        /// <summary>Stores basis.</summary>
         private readonly PauseSelectorVisual basis = basis;
-        /// <summary>Stores overrides.</summary>
         private Dictionary<int, PauseSelectorVisual>? overrides;
-        /// <summary>Capture.</summary>
         public void Capture(int phase, PauseSelectorVisual value)
         {
             if (!ReferenceEquals(basis, value)) (overrides ??= new()).Add(phase, value);
         }
-        /// <summary>Gets.</summary>
         public PauseSelectorVisual Get(int phase) => overrides is not null && overrides.TryGetValue(phase, out var value)
             ? value : basis;
     }

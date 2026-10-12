@@ -21,10 +21,8 @@ public enum EvirAiFunction : ushort
 /// </summary>
 public sealed class EvirEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new evir enemy state instance.</summary>
     internal EvirEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Zero for left and one for right; native common variable B.</summary>

@@ -8,10 +8,8 @@ using static DownwardGatePlmsVerification;
 using static LookupDownwardGateStockVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents downward gate visuals verification.</summary>
 internal static class DownwardGateVisualsVerification
 {
-    /// <summary>Verifies downward gate visuals.</summary>
     internal static void VerifyDownwardGateVisuals()
     {
         RoomPlmDownwardGateVisualCatalog stock = RoomPlmDownwardGateVisualCatalog.Stock();
@@ -94,7 +92,6 @@ internal static class DownwardGateVisualsVerification
         Suite(nameof(VerifyDownwardGateVisualInstallation), () => VerifyDownwardGateVisualInstallation());
     }
 
-    /// <summary>Verifies downward gate visual installation.</summary>
     private static void VerifyDownwardGateVisualInstallation()
     {
         using var testRootScratch = new TestScratchDirectory("downward-gate-visual");

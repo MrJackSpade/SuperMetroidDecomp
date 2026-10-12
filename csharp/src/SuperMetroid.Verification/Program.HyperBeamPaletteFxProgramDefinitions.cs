@@ -15,10 +15,8 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents hyper beam palette fx program definitions verification.</summary>
 internal static class HyperBeamPaletteFxProgramDefinitionsVerification
 {
-    /// <summary>Verifies hyper beam palette fx program definitions.</summary>
     internal static void VerifyHyperBeamPaletteFxProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -86,12 +84,10 @@ internal static class HyperBeamPaletteFxProgramDefinitionsVerification
             "restored-pointer domain match the cartridge.");
     }
 
-    /// <summary>Creates hyper beam palette fx control guard.</summary>
     internal static CartridgeReadGuard NewHyperBeamPaletteFxControlGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(IsHyperBeamPaletteFxControlByte,
             address => $"Hyper Beam palette-FX attempted control read ${address:X6}.");
 
-    /// <summary>Indicates whether hyper beam palette fx control byte.</summary>
     private static bool IsHyperBeamPaletteFxControlByte(int address)
     {
         if (address >= HyperBeamPaletteFxProgramDefinitions.NativeEntryControlAddress &&
@@ -120,7 +116,6 @@ internal static class HyperBeamPaletteFxProgramDefinitionsVerification
             >= (HyperBeamPaletteFxProgramDefinitions.FrameByteCount - sizeof(ushort));
     }
 
-    /// <summary>Hyper beam palette fx program definitions command.</summary>
     [VerificationCommand("--hyper-beam-palette-fx-program-definitions")]
     internal static int HyperBeamPaletteFxProgramDefinitionsCommand()
     {

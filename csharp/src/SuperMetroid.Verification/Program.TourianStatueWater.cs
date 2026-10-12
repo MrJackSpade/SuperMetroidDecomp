@@ -12,10 +12,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-/// <summary>Represents tourian statue water verification.</summary>
 internal static class TourianStatueWaterVerification
 {
-    /// <summary>Verifies tourian statue water.</summary>
     internal static int VerifyTourianStatueWater()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -93,7 +91,6 @@ internal static class TourianStatueWaterVerification
         return 0;
     }
 
-    /// <summary>Tourian statue water command.</summary>
     [VerificationCommand("--tourian-statue-water")]
     internal static int TourianStatueWaterCommand()
     {

@@ -18,10 +18,8 @@ using static DownwardGatePlmsVerification;
 using static GrappleDoorsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
-/// <summary>Represents grapple gates verification.</summary>
 internal static class GrappleGatesVerification
 {
-    /// <summary>verify grapple green gate visibility.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleGreenGateVisibility()
     {
@@ -71,7 +69,6 @@ internal static class GrappleGatesVerification
         Console.WriteLine("  Grapple green gates: both sides retain exact gate OAM before, during and after impact.");
     }
 
-    /// <summary>grapple green gate visibility rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple green gate visibility")]
     private static byte GrappleGreenGateVisibilityRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
@@ -84,14 +81,12 @@ internal static class GrappleGatesVerification
         bus.WriteBytes(0x8d8000, maps);
     }
 
-    /// <summary>enemy art fixtures command.</summary>
     [VerificationCommand("--enemy-art-fixtures")]
     internal static int EnemyArtFixturesCommand()
     {
      VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; 
     }
 
-    /// <summary>grapple gates command.</summary>
     [VerificationCommand("--grapple-gates")]
     internal static int GrappleGatesCommand()
     {

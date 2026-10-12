@@ -15,11 +15,9 @@ using SuperMetroid.Core.Rom;
 using static FrontendVerification;
 using static RetailPresentationFixtureVerification;
 
-/// <summary>Represents ceres destruction verification.</summary>
 internal static class CeresDestructionVerification
 {
 
-/// <summary>Verifies ceres destruction cinematic.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
 internal static void VerifyCeresDestructionCinematic()
 {
@@ -149,7 +147,6 @@ internal static void VerifyCeresDestructionCinematic()
         $"  Ceres destruction: ROM phases, C9C7 flight, and state-six handoff agree ({frame} calls).");
 }
 
-/// <summary>Writes repeated compressed chunks.</summary>
 static void WriteRepeatedCompressedChunks(
     byte[] rom,
     int snesAddress,
@@ -170,7 +167,6 @@ static void WriteRepeatedCompressedChunks(
     WriteSequentialRomByte(rom, ref address, 0xff);
 }
 
-/// <summary>Writes repeated compressed stream.</summary>
 internal static void WriteRepeatedCompressedStream(
     byte[] rom,
     int snesAddress,
@@ -191,7 +187,6 @@ internal static void WriteRepeatedCompressedStream(
     WriteSequentialRomByte(rom, ref address, 0xff);
 }
 
-/// <summary>Writes sequential rom byte.</summary>
 static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 {
     rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
@@ -201,13 +196,11 @@ static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
         : snesAddress + 1;
 }
 
-/// <summary>Decompress synthetic ceres tilemaps.</summary>
 [CpuBusBoundary("exact bus test: decompresses the synthetic cartridge's Ceres tilemap stream as the oracle for installed map slices")]
 static byte[] DecompressSyntheticCeresTilemaps(byte[] rom) =>
     RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
         CeresDestructionRomData.Assets.CeresTilemaps, maximumOutputBytes: 0x1000);
 
-    /// <summary>Ceres destruction command.</summary>
     [VerificationCommand("--ceres-destruction")]
     internal static int CeresDestructionCommand()
     {

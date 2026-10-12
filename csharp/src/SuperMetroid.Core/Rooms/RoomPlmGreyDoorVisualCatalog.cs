@@ -26,7 +26,6 @@ public sealed class RoomPlmGreyDoorVisualCatalog
         }
     });
 
-    /// <summary>Stores custom blocks.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all twenty clear/grey-door frames and copies visual differences while retaining compiled collision, run direction, animation timing, and handoff behavior.</summary>

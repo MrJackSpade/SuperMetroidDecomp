@@ -25,12 +25,9 @@ public static class RoomFxSporeTilemapDefinitions
 /// </remarks>
 internal sealed class RoomFxSporeTilemap
 {
-    /// <summary>Stores characters.</summary>
     private readonly ushort[] characters;
-    /// <summary>Stores custom attributes.</summary>
     private readonly Dictionary<int, ushort>? customAttributes;
 
-    /// <summary>Initializes a new room fx spore tilemap instance.</summary>
     public RoomFxSporeTilemap(ReadOnlySpan<byte> bytes)
     {
         Ensure.LengthEqual(bytes, RoomFxLayer3TilemapFormat.PageByteCount);

@@ -5,10 +5,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents escape room effects verification.</summary>
 internal static class EscapeRoomEffectsVerification
 {
-    /// <summary>Verifies escape room effects.</summary>
     internal static void VerifyEscapeRoomEffects(string romPath)
     {
         foreach (ushort room in new ushort[] { 0xde4d, 0xde7a, 0xdea7, 0xdede, 0x92fd, 0x9804 })

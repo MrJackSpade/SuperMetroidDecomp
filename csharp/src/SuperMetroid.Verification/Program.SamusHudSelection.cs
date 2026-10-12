@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 
-/// <summary>Represents samus hud selection verification.</summary>
 internal static class SamusHudSelectionVerification
 {
     /// <summary>Runs one selector frame; true when it moved the selected index.</summary>

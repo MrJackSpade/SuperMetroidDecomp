@@ -2,10 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents menu beveled square pixels verification.</summary>
 internal static class MenuBeveledSquarePixelsVerification
 {
-    /// <summary>Verifies menu beveled square pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu beveled square pixels")]
     internal static void VerifyMenuBeveledSquarePixels(ISnesAddressSpace rom)

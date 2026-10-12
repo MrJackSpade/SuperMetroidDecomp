@@ -19,7 +19,6 @@ public static class LibraryBackgroundWorkRam
 [CpuBusBoundary("domain view: library-background WRAM staging")]
 internal readonly struct LibraryBackgroundMemory(ISnesMemoryBus bus)
 {
-    /// <summary>Gets staging.</summary>
     private WorkRamByteTable Staging => new(bus, LibraryBackgroundWorkRam.TilemapStaging);
 
     /// <summary>Writes a decompressed tilemap at bank-$7E <paramref name="destination"/>, in address order.</summary>
@@ -42,7 +41,6 @@ internal readonly struct LibraryBackgroundMemory(ISnesMemoryBus bus)
             staging.WriteWord(first + byteOffset, value);
     }
 
-    /// <summary>Staging offset.</summary>
     private static int StagingOffset(ushort destination, int byteCount, int? sourceAddress)
     {
         int first = destination - SnesAddress.FromBusAddress(LibraryBackgroundWorkRam.TilemapStaging.Address).Offset;

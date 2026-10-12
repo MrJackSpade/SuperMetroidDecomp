@@ -2,10 +2,8 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ceres flight frame catalog verification.</summary>
 internal static class CeresFlightFrameCatalogVerification
 {
-    /// <summary>verify ceres flight frame catalog.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight frame catalog")]
     internal static void VerifyCeresFlightFrameCatalog(ISnesAddressSpace rom)
     {

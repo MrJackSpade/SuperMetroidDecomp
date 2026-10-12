@@ -14,7 +14,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents lookup rom oracles verification.</summary>
 internal static class LookupRomOraclesVerification
 {
     /// <summary>Checks every registered narration page's native begin callback, then its extraction and compilation.</summary>
@@ -58,7 +57,6 @@ internal static class LookupRomOraclesVerification
     internal static ushort ReadPhaseAlgorithmWord(CartridgeImportAddressSpace rom, int address) =>
         rom.ReadCartridgeWord(address);
 
-    /// <summary>Lookup intro narration registry command.</summary>
     [VerificationCommand("--lookup-intro-narration-registry")]
     internal static int LookupIntroNarrationRegistryCommand()
     {
@@ -70,7 +68,6 @@ internal static class LookupRomOraclesVerification
         return 0;
     }
 
-    /// <summary>Lookup mochtroid shake command.</summary>
     [VerificationCommand("--lookup-mochtroid-shake")]
     internal static int LookupMochtroidShakeCommand()
     {

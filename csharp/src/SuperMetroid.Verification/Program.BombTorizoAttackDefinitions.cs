@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents bomb torizo attack definitions verification.</summary>
 internal static class BombTorizoAttackDefinitionsVerification
 {
-    /// <summary>Verifies bomb torizo attack definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo attack definitions")]
     internal static void VerifyBombTorizoAttackDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -108,7 +106,6 @@ internal static class BombTorizoAttackDefinitionsVerification
             "Bomb Torizo attack placements: all 34 native words, 22 real swipe spawns and 18 bounded explosion spawns pass with both geometry tables forbidden.");
     }
 
-    /// <summary>Creates bomb torizo attack fixture.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Torizo)
         CreateBombTorizoAttackFixture(ISnesAddressSpace bus, bool facingRight)
     {
@@ -121,7 +118,6 @@ internal static class BombTorizoAttackDefinitionsVerification
         return (enemies, torizo);
     }
 
-    /// <summary>New bomb torizo attack read guard.</summary>
     private static CartridgeReadGuard NewBombTorizoAttackReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
                 address is >= 0x86a738 and < 0x86a764 or >= 0x86a859 and < 0x86a871,

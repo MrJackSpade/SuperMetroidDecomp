@@ -3,10 +3,8 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete graphics-set source membership and the contiguous sky transfer store.</summary>
 internal static class RoomArtworkClosedContractDefinitions
 {
-    /// <summary>Stores tileset sources.</summary>
     private static readonly ReviewedSource TilesetSources = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomTilesetDefinitions.cs");
-    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.RoomCharacterAtlasCatalog", "room-complete-tileset-character-sources", ["Get"],

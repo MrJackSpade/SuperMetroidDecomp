@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -17,7 +17,6 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
     /// <summary>Golden Torizo's Samus-position wake function at $AA:D5C2.</summary>
     internal const ushort WakeWhenSamusApproaches = 0xd5c2;
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 7;
 
     /// <summary>
@@ -42,14 +41,11 @@ internal abstract class GoldenTorizoInitialInstructionProgramDefinitions : IInst
         };
         return new(address, value);
     }
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 1;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => index == 0
         ? InitialFrameOperand
         : throw new ArgumentOutOfRangeException(nameof(index));
 
-    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xaa0000)

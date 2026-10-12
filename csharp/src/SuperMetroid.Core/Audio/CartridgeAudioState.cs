@@ -13,41 +13,27 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class CartridgeAudioState
 {
-    /// <summary>Stores music entries.</summary>
     private readonly MusicCommand[] _musicEntries =
         new MusicCommand[AudioRomData.Queues.MusicCapacity];
-    /// <summary>Stores music delays.</summary>
     private readonly MusicCommandDelay[] _musicDelays =
         new MusicCommandDelay[AudioRomData.Queues.MusicCapacity];
-    /// <summary>Stores sound queues.</summary>
     private readonly byte[,] _soundQueues = new byte[
         AudioRomData.Queues.SoundLibraryCount,
         AudioRomData.Queues.SoundCapacity];
-    /// <summary>Stores sound read positions.</summary>
     private readonly byte[] _soundReadPositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
-    /// <summary>Stores sound write positions.</summary>
     private readonly byte[] _soundWritePositions =
         new byte[AudioRomData.Queues.SoundLibraryCount];
-    /// <summary>Stores sound states.</summary>
     private readonly byte[] _soundStates = new byte[AudioRomData.Queues.SoundLibraryCount];
-    /// <summary>Stores current sounds.</summary>
     private readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
-    /// <summary>Stores sound clear delays.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[AudioRomData.Queues.SoundLibraryCount];
-    /// <summary>Stores pending immediate commands.</summary>
     private readonly List<CartridgeAudioCommand> _pendingImmediateCommands = [];
 
-    /// <summary>Stores music read position.</summary>
     private byte _musicReadPosition;
-    /// <summary>Stores music write position.</summary>
     private byte _musicWritePosition;
-    /// <summary>Stores music timer.</summary>
     private ushort _musicTimer;
-    /// <summary>Stores music entry.</summary>
     private MusicCommand _musicEntry;
-    /// <summary>Stores sound handler downtime.</summary>
     private byte _soundHandlerDowntime;
 
     /// <summary>Creates empty native music/SFX queues and zeroed acknowledgement state, scheduling the common audio-bank upload and reset port writes for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
@@ -302,7 +288,6 @@ public sealed class CartridgeAudioState
         return commands.Count == 0 ? Array.Empty<CartridgeAudioCommand>() : commands.ToArray();
     }
 
-    /// <summary>Queues music.</summary>
     private void QueueMusic(
         MusicCommand command,
         MusicCommandDelay delay,
@@ -324,7 +309,6 @@ public sealed class CartridgeAudioState
         _musicWritePosition = next;
     }
 
-    /// <summary>Handles music queue.</summary>
     private void HandleMusicQueue(List<CartridgeAudioCommand> commands)
     {
         bool timerExpired = _musicTimer-- == 1;
@@ -368,7 +352,6 @@ public sealed class CartridgeAudioState
         _musicTimer = _musicDelays[_musicReadPosition].Frames;
     }
 
-    /// <summary>Clears and advance music entry.</summary>
     private void ClearAndAdvanceMusicEntry()
     {
         _musicEntries[_musicReadPosition] = default;
@@ -377,7 +360,6 @@ public sealed class CartridgeAudioState
             (_musicReadPosition + 1) & AudioRomData.Queues.MusicIndexMask));
     }
 
-    /// <summary>Handles sound effects.</summary>
     private void HandleSoundEffects(
         CartridgeAudioAcknowledgements acknowledgements,
         List<CartridgeAudioCommand> commands)
@@ -403,7 +385,6 @@ public sealed class CartridgeAudioState
                 commands);
     }
 
-    /// <summary>Handles sound effect queue.</summary>
     private void HandleSoundEffectQueue(
         int queue,
         byte acknowledgement,
@@ -458,7 +439,6 @@ public sealed class CartridgeAudioState
         }
     }
 
-    /// <summary>Send next sound.</summary>
     private void SendNextSound(int queue, List<CartridgeAudioCommand> commands)
     {
         if (_soundReadPositions[queue] == _soundWritePositions[queue])

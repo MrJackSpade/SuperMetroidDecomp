@@ -10,10 +10,8 @@ using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ending explosion sprite artwork verification.</summary>
 internal static class EndingExplosionSpriteArtworkVerification
 {
-    /// <summary>verify ending explosion frame catalog.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion frame catalog")]
     internal static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
@@ -56,7 +54,6 @@ internal static class EndingExplosionSpriteArtworkVerification
             "planet record count");
     }
 
-    /// <summary>verify ending explosion calculated parts.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion calculated parts")]
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
@@ -146,7 +143,6 @@ internal static class EndingExplosionSpriteArtworkVerification
                 (EndingExplosionSpriteDefinitions.Pose)invalid, 0), "quadrant basis role bounds");
     }
 
-    /// <summary>verify ending explosion programs.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion programs")]
     internal static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
     {
@@ -201,7 +197,6 @@ internal static class EndingExplosionSpriteArtworkVerification
                 $"explosion frame {frame} has four OAM parts and a 22-byte record");
     }
 
-    /// <summary>verify ending explosion actor artwork.</summary>
     internal static void VerifyEndingExplosionActorArtwork(
         ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
     {
@@ -235,7 +230,6 @@ internal static class EndingExplosionSpriteArtworkVerification
         }
     }
 
-    /// <summary>verify ending explosion visual override.</summary>
     internal static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {

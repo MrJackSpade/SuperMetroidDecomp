@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents yapping maw body projectile instruction program definitions verification.</summary>
 internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies yapping maw body projectile instruction program definitions.</summary>
     internal static void VerifyYappingMawBodyProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYappingMawBodyProjectileInstructionProgramDefinitions), () => VerifyYappingMawBodyProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies yapping maw body projectile instruction program definitions.</summary>
     internal static void VerifyYappingMawBodyProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -153,7 +150,6 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
             "and both installed sprite frames pass with mechanics and visual operand ROM reads forbidden.");
     }
 
-    /// <summary>Probe yapping maw body projectile instruction mechanics allocation.</summary>
     private static int ProbeYappingMawBodyProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -167,7 +163,6 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
         return checksum;
     }
 
-    /// <summary>New yapping maw body projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewYappingMawBodyProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => YappingMawBodyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -175,7 +170,6 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
                 address => $"Production read compiled Yapping Maw body mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount, YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Yapping maw body projectile instruction mechanics command.</summary>
     [VerificationCommand("--yapping-maw-body-projectile-instruction-mechanics")]
     internal static int YappingMawBodyProjectileInstructionMechanicsCommand()
     {

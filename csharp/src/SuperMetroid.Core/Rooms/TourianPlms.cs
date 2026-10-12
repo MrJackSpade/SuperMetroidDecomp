@@ -1,16 +1,13 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Tourian PLMs: the access gate, the Metroids-cleared states, and the old Tourian escape-shaft wall.</summary>
 internal sealed class TourianPlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
-    /// <summary>Initializes a new tourian plms instance.</summary>
     internal TourianPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;

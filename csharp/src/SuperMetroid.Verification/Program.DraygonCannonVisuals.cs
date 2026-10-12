@@ -5,10 +5,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using static LookupDraygonCannonStockVerification;
 
-/// <summary>Represents draygon cannon visuals verification.</summary>
 internal static class DraygonCannonVisualsVerification
 {
-    /// <summary>Verifies draygon cannon visual installation.</summary>
     internal static void VerifyDraygonCannonVisualInstallation(
         SuperMetroidAddressSpace rom)
     {

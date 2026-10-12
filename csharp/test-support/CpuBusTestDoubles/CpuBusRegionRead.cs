@@ -9,7 +9,6 @@ using SuperMetroid.Core.Hardware;
 [CpuBusAccess]
 internal static class CpuBusRegionRead
 {
-    /// <summary>Read.</summary>
     internal static byte Read(ISnesAddressSpace source, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {
@@ -23,7 +22,6 @@ internal static class CpuBusRegionRead
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };
 
-    /// <summary>Missing.</summary>
     private static InvalidOperationException Missing(ISnesAddressSpace source, int address, string region) =>
         new($"{source.GetType().FullName} cannot serve the {region} read at ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4}.");
 }

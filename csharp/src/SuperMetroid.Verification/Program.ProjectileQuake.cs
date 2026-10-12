@@ -16,10 +16,8 @@ using static ImportedSpritemapsVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents projectile quake verification.</summary>
 internal static class ProjectileQuakeVerification
 {
-    /// <summary>verify projectile quake.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $86:846B earthquake displacement table")]
     internal static void VerifyProjectileQuake()
@@ -79,7 +77,6 @@ internal static class ProjectileQuakeVerification
         Console.WriteLine($"Projectile quake: {cases} native OAM/edge/timer cases passed.");
     }
 
-    /// <summary>projectile quake command.</summary>
     [VerificationCommand("--projectile-quake")]
     internal static int ProjectileQuakeCommand()
     {

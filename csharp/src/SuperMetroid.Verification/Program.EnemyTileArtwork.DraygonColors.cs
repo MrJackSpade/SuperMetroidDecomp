@@ -7,10 +7,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy tile artwork draygon colors verification.</summary>
 internal static class EnemyTileArtworkDraygonColorsVerification
 {
-    /// <summary>Verifies installed draygon colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon palette bands")]
     internal static void VerifyInstalledDraygonColors(

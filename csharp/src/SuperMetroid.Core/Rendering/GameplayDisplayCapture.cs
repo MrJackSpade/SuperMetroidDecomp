@@ -145,7 +145,6 @@ public static class GameplayDisplayCapture
             SnesPpuLayout.MaximumMasterBrightness);
     }
 
-    /// <summary>Visible lines.</summary>
     private static ushort[] VisibleLines(IReadOnlyList<ushort>? values)
     {
         if (values is null) return [];
@@ -156,7 +155,6 @@ public static class GameplayDisplayCapture
         return result;
     }
 
-    /// <summary>Adds.</summary>
     private static ushort Add(ushort scroll, short shake) => unchecked((ushort)(scroll + shake));
 
     /// <summary>Normal Fireflea blending ($88:80B0), before and after X-ray owns the window.</summary>
@@ -172,7 +170,6 @@ public static class GameplayDisplayCapture
         return new(ordinary, closed, revealBlocks: false, math: new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = fixedColor.RedIntensity, FixedGreen = fixedColor.GreenIntensity, FixedBlue = fixedColor.BlueIntensity });
     }
 
-    /// <summary>Captures mode7 base.</summary>
     [PpuLayoutBoundary("codec: Mode 7 gameplay render packet (BG3 and floor base registers)")]
     private static LayeredRenderSnapshot CaptureMode7Base(SuperMetroidRuntime runtime)
     {
@@ -210,7 +207,6 @@ public static class GameplayDisplayCapture
             new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
     }
 
-    /// <summary>Captures phantoon blending.</summary>
     private static RenderLayer CapturePhantoonBlending(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
     {
         var ordinary = (OrdinaryGameplayRenderLayer)basis.Layers[0];

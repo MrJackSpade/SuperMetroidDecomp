@@ -53,14 +53,10 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
     /// <summary>$8D:F1D1/F2D9/F3E1 select color one in foreground palettes four/five/six.</summary>
     private const int RegularFirstPalette = 4, RegularFirstColor = 1;
 
-    /// <summary>Stores definitions.</summary>
     private static readonly ProgramDefinitions Definitions = new();
-    /// <summary>Represents program definitions.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<NorfairEnvironmentalPaletteFxProgramDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 4;
-        /// <summary>Gets an indexed value.</summary>
         public NorfairEnvironmentalPaletteFxProgramDefinition this[int index]
         {
             get
@@ -79,12 +75,10 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
                     (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
             }
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<NorfairEnvironmentalPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The four real environmental programs in definition order.</summary>
@@ -138,16 +132,11 @@ public static class NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete Norfair environmental palette control program.</summary>
 public sealed class NorfairEnvironmentalPaletteFxProgramDefinition
 {
-    /// <summary>Stores heat phase publication byte count.</summary>
     private const int HeatPhasePublicationByteCount = 3;
-    /// <summary>Stores leading color count.</summary>
     private const int LeadingColorCount = 3;
-    /// <summary>Stores leading colors offset.</summary>
     private const int LeadingColorsOffset = 2;
-    /// <summary>Stores trailing colors offset.</summary>
     private const int TrailingColorsOffset = 10;
 
-    /// <summary>Initializes a new norfair environmental palette fx program definition instance.</summary>
     internal NorfairEnvironmentalPaletteFxProgramDefinition(
         NorfairEnvironmentalPaletteOwner owner,
         ushort definitionPointer,

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BoyonInstructionProgramDefinitions))]
 internal abstract class BoyonInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 18;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 10;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -23,13 +20,11 @@ internal abstract class BoyonInstructionProgramDefinitionsTooling : IInstruction
         ushort address = (ushort)((bouncing ? BoyonInstructionProgramDefinitions.Bouncing : BoyonInstructionProgramDefinitions.Idle) + offset);
         return new(address, BoyonInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 4 ? BoyonInstructionProgramDefinitions.Idle + 6 + 4 * index : BoyonInstructionProgramDefinitions.Bouncing + 6 + 4 * (index - 4));
     }
-    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;

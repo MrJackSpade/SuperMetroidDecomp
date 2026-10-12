@@ -1,17 +1,13 @@
-namespace SuperMetroid.Core.Game;
+﻿namespace SuperMetroid.Core.Game;
 
 /// <summary>The Elevator species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ElevatorBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Stores mother brain encounter.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
-    /// <summary>Initializes a new elevator behavior instance.</summary>
     internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, MotherBrainEncounter motherBrainEncounter)
     {
         _motherBrainEncounter = motherBrainEncounter;
@@ -19,18 +15,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         _audio = audio;
     }
 
-    /// <summary>Defines elevator nothing spritemap.</summary>
     private const ushort ElevatorNothingSpritemap = 0x804d;
-    /// <summary>Defines elevator speed fixed.</summary>
     private const int ElevatorSpeedFixed = 0x00018000;
-    /// <summary>Defines elevator departure sound library1.</summary>
     private const ushort ElevatorDepartureSoundLibrary1 = 0x0032;
-    /// <summary>Defines elevator departure sound library3.</summary>
     private const ushort ElevatorDepartureSoundLibrary3 = 0x000b;
-    /// <summary>Defines elevator arrival sound library3.</summary>
     private const ushort ElevatorArrivalSoundLibrary3 = 0x0025;
 
-    /// <summary>Stores elevator states.</summary>
     internal readonly ElevatorEnemyState?[] _elevatorStates =
         new ElevatorEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -63,7 +53,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies
 
     // Slot of an arriving elevator whose initializer placed Samus during this room load.
     // The door loader consumes it within the same update, so it is never captured.
-    /// <summary>Stores arrival placement slot.</summary>
     [NonSerialized]
     private int? _arrivalPlacementSlot;
 
@@ -126,7 +115,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies
             ElevatorFlags = 0;
     }
 
-    /// <summary>reset elevator room actors.</summary>
     internal void ResetElevatorRoomActors()
     {
         // Do not clear flags/status/direction here. Unlike actor-private state, these words
@@ -138,7 +126,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         BeginElevatorFrame();
     }
 
-    /// <summary>begin elevator frame.</summary>
     internal void BeginElevatorFrame()
     {
         LastElevatorEvent = ElevatorFrameEvent.None;
@@ -148,7 +135,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         _motherBrainEncounter.MotherBrainDeletedHdmaObjects = false;
     }
 
-    /// <summary>require elevator state.</summary>
     private ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
         _elevatorStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Elevator slot {slot.SlotIndex} was not initialized.");
@@ -332,7 +318,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         samus.Kinematics.YSubspeed = 0;
     }
 
-    /// <summary>register elevator initialization ai.</summary>
     internal void RegisterElevatorInitializationAi(EnemyAiTable table)
     {
 
@@ -342,7 +327,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register elevator main ai.</summary>
     internal void RegisterElevatorMainAi(EnemyAiTable table)
     {
 

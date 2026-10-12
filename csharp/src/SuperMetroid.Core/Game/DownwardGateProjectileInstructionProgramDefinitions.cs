@@ -15,9 +15,7 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
     /// <summary>Initial closed-gate sleep instruction at $86:E566.</summary>
     internal const ushort ClosedSleep = 0xe566;
 
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 28;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 9;
 
     /// <summary>
@@ -50,7 +48,6 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
         };
     }
 
-    /// <summary>movement pose word.</summary>
     private static InstructionMechanicsWord MovementPoseWord(ushort start, int word)
     {
         bool sleep = (word & 1) != 0;
@@ -58,7 +55,6 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
             sleep ? (ushort)EnemyProjectileInstruction.Sleep : (ushort)1);
     }
 
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -66,12 +62,10 @@ internal abstract class DownwardGateProjectileInstructionProgramDefinitions
         return (ushort)(index < 4 ? Moving + 10 + 6 * index
             : index == 4 ? Closed + 6 : Closed + 16 + 6 * (index - 5));
     }
-    /// <summary>owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.DownwardGateMoving or
         RoomEnemyProjectileKind.DownwardGateClosed;
 
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

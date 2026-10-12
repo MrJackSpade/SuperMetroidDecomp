@@ -28,10 +28,8 @@ internal static class IntroEyeAnimationDefinitions
     /// <summary>Native BG record position bytes17,13: portrait eye tile column/row.</summary>
     private const ushort PackedPosition = 17 | (13 << 8);
 
-    /// <summary>Represents eye frame.</summary>
-    private enum EyeFrame { /** <summary>Identifies half open.</summary> */ HalfOpen = 1, /** <summary>Identifies closed.</summary> */ Closed = 2, /** <summary>Identifies deadpan.</summary> */ Deadpan = 3 }
+    private enum EyeFrame { HalfOpen = 1, Closed = 2, Deadpan = 3 }
 
-    /// <summary>Program word.</summary>
     private static ushort ProgramWord(int index)
     {
         if (index is 24 or 35) return (ushort)CinematicBackgroundInstruction.Goto;
@@ -62,7 +60,6 @@ internal static class IntroEyeAnimationDefinitions
             : (ushort)(FrameStartPointer + FrameStride * frame);
     }
 
-    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -71,7 +68,6 @@ internal static class IntroEyeAnimationDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
-    /// <summary>Attempts to read word.</summary>
     internal static bool TryReadWord(ushort pointer, out ushort word)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -85,7 +81,6 @@ internal static class IntroEyeAnimationDefinitions
         return true;
     }
 
-    /// <summary>Attempts to frame index.</summary>
     internal static bool TryFrameIndex(ushort pointer, out int index)
     {
         int offset = pointer - FrameStartPointer;

@@ -21,10 +21,8 @@ public static class RoomBackgroundTilemapSources
         return false;
     }
 
-    /// <summary>Represents source sequence.</summary>
     private sealed class SourceSequence : IReadOnlyList<int>
     {
-        /// <summary>Gets or sets count.</summary>
         public int Count
         {
             get
@@ -35,7 +33,6 @@ public static class RoomBackgroundTilemapSources
             }
         }
 
-        /// <summary>Gets or sets an indexed value.</summary>
         public int this[int index]
         {
             get
@@ -48,7 +45,6 @@ public static class RoomBackgroundTilemapSources
             }
         }
 
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<int> GetEnumerator()
         {
             int previous = int.MinValue;
@@ -70,7 +66,6 @@ public static class RoomBackgroundTilemapSources
             }
         }
 
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

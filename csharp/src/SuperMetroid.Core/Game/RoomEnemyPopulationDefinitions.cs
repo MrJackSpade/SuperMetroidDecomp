@@ -3,9 +3,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One immutable ordered bank-$A1 room population and its terminator quota.</summary>
 public sealed class RoomEnemyPopulationDefinition
 {
-    /// <summary>Stores records.</summary>
     private readonly RoomEnemyPopulationRecord[] records;
-    /// <summary>Initializes a new room enemy population definition instance.</summary>
     internal RoomEnemyPopulationDefinition(ushort pointer, RoomEnemyPopulationRecord[] records, byte deathQuota)
     {
         Pointer = pointer;
@@ -29,7 +27,6 @@ public sealed class RoomEnemyPopulationDefinition
 /// </remarks>
 public static class RoomEnemyPopulationDefinitions
 {
-    /// <summary>Stores definitions.</summary>
     private static readonly RoomEnemyPopulationDefinition[] Definitions =
     [
         ..BuildSegment0(),
@@ -43,7 +40,6 @@ public static class RoomEnemyPopulationDefinitions
     /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
     public const int RecordCount = 1658;
 
-    /// <summary>Initializes a new room enemy population definitions instance.</summary>
     static RoomEnemyPopulationDefinitions()
     {
         if (Definitions.Length != ListCount || Definitions.Sum(list => list.Records.Length) != RecordCount)
@@ -73,7 +69,6 @@ public static class RoomEnemyPopulationDefinitions
             "Pointer is not a retail bank-$A1 enemy population.");
     }
 
-    /// <summary>build segment0.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment0() =>
     [
         new(0x8000,
@@ -657,7 +652,6 @@ public static class RoomEnemyPopulationDefinitions
         ], 0x00),
     ];
 
-    /// <summary>build segment1.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment1() =>
     [
         new(0x96e2,
@@ -1314,7 +1308,6 @@ public static class RoomEnemyPopulationDefinitions
         ], 0x06),
     ];
 
-    /// <summary>build segment2.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment2() =>
     [
         new(0xb259,
@@ -2063,7 +2056,6 @@ public static class RoomEnemyPopulationDefinitions
         ], 0x05),
     ];
 
-    /// <summary>build segment3.</summary>
     private static RoomEnemyPopulationDefinition[] BuildSegment3() =>
     [
         new(0xd3aa,

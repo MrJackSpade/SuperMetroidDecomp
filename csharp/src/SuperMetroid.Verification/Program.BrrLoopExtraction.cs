@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 
-/// <summary>Represents brr loop extraction verification.</summary>
 internal static class BrrLoopExtractionVerification
 {
-    /// <summary>Verifies brr loop extraction retains predictor history.</summary>
     internal static void VerifyBrrLoopExtractionRetainsPredictorHistory()
     {
         var ram = new byte[65536];

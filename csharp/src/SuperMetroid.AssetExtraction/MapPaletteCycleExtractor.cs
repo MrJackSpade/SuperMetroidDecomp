@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM map highlight palette sequence → map palette cycle colors and durations")]
 internal static class MapPaletteCycleExtractor
 {
-    /// <summary>Extracts.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var frames = new List<MapPaletteCycleFrame>();

@@ -16,10 +16,8 @@ using SuperMetroid.Core.Hardware;
 using System.Reflection;
 using static ImportedSpritemapsVerification;
 
-/// <summary>Represents ceres door quake definitions verification.</summary>
 internal static class CeresDoorQuakeDefinitionsVerification
 {
-    /// <summary>Verifies ceres door quake definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door quake definitions")]
     internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -111,7 +109,6 @@ internal static class CeresDoorQuakeDefinitionsVerification
             "Ceres door quake definitions: all four native bytes, 65,536 timer aliases, four real OAM phases, and editable private-overlay art pass with source reads forbidden.");
     }
 
-    /// <summary>New ceres door quake read guard.</summary>
     internal static CartridgeReadGuard NewCeresDoorQuakeReadGuard(
         ISnesAddressSpace source, bool blockOverlay = false) =>
         new CartridgeReadGuard(source)
@@ -119,7 +116,6 @@ internal static class CeresDoorQuakeDefinitionsVerification
                     (blockOverlay && address is >= 0xa6a329 and < 0xa6a353),
                 address => $"Ceres private door draw attempted migrated source read ${address:X6}.");
 
-    /// <summary>Ceres door artwork command.</summary>
     [VerificationCommand("--ceres-door-artwork")]
     internal static int CeresDoorArtworkCommand()
     {

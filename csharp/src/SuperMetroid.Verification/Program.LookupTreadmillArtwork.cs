@@ -2,10 +2,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents lookup treadmill artwork verification.</summary>
 internal static class LookupTreadmillArtworkVerification
 {
-    /// <summary>Verifies treadmill artwork sources.</summary>
     internal static void VerifyTreadmillArtworkSources(ISnesAddressSpace rom)
     {
         var right = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);

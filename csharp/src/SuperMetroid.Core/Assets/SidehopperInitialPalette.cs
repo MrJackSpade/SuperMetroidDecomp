@@ -13,16 +13,11 @@ internal sealed class SidehopperInitialPalette
     /// <summary>$A9:EBD2/EBD4 and $F8CC/F8CE: cyan body/leg colors3180 and18C0.
     /// The exact shadow halves each RGB5 channel. This selected ratio is reviewed for the standalone target only; the shifted auxiliary disposition is separate.</summary>
     private const int BodyShadowDivisor = 2;
-    /// <summary>Stores independent or supplied.</summary>
     private readonly Bgr555[] independentOrSupplied;
-    /// <summary>Stores calculated.</summary>
     private readonly bool calculated;
-    /// <summary>Stores stock target.</summary>
     private readonly bool stockTarget;
-    /// <summary>Gets count.</summary>
     internal int Count { get; }
 
-    /// <summary>Initializes a new sidehopper initial palette instance.</summary>
     internal SidehopperInitialPalette(Bgr555[] colors)
     {
         Count = colors.Length;
@@ -45,7 +40,6 @@ internal sealed class SidehopperInitialPalette
         colors.AsSpan(12, 2).CopyTo(independentOrSupplied.AsSpan(7));
     }
 
-    /// <summary>Resolves.</summary>
     internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
@@ -73,7 +67,6 @@ internal sealed class SidehopperInitialPalette
     {
         return light.Zip(dark, (_, a, b) => ((a + b) / 2));
     }
-    /// <summary>Body shadow.</summary>
     internal static Bgr555 BodyShadow(Bgr555 light)
     {
         return light.Map((_, a) => (a / BodyShadowDivisor));

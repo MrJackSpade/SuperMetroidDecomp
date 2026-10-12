@@ -15,10 +15,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents draygon intro dance definitions verification.</summary>
 internal static class DraygonIntroDanceDefinitionsVerification
 {
-    /// <summary>Verifies draygon intro dance definitions.</summary>
     internal static void VerifyDraygonIntroDanceDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(rom));
@@ -31,7 +29,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "production trajectory passes with migrated ROM reads forbidden.");
     }
 
-    /// <summary>Verifies draygon intro latency definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro latency definitions")]
     internal static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -53,7 +50,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
         Console.WriteLine("Evir latency algorithm: all four signed native delays and slot bounds match.");
     }
 
-    /// <summary>Verifies draygon intro movement definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro movement definitions")]
     internal static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -84,7 +80,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "Draygon intro rejects a restored stream index beyond the compiled route");
     }
 
-    /// <summary>Verifies draygon intro delete selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro delete selection")]
     private static void VerifyDraygonIntroDeleteSelection(SuperMetroidAddressSpace rom)
     {
@@ -103,7 +98,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
                 "Draygon command selection preserves alignment and outer bounds");
     }
 
-    /// <summary>Verifies complete draygon intro trajectory.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for complete Draygon intro trajectory")]
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
@@ -205,7 +199,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "Production Draygon intro rejects malformed restored movement without a ROM fallback");
     }
 
-    /// <summary>New draygon intro definition read guard.</summary>
     private static CartridgeReadGuard NewDraygonIntroDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -215,7 +208,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
                         DraygonIntroDanceDefinitions.LastMovementStreamOffset + 1,
                 address => $"Draygon intro attempted migrated definition read ${address:X6}.");
 
-    /// <summary>Draygon intro dance definitions command.</summary>
     [VerificationCommand("--draygon-intro-dance-definitions")]
     internal static int DraygonIntroDanceDefinitionsCommand()
     {

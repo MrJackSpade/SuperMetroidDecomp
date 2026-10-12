@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 /// <summary>Opens and cancels the real setup button's native dialog on the player's entry apartment.</summary>
 internal static partial class RomPickerStartupVerification
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     public static void Run(string gameAssemblyPath)
     {
         Assembly game = Assembly.LoadFrom(Path.GetFullPath(gameAssemblyPath));
@@ -85,17 +84,12 @@ internal static partial class RomPickerStartupVerification
         Console.WriteLine("PASS actual Choose ROM handler: native dialog opened and cancellation returned on the player's STA apartment; no installation or saves touched.");
     }
 
-    /// <summary>Represents the window callback callback.</summary>
     private delegate bool WindowCallback(nint window, nint parameter);
-    /// <summary>get current thread id.</summary>
     [LibraryImport("kernel32.dll")] private static partial uint GetCurrentThreadId();
-    /// <summary>enum thread windows.</summary>
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool EnumThreadWindows(uint thread, WindowCallback callback, nint parameter);
-    /// <summary>get class name.</summary>
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetClassName(nint window, System.Text.StringBuilder name, int capacity);
-    /// <summary>post message.</summary>
     [LibraryImport("user32.dll", EntryPoint = "PostMessageW")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool PostMessage(nint window, uint message, nint wParam, nint lParam);

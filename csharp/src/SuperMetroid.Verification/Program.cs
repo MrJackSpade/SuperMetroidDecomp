@@ -1,10 +1,8 @@
 using static SuiteSchedulingVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents program.</summary>
 internal static class Program
 {
-/// <summary>Main.</summary>
 private static int Main(string[] args)
 {
 // This is deliberately a plain console executable rather than an xUnit/MSTest project.
@@ -32,7 +30,6 @@ catch (Exception exception)
 }
 }
 
-/// <summary>Runs flags.</summary>
 private static int RunFlags(string[] args)
 {
 var flagWatch = System.Diagnostics.Stopwatch.StartNew();

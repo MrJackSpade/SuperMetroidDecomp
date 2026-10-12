@@ -24,7 +24,6 @@ internal static class AutomaticCheckpointSaver
     public static void SaveCeresDeparture(ISnesAddressSpace bus, SuperMetroidRuntime runtime, int slot) =>
         SaveCeresCheckpoint(bus, runtime, slot, SaveLoadingGameStates.CeresDestruction);
 
-    /// <summary>save ceres checkpoint.</summary>
     private static void SaveCeresCheckpoint(
         ISnesAddressSpace bus, SuperMetroidRuntime runtime, int slot, ushort loadingGameState)
     {

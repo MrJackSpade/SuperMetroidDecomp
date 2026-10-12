@@ -21,7 +21,6 @@ internal static class FaceBlockGlowPaintDefinitions
     /// <summary>$A8:E7CC-E80B: four light depths followed by their reverse, including both repeated ends.</summary>
     private const int PeakDepth = 3;
 
-    /// <summary>Matches.</summary>
     internal static bool Matches(Bgr555[][] frames)
     {
         for (int frame = 0; frame < 2 * (PeakDepth + 1); frame++)
@@ -30,7 +29,6 @@ internal static class FaceBlockGlowPaintDefinitions
         return true;
     }
 
-    /// <summary>Color.</summary>
     internal static Bgr555 Color(int frame, int color)
     {
         if ((uint)frame >= 2 * (PeakDepth + 1) || (uint)color >= 4) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -47,7 +45,6 @@ internal static class FaceBlockGlowPaintDefinitions
         };
     }
 
-    /// <summary>Interpolate.</summary>
     private static int Interpolate(int first, int last, int depth, int intervals) =>
         (first * (intervals - depth) + last * depth + intervals / 2) / intervals;
 }

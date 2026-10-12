@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents powamp instruction program definitions verification.</summary>
 internal static class PowampInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies powamp instruction program definitions.</summary>
     internal static void VerifyPowampInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPowampInstructionProgramDefinitions), () => VerifyPowampInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies powamp instruction program definitions.</summary>
     internal static void VerifyPowampInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -123,7 +120,6 @@ internal static class PowampInstructionProgramDefinitionsVerification
             "with mechanics bytes forbidden.");
     }
 
-    /// <summary>Execute powamp instruction calls.</summary>
     private static void ExecutePowampInstructionCalls(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
@@ -139,7 +135,6 @@ internal static class PowampInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe powamp instruction mechanics allocation.</summary>
     private static int ProbePowampInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -153,7 +148,6 @@ internal static class PowampInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New powamp instruction read guard.</summary>
     internal static CartridgeReadGuard NewPowampInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PowampInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -161,7 +155,6 @@ internal static class PowampInstructionProgramDefinitionsVerification
             .ObserveWords(0xa80000, PowampInstructionProgramDefinitions.PresentationWordCount,
                 PowampInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Powamp instruction mechanics command.</summary>
     [VerificationCommand("--powamp-instruction-mechanics")]
     internal static int PowampInstructionMechanicsCommand()
     {

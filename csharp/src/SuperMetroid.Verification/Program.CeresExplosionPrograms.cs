@@ -2,19 +2,13 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ceres explosion programs verification.</summary>
 internal static class CeresExplosionProgramsVerification
 {
-    /// <summary>Verifies ceres initial explosion program.</summary>
     internal static void VerifyCeresInitialExplosionProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xccdb, 0xccf5);
-    /// <summary>Verifies ceres repeating explosion program.</summary>
     internal static void VerifyCeresRepeatingExplosionProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xccf5, 0xcd1b);
-    /// <summary>Verifies ceres final wave program.</summary>
     internal static void VerifyCeresFinalWaveProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xcd1b, 0xcd39);
-    /// <summary>Verifies ceres station blast program.</summary>
     internal static void VerifyCeresStationBlastProgram(ISnesAddressSpace rom) => VerifyCeresExplosionProgram(rom, 0xce1b, 0xce35);
 
-    /// <summary>Verifies ceres explosion program.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres explosion program")]
     private static void VerifyCeresExplosionProgram(ISnesAddressSpace rom, ushort start, ushort end)
     {

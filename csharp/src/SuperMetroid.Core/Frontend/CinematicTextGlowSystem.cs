@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Ports $8B:97F7/$9828/$9849: eight independently aging glyph rectangles.</summary>
 internal sealed class CinematicTextGlowSystem
 {
-    /// <summary>Stores slots.</summary>
     private readonly GlowSlot[] slots = new GlowSlot[CinematicTextGlowRomData.SlotCount];
 
     /// <summary>Starts a glow over the text-tilemap rectangle at <paramref name="cell"/>.</summary>
@@ -20,7 +19,6 @@ internal sealed class CinematicTextGlowSystem
         // Native allocation simply returns when its fixed eight slots are occupied.
     }
 
-    /// <summary>step.</summary>
     public void Step(Span<ushort> tilemap)
     {
         for (int i = slots.Length - 1; i >= 0; i--)
@@ -44,16 +42,11 @@ internal sealed class CinematicTextGlowSystem
         }
     }
 
-    /// <summary>Represents glow slot.</summary>
     private struct GlowSlot
     {
-        /// <summary>Stores active.</summary>
         public bool Active;
-        /// <summary>Stores cell.</summary>
         public Position16<TilemapCells> Cell;
-        /// <summary>Stores size.</summary>
         public Extent16<TilemapCells> Size;
-        /// <summary>Stores timer.</summary>
         public ushort Timer, Palette;
     }
 }

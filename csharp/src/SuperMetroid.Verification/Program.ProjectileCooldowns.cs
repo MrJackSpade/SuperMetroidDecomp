@@ -15,10 +15,8 @@ using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents projectile cooldowns verification.</summary>
 internal static class ProjectileCooldownsVerification
 {
-    /// <summary>Verifies projectile cooldowns.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile cooldowns")]
     internal static void VerifyProjectileCooldowns()
     {
@@ -98,7 +96,6 @@ internal static class ProjectileCooldownsVerification
         Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }
 
-    /// <summary>New projectile cooldown read guard.</summary>
     private static MutableCartridgeReadGuard NewProjectileCooldownReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -107,7 +104,6 @@ internal static class ProjectileCooldownsVerification
         return guard;
     }
 
-    /// <summary>Projectile cooldowns command.</summary>
     [VerificationCommand("--projectile-cooldowns")]
     internal static int ProjectileCooldownsCommand()
     {

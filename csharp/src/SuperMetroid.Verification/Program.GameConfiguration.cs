@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents game configuration verification.</summary>
 internal static class GameConfigurationVerification
 {
-/// <summary>Verifies game configuration ini.</summary>
 internal static void VerifyGameConfigurationIni()
 {
     AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
@@ -138,7 +136,6 @@ internal static void VerifyGameConfigurationIni()
         "  Game INI: startup/map/audio/diagnostic defaults, strict values, and typo rejection agree.");
 }
 
-/// <summary>Asserts invalid game configuration.</summary>
 internal static void AssertInvalidGameConfiguration(string contents, string expectedMessagePart)
 {
     try

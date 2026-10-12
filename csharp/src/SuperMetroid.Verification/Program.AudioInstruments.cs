@@ -13,7 +13,6 @@ using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 
-/// <summary>Represents audio instruments verification.</summary>
 internal static class AudioInstrumentsVerification
 {
     /// <summary>
@@ -184,7 +183,6 @@ internal static class AudioInstrumentsVerification
             "audible PCM change and malformed-bank rejection pass.");
     }
 
-    /// <summary>Reads audio manifest.</summary>
     internal static AudioAssetManifest ReadAudioManifest(string path)
     {
         using var input = File.OpenRead(path);
@@ -192,14 +190,12 @@ internal static class AudioInstrumentsVerification
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
-    /// <summary>Writes audio manifest.</summary>
     internal static void WriteAudioManifest(string path, AudioAssetManifest manifest)
     {
         using var output = File.Create(path);
         JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
     }
 
-    /// <summary>Copy audio directory.</summary>
     internal static void CopyAudioDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);
@@ -218,7 +214,6 @@ internal static class AudioInstrumentsVerification
         }
     }
 
-    /// <summary>Audio instruments command.</summary>
     [VerificationCommand("--audio-instruments")]
     internal static int AudioInstrumentsCommand()
     {

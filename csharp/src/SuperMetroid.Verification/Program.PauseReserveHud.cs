@@ -16,10 +16,8 @@ using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents pause reserve hud verification.</summary>
 internal static class PauseReserveHudVerification
 {
-    /// <summary>Verifies pause reserve hud.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve HUD")]
     internal static void VerifyPauseReserveHud()
@@ -90,7 +88,6 @@ internal static class PauseReserveHudVerification
         Console.WriteLine("Pause reserve HUD: real frontend input, six AUTO cells and per-frame health DMA pass.");
     }
 
-    /// <summary>Pause reserve hud command.</summary>
     [VerificationCommand("--pause-reserve-hud")]
     internal static int PauseReserveHudCommand()
     {

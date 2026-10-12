@@ -11,7 +11,6 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal static class AndroidDiagnosticBundle
 {
-    /// <summary>Creates.</summary>
     public static string Create(string root, string destination, int slot)
     {
         string state = $"debug-states/SuperMetroid-debug-slot-{DebuggerSaveStateStore.SlotName(slot)}.smstate";

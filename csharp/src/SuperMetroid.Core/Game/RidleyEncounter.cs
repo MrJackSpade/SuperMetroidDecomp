@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -13,10 +13,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class RidleyEncounter
 {
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Initializes a new ridley encounter instance.</summary>
     internal RidleyEncounter(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -44,7 +42,6 @@ internal sealed class RidleyEncounter
     /// </summary>
     public ushort CeresStatus { get; set; }
 
-    /// <summary>require ridley.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)
     {
         if (!RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
@@ -58,7 +55,6 @@ internal sealed class RidleyEncounter
         return Ridley;
     }
 
-    /// <summary>require norfair ridley.</summary>
     internal RidleyEnemyState RequireNorfairRidley(RoomEnemySlot slot)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Ridley)
@@ -70,7 +66,6 @@ internal sealed class RidleyEncounter
         return RequireRidley(slot);
     }
 
-    /// <summary>require ceres ridley.</summary>
     internal RidleyEnemyState RequireCeresRidley(RoomEnemySlot slot)
     {
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||

@@ -12,7 +12,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents wall jump spin exit verification.</summary>
 internal static class WallJumpSpinExitVerification
 {
     // #1269: releasing every input during a wall jump falls back to spin-jump art, and movement
@@ -20,7 +19,6 @@ internal static class WallJumpSpinExitVerification
     // InitializeSamusPose replaces the installed pose, and UpdateSamusPose then skips the
     // command: with Space Jump the spin is promoted and the launch speed carries; without it
     // the pose is kept and command six clears the speed.
-    /// <summary>Verifies wall jump spin exit.</summary>
     internal static void VerifyWallJumpSpinExit()
     {
         Confirm(SamusEquipmentFlags.SpaceJump, speedKept: true);
@@ -68,7 +66,6 @@ internal static class WallJumpSpinExitVerification
         }
     }
 
-    /// <summary>Wall jump spin exit command.</summary>
     [VerificationCommand("--wall-jump-spin-exit")]
     internal static int WallJumpSpinExitCommand()
     {

@@ -7,10 +7,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the 37 post-credits Samus reward frames.</summary>
 public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresentation
 {
-    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
-    /// <summary>Initializes a new ending reward sprite presentation instance.</summary>
     private EndingRewardSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -108,12 +106,10 @@ public static class EndingRewardSpriteDefinitions
 {
     /// <summary>$8C:99D6, LargeSamusFromEndingStanding, first of37 consecutive reward OAM records.</summary>
     private const ushort FirstRecord = 0x99d6;
-    /// <summary>Stores frame count.</summary>
     private const int FrameCount = 37;
     /// <summary>Gets the 37 published asset roles in installation order.</summary>
     public static IReadOnlyList<EndingRewardSpriteFrameDefinition> Frames { get; } = new FrameView();
 
-    /// <summary>Frame pointer.</summary>
     internal static ushort FramePointer(EndingRewardSpriteFrame frame)
     {
         if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -123,7 +119,6 @@ public static class EndingRewardSpriteDefinitions
         return (ushort)address;
     }
 
-    /// <summary>Parts.</summary>
     private static int Parts(EndingRewardSpriteFrame frame) => frame switch
     {
         EndingRewardSpriteFrame.SamusHeadFromEndingFrame1 or
@@ -166,7 +161,6 @@ public static class EndingRewardSpriteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
-    /// <summary>Gets.</summary>
     private static EndingRewardSpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -203,64 +197,39 @@ public static class EndingRewardSpriteDefinitions
         };
     }
 
-    /// <summary>Represents asset role.</summary>
     private enum AssetRole
     {
-        /// <summary>Identifies suitless idle upper.</summary>
         SuitlessIdleUpper = 0,
-        /// <summary>Identifies suitless lower.</summary>
         SuitlessLower = 1,
-        /// <summary>Identifies suitless standing.</summary>
         SuitlessStanding = 10,
-        /// <summary>Identifies suitless prepare jump.</summary>
         SuitlessPrepareJump = 11,
-        /// <summary>Identifies suitless jumping.</summary>
         SuitlessJumping = 12,
-        /// <summary>Identifies samus falling.</summary>
         SamusFalling = 13,
-        /// <summary>Identifies samus landing.</summary>
         SamusLanding = 14,
-        /// <summary>Identifies samus landed.</summary>
         SamusLanded = 15,
-        /// <summary>Identifies samus shooting.</summary>
         SamusShooting = 16,
-        /// <summary>Identifies suited idle body.</summary>
         SuitedIdleBody = 17,
-        /// <summary>Identifies suited helmet head.</summary>
         SuitedHelmetHead = 18,
-        /// <summary>Identifies helmetless head1.</summary>
         HelmetlessHead1 = 19,
-        /// <summary>Identifies suited headless body.</summary>
         SuitedHeadlessBody = 20,
-        /// <summary>Identifies suited prepare jump.</summary>
         SuitedPrepareJump = 32,
-        /// <summary>Identifies suited jumping.</summary>
         SuitedJumping = 33,
-        /// <summary>Identifies suited helmet jump head1.</summary>
         SuitedHelmetJumpHead1 = 34,
-        /// <summary>Identifies suited helmet jump head2.</summary>
         SuitedHelmetJumpHead2 = 35,
-        /// <summary>Identifies helmetless jump head.</summary>
         HelmetlessJumpHead = 36,
     }
 
-    /// <summary>Define.</summary>
     private static EndingRewardSpriteFrameDefinition Define(string name, EndingRewardSpriteFrame frame) =>
         new(name, FramePointer(frame), Parts(frame));
 
-    /// <summary>Represents frame view.</summary>
     private sealed class FrameView : IReadOnlyList<EndingRewardSpriteFrameDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => FrameCount;
-        /// <summary>Gets an indexed value.</summary>
         public EndingRewardSpriteFrameDefinition this[int index] => Get(index);
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<EndingRewardSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

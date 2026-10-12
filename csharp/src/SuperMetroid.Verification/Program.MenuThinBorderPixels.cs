@@ -2,10 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents menu thin border pixels verification.</summary>
 internal static class MenuThinBorderPixelsVerification
 {
-    /// <summary>verify menu thin border pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu thin border pixels")]
     internal static void VerifyMenuThinBorderPixels(ISnesAddressSpace rom)

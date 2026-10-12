@@ -9,7 +9,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents room artwork render parity verification.</summary>
 internal static class RoomArtworkRenderParityVerification
 {
     /// <summary>

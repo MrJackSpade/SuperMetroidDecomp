@@ -17,7 +17,6 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
     /// <summary>$A9:B27B: fourteen copied opaque colors, excluding transparent3800 and final black.</summary>
     internal const int ColorCount = 14;
 
-    /// <summary>matches.</summary>
     internal static bool Matches(ReadOnlySpan<Bgr555> colors)
     {
         for (int color = 0; color < ColorCount; color++)
@@ -25,7 +24,6 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
         return true;
     }
 
-    /// <summary>color.</summary>
     internal static Bgr555 Color(int color)
     {
         if ((uint)color >= ColorCount) throw new ArgumentOutOfRangeException(nameof(color));
@@ -47,8 +45,6 @@ internal static class MotherBrainExplodedDoorPaintDefinitions
         return Pack(neutral, neutral, neutral);
     }
 
-    /// <summary>interpolate.</summary>
     private static int Interpolate(int first, int last, int shade) => (first * (ShadeIntervals - shade) + last * shade) / ShadeIntervals;
-    /// <summary>pack.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

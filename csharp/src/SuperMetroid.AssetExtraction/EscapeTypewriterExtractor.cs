@@ -34,7 +34,6 @@ public static class EscapeTypewriterExtractor
         return output.ToArray();
     }
 
-    /// <summary>Reads program.</summary>
     private static EscapeTypewriterLineDocument[] ReadProgram(
         ISnesAddressSpace bus,
         EscapeTypewriterProgramId id)

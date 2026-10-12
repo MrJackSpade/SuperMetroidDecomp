@@ -17,23 +17,19 @@ internal abstract class FallingSparkInstructionProgramDefinitions
     /// <c>InstList_EnemyProjectile_FallingSpark_HitFloor</c> at $86:F38F.
     /// </summary>
     internal const ushort HitFloorTerminalDelete = 0xf38f;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 14;
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 3 ? Falling + index * 4 + 2 : HitFloor + (index - 3) * 4 + 2);
     }
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryRead(address, out ushort value)
         ? value : throw new InvalidDataException($"Falling Spark instruction mechanics pointer $86:{address:X4} is not compiled.");
 
     // Three falling drawings loop at three frames each. Eleven one-frame impact
     // drawings blink through the presentation operands, then delete the projectile.
-    /// <summary>Attempts to read.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         value = 0;

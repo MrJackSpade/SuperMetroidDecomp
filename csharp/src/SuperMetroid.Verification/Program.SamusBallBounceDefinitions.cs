@@ -3,10 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusImpulseDefinitionsVerification;
 
-/// <summary>Represents samus ball bounce definitions verification.</summary>
 internal static class SamusBallBounceDefinitionsVerification
 {
-    /// <summary>verify samus ball bounce definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus ball bounce definitions")]
     internal static void VerifySamusBallBounceDefinitions(SuperMetroidAddressSpace rom)
     {

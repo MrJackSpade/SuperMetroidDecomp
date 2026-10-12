@@ -163,7 +163,6 @@ public static class LoadingPaletteColorDefinitions
         return (ushort)((distinct ? first : 0xdb6b) + rowOffset + colorOffset);
     }
 
-    /// <summary>Tries to program.</summary>
     private static bool TryProgram(ushort pointer, int first, out ushort canonical)
     {
         canonical = 0;

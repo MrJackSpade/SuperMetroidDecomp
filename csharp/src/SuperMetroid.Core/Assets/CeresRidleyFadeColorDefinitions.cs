@@ -3,30 +3,23 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Assets;
 
-/// <summary>Represents ceres ridley fade kind.</summary>
-internal enum CeresRidleyFadeKind { /** <summary>Identifies eyes.</summary> */ Eyes, /** <summary>Identifies body.</summary> */ Body }
+internal enum CeresRidleyFadeKind { Eyes, Body }
 
 /// <summary>Native $A6:E2AA..E469 channel fades. Eye and body channels share the same biased integer quantizer.</summary>
 internal sealed class CeresRidleyFadeColorDefinitions
 {
-    /// <summary>Stores kind.</summary>
     private readonly CeresRidleyFadeKind kind;
-    /// <summary>Stores eye paint.</summary>
     private readonly EyePaint eyePaint;
-    /// <summary>Stores body paint.</summary>
     private readonly CeresRidleyBodyPaintDefinitions? bodyPaint;
 
     /// <summary>Source eye paint at $A6:E2AA..E2AE (also Ridley palette slots 12..14 at $A6:E167..E16B). The selected warm highlight/middle/shadow paint uses saturated red, a shared red step, three green levels and no blue. Regenerating these categorical material choices without the source inputs would select different eye paint. Initial/explosion palette aliases are evidence only; their independent containers are not exempted.</summary>
     internal readonly record struct EyePaint(int RedStep, int HighlightGreen, int MiddleGreen, int ShadowGreen)
     {
-        /// <summary>Defines maximum rgb5.</summary>
         private const int MaximumRgb5 = (1 << 5) - 1;
 
-        /// <summary>from.</summary>
         internal static EyePaint From(ReadOnlySpan<Bgr555> colors) => new(MaximumRgb5 - colors[1].Red, colors[0].Green,
             colors[1].Green, colors[2].Green);
 
-        /// <summary>color.</summary>
         internal Bgr555 Color(int shade)
         {
             int red = Math.Clamp(MaximumRgb5 - RedStep * shade, 0, MaximumRgb5);
@@ -34,16 +27,12 @@ internal sealed class CeresRidleyFadeColorDefinitions
             return new(red, green, 0);
         }
     }
-    /// <summary>Stores overrides.</summary>
     private readonly Dictionary<int, Bgr555> overrides = new();
-    /// <summary>Gets colors.</summary>
     private int Colors => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteRomData.EyeFadeColorCount : CeresRidleyPaletteRomData.BodyFadeColorCount;
-    /// <summary>Gets rows.</summary>
     private int Rows => kind == CeresRidleyFadeKind.Eyes
         ? CeresRidleyPaletteRomData.EyeFadeRowCount : CeresRidleyPaletteRomData.BodyFadeRowCount;
 
-    /// <summary>Initializes a new ceres ridley fade color definitions instance.</summary>
     internal CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind kind, Bgr555[][] rows)
     {
         this.kind = kind;
@@ -55,7 +44,6 @@ internal sealed class CeresRidleyFadeColorDefinitions
                 overrides[row * Colors + color] = rows[row][color];
     }
 
-    /// <summary>resolve.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         Validate(row, color);
@@ -79,13 +67,11 @@ internal sealed class CeresRidleyFadeColorDefinitions
         return endpoint.Map((_, channel) => (channel * phase + bias) / intervals);
     }
 
-    /// <summary>validate row.</summary>
     internal void ValidateRow(int row)
     {
         if ((uint)row >= Rows) throw new ArgumentOutOfRangeException(nameof(row));
     }
 
-    /// <summary>validate.</summary>
     private void Validate(int row, int color)
     {
         ValidateRow(row);

@@ -5,7 +5,6 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>Writes findings.tsv (one row per finding), the reflection review lists and summary.txt.</summary>
 internal static class ReachabilityReport
 {
-    /// <summary>Write.</summary>
     public static void Write(ReachabilityResult result, string outputDirectory)
     {
         Directory.CreateDirectory(outputDirectory);
@@ -69,10 +68,8 @@ internal static class ReachabilityReport
         return 1;
     }
 
-    /// <summary>Simple name.</summary>
     private static string SimpleName(string display) => display.Split('(')[0].Split('.')[^1].Split('<')[0];
 
-    /// <summary>Writes lines.</summary>
     private static void WriteLines(string directory, string name, IEnumerable<string> lines) =>
         File.WriteAllLines(Path.Combine(directory, name), lines.Distinct().Order(StringComparer.Ordinal), new UTF8Encoding(false));
 }

@@ -16,10 +16,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents beam speed rows verification.</summary>
 internal static class BeamSpeedRowsVerification
 {
-    /// <summary>Verifies beam speed rows.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for beam speed rows, pose aim directions and missile acceleration words")]
     internal static void VerifyBeamSpeedRows()
     {
@@ -120,20 +118,14 @@ internal static class BeamSpeedRowsVerification
         Console.WriteLine("Projectile motion definitions: 85 native words, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
     }
 
-    /// <summary>Represents beam speed row address space.</summary>
     [CpuBusBoundary("exact bus test: write-overlay fixture over the retail bus that rejects compiled projectile-mechanics reads")]
     internal sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
-        /// <summary>Reads work ram byte.</summary>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
-        /// <summary>Reads save ram byte.</summary>
         public byte ReadSaveRamByte(int address) => ReadByte(address);
-        /// <summary>Reads cartridge byte.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        /// <summary>Stores overrides.</summary>
         private readonly Dictionary<int, byte> _overrides = new();
-        /// <summary>Reads byte.</summary>
         public byte ReadByte(int address)
         {
             if (address is >= 0x90c2d1 and < 0x90c37b or
@@ -142,9 +134,7 @@ internal static class BeamSpeedRowsVerification
                 throw new InvalidOperationException($"Compiled projectile mechanics unexpectedly read ROM ${address:X6}.");
             return _overrides.TryGetValue(address, out byte value) ? value : CpuBusRegionRead.Read(source, address);
         }
-        /// <summary>Writes byte.</summary>
         public void WriteByte(int address, byte value) => _overrides[address] = value;
-        /// <summary>Sets word.</summary>
         public void SetWord(int address, ushort value)
         {
             WriteByte(address, (byte)value);
@@ -152,7 +142,6 @@ internal static class BeamSpeedRowsVerification
         }
     }
 
-    /// <summary>Projectile motion command.</summary>
     [VerificationCommand("--projectile-motion")]
     internal static int ProjectileMotionCommand()
     {
@@ -160,7 +149,6 @@ internal static class BeamSpeedRowsVerification
         return 0;
     }
 
-    /// <summary>Beam speed rows command.</summary>
     [VerificationCommand("--beam-speed-rows")]
     internal static int BeamSpeedRowsCommand()
     {

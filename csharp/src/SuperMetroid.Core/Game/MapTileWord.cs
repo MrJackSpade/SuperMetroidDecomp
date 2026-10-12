@@ -70,7 +70,6 @@ public static class AreaMapLayout
         return unchecked((byte)(0x80 >> (mapX & 7)));
     }
 
-    /// <summary>Validates coordinate.</summary>
     private static void ValidateCoordinate(Position16<MapTiles> cell)
     {
         if ((uint)cell.X >= WidthInTiles)
@@ -91,21 +90,13 @@ public static class AreaMapLayout
 /// <param name="Raw">Unmodified 16-bit BG word: ten character bits, three palette bits, priority at bit 13, and horizontal/vertical flips at bits 14/15.</param>
 public readonly record struct MapTileWord(ushort Raw)
 {
-    /// <summary>Stores character mask.</summary>
     private const ushort CharacterMask = 0x03ff;
-    /// <summary>Stores palette mask.</summary>
     private const ushort PaletteMask = 0x1c00;
-    /// <summary>Stores priority mask.</summary>
     private const ushort PriorityMask = 0x2000;
-    /// <summary>Stores flip mask.</summary>
     private const ushort FlipMask = 0xc000;
-    /// <summary>Stores explored palette bit.</summary>
     private const ushort ExploredPaletteBit = 0x0400;
-    /// <summary>Stores hud explored attributes.</summary>
     private const ushort HudExploredAttributes = 0x2800;
-    /// <summary>Stores hud unexplored attributes.</summary>
     private const ushort HudUnexploredAttributes = 0x2c00;
-    /// <summary>Stores hud location blink attributes.</summary>
     private const ushort HudLocationBlinkAttributes = 0x1c00;
 
     /// <summary>Low ten-bit map character selected by this cell.</summary>

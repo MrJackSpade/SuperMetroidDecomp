@@ -15,11 +15,9 @@ internal static class IntroMotherBrainInputDefinitions
     /// <summary>$91:878A, exclusive end of the object header.</summary>
     internal const ushort HeaderEnd = 0x878a;
 
-    /// <summary>Input word.</summary>
     private static ushort InputWord(int field, ushort duration, SnesButton held = 0, SnesButton pressed = 0) =>
         field == 0 ? duration : (ushort)(field == 1 ? held : pressed);
 
-    /// <summary>List word.</summary>
     private static ushort ListWord(int word)
     {
         if (word < 51)
@@ -54,7 +52,6 @@ internal static class IntroMotherBrainInputDefinitions
         };
     }
 
-    /// <summary>Header word.</summary>
     private static ushort HeaderWord(int word) => word switch
     {
         0 or 1 => DemoInputRomData.Routines.NoOp,
@@ -62,7 +59,6 @@ internal static class IntroMotherBrainInputDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
-    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         int offset;
@@ -82,7 +78,6 @@ internal static class IntroMotherBrainInputDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
-    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is >= ListStart and < (ListEnd - 1) or >= HeaderStart and < (HeaderEnd - 1))

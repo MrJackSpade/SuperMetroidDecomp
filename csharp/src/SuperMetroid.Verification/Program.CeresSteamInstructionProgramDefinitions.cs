@@ -16,17 +16,14 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ceres steam instruction program definitions verification.</summary>
 internal static class CeresSteamInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies ceres steam instruction program definitions.</summary>
     internal static void VerifyCeresSteamInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresSteamInstructionProgramDefinitions), () => VerifyCeresSteamInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies ceres steam instruction program definitions.</summary>
     internal static void VerifyCeresSteamInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -163,7 +160,6 @@ internal static class CeresSteamInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes ceres steam instruction mechanics allocation.</summary>
     private static int ProbeCeresSteamInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -175,14 +171,12 @@ internal static class CeresSteamInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Creates ceres steam instruction program read guard.</summary>
     private static CartridgeReadGuard NewCeresSteamInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(CeresSteamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Ceres steam mechanics ${address:X6}.")
             .ObserveWords(0xa60000, CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount, CeresSteamInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
-    /// <summary>Ceres steam instruction mechanics command.</summary>
     [VerificationCommand("--ceres-steam-instruction-mechanics")]
     internal static int CeresSteamInstructionMechanicsCommand()
     {

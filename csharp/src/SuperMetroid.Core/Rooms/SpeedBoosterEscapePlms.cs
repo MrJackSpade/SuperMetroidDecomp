@@ -1,14 +1,12 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The Speed Booster escape PLMs: rising lava/acid FX and the earthquake the escape triggers.</summary>
 internal sealed class SpeedBoosterEscapePlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
 
-    /// <summary>Initializes a new speed booster escape plms instance.</summary>
     internal SpeedBoosterEscapePlms(PlmRoomBindings bindings)
     {
         _bindings = bindings;
@@ -72,7 +70,6 @@ internal sealed class SpeedBoosterEscapePlms
         }
     }
 
-    /// <summary>Runs wait for speed booster.</summary>
     private void RunWaitForSpeedBooster(
         PlmSlot slot,
         SamusState samus,
@@ -102,7 +99,6 @@ internal sealed class SpeedBoosterEscapePlms
         WakeAtNextInstruction(slot);
     }
 
-    /// <summary>Runs advance lava.</summary>
     private void RunAdvanceLava(
         PlmSlot slot,
         SamusState samus,

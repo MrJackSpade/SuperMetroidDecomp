@@ -14,10 +14,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
-/// <summary>Represents mother brain death handoff verification.</summary>
 internal static class MotherBrainDeathHandoffVerification
 {
-    /// <summary>Verifies mother brain death handoff.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainDeathHandoff()
     {
@@ -57,7 +55,6 @@ internal static class MotherBrainDeathHandoffVerification
         Console.WriteLine("  Mother Brain escape: typewriter glyph/delay/click semantics and native door setup agree.");
     }
 
-    /// <summary>Mother brain death handoff command.</summary>
     [VerificationCommand("--mother-brain-death-handoff")]
     internal static int MotherBrainDeathHandoffCommand()
     {

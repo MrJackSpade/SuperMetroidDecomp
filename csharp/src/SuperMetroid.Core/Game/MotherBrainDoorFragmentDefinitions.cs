@@ -8,7 +8,6 @@ internal readonly record struct MotherBrainDoorFragmentDefinition(
 /// <summary>Compiled physical definitions for Mother Brain's eight escape-door fragments.</summary>
 internal static class MotherBrainDoorFragmentDefinitions
 {
-    /// <summary>Stores count.</summary>
     internal const int Count = 8;
 
     /// <summary>$86:C9B2-$86:C9D1, interleaved with the X velocity: the fragments' authored scatter speeds.</summary>

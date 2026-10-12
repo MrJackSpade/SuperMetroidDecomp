@@ -32,7 +32,6 @@ public static class IntroNarrationExtractor
         return output.ToArray();
     }
 
-    /// <summary>Extract page.</summary>
     private static IntroNarrationPage ExtractPage(
         ISnesAddressSpace bus,
         IntroNarrationNativePage page)
@@ -118,7 +117,6 @@ public static class IntroNarrationExtractor
             $"{IntroNarrationDefinitions.Native.MaximumRecords} records.");
     }
 
-    /// <summary>Requires record.</summary>
     private static void RequireRecord(
         ISnesAddressSpace bus,
         ushort pointer,
@@ -137,7 +135,6 @@ public static class IntroNarrationExtractor
         }
     }
 
-    /// <summary>Requires word.</summary>
     private static void RequireWord(
         ISnesAddressSpace bus,
         ushort pointer,
@@ -150,16 +147,13 @@ public static class IntroNarrationExtractor
                 $"Opening-narration {identity} is ${actual:X4}, expected ${expected:X4}.");
     }
 
-    /// <summary>Reads byte.</summary>
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadCartridgeByte((int)new SnesAddress(
             IntroNarrationDefinitions.Native.ScriptBank, pointer));
 
-    /// <summary>Reads word.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(IntroNarrationDefinitions.Native.ScriptBank, pointer));
 
-    /// <summary>Adds.</summary>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

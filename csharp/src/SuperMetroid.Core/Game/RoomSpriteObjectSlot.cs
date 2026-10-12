@@ -61,7 +61,6 @@ public enum RoomSpriteObjectKind : ushort
 /// </summary>
 public sealed class RoomSpriteObjectSlot
 {
-    /// <summary>Initializes a new room sprite object slot instance.</summary>
     internal RoomSpriteObjectSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Zero-based physical pool slot, zero through 31; allocation and update/draw traversal search from the highest slot downward.</summary>
@@ -91,7 +90,6 @@ public sealed class RoomSpriteObjectSlot
     /// <summary>Native $7E:F2F8 plus the slot offset: bit zero suppresses instruction updates but leaves active-object drawing and slot occupancy intact.</summary>
     public ushort DisableFlags { get; internal set; }
 
-    /// <summary>Clears.</summary>
     internal void Clear()
     {
         Kind = RoomSpriteObjectKind.None;

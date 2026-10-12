@@ -10,7 +10,6 @@ namespace SuperMetroid.CartridgeEncodingAudit;
 internal static class EncodingInventory
 {
     // First match wins. Boss and sequence names precede the generic families that also contain them.
-    /// <summary>Stores name rules.</summary>
     private static readonly (string Fragment, string Subsystem)[] NameRules =
     [
         ("FakeKraid", Enemies), ("MiniKraid", Enemies),
@@ -28,17 +27,11 @@ internal static class EncodingInventory
         ("PaletteFx", RoomEffects), ("Hdma", RoomEffects), ("Fx", RoomEffects), ("Earthquake", RoomEffects),
     ];
 
-    /// <summary>Defines enemies.</summary>
     private const string Enemies = "Enemies: regular AI and instruction programs";
-    /// <summary>Defines enemy projectiles.</summary>
     private const string EnemyProjectiles = "Enemy projectiles";
-    /// <summary>Defines samus.</summary>
     private const string Samus = "Samus: movement, poses and projectiles";
-    /// <summary>Defines plms.</summary>
     private const string Plms = "PLMs and doors";
-    /// <summary>Defines room effects.</summary>
     private const string RoomEffects = "Room FX, palette FX and HDMA";
-    /// <summary>Defines sequences.</summary>
     private const string Sequences = "Cinematics and scripted sequences";
 
     /// <summary>Writes the inventory JSON to <paramref name="path"/>.</summary>
@@ -142,7 +135,6 @@ internal static class EncodingInventory
         };
     }
 
-    /// <summary>totals.</summary>
     private static Dictionary<string, int> Totals(IReadOnlyCollection<CartridgeEncodingOccurrence> occurrences, int storageWidthMembers)
     {
         var totals = new Dictionary<string, int>(StringComparer.Ordinal);

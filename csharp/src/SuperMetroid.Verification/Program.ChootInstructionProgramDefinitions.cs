@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents choot instruction program definitions verification.</summary>
 internal static class ChootInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies choot instruction program definitions.</summary>
     internal static void VerifyChootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies choot instruction program definitions.</summary>
     internal static void VerifyChootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -118,7 +115,6 @@ internal static class ChootInstructionProgramDefinitionsVerification
               "cartridge visual-selector reads.");
     }
 
-    /// <summary>Runs choot instruction program.</summary>
     private static void RunChootInstructionProgram(
         RoomEnemySystem enemies,
         object?[] processArguments,
@@ -139,7 +135,6 @@ internal static class ChootInstructionProgramDefinitionsVerification
             "Choot program reaches terminal sleep");
     }
 
-    /// <summary>Probes choot instruction mechanics allocation.</summary>
     private static int ProbeChootInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -156,13 +151,11 @@ internal static class ChootInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads choot instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Choot instruction words")]
     internal static ushort ReadChootInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>New choot instruction program read guard.</summary>
     private static CartridgeReadGuard NewChootInstructionProgramReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -177,7 +170,6 @@ internal static class ChootInstructionProgramDefinitionsVerification
                 ChootInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
-    /// <summary>Choot instruction mechanics command.</summary>
     [VerificationCommand("--choot-instruction-mechanics")]
     internal static int ChootInstructionMechanicsCommand()
     {

@@ -3,10 +3,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents falling speed recurrence verification.</summary>
 internal static class FallingSpeedRecurrenceVerification
 {
-    /// <summary>Verifies retail falling speed recurrence.</summary>
     internal static void VerifyRetailFallingSpeedRecurrence()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

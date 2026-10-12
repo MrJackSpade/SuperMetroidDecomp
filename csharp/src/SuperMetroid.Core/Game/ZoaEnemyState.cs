@@ -18,10 +18,8 @@ public enum ZoaEnemyFunction : ushort
 /// </summary>
 public sealed class ZoaEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new zoa enemy state instance.</summary>
     internal ZoaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

@@ -81,15 +81,11 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
     // signed records here preserves the initial index-zero -> record-one behavior.
-    /// <summary>Stores explosion offsets.</summary>
     private static readonly Offset16<RoomPixels>[] ExplosionOffsets =
         [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
 
-    /// <summary>Stores movement.</summary>
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
-    /// <summary>Stores corpse rotting.</summary>
     private readonly MotherBrainCorpseRottingState _corpseRotting = new();
-    /// <summary>Stores corpse artwork.</summary>
     private readonly RoomCharacterAtlas? _corpseArtwork;
 
     /// <summary>Standalone cartridge fixtures omit artwork; installed rooms bind the PNG.</summary>
@@ -208,7 +204,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public uint SmallPurpleBreathGenerationWriteCount { get; private set; }
 
-    /// <summary>write small purple breath generation.</summary>
     private void WriteSmallPurpleBreathGeneration(bool enabled)
     {
         SmallPurpleBreathGenerationEnabled = enabled;
@@ -549,7 +544,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallyFastInstructionList).Requested;
     }
 
-    /// <summary>begin extending neck for attack.</summary>
     private void BeginExtendingNeckForAttack()
     {
         // `$A9:B8EB-$B916` resets the neutral phase-two head program and selects the
@@ -563,7 +557,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         FunctionTimer = 0x0100;
     }
 
-    /// <summary>set head instruction list.</summary>
     private void SetHeadInstructionList(ushort pointer)
     {
         // `$A9:C447` writes the separate brain-list pointer and timer. Unlike ordinary
@@ -574,7 +567,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         _headInstructionListRequestSerial++;
     }
 
-    /// <summary>retract head.</summary>
     private void RetractHead()
     {
         // NTSC takes `$0050` from the regional `$0050/$0063` constant at `$A9:BB51`.
@@ -584,7 +576,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
     }
 
-    /// <summary>step painful walking.</summary>
     private bool StepPainfulWalking()
     {
         // The native stores four separate function pointers (request forward, wait forward,
@@ -612,7 +603,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return walk.Requested;
     }
 
-    /// <summary>step phase3 walking handler.</summary>
     private bool StepPhase3WalkingHandler(ushort randomNumberSeed)
     {
         // `$C25A` refuses to call the walking function while body bytecode advertises any
@@ -688,7 +678,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
     }
 
-    /// <summary>set phase3 walking to try to inch forward.</summary>
     private void SetPhase3WalkingToTryToInchForward(ushort counter)
     {
         Phase3WalkCounter = counter;
@@ -696,7 +685,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         Phase3TargetXPosition = unchecked((ushort)(Body.Position.X + 1));
     }
 
-    /// <summary>step phase3 neck handler.</summary>
     private void StepPhase3NeckHandler()
     {
         switch (Phase3NeckPhase)
@@ -773,7 +761,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
     }
 
-    /// <summary>request walk forward.</summary>
     private MotherBrainWalkResult RequestWalkForward(ushort targetX, ushort animationDelay)
     {
         ushort pointer = animationDelay switch
@@ -789,7 +776,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MakeBodyWalkForwards(targetX, pointer);
     }
 
-    /// <summary>request walk backward.</summary>
     private MotherBrainWalkResult RequestWalkBackward(ushort targetX, ushort animationDelay)
     {
         ushort pointer = animationDelay switch
@@ -805,11 +791,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MakeBodyWalkBackwards(targetX, pointer);
     }
 
-    /// <summary>request walk forward really slow.</summary>
     private MotherBrainWalkResult RequestWalkForwardReallySlow(ushort targetX) =>
         MakeBodyWalkForwards(targetX, BodyWalkingForwardReallySlowInstructionList);
 
-    /// <summary>request walk backward really slow.</summary>
     private MotherBrainWalkResult RequestWalkBackwardReallySlow(ushort targetX) =>
         MakeBodyWalkBackwards(targetX, BodyWalkingBackwardReallySlowInstructionList);
 
@@ -849,7 +833,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return MotherBrainWalkResult.WalkInstalled;
     }
 
-    /// <summary>calculate finish off health threshold.</summary>
     private static ushort CalculateFinishOffHealthThreshold(SamusState samus, ushort nominalDamage)
     {
         // `$A0:A45E` gives Gravity Suit priority and divides damage by four. Otherwise
@@ -867,7 +850,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             : unchecked((ushort)(divided + 0x0014));
     }
 
-    /// <summary>maybe request stand up or lean down.</summary>
     private bool MaybeRequestStandUpOrLeanDown(ushort randomNumberSeed)
     {
         // `$A9:C1A7` ignores every pose except standing (zero) and leaning (six), and its
@@ -891,7 +873,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return false;
     }
 
-    /// <summary>make body stand up.</summary>
     private bool MakeBodyStandUp(out bool animationRequested)
     {
         animationRequested = false;
@@ -915,7 +896,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return false;
     }
 
-    /// <summary>create next baby metroid tile transfer.</summary>
     private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer()
     {
         int index = BabyMetroidTileTransferIndex;
@@ -928,7 +908,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
-    /// <summary>create next corpse tile transfer.</summary>
     private MotherBrainSpriteTileTransferRequest CreateNextCorpseTileTransfer()
     {
         int index = CorpseTileTransferIndex;
@@ -944,7 +923,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
-    /// <summary>create next escape timer tile transfer.</summary>
     private MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
     {
         int index = EscapeTimerTileTransferIndex;
@@ -956,7 +934,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
-    /// <summary>create next exploded door tile transfer.</summary>
     private MotherBrainSpriteTileTransferRequest CreateNextExplodedDoorTileTransfer()
     {
         int index = ExplodedDoorTileTransferIndex;
@@ -968,7 +945,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return request;
     }
 
-    /// <summary>generate death explosions.</summary>
     private void GenerateDeathExplosions(
         bool mixed,
         Func<ushort>? nextRandomNumber,
@@ -1011,7 +987,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         }
     }
 
-    /// <summary>generate escape door explosion.</summary>
     private MotherBrainEscapeDoorExplosionRequest? GenerateEscapeDoorExplosion(
         Func<ushort>? nextRandomNumber)
     {
@@ -1056,7 +1031,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             SoundEffect: 0x0024);
     }
 
-    /// <summary>increase width and aim.</summary>
     private void IncreaseWidthAndAim(SamusState samus)
     {
         ushort widened = unchecked((ushort)(AngularWidth + 0x0180));
@@ -1064,7 +1038,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         AimBeamAtSamus(samus);
     }
 
-    /// <summary>run continuing beam effects.</summary>
     private void RunContinuingBeamEffects(
         SamusState samus,
         ushort enemyFrameCounter,
@@ -1093,7 +1066,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         explosion = StepExplosionTimer();
     }
 
-    /// <summary>aim beam at samus.</summary>
     private void AimBeamAtSamus(SamusState samus)
     {
         // `$A9:BB82` aims from brain position (+16,+4) to Samus. Bank `$A0:C0B1` consumes
@@ -1105,7 +1077,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         _movement.RainbowBeamAngle = SnesAngle.HalfTurn.AddRaw(-sourceAngle.RawValue);
     }
 
-    /// <summary>step explosion timer.</summary>
     private MotherBrainRainbowExplosionRequest? StepExplosionTimer()
     {
         ExplosionTimer = unchecked((ushort)(ExplosionTimer - 1));
@@ -1119,7 +1090,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             ExplosionOffsets[offsetIndex]);
     }
 
-    /// <summary>damage samus due to rainbow beam.</summary>
     private static void DamageSamusDueToRainbowBeam(SamusState samus)
     {
         // `$A9:C57D` loads `$FFFE` in both branches. The meaningful Varia distinction is
@@ -1130,7 +1100,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         samus.Health = NativeAtLeast(candidate, 1) ? candidate : (ushort)0;
     }
 
-    /// <summary>decrement ammo due to rainbow beam.</summary>
     private static void DecrementAmmoDueToRainbowBeam(
         SamusState samus,
         ushort mainEnemyExecutionCounter)
@@ -1146,7 +1115,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         samus.PowerBombs = DecrementOneAmmoType(samus, samus.PowerBombs, selectedItem: 3);
     }
 
-    /// <summary>decrement one ammo type.</summary>
     private static ushort DecrementOneAmmoType(
         SamusState samus,
         ushort current,
@@ -1171,7 +1139,6 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         return 0;
     }
 
-    /// <summary>native at least.</summary>
     private static bool NativeAtLeast(ushort value, ushort threshold) =>
         unchecked((short)(value - threshold)) >= 0;
 

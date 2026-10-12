@@ -12,7 +12,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents mother brain small purple breath verification.</summary>
 internal static class MotherBrainSmallPurpleBreathVerification
 {
     // #1269: DrawMotherBrainHead ($A9:9357) spawns the small purple breath ($86:CB3D) whenever
@@ -20,7 +19,6 @@ internal static class MotherBrainSmallPurpleBreathVerification
     // initializer marks it active; its last instruction ($86:CAEE) clears the flag before it
     // deletes itself. The port never spawned it, so in the 100% movie a projectile slot native
     // filled stayed empty.
-    /// <summary>Verifies mother brain small purple breath.</summary>
     internal static void VerifyMotherBrainSmallPurpleBreath()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -72,7 +70,6 @@ internal static class MotherBrainSmallPurpleBreathVerification
         Console.WriteLine("Mother Brain small purple breath: RNG-gated spawn, one at a time, flag cleared on its last instruction.");
     }
 
-    /// <summary>Mother brain small purple breath command.</summary>
     [VerificationCommand("--mother-brain-small-purple-breath")]
     internal static int MotherBrainSmallPurpleBreathCommand()
     {

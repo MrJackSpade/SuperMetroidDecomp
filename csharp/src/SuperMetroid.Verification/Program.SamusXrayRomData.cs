@@ -2,7 +2,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusMovementRomDataVerification;
 
-/// <summary>Represents samus xray rom data verification.</summary>
 internal static class SamusXrayRomDataVerification
 {
     /// <summary>

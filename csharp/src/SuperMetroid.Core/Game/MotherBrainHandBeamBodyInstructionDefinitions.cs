@@ -75,7 +75,6 @@ public static class MotherBrainHandBeamBodyInstructionDefinitions
         };
     }
 
-    /// <summary>Validate.</summary>
     private static void Validate(ushort address)
     {
         if (!ContainsWord(address))
@@ -85,7 +84,6 @@ public static class MotherBrainHandBeamBodyInstructionDefinitions
         }
     }
 
-    /// <summary>Not mechanics.</summary>
     private static InvalidDataException NotMechanics(ushort address) => new(
         $"Mother Brain hand-beam visual selector $A9:{address:X4} is not mechanics.");
 }

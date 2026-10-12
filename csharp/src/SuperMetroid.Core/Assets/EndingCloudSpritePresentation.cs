@@ -7,10 +7,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the six atmospheric ending clouds.</summary>
 public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresentation
 {
-    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
-    /// <summary>Initializes a new ending cloud sprite presentation instance.</summary>
     private EndingCloudSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -105,18 +103,14 @@ public static class EndingCloudSpriteDefinitions
     /// <summary>$8C:B6F3, EndingCutsceneBottomCloudsPattern; four16-part records
     /// precede the right and left32-part records.</summary>
     private const ushort FirstRecord = 0xb6f3;
-    /// <summary>Defines frame count.</summary>
     private const int FrameCount = 6;
     // Native storage order is distinct from the actor/list order.
-    /// <summary>Represents record.</summary>
-    private enum Record { /** <summary>Identifies bottom pattern.</summary> */ BottomPattern, /** <summary>Identifies top pattern.</summary> */ TopPattern, /** <summary>Identifies bottom edge.</summary> */ BottomEdge, /** <summary>Identifies top edge.</summary> */ TopEdge, /** <summary>Identifies right.</summary> */ Right, /** <summary>Identifies left.</summary> */ Left }
-    /// <summary>Represents role.</summary>
-    internal enum Role { /** <summary>Identifies upper pattern.</summary> */ UpperPattern, /** <summary>Identifies upper edge.</summary> */ UpperEdge, /** <summary>Identifies lower edge.</summary> */ LowerEdge, /** <summary>Identifies lower pattern.</summary> */ LowerPattern, /** <summary>Identifies right.</summary> */ Right, /** <summary>Identifies left.</summary> */ Left }
+    private enum Record { BottomPattern, TopPattern, BottomEdge, TopEdge, Right, Left }
+    internal enum Role { UpperPattern, UpperEdge, LowerEdge, LowerPattern, Right, Left }
 
     /// <summary>Gets the ordered upper, lower, right, and left cloud roles used by the ending actors.</summary>
     public static IReadOnlyList<EndingCloudSpriteFrameDefinition> Frames { get; } = new FrameView();
 
-    /// <summary>get.</summary>
     private static EndingCloudSpriteFrameDefinition Get(int index) => (Role)index switch
     {
         Role.UpperPattern => Define("scene-b-upper-a", Record.TopPattern),
@@ -128,7 +122,6 @@ public static class EndingCloudSpriteDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
-    /// <summary>define.</summary>
     private static EndingCloudSpriteFrameDefinition Define(string name, Record record)
     {
         int index = (int)record;
@@ -138,19 +131,14 @@ public static class EndingCloudSpriteDefinitions
         return new(name, (ushort)(FirstRecord + offset), index < 4 ? 16 : 32);
     }
 
-    /// <summary>Represents frame view.</summary>
     private sealed class FrameView : IReadOnlyList<EndingCloudSpriteFrameDefinition>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => FrameCount;
-        /// <summary>Accesses a value by index or range.</summary>
         public EndingCloudSpriteFrameDefinition this[int index] => Get(index);
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<EndingCloudSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

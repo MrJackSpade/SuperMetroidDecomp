@@ -15,7 +15,6 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
     /// <summary>Last closing-gate instruction byte at $84:BB51.</summary>
     internal const ushort LastAddress = 0xbb51;
 
-    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -26,7 +25,6 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
         return true;
     }
 
-    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;

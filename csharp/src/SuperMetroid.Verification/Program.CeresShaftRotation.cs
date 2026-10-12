@@ -2,10 +2,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static AssertionsVerification;
 
-/// <summary>Represents ceres shaft rotation verification.</summary>
 internal static class CeresShaftRotationVerification
 {
-    /// <summary>Verifies ceres shaft compiled rotation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres shaft compiled rotation")]
     internal static void VerifyCeresShaftCompiledRotation()
     {

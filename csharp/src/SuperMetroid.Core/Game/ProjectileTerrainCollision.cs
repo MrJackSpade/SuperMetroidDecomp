@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
@@ -8,14 +8,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Projectile movement against room terrain: the initial beam collision, horizontal and vertical block scans, shot-block reactions (including wave beams through door bands) and killing a beam or missile on contact.</summary>
 internal sealed class ProjectileTerrainCollision
 {
-    /// <summary>Stores animation.</summary>
     private readonly ProjectileAnimation _animation;
-    /// <summary>Stores earthquakes.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
-    /// <summary>Stores impact audio.</summary>
     private readonly ProjectileImpactAudio _impactAudio;
 
-    /// <summary>Initializes a new projectile terrain collision instance.</summary>
     internal ProjectileTerrainCollision(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileImpactAudio impactAudio)
     {
         _animation = animation;
@@ -23,7 +19,6 @@ internal sealed class ProjectileTerrainCollision
         _impactAudio = impactAudio;
     }
 
-    /// <summary>Moves horizontally.</summary>
     internal static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -107,7 +102,6 @@ internal sealed class ProjectileTerrainCollision
         return false;
     }
 
-    /// <summary>Moves vertically.</summary>
     internal static bool MoveVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -124,7 +118,6 @@ internal sealed class ProjectileTerrainCollision
         return ScanVerticalShotReactions(level, slot, roomPlms);
     }
 
-    /// <summary>Scan horizontal shot reactions.</summary>
     private static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -160,7 +153,6 @@ internal sealed class ProjectileTerrainCollision
         return everyBlockSolid;
     }
 
-    /// <summary>Scan vertical shot reactions.</summary>
     private static bool ScanVerticalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -248,7 +240,6 @@ internal sealed class ProjectileTerrainCollision
         return Solid(rowCell) || Solid(rowCell ^ 1);
     }
 
-    /// <summary>Runs shot reaction.</summary>
     private static bool RunShotReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -328,7 +319,6 @@ internal sealed class ProjectileTerrainCollision
         return block.CollisionType is >= RoomCollisionType.SolidBlock and <= RoomCollisionType.BombableBlock;
     }
 
-    /// <summary>Resolves shot reaction extension.</summary>
     private static RoomCollisionBlock? ResolveShotReactionExtension(
         RoomLevelData level,
         RoomCollisionBlock initialBlock)
@@ -384,7 +374,6 @@ internal sealed class ProjectileTerrainCollision
             $"Projectile extension chain from block {initialBlock.Index} did not terminate.");
     }
 
-    /// <summary>Attempts to spawn shootable reaction.</summary>
     internal static void TrySpawnShootableReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -449,7 +438,6 @@ internal sealed class ProjectileTerrainCollision
         }
     }
 
-    /// <summary>Notify resident projectile hit.</summary>
     private static void NotifyResidentProjectileHit(
         RoomPlmSystem? roomPlms,
         RoomCollisionBlock block,
@@ -484,7 +472,6 @@ internal sealed class ProjectileTerrainCollision
         KillBeam(slot);
     }
 
-    /// <summary>Kill beam.</summary>
     internal static void KillBeam(SamusProjectileSlot slot)
     {
         // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
@@ -508,7 +495,6 @@ internal sealed class ProjectileTerrainCollision
         slot.PreInstruction = SamusProjectilePreInstruction.None;
     }
 
-    /// <summary>Kill missile.</summary>
     internal void KillMissile(
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles)

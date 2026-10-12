@@ -23,7 +23,6 @@ using static ImportedSpritemapsVerification;
 using static RoomEnemiesVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy definition boundary verification.</summary>
 internal static class EnemyDefinitionBoundaryVerification
 {
     /// <summary>Verifies only the already statically identified enemy-reader conversions; no gameplay read discovery.</summary>
@@ -68,7 +67,6 @@ internal static class EnemyDefinitionBoundaryVerification
         Console.WriteLine($"Enemy definitions: all 1,761 Torizo mechanics words, 564 selectors, 106 physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
     }
 
-    /// <summary>Verifies complete torizo definitions.</summary>
     private static void VerifyCompleteTorizoDefinitions(ISnesAddressSpace source)
     {
         AssertEqual(1761, TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount, "complete Torizo mechanics count");
@@ -128,7 +126,6 @@ internal static class EnemyDefinitionBoundaryVerification
         }
     }
 
-    /// <summary>Verifies corpse metadata definitions.</summary>
     internal static void VerifyCorpseMetadataDefinitions(ISnesAddressSpace source)
     {
         foreach ((ushort pointer, int count) in new (ushort, int)[]
@@ -163,7 +160,6 @@ internal static class EnemyDefinitionBoundaryVerification
         }
     }
 
-    /// <summary>Verifies crocomire power bomb reaction definitions.</summary>
     private static void VerifyCrocomirePowerBombReactionDefinitions(ISnesAddressSpace source)
     {
         int tested = 0;
@@ -183,7 +179,6 @@ internal static class EnemyDefinitionBoundaryVerification
         AssertEqual(50, tested, "all Crocomire reaction frames");
     }
 
-    /// <summary>Verifies enemy auxiliary colors.</summary>
     private static void VerifyEnemyAuxiliaryColors(ISnesAddressSpace source)
     {
         byte[] json = EnemyAuxiliaryColorFiles.Extract(source);
@@ -210,7 +205,6 @@ internal static class EnemyDefinitionBoundaryVerification
         AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(EnemyAuxiliaryPalette.FaceBlock, 8, 0), "palette frame bounded");
     }
 
-    /// <summary>Lookup stream5 corpse geometry command.</summary>
     [VerificationCommand("--lookup-stream5-corpse-geometry")]
     internal static int LookupStream5CorpseGeometryCommand()
     {
@@ -220,7 +214,6 @@ internal static class EnemyDefinitionBoundaryVerification
         return 0;
     }
 
-    /// <summary>Enemy definition boundary command.</summary>
     [VerificationCommand("--enemy-definition-boundary")]
     internal static int EnemyDefinitionBoundaryCommand()
     {

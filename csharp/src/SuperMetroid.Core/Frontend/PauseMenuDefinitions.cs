@@ -109,7 +109,6 @@ internal static class PauseEquipmentCategories
     public static IReadOnlyList<PauseEquipmentCategory> InventoryCategories { get; } =
         [PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits, PauseEquipmentCategory.Boots];
 
-    /// <summary>Gets.</summary>
     public static PauseEquipmentCategoryDefinition Get(PauseEquipmentCategory category) => category switch
     {
         PauseEquipmentCategory.Reserves => new(PauseEquipmentCategory.Reserves, 0, 0, 0, 0),

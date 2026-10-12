@@ -1,14 +1,11 @@
-namespace SuperMetroid.Core.Game;
+﻿namespace SuperMetroid.Core.Game;
 
 /// <summary>The escape explosions species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EscapeExplosionsBehavior
 {
-    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
 
-    /// <summary>Initializes a new escape explosions behavior instance.</summary>
     internal EscapeExplosionsBehavior(EnemyAudioQueue audio, RoomSpriteObjectPool spriteObjects)
     {
         _audio = audio;

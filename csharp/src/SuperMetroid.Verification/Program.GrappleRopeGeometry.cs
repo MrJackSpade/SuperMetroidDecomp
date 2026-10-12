@@ -15,10 +15,8 @@ using SuperMetroid.Core.Rom;
 using static GrappleEndpointGeometryVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents grapple rope geometry verification.</summary>
 internal static class GrappleRopeGeometryVerification
 {
-    /// <summary>Verifies grapple rope geometry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple rope angle tables")]
     internal static void VerifyGrappleRopeGeometry(ISnesAddressSpace bus)
@@ -78,7 +76,6 @@ internal static class GrappleRopeGeometryVerification
         Console.WriteLine("Grapple rope geometry: 42 diagonal, viewport-edge, short/wrapped-count and signed-length cases match native positions and visited timers.");
     }
 
-    /// <summary>Grapple rope geometry command.</summary>
     [VerificationCommand("--grapple-rope-geometry")]
     internal static int GrappleRopeGeometryCommand()
     {

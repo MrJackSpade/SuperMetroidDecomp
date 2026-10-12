@@ -107,7 +107,6 @@ internal static class KraidMouthHitboxes
         return (byte)(target >> (8 * (callOffset - 1)));
     }
 
-    /// <summary>Reads live word.</summary>
     private static ushort ReadLiveWord(ISnesAddressSpace bus, ushort pointer)
     {
         byte low = ReadLiveByte(bus, pointer);
@@ -115,7 +114,6 @@ internal static class KraidMouthHitboxes
         return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
-    /// <summary>Reads live byte.</summary>
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         if (pointer < KraidBackgroundRomData.HeadRomWindowStart)
@@ -129,7 +127,6 @@ internal static class KraidMouthHitboxes
             $"Kraid low-half mouth geometry crossed into uncompiled cartridge address $A7:{pointer:X4}.");
     }
 
-    /// <summary>Adds within bank.</summary>
     private static ushort AddWithinBank(ushort pointer, int offset) =>
         unchecked((ushort)(pointer + offset));
 }

@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public sealed class ManagedSpcPlayer
 {
-    /// <summary>write volume.</summary>
     private void WriteVolume(ManagedSpcMusicChannel channel, ushort volume)
     {
         // A sound effect owns this hardware voice while its bit is set. Music state continues
@@ -49,7 +48,6 @@ public sealed class ManagedSpcPlayer
         }
     }
 
-    /// <summary>write pitch inner.</summary>
     private void WritePitchInner(ManagedSpcMusicChannel channel, ushort pitch)
     {
         byte note = unchecked((byte)(SpcFixedPoint.Whole(pitch) & SpcDriverData.Music.NoteNumberMask));
@@ -72,7 +70,6 @@ public sealed class ManagedSpcPlayer
         }
     }
 
-    /// <summary>write pitch.</summary>
     private void WritePitch(ManagedSpcMusicChannel channel, ushort pitch)
     {
         if (SpcFixedPoint.Whole(pitch) >= 0x34) // allow(HardwareMagnitude): native high-note correction threshold
@@ -82,7 +79,6 @@ public sealed class ManagedSpcPlayer
         WritePitchInner(channel, pitch);
     }
 
-    /// <summary>reset music channels.</summary>
     private void ResetMusicChannels()
     {
         for (int index = channels.Length - 1, bit = 0x80; index >= 0; index--, bit >>= 1) // allow(BitMask): highest voice bit
@@ -111,7 +107,6 @@ public sealed class ManagedSpcPlayer
         tempo = SpcFixedPoint.WithWhole(tempo, SpcDriverData.Music.DefaultTrackTempo);
     }
 
-    /// <summary>set instrument without saving id.</summary>
     private void SetInstrumentWithoutSavingId(ManagedSpcMusicChannel channel, byte instrument)
     {
         if ((instrument & 0x80) != 0) // allow(BitMask): percussion instrument marker
@@ -138,14 +133,12 @@ public sealed class ManagedSpcPlayer
         channel.InstrumentPitchBase = record.PitchBase;
     }
 
-    /// <summary>set instrument.</summary>
     private void SetInstrument(ManagedSpcMusicChannel channel, byte instrument)
     {
         channel.InstrumentId = instrument;
         SetInstrumentWithoutSavingId(channel, instrument);
     }
 
-    /// <summary>compute pitch add.</summary>
     private static void ComputePitchAdd(ManagedSpcMusicChannel channel, byte pitch)
     {
         channel.PitchTarget = unchecked((byte)(pitch & SpcDriverData.Music.NoteNumberMask));
@@ -153,7 +146,6 @@ public sealed class ManagedSpcPlayer
             channel.PitchTarget - SpcFixedPoint.Whole(channel.Pitch), channel.PitchSlideLength);
     }
 
-    /// <summary>check pitch slide to note.</summary>
     private void CheckPitchSlideToNote(ManagedSpcMusicChannel channel)
     {
         if (channel.PitchSlideLength != 0 || PeekSequenceByte(channel.PatternOrderPointer) != (byte)SpcMusicEffect.PitchSlide)
@@ -165,7 +157,6 @@ public sealed class ManagedSpcPlayer
             globalTransposition + channel.ChannelTransposition)));
     }
 
-    /// <summary>handle effect.</summary>
     private void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverData.Music.FirstEffect;
@@ -332,7 +323,6 @@ public sealed class ManagedSpcPlayer
         }
     }
 
-    /// <summary>wants key off.</summary>
     private bool WantsKeyOff(ManagedSpcMusicChannel channel)
     {
         int loops = channel.SubroutineLoops;
@@ -364,7 +354,6 @@ public sealed class ManagedSpcPlayer
         throw new InvalidDataException("SPC key-off lookahead did not reach a note boundary.");
     }
 
-    /// <summary>calculate final volume.</summary>
     private void CalculateFinalVolume(ManagedSpcMusicChannel channel, byte volume)
     {
         int scaled = SpcFixedPoint.Scale(SpcFixedPoint.Whole(masterVolume), volume);
@@ -373,7 +362,6 @@ public sealed class ManagedSpcPlayer
         channel.FinalVolume = (byte)SpcFixedPoint.Scale(scaled, scaled);
     }
 
-    /// <summary>calculate tremolo.</summary>
     private void CalculateTremolo(ManagedSpcMusicChannel channel, byte value)
     {
         value = (value & 0x80) != 0 // allow(BitMask): tremolo waveform phase
@@ -383,14 +371,12 @@ public sealed class ManagedSpcPlayer
         CalculateFinalVolume(channel, unchecked((byte)(value ^ byte.MaxValue)));
     }
 
-    /// <summary>handle tremolo.</summary>
     private void HandleTremolo(ManagedSpcMusicChannel channel)
     {
         affectedVolumeOrPitch |= 0x80; // allow(BitMask): dirty result marker
         CalculateTremolo(channel, (byte)SpcFixedPoint.Scale(channel.TremoloRate, mainTempoAccumulator));
     }
 
-    /// <summary>calculate vibrato pitch.</summary>
     private void CalculateVibratoPitch(ManagedSpcMusicChannel channel, ushort pitch, byte value)
     {
         int scaled = value << 2;
@@ -401,7 +387,6 @@ public sealed class ManagedSpcPlayer
         WritePitch(channel, AddWord(pitch, (value & 0x80) != 0 ? -delta : delta)); // allow(BitMask): vibrato direction
     }
 
-    /// <summary>handle pan and sweep.</summary>
     private void HandlePanAndSweep(ManagedSpcMusicChannel channel)
     {
         affectedVolumeOrPitch = 0;
@@ -434,7 +419,6 @@ public sealed class ManagedSpcPlayer
             WritePitch(channel, pitch);
     }
 
-    /// <summary>handle note tick.</summary>
     private void HandleNoteTick(ManagedSpcMusicChannel channel)
     {
         if (channel.NoteKeyOffTicksLeft != 0 &&
@@ -481,7 +465,6 @@ public sealed class ManagedSpcPlayer
             WritePitch(channel, pitch);
     }
 
-    /// <summary>handle channel tick.</summary>
     private void HandleChannelTick(ManagedSpcMusicChannel channel)
     {
         if (channel.VolumeFadeTicks != 0)
@@ -526,7 +509,6 @@ public sealed class ManagedSpcPlayer
             WriteVolume(channel, channel.PanValue);
     }
 
-    /// <summary>handle music command.</summary>
     private void HandleMusicCommand()
     {
         byte command = inputPorts[(byte)ApuPort.Music];
@@ -715,7 +697,6 @@ public sealed class ManagedSpcPlayer
         currentChannelBit = 0;
     }
 
-    /// <summary>start track.</summary>
     private void StartTrack(byte track)
     {
         portsToSnes[(byte)ApuPort.Music] = track;
@@ -725,7 +706,6 @@ public sealed class ManagedSpcPlayer
         keyOff |= unchecked((byte)~channelOnMask);
     }
 
-    /// <summary>play note.</summary>
     private void PlayNote(ManagedSpcMusicChannel channel, byte note)
     {
         if (note >= SpcDriverData.Music.FirstPercussionNote)
@@ -855,7 +835,6 @@ public sealed class ManagedSpcPlayer
         soundCommandReads[libraryIndex] = inputPorts[port];
     }
 
-    /// <summary>apply sound library command.</summary>
     private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
@@ -968,7 +947,6 @@ public sealed class ManagedSpcPlayer
         }
     }
 
-    /// <summary>process sound library.</summary>
     private void ProcessSoundLibrary(int libraryIndex)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
@@ -989,7 +967,6 @@ public sealed class ManagedSpcPlayer
             RunSoundChannel(library, channel);
     }
 
-    /// <summary>initialize sound library.</summary>
     private void InitializeSoundLibrary(
         int libraryIndex,
         ManagedSpcSoundLibrary library,
@@ -1048,7 +1025,6 @@ public sealed class ManagedSpcPlayer
         }
     }
 
-    /// <summary>reset sound channel.</summary>
     private void ResetSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
         soundChannel.Disabled = SpcDriverData.SoundEffects.Active;
@@ -1070,7 +1046,6 @@ public sealed class ManagedSpcPlayer
     }
 
 
-    /// <summary>run sound channel.</summary>
     private void RunSoundChannel(ManagedSpcSoundLibrary library, ManagedSpcSoundChannel soundChannel)
     {
         if (soundChannel.Disabled == SpcDriverData.SoundEffects.Active)
@@ -1199,30 +1174,22 @@ public sealed class ManagedSpcPlayer
             SnesLittleEndian.Word(soundChannel.Subnote, soundChannel.Note))));
     }
 
-    /// <summary>Stores ram.</summary>
     [SpcMemoryAccess]
     private readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
-    /// <summary>Stores ports to snes.</summary>
     private readonly byte[] portsToSnes = new byte[AudioRomData.Apu.PortCount];
-    /// <summary>Stores input ports.</summary>
     private readonly byte[] inputPorts = new byte[AudioRomData.Apu.PortCount];
     // SPC $01-$03: each SFX port's value latched by the previous service's $1621 read.
-    /// <summary>Stores sound command reads.</summary>
     private readonly byte[] soundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
     // SPC $09-$0B: the value acted on at the previous service, for change detection.
-    /// <summary>Stores previous sound command reads.</summary>
     private readonly byte[] previousSoundCommandReads = new byte[AudioRomData.Queues.SoundLibraryCount];
-    /// <summary>Stores channels.</summary>
     private readonly ManagedSpcMusicChannel[] channels = Enumerable
         .Range(0, SpcDriverData.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
         .ToArray();
-    /// <summary>Stores sound libraries.</summary>
     private readonly ManagedSpcSoundLibrary[] soundLibraries = Enumerable
         .Range(0, SpcDriverData.SoundEffects.LibraryCount)
         .Select(_ => new ManagedSpcSoundLibrary())
         .ToArray();
-    /// <summary>Stores sound channels.</summary>
     private readonly ManagedSpcSoundChannel[][] soundChannels =
     [
         Enumerable.Range(0, SpcDriverData.SoundEffects.LibraryOneChannelCount)
@@ -1233,81 +1200,43 @@ public sealed class ManagedSpcPlayer
             .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
     ];
 
-    /// <summary>Stores dsp.</summary>
     private readonly ManagedSnesDsp dsp;
-    /// <summary>Stores timer cycles.</summary>
     private byte timerCycles;
-    /// <summary>Stores counter.</summary>
     private ushort counter;
-    /// <summary>Stores affected volume or pitch.</summary>
     private byte affectedVolumeOrPitch;
-    /// <summary>Stores channel on mask.</summary>
     private byte channelOnMask;
-    /// <summary>Stores fast forward.</summary>
     private byte fastForward;
-    /// <summary>Stores music top level pointer.</summary>
     private ushort musicTopLevelPointer;
-    /// <summary>Stores block count.</summary>
     private byte blockCount;
-    /// <summary>Stores sound effect timer accumulator.</summary>
     private byte soundEffectTimerAccumulator;
-    /// <summary>Stores key on.</summary>
     private byte keyOn;
-    /// <summary>Stores key off.</summary>
     private byte keyOff;
-    /// <summary>Stores current channel bit.</summary>
     private byte currentChannelBit;
-    /// <summary>Stores dsp flags.</summary>
     private byte dspFlags;
-    /// <summary>Stores noise enable.</summary>
     private byte noiseEnable;
-    /// <summary>Stores echo enable.</summary>
     private byte echoEnable;
-    /// <summary>Stores echo stored time.</summary>
     private byte echoStoredTime;
-    /// <summary>Stores echo delay.</summary>
     private byte echoDelay;
-    /// <summary>Stores echo feedback.</summary>
     private byte echoFeedback;
-    /// <summary>Stores global transposition.</summary>
     private byte globalTransposition;
-    /// <summary>Stores main tempo accumulator.</summary>
     private byte mainTempoAccumulator;
-    /// <summary>Stores tempo.</summary>
     private ushort tempo;
-    /// <summary>Stores tempo fade ticks.</summary>
     private byte tempoFadeTicks;
-    /// <summary>Stores tempo fade target.</summary>
     private byte tempoFadeTarget;
-    /// <summary>Stores tempo fade add.</summary>
     private ushort tempoFadeAdd;
-    /// <summary>Stores master volume.</summary>
     private ushort masterVolume;
-    /// <summary>Stores master volume fade ticks.</summary>
     private byte masterVolumeFadeTicks;
-    /// <summary>Stores master volume fade target.</summary>
     private byte masterVolumeFadeTarget;
-    /// <summary>Stores master volume fade add.</summary>
     private ushort masterVolumeFadeAdd;
-    /// <summary>Stores volume dirty.</summary>
     private byte volumeDirty;
-    /// <summary>Stores percussion base id.</summary>
     private byte percussionBaseId;
-    /// <summary>Stores echo volume left.</summary>
     private ushort echoVolumeLeft;
-    /// <summary>Stores echo volume right.</summary>
     private ushort echoVolumeRight;
-    /// <summary>Stores echo volume fade add left.</summary>
     private ushort echoVolumeFadeAddLeft;
-    /// <summary>Stores echo volume fade add right.</summary>
     private ushort echoVolumeFadeAddRight;
-    /// <summary>Stores echo volume fade ticks.</summary>
     private byte echoVolumeFadeTicks;
-    /// <summary>Stores echo volume fade target left.</summary>
     private byte echoVolumeFadeTargetLeft;
-    /// <summary>Stores echo volume fade target right.</summary>
     private byte echoVolumeFadeTargetRight;
-    /// <summary>Stores last written echo delay.</summary>
     private byte lastWrittenEchoDelay;
 
     /// <summary>Creates an independent SPC sequencer and DSP over owned 64-KiB APU RAM, applying native driver reset state without loading an audio bank or opening a host audio device.</summary>
@@ -1522,7 +1451,6 @@ public sealed class ManagedSpcPlayer
         dsp.CopyResampledSamples(destination, SpcDriverData.HostStereoFramesPerVideoFrame);
     }
 
-    /// <summary>initialize driver.</summary>
     private void InitializeDriver()
     {
         dsp.Reset();
@@ -1567,7 +1495,6 @@ public sealed class ManagedSpcPlayer
         keyOff = keyOn = 0;
     }
 
-    /// <summary>loop part two.</summary>
     private void LoopPartTwo(byte ticks)
     {
         int soundAccumulator = soundEffectTimerAccumulator + unchecked((byte)(ticks * 0x20)); // magic-number-audit: allow(AudioId) - SPC timer scale, not a sequence ID
@@ -1606,7 +1533,6 @@ public sealed class ManagedSpcPlayer
         }
     }
 
-    /// <summary>setup echo delay.</summary>
     private void SetupEchoDelay(byte requestedDelay)
     {
         echoDelay = requestedDelay;
@@ -1631,7 +1557,6 @@ public sealed class ManagedSpcPlayer
         Dsp.Global.WriteEchoBufferPage(echoPage);
     }
 
-    /// <summary>Gets dsp.</summary>
     private SnesDspControls Dsp => new(dsp);
 
     /// <summary>
@@ -1647,6 +1572,5 @@ public sealed class ManagedSpcPlayer
     }
 
 
-    /// <summary>add word.</summary>
     private static ushort AddWord(ushort left, int right) => unchecked((ushort)(left + right));
 }

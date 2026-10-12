@@ -70,11 +70,9 @@ public static class QuicksandDefinitions
                 header,
                 "Quicksand reaction header must be one of the eight bank-$84 sand entries.");
 
-    /// <summary>Stores without gravity suit.</summary>
     private static readonly QuicksandSurfacePhysics withoutGravitySuit =
         new(0x0200, 0x0120, 0x0280);
 
-    /// <summary>Stores with gravity suit.</summary>
     private static readonly QuicksandSurfacePhysics withGravitySuit =
         new(0x0200, 0x0100, 0x0380);
 }

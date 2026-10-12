@@ -3,28 +3,19 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Mutually exclusive crawler animation families with distinct initial tables.</summary>
 internal enum CrawlerAnimationFamily
 {
-    /// <summary>Identifies shared.</summary>
     Shared,
-    /// <summary>Identifies viola.</summary>
     Viola,
-    /// <summary>Identifies sciser.</summary>
     Sciser,
-    /// <summary>Identifies zero.</summary>
     Zero,
-    /// <summary>Identifies hzoomer.</summary>
     HZoomer,
 }
 
 /// <summary>The four physical surfaces represented by crawler animation lists.</summary>
 internal enum CrawlerSurfaceOrientation : ushort
 {
-    /// <summary>Identifies upside right.</summary>
     UpsideRight = 0,
-    /// <summary>Identifies upside left.</summary>
     UpsideLeft = 1,
-    /// <summary>Identifies upside down.</summary>
     UpsideDown = 2,
-    /// <summary>Identifies upside up.</summary>
     UpsideUp = 3,
 }
 
@@ -49,7 +40,6 @@ internal readonly record struct CrawlerAnimationDefinition(
     ushort UpsideDown,
     ushort UpsideUp)
 {
-    /// <summary>For orientation.</summary>
     internal ushort ForOrientation(CrawlerSurfaceOrientation orientation) => orientation switch
     {
         CrawlerSurfaceOrientation.UpsideRight => UpsideRight,

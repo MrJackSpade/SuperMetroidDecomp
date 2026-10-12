@@ -20,15 +20,12 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitions
     /// <summary><c>InstList_Zebbo_FacingRight_Shooting</c> at $B3:8A59.</summary>
     internal const ushort StrongShootingRight = 0x8a59;
 
-    /// <summary>Starts.</summary>
     internal static ushort Start(int program) => program < 4
         ? (ushort)(NormalRisingLeft + program / 2 * 64 + program % 2 * 36)
         : (ushort)(StrongRisingLeft + (program - 4) * 20);
 
-    /// <summary>Frames.</summary>
     internal static int Frames(int program) => program < 4 ? 8 - 2 * (program & 1) : 4;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value)) return value;
@@ -36,7 +33,6 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitions
             $"Brinstar Pipe Bug instruction mechanics pointer $B3:{address:X4} is not compiled.");
     }
 
-    /// <summary>Attempts to read.</summary>
     internal static bool TryRead(int address, out ushort value)
     {
         for (int program = 0; program < 8; program++)

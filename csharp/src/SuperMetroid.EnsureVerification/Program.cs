@@ -8,15 +8,12 @@ using static SuperMetroid.EnsureVerification.PaletteFxContractTests;
 using static SuperMetroid.EnsureVerification.ParameterContractsTests;
 using static SuperMetroid.EnsureVerification.ParameterListAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PartialTypeAnalyzerTests;
-using static SuperMetroid.EnsureVerification.MemberDocumentationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.WordReadAnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-/// <summary>Represents program.</summary>
 internal static class Program
 {
-    /// <summary>main.</summary>
     private static int Main(string[] args)
     {
         try
@@ -41,7 +38,6 @@ internal static class Program
             VerifySpcMemoryAccessAnalyzer();
             VerifyParameterListAnalyzer();
             VerifyPartialTypeAnalyzer();
-            VerifyMemberDocumentationAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();
             VerifyEnsureCallsAndCodeFix();
@@ -57,7 +53,6 @@ internal static class Program
         }
     }
 
-    /// <summary>verify ensure.</summary>
     private static void VerifyEnsure()
     {
         string? text = "okay";
@@ -85,14 +80,12 @@ internal static class Program
         }
     }
 
-    /// <summary>equal.</summary>
     private static void Equal<T>(T expected, T actual)
     {
         if (!EqualityComparer<T>.Default.Equals(expected, actual))
             throw new InvalidOperationException($"Expected {expected}, got {actual}.");
     }
 
-    /// <summary>throws.</summary>
     private static void Throws<T>(Action action, string parameterName, string? messageFragment = null) where T : ArgumentException
     {
         try
@@ -111,10 +104,8 @@ internal static class Program
     }
 }
 
-/// <summary>Represents native console process.</summary>
 internal static partial class NativeConsoleProcess
 {
-    /// <summary>set error mode.</summary>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }

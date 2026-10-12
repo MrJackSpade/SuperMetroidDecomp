@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -8,16 +8,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Yard species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class YardEnemyBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Initializes a new yard enemy behavior instance.</summary>
     internal YardEnemyBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemyCollision collision)
     {
         _room = room;
@@ -93,10 +88,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines yard nothing spritemap.</summary>
     private const ushort YardNothingSpritemap = 0x804d;
 
-    /// <summary>Stores yard states.</summary>
     internal readonly YardEnemyState?[] _yardStates =
         new YardEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -147,7 +140,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
     }
 
-    /// <summary>validate yard speed index.</summary>
     private static void ValidateYardSpeedIndex(ushort index)
     {
         if (index >= CrawlerSpeedDefinitions.Count)
@@ -284,7 +276,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             DropYard(slot, state);
     }
 
-    /// <summary>run yard crawling movement.</summary>
     internal void RunYardCrawlingMovement(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -369,7 +360,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         HandleYardTurnTransitionDisabling(state, adjusted);
     }
 
-    /// <summary>handle yard turn transition disabling.</summary>
     private static void HandleYardTurnTransitionDisabling(
         YardEnemyState state,
         bool slopeAdjusted)
@@ -390,7 +380,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         state.TurnTransitionDisableCounter = next;
     }
 
-    /// <summary>set yard instruction and disable turn.</summary>
     private static void SetYardInstructionAndDisableTurn(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -466,7 +455,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             : fallingVelocity.WithFraction(accelerated.Fraction));
     }
 
-    /// <summary>land yard.</summary>
     private static void LandYard(RoomEnemySlot slot, YardEnemyState state, SamusState samus)
     {
         state.AirborneVelocity = FixedVector<RoomPixels>.Zero;
@@ -500,7 +488,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>set yard airborne lists.</summary>
     private static void SetYardAirborneLists(
         RoomEnemySlot slot,
         YardEnemyState state)
@@ -513,7 +500,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>make yard face samus horizontally.</summary>
     private static bool MakeYardFaceSamusHorizontally(
         RoomEnemySlot slot,
         YardEnemyState state,
@@ -525,7 +511,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         return shouldTurn && TurnYardAround(slot, state);
     }
 
-    /// <summary>turn yard around.</summary>
     internal static bool TurnYardAround(RoomEnemySlot slot, YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
@@ -629,7 +614,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         state.Behavior = YardBehavior.NormalCrawling;
     }
 
-    /// <summary>samus is directing toward yard.</summary>
     private static bool SamusIsDirectingTowardYard(
         YardEnemyState state,
         ushort controllerInput)
@@ -656,16 +640,13 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         LastYardSoundEffect = 0x0070;
     }
 
-    /// <summary>compose signed fixed.</summary>
     internal static int ComposeSignedFixed(ushort whole, ushort fraction) =>
         unchecked((int)((SnesSixteenSixteen.FromWhole((uint)whole)) | fraction));
 
-    /// <summary>require yard state.</summary>
     private YardEnemyState RequireYardState(RoomEnemySlot slot) =>
         _yardStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Yard state.");
 
-    /// <summary>register yard initialization ai.</summary>
     internal void RegisterYardInitializationAi(EnemyAiTable table)
     {
 
@@ -675,7 +656,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register yard main ai.</summary>
     internal void RegisterYardMainAi(EnemyAiTable table)
     {
 
@@ -685,7 +665,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register yard owned instructions.</summary>
     internal void RegisterYardOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -695,7 +674,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register yard shot reactions.</summary>
     internal void RegisterYardShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
@@ -717,7 +695,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register yard touch.</summary>
     internal void RegisterYardTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&

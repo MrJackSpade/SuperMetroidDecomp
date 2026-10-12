@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -9,18 +9,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyDeathsAndDrops
 {
-    /// <summary>Stores room status.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Stores dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
 
-    /// <summary>Initializes a new enemy deaths and drops instance.</summary>
     internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemySlotTable slotTable, IEnemyDispatch dispatch)
     {
         _roomStatus = roomStatus;
@@ -29,20 +23,15 @@ internal sealed class EnemyDeathsAndDrops
         _slotTable = slotTable;
         _dispatch = dispatch;
     }
-    /// <summary>Defines enemy pickup pre instruction.</summary>
     private const ushort EnemyPickupPreInstruction =
         (ushort)EnemyProjectilePreInstruction.Pickup;
-    /// <summary>Defines enemy pickup lifetime.</summary>
     private const ushort EnemyPickupLifetime = 400;
-    /// <summary>Defines enemy pickup grapple delay.</summary>
     private const ushort EnemyPickupGrappleDelay = 16;
 
 
     // $7E:0E1E is intentionally stateful in the 30..49 energy grace band. Starting false
     // matches cleared WRAM; room transitions do not reset it on the cartridge.
-    /// <summary>Stores critical energy drop bias.</summary>
     private bool _criticalEnergyDropBias;
-    /// <summary>Stores samus for enemy drops.</summary>
     internal SamusState? _samusForEnemyDrops;
 
     /// <summary>Last library-two sound requested by a collected enemy pickup this frame.</summary>
@@ -116,13 +105,11 @@ internal sealed class EnemyDeathsAndDrops
         _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
     }
 
-    /// <summary>Respawn scratch word.</summary>
     internal static ushort RespawnScratchWord(RoomEnemySlot enemy) =>
         enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
             ? (ushort)EnemyProperties.RespawnIfKilled
             : (ushort)0;
 
-    /// <summary>Install respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {
         // The cartridge reads the header through the new pointer on every dispatch.
@@ -132,7 +119,6 @@ internal sealed class EnemyDeathsAndDrops
         enemy.AiBank = enemy.Definition.Bank;
     }
 
-    /// <summary>Selects normal shot death animation.</summary>
     internal static ushort SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
         ushort projectileType,
@@ -174,7 +160,6 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
-    /// <summary>Spawn enemy drop scatter around.</summary>
     internal void SpawnEnemyDropScatterAround(
         EnemyDefinitionId enemyHeaderPointer,
         int count,
@@ -239,7 +224,6 @@ internal sealed class EnemyDeathsAndDrops
         return pickup;
     }
 
-    /// <summary>Initializes direct enemy pickup.</summary>
     private void InitializeDirectEnemyPickup(RoomEnemyProjectileSlot pickup)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(pickup);
@@ -275,7 +259,6 @@ internal sealed class EnemyDeathsAndDrops
         BeginEnemyPickup(projectile, kind);
     }
 
-    /// <summary>Begin enemy pickup.</summary>
     internal static void BeginEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         EnemyPickupKind kind)
@@ -292,7 +275,6 @@ internal sealed class EnemyDeathsAndDrops
         projectile.PersistsOnSamusContact = false;
     }
 
-    /// <summary>Make enemy pickup dormant.</summary>
     private static void MakeEnemyPickupDormant(RoomEnemyProjectileSlot projectile)
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
@@ -419,7 +401,6 @@ internal sealed class EnemyDeathsAndDrops
         return EnemyPickupKind.NoDrop;
     }
 
-    /// <summary>Resolves enemy drop chances pointer.</summary>
     private ushort ResolveEnemyDropChancesPointer(RoomEnemyProjectileSlot projectile)
     {
         if (projectile.ItemDropChancesPointerOverride != 0)
@@ -429,7 +410,6 @@ internal sealed class EnemyDeathsAndDrops
         return EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 
-    /// <summary>Runs enemy pickup pre instruction.</summary>
     internal void RunEnemyPickupPreInstruction(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
@@ -468,7 +448,6 @@ internal sealed class EnemyDeathsAndDrops
         CollectEnemyPickup(projectile, samus);
     }
 
-    /// <summary>Collects enemy pickup.</summary>
     private void CollectEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
@@ -506,7 +485,6 @@ internal sealed class EnemyDeathsAndDrops
         MakeEnemyPickupDormant(projectile);
     }
 
-    /// <summary>Restores enemy drop energy.</summary>
     private static void RestoreEnemyDropEnergy(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.Health + amount));
@@ -524,7 +502,6 @@ internal sealed class EnemyDeathsAndDrops
         samus.Health = samus.MaxHealth;
     }
 
-    /// <summary>Restores enemy drop missiles.</summary>
     private static void RestoreEnemyDropMissiles(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.Missiles + amount));
@@ -542,7 +519,6 @@ internal sealed class EnemyDeathsAndDrops
         samus.Missiles = samus.MaxMissiles;
     }
 
-    /// <summary>Restores enemy drop super missiles.</summary>
     private static void RestoreEnemyDropSuperMissiles(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.SuperMissiles + amount));
@@ -554,7 +530,6 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
-    /// <summary>Restores enemy drop power bombs.</summary>
     private static void RestoreEnemyDropPowerBombs(SamusState samus, ushort amount)
     {
         ushort restored = unchecked((ushort)(samus.PowerBombs + amount));
@@ -566,7 +541,6 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
-    /// <summary>Absolute wrapped delta.</summary>
     private static int AbsoluteWrappedDelta(ushort left, ushort right) =>
         Math.Abs((int)unchecked((short)(left - right)));
 
@@ -604,7 +578,6 @@ internal sealed class EnemyDeathsAndDrops
     }
 
 
-    /// <summary>Register pickup pre instruction.</summary>
     internal void RegisterPickupPreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -615,7 +588,6 @@ internal sealed class EnemyDeathsAndDrops
     }
 
 
-    /// <summary>Register death explosion instructions.</summary>
     internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX, null,

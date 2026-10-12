@@ -3,10 +3,8 @@ using SuperMetroid.Core.Rendering;
 using static QueuedPcmSinkVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents android host verification.</summary>
 internal static class AndroidHostVerification
 {
-    /// <summary>Verifies android host policies.</summary>
     internal static void VerifyAndroidHostPolicies()
     {
         Suite(nameof(VerifyQueuedPcmSink), () => VerifyQueuedPcmSink());

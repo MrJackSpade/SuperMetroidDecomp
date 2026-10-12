@@ -55,7 +55,6 @@ public static class PauseReserveUiDefinitions
     /// <summary>$82:BF14-BF20 selects RESERVE TANK at tiles $80-86, palette seven and priority.</summary>
     private const int ReserveTankGlyph = 0x80;
 
-    /// <summary>Stock label words.</summary>
     internal static int StockLabelWords(string name) => name switch
     {
         "Mode" or "ReserveTank" => LabelWords,
@@ -89,6 +88,5 @@ public static class PauseReserveUiDefinitions
         return Word(first + index, 7);
     }
 
-    /// <summary>Word.</summary>
     private static ushort Word(int glyph, int palette) => (ushort)(0x2000 | palette << 10 | glyph);
 }

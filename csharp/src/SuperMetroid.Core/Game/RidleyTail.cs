@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
@@ -12,18 +12,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class RidleyTail
 {
-    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores ridley encounter.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Initializes a new ridley tail instance.</summary>
     internal RidleyTail(EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter, EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _frameContext = frameContext;
@@ -138,7 +132,6 @@ internal sealed class RidleyTail
             : (ushort)2;
     }
 
-    /// <summary>Aim ceres ridley tail whip.</summary>
     internal void AimCeresRidleyTailWhip(
         RidleyEnemyState state,
         SamusState? samus,
@@ -198,7 +191,6 @@ internal sealed class RidleyTail
         }
     }
 
-    /// <summary>Ticks ridley tail segment.</summary>
     internal static void TickRidleyTailSegment(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
@@ -318,7 +310,6 @@ internal sealed class RidleyTail
             unchecked((short)(SnesEightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64)))))));
     }
 
-    /// <summary>Deactivate ridley tail segment.</summary>
     private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)
     {
         segment.Active = false;
@@ -348,7 +339,6 @@ internal sealed class RidleyTail
         }
     }
 
-    /// <summary>Creates initial ridley tail segments.</summary>
     internal static RidleyTailSegment[] CreateInitialRidleyTailSegments()
     {
         // Each successive link begins one ideal angular separation beyond its predecessor.
@@ -380,7 +370,6 @@ internal sealed class RidleyTail
         state.IdealInterSegmentTailAngle = (ushort)((random & 0x000f) + 7 + 1);
     }
 
-    /// <summary>Resolves ridley tail samus contact.</summary>
     internal bool ResolveRidleyTailSamusContact(SamusState samus)
     {
         RoomEnemySlot body = _slotTable._slots[0];
@@ -400,7 +389,6 @@ internal sealed class RidleyTail
         return true;
     }
 
-    /// <summary>Ridley tail touches terrain.</summary>
     internal static bool RidleyTailTouchesTerrain(
         RidleyEnemyState state,
         RoomLevelData? level)
@@ -470,7 +458,6 @@ internal sealed class RidleyTail
             projectiles);
     }
 
-    /// <summary>Attempts to block projectile at ridley tail joint.</summary>
     private bool TryBlockProjectileAtRidleyTailJoint(
         RidleyTailSegment joint,
         ushort radius,
@@ -540,7 +527,6 @@ internal sealed class RidleyTail
             state.TailFunctionIndex = RidleyTailFunction.Stab;
     }
 
-    /// <summary>Handles ridley pogo tail control.</summary>
     private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, bool stabbing)
     {
         if (state.TailSegments.All(segment => segment.Active) &&

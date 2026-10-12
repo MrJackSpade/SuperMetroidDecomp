@@ -7,10 +7,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy tile artwork phantoon colors verification.</summary>
 internal static class EnemyTileArtworkPhantoonColorsVerification
 {
-    /// <summary>Verifies installed phantoon colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon palette bands")]
     internal static void VerifyInstalledPhantoonColors(

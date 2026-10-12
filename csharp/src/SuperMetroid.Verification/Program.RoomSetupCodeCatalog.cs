@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RoomMainCodeCatalogVerification;
 
-/// <summary>Represents room setup code catalog verification.</summary>
 internal static class RoomSetupCodeCatalogVerification
 {
     /// <summary>

@@ -18,10 +18,8 @@ public static class RoomPlmGrappleBlockVisualFiles
     public const string VisualFileName = "grapple-blocks.json";
     /// <summary>Stock manifest filename recording format version one, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
-    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 1;
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -106,7 +104,6 @@ public static class RoomPlmGrappleBlockVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    /// <summary>Reads and verify native.</summary>
     private static RoomPlmGrappleBlockVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmGrappleBlockVisualEntry>();
@@ -130,7 +127,6 @@ public static class RoomPlmGrappleBlockVisualFiles
         return entries.ToArray();
     }
 
-    /// <summary>Creates catalog.</summary>
     private static RoomPlmGrappleBlockVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -145,10 +141,8 @@ public static class RoomPlmGrappleBlockVisualFiles
         }
     }
 
-    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
-    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -162,9 +156,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         }
     }
 
-    /// <summary>Represents visual manifest.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
-    /// <summary>Represents visual document.</summary>
     private sealed record VisualDocument(int Version, RoomPlmGrappleBlockVisualEntry[] Entries);
 }

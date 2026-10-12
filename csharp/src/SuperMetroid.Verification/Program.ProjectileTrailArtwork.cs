@@ -20,10 +20,8 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents projectile trail artwork verification.</summary>
 internal static class ProjectileTrailArtworkVerification
 {
-    /// <summary>verify projectile trail artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program and frame attribute words")]
     internal static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
@@ -134,7 +132,6 @@ internal static class ProjectileTrailArtworkVerification
         static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
     }
 
-    /// <summary>draw native trail frame.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for trail frame")]
     private static void DrawNativeTrailFrame(ISnesAddressSpace rom,
         SamusProjectileTrailSlot pair, OamBuffer oam, bool frozen)
@@ -175,7 +172,6 @@ internal static class ProjectileTrailArtworkVerification
                     side.TileNumberAttributes);
         }
     }
-    /// <summary>verify runtime trail binding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
@@ -236,7 +232,6 @@ internal static class ProjectileTrailArtworkVerification
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");
     }
-    /// <summary>verify trail mutable alias.</summary>
     internal static void VerifyTrailMutableAlias()
     {
         var mirror = new TrailMutableMirrorBus();
@@ -246,21 +241,16 @@ internal static class ProjectileTrailArtworkVerification
         Console.WriteLine("Projectile trail low-bank alias: two typed WRAM reads, no generic bus read.");
     }
 
-    /// <summary>Represents trail mutable mirror bus.</summary>
     [CpuBusBoundary("exact bus test: witnesses that a bank-$90 low-half trail word is read as two typed WRAM mirror bytes")]
     internal sealed class TrailMutableMirrorBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        /// <summary>Gets or sets work ram reads.</summary>
         public int WorkRamReads { get; private set; }
 
-        /// <summary>read cartridge byte.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        /// <summary>read byte.</summary>
         public static byte ReadByte(int address) =>
             throw new InvalidOperationException($"Untyped trail read at ${address:X6}.");
 
-        /// <summary>read work ram byte.</summary>
         public byte ReadWorkRamByte(int address)
         {
             WorkRamReads++;
@@ -272,16 +262,13 @@ internal static class ProjectileTrailArtworkVerification
             };
         }
 
-        /// <summary>read save ram byte.</summary>
         public byte ReadSaveRamByte(int address) =>
             throw new InvalidOperationException($"Unexpected trail SRAM read ${address:X6}.");
 
-        /// <summary>write byte.</summary>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException($"Unexpected trail write ${address:X6}.");
     }
 
-    /// <summary>projectile trail artwork fixture command.</summary>
     [VerificationCommand("--projectile-trail-artwork-fixture")]
     internal static int ProjectileTrailArtworkFixtureCommand()
     {
@@ -290,7 +277,6 @@ internal static class ProjectileTrailArtworkVerification
         return 0;
     }
 
-    /// <summary>trail mutable alias command.</summary>
     [VerificationCommand("--trail-mutable-alias")]
     internal static int TrailMutableAliasCommand()
     {

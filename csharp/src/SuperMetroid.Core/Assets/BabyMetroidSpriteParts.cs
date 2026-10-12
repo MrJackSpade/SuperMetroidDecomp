@@ -5,16 +5,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Exact bilateral composition of the three native Baby poses; independent half-artwork and drawing order remain required.</summary>
 internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
 {
-    /// <summary>Stores half parts.</summary>
     private readonly EnemySpritemapPart[] halfParts;
-    /// <summary>Stores drawing order.</summary>
     private readonly sbyte[] drawingOrder;
-    /// <summary>Stores shared body.</summary>
     private readonly BabyMetroidSpriteParts? sharedBody;
-    /// <summary>Stores half selections.</summary>
     private readonly sbyte[]? halfSelections;
 
-    /// <summary>Initializes a new baby metroid sprite parts instance.</summary>
     private BabyMetroidSpriteParts(EnemySpritemapPart[] halfParts, sbyte[] drawingOrder,
         BabyMetroidSpriteParts? sharedBody = null, sbyte[]? halfSelections = null)
     {
@@ -23,9 +18,7 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         this.sharedBody = sharedBody;
         this.halfSelections = halfSelections;
     }
-    /// <summary>Gets count.</summary>
     public override int Count => drawingOrder.Length;
-    /// <summary>Gets an indexed value.</summary>
     public override EnemySpritemapPart this[int index]
     {
         get
@@ -36,7 +29,6 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         }
     }
 
-    /// <summary>Compile.</summary>
     internal static EnemySpritemapParts Compile(int identity, EnemySpritemapPart[] supplied, ref BabyMetroidSpriteParts? bodyTemplate)
     {
         int offset = identity - BabyMetroidCompositionDefinitions.FirstPose;
@@ -86,7 +78,6 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         return new BabyMetroidSpriteParts(local.ToArray(), order, bodyTemplate, selections);
     }
 
-    /// <summary>Half part.</summary>
     private EnemySpritemapPart HalfPart(int index)
     {
         if (halfSelections is null) return halfParts[index];
@@ -97,7 +88,6 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
         return (shared & 1) == 0 ? part : Reflect(part);
     }
 
-    /// <summary>Reflect.</summary>
     private static EnemySpritemapPart Reflect(EnemySpritemapPart part)
     {
         int size = part.X.IsLarge ? 16 : 8;

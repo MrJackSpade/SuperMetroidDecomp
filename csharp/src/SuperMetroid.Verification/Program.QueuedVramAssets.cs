@@ -4,7 +4,6 @@ using SuperMetroid.Desktop;
 using static AssertionsVerification;
 using static MapPresentationVerification;
 
-/// <summary>Represents queued vram assets verification.</summary>
 internal static class QueuedVramAssetsVerification
 {
     /// <summary>Places <paramref name="data"/> at the $7E:0000 A-bus source the queued DMA records name.</summary>
@@ -16,7 +15,6 @@ internal static class QueuedVramAssetsVerification
         return bus;
     }
 
-    /// <summary>verify queued vram assets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyQueuedVramAssets()
     {
@@ -71,10 +69,8 @@ internal static class QueuedVramAssetsVerification
         Console.WriteLine("VRAM assets: native port/stride/wrap parity, mixed ordering, capacity, late-bound state restore and strict errors pass.");
     }
 
-    /// <summary>Represents test vram assets.</summary>
     internal sealed class TestVramAssets(byte[] bytes) : IVramAssetProvider
     {
-        /// <summary>resolve.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset == VramAssetId.StandardHudTiles
             ? bytes : throw new InvalidDataException($"Unknown test asset {asset}.");
     }

@@ -16,10 +16,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static GraphDigestVerification;
 
-/// <summary>Represents grapple sprite artwork verification.</summary>
 internal static class GrappleSpriteArtworkVerification
 {
-    /// <summary>verify grapple sprite artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple endpoint and segment OBJ attributes")]
     internal static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
@@ -105,7 +103,6 @@ internal static class GrappleSpriteArtworkVerification
         }
     }
 
-    /// <summary>grapple sprite artwork command.</summary>
     [VerificationCommand("--grapple-sprite-artwork")]
     internal static int GrappleSpriteArtworkCommand()
     {

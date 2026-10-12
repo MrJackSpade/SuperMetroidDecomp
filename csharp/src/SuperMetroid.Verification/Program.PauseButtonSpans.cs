@@ -2,10 +2,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents pause button spans verification.</summary>
 internal static class PauseButtonSpansVerification
 {
-    /// <summary>verify pause button span words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span words")]
     internal static void VerifyPauseButtonSpanWords(ISnesAddressSpace rom)
     {
@@ -31,7 +29,6 @@ internal static class PauseButtonSpansVerification
                 "unsupported button row");
     }
 
-    /// <summary>verify pause button span counts.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span counts")]
     internal static void VerifyPauseButtonSpanCounts(ISnesAddressSpace rom)
     {

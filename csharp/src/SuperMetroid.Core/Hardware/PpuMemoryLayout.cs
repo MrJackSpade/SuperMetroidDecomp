@@ -72,7 +72,6 @@ public static class PpuMemoryLayout
     /// <summary>CGADD $F0-$FF: OBJ palette 7.</summary>
     public static readonly PpuLayoutCell ObjPalette7 = Row(nameof(ObjPalette7), 15, ObjectPalettes);
 
-    /// <summary>Stores rows.</summary>
     private static readonly PpuLayoutCell[] Rows =
     [
         BgPalette0, BgPalette1, BgPalette2, BgPalette3, BgPalette4, BgPalette5, BgPalette6, BgPalette7,
@@ -93,11 +92,9 @@ public static class PpuMemoryLayout
         return new PpuLayoutCell(name, PpuLayoutRegion.Cgram, first, count, encoding, container);
     }
 
-    /// <summary>Row.</summary>
     private static PpuLayoutCell Row(string name, int row, PpuLayoutCell bank) =>
         new(name, PpuLayoutRegion.Cgram, row * ColorsPerRow, ColorsPerRow, "Bgr555 4-bpp palette row", bank);
 
-    /// <summary>Covers.</summary>
     private static bool Covers(PpuLayoutCell outer, int first, int count) =>
         outer.Offset <= first && first + count <= outer.Offset + outer.Count;
 }

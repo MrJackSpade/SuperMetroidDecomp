@@ -4,9 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>One mutable instance belongs to the encounter. Setup progress and deletion persist for its lifetime; the separate wavy-scroll owner and palette colors are not modified here.</remarks>
 public sealed class PhantoonBlendingState
 {
-    /// <summary>Stores setup calls.</summary>
     private int _setupCalls;
-    /// <summary>Stores deleted.</summary>
     private bool _deleted;
     /// <summary>Current HDMA-pass result: room default, $04 with BG2 hidden, or $1A with BG2 added on the subscreen; not necessarily the displayed result.</summary>
     public LayerBlendingConfiguration Configuration { get; private set; } = LayerBlendingConfiguration.Unconfigured;

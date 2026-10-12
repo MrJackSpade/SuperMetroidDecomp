@@ -20,7 +20,6 @@ using static RetailRuntimeFixtureVerification;
 using static SamusHudSelectionVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents murder beam verification.</summary>
 internal static class MurderBeamVerification
 {
     /// <summary>
@@ -161,7 +160,6 @@ internal static class MurderBeamVerification
             "and Ice substitution match bounded cartridge evidence.");
     }
 
-    /// <summary>Hold charge.</summary>
     private static void HoldCharge(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -182,7 +180,6 @@ internal static class MurderBeamVerification
             projectiles.Charge.FlareCounter, "pre-pause beam charge reaches charged threshold");
     }
 
-    /// <summary>Verifies unsafe murder beam direction.</summary>
     private static void VerifyUnsafeMurderBeamDirection(
         ISnesAddressSpace bus,
         RoomLevelData level)
@@ -205,7 +202,6 @@ internal static class MurderBeamVerification
         }, "unsafe right-facing Murder Beam does not silently become an ordinary projectile");
     }
 
-    /// <summary>Verifies missile auto cancel murder beam.</summary>
     private static void VerifyMissileAutoCancelMurderBeam(
         ISnesAddressSpace bus,
         RoomLevelData level)
@@ -248,7 +244,6 @@ internal static class MurderBeamVerification
             "missile auto-cancel alternative produces Murder Beam");
     }
 
-    /// <summary>Verifies unsafe uncharged murder beam.</summary>
     private static void VerifyUnsafeUnchargedMurderBeam(
         ISnesAddressSpace bus,
         RoomLevelData level)
@@ -263,7 +258,6 @@ internal static class MurderBeamVerification
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }
 
-    /// <summary>Murder beam command.</summary>
     [VerificationCommand("--murder-beam")]
     internal static int MurderBeamCommand()
     {

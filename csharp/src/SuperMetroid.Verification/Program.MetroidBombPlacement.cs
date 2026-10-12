@@ -14,10 +14,8 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents metroid bomb placement verification.</summary>
 internal static class MetroidBombPlacementVerification
 {
-    /// <summary>Verifies metroid bomb placement.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Metroid post-bomb escape jitter table")]
     internal static void VerifyMetroidBombPlacement()
     {
@@ -74,7 +72,6 @@ internal static class MetroidBombPlacementVerification
         }
     }
 
-    /// <summary>Verifies metroid bomb runtime.</summary>
     private static void VerifyMetroidBombRuntime(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         // Use the dry-floor setup from the full-alpha native capture, not the
@@ -140,7 +137,6 @@ internal static class MetroidBombPlacementVerification
         }
     }
 
-    /// <summary>Metroid bomb placement command.</summary>
     [VerificationCommand("--metroid-bomb-placement")]
     internal static int MetroidBombPlacementCommand()
     {

@@ -15,7 +15,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 
-/// <summary>Represents rinka instruction program definitions verification.</summary>
 internal static class RinkaInstructionProgramDefinitionsVerification
 {
     /// <summary>
@@ -116,7 +115,6 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             "forbidden.");
     }
 
-    /// <summary>Runs rinka program.</summary>
     private static (RoomEnemySystem System, RoomEnemySlot Rinka) RunRinkaProgram(
         CartridgeReadGuard bus,
         ushort initialPointer,
@@ -149,7 +147,6 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         return (enemies, rinka);
     }
 
-    /// <summary>Creates rinka instruction read guard.</summary>
     private static CartridgeReadGuard NewRinkaInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(RinkaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -157,7 +154,6 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             .ObserveWords(0xa20000, RinkaInstructionProgramDefinitions.PresentationWordCount,
                 RinkaInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Rinka instruction mechanics command.</summary>
     [VerificationCommand("--rinka-instruction-mechanics")]
     internal static int RinkaInstructionMechanicsCommand()
     {

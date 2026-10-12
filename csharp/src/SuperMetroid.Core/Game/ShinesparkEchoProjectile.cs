@@ -1,16 +1,13 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Shinespark echo projectile: its spawn and per-frame step.</summary>
 internal sealed class ShinesparkEchoProjectile
 {
-    /// <summary>Stores animation.</summary>
     private readonly ProjectileAnimation _animation;
-    /// <summary>Stores slot table.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
-    /// <summary>Initializes a new shinespark echo projectile instance.</summary>
     internal ShinesparkEchoProjectile(ProjectileAnimation animation, ProjectileSlotTable slotTable)
     {
         _animation = animation;

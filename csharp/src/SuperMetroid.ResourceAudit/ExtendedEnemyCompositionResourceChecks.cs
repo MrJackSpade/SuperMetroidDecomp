@@ -7,7 +7,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms a statically identified extended-frame omission through the production loader.</summary>
 internal static class ExtendedEnemyCompositionResourceChecks
 {
-    /// <summary>Runs.</summary>
     internal static void Run(string family, EnemyExtendedFrameDefinition[] selected,
         int previousVersion, int previousCount)
     {
@@ -41,7 +40,6 @@ internal static class ExtendedEnemyCompositionResourceChecks
         Console.WriteLine($"{family}: {selected.Length} extended compositions load; legacy component edits and bindings survive; old stock is rejected.");
     }
 
-    /// <summary>Component.</summary>
     internal static EnemyExtendedVisualComponent Component(int x) => new()
     {
         OffsetX = x, OffsetY = -x,
@@ -52,7 +50,6 @@ internal static class ExtendedEnemyCompositionResourceChecks
         }],
     };
 
-    /// <summary>Creates document.</summary>
     internal static EnemyExtendedFrameDocument CreateDocument()
     {
         var expected = EnemyExtendedFrameDefinitions.Frames.ToArray();
@@ -65,13 +62,11 @@ internal static class ExtendedEnemyCompositionResourceChecks
         };
     }
 
-    /// <summary>Loads.</summary>
     internal static EnemyExtendedFrameCatalog Load(EnemyExtendedFrameDocument document,
         EnemyExtendedFrameCatalog? stock = null) => EnemyExtendedFrameCatalog.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 
-    /// <summary>Confirm.</summary>
     private static void Confirm(EnemyExtendedFrameCatalog catalog, EnemyExtendedFrameDefinition frame)
     {
         Require(catalog.TryGetDisplay(frame.Bank, frame.Pointer, out var components),
@@ -81,7 +76,6 @@ internal static class ExtendedEnemyCompositionResourceChecks
             "the selected component offsets and OAM pieces must be preserved");
     }
 
-    /// <summary>Requires.</summary>
     internal static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidOperationException("Extended composition contract failed: " + message);

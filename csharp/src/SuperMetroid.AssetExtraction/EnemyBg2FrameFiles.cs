@@ -14,7 +14,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM extended-enemy $FFFE BG2 tilemap streams → enemy BG2 frame files")]
 internal static class EnemyBg2FrameFiles
 {
-    /// <summary>Extract.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus, byte bank,
         EnemyBg2FrameDefinitionSequence definitions, int version,
         int maximumComponents, string family, bool allowMixedOam = false)

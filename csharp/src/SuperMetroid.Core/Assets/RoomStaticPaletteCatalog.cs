@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Complete immutable set of compiled base room palettes for every graphics set.</summary>
 public sealed class RoomStaticPaletteCatalog
 {
-    /// <summary>Stores by source.</summary>
     private readonly Dictionary<int, RoomStaticPalette> bySource;
 
     /// <summary>Copies the palette lookup and requires a nonnull compiled palette for every retail graphics-set source.</summary>

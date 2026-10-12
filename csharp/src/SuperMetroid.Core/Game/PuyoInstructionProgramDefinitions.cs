@@ -29,7 +29,6 @@ internal abstract class PuyoInstructionProgramDefinitions
 
     /// <summary><c>InstList_Puyo_HoppingRight_4_HoppingLeft_0</c> at $A2:9A01.</summary>
     internal const ushort RightFrame4LeftFrame0 = 0x9a01;
-    /// <summary>Indicates whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - GroundedFast;
@@ -48,7 +47,6 @@ internal abstract class PuyoInstructionProgramDefinitions
         Slow,
     }
 
-    /// <summary>Grounded loop at.</summary>
     private static GroundedLoop GroundedLoopAt(int ordinal) => ordinal switch
     {
         0 => GroundedLoop.Fast,
@@ -57,7 +55,6 @@ internal abstract class PuyoInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "Puyo has three grounded loops."),
     };
 
-    /// <summary>Starts of.</summary>
     private static ushort StartOf(GroundedLoop loop) => loop switch
     {
         GroundedLoop.Fast => GroundedFast,
@@ -66,7 +63,6 @@ internal abstract class PuyoInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(GroundedLoop)} {(int)loop}."),
     };
 
-    /// <summary>Frame duration of.</summary>
     private static ushort FrameDurationOf(GroundedLoop loop) => loop switch
     {
         GroundedLoop.Fast => 5,
@@ -75,7 +71,6 @@ internal abstract class PuyoInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(GroundedLoop)} {(int)loop}."),
     };
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - GroundedFast;

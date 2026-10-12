@@ -199,7 +199,6 @@ public static class SoftwareLayeredSnapshotRenderer
         return output;
     }
 
-    /// <summary>sample subscreen.</summary>
     private static Rgba32[] SampleSubscreen(SoftwarePpuSnapshotMemory memory, RenderScratch scratch,
         BgSubscreenAddRenderLayer layer, bool? priority)
     {
@@ -217,7 +216,6 @@ public static class SoftwareLayeredSnapshotRenderer
                 unchecked((byte)(x + layer.Scrolls[y].X))];
         return result;
     }
-    /// <summary>add fixed.</summary>
     private static byte AddFixed(byte component, byte addend)
     {
         int reduced = (component * 31 + 127) / 255;
@@ -225,7 +223,6 @@ public static class SoftwareLayeredSnapshotRenderer
         return (byte)((sum << 3) | (sum >> 2));
     }
 
-    /// <summary>subtract.</summary>
     private static byte Subtract(byte main, byte sub)
     {
         int difference = Math.Max(0, (main >> 3) - (sub >> 3));

@@ -11,32 +11,19 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class AttractDemoDriver
 {
-    /// <summary>Stores artwork.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Stores attract session.</summary>
     private readonly AttractDemoSession _attractSession;
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
-    /// <summary>Stores controller1.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores hud setup.</summary>
     private readonly GameplayHudSetup _hudSetup;
-    /// <summary>Stores nmi handler.</summary>
     private readonly NmiHandler _nmiHandler;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores room loader.</summary>
     private readonly RoomLoader _roomLoader;
-    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new attract demo driver instance.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -52,10 +39,8 @@ internal sealed class AttractDemoDriver
         _system = dependencies.System;
         _addressSpace = dependencies.AddressSpace;
     }
-    /// <summary>Gets is attract demo.</summary>
     internal bool IsAttractDemo => _attractSession.IsAttractDemo;
 
-    /// <summary>begin attract samus input.</summary>
     internal void BeginAttractSamusInput()
     {
         if (_attractSession.Input is null) return;
@@ -66,7 +51,6 @@ internal sealed class AttractDemoDriver
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }
 
-    /// <summary>restore attract player input.</summary>
     internal void RestoreAttractPlayerInput()
     {
         _attractSession.InputRestore?.Dispose();
@@ -130,7 +114,6 @@ internal sealed class AttractDemoDriver
         _attractSession.Input = new AttractDemoInput(scene);
     }
 
-    /// <summary>apply attract samus setup.</summary>
     private void ApplyAttractSamusSetup(AttractDemoSamusSetup pointer)
     {
         var samus = _player.Samus ?? throw new InvalidOperationException("Demo setup requires Samus.");
@@ -165,7 +148,6 @@ internal sealed class AttractDemoDriver
         }
     }
 
-    /// <summary>apply attract room setup.</summary>
     private void ApplyAttractRoomSetup(AttractDemoRoomSetup pointer)
     {
         switch (pointer)

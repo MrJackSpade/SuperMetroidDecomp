@@ -21,7 +21,6 @@ internal static class ExtendedHitboxWalker
         return found;
     }
 
-    /// <summary>Value.</summary>
     private static T Value<T>(object?[] arguments, int index) where T : struct => arguments[index] switch
     {
         null => default,

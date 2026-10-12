@@ -374,7 +374,6 @@ using static XrayWindowGeometryVerification;
 using static YappingMawGrappleReleaseVerification;
 using static ZebesEscapeFadeVerification;
 using static ZeroDistanceJumpContactVerification;
-/// <summary>Represents full run suites verification.</summary>
 internal static class FullRunSuitesVerification
 {
     /// <summary>One outermost suite of the full no-argument run.</summary>

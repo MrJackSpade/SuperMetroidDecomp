@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents enemy breakable terrain definitions verification.</summary>
 internal static class EnemyBreakableTerrainDefinitionsVerification
 {
-    /// <summary>Verifies enemy breakable terrain definitions.</summary>
     internal static void VerifyEnemyBreakableTerrainDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 16; index++)

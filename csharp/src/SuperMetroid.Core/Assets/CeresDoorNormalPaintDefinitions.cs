@@ -13,19 +13,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorNormalPaintDefinitions
 {
-    /// <summary>Stores maximum channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
-    /// <summary>Stores highlight blue tint.</summary>
     private const int HighlightBlueTint = 14;
 
-    /// <summary>Gets warm targets.</summary>
     internal CeresDoorWarmTargetPaintDefinitions WarmTargets { get; }
-    /// <summary>Stores paint.</summary>
     private readonly Dictionary<int, int> paint = [];
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new ceres door normal paint definitions instance.</summary>
     internal CeresDoorNormalPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 15);
@@ -38,7 +32,6 @@ internal sealed class CeresDoorNormalPaintDefinitions
             if (Calculate(slot) != colors[slot - 1]) edits.Add(slot, colors[slot - 1]);
     }
 
-    /// <summary>Stores paint.</summary>
     private static bool StoresPaint(int slot, ColorChannel channel) => channel switch
     {
         ColorChannel.Red => false,
@@ -47,10 +40,8 @@ internal sealed class CeresDoorNormalPaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, "Undefined color channel."),
     };
 
-    /// <summary>Seed.</summary>
     private int Seed(int slot, ColorChannel channel) => paint[slot * 3 + (int)channel];
 
-    /// <summary>Color at.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 15) throw new IndexOutOfRangeException();
@@ -58,7 +49,6 @@ internal sealed class CeresDoorNormalPaintDefinitions
         return edits.TryGetValue(slot, out Bgr555 color) ? color : Calculate(slot);
     }
 
-    /// <summary>Calculates.</summary>
     private Bgr555 Calculate(int slot)
     {
         if (slot is >= 9 and <= 14) return WarmTargets.ColorAt(slot - 9);

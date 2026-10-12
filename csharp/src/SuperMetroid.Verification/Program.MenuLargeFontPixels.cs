@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MenuFontEvidenceVerification;
 
-/// <summary>Represents menu large font pixels verification.</summary>
 internal static class MenuLargeFontPixelsVerification
 {
-    /// <summary>Verifies menu large font pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu large font pixels")]
     internal static void VerifyMenuLargeFontPixels(ISnesAddressSpace rom)

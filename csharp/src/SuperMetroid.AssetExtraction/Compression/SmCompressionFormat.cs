@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Lossless decoder for one Super Metroid compressed-stream command header.</summary>
 public readonly record struct SmCompressionHeader
 {
-    /// <summary>Initializes a new sm compression header instance.</summary>
     private SmCompressionHeader(byte firstByte, byte? secondByte)
     {
         FirstByte = firstByte;
@@ -80,7 +79,6 @@ public readonly record struct SmCompressionHeader
         _ => throw UndefinedCommand(Command),
     };
 
-    /// <summary>undefined command.</summary>
     private static ArgumentOutOfRangeException UndefinedCommand(SmCompressionCommand command) =>
         new(nameof(command), command, $"Undefined compression command ${(byte)command:X2}.");
 

@@ -29,14 +29,10 @@ public sealed class PhantoonColorCatalog
             content.AppendColorFrames("healthBands", frames);
         });
 
-    /// <summary>Stores health edits.</summary>
     private readonly Dictionary<int, Bgr555> healthEdits = [];
-    /// <summary>Stores fade out edits.</summary>
     private readonly Dictionary<int, Bgr555> fadeOutEdits = [];
-    /// <summary>Stores power edits.</summary>
     private readonly Dictionary<int, Bgr555> powerEdits = [];
 
-    /// <summary>Initializes a new phantoon color catalog instance.</summary>
     private PhantoonColorCatalog(Bgr555[][] healthBands, Bgr555[] fadeOut, Bgr555[] powerOn)
     {
         for (int band = 0; band < healthBands.Length; band++)
@@ -49,7 +45,6 @@ public sealed class PhantoonColorCatalog
             if (powerOn[color] != WreckedShipPowerPaintDefinitions.Color(color)) powerEdits.Add(color, powerOn[color]);
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -127,14 +122,12 @@ public sealed class PhantoonColorCatalog
         return bytes;
     }
 
-    /// <summary>Checks band.</summary>
     private static int CheckBand(int band) =>
         (uint)band < PhantoonColorRomData.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
 
-    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -152,7 +145,6 @@ public sealed class PhantoonColorCatalog
         return compiled;
     }
 
-    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Phantoon color property {name}."));

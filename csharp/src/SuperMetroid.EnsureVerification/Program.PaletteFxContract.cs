@@ -8,7 +8,6 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-/// <summary>Represents palette fx contract tests.</summary>
 internal static class PaletteFxContractTests
 {
     /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
@@ -66,7 +65,6 @@ internal static class PaletteFxContractTests
         Console.WriteLine("#1152: eight compiler dependency contracts and pre-mutation null guard pass; no gameplay search.");
     }
 
-    /// <summary>verify palette call.</summary>
     private static void VerifyPaletteCall(string description, string statement, string? expectedError = null)
     {
         string source = $$"""
@@ -94,10 +92,8 @@ internal static class PaletteFxContractTests
                 $"{description}: expected {expectedError ?? "successful compilation"}; got {string.Join("; ", errors.Select(error => error.ToString()))}");
     }
 
-    /// <summary>Represents contract palette colors.</summary>
     internal sealed class ContractPaletteColors : IPaletteFxColorSource
     {
-        /// <summary>try read color.</summary>
         public bool TryReadColor(ushort pointer, out Bgr555 color)
         {
             color = new Bgr555(31, 0, 0); // Constructed red confirms the first native frame executes after the rejection.

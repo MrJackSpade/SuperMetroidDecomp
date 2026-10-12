@@ -31,7 +31,6 @@ internal static class AreaAnimatedTileObjectDefinitions
             : AnimatedTileObject.Empty,
     };
 
-    /// <summary>Selects area object.</summary>
     private static AnimatedTileObject SelectAreaObject(AreaId area, int bit) => (area, bit) switch
     {
         (AreaId.Crateria, 2) => AnimatedTileObject.CrateriaLake,

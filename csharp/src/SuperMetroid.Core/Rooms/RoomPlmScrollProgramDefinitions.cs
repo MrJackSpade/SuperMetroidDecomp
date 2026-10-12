@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Rooms;
 internal static partial class RoomPlmScrollProgramDefinitions
 {
 
-    /// <summary>Apply.</summary>
     internal static void Apply(ushort pointer, Action<int, RoomScrollState> write)
     {
         Ensure.NotNull(write);

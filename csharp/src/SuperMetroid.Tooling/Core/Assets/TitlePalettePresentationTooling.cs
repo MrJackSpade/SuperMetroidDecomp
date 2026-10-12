@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -10,13 +10,10 @@ internal static class TitlePalettePresentationTooling
     /// <summary>Installed ambient-color identities for the development dependency auditor.</summary>
     internal static IReadOnlyCollection<ushort> ColorPointers => new AmbientPointerSequence();
 
-    /// <summary>Represents ambient pointer sequence.</summary>
     internal sealed class AmbientPointerSequence : IReadOnlyCollection<ushort>
     {
-        /// <summary>Gets count.</summary>
         public int Count => TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All.Sum(
             program => program.FrameCount * program.ColorsPerFrame);
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             foreach (var program in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
@@ -24,7 +21,6 @@ internal static class TitlePalettePresentationTooling
             for (int index = 0; index < program.ColorsPerFrame; index++)
                 yield return (ushort)(program.FramePointer(frame) + sizeof(ushort) * (index + 1));
         }
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

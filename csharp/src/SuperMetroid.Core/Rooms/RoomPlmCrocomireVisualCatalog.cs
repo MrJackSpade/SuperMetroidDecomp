@@ -30,7 +30,6 @@ public sealed class RoomPlmCrocomireVisualCatalog
         }
     });
 
-    /// <summary>Stores custom words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates all five Crocomire arena layouts and copies visual differences without changing physical level words, run geometry, or PLM programs.</summary>

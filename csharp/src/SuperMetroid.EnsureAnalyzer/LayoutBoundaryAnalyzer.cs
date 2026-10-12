@@ -31,7 +31,6 @@ public abstract class LayoutBoundaryAnalyzer(
         context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
     }
 
-    /// <summary>analyze operation.</summary>
     private void AnalyzeOperation(OperationAnalysisContext context)
     {
         ISymbol? target = context.Operation switch
@@ -51,7 +50,6 @@ public abstract class LayoutBoundaryAnalyzer(
             $"{target.ContainingType?.Name}.{(target is IMethodSymbol { MethodKind: MethodKind.Constructor } ? "ctor" : target.Name)}"));
     }
 
-    /// <summary>analyze type.</summary>
     private void AnalyzeType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -104,7 +102,6 @@ public abstract class LayoutBoundaryAnalyzer(
         return false;
     }
 
-    /// <summary>has attribute.</summary>
     private static bool HasAttribute(ISymbol symbol, string name) =>
         symbol.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == name);
 }

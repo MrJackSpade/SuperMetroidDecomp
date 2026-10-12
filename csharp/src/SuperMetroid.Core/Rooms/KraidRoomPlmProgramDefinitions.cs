@@ -97,7 +97,6 @@ internal static class KraidRoomPlmProgramDefinitions
         ClearSpikesDelete = ClearSpikes + 4,
     }
 
-    /// <summary>Crumble word.</summary>
     private static ushort CrumbleWord(int word, ushort finalDraw, ushort afterDraw) => word switch
     {
         0 or 2 or 4 or 6 => CrumbleFrameDuration,
@@ -109,7 +108,6 @@ internal static class KraidRoomPlmProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
-    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == CrumbleSpikes + 2)

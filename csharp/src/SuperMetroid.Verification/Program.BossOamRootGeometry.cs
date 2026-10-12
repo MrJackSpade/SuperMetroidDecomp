@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents boss oam root geometry verification.</summary>
 internal static class BossOamRootGeometryVerification
 {
-    /// <summary>Verifies ridley oam root geometry.</summary>
     internal static void VerifyRidleyOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
@@ -17,7 +15,6 @@ internal static class BossOamRootGeometryVerification
             index => index == 10 ? 1 : 4));
     }
 
-    /// <summary>Verifies draygon oam root geometry.</summary>
     internal static void VerifyDraygonOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
@@ -35,7 +32,6 @@ internal static class BossOamRootGeometryVerification
             index => components[index % 24]));
     }
 
-    /// <summary>Verifies spore spawn oam root geometry.</summary>
     internal static void VerifySporeSpawnOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
@@ -48,7 +44,6 @@ internal static class BossOamRootGeometryVerification
 
     // Expected roots were captured from the published catalog before conversion;
     // native count words independently confirm the record geometry behind the strides.
-    /// <summary>Verifies boss oam roots.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for boss OAM roots")]
     private static void VerifyBossOamRoots(SuperMetroidAddressSpace rom, byte bank,
         ushort[] expected, Func<int, ushort> actual, Func<int, int> componentCount)

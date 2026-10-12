@@ -9,7 +9,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmProgramDefinitions
 {
-    /// <summary>try read word.</summary>
     internal static bool TryReadWord(ushort address, out ushort value) =>
         RoomPlmBombBlockProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
         RoomPlmContactCrumbleProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
@@ -51,7 +50,6 @@ internal static class RoomPlmProgramDefinitions
         EyeDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MotherBrainEscapeGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value);
 
-    /// <summary>try read byte.</summary>
     internal static bool TryReadByte(ushort address, out byte value) =>
         EscapeAnimalPlmProgramDefinitions.TryReadByte(address, out value) ||
         SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||

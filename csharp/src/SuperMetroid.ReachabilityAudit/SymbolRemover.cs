@@ -14,7 +14,6 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </summary>
 internal static class SymbolRemover
 {
-    /// <summary>Remove.</summary>
     public static void Remove(LoadedSolution solution, ReachabilityResult result, IReadOnlySet<string> categories,
         string? pathPrefix, string retiredFieldsPath) =>
         Remove(solution, ReachabilityFindings.Classify(result)
@@ -210,7 +209,6 @@ internal static class SymbolRemover
         return string.Join(newline, lines);
     }
 
-    /// <summary>Stores removal.</summary>
     private static readonly SyntaxAnnotation Removal = new("reachability-removal");
 
     /// <summary>Surviving enum members without an initializer that follow a removed member, with their constant value.</summary>
@@ -235,7 +233,6 @@ internal static class SymbolRemover
         return survivors;
     }
 
-    /// <summary>Removal node.</summary>
     private static SyntaxNode RemovalNode(SyntaxNode node, SemanticModel model, SymbolIdentity identity, HashSet<string> targets)
     {
         if (node is not VariableDeclaratorSyntax { Parent: VariableDeclarationSyntax declaration } || declaration.Parent is not BaseFieldDeclarationSyntax field)

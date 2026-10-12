@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
@@ -11,10 +11,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class DeadMonsterFrame
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
 
-    /// <summary>Initializes a new dead monster frame instance.</summary>
     internal DeadMonsterFrame(EnemyRoomBinding room)
     {
         _room = room;
@@ -33,15 +31,12 @@ internal sealed class DeadMonsterFrame
         LastSoundEffect = null;
     }
 
-    /// <summary>Reads work word.</summary>
     internal ushort ReadWorkWord(int wordOffset) =>
         _room.Scratch.CorpseTiles.ReadWord(wordOffset * 2);
 
-    /// <summary>Writes work word.</summary>
     internal void WriteWorkWord(int wordOffset, ushort value) =>
         _room.Scratch.CorpseTiles.WriteWord(wordOffset * 2, value);
 
-    /// <summary>Appends vram transfers.</summary>
     internal void AppendVramTransfers(ushort vramTablePointer)
     {
         foreach (DeadMonsterVramTransferDefinition record in

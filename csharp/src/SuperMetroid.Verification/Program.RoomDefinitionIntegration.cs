@@ -16,13 +16,10 @@ using static DoorDefinitionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static RoomMainCodeCatalogVerification;
 
-/// <summary>Represents room definition integration verification.</summary>
 internal static class RoomDefinitionIntegrationVerification
 {
-    /// <summary>Stores post ceres landing maximum frames.</summary>
     internal const int PostCeresLandingMaximumFrames = 700;
 
-    /// <summary>Verifies compiled room definition integration.</summary>
     internal static void VerifyCompiledRoomDefinitionIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -97,7 +94,6 @@ internal static class RoomDefinitionIntegrationVerification
             $"remain unread through production entry and {frames} Landing Site camera frames.");
     }
 
-    /// <summary>Initializes post ceres landing.</summary>
     private static InitialViewportResult InitializePostCeresLanding(
         SuperMetroidRuntime runtime)
     {
@@ -108,7 +104,6 @@ internal static class RoomDefinitionIntegrationVerification
         return runtime.RoomLoader.InitializePostCeresZebesRoom();
     }
 
-    /// <summary>Builds compiled room definition address set.</summary>
     private static HashSet<int> BuildCompiledRoomDefinitionAddressSet(
         ISnesAddressSpace source)
     {
@@ -189,18 +184,15 @@ internal static class RoomDefinitionIntegrationVerification
         return forbidden;
     }
 
-    /// <summary>Adds address range.</summary>
     private static void AddAddressRange(HashSet<int> addresses, int start, int count)
     {
         for (int offset = 0; offset < count; offset++)
             addresses.Add(start + offset);
     }
 
-    /// <summary>Creates definition address collecting bus.</summary>
     private static CartridgeReadGuard NewDefinitionAddressCollectingBus(ISnesAddressSpace source, HashSet<int> addresses) =>
         new CartridgeReadGuard(source).Observe(_ => true, address => addresses.Add(address));
 
-    /// <summary>Creates compiled room definition read guard.</summary>
     private static MutableCartridgeReadGuard NewCompiledRoomDefinitionReadGuard(ISnesAddressSpace source, HashSet<int> forbidden)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -209,7 +201,6 @@ internal static class RoomDefinitionIntegrationVerification
         return guard;
     }
 
-    /// <summary>Room definition integration command.</summary>
     [VerificationCommand("--room-definition-integration")]
     internal static int RoomDefinitionIntegrationCommand()
     {

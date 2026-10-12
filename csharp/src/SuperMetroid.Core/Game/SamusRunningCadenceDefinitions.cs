@@ -98,7 +98,6 @@ internal static class SamusRunningCadenceDefinitions
         SoundQueueStageFiveReset = SoundQueueStageFiveResetWord,
     }
 
-    /// <summary>Standalone word value.</summary>
     private static ushort StandaloneWordValue(StandaloneWord word) => word switch
     {
         StandaloneWord.OrdinaryPointer => unchecked((ushort)OrdinaryDelays),
@@ -106,7 +105,6 @@ internal static class SamusRunningCadenceDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(StandaloneWord)} {(int)word}."),
     };
 
-    /// <summary>Attempts to read compiled byte.</summary>
     private static bool TryReadCompiledByte(int address, out byte value)
     {
         foreach (StandaloneWord word in Enum.GetValues<StandaloneWord>())

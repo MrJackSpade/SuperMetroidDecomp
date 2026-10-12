@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Assets;
 /// thirty-part atlas grid. The full body prepends the four-tile arm strip.</summary>
 internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.LargeSamusFromEndingStanding))
@@ -18,9 +17,7 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
         return supplied;
     }
 
-    /// <summary>Gets count.</summary>
     public int Count => includeArm ? 34 : 30;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -61,12 +58,10 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

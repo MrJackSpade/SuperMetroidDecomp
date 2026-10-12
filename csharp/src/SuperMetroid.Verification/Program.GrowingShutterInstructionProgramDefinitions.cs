@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents growing shutter instruction program definitions verification.</summary>
 internal static class GrowingShutterInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies growing shutter instruction program definitions.</summary>
     internal static void VerifyGrowingShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyGrowingShutterInstructionProgramDefinitions), () => VerifyGrowingShutterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies growing shutter instruction program definitions.</summary>
     internal static void VerifyGrowingShutterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -104,7 +101,6 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
             "bytes forbidden.");
     }
 
-    /// <summary>Verifies growing shutter mechanics mapping.</summary>
     private static void VerifyGrowingShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe998, 0xe99c, 0xe99e, 0xe9a2, 0xe9a4, 0xe9a8, 0xe9aa, 0xe9ae];
@@ -135,7 +131,6 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitionsTooling.MechanicsWord(index), "Growing shutter mechanics bounds");
     }
 
-    /// <summary>Verifies growing shutter presentation mapping.</summary>
     private static void VerifyGrowingShutterPresentationMapping()
     {
         ushort[] addresses = [0xe99a, 0xe9a0, 0xe9a6, 0xe9ac];
@@ -148,7 +143,6 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, addresses.Length, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Growing shutter visual bounds");
     }
-    /// <summary>Verifies growing shutter program entries.</summary>
     private static void VerifyGrowingShutterProgramEntries()
     {
         ushort[] entries = [0xe998, 0xe99e, 0xe9a4, 0xe9aa];
@@ -158,7 +152,6 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => GrowingShutterInstructionProgramDefinitions.ProgramEntryPoint(index), "growing shutter stage bounds");
     }
-    /// <summary>Probes growing shutter instruction mechanics allocation.</summary>
     private static int ProbeGrowingShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -170,13 +163,11 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads growing shutter instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for growing shutter instruction words")]
     internal static ushort ReadGrowingShutterInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>New growing shutter instruction program guard.</summary>
     private static CartridgeReadGuard NewGrowingShutterInstructionProgramGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -196,7 +187,6 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         return guard;
     }
 
-    /// <summary>Growing shutter instruction mechanics command.</summary>
     [VerificationCommand("--growing-shutter-instruction-mechanics")]
     internal static int GrowingShutterInstructionMechanicsCommand()
     {

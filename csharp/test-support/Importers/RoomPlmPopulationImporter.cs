@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$8F PLM populations with bank-$84 headers and bank-$89 item graphics → RoomPlmPopulationDefinition")]
 internal static class RoomPlmPopulationImporter
 {
-    /// <summary>Read.</summary>
     public static RoomPlmPopulationDefinition Read(ISnesAddressSpace source, ushort pointer)
     {
         Ensure.NotNull(source);

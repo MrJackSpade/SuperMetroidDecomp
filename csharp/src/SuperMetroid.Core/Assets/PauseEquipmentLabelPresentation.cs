@@ -10,12 +10,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable label artwork and placement for the pause equipment page.</summary>
 public sealed class PauseEquipmentLabelPresentation
 {
-    /// <summary>Stores labels.</summary>
     private readonly Dictionary<string, CompiledLabel> labels;
-    /// <summary>Stores blank edits.</summary>
     private readonly Dictionary<int, ushort> blankEdits;
 
-    /// <summary>Initializes a new pause equipment label presentation instance.</summary>
     private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, Dictionary<int, ushort> blankEdits,
         int disabledPalette, string contentIdentity)
     {
@@ -30,7 +27,6 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>Uppercase hexadecimal SHA-256 of the exact source JSON bytes, used by pause-menu rebinding to decide whether to rebuild inventory labels.</summary>
     public string ContentIdentity { get; }
 
-    /// <summary>Owns live cell.</summary>
     internal bool OwnsLiveCell(int cell)
     {
         foreach ((string key, CompiledLabel label) in labels)
@@ -202,7 +198,6 @@ public sealed class PauseEquipmentLabelPresentation
                 BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..], word);
     }
 
-    /// <summary>Validates tilemap.</summary>
     private static void ValidateTilemap(Span<byte> tilemap)
     {
         if (tilemap.Length != PauseEquipmentLabelDefinitions.TilemapColumns *
@@ -210,7 +205,6 @@ public sealed class PauseEquipmentLabelPresentation
             throw new ArgumentException("Pause equipment labels require a complete 32x32 tilemap.", nameof(tilemap));
     }
 
-    /// <summary>Recolor.</summary>
     private static void Recolor(Span<byte> bytes, int palette)
     {
         for (int offset = 0; offset < bytes.Length; offset += sizeof(ushort))
@@ -220,15 +214,11 @@ public sealed class PauseEquipmentLabelPresentation
         }
     }
 
-    /// <summary>Represents compiled label.</summary>
     private sealed class CompiledLabel(string key, int? destinationEdit, Dictionary<int, ushort> edits)
     {
-        /// <summary>Gets destination byte.</summary>
         internal int DestinationByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockDestinationByte(key);
-        /// <summary>Gets word count.</summary>
         internal int WordCount => PauseEquipmentLabelDefinitions.StockWordCount(key);
 
-        /// <summary>Loads.</summary>
         internal static CompiledLabel Load(string key, int destination, ReadOnlySpan<byte> bytes)
         {
             var edits = new Dictionary<int, ushort>();
@@ -242,7 +232,6 @@ public sealed class PauseEquipmentLabelPresentation
             return new(key, changedDestination, edits);
         }
 
-        /// <summary>Copies to.</summary>
         internal void CopyTo(Span<byte> destination)
         {
             for (int cell = 0; cell < destination.Length / sizeof(ushort); cell++)

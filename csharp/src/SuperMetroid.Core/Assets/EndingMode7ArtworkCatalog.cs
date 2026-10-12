@@ -22,7 +22,6 @@ public enum EndingMode7SceneId
 /// </summary>
 public sealed class EndingMode7SceneArtwork
 {
-    /// <summary>Initializes a new ending mode7 scene artwork instance.</summary>
     private EndingMode7SceneArtwork(byte[] map, byte[] characters)
     {
         Map = map;
@@ -71,7 +70,6 @@ public sealed class EndingMode7SceneArtwork
         json.Write(bytes);
     }
 
-    /// <summary>Reads map.</summary>
     private static EndingMode7MapDocument ReadMap(Stream json)
     {
         EndingMode7MapDocument document;
@@ -99,7 +97,6 @@ public sealed class EndingMode7SceneArtwork
 /// <summary>Host-owned visual streams for the escape and planet-explosion scenes.</summary>
 public sealed class EndingMode7ArtworkCatalog
 {
-    /// <summary>Stores escape a.</summary>
     private readonly EndingMode7SceneArtwork escapeA, escapeB, planetExplosion;
 
     /// <summary>Installs the three decoded backdrop pairs and the complete post-credits beam/icon transfer.</summary>
@@ -153,7 +150,6 @@ public sealed class EndingMode7ArtworkCatalog
 /// </summary>
 public sealed class EndingRewardIconArtwork
 {
-    /// <summary>Initializes a new ending reward icon artwork instance.</summary>
     private EndingRewardIconArtwork(byte[] transfer) => Transfer = transfer;
 
     /// <summary>The $8000-byte low-map/high-character word stream consumed by the sixteen $0800-byte uploads at native $8B:F682.</summary>
@@ -208,7 +204,6 @@ public sealed class EndingRewardIconArtwork
         JsonSerializer.Serialize(json, map, MapPresentationFormat.JsonOptions);
     }
 
-    /// <summary>Validates map.</summary>
     private static void ValidateMap(EndingMode7MapDocument map)
     {
         if (map.Version != EndingMode7ArtworkFormat.Version ||
@@ -284,7 +279,6 @@ public static class EndingMode7ArtworkFormat
     public static string MapFileName(EndingMode7SceneId id) =>
         $"ending-{SceneName(id)}-mode7-map.json";
 
-    /// <summary>Scene name.</summary>
     private static string SceneName(EndingMode7SceneId id) => id switch
     {
         EndingMode7SceneId.EscapeA => "escape-a",

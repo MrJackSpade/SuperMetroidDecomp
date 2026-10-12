@@ -14,34 +14,20 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class EndingBackgroundTextState
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores tilemap.</summary>
     private readonly ushort[] tilemap;
-    /// <summary>Stores inventory.</summary>
     private readonly EndingInventorySnapshot inventory;
-    /// <summary>Stores japanese text.</summary>
     private readonly bool japaneseText;
-    /// <summary>Stores instruction pointer.</summary>
     private ushort instructionPointer;
-    /// <summary>Stores instruction timer.</summary>
     private ushort instructionTimer = 1;
-    /// <summary>Stores tilemap destination.</summary>
     private readonly ushort tilemapDestination;
-    /// <summary>Stores presentation.</summary>
     [NonSerialized] private EndingTextPresentation? presentation;
-    /// <summary>Stores installed program.</summary>
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
-    /// <summary>Stores installed sequence.</summary>
     private readonly EndingTextSequence? installedSequence;
-    /// <summary>Stores installed character index.</summary>
     private int installedCharacterIndex;
-    /// <summary>Stores installed initial marker pending.</summary>
     private bool installedInitialMarkerPending = true;
-    /// <summary>Stores installed hold started.</summary>
     private bool installedHoldStarted;
 
-    /// <summary>Initializes a new ending background text state instance.</summary>
     public EndingBackgroundTextState(ISnesAddressSpace bus, EndingBackgroundTextSetup setup)
     {
         this.bus = Ensure.NotNull(bus);
@@ -60,12 +46,9 @@ internal sealed class EndingBackgroundTextState
             : null;
     }
 
-    /// <summary>Gets or sets completed.</summary>
     public bool Completed { get; private set; }
-    /// <summary>Gets or sets requested item percentage scroll.</summary>
     public bool RequestedItemPercentageScroll { get; private set; }
 
-    /// <summary>Steps.</summary>
     public void Step(SnesVram vram)
     {
         Ensure.NotNull(vram);
@@ -87,7 +70,6 @@ internal sealed class EndingBackgroundTextState
                 $"Saved ending-text cursor {installedCharacterIndex} exceeds the rebound program.");
     }
 
-    /// <summary>Steps installed.</summary>
     private void StepInstalled(SnesVram vram)
     {
         if (Completed || instructionTimer-- != 1) return;
@@ -131,7 +113,6 @@ internal sealed class EndingBackgroundTextState
         Upload(vram);
     }
 
-    /// <summary>Draws item percentage.</summary>
     private void DrawItemPercentage()
     {
         int count = inventory.MaxHealth / 100
@@ -161,7 +142,6 @@ internal sealed class EndingBackgroundTextState
             EndingCreditsRomData.Text.PercentBottomTile;
     }
 
-    /// <summary>Writes digit.</summary>
     private void WriteDigit(int topIndex, int digit)
     {
         tilemap[topIndex] = unchecked((ushort)(EndingCreditsRomData.Text.DigitTopTile + digit));
@@ -169,7 +149,6 @@ internal sealed class EndingBackgroundTextState
             unchecked((ushort)(EndingCreditsRomData.Text.DigitBottomTile + digit));
     }
 
-    /// <summary>Upload.</summary>
     [PpuLayoutBoundary("codec: ending text staging tilemap DMA to its scene-selected VMADD")]
     private void Upload(SnesVram vram) =>
         vram.ExecuteWordTransfer(
@@ -179,7 +158,6 @@ internal sealed class EndingBackgroundTextState
 
 }
 
-/// <summary>Represents ending inventory snapshot.</summary>
 internal readonly record struct EndingInventorySnapshot(
     ushort MaxHealth,
     ushort MaxReserveEnergy,

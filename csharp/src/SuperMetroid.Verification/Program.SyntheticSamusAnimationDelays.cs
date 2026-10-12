@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents synthetic samus animation delays verification.</summary>
 internal static class SyntheticSamusAnimationDelaysVerification
 {
     /// <summary>

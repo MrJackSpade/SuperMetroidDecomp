@@ -13,11 +13,8 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class PauseSelectorVisual
 {
-    /// <summary>Stores group.</summary>
     private readonly int group;
-    /// <summary>Stores authored.</summary>
     private readonly SpriteComposition? authored;
-    /// <summary>Initializes a new pause selector visual instance.</summary>
     private PauseSelectorVisual(int group, SpriteComposition? authored) { this.group = group; this.authored = authored; }
 
     /// <summary>Original beam highlight paint order expressed as row-major grid cells, not coordinates or tiles.</summary>
@@ -25,11 +22,9 @@ internal sealed class PauseSelectorVisual
     /// <summary>Original equipment highlight paint order; the middle cells have a distinct non-spatial order.</summary>
     private static ReadOnlySpan<byte> EquipmentOrder => [18, 8, 15, 17, 16, 7, 6, 5, 14, 4, 10, 11, 12, 13, 19, 9, 3, 2, 1, 0];
 
-    /// <summary>Count.</summary>
     private static int Count(int group) => group switch
     { 0 => 1, 1 => 12, 2 => 20, _ => throw new ArgumentOutOfRangeException(nameof(group)) };
 
-    /// <summary>Part.</summary>
     private static CompiledSpritePart Part(int group, int index)
     {
         if ((uint)index >= (uint)Count(group)) throw new ArgumentOutOfRangeException(nameof(index));
@@ -43,7 +38,6 @@ internal sealed class PauseSelectorVisual
             SnesObjAttributeWord.Create(tile, 0, 3), true);
     }
 
-    /// <summary>Compile.</summary>
     internal static PauseSelectorVisual Compile(SpriteVisualPart[] parts, string name)
     {
         for (int group = 0; group < 3; group++)
@@ -62,7 +56,6 @@ internal sealed class PauseSelectorVisual
         return new(-1, MenuSpriteCompiler.Compile(parts, name));
     }
 
-    /// <summary>Draws on screen.</summary>
     internal void DrawOnScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }

@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ninja space pirate instruction program definitions verification.</summary>
 internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies ninja space pirate instruction program definitions.</summary>
     internal static void VerifyNinjaSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies ninja space pirate instruction program definitions.</summary>
     internal static void VerifyNinjaSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -203,7 +200,6 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes ninja space pirate instruction mechanics allocation.</summary>
     private static int ProbeNinjaSpacePirateInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -215,7 +211,6 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Creates ninja space pirate instruction read guard.</summary>
     private static CartridgeReadGuard NewNinjaSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(NinjaSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -225,7 +220,6 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 address => $"Production read compiled ninja Pirate frame selector " +
                     $"${address:X6}.");
 
-    /// <summary>Ninja space pirate instruction mechanics command.</summary>
     [VerificationCommand("--ninja-space-pirate-instruction-mechanics")]
     internal static int NinjaSpacePirateInstructionMechanicsCommand()
     {

@@ -11,7 +11,6 @@ internal static class RoomScrollGridConstants
     /// <summary>24-bit WRAM address of the first room scroll-zone byte, $7E:CD20.</summary>
     public const int WorkRamAddress = 0x7ecd20;
 
-    /// <summary>Provides verification helpers for <see cref="RoomScrollGrid"/>.</summary>
     extension(RoomScrollGrid)
     {
         /// <inheritdoc cref="RoomScrollGridConstants.WorkRamAddress"/>
@@ -25,7 +24,6 @@ internal static class HudStateConstants
     /// <summary>$7E:C608, native mutable HUD tilemap buffer.</summary>
     public const int WorkRamAddress = 0x7ec608;
 
-    /// <summary>Provides verification helpers for <see cref="HudState"/>.</summary>
     extension(HudState)
     {
         /// <inheritdoc cref="HudStateConstants.WorkRamAddress"/>
@@ -39,7 +37,6 @@ internal static class MotherBrainBg2DefinitionsConstants
     /// <summary>EnemyBG2Tilemap at $7E:2000.</summary>
     public const int WorkAddress = 0x7e2000;
 
-    /// <summary>Provides verification helpers for <see cref="MotherBrainBg2Definitions"/>.</summary>
     extension(MotherBrainBg2Definitions)
     {
         /// <inheritdoc cref="MotherBrainBg2DefinitionsConstants.WorkAddress"/>
@@ -53,7 +50,6 @@ internal static class MotherBrainDrainedPaletteRomDataConstants
     /// <summary>$AD:EF44/EF81 write the trailing source word directly to low WRAM $017C.</summary>
     public const int TrailingWordWram = 0x7e017c;
 
-    /// <summary>Provides verification helpers for <see cref="MotherBrainDrainedPaletteRomData"/>.</summary>
     extension(MotherBrainDrainedPaletteRomData)
     {
         /// <inheritdoc cref="MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram"/>

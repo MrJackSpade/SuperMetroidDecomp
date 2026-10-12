@@ -2,22 +2,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid defeated plm mappings verification.</summary>
 internal static class KraidDefeatedPlmMappingsVerification
 {
-    /// <summary>Verifies kraid defeated plm columns.</summary>
     internal static void VerifyKraidDefeatedPlmColumns(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 0, request => request.Block.X));
 
-    /// <summary>Verifies kraid defeated plm rows.</summary>
     internal static void VerifyKraidDefeatedPlmRows(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 1, request => request.Block.Y));
 
-    /// <summary>Verifies kraid defeated plm headers.</summary>
     internal static void VerifyKraidDefeatedPlmHeaders(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDefeatedPlmField), () => VerifyKraidDefeatedPlmField(rom, 2, request => (ushort)request.Header));
 
-    /// <summary>Verifies kraid defeated plm field.</summary>
     private static void VerifyKraidDefeatedPlmField(SuperMetroidAddressSpace rom, int offset,
         Func<KraidPlmRequest, ushort> field)
     {
@@ -39,7 +34,6 @@ internal static class KraidDefeatedPlmMappingsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = requests[invalid], "Defeated-room list bounds");
     }
 
-    /// <summary>Kraid defeated plm field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid defeated PLM field")]
     private static byte KraidDefeatedPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

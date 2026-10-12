@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents crocomire projectile instruction program definitions verification.</summary>
 internal static class CrocomireProjectileInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies crocomire projectile instruction program definitions.</summary>
     internal static void VerifyCrocomireProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireProjectileInstructionProgramDefinitions), () => VerifyCrocomireProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies crocomire projectile instruction program definitions.</summary>
     internal static void VerifyCrocomireProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -169,7 +166,6 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         }
     }
 
-    /// <summary>Verifies crocomire projectile mechanics dispatch.</summary>
     internal static void VerifyCrocomireProjectileMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -203,7 +199,6 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitionsTooling.MechanicsWord(22), "Crocomire projectile mechanics index past end");
     }
 
-    /// <summary>Verifies crocomire projectile presentation positions.</summary>
     internal static void VerifyCrocomireProjectilePresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -222,7 +217,6 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(-1), "negative Crocomire projectile presentation index");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(13), "Crocomire projectile presentation index past end");
     }
-    /// <summary>Probes crocomire projectile instruction mechanics allocation.</summary>
     private static int ProbeCrocomireProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -236,7 +230,6 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         return checksum;
     }
 
-    /// <summary>New crocomire projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewCrocomireProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CrocomireProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -244,7 +237,6 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
                 address => $"Production read compiled Crocomire projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount, CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Crocomire projectile instruction mechanics command.</summary>
     [VerificationCommand("--crocomire-projectile-instruction-mechanics")]
     internal static int CrocomireProjectileInstructionMechanicsCommand()
     {

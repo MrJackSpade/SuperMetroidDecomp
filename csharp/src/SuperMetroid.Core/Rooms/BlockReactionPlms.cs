@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
@@ -8,14 +8,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Block-reaction PLMs spawned by Samus and her weapons: grapple, bomb, crumble, Speed Booster, shot and bombed special blocks.</summary>
 internal sealed class BlockReactionPlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Stores escape animals.</summary>
     private readonly EscapeAnimalPlms _escapeAnimals;
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
-    /// <summary>Initializes a new block reaction plms instance.</summary>
     internal BlockReactionPlms(PlmRoomBindings bindings, EscapeAnimalPlms escapeAnimals, PlmSlotTable slotTable)
     {
         _bindings = bindings;

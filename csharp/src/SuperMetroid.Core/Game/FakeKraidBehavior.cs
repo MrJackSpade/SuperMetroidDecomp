@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,18 +7,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Mini-Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FakeKraidBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Initializes a new fake kraid behavior instance.</summary>
     internal FakeKraidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
@@ -70,12 +64,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Stores fake kraid spit sound.</summary>
     private const ushort FakeKraidSpitSound = 0x0016;
-    /// <summary>Stores fake kraid spike sound.</summary>
     private const ushort FakeKraidSpikeSound = 0x003f;
 
-    /// <summary>Stores fake kraid states.</summary>
     internal readonly FakeKraidEnemyState?[] _fakeKraidStates =
         new FakeKraidEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -247,7 +238,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Spawns fake kraid spit.</summary>
     internal bool SpawnFakeKraidSpit(
         RoomEnemySlot source,
         short xOffset,
@@ -267,7 +257,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>Spawns fake kraid spike.</summary>
     internal bool SpawnFakeKraidSpike(
         RoomEnemySlot source,
         FakeKraidEnemyState state,
@@ -321,11 +310,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
             projectile.Clear();
     }
 
-    /// <summary>Reads fake kraid random number.</summary>
     private ushort ReadFakeKraidRandomNumber() =>
         _room.Random.Read();
 
-    /// <summary>Fake kraid origin is on screen.</summary>
     private static bool FakeKraidOriginIsOnScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
@@ -334,7 +321,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
         unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) >= 0;
 
-    /// <summary>Requires fake kraid state.</summary>
     private FakeKraidEnemyState RequireFakeKraidState(RoomEnemySlot slot) =>
         _fakeKraidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fake Kraid state.");
@@ -353,7 +339,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         SpawnFakeKraidDeathDrops(origin);
     }
 
-    /// <summary>Spawns fake kraid death drops.</summary>
     private void SpawnFakeKraidDeathDrops(Position16<RoomPixels> origin)
     {
         LastFakeKraidDropRequest = new FakeKraidDropRequest();
@@ -363,7 +348,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
             origin);
     }
 
-    /// <summary>Registers fake kraid bomb reactions.</summary>
     internal void RegisterFakeKraidBombReactions(EnemyAiTable table)
     {
         // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the
@@ -379,7 +363,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fake kraid projectiles.</summary>
     internal static void RegisterFakeKraidProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -393,7 +376,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.MiniKraidSpikes);
     }
 
-    /// <summary>Registers fake kraid initialization ai.</summary>
     internal void RegisterFakeKraidInitializationAi(EnemyAiTable table)
     {
 
@@ -403,7 +385,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fake kraid main ai.</summary>
     internal void RegisterFakeKraidMainAi(EnemyAiTable table)
     {
 
@@ -416,7 +397,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fake kraid owned instructions.</summary>
     internal void RegisterFakeKraidOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -426,7 +406,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fake kraid power bomb reactions.</summary>
     internal void RegisterFakeKraidPowerBombReactions(EnemyAiTable table)
     {
         // Mini Kraid's private power-bomb callback still owns its four direct pickup explosions, spawned after its
@@ -438,7 +417,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fake kraid shot reactions.</summary>
     internal void RegisterFakeKraidShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
@@ -457,7 +435,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers fake kraid touch.</summary>
     internal void RegisterFakeKraidTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&

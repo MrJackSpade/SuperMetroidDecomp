@@ -11,9 +11,7 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("rendering view: a bounded CGRAM colour range")]
 public readonly struct CgramPalette
 {
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram cgram;
-    /// <summary>Stores first.</summary>
     private readonly int first;
 
     /// <summary>Binds the CGRAM colours described by <paramref name="cell"/>.</summary>
@@ -25,7 +23,6 @@ public readonly struct CgramPalette
     {
     }
 
-    /// <summary>Initializes a new cgram palette instance.</summary>
     private CgramPalette(SnesCgram cgram, int first, int count)
     {
         this.cgram = cgram;
@@ -82,12 +79,10 @@ public readonly struct CgramPalette
         return new(cgram, first + start, count);
     }
 
-    /// <summary>Index.</summary>
     private int Index(int index) => (uint)index < (uint)Count
         ? index
         : throw new ArgumentOutOfRangeException(nameof(index), index, $"The palette range holds {Count} colours.");
 
-    /// <summary>Checks span.</summary>
     private void CheckSpan(int start, int count)
     {
         if (start < 0 || count < 0 || start + count > Count)
@@ -148,7 +143,6 @@ public readonly struct CgramPalettes(SnesCgram cgram)
         }
     }
 
-    /// <summary>Covers.</summary>
     private static bool Covers(ReadOnlySpan<PpuLayoutCell> cells, int color)
     {
         foreach (PpuLayoutCell cell in cells)
@@ -175,7 +169,6 @@ public readonly struct CgramPalettes(SnesCgram cgram)
     /// <summary>The number of 16-colour rows in the whole CGRAM.</summary>
     public const int RowCount = 2 * PpuMemoryLayout.PaletteRowCount;
 
-    /// <summary>Row start.</summary>
     private static int RowStart(int row) => (uint)row < PpuMemoryLayout.PaletteRowCount
         ? row * PpuMemoryLayout.ColorsPerRow
         : throw new ArgumentOutOfRangeException(nameof(row), row, "A palette bank has eight rows.");

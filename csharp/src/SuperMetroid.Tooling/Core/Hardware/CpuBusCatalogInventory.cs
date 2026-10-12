@@ -155,7 +155,6 @@ internal static class CpuBusCatalogInventory
         return json.ReplaceLineEndings("\n") + "\n";
     }
 
-    /// <summary>Finds.</summary>
     private static CpuBusCatalogEntry? Find(IReadOnlyList<CpuBusCatalogEntry> entries, CpuBusCell cell) =>
         entries.FirstOrDefault(entry => ReferenceEquals(entry.Cell, cell));
 
@@ -168,7 +167,6 @@ internal static class CpuBusCatalogInventory
         return false;
     }
 
-    /// <summary>Covers.</summary>
     private static bool Covers(CpuBusCell outer, CpuBusCell inner)
     {
         if (outer.Region != inner.Region)
@@ -177,7 +175,6 @@ internal static class CpuBusCatalogInventory
         return outerStart <= innerStart && innerStart + inner.ByteCount <= outerStart + outer.ByteCount;
     }
 
-    /// <summary>Source files.</summary>
     private static string[] SourceFiles(string repositoryRoot)
     {
         string root = Path.Combine(repositoryRoot, "csharp");

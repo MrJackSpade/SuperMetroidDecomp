@@ -16,7 +16,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM enemy graphics sheets, palettes and tile copy programs → enemy tile artwork")]
 public static class EnemyTileArtworkFiles
 {
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -1146,7 +1145,6 @@ public static class EnemyTileArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, or an artwork document is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
-    /// <summary>Validates definition ids.</summary>
     private static void ValidateDefinitionIds(IEnumerable<ushort> pointers)
     {
         string joined = string.Join(",", pointers.Order().Select(pointer => $"{pointer:X4}"));
@@ -1156,7 +1154,6 @@ public static class EnemyTileArtworkFiles
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a retail graphics definition.");
     }
 
-    /// <summary>Extracts crocomire melt.</summary>
     private static byte[] ExtractCrocomireMelt(ISnesAddressSpace bus,
         CrocomireMeltingPass pass, int encodedByteCount)
     {
@@ -1185,7 +1182,6 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
-    /// <summary>Extracts kraid tilemap.</summary>
     private static byte[] ExtractKraidTilemap(ISnesAddressSpace bus, int sourceAddress)
     {
         byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
@@ -1193,7 +1189,6 @@ public static class EnemyTileArtworkFiles
         return RoomBackgroundTilemapExtractor.Encode(native);
     }
 
-    /// <summary>Extracts kraid room background.</summary>
     private static byte[] ExtractKraidRoomBackground(ISnesAddressSpace bus)
     {
         byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
@@ -1214,7 +1209,6 @@ public static class EnemyTileArtworkFiles
         return encoded;
     }
 
-    /// <summary>Extracts mother brain special sprite png.</summary>
     private static byte[] ExtractMotherBrainSpecialSpritePng(ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
     {
@@ -1234,13 +1228,11 @@ public static class EnemyTileArtworkFiles
         return png;
     }
 
-    /// <summary>Extracts torizo instruction page.</summary>
     private static byte[] ExtractTorizoInstructionPage(ISnesAddressSpace bus,
         TorizoInstructionTileSheetDefinition page) =>
         IndexedTilePageExtractor.Extract(bus, page.SourceAddress, page.ByteCount,
             $"Torizo instruction page {page.FileName}");
 
-    /// <summary>Extracts kraid colors.</summary>
     private static byte[] ExtractKraidColors(ISnesAddressSpace bus) =>
         KraidColorCatalog.Write(new KraidColorDocument
         {
@@ -1252,7 +1244,6 @@ public static class EnemyTileArtworkFiles
             DeathArm = ReadKraidColors(bus, KraidPaletteSource.DeathArm),
         });
 
-    /// <summary>Reads kraid colors.</summary>
     private static PaletteRgb5[] ReadKraidColors(ISnesAddressSpace bus,
         KraidPaletteSource source)
     {
@@ -1276,7 +1267,6 @@ public static class EnemyTileArtworkFiles
         return colors;
     }
 
-    /// <summary>Extracts crocomire melt tilemap.</summary>
     private static byte[] ExtractCrocomireMeltTilemap(ISnesAddressSpace bus,
         int sourceAddress)
     {
@@ -1311,7 +1301,6 @@ public static class EnemyTileArtworkFiles
         return json.ToArray();
     }
 
-    /// <summary>Represents enemy tile manifest.</summary>
     private sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<ushort, EnemyTileFileEntry> Entries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
@@ -1353,6 +1342,5 @@ public static class EnemyTileArtworkFiles
         string CrocomireSkeletonSha256,
         string AuxiliaryColorsSha256);
 
-    /// <summary>Represents enemy tile file entry.</summary>
     private sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

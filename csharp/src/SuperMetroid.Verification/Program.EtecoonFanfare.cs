@@ -14,10 +14,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents etecoon fanfare verification.</summary>
 internal static class EtecoonFanfareVerification
 {
-    /// <summary>Verifies etecoon fanfare after door.</summary>
     internal static void VerifyEtecoonFanfareAfterDoor()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -78,7 +76,6 @@ internal static class EtecoonFanfareVerification
         Console.WriteLine($"Etecoon door fanfare: dormant gate, one Max15 request and audible melody verified (peak {peak}, notes {notes.Count}).");
     }
 
-    /// <summary>Etecoon door fanfare command.</summary>
     [VerificationCommand("--etecoon-door-fanfare")]
     internal static int EtecoonDoorFanfareCommand()
     {

@@ -17,10 +17,8 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static ImportedSpritemapsVerification;
 
-/// <summary>Represents hibashi definitions verification.</summary>
 internal static class HibashiDefinitionsVerification
 {
-    /// <summary>verify hibashi definitions.</summary>
     internal static void VerifyHibashiDefinitions(SuperMetroidAddressSpace rom)
     {
         const int yOffsetTable = 0xa68dbb;
@@ -178,7 +176,6 @@ internal static class HibashiDefinitionsVerification
             "pass with runtime ROM reads forbidden; 24 executed selectors match the cartridge.");
     }
 
-    /// <summary>probe hibashi instruction mechanics allocation.</summary>
     private static int ProbeHibashiInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -190,19 +187,16 @@ internal static class HibashiDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>new hibashi definition guard.</summary>
     private static CartridgeReadGuard NewHibashiDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0xa68dbb, 0xa68e13 - 0xa68dbb,
             address => $"Hibashi attempted migrated hitbox read ${address:X6}.");
 
-    /// <summary>new hibashi program guard.</summary>
     private static CartridgeReadGuard NewHibashiProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Hibashi mechanics byte ${address:X6}.")
             .ObserveWords(0xa60000, HibashiInstructionProgramDefinitions.PresentationWordCount, HibashiInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>hibashi instruction mechanics command.</summary>
     [VerificationCommand("--hibashi-instruction-mechanics")]
     internal static int HibashiInstructionMechanicsCommand()
     {

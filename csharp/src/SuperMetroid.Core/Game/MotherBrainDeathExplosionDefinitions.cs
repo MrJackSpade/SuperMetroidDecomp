@@ -15,7 +15,6 @@ internal static class MotherBrainDeathExplosionDefinitions
     // $86:CB13 projectile has zero hitbox radii and damage-disabled properties. Inventing
     // a geometric distribution would replace the chosen visual layout. This exception
     // covers only these coordinates, not group indexing, cadence, types or other offsets.
-    /// <summary>Stores decorative anchors.</summary>
     private static readonly (short X, short Y)[] DecorativeAnchors =
     [
         (0x0024, -0x0025), (-0x0013, -0x000f), (-0x0004, 0x000d), (0x001d, 0x0019),
@@ -27,7 +26,6 @@ internal static class MotherBrainDeathExplosionDefinitions
         (0x000a, -0x001f), (-0x0014, -0x0008), (0x0000, 0x0017), (0x001e, 0x003d),
     ];
 
-    /// <summary>Anchor.</summary>
     internal static (short X, short Y) Anchor(int index) => DecorativeAnchors[index];
 
     /// <summary>

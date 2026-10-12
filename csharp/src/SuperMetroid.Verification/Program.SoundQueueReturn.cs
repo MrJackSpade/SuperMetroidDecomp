@@ -2,10 +2,8 @@ using System.Globalization;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents sound queue return verification.</summary>
 internal static class SoundQueueReturnVerification
 {
-    /// <summary>Verifies sound queue accumulator.</summary>
     internal static void VerifySoundQueueAccumulator(SuperMetroidAddressSpace bus)
     {
         string fixture = Path.GetFullPath("csharp/test-fixtures/movement-release/soundqueue-return.csv");

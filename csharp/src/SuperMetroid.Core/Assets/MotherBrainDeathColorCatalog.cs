@@ -19,16 +19,11 @@ public sealed class MotherBrainDeathColorCatalog
             corpseFade.AppendIdentity(content, "corpseFade");
         });
 
-    /// <summary>Stores body fade.</summary>
     private readonly ColorFade bodyFade;
-    /// <summary>Stores leg fade.</summary>
     private readonly ColorFade legFade;
-    /// <summary>Stores corpse fade.</summary>
     private readonly ColorFade corpseFade;
-    /// <summary>Stores exploded door.</summary>
     private readonly Bgr555[]? explodedDoor;
 
-    /// <summary>Initializes a new mother brain death color catalog instance.</summary>
     private MotherBrainDeathColorCatalog(Bgr555[][] bodyFade, Bgr555[][] legFade,
         Bgr555[][] corpseFade, Bgr555[] explodedDoor)
     {
@@ -38,7 +33,6 @@ public sealed class MotherBrainDeathColorCatalog
         this.explodedDoor = MotherBrainExplodedDoorPaintDefinitions.Matches(explodedDoor) ? null : explodedDoor;
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -126,7 +120,6 @@ public sealed class MotherBrainDeathColorCatalog
         return bytes;
     }
 
-    /// <summary>resolve.</summary>
     private static Bgr555 Resolve(ColorFade frames, int frame, int color, string name) =>
         (uint)frame < frames.FrameCount && (uint)color < frames.ColorCount
             ? frames.Resolve(frame, color)
@@ -143,20 +136,13 @@ public sealed class MotherBrainDeathColorCatalog
     /// </summary>
     private sealed class ColorFade
     {
-        /// <summary>Stores first.</summary>
         private readonly Bgr555[]? first;
-        /// <summary>Stores back leg.</summary>
         private readonly bool backLeg;
-        /// <summary>Stores last.</summary>
         private readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
-        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[][]? supplied;
-        /// <summary>Gets frame count.</summary>
         internal int FrameCount { get; }
-        /// <summary>Gets color count.</summary>
         internal int ColorCount { get; }
 
-        /// <summary>Initializes a new color fade instance.</summary>
         internal ColorFade(Bgr555[][] frames, bool toBlack, bool backLeg = false)
         {
             this.backLeg = backLeg;
@@ -177,11 +163,9 @@ public sealed class MotherBrainDeathColorCatalog
             }
         }
 
-        /// <summary>resolve.</summary>
         internal Bgr555 Resolve(int frame, int color) =>
             supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
-        /// <summary>calculate.</summary>
         private Bgr555 Calculate(int frame, int color)
         {
             int steps = FrameCount - 1;
@@ -192,7 +176,6 @@ public sealed class MotherBrainDeathColorCatalog
             return start.Zip(end, (_, from, to) => (from * (steps - frame) + to * frame + bias) / steps);
         }
 
-        /// <summary>append identity.</summary>
         internal void AppendIdentity(SelectedPresentationHash content, string label)
         {
             content.Append(label, FrameCount);
@@ -206,7 +189,6 @@ public sealed class MotherBrainDeathColorCatalog
         }
     }
 
-    /// <summary>compile frames.</summary>
     private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source,
         int frameCount, int colorCount, string name)
     {
@@ -217,7 +199,6 @@ public sealed class MotherBrainDeathColorCatalog
             Compile(frame, colorCount, $"{name} frame {index}")).ToArray();
     }
 
-    /// <summary>compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -236,7 +217,6 @@ public sealed class MotherBrainDeathColorCatalog
         return compiled;
     }
 
-    /// <summary>reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Mother Brain death color property {name}."));

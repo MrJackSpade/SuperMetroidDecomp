@@ -5,14 +5,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Checked OAM compilation shared by the opening cinematic's editable actors.</summary>
 internal static class IntroCinematicSpriteCompiler
 {
-    /// <summary>Defines tile columns.</summary>
     internal const int TileColumns = 16;
-    /// <summary>Defines tile rows.</summary>
     internal const int TileRows = 32;
-    /// <summary>Defines maximum parts.</summary>
     internal const int MaximumParts = 128;
 
-    /// <summary>Compile.</summary>
     internal static SpriteComposition Compile(SpriteVisualPart[] visual, string name)
     {
         if (visual.Length > MaximumParts)

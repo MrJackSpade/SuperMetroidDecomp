@@ -173,7 +173,6 @@ public static class EnemyPropertyFlagExtensions
         return unchecked((ushort)(word | rawBits));
     }
 
-    /// <summary>validate known.</summary>
     private static void ValidateKnown(EnemyProperties flags)
     {
         if (((ushort)flags & ~KnownPropertyFlagMask) != 0)
@@ -183,7 +182,6 @@ public static class EnemyPropertyFlagExtensions
         }
     }
 
-    /// <summary>validate known.</summary>
     private static void ValidateKnown(EnemyExtraProperties flags)
     {
         const EnemyExtraProperties known =

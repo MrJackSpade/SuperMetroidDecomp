@@ -27,14 +27,10 @@ public enum EndingPaletteId
 /// <summary>One exact BGR555 color image, independently editable as RGB5 JSON.</summary>
 public sealed class EndingPalette
 {
-    /// <summary>Stores native bytes.</summary>
     private readonly byte[]? nativeBytes;
-    /// <summary>Stores logo fade.</summary>
     private readonly EndingLogoPaletteFade? logoFade;
 
-    /// <summary>Initializes a new ending palette instance.</summary>
     private EndingPalette(byte[] nativeBytes) => this.nativeBytes = nativeBytes;
-    /// <summary>Initializes a new ending palette instance.</summary>
     private EndingPalette(EndingLogoPaletteFade logoFade) => this.logoFade = logoFade;
 
     /// <summary>Transfer/export view. A computed fade is materialized only for this
@@ -89,7 +85,6 @@ public sealed class EndingPalette
         }
     }
 
-    /// <summary>Writes colors.</summary>
     private void WriteColors(Span<byte> bytes, int sourceColor, int count)
     {
         for (int i = 0; i < count; i++)
@@ -156,7 +151,6 @@ public sealed record EndingPaletteDocument
 /// <summary>Independent static and animated color resources used by the ending.</summary>
 public sealed class EndingPaletteCatalog
 {
-    /// <summary>Stores escape.</summary>
     private readonly EndingPalette escape, postCredits, credits, explosion, finalGunship, logoInitial, logoCrossfade;
 
     /// <summary>Groups seven independently selected immutable palette resources without copying them or validating their sizes.</summary>

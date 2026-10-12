@@ -8,7 +8,6 @@ using System.Reflection.PortableExecutable;
 /// </summary>
 internal static class AssemblyMetadataVerification
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     public static int Run(string original, string linked)
     {
         var before = Read(original);
@@ -21,7 +20,6 @@ internal static class AssemblyMetadataVerification
         return 0;
     }
 
-    /// <summary>read.</summary>
     private static HashSet<string> Read(string path)
     {
         using var stream = File.OpenRead(path);

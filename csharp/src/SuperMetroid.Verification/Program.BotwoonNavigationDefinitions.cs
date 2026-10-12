@@ -16,10 +16,8 @@ using SuperMetroid.Core.Hardware;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents botwoon navigation definitions verification.</summary>
 internal static class BotwoonNavigationDefinitionsVerification
 {
-    /// <summary>Verifies botwoon hole right bounds.</summary>
     internal static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
     {
         Action<RoomEnemySlot, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
@@ -42,7 +40,6 @@ internal static class BotwoonNavigationDefinitionsVerification
                 AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset), "Botwoon hole bound domain");
     }
 
-    /// <summary>Verifies botwoon hole bottom bounds.</summary>
     internal static void VerifyBotwoonHoleBottomBounds(SuperMetroidAddressSpace rom)
     {
         Action<RoomEnemySlot, BotwoonEnemyState> detect = BotwoonBehavior.DetectBotwoonHole;
@@ -62,7 +59,6 @@ internal static class BotwoonNavigationDefinitionsVerification
         }
     }
 
-    /// <summary>Verifies botwoon path descriptor mappings.</summary>
     internal static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonPathPointerMapping), () => VerifyBotwoonPathPointerMapping(rom));
@@ -91,7 +87,6 @@ internal static class BotwoonNavigationDefinitionsVerification
         Console.WriteLine("Botwoon path descriptors: all 32 pointer, direction and destination fields and production installations match native records; invalid offsets rejected.");
     }
 
-    /// <summary>Verifies botwoon path pointer mapping.</summary>
     private static void VerifyBotwoonPathPointerMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] boundaries = [0xa058,0xa328,0xa6ba,0xaa22,0xadfc,0xb168,0xb554,0xb954,
@@ -108,7 +103,6 @@ internal static class BotwoonNavigationDefinitionsVerification
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).PathPointer, "Botwoon native forward/reverse descriptor pointer");
     }
 
-    /// <summary>Verifies botwoon path direction mapping.</summary>
     private static void VerifyBotwoonPathDirectionMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
@@ -116,7 +110,6 @@ internal static class BotwoonNavigationDefinitionsVerification
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).Direction, "Botwoon native traversal direction");
     }
 
-    /// <summary>Verifies botwoon path destination mapping.</summary>
     private static void VerifyBotwoonPathDestinationMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
@@ -124,7 +117,6 @@ internal static class BotwoonNavigationDefinitionsVerification
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).TargetHoleByteOffset, "Botwoon native destination including repeated hidden choice");
     }
 
-    /// <summary>Verifies botwoon navigation definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon navigation definitions")]
     internal static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -338,7 +330,6 @@ internal static class BotwoonNavigationDefinitionsVerification
             "targets and rectangle boundaries pass with fixed definition reads forbidden.");
     }
 
-    /// <summary>New botwoon navigation read guard.</summary>
     private static CartridgeReadGuard NewBotwoonNavigationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
                 address is >= 0xb3949b and < 0xb394bb or
@@ -346,7 +337,6 @@ internal static class BotwoonNavigationDefinitionsVerification
                     >= 0xb3e150 and < 0xb3e250,
             address => $"Botwoon attempted migrated navigation-definition read ${address:X6}.");
 
-    /// <summary>Botwoon navigation definitions command.</summary>
     [VerificationCommand("--botwoon-navigation-definitions")]
     internal static int BotwoonNavigationDefinitionsCommand()
     {

@@ -9,13 +9,10 @@ public sealed class PhantoonBg2FrameCatalog
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
     public string ContentIdentity => frames.ContentIdentity;
 
-    /// <summary>Stores frames.</summary>
     private readonly EnemyBg2FrameCatalog frames;
 
-    /// <summary>Initializes a new phantoon bg2 frame catalog instance.</summary>
     private PhantoonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
-    /// <summary>try get.</summary>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
         frames.TryGet(pointer, out writes);
 

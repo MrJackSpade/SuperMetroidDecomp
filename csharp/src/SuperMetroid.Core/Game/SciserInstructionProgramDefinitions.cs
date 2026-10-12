@@ -15,9 +15,7 @@ internal abstract class SciserInstructionProgramDefinitions
     /// <summary><c>InstList_Sciser_UpsideUp_0</c> at $A3:96C3.</summary>
     internal const ushort UpsideUp = 0x96c3;
 
-    /// <summary>Defines surface count.</summary>
     internal const int SurfaceCount = 4;
-    /// <summary>Defines program bytes.</summary>
     internal const int ProgramBytes = 24;
     /// <summary>True only for a spritemap operand in one of the four native loops.</summary>
     internal static bool IsPresentationWord(ushort address)
@@ -26,7 +24,6 @@ internal abstract class SciserInstructionProgramDefinitions
         int within = offset % ProgramBytes;
         return (uint)offset < SurfaceCount * ProgramBytes && within is >= 6 and <= 18 && within % 4 == 2;
     }
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - UpsideRight;

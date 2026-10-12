@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static SharedCrawlerInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents shared crawler artwork verification.</summary>
 internal static class SharedCrawlerArtworkVerification
 {
-    /// <summary>Verifies installed shared crawler frames.</summary>
     internal static void VerifyInstalledSharedCrawlerFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

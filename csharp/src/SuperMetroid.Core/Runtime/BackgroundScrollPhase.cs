@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -12,14 +12,10 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class BackgroundScrollPhase
 {
-    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
 
-    /// <summary>Initializes a new background scroll phase instance.</summary>
     internal BackgroundScrollPhase(BackgroundScrollState backgroundScroll, ActiveRoomState room, SnesVram vram)
     {
         _backgroundScroll = backgroundScroll;

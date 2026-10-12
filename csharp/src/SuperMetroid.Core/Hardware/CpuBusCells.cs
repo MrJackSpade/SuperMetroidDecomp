@@ -8,9 +8,7 @@ public interface ISnesMemoryBus : ISnesAddressSpace, ISnesMutableMemory;
 [CpuBusAccess]
 public readonly struct WramByte
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesMemoryBus bus;
-    /// <summary>Stores address.</summary>
     private readonly int address;
 
     /// <summary>Binds a one-byte WRAM <paramref name="cell"/>.</summary>
@@ -36,9 +34,7 @@ public readonly struct WramByte
 [CpuBusAccess]
 public readonly struct WramWord
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesMemoryBus bus;
-    /// <summary>Stores address.</summary>
     private readonly int address;
 
     /// <summary>Binds a two-byte WRAM <paramref name="cell"/>.</summary>
@@ -50,7 +46,6 @@ public readonly struct WramWord
         address = cell.Address;
     }
 
-    /// <summary>Initializes a new wram word instance.</summary>
     private WramWord(ISnesMemoryBus bus, int address)
     {
         this.bus = bus;
@@ -79,9 +74,7 @@ public readonly struct WramWord
 [CpuBusAccess]
 public readonly struct WramBytes
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesMemoryBus bus;
-    /// <summary>Stores address.</summary>
     private readonly int address;
 
     /// <summary>Binds a WRAM range <paramref name="cell"/>.</summary>
@@ -111,7 +104,6 @@ public readonly struct WramBytes
             Write(index, bytes[index]);
     }
 
-    /// <summary>Address.</summary>
     private int Address(int index)
     {
         if ((uint)index >= (uint)Length)
@@ -127,9 +119,7 @@ public readonly struct WramBytes
 [CpuBusAccess]
 public readonly struct WramWords
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesMemoryBus bus;
-    /// <summary>Stores address.</summary>
     private readonly int address;
 
     /// <summary>Binds a WRAM word-table <paramref name="cell"/> (an even byte count).</summary>
@@ -166,9 +156,7 @@ public readonly struct WramWords
 [CpuBusAccess]
 public readonly struct SramBytes
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesMemoryBus bus;
-    /// <summary>Stores address.</summary>
     private readonly int address;
 
     /// <summary>Binds an SRAM range <paramref name="cell"/>.</summary>
@@ -200,7 +188,6 @@ public readonly struct SramBytes
         Write(index + 1, SnesLittleEndian.HighByte(value));
     }
 
-    /// <summary>Address.</summary>
     private int Address(int index)
     {
         if ((uint)index >= (uint)Length)

@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class KraidFootCollisionDefinitions
 {
-    /// <summary>Defines bank.</summary>
     internal const byte Bank = 0xa7;
 
     /// <summary>First authored Kraid-foot extended frame at $A7:8CE3.</summary>
@@ -22,7 +21,6 @@ internal static class KraidFootCollisionDefinitions
     /// <summary>Each two-component frame occupies 18 bytes in bank $A7.</summary>
     private const int FrameByteCount = 18;
 
-    /// <summary>Defines frame count.</summary>
     internal const int FrameCount = 35;
 
     /// <summary>The fixed component moves two pixels left per frame, then retraces.</summary>
@@ -76,13 +74,11 @@ internal static class KraidFootCollisionDefinitions
         });
     }
 
-    /// <summary>check frame.</summary>
     private static void CheckFrame(int frame)
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
     }
 
-    /// <summary>try get components.</summary>
     internal static bool TryGetComponents(ushort pointer,
         out KraidFootComponentSequence components)
     {
@@ -113,7 +109,6 @@ internal static class KraidFootCollisionDefinitions
 /// <summary>Two physical components calculated on access; an unsuccessful lookup returns an empty sequence.</summary>
 internal readonly record struct KraidFootComponentSequence(int Frame, int Length)
 {
-    /// <summary>Accesses a value by index or range.</summary>
     internal KraidFootCollisionComponent this[int index]
     {
         get
@@ -124,16 +119,11 @@ internal readonly record struct KraidFootComponentSequence(int Frame, int Length
                 : new(new(KraidFootCollisionDefinitions.SecondX(Frame), KraidFootCollisionDefinitions.SecondY(Frame)), KraidFootCollisionDefinitions.HitboxList);
         }
     }
-    /// <summary>Returns an enumerator over this collection.</summary>
     public Enumerator GetEnumerator() => new(this);
-    /// <summary>Represents enumerator.</summary>
     internal struct Enumerator(KraidFootComponentSequence sequence)
     {
-        /// <summary>Stores next.</summary>
         private int next;
-        /// <summary>move next.</summary>
         public bool MoveNext() => next++ < sequence.Length;
-        /// <summary>Gets current.</summary>
         public KraidFootCollisionComponent Current => sequence[next - 1];
     }
 }
@@ -141,7 +131,6 @@ internal readonly record struct KraidFootComponentSequence(int Frame, int Length
 /// <summary>Direct construction of the single shared rectangle without a stored hitbox lookup.</summary>
 internal readonly record struct KraidFootHitboxSequence(int Length)
 {
-    /// <summary>Accesses a value by index or range.</summary>
     internal KraidFootCollisionHitbox this[int index]
     {
         get
@@ -151,22 +140,15 @@ internal readonly record struct KraidFootHitboxSequence(int Length)
                 EnemyAiCodePointers.BankA7.KraidNoOpShot);
         }
     }
-    /// <summary>Returns an enumerator over this collection.</summary>
     public Enumerator GetEnumerator() => new(this);
-    /// <summary>Represents enumerator.</summary>
     internal struct Enumerator(KraidFootHitboxSequence sequence)
     {
-        /// <summary>Stores next.</summary>
         private int next;
-        /// <summary>move next.</summary>
         public bool MoveNext() => next++ < sequence.Length;
-        /// <summary>Gets current.</summary>
         public KraidFootCollisionHitbox Current => sequence[next - 1];
     }
 }
-/// <summary>Represents kraid foot collision component.</summary>
 internal readonly record struct KraidFootCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
 
-/// <summary>Represents kraid foot collision hitbox.</summary>
 internal readonly record struct KraidFootCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);

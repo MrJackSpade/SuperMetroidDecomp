@@ -28,7 +28,6 @@ using static SpinChargeVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents samus projectiles verification.</summary>
 internal static class SamusProjectilesVerification
 {
 
@@ -2013,7 +2012,6 @@ static void WriteRoomPlmPopulationFixture(
     WriteTestWord(bus, 0x8f0000 | unchecked((ushort)(population + records.Length * 6)), 0);
 }
 
-    /// <summary>Samus projectiles command.</summary>
     [VerificationCommand("--samus-projectiles")]
     internal static int SamusProjectilesCommand()
     {

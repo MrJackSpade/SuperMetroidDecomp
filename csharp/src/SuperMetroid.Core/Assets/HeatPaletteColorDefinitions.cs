@@ -17,13 +17,11 @@ namespace SuperMetroid.Core.Assets;
 /// review. Custom colors differing from the calculated alias remain explicit overrides.</remarks>
 internal static class HeatPaletteColorDefinitions
 {
-    /// <summary>Tries to canonical pointer.</summary>
     internal static bool TryCanonicalPointer(ushort pointer, out ushort canonical)
         => TrySuit(pointer, PaletteFxHeatSuit.Power, out canonical) ||
            TrySuit(pointer, PaletteFxHeatSuit.Varia, out canonical) ||
            TrySuit(pointer, PaletteFxHeatSuit.Gravity, out canonical);
 
-    /// <summary>Tries to suit.</summary>
     private static bool TrySuit(ushort pointer, PaletteFxHeatSuit suit, out ushort canonical)
     {
         int first = PaletteFxHeatInstructionListDefinitions.Resolve(suit, 0) + 2;
@@ -42,7 +40,6 @@ internal static class HeatPaletteColorDefinitions
         return true;
 
     }
-    /// <summary>Tries to calculated color.</summary>
     internal static bool TryCalculatedColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
         TryBaseColor(pointer, colors, out value) || TryHighlightEndpoint(pointer, colors, out value) || TryRedRamp(pointer, colors, out value) || TrySecondaryRedRamp(pointer, colors, out value) ||
         TryMixedRamp(pointer, colors, out value) || TrySharedRed(pointer, colors, out value);
@@ -67,7 +64,6 @@ internal static class HeatPaletteColorDefinitions
         return true;
     }
 
-    /// <summary>Tries to base color.</summary>
     private static bool TryBaseColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value)
     {
         value = Bgr555.Black;
@@ -75,7 +71,6 @@ internal static class HeatPaletteColorDefinitions
             LoadingPaletteColorDefinitions.TryReadColor(source, colors, out value);
     }
 
-    /// <summary>Tries to input color.</summary>
     private static bool TryInputColor(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors, out Bgr555 value) =>
         colors.TryGetValue(pointer, out value) || TryBaseColor(pointer, colors, out value) ||
         TryHighlightEndpoint(pointer, colors, out value);
@@ -125,7 +120,6 @@ internal static class HeatPaletteColorDefinitions
         TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Power, 8, 2, out value) ||
         TryEndpointRed(pointer, colors, PaletteFxHeatSuit.Varia, 9, 0, out value);
 
-    /// <summary>Tries to endpoint red.</summary>
     private static bool TryEndpointRed(ushort pointer, IReadOnlyDictionary<ushort, Bgr555> colors,
         PaletteFxHeatSuit suit, int colorIndex, int roundingBias, out Bgr555 value)
     {

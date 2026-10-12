@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents projectile instructions verification.</summary>
 internal static class ProjectileInstructionsVerification
 {
-    /// <summary>Verifies projectile instructions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile instructions")]
     internal static void VerifyProjectileInstructions(SuperMetroidAddressSpace rom)
     {
@@ -171,7 +169,6 @@ internal static class ProjectileInstructionsVerification
         Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
     }
 
-    /// <summary>Creates projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewProjectileInstructionReadGuard(ISnesAddressSpace source, HashSet<int> words) =>
         new CartridgeReadGuard(source).Forbid(address => words.Contains(address) || words.Contains(address - 1),
             address => new InvalidDataException($"Projectile instruction still reads mechanics ROM ${address:X6}."));

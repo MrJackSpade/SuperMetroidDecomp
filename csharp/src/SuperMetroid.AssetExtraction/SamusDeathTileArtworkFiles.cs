@@ -13,9 +13,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM Samus death graphics transfers → death tile PNG")]
 public static class SamusDeathTileArtworkFiles
 {
-    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 1;
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -87,6 +85,5 @@ public static class SamusDeathTileArtworkFiles
         }
     }
 
-    /// <summary>Represents artwork manifest.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

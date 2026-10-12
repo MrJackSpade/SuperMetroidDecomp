@@ -15,24 +15,18 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
     private const int BodyTileSide = 3;
     /// <summary>$82:CB2B-CBCA: selected visor overlay top lies two pixels above the shared helmet anchor.</summary>
     private const int VisorTop = -2;
-    /// <summary>Stores tile side.</summary>
     private const int TileSide = 8, LargeSide = 16;
-    /// <summary>Represents corner.</summary>
-    private enum Corner { /** <summary>Identifies top left.</summary> */ TopLeft, /** <summary>Identifies top right.</summary> */ TopRight, /** <summary>Identifies bottom left.</summary> */ BottomLeft, /** <summary>Identifies bottom right.</summary> */ BottomRight }
-    /// <summary>Calculates if matching.</summary>
+    private enum Corner { TopLeft, TopRight, BottomLeft, BottomRight }
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied) =>
         name.Length == 8 && name.StartsWith("Helmet.", StringComparison.Ordinal) && name[7] is >= '0' and <= '7'
             ? supplied.CalculateIfMatching(new FileSelectHelmetParts(name[7] - '0')) : supplied;
-    /// <summary>Gets count.</summary>
     public int Count => frame < 3 ? 4 : 6;
-    /// <summary>Body corner.</summary>
     private Corner BodyCorner(int part) => frame switch
     {
         0 => part switch { 0 => Corner.TopRight, 1 => Corner.BottomRight, 2 => Corner.BottomLeft, _ => Corner.TopLeft },
         1 => part switch { 0 => Corner.BottomLeft, 1 => Corner.TopLeft, 2 => Corner.TopRight, _ => Corner.BottomRight },
         _ => part switch { 0 => Corner.TopRight, 1 => Corner.TopLeft, 2 => Corner.BottomLeft, _ => Corner.BottomRight },
     };
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -56,11 +50,9 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
                 SnesObjAttributeWord.Create(bodyTile, 0, 3, default), true);
         }
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

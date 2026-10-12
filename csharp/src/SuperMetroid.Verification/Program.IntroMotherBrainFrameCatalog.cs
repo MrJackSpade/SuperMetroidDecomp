@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents intro mother brain frame catalog verification.</summary>
 internal static class IntroMotherBrainFrameCatalogVerification
 {
-    /// <summary>Verifies intro mother brain frame catalog.</summary>
     internal static void VerifyIntroMotherBrainFrameCatalog(ISnesAddressSpace rom)
     {
         var frames = IntroMotherBrainSpriteDefinitions.Frames;
@@ -28,7 +26,6 @@ internal static class IntroMotherBrainFrameCatalogVerification
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "frame enumeration matches indexing");
     }
 
-    /// <summary>Intro mother brain frame catalog rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain frame catalog")]
     private static byte IntroMotherBrainFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

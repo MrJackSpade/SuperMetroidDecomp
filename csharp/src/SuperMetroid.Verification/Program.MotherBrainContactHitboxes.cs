@@ -14,7 +14,6 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents mother brain contact hitboxes verification.</summary>
 internal static class MotherBrainContactHitboxesVerification
 {
     /// <summary>
@@ -100,7 +99,6 @@ internal static class MotherBrainContactHitboxesVerification
             $"{collisionCases} production collision probes pass without a ROM bus.");
     }
 
-    /// <summary>expected mother brain contact.</summary>
     private static (bool Collides, ushort XDisplacement) ExpectedMotherBrainContact(
         MotherBrainContactPart part,
         Offset16<RoomPixels> delta,
@@ -121,7 +119,6 @@ internal static class MotherBrainContactHitboxesVerification
         return (false, 0);
     }
 
-    /// <summary>mother brain contact hitboxes command.</summary>
     [VerificationCommand("--mother-brain-contact-hitboxes")]
     internal static int MotherBrainContactHitboxesCommand()
     {

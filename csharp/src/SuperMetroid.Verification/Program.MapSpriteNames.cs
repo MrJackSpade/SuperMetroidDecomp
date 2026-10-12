@@ -12,10 +12,8 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 
-/// <summary>Represents map sprite names verification.</summary>
 internal static class MapSpriteNamesVerification
 {
-    /// <summary>Maps sprite role oracle.</summary>
     internal static (ushort NativeId, string Name)[] MapSpriteRoleOracle() =>
         [
             (0x4, "Arrow.Right"),
@@ -46,7 +44,6 @@ internal static class MapSpriteNamesVerification
             (0x3e, "World.Tourian")
         ];
 
-    /// <summary>Verifies map sprite name cases.</summary>
     internal static void VerifyMapSpriteNameCases()
     {
         // Independent original table from9b54e512, retained only for verification.
@@ -62,7 +59,6 @@ internal static class MapSpriteNamesVerification
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteDefinitions.Name((MapSpriteId)invalid), "unsupported map sprite name");
     }
 
-    /// <summary>Looks up map sprite names command.</summary>
     [VerificationCommand("--lookup-map-sprite-names")]
     internal static int LookupMapSpriteNamesCommand()
     {

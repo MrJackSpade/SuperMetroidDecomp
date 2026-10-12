@@ -10,19 +10,14 @@ namespace SuperMetroid.Core.Assets;
 /// flag stays clear: the scene's OBJ size selection supplies the32-pixel geometry.</summary>
 internal sealed class EndingCloudGridParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Stores role.</summary>
     private readonly Role role;
-    /// <summary>Initializes a new ending cloud grid parts instance.</summary>
     internal EndingCloudGridParts(Role role)
     {
         if ((uint)role > (uint)Role.Left) throw new ArgumentOutOfRangeException(nameof(role));
         this.role = role;
     }
-    /// <summary>Gets side.</summary>
     private bool Side => role is Role.Right or Role.Left;
-    /// <summary>Gets count.</summary>
     public int Count => Side ? 32 : 16;
-    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -45,11 +40,9 @@ internal sealed class EndingCloudGridParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(firstTile + row * 0x40 + column * 4, 0, 3, flips), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

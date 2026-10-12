@@ -24,14 +24,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class MenuCompactLetteringArtwork
 {
-    /// <summary>Defines tile count.</summary>
     internal const int TileCount = 34;
-    /// <summary>Stores glyphs.</summary>
     private readonly Dictionary<char, uint> glyphs = [];
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, byte>? edits;
 
-    /// <summary>contains.</summary>
     internal static bool Contains(int tile) => tile is >= 0 and <= 9 or 0x10 or >= 0x12 and <= 0x16 or
         0x18 or 0x19 or 0x20 or 0x32 or 0x44 or 0x45 or >= 0x53 and <= 0x56 or 0x5f or >= 0xa5 and <= 0xaa or 0xb7;
 
@@ -66,7 +62,6 @@ internal sealed class MenuCompactLetteringArtwork
         _ => tile - start - (gap >= 0 && tile > gap ? 1 : 0),
     };
 
-    /// <summary>source tile.</summary>
     private static int SourceTile(int column, int start, int gap)
     {
         if (start == 8) return column switch { 0 => 8, 1 => 9, 2 => 0x20, 3 => 0x32, _ => throw new ArgumentOutOfRangeException(nameof(column)) };
@@ -75,7 +70,6 @@ internal sealed class MenuCompactLetteringArtwork
         return gap >= 0 && tile >= gap ? tile + 1 : tile;
     }
 
-    /// <summary>Initializes a new menu compact lettering artwork instance.</summary>
     internal MenuCompactLetteringArtwork(IndexedPngImage image)
     {
         for (int tile = 0; tile <= 0xb7; tile++)
@@ -115,14 +109,12 @@ internal sealed class MenuCompactLetteringArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
-    /// <summary>pixel.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    /// <summary>basis.</summary>
     private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         var row = Layout(tile);

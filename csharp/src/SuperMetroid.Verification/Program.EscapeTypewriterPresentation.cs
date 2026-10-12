@@ -16,10 +16,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents escape typewriter presentation verification.</summary>
 internal static class EscapeTypewriterPresentationVerification
 {
-    /// <summary>Verifies escape typewriter presentation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyEscapeTypewriterPresentation(string romPath)
     {
@@ -100,7 +98,6 @@ internal static class EscapeTypewriterPresentationVerification
             $"Escape typewriter: Ceres/Zebes extraction and {comparedFrames} stock frames match with installed ROM reads forbidden; UTF-8 edits, active rebind and strict glyph validation pass.");
     }
 
-    /// <summary>Verifies escape typewriter assets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyEscapeTypewriterAssets(
         ISnesAddressSpace bus,
@@ -139,7 +136,6 @@ internal static class EscapeTypewriterPresentationVerification
             "Escape typewriter catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
-    /// <summary>Escape typewriter presentation command.</summary>
     [VerificationCommand("--escape-typewriter-presentation")]
     internal static int EscapeTypewriterPresentationCommand()
     {

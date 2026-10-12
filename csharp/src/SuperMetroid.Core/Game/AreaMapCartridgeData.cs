@@ -5,10 +5,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Lossless decoded view of one retail area map and station reveal plane.</summary>
 public sealed class AreaMapCartridgeData : IAreaMapView
 {
-    /// <summary>Stores tilemap.</summary>
     private readonly MapTileWord[] tilemap;
 
-    /// <summary>Initializes a new area map cartridge data instance.</summary>
     internal AreaMapCartridgeData(
         AreaId area,
         int tilemapAddress,

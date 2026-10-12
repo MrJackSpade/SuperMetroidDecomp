@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 
-/// <summary>Represents enemy linear speeds verification.</summary>
 internal static class EnemyLinearSpeedsVerification
 {
-    /// <summary>Verifies compiled linear enemy speeds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled linear enemy speeds")]
     internal static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {

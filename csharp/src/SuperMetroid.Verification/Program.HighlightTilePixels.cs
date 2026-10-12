@@ -2,10 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents highlight tile pixels verification.</summary>
 internal static class HighlightTilePixelsVerification
 {
-    /// <summary>verify highlight tile pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyHighlightTilePixels(ISnesAddressSpace rom)
     {
@@ -89,7 +87,6 @@ internal static class HighlightTilePixelsVerification
         }
     }
 
-    /// <summary>highlight tile pixels rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for highlight tile pixels")]
     private static byte HighlightTilePixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -8,10 +8,8 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Static definition/data analysis. Does not instantiate a runtime or advance a frame.</summary>
 internal static class DoorCatalogAudit
 {
-    /// <summary>Represents finding.</summary>
     private sealed record Finding(string Code, string Owner, string Message);
 
-    /// <summary>Runs the scoped verification checks.</summary>
     internal static int Run(string root, string output)
     {
         NativeDoorManifest native = Load(root);
@@ -70,12 +68,10 @@ internal static class DoorCatalogAudit
         return findings.Count == 0 ? 0 : 1;
     }
 
-    /// <summary>is unused native door index.</summary>
     private static bool IsUnusedNativeDoorIndex(NativeDoorRoom room, NativeDoorState state, int bts) =>
         room.Room == 0xb3e1 && room.List == 0xb408 && room.Doors.SequenceEqual(new ushort[] { 0x991e }) &&
         state.State == 0xb3ee && state.Level == 0xc8f40b && bts == 1;
 
-    /// <summary>compare lists.</summary>
     private static List<Finding> CompareLists(NativeDoorManifest native, Dictionary<ushort, ushort[]> lists)
     {
         var findings = new List<Finding>();
@@ -98,7 +94,6 @@ internal static class DoorCatalogAudit
         return findings;
     }
 
-    /// <summary>compiled lists.</summary>
     private static Dictionary<ushort, ushort[]> CompiledLists()
     {
         // Inventory the complete calculated identity domain, including unexpected
@@ -114,7 +109,6 @@ internal static class DoorCatalogAudit
         return lists;
     }
 
-    /// <summary>load.</summary>
     private static NativeDoorManifest Load(string root)
     {
         string text = File.ReadAllText(Path.Combine(root, DoorCatalogManifest.RelativePath)).Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -157,7 +151,6 @@ internal static class DoorCatalogAudit
         catch (ArgumentOutOfRangeException) { return "Missing native physical header."; }
     }
 
-    /// <summary>self check.</summary>
     internal static void SelfCheck(string root)
     {
         NativeDoorManifest native = Load(root);

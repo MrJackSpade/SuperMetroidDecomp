@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM title CGRAM image → title palette")]
 internal static class TitlePaletteExtractor
 {
-    /// <summary>Extract.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

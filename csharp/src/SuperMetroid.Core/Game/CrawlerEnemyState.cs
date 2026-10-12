@@ -29,10 +29,8 @@ public enum CrawlerEnemyFunction : ushort
 /// </summary>
 public sealed class CrawlerEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new crawler enemy state instance.</summary>
     internal CrawlerEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

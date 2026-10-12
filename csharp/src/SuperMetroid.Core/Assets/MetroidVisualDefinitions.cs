@@ -14,7 +14,6 @@ internal static class MetroidVisualDefinitions
 
     /// <summary>$A3:F10D / Spritemap_Metroid_Insides_0 starts four records with 8/6/8/8 OAM objects.</summary>
     private const ushort FirstFrame = 0xf10d;
-    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var result = new EnemySpritemapDefinition[4];

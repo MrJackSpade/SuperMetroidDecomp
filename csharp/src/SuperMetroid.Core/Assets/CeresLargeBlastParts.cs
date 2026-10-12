@@ -18,7 +18,6 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class CeresLargeBlastParts(int frame, int tile) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (supplied.PartCount != 1) return supplied;
@@ -27,15 +26,11 @@ internal sealed class CeresLargeBlastParts(int frame, int tile) : IReadOnlyList<
                 return supplied.CalculateIfMatching(new CeresLargeBlastParts(frame, supplied.Part(0).Attributes.TileNumber));
         return supplied;
     }
-    /// <summary>Gets count.</summary>
     public int Count => 1;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index] => index == 0
         ? new(SnesSpritemapXWord.Create(-8, true), unchecked((byte)(-10 - 2 * frame)),
             SnesObjAttributeWord.Create(tile, 0, 3, 0), true)
         : throw new ArgumentOutOfRangeException(nameof(index));
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator() { yield return this[0]; }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

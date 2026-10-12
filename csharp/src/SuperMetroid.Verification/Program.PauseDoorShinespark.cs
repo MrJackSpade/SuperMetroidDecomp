@@ -13,10 +13,8 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
-/// <summary>Represents pause door shinespark verification.</summary>
 internal static class PauseDoorShinesparkVerification
 {
-    /// <summary>verify pause door shinespark.</summary>
     internal static void VerifyPauseDoorShinespark()
     {
         foreach (var scenario in new[] { (Brightening: false, Terminal: false), (Brightening: false, Terminal: true), (Brightening: true, Terminal: false), (Brightening: true, Terminal: true) })
@@ -83,7 +81,6 @@ internal static class PauseDoorShinesparkVerification
         Console.WriteLine("Pause-door shinespark: door hits during both fades preserve native normal/terminal state ordering and start transitions without extra source movement.");
     }
 
-    /// <summary>pause door shinespark command.</summary>
     [VerificationCommand("--pause-door-shinespark")]
     internal static int PauseDoorShinesparkCommand()
     {

@@ -17,17 +17,14 @@ using static KraidFootCollisionDefinitionsVerification;
 using static KraidFootGeneratedProgramsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid foot instruction program definitions verification.</summary>
 internal static class KraidFootInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies kraid foot instruction program definitions.</summary>
     internal static void VerifyKraidFootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidFootInstructionProgramDefinitions), () => VerifyKraidFootInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies kraid foot instruction program definitions.</summary>
     internal static void VerifyKraidFootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -138,7 +135,6 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
             "entries, seven callbacks, and 106 executed cartridge-matching selectors pass.");
     }
 
-    /// <summary>Creates kraid foot instruction system.</summary>
     private static RoomEnemySystem CreateKraidFootInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -153,7 +149,6 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         return enemies;
     }
 
-    /// <summary>Runs kraid foot program.</summary>
     private static void RunKraidFootProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -171,7 +166,6 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Invoke kraid foot instruction processor.</summary>
     private static void InvokeKraidFootInstructionProcessor(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -188,7 +182,6 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
                 "Kraid foot callback-to-sleep retains its previous sprite");
     }
 
-    /// <summary>Asserts kraid foot sound and quake.</summary>
     private static void AssertKraidFootSoundAndQuake(
         RoomEnemySystem enemies,
         string program)
@@ -202,7 +195,6 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
             $"{program} Kraid foot selects native quake duration");
     }
 
-    /// <summary>Probe kraid foot instruction allocation.</summary>
     private static int ProbeKraidFootInstructionAllocation()
     {
         int checksum = 0;
@@ -216,21 +208,18 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads kraid foot instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot instruction words")]
     internal static ushort ReadKraidFootInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
 
-    /// <summary>New kraid foot instruction guard.</summary>
     private static CartridgeReadGuard NewKraidFootInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Kraid foot mechanics byte ${address:X6}.")
             .ObserveWords(0xa70000, KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount, KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
-    /// <summary>Kraid foot instruction program definitions command.</summary>
     [VerificationCommand("--kraid-foot-instruction-program-definitions")]
     internal static int KraidFootInstructionProgramDefinitionsCommand()
     {

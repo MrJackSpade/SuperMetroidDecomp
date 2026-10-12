@@ -390,7 +390,6 @@ public static class SamusKnockbackMovement
         EndWithoutPoseChange(samus);
     }
 
-    /// <summary>End without pose change.</summary>
     private static KnockbackMovementResult EndWithoutPoseChange(SamusState samus)
     {
         // `$90:DE40` republishes the current pose, so UpdateSamusPose neither reloads its
@@ -399,7 +398,6 @@ public static class SamusKnockbackMovement
         return FinishKnockback(samus);
     }
 
-    /// <summary>Finishes knockback.</summary>
     private static KnockbackMovementResult FinishKnockback(SamusState samus)
     {
         // The native expiry command restores the normal input pointer as well as
@@ -422,7 +420,6 @@ public static class SamusKnockbackMovement
         return new KnockbackMovementResult();
     }
 
-    /// <summary>Moves with shared vertical speed calculation.</summary>
     private static BlockMoveResult MoveWithSharedVerticalSpeedCalculation(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -439,7 +436,6 @@ public static class SamusKnockbackMovement
         return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, nmiFrameCounter, out _, out _);
     }
 
-    /// <summary>Moves down without speed calculation.</summary>
     private static BlockMoveResult MoveDownWithoutSpeedCalculation(
         ISnesAddressSpace bus,
         RoomLevelData level,

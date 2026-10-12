@@ -14,10 +14,8 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class EnemyVisualProgramAudit
 {
-    /// <summary>Represents program row.</summary>
     internal sealed record ProgramRow(int Operands);
 
-    /// <summary>Runs.</summary>
     internal static int Run(string root, string output)
     {
         var report = new AuditReport();
@@ -110,12 +108,10 @@ internal static class EnemyVisualProgramAudit
         return report.Findings.Count == 0 ? 0 : 1;
     }
 
-    /// <summary>Interleaved operands.</summary>
     internal static IEnumerable<ushort> InterleavedOperands(Dictionary<ushort, ushort> words) =>
         words.Where(word => word.Value < 0x8000 && !words.ContainsKey(unchecked((ushort)(word.Key + 2))))
             .Select(word => unchecked((ushort)(word.Key + 2)));
 
-    /// <summary>Discover owners.</summary>
     internal static HashSet<string> DiscoverOwners(CSharpCompilation compilation)
     {
         var owners = new HashSet<string>(compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes()
@@ -139,7 +135,6 @@ internal static class EnemyVisualProgramAudit
         return owners;
     }
 
-    /// <summary>Reads words.</summary>
     private static Dictionary<ushort, ushort> ReadWords(Type type, InstructionProgramCatalog catalog)
     {
         var result = new Dictionary<ushort, ushort>();
@@ -169,7 +164,6 @@ internal static class EnemyVisualProgramAudit
         return result;
     }
 
-    /// <summary>Resolves bank.</summary>
     private static int? ResolveBank(Type type, InstructionProgramCatalog catalog, ClassDeclarationSyntax[] parts, CSharpCompilation compilation)
     {
         if (EnemyVisualProgramSpecializations.IsMotherBrain(type)) return MotherBrainVisualDefinitions.Bank;
@@ -191,7 +185,6 @@ internal static class EnemyVisualProgramAudit
         return banks.Count == 1 ? banks.Single() : null;
     }
 
-    /// <summary>Requires.</summary>
     private static void Require(Type type, byte bank, ushort operand, string source, ResourceIndex exports, AuditReport report)
     {
         string owner = type.Name;
@@ -219,7 +212,6 @@ internal static class EnemyVisualProgramAudit
         RequireResolvedOperand(bank, operand, pointer, owner, source, exports, report);
     }
 
-    /// <summary>Requires resolved operand.</summary>
     internal static void RequireResolvedOperand(byte bank, ushort operand, ushort? pointer, string owner,
         string source, ResourceIndex exports, AuditReport report)
     {

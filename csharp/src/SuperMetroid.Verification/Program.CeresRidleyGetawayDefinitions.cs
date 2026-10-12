@@ -3,10 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ceres ridley getaway definitions verification.</summary>
 internal static class CeresRidleyGetawayDefinitionsVerification
 {
-    /// <summary>Verifies compiled ceres ridley getaway.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley getaway")]
     internal static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
     {
@@ -28,7 +26,6 @@ internal static class CeresRidleyGetawayDefinitionsVerification
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match, including irregular zoom steps and terminal frame.");
     }
 
-    /// <summary>Verifies compiled ceres ridley mode7 transfers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley Mode 7 transfers")]
     internal static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)

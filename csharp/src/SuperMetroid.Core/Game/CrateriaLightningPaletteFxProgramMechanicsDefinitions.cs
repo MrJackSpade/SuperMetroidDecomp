@@ -44,11 +44,8 @@ public readonly record struct CrateriaLightningPaletteFrame(
 /// </remarks>
 public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
 {
-    /// <summary>Stores surface.</summary>
     private static readonly CrateriaLightningPaletteFxProgramDefinition Surface = new(CrateriaLightningPaletteOwner.SurfaceLightning);
-    /// <summary>Stores dark.</summary>
     private static readonly CrateriaLightningPaletteFxProgramDefinition Dark = new(CrateriaLightningPaletteOwner.UnusedDarkLightning);
-    /// <summary>Stores programs.</summary>
     private static readonly ProgramList Programs = new();
 
     /// <summary>The live and unused-dark programs in cartridge definition order.</summary>
@@ -69,22 +66,17 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
     public static bool TryReadMechanicsByte(ushort pointer, out byte value) =>
         Surface.TryReadByte(pointer, out value) || Dark.TryReadByte(pointer, out value);
 
-    /// <summary>Represents program list.</summary>
     private sealed class ProgramList : IReadOnlyList<CrateriaLightningPaletteFxProgramDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 2;
-        /// <summary>Gets an indexed value.</summary>
         public CrateriaLightningPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => Surface,
             1 => Dark,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<CrateriaLightningPaletteFxProgramDefinition> GetEnumerator()
         { yield return Surface; yield return Dark; }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
@@ -92,7 +84,6 @@ public static class CrateriaLightningPaletteFxProgramMechanicsDefinitions
 /// <summary>Calculated setup, two repeated flash groups and neutral intervals for one lightning owner.</summary>
 public sealed class CrateriaLightningPaletteFxProgramDefinition
 {
-    /// <summary>Initializes a new crateria lightning palette fx program definition instance.</summary>
     internal CrateriaLightningPaletteFxProgramDefinition(CrateriaLightningPaletteOwner owner)
     {
         Owner = owner;
@@ -103,7 +94,6 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
 
     /// <summary>Program identity selecting either the live $F765 surface lightning or retained unused $F769 dark-lightning mechanics and color resource.</summary>
     public CrateriaLightningPaletteOwner Owner { get; }
-    /// <summary>Reports whether this program uses the surface-lightning variant.</summary>
     private bool IsSurface => Owner == CrateriaLightningPaletteOwner.SurfaceLightning;
     /// <summary>$8D:EB3B/$EC6E setup starts: pre-instruction and CGRAM destination.</summary>
     public ushort ProgramStart => IsSurface ? (ushort)0xeb3b : (ushort)0xec6e;
@@ -120,28 +110,17 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
     /// <summary>Two opaque entries marking this program's byte-sized timer operands in first/final group order; their addresses and values are resolved through <see cref="CrateriaLightningPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte"/>.</summary>
     public IReadOnlyList<PaletteFxMechanicsByte> MechanicsBytes { get; }
 
-    /// <summary>Gets neutral count.</summary>
     private int NeutralCount => IsSurface ? 1 : 2;
-    /// <summary>Gets frame byte count.</summary>
     private int FrameByteCount => 2 * (ColorsPerFrame + 2);
-    /// <summary>Gets timer two pointer.</summary>
     private ushort TimerTwoPointer => (ushort)(FirstFramePointer + FrameByteCount);
-    /// <summary>Gets repeated frames pointer.</summary>
     private ushort RepeatedFramesPointer => (ushort)(TimerTwoPointer + 3);
-    /// <summary>Gets decrement two pointer.</summary>
     private ushort DecrementTwoPointer => (ushort)(RepeatedFramesPointer + 7 * FrameByteCount);
-    /// <summary>Gets neutral frames pointer.</summary>
     private ushort NeutralFramesPointer => (ushort)(DecrementTwoPointer + 4);
-    /// <summary>Gets timer one pointer.</summary>
     private ushort TimerOnePointer => (ushort)(NeutralFramesPointer + NeutralCount * FrameByteCount);
-    /// <summary>Gets final frames pointer.</summary>
     private ushort FinalFramesPointer => (ushort)(TimerOnePointer + 3);
-    /// <summary>Gets decrement one pointer.</summary>
     private ushort DecrementOnePointer => (ushort)(FinalFramesPointer + 4 * FrameByteCount);
-    /// <summary>Gets goto pointer.</summary>
     private ushort GotoPointer => (ushort)(DecrementOnePointer + 4);
 
-    /// <summary>Frame.</summary>
     private CrateriaLightningPaletteFrame Frame(int index)
     {
         if (index == 0)
@@ -155,7 +134,6 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         return new((ushort)(FinalFramesPointer + final * FrameByteCount), final == 3 ? (ushort)2 : (ushort)1, ColorsPerFrame);
     }
 
-    /// <summary>Word.</summary>
     private PaletteFxMechanicsWord Word(int index)
     {
         if (index >= 12)
@@ -181,11 +159,9 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         };
     }
 
-    /// <summary>Timer byte.</summary>
     private PaletteFxMechanicsByte TimerByte(int index) => index == 0
         ? new() : new();
 
-    /// <summary>Attempts to read word.</summary>
     internal bool TryReadWord(ushort pointer, out ushort value)
     {
         for (int index = 0; index < MechanicsWords.Count; index++)
@@ -197,7 +173,6 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         return false;
     }
 
-    /// <summary>Attempts to read byte.</summary>
     internal bool TryReadByte(ushort pointer, out byte value)
     {
         if (pointer == TimerTwoPointer + 2) { value = 2; return true; }
@@ -217,20 +192,15 @@ public sealed class CrateriaLightningPaletteFxProgramDefinition
         return (ushort)(definition.FirstColorPointer + 2 * color);
     }
 
-    /// <summary>Represents calculated list.</summary>
     private sealed class CalculatedList<T>(int count, Func<int, T> at) : IReadOnlyList<T>
     {
-        /// <summary>Gets count.</summary>
         public int Count => count;
-        /// <summary>Gets an indexed value.</summary>
         public T this[int index] => (uint)index < Count ? at(index) : throw new ArgumentOutOfRangeException(nameof(index));
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<T> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return at(index);
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

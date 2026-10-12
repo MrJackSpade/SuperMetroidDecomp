@@ -13,10 +13,8 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
-/// <summary>Represents gameplay grapple palette verification.</summary>
 internal static class GameplayGrapplePaletteVerification
 {
-    /// <summary>Verifies gameplay grapple palette.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameplayGrapplePalette()
     {
@@ -85,7 +83,6 @@ internal static class GameplayGrapplePaletteVerification
         }
     }
 
-    /// <summary>Gameplay grapple palette command.</summary>
     [VerificationCommand("--gameplay-grapple-palette")]
     internal static int GameplayGrapplePaletteCommand()
     {

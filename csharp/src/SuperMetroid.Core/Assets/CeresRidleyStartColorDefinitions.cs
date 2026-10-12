@@ -13,16 +13,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyStartColorDefinitions
 {
-    /// <summary>Defines palette size.</summary>
     private const int PaletteSize = 16;
-    /// <summary>Stores door.</summary>
     private readonly CeresDoorNormalPaintDefinitions door;
-    /// <summary>Stores baby.</summary>
     private readonly CeresBabyPaintDefinitions baby;
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new ceres ridley start color definitions instance.</summary>
     internal CeresRidleyStartColorDefinitions(ReadOnlySpan<Bgr555> colors, CeresBabyPaintDefinitions initialBaby)
     {
         if (colors.Length != 2 * PaletteSize)
@@ -33,14 +28,12 @@ internal sealed class CeresRidleyStartColorDefinitions
             if (Calculate(color) != colors[color]) edits.Add(color, colors[color]);
     }
 
-    /// <summary>Resolve.</summary>
     internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= 2 * PaletteSize) throw new ArgumentOutOfRangeException(nameof(color));
         return edits.TryGetValue(color, out Bgr555 edited) ? edited : Calculate(color);
     }
 
-    /// <summary>Calculate.</summary>
     private Bgr555 Calculate(int color) => color switch
     {
         0 or PaletteSize => Bgr555.Black,

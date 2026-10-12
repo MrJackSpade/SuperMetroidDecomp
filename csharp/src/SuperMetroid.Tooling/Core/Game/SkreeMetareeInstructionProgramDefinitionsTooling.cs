@@ -1,4 +1,4 @@
-using SuperMetroid.Tooling;
+﻿using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -9,11 +9,8 @@ internal abstract class SkreeMetareeInstructionProgramDefinitionsTooling : IDecl
     /// <summary>Bank $A3, which holds both species' instruction programs.</summary>
     static int IDeclaredProgramBank.Bank => 0xa3;
     // Idle 10, preparation 16/8, dive 2 and stop 1 holds are authored animation cadence (reviewed under #1165).
-    /// <summary>mechanics word count.</summary>
     internal static int MechanicsWordCount() => 20;
-    /// <summary>presentation word count.</summary>
     internal static int PresentationWordCount() => 11;
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     internal static ushort PresentationWordAddress(bool metaree, int index)
     {
         if ((uint)index >= 11) throw new IndexOutOfRangeException();

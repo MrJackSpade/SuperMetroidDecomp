@@ -24,7 +24,6 @@ public static class PhantoonWaveTable
         }
     }
 
-    /// <summary>Calculates displacement.</summary>
     private static int CalculateDisplacement(ushort phase, ushort amplitude)
     {
         short sine = PhantoonWaveRomData.ReadSineAtBytePhase(phase);

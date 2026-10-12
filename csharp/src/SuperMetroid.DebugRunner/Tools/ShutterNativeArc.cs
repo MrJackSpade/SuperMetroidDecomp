@@ -2,7 +2,6 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents shutter native arc.</summary>
 internal static class ShutterNativeArc
 {
     /// <summary>

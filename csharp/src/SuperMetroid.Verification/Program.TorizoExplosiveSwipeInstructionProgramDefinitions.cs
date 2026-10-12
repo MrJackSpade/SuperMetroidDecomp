@@ -15,15 +15,12 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents torizo explosive swipe instruction program definitions verification.</summary>
 internal static class TorizoExplosiveSwipeInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies torizo explosive swipe instruction program definitions.</summary>
     internal static void VerifyTorizoExplosiveSwipeInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoExplosiveSwipeInstructionProgramDefinitions), () => VerifyTorizoExplosiveSwipeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    /// <summary>Verifies torizo explosive swipe instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo explosive swipe instruction program definitions")]
     internal static void VerifyTorizoExplosiveSwipeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -98,7 +95,6 @@ internal static class TorizoExplosiveSwipeInstructionProgramDefinitionsVerificat
             "with mechanics bytes forbidden.");
     }
 
-    /// <summary>Probe torizo explosive swipe instruction mechanics allocation.</summary>
     private static int ProbeTorizoExplosiveSwipeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -112,14 +108,12 @@ internal static class TorizoExplosiveSwipeInstructionProgramDefinitionsVerificat
         return checksum;
     }
 
-    /// <summary>New torizo explosive swipe instruction read guard.</summary>
     private static CartridgeReadGuard NewTorizoExplosiveSwipeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(TorizoExplosiveSwipeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo explosive-swipe byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount, TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Torizo explosive swipe instruction mechanics command.</summary>
     [VerificationCommand("--torizo-explosive-swipe-instruction-mechanics")]
     internal static int TorizoExplosiveSwipeInstructionMechanicsCommand()
     {

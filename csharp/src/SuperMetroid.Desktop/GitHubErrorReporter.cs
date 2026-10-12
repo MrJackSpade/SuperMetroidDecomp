@@ -36,20 +36,13 @@ public sealed record GitHubErrorContext(
 /// </remarks>
 public sealed class GitHubErrorReporter : IDisposable
 {
-    /// <summary>Stores repository.</summary>
     private readonly string repository;
-    /// <summary>Stores issue client.</summary>
     private readonly IGitHubIssueClient issueClient;
-    /// <summary>Stores queue.</summary>
     private readonly Channel<QueuedError> queue = Channel.CreateUnbounded<QueuedError>(
         new UnboundedChannelOptions { SingleReader = true, SingleWriter = false });
-    /// <summary>Stores session occurrences.</summary>
     private readonly Dictionary<string, int> sessionOccurrences = new(StringComparer.Ordinal);
-    /// <summary>Stores fingerprint lock.</summary>
     private readonly Lock fingerprintLock = new();
-    /// <summary>Stores worker.</summary>
     private readonly Task worker;
-    /// <summary>Stores disposed.</summary>
     private int disposed;
 
     /// <summary>Starts a single-reader reporting queue backed by the authenticated GitHub CLI.</summary>
@@ -59,7 +52,6 @@ public sealed class GitHubErrorReporter : IDisposable
     {
     }
 
-    /// <summary>Initializes a new git hub error reporter instance.</summary>
     internal GitHubErrorReporter(string repository, IGitHubIssueClient issueClient)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(repository);
@@ -132,7 +124,6 @@ public sealed class GitHubErrorReporter : IDisposable
         worker.GetAwaiter().GetResult();
     }
 
-    /// <summary>Creates fingerprint.</summary>
     internal static string CreateFingerprint(Exception exception, GitHubErrorContext? context = null)
     {
         Ensure.NotNull(exception);
@@ -146,7 +137,6 @@ public sealed class GitHubErrorReporter : IDisposable
         return $"SMERR-{Convert.ToHexString(digest.AsSpan(0, 8))}";
     }
 
-    /// <summary>Append exception identity.</summary>
     private static void AppendExceptionIdentity(StringBuilder identity, Exception exception)
     {
         if (exception is CartridgeDispatchException dispatch)
@@ -175,7 +165,6 @@ public sealed class GitHubErrorReporter : IDisposable
         }
     }
 
-    /// <summary>Processes queue async.</summary>
     private async Task ProcessQueueAsync()
     {
         await foreach (QueuedError queued in queue.Reader.ReadAllAsync().ConfigureAwait(false))
@@ -219,7 +208,6 @@ public sealed class GitHubErrorReporter : IDisposable
         }
     }
 
-    /// <summary>Builds title.</summary>
     private static string BuildTitle(string fingerprint, Exception exception)
     {
         string message = string.Join(
@@ -232,7 +220,6 @@ public sealed class GitHubErrorReporter : IDisposable
         return prefix + message;
     }
 
-    /// <summary>Builds body.</summary>
     private static string BuildBody(
         string fingerprint,
         Exception exception,
@@ -282,14 +269,12 @@ public sealed class GitHubErrorReporter : IDisposable
         return body.ToString();
     }
 
-    /// <summary>Append hex context.</summary>
     private static void AppendHexContext(StringBuilder body, string name, ushort? value)
     {
         if (value is ushort word)
             body.Append("- ").Append(name).Append(": $").AppendLine(word.ToString("X4"));
     }
 
-    /// <summary>Append bank context.</summary>
     private static void AppendBankContext(
         StringBuilder body,
         string name,
@@ -303,14 +288,12 @@ public sealed class GitHubErrorReporter : IDisposable
         }
     }
 
-    /// <summary>Represents queued error.</summary>
     private sealed record QueuedError(
         string? Fingerprint,
         Exception? Exception,
         GitHubErrorContext? Context,
         TaskCompletionSource? FlushCompletion)
     {
-        /// <summary>Initializes a new queued error instance.</summary>
         public QueuedError(string fingerprint, Exception exception, GitHubErrorContext context)
             : this(fingerprint, exception, context, null)
         {
@@ -318,14 +301,10 @@ public sealed class GitHubErrorReporter : IDisposable
     }
 }
 
-/// <summary>Represents igit hub issue client.</summary>
 internal interface IGitHubIssueClient
 {
-    /// <summary>Comment async.</summary>
     Task CommentAsync(string repository, string issueUrl, string body);
-    /// <summary>Finds by fingerprint async.</summary>
     Task<string?> FindByFingerprintAsync(string repository, string fingerprint);
 
-    /// <summary>Creates async.</summary>
     Task<string> CreateAsync(string repository, string title, string body);
 }

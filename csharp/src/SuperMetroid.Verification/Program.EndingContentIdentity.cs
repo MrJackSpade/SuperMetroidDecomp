@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ending content identity verification.</summary>
 internal static class EndingContentIdentityVerification
 {
     /// <summary>Checks ending scene selection and original import metadata without a playthrough.</summary>
@@ -92,7 +91,6 @@ internal static class EndingContentIdentityVerification
         AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], supplied[2], null!), "Mode7 null reward");
     }
 
-    /// <summary>Verifies ending content identity.</summary>
     internal static void VerifyEndingContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreateEndingIdentityFixture();
@@ -155,7 +153,6 @@ internal static class EndingContentIdentityVerification
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }
 
-    /// <summary>Creates ending identity fixture.</summary>
     private static IReadOnlyDictionary<string, string> CreateEndingIdentityFixture(
         string? edit = null, bool reverse = false)
     {
@@ -294,7 +291,6 @@ internal static class EndingContentIdentityVerification
         return EndingPresentationIdentity.Create(mode7, objects, palettes);
     }
 
-    /// <summary>Runs the ending mode7 roles lookup command.</summary>
     [VerificationCommand("--lookup-ending-mode7-roles")]
     internal static int LookupEndingMode7RolesCommand()
     {
@@ -303,7 +299,6 @@ internal static class EndingContentIdentityVerification
         return 0;
     }
 
-    /// <summary>Ending content identity command.</summary>
     [VerificationCommand("--ending-content-identity")]
     internal static int EndingContentIdentityCommand()
     {

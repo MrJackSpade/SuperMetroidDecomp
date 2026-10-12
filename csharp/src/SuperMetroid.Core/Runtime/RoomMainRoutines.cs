@@ -11,34 +11,20 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class RoomMainRoutines
 {
-    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores room spikes.</summary>
     private readonly RoomSpikeAnimatedTilesState _roomSpikes;
-    /// <summary>Stores room treadmills.</summary>
     private readonly RoomTreadmillAnimatedTilesState _roomTreadmills;
-    /// <summary>Stores sand animated tiles.</summary>
     private readonly RoomSandAnimatedTilesState _sandAnimatedTiles;
-    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Stores tourian statues.</summary>
     private readonly TourianStatueSequence _tourianStatues;
-    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
-    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Stores wrecked ship treadmill.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new room main routines instance.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;

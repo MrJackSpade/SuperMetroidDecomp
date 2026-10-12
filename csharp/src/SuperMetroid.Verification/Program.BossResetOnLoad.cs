@@ -16,10 +16,8 @@ using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents boss reset on load verification.</summary>
 internal static class BossResetOnLoadVerification
 {
-    /// <summary>Verifies boss reset on load.</summary>
     internal static void VerifyBossResetOnLoad()
     {
         Suite(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni());
@@ -100,7 +98,6 @@ internal static class BossResetOnLoadVerification
         Console.WriteLine("Boss reset: disabled defaults, strict INI, full saved-state preservation, outside-Tourian flags, five eye doors, Spore/Torizo/Shaktool room selection and load-only application pass.");
     }
 
-    /// <summary>Boss reset on load command.</summary>
     [VerificationCommand("--boss-reset-on-load")]
     internal static int BossResetOnLoadCommand()
     {

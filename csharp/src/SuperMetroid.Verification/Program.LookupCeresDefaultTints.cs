@@ -3,17 +3,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents lookup ceres default tints verification.</summary>
 internal static class LookupCeresDefaultTintsVerification
 {
-    /// <summary>Verifies ceres default red.</summary>
     internal static void VerifyCeresDefaultRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x20, color => color.Red);
-    /// <summary>Verifies ceres default green.</summary>
     internal static void VerifyCeresDefaultGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x40, color => color.Green);
-    /// <summary>Verifies ceres default blue.</summary>
     internal static void VerifyCeresDefaultBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x80, color => color.Blue);
 
-    /// <summary>Verifies ceres default component.</summary>
     private static void VerifyCeresDefaultComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock,
         int channelMask, Func<PaletteRgb5, int> component)
     {
@@ -32,7 +27,6 @@ internal static class LookupCeresDefaultTintsVerification
         }
     }
 
-    /// <summary>Verifies ceres default tint structure.</summary>
     internal static void VerifyCeresDefaultTintStructure(ISnesAddressSpace rom)
     {
         AssertEqual(ReadVerificationWord(rom, 0x88de43), CeresHazeDefinitions.FadeSteps, "Original native fade stop counter");

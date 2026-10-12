@@ -3,14 +3,11 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed progression/boss-room artwork domains, independent of PLM mechanics or event timing.</summary>
 internal static class PlmProgressionClosedContractDefinitions
 {
-    /// <summary>Stores shared draw shape.</summary>
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs");
-    /// <summary>Stores elevatube definition.</summary>
     private static readonly ReviewedSource ElevatubeDefinition = new(
         "csharp/src/SuperMetroid.Core/Rooms/MaridiaElevatubePlmDefinitions.cs");
 
-    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.RoomPlmTourianAccessVisualCatalog", "plm-tourian-access-complete-draws", ["GetWord"],

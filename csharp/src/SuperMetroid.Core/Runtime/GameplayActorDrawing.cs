@@ -12,40 +12,23 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayActorDrawing
 {
-    /// <summary>Stores artwork.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Stores attract session.</summary>
     private readonly AttractDemoSession _attractSession;
-    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Stores bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
-    /// <summary>Stores controller1.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Stores nmi.</summary>
     private readonly NmiClock _nmi;
-    /// <summary>Stores oam.</summary>
     private readonly OamBuffer _oam;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores projectiles.</summary>
     private readonly SamusProjectileSystem _projectiles;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new gameplay actor drawing instance.</summary>
     internal GameplayActorDrawing(GameplayActorDrawingDependencies dependencies)
     {
         _artwork = dependencies.Artwork;

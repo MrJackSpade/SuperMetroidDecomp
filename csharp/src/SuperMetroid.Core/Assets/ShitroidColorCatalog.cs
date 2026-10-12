@@ -29,20 +29,15 @@ public sealed class ShitroidColorCatalog
             }
         });
 
-    /// <summary>Stores normal.</summary>
     private readonly ColorPulse normal;
-    /// <summary>Stores sidehopper.</summary>
     private readonly SidehopperInitialPalette sidehopper;
-    /// <summary>Stores shitroid.</summary>
     private readonly BabyMetroidInitialPalette shitroid;
     /// <summary>$A9:F8E6 is copied by EF9F-EFA8 to target slot A0. Stock3800 is an exact
     /// transparent-slot compatibility payload: OBJ ink0 is skipped before color lookup.
     /// It has no visible hue to derive; independently supplied replacements remain exact.</summary>
     private readonly Bgr555 shitroidTransparentSlot;
-    /// <summary>Stores dead sidehopper.</summary>
     private readonly SidehopperCorpsePalette deadSidehopper;
 
-    /// <summary>Initializes a new shitroid color catalog instance.</summary>
     private ShitroidColorCatalog(Bgr555[][] normal, Bgr555[] sidehopper,
         Bgr555[] shitroid, Bgr555[] deadSidehopper)
     {
@@ -53,7 +48,6 @@ public sealed class ShitroidColorCatalog
         this.deadSidehopper = new(deadSidehopper);
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -121,7 +115,6 @@ public sealed class ShitroidColorCatalog
         return bytes;
     }
 
-    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name)
     {
         if (source is null || source.Length != required)
@@ -139,15 +132,11 @@ public sealed class ShitroidColorCatalog
         return compiled;
     }
 
-    /// <summary>Represents color pulse.</summary>
     private sealed class ColorPulse
     {
-        /// <summary>Stores target.</summary>
         private readonly BabyMetroidInitialPalette target;
-        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[][]? supplied;
 
-        /// <summary>Initializes a new color pulse instance.</summary>
         public ColorPulse(Bgr555[][] frames, BabyMetroidInitialPalette target)
         {
             this.target = target;
@@ -159,7 +148,6 @@ public sealed class ShitroidColorCatalog
                 { supplied = frames; return; }
         }
 
-        /// <summary>Resolve.</summary>
         public Bgr555 Resolve(int frame, int color)
         {
             if (supplied is not null) return supplied[frame][color];
@@ -177,7 +165,6 @@ public sealed class ShitroidColorCatalog
             });
         }
     }
-    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Shitroid color property {name}."));

@@ -3,15 +3,11 @@ namespace SuperMetroid.Desktop;
 /// <summary>Shared on-disk debugger-state header identities and compatibility versions.</summary>
 internal static class DebuggerStateFormat
 {
-    /// <summary>Gets magic.</summary>
     public static ReadOnlySpan<byte> Magic => "SMCSTATE"u8;
-    /// <summary>Stores slot count.</summary>
     public const int SlotCount = 10;
     /// <summary>Separate recovery slot; numbered manual slots remain zero through nine.</summary>
     public const int AutomaticSlot = SlotCount;
-    /// <summary>Stores guid bytes.</summary>
     public const int GuidBytes = 16;
-    /// <summary>Stores digest bytes.</summary>
     public const int DigestBytes = 32;
 }
 

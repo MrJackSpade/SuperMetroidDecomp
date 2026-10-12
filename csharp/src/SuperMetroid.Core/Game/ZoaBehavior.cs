@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Game;
+﻿namespace SuperMetroid.Core.Game;
 
 /// <summary>The Zoa species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ZoaBehavior : IEnemySpecies
@@ -31,12 +31,9 @@ internal sealed class ZoaBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines zoa activation column distance.</summary>
     private const int ZoaActivationColumnDistance = 0x0080;
-    /// <summary>Defines zoa rising subpixel speed.</summary>
     private const int ZoaRisingSubpixelSpeed = 0x00008000;
 
-    /// <summary>Stores zoa states.</summary>
     internal readonly ZoaEnemyState?[] _zoaStates = new ZoaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Zoa</c> at $A3:B44A.</summary>
@@ -86,7 +83,6 @@ internal sealed class ZoaBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>run zoa wait.</summary>
     internal static void RunZoaWait(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -109,7 +105,6 @@ internal sealed class ZoaBehavior : IEnemySpecies
         state.Function = ZoaEnemyFunction.Rising;
     }
 
-    /// <summary>run zoa rising.</summary>
     internal static void RunZoaRising(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -130,7 +125,6 @@ internal sealed class ZoaBehavior : IEnemySpecies
         state.Function = ZoaEnemyFunction.Shooting;
     }
 
-    /// <summary>run zoa shooting.</summary>
     internal static void RunZoaShooting(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -161,7 +155,6 @@ internal sealed class ZoaBehavior : IEnemySpecies
         state.Function = ZoaEnemyFunction.WaitForSamus;
     }
 
-    /// <summary>set zoa instruction list.</summary>
     internal static void SetZoaInstructionList(RoomEnemySlot slot, ZoaEnemyState state)
     {
         if (state.InstructionListTableIndex == state.PreviousInstructionListTableIndex)
@@ -173,12 +166,10 @@ internal sealed class ZoaBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>require zoa state.</summary>
     private ZoaEnemyState RequireZoaState(RoomEnemySlot slot) =>
         _zoaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Zoa state.");
 
-    /// <summary>register zoa initialization ai.</summary>
     internal void RegisterZoaInitializationAi(EnemyAiTable table)
     {
 
@@ -188,7 +179,6 @@ internal sealed class ZoaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register zoa main ai.</summary>
     internal void RegisterZoaMainAi(EnemyAiTable table)
     {
 
@@ -198,7 +188,6 @@ internal sealed class ZoaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register zoa owned instructions.</summary>
     internal void RegisterZoaOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

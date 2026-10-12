@@ -10,13 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class SelectedPresentationHash
 {
-    /// <summary>Stores hash.</summary>
     private readonly IncrementalHash hash;
 
-    /// <summary>Initializes a new selected presentation hash instance.</summary>
     private SelectedPresentationHash(IncrementalHash hash) => this.hash = hash;
 
-    /// <summary>Create.</summary>
     public static string Create(string domain, Action<SelectedPresentationHash> append)
     {
         using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -26,7 +23,6 @@ internal sealed class SelectedPresentationHash
         return Convert.ToHexString(hash.GetHashAndReset());
     }
 
-    /// <summary>From transfers.</summary>
     public static string FromTransfers<T>(string domain, IReadOnlyDictionary<int, T> sources,
         Func<T, ReadOnlyMemory<byte>> transfer, ReadOnlyMemory<byte> shared = default) =>
         Create(domain, content =>
@@ -50,7 +46,6 @@ internal sealed class SelectedPresentationHash
             }
         });
 
-    /// <summary>Append.</summary>
     public void Append(string label, ReadOnlySpan<byte> bytes)
     {
         byte[] name = Encoding.UTF8.GetBytes(label);
@@ -60,7 +55,6 @@ internal sealed class SelectedPresentationHash
         hash.AppendData(bytes);
     }
 
-    /// <summary>Append.</summary>
     public void Append(string label, int value)
     {
         Span<byte> bytes = stackalloc byte[sizeof(int)];
@@ -68,7 +62,6 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
-    /// <summary>Appends words.</summary>
     public void AppendWords(string label, ReadOnlySpan<ushort> words)
     {
         var bytes = new byte[checked(words.Length * sizeof(ushort))];
@@ -122,7 +115,6 @@ internal sealed class SelectedPresentationHash
             Append("attributes", part.Attributes.Raw);
         }
     }
-    /// <summary>Appends length.</summary>
     private void AppendLength(int value)
     {
         Span<byte> bytes = stackalloc byte[sizeof(int)];

@@ -9,7 +9,6 @@ using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents samus body artwork verification.</summary>
 internal static class SamusBodyArtworkVerification
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
@@ -658,7 +657,6 @@ internal static class SamusBodyArtworkVerification
         Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail; PNG/JSON overrides load.");
     }
 
-    /// <summary>Verifies samus arm cannon artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus arm cannon artwork")]
     private static void VerifySamusArmCannonArtwork(ISnesAddressSpace bus,
@@ -763,15 +761,12 @@ internal static class SamusBodyArtworkVerification
         }
     }
 
-    /// <summary>Represents death tile asset provider.</summary>
     internal sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
-        /// <summary>Tries to resolve.</summary>
         public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
             tiles.TryResolve(sourceAddress, byteCount, out data);
 
-        /// <summary>Resolve.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Death-tile fixture did not queue typed asset {asset}.");
     }

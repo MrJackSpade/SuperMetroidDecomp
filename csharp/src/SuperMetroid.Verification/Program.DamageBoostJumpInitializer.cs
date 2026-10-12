@@ -12,7 +12,6 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents damage boost jump initializer verification.</summary>
 internal static class DamageBoostJumpInitializerVerification
 {
     /// <summary>
@@ -37,7 +36,6 @@ internal static class DamageBoostJumpInitializerVerification
         Console.WriteLine("  Damage-boost jump initializer: the exit reselects the acceleration mode.");
     }
 
-    /// <summary>damage boost jump initializer command.</summary>
     [VerificationCommand("--damage-boost-jump-initializer")]
     internal static int DamageBoostJumpInitializerCommand()
     {

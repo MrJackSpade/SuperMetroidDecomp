@@ -14,10 +14,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
 
-/// <summary>Represents golden torizo code verification.</summary>
 internal static class GoldenTorizoCodeVerification
 {
-    /// <summary>Verifies golden torizo code.</summary>
     internal static void VerifyGoldenTorizoCode()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -70,11 +68,9 @@ internal static class GoldenTorizoCodeVerification
              samus.EquippedBeams, samus.CollectedBeams];
     }
 
-    /// <summary>Golden torizo code rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo code")]
     private static byte GoldenTorizoCodeRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Golden torizo code command.</summary>
     [VerificationCommand("--golden-torizo-code")]
     internal static int GoldenTorizoCodeCommand()
     {

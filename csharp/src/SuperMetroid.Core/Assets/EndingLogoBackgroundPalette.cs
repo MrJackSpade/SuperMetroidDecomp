@@ -11,10 +11,8 @@ namespace SuperMetroid.Core.Assets;
 /// shades and temporal fades are computed. Endpoint values remain supplied, not defaults.</summary>
 internal sealed class EndingLogoBackgroundPalette
 {
-    /// <summary>Stores light.</summary>
     private readonly int light, dark;
 
-    /// <summary>Initializes a new ending logo background palette instance.</summary>
     private EndingLogoBackgroundPalette(int light, int dark)
     {
         this.light = light;

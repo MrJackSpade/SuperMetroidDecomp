@@ -3,25 +3,15 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Resource identity spaces; bank-$86 operands are not bank-$8D OAM pointers.</summary>
 internal static class ResourceDomains
 {
-    /// <summary>Stores enemy display.</summary>
     public const string EnemyDisplay = "enemy-display";
-    /// <summary>Stores enemy simple.</summary>
     public const string EnemySimple = "enemy-simple-oam";
-    /// <summary>Stores enemy extended.</summary>
     public const string EnemyExtended = "enemy-extended-display";
-    /// <summary>Stores enemy projectile program.</summary>
     public const string EnemyProjectileProgram = "enemy-projectile-program-frame";
-    /// <summary>Stores enemy projectile sprite.</summary>
     public const string EnemyProjectileSprite = "enemy-projectile-oam";
-    /// <summary>Stores palette fx.</summary>
     public const string PaletteFx = "palette-fx-color";
-    /// <summary>Stores samus projectile.</summary>
     public const string SamusProjectile = "samus-projectile-oam";
-    /// <summary>Stores consumer.</summary>
     public const string Consumer = "resource-consumer";
-    /// <summary>Stores compiled selector.</summary>
     public const string CompiledSelector = "compiled-visual-selector";
-    /// <summary>Stores mother brain room flash.</summary>
     public const string MotherBrainRoomFlash = "mother-brain-room-flash-row";
 }
 

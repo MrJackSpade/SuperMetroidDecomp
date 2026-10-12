@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM compressed title graphics and OBJ compositions → title artwork")]
 internal static class TitleGraphicsExtractor
 {
-    /// <summary>Extract.</summary>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

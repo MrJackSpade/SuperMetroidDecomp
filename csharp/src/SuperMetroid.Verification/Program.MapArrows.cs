@@ -9,10 +9,8 @@ using SuperMetroid.Desktop;
 using static InstalledFileSelectMapVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents map arrows verification.</summary>
 internal static class MapArrowsVerification
 {
-    /// <summary>verify map arrows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -104,7 +102,6 @@ internal static class MapArrowsVerification
         }
     }
 
-    /// <summary>new map arrow guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle walking the native map-arrow records, animation tables and sprite programs to forbid them")]
     private static MutableCartridgeReadGuard NewMapArrowGuard(ISnesAddressSpace source)
     {

@@ -16,58 +16,33 @@ public sealed class ManagedSnesDsp
     /// <summary>Number of independent hardware S-DSP voices.</summary>
     public const int VoiceCount = 8;
 
-    /// <summary>Stores apu ram.</summary>
     private readonly byte[] apuRam;
-    /// <summary>Stores registers.</summary>
     private readonly byte[] registers = new byte[SnesDspRegisterMap.RegisterFileSize];
-    /// <summary>Stores voices.</summary>
     private readonly Voice[] voices = Enumerable.Range(0, VoiceCount)
         .Select(_ => new Voice())
         .ToArray();
-    /// <summary>Stores sample buffer.</summary>
     private readonly short[] sampleBuffer = new short[NativeStereoFramesPerVideoFrame * 2];
-    /// <summary>Stores fir values.</summary>
     private readonly sbyte[] firValues = new sbyte[8];
-    /// <summary>Stores fir buffer left.</summary>
     private readonly short[] firBufferLeft = new short[8];
-    /// <summary>Stores fir buffer right.</summary>
     private readonly short[] firBufferRight = new short[8];
 
-    /// <summary>Stores sample bank.</summary>
     private ManagedPcmSampleBank? sampleBank;
-    /// <summary>Stores mute.</summary>
     private bool mute;
-    /// <summary>Stores reset.</summary>
     private bool reset;
-    /// <summary>Stores master volume left.</summary>
     private sbyte masterVolumeLeft;
-    /// <summary>Stores master volume right.</summary>
     private sbyte masterVolumeRight;
-    /// <summary>Stores noise sample.</summary>
     private short noiseSample;
-    /// <summary>Stores noise rate.</summary>
     private ushort noiseRate;
-    /// <summary>Stores noise counter.</summary>
     private ushort noiseCounter;
-    /// <summary>Stores echo writes.</summary>
     private bool echoWrites;
-    /// <summary>Stores echo volume left.</summary>
     private sbyte echoVolumeLeft;
-    /// <summary>Stores echo volume right.</summary>
     private sbyte echoVolumeRight;
-    /// <summary>Stores feedback volume.</summary>
     private sbyte feedbackVolume;
-    /// <summary>Stores echo buffer address.</summary>
     private ushort echoBufferAddress;
-    /// <summary>Stores echo delay.</summary>
     private ushort echoDelay;
-    /// <summary>Stores echo remaining.</summary>
     private ushort echoRemaining;
-    /// <summary>Stores echo buffer index.</summary>
     private ushort echoBufferIndex;
-    /// <summary>Stores fir buffer index.</summary>
     private byte firBufferIndex;
-    /// <summary>Stores sample offset.</summary>
     private ushort sampleOffset;
 
     /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
@@ -302,7 +277,6 @@ public sealed class ManagedSnesDsp
         sampleOffset = 0;
     }
 
-    /// <summary>key on.</summary>
     private void KeyOn(Voice voice)
     {
         ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
@@ -316,7 +290,6 @@ public sealed class ManagedSnesDsp
         voice.AdsrState = voice.UseGain ? EnvelopeState.Gain : EnvelopeState.Attack;
     }
 
-    /// <summary>cycle voice.</summary>
     private void CycleVoice(int index)
     {
         Voice voice = voices[index];
@@ -379,7 +352,6 @@ public sealed class ManagedSnesDsp
         voice.SampleOutput = sample;
     }
 
-    /// <summary>handle gain.</summary>
     private static void HandleGain(Voice voice)
     {
         switch (voice.AdsrState)
@@ -435,7 +407,6 @@ public sealed class ManagedSnesDsp
         }
     }
 
-    /// <summary>get interpolated sample.</summary>
     private static short GetInterpolatedSample(Voice voice, int sampleNumber, int offset)
     {
         var taps = SnesDspTables.GaussianCoefficients(offset);
@@ -447,7 +418,6 @@ public sealed class ManagedSnesDsp
         return unchecked((short)(Clamp16(output) >> 1));
     }
 
-    /// <summary>decode pcm.</summary>
     private void DecodePcm(int voiceIndex)
     {
         Voice voice = voices[voiceIndex];
@@ -515,7 +485,6 @@ public sealed class ManagedSnesDsp
             voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? (byte)3 : (byte)1;
     }
 
-    /// <summary>read loop address.</summary>
     [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM sample directory loop pointers")]
     private ushort ReadLoopAddress(byte source)
     {
@@ -542,7 +511,6 @@ public sealed class ManagedSnesDsp
         voice.ReleasedBrrCursor = unchecked((ushort)(cursor + DspBrrLayout.BlockBytes));
     }
 
-    /// <summary>handle noise.</summary>
     private void HandleNoise()
     {
         if (noiseRate != 0)
@@ -555,7 +523,6 @@ public sealed class ManagedSnesDsp
         noiseCounter = 0;
     }
 
-    /// <summary>handle echo.</summary>
     private void HandleEcho(ref int outputLeft, ref int outputRight)
     {
         ushort address = unchecked((ushort)(echoBufferAddress + echoBufferIndex * 4));
@@ -608,83 +575,49 @@ public sealed class ManagedSnesDsp
         }
     }
 
-    /// <summary>read word.</summary>
     [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM BRR directory and echo-buffer words")]
     private ushort ReadWord(int address) => SpcRamWords.Read(apuRam, address);
 
-    /// <summary>write word.</summary>
     [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM echo-buffer samples")]
     private void WriteWord(int address, ushort value) => SpcRamWords.Write(apuRam, address, value);
 
-    /// <summary>clamp16.</summary>
     private static int Clamp16(int value) => Math.Clamp(value, short.MinValue, short.MaxValue);
 
-    /// <summary>Represents envelope state.</summary>
     private enum EnvelopeState : byte
     {
-        /// <summary>Identifies attack.</summary>
         Attack,
-        /// <summary>Identifies decay.</summary>
         Decay,
-        /// <summary>Identifies sustain.</summary>
         Sustain,
-        /// <summary>Identifies gain.</summary>
         Gain,
-        /// <summary>Identifies release.</summary>
         Release,
     }
 
-    /// <summary>Represents voice.</summary>
     private sealed class Voice
     {
-        /// <summary>Stores pitch.</summary>
         public ushort Pitch;
-        /// <summary>Stores pitch counter.</summary>
         public ushort PitchCounter;
-        /// <summary>Stores pitch modulation.</summary>
         public bool PitchModulation;
-        /// <summary>Gets decode buffer.</summary>
         public short[] DecodeBuffer { get; } = new short[19];
-        /// <summary>Stores source number.</summary>
         public byte SourceNumber;
-        /// <summary>Stores sample.</summary>
         public ManagedPcmSample? Sample;
-        /// <summary>Stores sample cursor.</summary>
         public int SampleCursor;
-        /// <summary>Stores previous flags.</summary>
         public byte PreviousFlags;
-        /// <summary>Stores released brr cursor.</summary>
         public ushort? ReleasedBrrCursor;
-        /// <summary>Stores use noise.</summary>
         public bool UseNoise;
-        /// <summary>Gets adsr rates.</summary>
         public ushort[] AdsrRates { get; } = new ushort[4];
-        /// <summary>Stores rate counter.</summary>
         public ushort RateCounter;
-        /// <summary>Stores adsr state.</summary>
         public EnvelopeState AdsrState;
-        /// <summary>Stores sustain level.</summary>
         public ushort SustainLevel;
-        /// <summary>Stores use gain.</summary>
         public bool UseGain;
-        /// <summary>Stores gain mode.</summary>
         public byte GainMode;
-        /// <summary>Stores direct gain.</summary>
         public bool DirectGain;
-        /// <summary>Stores gain value.</summary>
         public ushort GainValue;
-        /// <summary>Stores gain.</summary>
         public ushort Gain;
-        /// <summary>Stores sample output.</summary>
         public short SampleOutput;
-        /// <summary>Stores volume left.</summary>
         public sbyte VolumeLeft;
-        /// <summary>Stores volume right.</summary>
         public sbyte VolumeRight;
-        /// <summary>Stores echo enable.</summary>
         public bool EchoEnable;
 
-        /// <summary>reset.</summary>
         public void Reset()
         {
             Pitch = PitchCounter = 0;

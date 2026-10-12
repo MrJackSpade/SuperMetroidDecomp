@@ -13,10 +13,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ceres steam collision definitions verification.</summary>
 internal static class CeresSteamCollisionDefinitionsVerification
 {
-    /// <summary>Verifies installed ceres steam instruction frames.</summary>
     internal static void VerifyInstalledCeresSteamInstructionFrames(
         EnemyTileArtworkCatalog stock)
     {
@@ -60,7 +58,6 @@ internal static class CeresSteamCollisionDefinitionsVerification
             $"{selected} compiled visual selections, no ROM reads.");
     }
 
-    /// <summary>Verifies ceres steam collision definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres steam collision definitions")]
     internal static void VerifyCeresSteamCollisionDefinitions()
     {
@@ -205,13 +202,11 @@ internal static class CeresSteamCollisionDefinitionsVerification
         ];
     }
 
-    /// <summary>Creates ceres steam collision no read bus.</summary>
     private static CartridgeReadGuard NewCeresSteamCollisionNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Ceres steam collision read ROM byte ${address:X6}.")
             .RejectWrites(address => $"Installed Ceres steam collision wrote ROM byte ${address:X6}.");
 
-    /// <summary>Verifies ceres steam collision command.</summary>
     [VerificationCommand("--verify-ceres-steam-collision")]
     internal static int VerifyCeresSteamCollisionCommand()
     {

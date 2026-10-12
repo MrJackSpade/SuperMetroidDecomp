@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Boss, elevator and gunship drawing anchors, independent of progression and destination rules.</summary>
 public sealed class MapLandmarkLayout
 {
-    /// <summary>Stores points.</summary>
     private readonly Dictionary<string, Position16<MapPixels>> points;
-    /// <summary>Initializes a new map landmark layout instance.</summary>
     private MapLandmarkLayout(Dictionary<string, Position16<MapPixels>> points) => this.points = points;
     /// <summary>Gets a boss, elevator-label, or gunship drawing anchor in area-map pixels before the renderer subtracts map scrolling; does not determine whether the landmark is visible.</summary>
     /// <param name="id">Case-sensitive stable identity published by <see cref="MapLandmarkDefinitions.AllIds"/>.</param>

@@ -8,14 +8,10 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     // Native digit/label identities select a typeface; they do not generate its selected contours.
     // The reviewed original basis is275 fill sites plus their blank complement and four edge choices.
     // Independent PNG edits remain separate from calculated defaults and shared pixel relationships.
-    /// <summary>Stores fill pixels.</summary>
     private readonly HashSet<int> fillPixels;
-    /// <summary>Stores fill overrides.</summary>
     private readonly Dictionary<int, bool> fillOverrides;
-    /// <summary>Stores pixel overrides.</summary>
     private readonly Dictionary<int, byte> pixelOverrides;
 
-    /// <summary>Initializes a new escape timer tile atlas instance.</summary>
     private EscapeTimerTileAtlas(byte[] pixels)
     {
         fillPixels = new HashSet<int>();
@@ -39,7 +35,6 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
                 pixelOverrides.Add(index, pixels[index]);
     }
 
-    /// <summary>Checks whether fill.</summary>
     private bool IsFill(int index)
     {
         int source = EscapeTimerGlyphDefinitions.SourcePixel(index);
@@ -47,11 +42,9 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
             ? value == EscapeTimerGlyphDefinitions.FillInk(index) : BasisFill(source);
     }
 
-    /// <summary>Basis fill.</summary>
     private bool BasisFill(int index) => fillOverrides.TryGetValue(index, out bool supplied) ? supplied :
         EscapeTimerGlyphDefinitions.TryDefaultFill(index, out bool calculated) ? calculated : fillPixels.Contains(index);
 
-    /// <summary>Pixel.</summary>
     private byte Pixel(int index)
     {
         if (pixelOverrides.TryGetValue(index, out byte value)) return value;
@@ -60,7 +53,6 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         return BasisFill(index) ? EscapeTimerGlyphDefinitions.FillInk(index) : EscapeTimerGlyphDefinitions.Outline(index, IsFill);
     }
 
-    /// <summary>Transfer.</summary>
     private byte[] Transfer() => SnesPlanarTileEncoder.Encode(
         Enumerable.Range(0, EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height).Select(Pixel).ToArray(),
         new(EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height), EscapeTimerTileAtlasFormat.BitsPerPixel);
@@ -143,7 +135,6 @@ public enum EscapeTimerTilePage
 /// <summary>Native transfer records of the escape-timer character pages.</summary>
 public static class EscapeTimerTilePages
 {
-    /// <summary>Stores pages.</summary>
     private static readonly EscapeTimerTilePage[] Pages = Enum.GetValues<EscapeTimerTilePage>();
 
     /// <summary>The page's native long source address.</summary>

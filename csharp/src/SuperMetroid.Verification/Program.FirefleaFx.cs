@@ -15,10 +15,8 @@ using static AssertionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents fireflea fx verification.</summary>
 internal static class FirefleaFxVerification
 {
-    /// <summary>Verifies fireflea fx.</summary>
     internal static void VerifyFirefleaFx(bool includeXrayCapture = true)
     {
         var memory = new TestAddressSpace();
@@ -84,7 +82,6 @@ internal static class FirefleaFxVerification
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
     }
 
-    /// <summary>Verifies fireflea flashing algorithm.</summary>
     private static void VerifyFirefleaFlashingAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort i = 0; i < 12; i++)
@@ -94,7 +91,6 @@ internal static class FirefleaFxVerification
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.FlashingShade(ushort.MaxValue), "Flash invalid maximum");
     }
 
-    /// <summary>Verifies fireflea darkness algorithm.</summary>
     private static void VerifyFirefleaDarknessAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 12; offset += 2)
@@ -105,7 +101,6 @@ internal static class FirefleaFxVerification
         AssertThrows<InvalidDataException>(() => FirefleaFxDefinitions.DarknessShade(ushort.MaxValue), "Darkness invalid maximum");
     }
 
-    /// <summary>Verifies fireflea xray capture.</summary>
     private static void VerifyFirefleaXrayCapture()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -155,7 +150,6 @@ internal static class FirefleaFxVerification
             "Fireflea teardown restores room subtraction rather than unblended rendering");
     }
 
-    /// <summary>Fireflea fx command.</summary>
     [VerificationCommand("--fireflea-fx")]
     internal static int FirefleaFxCommand()
     {

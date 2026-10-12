@@ -19,15 +19,11 @@ public sealed class DachoraColorCatalog
             content.AppendColorFrames("shine", Frames(DachoraPalettePhase.Shine));
         });
 
-    /// <summary>Stores normal.</summary>
     private readonly Bgr555[] normal;
     // Speed and shine frames calculate from the normal colors; only supplied deviations are stored.
-    /// <summary>Stores speed edits.</summary>
     private readonly Dictionary<int, Bgr555> speedEdits = new();
-    /// <summary>Stores shine edits.</summary>
     private readonly Dictionary<int, Bgr555> shineEdits = new();
 
-    /// <summary>Initializes a new dachora color catalog instance.</summary>
     private DachoraColorCatalog(Bgr555[] normal, Bgr555[][] speed, Bgr555[][] shine)
     {
         this.normal = normal;
@@ -70,13 +66,11 @@ public sealed class DachoraColorCatalog
         return basis.Map((_, channel) => channel + frame * (31 - channel) / 5);
     }
 
-    /// <summary>Frames.</summary>
     private Bgr555[][] Frames(DachoraPalettePhase phase) =>
         Enumerable.Range(0, DachoraColorRomData.AnimatedFrameCount)
             .Select(frame => Enumerable.Range(0, DachoraColorRomData.ColorsPerFrame)
                 .Select(color => Resolve(phase, frame, color)).ToArray()).ToArray();
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -146,7 +140,6 @@ public sealed class DachoraColorCatalog
         return bytes;
     }
 
-    /// <summary>Compile frames.</summary>
     private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source, string name)
     {
         if (source is null || source.Length != DachoraColorRomData.AnimatedFrameCount)
@@ -156,7 +149,6 @@ public sealed class DachoraColorCatalog
             .ToArray();
     }
 
-    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != DachoraColorRomData.ColorsPerFrame)
@@ -175,7 +167,6 @@ public sealed class DachoraColorCatalog
         return compiled;
     }
 
-    /// <summary>Rejects duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Dachora color property {name}."));

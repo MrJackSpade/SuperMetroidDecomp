@@ -6,7 +6,6 @@ using SuperMetroid.Desktop;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents frontend rom free census verification.</summary>
 internal static class FrontendRomFreeCensusVerification
 {
     /// <summary>

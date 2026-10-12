@@ -44,7 +44,6 @@ public static class LoadStationDefinitions
 
     // Only validated non-Ceres slots reach this selector. The default is the
     // native unused-station record, not an extension to unknown area/station inputs.
-    /// <summary>placement.</summary>
     private static LoadStationDefinition Placement(AreaId area, byte station) => (area, station) switch
     {
         (AreaId.Crateria, 0) => new(0x91f8, 0x896a, new(0x0400, 0x0400), new(0x0000, 0x0040)),
@@ -105,7 +104,6 @@ public static class LoadStationDefinitions
         _ => new(0, 0, new(0x0400, 0x0400), new(0, 0x00b0)),
     };
 
-    /// <summary>Represents load station definition.</summary>
     private readonly record struct LoadStationDefinition(
         ushort RoomPointer, ushort DoorPointer, Position16<RoomPixels> CameraPosition,
         Offset16<RoomPixels> SamusOffset);

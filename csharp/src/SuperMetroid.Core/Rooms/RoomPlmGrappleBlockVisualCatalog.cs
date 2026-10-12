@@ -26,7 +26,6 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
         }
     });
 
-    /// <summary>Stores custom words.</summary>
     private readonly Dictionary<ushort, ushort>? customWords;
 
     /// <summary>Validates all five compiled one-block frames and retains authored visual differences without changing Grapple collision, breakup timing, or draw shape.</summary>

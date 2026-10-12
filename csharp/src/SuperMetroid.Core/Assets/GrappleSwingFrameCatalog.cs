@@ -6,9 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Displayed swing-frame selection only; physical body placement remains compiled separately.</summary>
 public sealed class GrappleSwingFrameCatalog
 {
-    /// <summary>Stores frames.</summary>
     private readonly byte[]? frames;
-    /// <summary>Initializes a new grapple swing frame catalog instance.</summary>
     private GrappleSwingFrameCatalog(byte[] frames)
     {
         for (int angle = 0; angle < frames.Length; angle++)
@@ -20,7 +18,6 @@ public sealed class GrappleSwingFrameCatalog
     /// <returns>A displayed orientation frame index from 0 through 31, within the current facing's swing artwork.</returns>
     public byte Resolve(byte angle) => frames is null
         ? GrappleSwingFrameDefinitions.FrameForAngle(angle) : frames[angle];
-    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

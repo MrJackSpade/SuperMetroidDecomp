@@ -12,9 +12,7 @@ internal static class EnemyBg2FrameLayout
     internal const ushort VramBase = 0x4800;
     /// <summary>First byte of the native $7E working tilemap.</summary>
     internal const ushort WorkingRamBase = 0x2000;
-    /// <summary>Stores tilemap width.</summary>
     internal const int TilemapWidth = 32;
-    /// <summary>Stores tilemap height.</summary>
     internal const int TilemapHeight = 64;
     /// <summary>The largest installed mixed root has ten native components (Mother Brain).</summary>
     internal const int MaximumComponents = MotherBrainBodyVisualDefinitions.MaximumNativeComponents;

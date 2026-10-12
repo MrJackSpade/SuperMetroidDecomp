@@ -2,18 +2,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid health thresholds verification.</summary>
 internal static class KraidHealthThresholdsVerification
 {
-    /// <summary>verify kraid health eighths.</summary>
     internal static void VerifyKraidHealthEighths(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa05, 3, 8, (state, index) => state.HealthEighthThreshold(index)));
 
-    /// <summary>verify kraid health quarters.</summary>
     internal static void VerifyKraidHealthQuarters(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa26, 2, 4, (state, index) => state.HealthQuarterThreshold(index)));
 
-    /// <summary>verify kraid health fraction.</summary>
     private static void VerifyKraidHealthFraction(SuperMetroidAddressSpace rom, int shiftAddress,
         int shifts, int count, Func<KraidEnemyState, int, ushort> actual)
     {
@@ -38,7 +34,6 @@ internal static class KraidHealthThresholdsVerification
             AssertThrows<IndexOutOfRangeException>(() => actual(state, invalid), "Threshold index preserves array bounds");
     }
 
-    /// <summary>kraid health fraction rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid health fraction")]
     private static byte KraidHealthFractionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -11,18 +11,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorWarmTargetPaintDefinitions
 {
-    /// <summary>Stores maximum.</summary>
     private const int Maximum = (1 << 5) - 1;
-    /// <summary>Stores gold red step.</summary>
     private const int GoldRedStep = 3;
-    /// <summary>Stores gold green step.</summary>
     private const int GoldGreenStep = 6;
-    /// <summary>Stores highlight blue.</summary>
     private readonly int highlightBlue, amberRed, amberGreen, red, goldRed, goldGreen, goldBlue;
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new ceres door warm target paint definitions instance.</summary>
     internal CeresDoorWarmTargetPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 6);
@@ -37,14 +31,12 @@ internal sealed class CeresDoorWarmTargetPaintDefinitions
             if (Calculate(index) != colors[index]) edits.Add(index, colors[index]);
     }
 
-    /// <summary>Color at.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 6) throw new IndexOutOfRangeException();
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 
-    /// <summary>Calculates.</summary>
     private Bgr555 Calculate(int index)
     {
         if (index == 0) return new(Maximum, Maximum, highlightBlue);

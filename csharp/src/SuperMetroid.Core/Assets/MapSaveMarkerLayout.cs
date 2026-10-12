@@ -15,9 +15,7 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed class MapSaveMarkerLayout
 {
-    /// <summary>Stores coordinate overrides.</summary>
     private readonly Dictionary<string, (int? X, int? Y)> coordinateOverrides;
-    /// <summary>Initializes a new map save marker layout instance.</summary>
     private MapSaveMarkerLayout(Dictionary<string, (int? X, int? Y)> coordinateOverrides) =>
         this.coordinateOverrides = coordinateOverrides;
 

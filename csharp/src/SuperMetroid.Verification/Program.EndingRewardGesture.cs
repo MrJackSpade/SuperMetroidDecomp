@@ -16,10 +16,8 @@ using static EndingLogoVerification;
 using static EndingPostShotVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ending reward gesture verification.</summary>
 internal static class EndingRewardGestureVerification
 {
-    /// <summary>Verifies ending reward gesture.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon graphics and upload tables")]
     internal static void VerifyEndingRewardGesture()
@@ -112,7 +110,6 @@ internal static class EndingRewardGestureVerification
             "ending reward actors never reread compiled definition records");
     }
 
-    /// <summary>New ending reward upload definition read guard.</summary>
     private static CartridgeReadGuard NewEndingRewardUploadDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
@@ -134,7 +131,6 @@ internal static class EndingRewardGestureVerification
     private static readonly int[] RewardActorSpawnLoads =
         [0x8be3a1, 0x8be3a7, 0x8be385, 0x8be37f, 0x8be379, 0x8be38d, 0x8bf51e, 0x8bf575, 0x8bf55d, 0x8bf56a];
 
-    /// <summary>Verifies ending reward actor definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward actor definitions")]
     internal static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
     {
@@ -174,7 +170,6 @@ internal static class EndingRewardGestureVerification
             "  Reward definitions: ten spawn pointers, thirty record words and twelve initialization operands match.");
     }
 
-    /// <summary>New ending reward definition read guard.</summary>
     private static CartridgeReadGuard NewEndingRewardDefinitionReadGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();
@@ -188,7 +183,6 @@ internal static class EndingRewardGestureVerification
             address => $"Ending reward actor reread definition byte ${address:X6}.");
     }
 
-    /// <summary>Ending reward definitions command.</summary>
     [VerificationCommand("--ending-reward-definitions")]
     internal static int EndingRewardDefinitionsCommand()
     {

@@ -14,7 +14,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents eye door sweat span underflow verification.</summary>
 internal static class EyeDoorSweatSpanUnderflowVerification
 {
     /// <summary>
@@ -51,7 +50,6 @@ internal static class EyeDoorSweatSpanUnderflowVerification
         Console.WriteLine("  Eye-door sweat span: a radius-zero drop on a block boundary scans down to the floor.");
     }
 
-    /// <summary>Eye door sweat span underflow command.</summary>
     [VerificationCommand("--eye-door-sweat-span-underflow")]
     internal static int EyeDoorSweatSpanUnderflowCommand()
     {

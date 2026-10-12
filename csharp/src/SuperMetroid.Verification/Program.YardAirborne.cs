@@ -4,10 +4,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents yard airborne verification.</summary>
 internal static class YardAirborneVerification
 {
-    /// <summary>Verifies yard runtime distance publication.</summary>
     internal static void VerifyYardRuntimeDistancePublication()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -29,7 +27,6 @@ internal static class YardAirborneVerification
             "native integer-only direction test allows biased distance below one pixel");
     }
 
-    /// <summary>Verifies yard airborne trajectories.</summary>
     internal static void VerifyYardAirborneTrajectories(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var empty = new ushort[64 * 64];

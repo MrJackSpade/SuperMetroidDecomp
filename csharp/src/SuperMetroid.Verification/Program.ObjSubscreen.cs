@@ -6,10 +6,8 @@ using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents obj subscreen verification.</summary>
 internal static class ObjSubscreenVerification
 {
-    /// <summary>Verifies obj subscreen addition.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyObjSubscreenAddition()
     {
@@ -45,7 +43,6 @@ internal static class ObjSubscreenVerification
             "legacy packets retain replacing OBJ composition");
     }
 
-    /// <summary>Verifies mode7 bg1 addition.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyMode7Bg1Addition()
     {
@@ -78,7 +75,6 @@ internal static class ObjSubscreenVerification
         }
     }
 
-    /// <summary>Verifies mode7 obj subtraction.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyMode7ObjSubtraction()
     {
@@ -103,7 +99,6 @@ internal static class ObjSubscreenVerification
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packet cannot claim Mode7 OBJ subtraction");
     }
 
-    /// <summary>Verifies obj fixed color.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyObjFixedColor()
     {
@@ -146,7 +141,6 @@ internal static class ObjSubscreenVerification
             .SequenceEqual(RenderForComparison(legacyPriority)), "legacy priority packets remain readable without color payload");
     }
 
-    /// <summary>Verifies bg4 subscreen addition.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyBg4SubscreenAddition()
     {

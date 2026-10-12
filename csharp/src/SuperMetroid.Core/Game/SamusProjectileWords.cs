@@ -84,7 +84,6 @@ public static class SamusProjectileDirections
 /// <summary>A lossless view over Samus's native equipped-beam word.</summary>
 public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 {
-    /// <summary>Defines native configuration mask.</summary>
     private const ushort NativeConfigurationMask = 0x0fff;
 
     /// <summary>
@@ -123,15 +122,10 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 /// <summary>A lossless view over one native projectile type/family word.</summary>
 public readonly record struct SamusProjectileTypeWord(ushort Raw)
 {
-    /// <summary>Defines beam combination mask.</summary>
     private const ushort BeamCombinationMask = 0x000f;
-    /// <summary>Defines charged beam marker.</summary>
     private const ushort ChargedBeamMarker = 0x0010;
-    /// <summary>Defines family mask.</summary>
     private const ushort FamilyMask = 0x0f00;
-    /// <summary>Defines live marker.</summary>
     private const ushort LiveMarker = 0x8000;
-    /// <summary>Defines resident plm payload mask.</summary>
     private const ushort ResidentPlmPayloadMask = 0x1fff;
 
     /// <summary>Gets the low-nibble beam combination; all sixteen values are defined.</summary>
@@ -184,9 +178,7 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
 /// <summary>A lossless view over one native projectile direction/lifecycle word.</summary>
 public readonly record struct SamusProjectileDirectionWord(ushort Raw)
 {
-    /// <summary>Defines direction mask.</summary>
     private const ushort DirectionMask = 0x000f;
-    /// <summary>Defines low byte lifecycle mask.</summary>
     private const ushort LowByteLifecycleMask = 0x00f0;
 
     /// <summary>

@@ -6,10 +6,8 @@ using static AssertionsVerification;
 using static ProjectileTrailCoordinatesVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents projectile trail definitions verification.</summary>
 internal static class ProjectileTrailDefinitionsVerification
 {
-    /// <summary>Verifies projectile trail definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
     internal static void VerifyProjectileTrailDefinitions(ISnesAddressSpace bus)
     {
@@ -41,7 +39,6 @@ internal static class ProjectileTrailDefinitionsVerification
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
-    /// <summary>New trail selector guard.</summary>
     internal static MutableCartridgeReadGuard NewTrailSelectorGuard(int start, int end)
     {
         // Unrelated visual offsets and a wrapped trail-coordinate pointer into the low WRAM

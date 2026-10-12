@@ -6,10 +6,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Core.Game.SamusPaletteRomData;
 
-/// <summary>Represents crystal flash visuals verification.</summary>
 internal static class CrystalFlashVisualsVerification
 {
-    /// <summary>Verifies crystal flash visual frame.</summary>
     internal static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, int elapsed)
     {
         var samus = runtime.Player.Samus!;

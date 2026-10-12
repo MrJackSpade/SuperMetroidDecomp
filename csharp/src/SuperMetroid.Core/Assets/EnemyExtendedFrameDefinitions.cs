@@ -80,114 +80,60 @@ internal readonly record struct EnemyExtendedFrameDefinition(
 /// </summary>
 internal static class EnemyExtendedFrameDefinitions
 {
-    /// <summary>Defines pre draygon frame count.</summary>
     internal const int PreDraygonFrameCount = 142;
-    /// <summary>Defines pre ceres steam frame count.</summary>
     internal const int PreCeresSteamFrameCount = 202;
-    /// <summary>Defines pre oum frame count.</summary>
     internal const int PreOumFrameCount = 230;
-    /// <summary>Defines pre crocomire frame count.</summary>
     internal const int PreCrocomireFrameCount = 260;
-    /// <summary>Defines pre crocomire body frame count.</summary>
     internal const int PreCrocomireBodyFrameCount = 269;
-    /// <summary>Defines pre bomb torizo frame count.</summary>
     internal const int PreBombTorizoFrameCount = 319;
-    /// <summary>Defines pre golden torizo frame count.</summary>
     internal const int PreGoldenTorizoFrameCount = 320;
-    /// <summary>Defines pre kraid arm frame count.</summary>
     internal const int PreKraidArmFrameCount = 321;
-    /// <summary>Defines pre golden torizo awakening frame count.</summary>
     internal const int PreGoldenTorizoAwakeningFrameCount = 343;
-    /// <summary>Defines pre golden torizo walking frame count.</summary>
     internal const int PreGoldenTorizoWalkingFrameCount = 349;
-    /// <summary>Defines pre golden torizo rightward frame count.</summary>
     internal const int PreGoldenTorizoRightwardFrameCount = 359;
-    /// <summary>Defines pre torizo jump back frame count.</summary>
     internal const int PreTorizoJumpBackFrameCount = 370;
-    /// <summary>Defines pre golden torizo right orb frame count.</summary>
     internal const int PreGoldenTorizoRightOrbFrameCount = 373;
-    /// <summary>Defines pre golden torizo right sonic frame count.</summary>
     internal const int PreGoldenTorizoRightSonicFrameCount = 379;
-    /// <summary>Defines pre torizo falling left frame count.</summary>
     internal const int PreTorizoFallingLeftFrameCount = 400;
-    /// <summary>Defines pre golden torizo left foot orb frame count.</summary>
     internal const int PreGoldenTorizoLeftFootOrbFrameCount = 401;
-    /// <summary>Defines pre torizo jump back left frame count.</summary>
     internal const int PreTorizoJumpBackLeftFrameCount = 406;
-    /// <summary>Defines pre golden torizo left orb frame count.</summary>
     internal const int PreGoldenTorizoLeftOrbFrameCount = 408;
-    /// <summary>Defines pre complete torizo frame count.</summary>
     internal const int PreCompleteTorizoFrameCount = 420;
-    /// <summary>Defines complete torizo additional frame count.</summary>
     internal const int CompleteTorizoAdditionalFrameCount = 27;
-    /// <summary>Defines pre mother brain body frame count.</summary>
     internal const int PreMotherBrainBodyFrameCount = 447;
-    /// <summary>Defines pre bg2 boss bindings frame count.</summary>
     internal const int PreBg2BossBindingsFrameCount = 464;
-    /// <summary>Defines pre crocomire skeleton frame count.</summary>
     internal const int PreCrocomireSkeletonFrameCount = 520;
-    /// <summary>Defines pre kraid foot frame count.</summary>
     internal const int PreKraidFootFrameCount = 553;
-    /// <summary>Defines file name.</summary>
     internal const string FileName = "enemy-walking-pirate-compositions.json";
-    /// <summary>Defines bank.</summary>
     internal const byte Bank = 0xb2;
-    /// <summary>Defines maximum components.</summary>
     internal const int MaximumComponents = 8;
-    /// <summary>Defines walking frame count.</summary>
     internal const int WalkingFrameCount = 37;
-    /// <summary>Defines wall frame count.</summary>
     internal const int WallFrameCount = 18;
-    /// <summary>Defines ninja frame count.</summary>
     internal const int NinjaFrameCount = 76;
-    /// <summary>Defines ridley frame count.</summary>
     internal const int RidleyFrameCount = 11;
-    /// <summary>Defines draygon oam frame count.</summary>
     internal const int DraygonOamFrameCount = 48;
-    /// <summary>Defines draygon bg2 frame count.</summary>
     internal const int DraygonBg2FrameCount = 34;
-    /// <summary>Defines phantoon bg2 frame count.</summary>
     internal const int PhantoonBg2FrameCount = 22;
-    /// <summary>Defines spore spawn oam frame count.</summary>
     internal const int SporeSpawnOamFrameCount = 12;
-    /// <summary>Defines ceres steam frame count.</summary>
     internal const int CeresSteamFrameCount = 28;
-    /// <summary>Defines oum frame count.</summary>
     internal const int OumFrameCount = 30;
-    /// <summary>Defines crocomire oam frame count.</summary>
     internal const int CrocomireOamFrameCount = 9;
-    /// <summary>Defines crocomire body frame count.</summary>
     internal const int CrocomireBodyFrameCount = CrocomireBodyVisualDefinitions.BodyFrameCount;
-    /// <summary>Defines bomb torizo dormant frame count.</summary>
     internal const int BombTorizoDormantFrameCount = 1;
-    /// <summary>Defines golden torizo initial frame count.</summary>
     internal const int GoldenTorizoInitialFrameCount = 1;
-    /// <summary>Defines kraid arm frame count.</summary>
     internal const int KraidArmFrameCount = 22;
-    /// <summary>Defines golden torizo awakening frame count.</summary>
     internal const int GoldenTorizoAwakeningFrameCount = 6;
-    /// <summary>Defines golden torizo walking frame count.</summary>
     internal const int GoldenTorizoWalkingFrameCount = 10;
-    /// <summary>Defines golden torizo rightward frame count.</summary>
     internal const int GoldenTorizoRightwardFrameCount = 11;
-    /// <summary>Defines torizo jump back frame count.</summary>
     internal const int TorizoJumpBackFrameCount = 3;
-    /// <summary>Defines golden torizo right orb frame count.</summary>
     internal const int GoldenTorizoRightOrbFrameCount = 6;
-    /// <summary>Defines golden torizo right sonic frame count.</summary>
     internal const int GoldenTorizoRightSonicFrameCount = 21;
-    /// <summary>Defines torizo falling left frame count.</summary>
     internal const int TorizoFallingLeftFrameCount = 1;
-    /// <summary>Defines golden torizo left foot orb frame count.</summary>
     internal const int GoldenTorizoLeftFootOrbFrameCount = 5;
-    /// <summary>Defines torizo jump back left new frame count.</summary>
     internal const int TorizoJumpBackLeftNewFrameCount = 2;
-    /// <summary>Defines golden torizo left orb frame count.</summary>
     internal const int GoldenTorizoLeftOrbFrameCount = 12;
-    /// <summary>Defines pirate frame count.</summary>
     internal const int PirateFrameCount =
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
-    /// <summary>Defines expected frame count.</summary>
     internal const int ExpectedFrameCount =
         PirateFrameCount + RidleyFrameCount +
         DraygonOamFrameCount + SporeSpawnOamFrameCount +
@@ -203,7 +149,6 @@ internal static class EnemyExtendedFrameDefinitions
         DraygonBg2FrameCount + PhantoonBg2FrameCount + CrocomireSkeletonVisualDefinitions.FrameCount +
         KraidFootVisualDefinitions.FrameCount;
 
-    /// <summary>Gets frames.</summary>
     internal static EnemyExtendedFrameSequence Frames => new(0, ExpectedFrameCount);
 
     /// <summary>These native roots contain BG2 streams only; stock legitimately has no OAM components.</summary>

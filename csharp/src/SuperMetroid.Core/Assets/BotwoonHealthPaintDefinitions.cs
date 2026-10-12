@@ -15,21 +15,17 @@ internal sealed class BotwoonHealthPaintDefinitions
 {
     /// <summary>$B3:973B/975B: copied slot0 target in bands1/2; independently observable CGRAM data.</summary>
     private static readonly Bgr555 EarlyBandTransparentTarget = Bgr555.FromWord(0x2003);
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new botwoon health paint definitions instance.</summary>
     internal BotwoonHealthPaintDefinitions(Bgr555[][] rows)
     {
         for (int band = 0; band < 8; band++) for (int color = 0; color < 16; color++)
             if (rows[band][color] != Calculate(band, color)) edits.Add(band * 16 + color, rows[band][color]);
     }
 
-    /// <summary>resolve.</summary>
     internal Bgr555 Resolve(int band, int color) => edits.TryGetValue(band * 16 + color, out Bgr555 value)
         ? value : Calculate(band, color);
 
-    /// <summary>calculate.</summary>
     private static Bgr555 Calculate(int band, int color)
     {
         if (color == 0) return band is 1 or 2 ? EarlyBandTransparentTarget : Bgr555.Black;
@@ -41,7 +37,6 @@ internal sealed class BotwoonHealthPaintDefinitions
         });
     }
 
-    /// <summary>endpoint.</summary>
     private static Bgr555 Endpoint(bool damaged, int color)
     {
         (int red, int green, int blue) = color switch
@@ -56,7 +51,6 @@ internal sealed class BotwoonHealthPaintDefinitions
         return new Bgr555(red, green, blue);
     }
 
-    /// <summary>eye.</summary>
     private static (int Red, int Green, int Blue) Eye(bool damaged, int shade)
     {
         if (!damaged)
@@ -70,7 +64,6 @@ internal sealed class BotwoonHealthPaintDefinitions
         return (red, green, blue);
     }
 
-    /// <summary>jaw.</summary>
     private static (int Red, int Green, int Blue) Jaw(bool damaged, int shade)
     {
         static int Ramp(int peak, int floor, int phase) => (peak * (3 - phase) + floor * phase) / 3;
@@ -80,7 +73,6 @@ internal sealed class BotwoonHealthPaintDefinitions
         return (red, green, blue);
     }
 
-    /// <summary>skin.</summary>
     private static (int Red, int Green, int Blue) Skin(bool damaged, int shade)
     {
         int healthyGreen = shade == 4 ? 1 : 18 - 4 * shade;

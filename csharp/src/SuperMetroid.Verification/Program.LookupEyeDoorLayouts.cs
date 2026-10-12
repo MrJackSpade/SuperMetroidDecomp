@@ -6,17 +6,12 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents lookup eye door layouts verification.</summary>
 internal static class LookupEyeDoorLayoutsVerification
 {
-    /// <summary>verify eye door layout geometry.</summary>
     internal static void VerifyEyeDoorLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,0);
-    /// <summary>verify eye door layout collision.</summary>
     internal static void VerifyEyeDoorLayoutCollision(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,1);
-    /// <summary>verify eye door layout visuals.</summary>
     internal static void VerifyEyeDoorLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,2);
 
-    /// <summary>verify eye door layout field.</summary>
     private static void VerifyEyeDoorLayoutField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9bf7,0x9c03,0x9c0b,0x9c13,0x9c1b,0x9c23,0x9c2b,0x9c31,0x9c37,0x9c3d,0x9c43,0x9c49,

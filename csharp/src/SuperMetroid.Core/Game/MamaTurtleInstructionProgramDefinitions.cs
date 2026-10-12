@@ -47,10 +47,8 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
     private static readonly ushort[] MamaLeaveDurations = [16, 5, 5, 96];
     /// <summary>A2:8C62/8D40 baby exit holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] BabyLeaveDurations = [5, 47];
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 75;
 
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -61,11 +59,9 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         throw new InvalidDataException("Turtle presentation layout is incomplete.");
     }
 
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryControl(address, out ushort value)
         ? value : throw new InvalidDataException($"Tatori instruction mechanics pointer $A2:{address:X4} is not compiled.");
 
-    /// <summary>try control.</summary>
     internal static bool TryControl(ushort address, out ushort value) =>
         TryCrawl(address, BabyCrawlingLeft, out value) || TryCrawl(address, BabyCrawlingRight, out value) ||
         TrySpin(address, BabySpinning, baby: true, out value) || TrySpin(address, MamaSpinning, baby: false, out value) ||
@@ -79,7 +75,6 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         TryShell(address, BabyLeaveShellRight, ShellProgram.BabyLeave, out value) ||
         TrySleep(address, out value);
 
-    /// <summary>try crawl.</summary>
     private static bool TryCrawl(ushort address, ushort start, out ushort value)
     {
         value = 0;
@@ -93,7 +88,6 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
-    /// <summary>try spin.</summary>
     private static bool TrySpin(ushort address, ushort start, bool baby, out ushort value)
     {
         value = 0;
@@ -109,10 +103,8 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
-    /// <summary>Represents shell program.</summary>
-    private enum ShellProgram { /** <summary>Identifies mama enter left.</summary> */ MamaEnterLeft, /** <summary>Identifies mama enter right.</summary> */ MamaEnterRight, /** <summary>Identifies baby hide.</summary> */ BabyHide, /** <summary>Identifies mama leave.</summary> */ MamaLeave, /** <summary>Identifies baby leave.</summary> */ BabyLeave }
+    private enum ShellProgram { MamaEnterLeft, MamaEnterRight, BabyHide, MamaLeave, BabyLeave }
 
-    /// <summary>try shell.</summary>
     private static bool TryShell(ushort address, ushort start, ShellProgram program, out ushort value)
     {
         value = 0;
@@ -147,7 +139,6 @@ internal abstract class MamaTurtleInstructionProgramDefinitions
         return true;
     }
 
-    /// <summary>try sleep.</summary>
     private static bool TrySleep(ushort address, out ushort value)
     {
         value = 0;

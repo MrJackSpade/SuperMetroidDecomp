@@ -70,10 +70,10 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public ushort CommonPaletteTimer { get; private set; }
 
-    /// <summary>Sets when `$90:D6C5` would spawn the two bank-$88 window HDMA objects.</summary>
+    /// <summary>Set when `$90:D6C5` would spawn the two bank-$88 window HDMA objects.</summary>
     public bool BubbleHdmaRequested { get; private set; }
 
-    /// <summary>Sets when `$90:D6AA` queues sound-library-three effect one.</summary>
+    /// <summary>Set when `$90:D6AA` queues sound-library-three effect one.</summary>
     public bool ActivationSoundRequested { get; private set; }
 
     /// <summary>
@@ -236,7 +236,6 @@ public sealed class SamusCrystalFlashState
             BubbleHdmaRequested);
     }
 
-    /// <summary>Steps raising.</summary>
     private void StepRaising(SamusState samus)
     {
         // `$90:D678-$D67D` changes only the whole-pixel word. The subposition survives.
@@ -261,7 +260,6 @@ public sealed class SamusCrystalFlashState
         samus.KnockbackActive = false;
     }
 
-    /// <summary>Steps ammo drain.</summary>
     private void StepAmmoDrain(SamusState samus, ushort nmiFrameCounter)
     {
         // All three pointed routines return immediately on seven of every eight accepted
@@ -307,7 +305,6 @@ public sealed class SamusCrystalFlashState
         samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 12, timer: 3);
     }
 
-    /// <summary>Steps finish.</summary>
     private void StepFinish(ISnesAddressSpace bus, SamusState samus)
     {
         // Retail usually enters with equality because RaisedYPosition was captured at the
@@ -427,11 +424,9 @@ public sealed class SamusCrystalFlashState
         return true;
     }
 
-    /// <summary>Signed less than.</summary>
     private static bool SignedLessThan(ushort left, ushort right) =>
         unchecked((short)(left - right)) < 0;
 
-    /// <summary>Publish shared palette words.</summary>
     private void PublishSharedPaletteWords(SamusState samus)
     {
         // `$0ACE/$0AD0` are not Crystal-Flash-private storage. Speed Booster, Screw Attack,

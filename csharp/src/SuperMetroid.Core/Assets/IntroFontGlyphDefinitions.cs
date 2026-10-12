@@ -10,7 +10,6 @@ internal static class IntroFontGlyphDefinitions
     /// <summary>$95:D089 tile $29 is the solid ink-two blank copied to subtitle staging by $8B:A872-A8BB.</summary>
     private const int SubtitleBlank = 0x29;
 
-    /// <summary>compile.</summary>
     internal static byte[] Compile()
     {
         var output = new byte[IntroFontAtlasFormat.ByteCount];
@@ -30,7 +29,6 @@ internal static class IntroFontGlyphDefinitions
         return output;
     }
 
-    /// <summary>pixel.</summary>
     private static int Pixel(int glyph, Position16<ImagePixels> point)
     {
         if (glyph == Period + 2) return point.X == 0 ? 0 : Pixel(Period, new(checked((ushort)(point.X - 1)), point.Y));

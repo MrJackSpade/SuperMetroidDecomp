@@ -23,33 +23,20 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class GameplayMessageBoxState
 {
-    /// <summary>Stores tilemap.</summary>
     private ushort[] _tilemap = [];
-    /// <summary>Stores title presentation.</summary>
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
-    /// <summary>Stores panel presentation.</summary>
     [NonSerialized] private GameplayMessagePanelPresentation? panelPresentation;
-    /// <summary>Stores notice presentation.</summary>
     [NonSerialized] private GameplayMessageNoticePresentation? noticePresentation;
-    /// <summary>Stores controller.</summary>
     private readonly ControllerInputState _controller = new();
-    /// <summary>Stores active bus.</summary>
     private ISnesAddressSpace? _activeBus;
-    /// <summary>Stores next opening radius pixels.</summary>
     private int _nextOpeningRadiusPixels;
-    /// <summary>Stores next closing radius pixels.</summary>
     private int _nextClosingRadiusPixels;
-    /// <summary>Stores closing confirmation result.</summary>
     private bool? _closingConfirmationResult;
-    /// <summary>Stores gunship completion.</summary>
     private bool _gunshipCompletion;
-    /// <summary>Stores saving sound requested.</summary>
     private bool _savingSoundRequested;
-    /// <summary>Stores saving frames remaining.</summary>
     private int _savingFramesRemaining;
     // Lag frames left in the current Preparing/Restoring stretch, or until the save
     // selector's next ReadControllerInput.
-    /// <summary>Stores lag frames remaining.</summary>
     private int _lagFramesRemaining;
 
     /// <summary>
@@ -61,9 +48,7 @@ public sealed class GameplayMessageBoxState
     /// <summary>The bank-$85 audio and HDMA-object calls made by the frame <see cref="Step"/> just ran.</summary>
     [field: NonSerialized]
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
-    /// <summary>Stores shoot binding.</summary>
     private ushort _shootBinding = (ushort)SnesButton.X;
-    /// <summary>Stores run binding.</summary>
     private ushort _runBinding = (ushort)SnesButton.B;
 
     /// <summary>Consumes $85:811B's one-shot saving sound, independently of gameplay publication.</summary>
@@ -74,7 +59,6 @@ public sealed class GameplayMessageBoxState
         return requested;
     }
 
-    /// <summary>Gets is save confirmation.</summary>
     private bool IsSaveConfirmation => MessageId is GameplayMessageId.SaveConfirmation or
         GameplayMessageId.GunshipSaveConfirmation;
 
@@ -212,7 +196,6 @@ public sealed class GameplayMessageBoxState
         BeginPreparing(GameplayMessageRomData.Timing.PreOpenLagFrames - 1);
     }
 
-    /// <summary>begin preparing.</summary>
     private void BeginPreparing(int lagFrames)
     {
         _lagFramesRemaining = lagFrames;
@@ -391,7 +374,6 @@ public sealed class GameplayMessageBoxState
         StepClosing();
     }
 
-    /// <summary>step closing.</summary>
     private void StepClosing()
     {
         RadiusPixels = _nextClosingRadiusPixels;
@@ -444,7 +426,6 @@ public sealed class GameplayMessageBoxState
         throw new InvalidOperationException("Save confirmation requires installed notice artwork.");
     }
 
-    /// <summary>patch configured button.</summary>
     private void PatchConfiguredButton(GameplayMessageId messageId, ushort binding)
     {
         int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffset(messageId);
@@ -457,7 +438,6 @@ public sealed class GameplayMessageBoxState
         _tilemap[byteOffset / 2] = ResolveButtonTilemapWord(binding);
     }
 
-    /// <summary>patch installed panel button.</summary>
     private void PatchInstalledPanelButton(GameplayMessageId messageId)
     {
         switch (GameplayMessagePanelDefinitions.ButtonBinding(messageId))
@@ -477,7 +457,6 @@ public sealed class GameplayMessageBoxState
         }
     }
 
-    /// <summary>resolve button tilemap word.</summary>
     private static ushort ResolveButtonTilemapWord(ushort binding) =>
         GameplayMessageRomData.Buttons.ResolveGlyphWord(binding);
 

@@ -10,10 +10,8 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Verification access to <see cref="RenderFrameSnapshotCodec"/> members production does not use.</summary>
 internal static class RenderFrameSnapshotCodecAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RenderFrameSnapshotCodec</c>.</summary>
     extension(RenderFrameSnapshotCodec)
     {
-        /// <summary>deserialize.</summary>
         internal static RenderFrameSnapshot Deserialize(ReadOnlySpan<byte> bytes)
         {
             if (bytes.Length > RenderPacketFormat.MaximumPacketBytes)
@@ -26,7 +24,6 @@ internal static class RenderFrameSnapshotCodecAccess
 /// <summary>Verification access to <see cref="SnesBgTilemapRenderer"/> members production does not use.</summary>
 internal static class SnesBgTilemapRendererAccess
 {
-    /// <summary>Provides verification-only extensions for <c>SnesBgTilemapRenderer</c>.</summary>
     extension(SnesBgTilemapRenderer)
     {
         /// <summary>
@@ -86,11 +83,9 @@ internal static class SnesGameplayFrameRendererAccess
             source.A);
     }
 
-    /// <summary>expand five bit.</summary>
     private static byte ExpandFiveBit(byte value) =>
         (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
 
-    /// <summary>Provides verification-only extensions for <c>SnesGameplayFrameRenderer</c>.</summary>
     extension(SnesGameplayFrameRenderer)
     {
         /// <summary>
@@ -228,7 +223,6 @@ internal static class SnesGameplayFrameRendererAccess
 /// <summary>Verification access to <see cref="SnesMode7Renderer"/> members production does not use.</summary>
 internal static class SnesMode7RendererAccess
 {
-    /// <summary>Provides verification-only extensions for <c>SnesMode7Renderer</c>.</summary>
     extension(SnesMode7Renderer)
     {
         /// <summary>
@@ -262,7 +256,6 @@ internal static class SnesMode7RendererAccess
 /// <summary>Verification access to <see cref="SnesObjRenderer"/> members production does not use.</summary>
 internal static class SnesObjRendererAccess
 {
-    /// <summary>Provides verification-only extensions for <c>SnesObjRenderer</c>.</summary>
     extension(SnesObjRenderer)
     {
         /// <summary>

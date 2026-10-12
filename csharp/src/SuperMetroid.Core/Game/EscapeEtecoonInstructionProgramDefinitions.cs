@@ -21,12 +21,9 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
     /// <summary><c>InstList_EtecoonEscape_ExpressGratitudeThenEscape_0</c> at $B3:E5DA.</summary>
     internal const ushort ExpressGratitudeThenEscape = 0xe5da;
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 63;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 30;
 
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -93,12 +90,10 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         return new((ushort)(ExpressGratitudeThenEscape + offset), value);
     }
 
-    /// <summary>Four pose loop.</summary>
     private static InstructionMechanicsWord FourPoseLoop(ushort start, int word, ushort duration) =>
         new((ushort)(start + (word < 5 ? 4 * word : 18)),
             word < 4 ? duration : word == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -116,7 +111,6 @@ internal abstract class EscapeEtecoonInstructionProgramDefinitions
         return (ushort)(ExpressGratitudeThenEscape + (index < 28 ? 8 + 8 * (index - 24) : 44 + 4 * (index - 28)));
     }
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

@@ -31,21 +31,14 @@ public readonly record struct ManagedAudioRegressionSmokeTestResult(
 /// </summary>
 public static class ManagedAudioRegressionSmokeTest
 {
-    /// <summary>Defines expected pcm sha256.</summary>
     private const string ExpectedPcmSha256 =
         "06FE91966B29B05F2012C6A542864B5692B178A7B028C2A4A56F6D34E8F8D06C";
-    /// <summary>Defines expected acknowledgement sha256.</summary>
     private const string ExpectedAcknowledgementSha256 =
         "DF414B59F7CA21C4BBAD7ABA9C379C8296DCA454B480BFCEFCB8B35123D851FD";
-    /// <summary>Defines short scenario frames.</summary>
     private const int ShortScenarioFrames = 120;
-    /// <summary>Defines title scenario frames.</summary>
     private const int TitleScenarioFrames = 600;
-    /// <summary>Defines lifecycle scenario frames.</summary>
     private const int LifecycleScenarioFrames = 600;
-    /// <summary>Defines expected canonical sample count.</summary>
     private const int ExpectedCanonicalSampleCount = 112;
-    /// <summary>Defines expected source alias count.</summary>
     private const int ExpectedSourceAliasCount = 935;
 
     /// <summary>Loads installed audio assets, checks catalog dimensions, and compares the fixed music/SFX/lifecycle corpus against its pinned PCM and acknowledgement digests without a ROM or audio device.</summary>
@@ -121,7 +114,6 @@ public static class ManagedAudioRegressionSmokeTest
             acknowledgements);
     }
 
-    /// <summary>Runs music scenario.</summary>
     private static void RunMusicScenario(
         string name,
         AudioUploadAssetDefinition bank,
@@ -144,7 +136,6 @@ public static class ManagedAudioRegressionSmokeTest
         tally.Scenarios++;
     }
 
-    /// <summary>Runs sound scenario.</summary>
     private static void RunSoundScenario(
         string name,
         IReadOnlyList<(ApuPort Port, byte Command)> startCommands,
@@ -175,7 +166,6 @@ public static class ManagedAudioRegressionSmokeTest
         tally.Scenarios++;
     }
 
-    /// <summary>Runs lifecycle scenario.</summary>
     private static void RunLifecycleScenario(
         AudioCorpusTally tally)
     {
@@ -224,7 +214,6 @@ public static class ManagedAudioRegressionSmokeTest
         tally.Scenarios++;
     }
 
-    /// <summary>Hash frame.</summary>
     private static void HashFrame(
         string scenario,
         SpcAudioEngine engine,
@@ -251,22 +240,16 @@ public static class ManagedAudioRegressionSmokeTest
     /// </summary>
     private sealed class AudioCorpusTally : IDisposable
     {
-        /// <summary>Gets pcm.</summary>
         public IncrementalHash Pcm { get; } = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 
-        /// <summary>Gets acknowledgements.</summary>
         public IncrementalHash Acknowledgements { get; } = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 
-        /// <summary>Gets or sets scenarios.</summary>
         public int Scenarios { get; set; }
 
-        /// <summary>Gets or sets frames.</summary>
         public int Frames { get; set; }
 
-        /// <summary>Gets or sets samples.</summary>
         public int Samples { get; set; }
 
-        /// <summary>Dispose.</summary>
         public void Dispose()
         {
             Pcm.Dispose();

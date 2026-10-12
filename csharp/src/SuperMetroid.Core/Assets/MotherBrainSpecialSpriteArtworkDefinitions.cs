@@ -78,12 +78,9 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
         definition = default;
         return false;
     }
-    /// <summary>Represents sheet list.</summary>
     private sealed class SheetList : IReadOnlyList<MotherBrainSpecialSpriteSheetDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 4;
-        /// <summary>Gets an indexed value.</summary>
         public MotherBrainSpecialSpriteSheetDefinition this[int index] => index switch
         {
             0 => Legs,
@@ -92,12 +89,10 @@ public static class MotherBrainSpecialSpriteArtworkDefinitions
             3 => ExplodedDoor,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<MotherBrainSpecialSpriteSheetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

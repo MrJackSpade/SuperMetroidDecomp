@@ -3,7 +3,6 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-/// <summary>Represents word read analyzer tests.</summary>
 internal static class WordReadAnalyzerTests
 {
     /// <summary>#223: SME6350 recognizes little-endian words rebuilt from adjacent byte reads.</summary>

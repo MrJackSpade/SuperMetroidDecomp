@@ -34,18 +34,12 @@ public sealed class CeresDoorVisualCatalog
             }
         });
 
-    /// <summary>Stores tiles.</summary>
     private readonly RoomCharacterAtlas tiles;
-    /// <summary>Stores normal.</summary>
     private readonly CeresDoorNormalPaintDefinitions normal;
-    /// <summary>Stores escape.</summary>
     private readonly CeresDoorEscapePaintDefinitions escape;
-    /// <summary>Stores animation.</summary>
     private readonly CeresDoorAnimationPaintDefinitions animation;
-    /// <summary>Stores platform edits.</summary>
     private readonly Dictionary<int, byte> platformEdits = [];
 
-    /// <summary>Initializes a new ceres door visual catalog instance.</summary>
     private CeresDoorVisualCatalog(RoomCharacterAtlas tiles, Bgr555[] normal,
         Bgr555[] escape, Bgr555[][] animation, byte[][] mode7DoorFrames)
     {
@@ -141,7 +135,6 @@ public sealed class CeresDoorVisualCatalog
             new CgramPalettes(cgram).All.Write(destination + color, EscapeColor(color));
     }
 
-    /// <summary>Escape color.</summary>
     private Bgr555 EscapeColor(int color) => escape.ColorAt(color);
 
     /// <summary>Installs six selected inks at CGRAM 41–46 from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
@@ -153,7 +146,6 @@ public sealed class CeresDoorVisualCatalog
             new BossPalettes(cgram).CeresDoorAnimation.Write(color, AnimationColor(row, color));
     }
 
-    /// <summary>Animation color.</summary>
     private Bgr555 AnimationColor(int row, int color) => animation.ColorAt(row, color);
 
     /// <summary>$A6:F918/F91C: resolve shared canonical platform imagery or an independent supplied cell edit.</summary>
@@ -172,7 +164,6 @@ public sealed class CeresDoorVisualCatalog
         new Mode7Vram(vram).LoadMap(transfer, CeresDoorVisualRomData.Mode7DestinationWord);
     }
 
-    /// <summary>Compile mode7 frames.</summary>
     private static byte[][] CompileMode7Frames(int[][]? source)
     {
         if (source is null || source.Length != CeresDoorVisualRomData.Mode7FrameCount)
@@ -195,7 +186,6 @@ public sealed class CeresDoorVisualCatalog
         return result;
     }
 
-    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int expectedCount, string name)
     {
         if (source is null || source.Length != expectedCount)
@@ -212,7 +202,6 @@ public sealed class CeresDoorVisualCatalog
         return result;
     }
 
-    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

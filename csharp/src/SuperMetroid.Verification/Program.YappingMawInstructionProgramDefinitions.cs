@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents yapping maw instruction program definitions verification.</summary>
 internal static class YappingMawInstructionProgramDefinitionsVerification
 {
-    /// <summary>verify yapping maw instruction program definitions.</summary>
     internal static void VerifyYappingMawInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYappingMawInstructionProgramDefinitions), () => VerifyYappingMawInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>verify yapping maw instruction program definitions.</summary>
     internal static void VerifyYappingMawInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -141,7 +138,6 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             "cooldown entries, seven callbacks, and 52 compiled visual selectors pass.");
     }
 
-    /// <summary>verify yapping maw initializer selections.</summary>
     private static void VerifyYappingMawInitializerSelections(
         ISnesAddressSpace bus)
     {
@@ -174,7 +170,6 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>new yapping maw instruction system.</summary>
     private static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
@@ -195,7 +190,6 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         return (enemies, slot, state);
     }
 
-    /// <summary>run yapping maw instruction frames.</summary>
     private static void RunYappingMawInstructionFrames(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -209,7 +203,6 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>probe yapping maw instruction mechanics allocation.</summary>
     private static int ProbeYappingMawInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -223,7 +216,6 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>new yapping maw instruction read guard.</summary>
     private static CartridgeReadGuard NewYappingMawInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(YappingMawInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -231,7 +223,6 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             .ForbidWords(0xa80000, YappingMawInstructionProgramDefinitions.PresentationWordCount, YappingMawInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled Yapping Maw visual byte ${address:X6}.");
 
-    /// <summary>yapping maw instruction program definitions command.</summary>
     [VerificationCommand("--yapping-maw-instruction-program-definitions")]
     internal static int YappingMawInstructionProgramDefinitionsCommand()
     {

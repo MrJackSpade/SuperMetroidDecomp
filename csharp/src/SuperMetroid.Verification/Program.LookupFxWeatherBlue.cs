@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupFxBlendSelectorsVerification;
 
-/// <summary>Represents lookup fx weather blue verification.</summary>
 internal static class LookupFxWeatherBlueVerification
 {
-    /// <summary>Verifies fx weather third green.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFxWeatherThirdGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
@@ -34,7 +32,6 @@ internal static class LookupFxWeatherBlueVerification
                 AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdGreen((RoomFxPaletteBlend)id) is null, "Liquid override green remains independent");
         }
     }
-    /// <summary>Verifies fx weather third blue.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFxWeatherThirdBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {

@@ -222,7 +222,6 @@ public sealed class DemoInputState
         PreviousNewlyPressed = NewlyPressed;
     }
 
-    /// <summary>process instruction list.</summary>
     private void ProcessInstructionList(IDemoInputProgram program)
     {
         ushort Read(ushort pointer) => program.ReadInstructionWord(pointer);
@@ -315,7 +314,6 @@ public sealed class DemoInputState
         }
     }
 
-    /// <summary>unsupported routine.</summary>
     private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>
         new($"Demo-input {kind} $91:{pointer:X4} was not supplied by the owning object.");
 }

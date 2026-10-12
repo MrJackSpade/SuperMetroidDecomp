@@ -14,7 +14,6 @@ internal abstract class BoyonInstructionProgramDefinitions
     /// <summary><c>$A2:86BF</c>, the six-frame bouncing loop.</summary>
     internal const ushort Bouncing = 0x86bf;
 
-    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         bool bouncing = address >= Bouncing;
@@ -22,7 +21,7 @@ internal abstract class BoyonInstructionProgramDefinitions
         return (uint)offset < (bouncing ? 24u : 16u) && offset % 4 == 0;
     }
 
-    /// <summary>Sets up property/callback, timed animation, then goto the first timed frame.
+    /// <summary>Setup property/callback, timed animation, then goto the first timed frame.
     /// The idle loop has four ten-frame steps; bouncing has six five-frame steps.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {

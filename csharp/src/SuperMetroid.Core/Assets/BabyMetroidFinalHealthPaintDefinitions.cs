@@ -34,7 +34,6 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
     /// <summary>$AD:E87E, fang contour is three quarters of initial$A9:94EC, nearest rounding with ties toward dark.</summary>
     private const int ContourNumerator = 3, ContourDenominator = 4;
 
-    /// <summary>Color.</summary>
     internal static Bgr555 Color(int color)
     {
         var slot = (BabyMetroidInitialColorSlot)color;
@@ -62,7 +61,6 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         };
     }
 
-    /// <summary>Glint.</summary>
     private static Bgr555 Glint()
     {
         int green = Math.Min(31, InnardLight.Green + (InitialSlots.InnardGlintAddition + GlintDivisor - 1) / GlintDivisor);
@@ -70,7 +68,6 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         return new(InnardLight.Red, green, blue);
     }
 
-    /// <summary>Innard shade.</summary>
     private static Bgr555 InnardShade(int shade)
     {
         int intervals = BabyMetroidInitialColorSlot.InnardDark - BabyMetroidInitialColorSlot.InnardLight;
@@ -83,7 +80,6 @@ internal static class BabyMetroidFinalHealthPaintDefinitions
         return new(red, green, blue);
     }
 
-    /// <summary>Fang contour.</summary>
     private static Bgr555 FangContour() => InitialSlots.FangOutline.Map((_, channel) =>
         (channel * ContourNumerator + (ContourDenominator - 1) / 2) / ContourDenominator);
 }

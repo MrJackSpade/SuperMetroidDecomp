@@ -10,16 +10,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Stores left.</summary>
     private readonly int left, top, columns, rows;
-    /// <summary>Stores order.</summary>
     private readonly byte[] order;
-    /// <summary>Stores appearances.</summary>
     private readonly Appearance[] appearances;
-    /// <summary>Represents appearance.</summary>
     private readonly record struct Appearance(SnesObjAttributeWord Attributes, bool InheritPalette);
 
-    /// <summary>Initializes a new menu border parts instance.</summary>
     private MenuBorderParts(int left, int top, int columns, int rows, byte[] order, Appearance[] appearances)
     {
         this.left = left;
@@ -30,7 +25,6 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
         this.appearances = appearances;
     }
 
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
     {
         if (name is not ("Border.Main" or "Border.Copy" or "Border.Clear" or "Heading.Primary" or "Heading.Controller" or "Heading.Special") || supplied.PartCount < 8)
@@ -75,15 +69,12 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
     }
 
     // Four distinct corners, one horizontal edge and one vertical edge.
-    /// <summary>Role.</summary>
     private int Role(int column, int row) => row == 0 || row == rows - 1
         ? column == 0 ? row == 0 ? 0 : 2
             : column == columns - 1 ? row == 0 ? 1 : 3 : 4
         : 5;
 
-    /// <summary>Gets count.</summary>
     public int Count => order.Length;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -107,11 +98,9 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
                 unchecked((byte)(top + row * 8)), appearance.Attributes, appearance.InheritPalette);
         }
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

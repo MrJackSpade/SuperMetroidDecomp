@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
-/// <summary>Represents torizo initialization definitions verification.</summary>
 internal static class TorizoInitializationDefinitionsVerification
 {
-    /// <summary>Verifies compiled torizo initialization.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo initialization")]
     internal static void VerifyCompiledTorizoInitialization(SuperMetroidAddressSpace rom)
     {

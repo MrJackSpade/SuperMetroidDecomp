@@ -12,12 +12,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents frozen metroid shell verification.</summary>
 internal static class FrozenMetroidShellVerification
 {
     // #1207: freezing during the shell's intentionally empty frame must select
     // the frozen shell immediately, including its actual emitted sprite parts.
-    /// <summary>Verifies frozen metroid shell.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static int VerifyFrozenMetroidShell()
     {
@@ -68,7 +66,6 @@ internal static class FrozenMetroidShellVerification
         }
     }
 
-    /// <summary>Frozen metroid shell command.</summary>
     [VerificationCommand("--frozen-metroid-shell")]
     internal static int FrozenMetroidShellCommand()
     {

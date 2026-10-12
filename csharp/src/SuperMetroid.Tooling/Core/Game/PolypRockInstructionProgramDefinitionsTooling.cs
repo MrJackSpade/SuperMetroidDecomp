@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,13 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(PolypRockInstructionProgramDefinitions))]
 internal abstract class PolypRockInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, ISinglePresentationOperand, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => PolypRockInstructionProgramDefinitions.MechanicsWordCount;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => PolypRockInstructionProgramDefinitions.MechanicsWord(index);
-    /// <summary>Gets presentation word.</summary>
     static ushort ISinglePresentationOperand.PresentationWord => PolypRockInstructionProgramDefinitions.PresentationWord;
-    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

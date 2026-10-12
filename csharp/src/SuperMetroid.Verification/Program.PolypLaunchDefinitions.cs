@@ -2,10 +2,8 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents polyp launch definitions verification.</summary>
 internal static class PolypLaunchDefinitionsVerification
 {
-    /// <summary>Verifies compiled polyp launch definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp launch definitions")]
     internal static void VerifyCompiledPolypLaunchDefinitions(SuperMetroidAddressSpace rom)
     {

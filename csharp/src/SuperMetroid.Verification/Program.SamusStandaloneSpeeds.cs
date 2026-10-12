@@ -5,10 +5,8 @@ using static AssertionsVerification;
 using static SharedSlopeHeightsVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents samus standalone speeds verification.</summary>
 internal static class SamusStandaloneSpeedsVerification
 {
-    /// <summary>verify samus standalone speeds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus standalone speeds")]
     internal static void VerifySamusStandaloneSpeeds(SuperMetroidAddressSpace rom)
     {

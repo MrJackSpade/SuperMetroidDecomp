@@ -10,10 +10,8 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents door alignment verification.</summary>
 internal static class DoorAlignmentVerification
 {
-    /// <summary>Verifies door alignment parity.</summary>
     internal static void VerifyDoorAlignmentParity(
         string fixture = "csharp/test-fixtures/movement-release/door-alignment-448-v1.csv")
     {
@@ -88,7 +86,6 @@ internal static class DoorAlignmentVerification
             "  Door alignment: 1,072 native camera steps, completion calls, and retained subpixels agree.");
     }
 
-    /// <summary>Verifies complete door alignment handoff.</summary>
     private static void VerifyCompleteDoorAlignmentHandoff()
     {
         const ushort sourceRoom = 0xb236;
@@ -188,11 +185,9 @@ internal static class DoorAlignmentVerification
             "door transition retains the running-momentum flag");
     }
 
-    /// <summary>Parse decimal.</summary>
     private static int ParseDecimal(string value) =>
         int.Parse(value, CultureInfo.InvariantCulture);
 
-    /// <summary>Parse hex.</summary>
     private static ushort ParseHex(string value) =>
         ushort.Parse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 }

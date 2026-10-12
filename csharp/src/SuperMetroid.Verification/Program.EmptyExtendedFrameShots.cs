@@ -13,7 +13,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents empty extended frame shots verification.</summary>
 internal static class EmptyExtendedFrameShotsVerification
 {
     /// <summary>
@@ -54,7 +53,6 @@ internal static class EmptyExtendedFrameShotsVerification
         Console.WriteLine("  Empty extended frame: a beam over $804F leaves the pirate untouched.");
     }
 
-    /// <summary>empty extended frame shots command.</summary>
     [VerificationCommand("--empty-extended-frame-shots")]
     internal static int EmptyExtendedFrameShotsCommand()
     {

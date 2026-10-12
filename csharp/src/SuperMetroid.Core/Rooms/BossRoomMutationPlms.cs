@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
@@ -8,10 +8,8 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Boss-room terrain PLMs: Botwoon's wall, the Spore Spawn ceiling, and the Kraid, Crocomire, baby Metroid wall and Mother Brain room mutations.</summary>
 internal sealed class BossRoomMutationPlms
 {
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
-    /// <summary>Initializes a new boss room mutation plms instance.</summary>
     internal BossRoomMutationPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;

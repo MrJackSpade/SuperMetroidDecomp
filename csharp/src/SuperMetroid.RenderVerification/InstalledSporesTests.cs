@@ -12,7 +12,6 @@ using System.Text;
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests
 {
-    /// <summary>Runs.</summary>
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
         string maps = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
@@ -57,7 +56,6 @@ internal static class InstalledSporesTests
         Console.WriteLine("Spore FX: installed-only timing, freeze, scroll, editing, legacy artwork and native layer exclusions verified. No gameplay/read discovery or player data used.");
     }
 
-    /// <summary>Checks owners.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void CheckOwners(AreaMapPresentationCatalog stock, AreaMapPresentationCatalog edited,
         List<RenderFrameSnapshot> packets)
@@ -141,7 +139,6 @@ internal static class InstalledSporesTests
         Console.WriteLine($"{records} compiled spores records: {comparisons} stock/edited control comparisons; {alteredTransfers} changed frame transfers, signed wrap and freeze verified.");
     }
 
-    /// <summary>Creates.</summary>
     private static RoomLayer3FxState Create(AreaMapPresentationCatalog presentation) => new()
     {
         AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
@@ -149,7 +146,6 @@ internal static class InstalledSporesTests
         PaletteBlendColors = presentation.RoomFxPaletteBlends,
     };
 
-    /// <summary>Graph.</summary>
     private static byte[] Graph(object value)
     {
         using var bytes = new MemoryStream();
@@ -157,13 +153,11 @@ internal static class InstalledSporesTests
         return bytes.ToArray();
     }
 
-    /// <summary>Requires.</summary>
     private static void Require(bool condition, string context)
     {
         if (!condition) throw new InvalidOperationException(context);
     }
 
-    /// <summary>Checks artwork.</summary>
     [SuperMetroid.Core.Hardware.CpuBusBoundary("exact bus test: retail ROM oracle for every installed animated-tile atlas segment")]
     private static void CheckArtwork(RoomFxAnimatedTileAtlas stock, string maps, string romPath,
         string nativeArtworkDirectory)
@@ -236,7 +230,6 @@ internal static class InstalledSporesTests
         Console.WriteLine("Pinned three-frame spores art and unchanged historical atlas prefix pass; all three older PNG geometries retain edits and stock tails.");
     }
 
-    /// <summary>Writes overrides.</summary>
     private static void WriteOverrides(string maps, string overrides)
     {
         using var input = File.OpenRead(Path.Combine(maps, RoomFxAnimatedTileAtlasFormat.FileName));
@@ -263,7 +256,6 @@ internal static class InstalledSporesTests
         File.WriteAllText(Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName), palettes.ToJsonString());
     }
 
-    /// <summary>Checks file failures.</summary>
     private static void CheckFileFailures(string maps, string overrides)
     {
         string manifestPath = Path.Combine(maps, AreaMapCatalogFormat.ManifestFile);
@@ -314,7 +306,6 @@ internal static class InstalledSporesTests
         }
     }
 
-    /// <summary>Checks pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void CheckPixels(List<RenderFrameSnapshot> packets)
     {
@@ -378,7 +369,6 @@ internal static class InstalledSporesTests
         Console.WriteLine($"{cases} independent spore pixel cases cover BG1 exclusion, BG2/backdrop addition, all OBJ palettes/priorities and HUD preservation.");
     }
 
-    /// <summary>Checks legacy layer graph.</summary>
     private static void CheckLegacyLayerGraph(GameplayColorMathRenderLayer layer, LayeredRenderSnapshot scene)
     {
         const string oldName = "SuperMetroid.Core.Rendering.XrayGameplayRenderLayer, SuperMetroid.Core";

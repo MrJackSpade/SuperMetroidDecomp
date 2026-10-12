@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -9,18 +9,12 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class EscapeRoomEffects
 {
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Stores nmi.</summary>
     private readonly NmiClock _nmi;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
 
-    /// <summary>Initializes a new escape room effects instance.</summary>
     internal EscapeRoomEffects(RoomEnemySystem enemies, GameplayTimeFreeze freeze, NmiClock nmi, ActiveRoomState room, Bank80SystemState system)
     {
         _enemies = enemies;
@@ -29,7 +23,6 @@ internal sealed class EscapeRoomEffects
         _room = room;
         _system = system;
     }
-    /// <summary>Setup escape room effects.</summary>
     internal void SetupEscapeRoomEffects(RoomSetupCallback setup)
     {
         // $8F:C93C/$C964 clear the diagonal countdown (RoomMainASMVar1) for the two rooms

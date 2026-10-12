@@ -12,7 +12,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class TorizoEnemyState
 {
-    /// <summary>Initializes a new torizo enemy state instance.</summary>
     internal TorizoEnemyState(RoomEnemySlot slot, bool isGolden)
     {
         Slot = slot;

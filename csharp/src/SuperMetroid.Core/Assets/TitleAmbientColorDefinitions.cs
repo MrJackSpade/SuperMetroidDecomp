@@ -16,7 +16,6 @@ internal static class TitleAmbientColorDefinitions
     /// <summary>$8D:C872: dim green display paint reuses title palette slot19 ($8C:E20F).</summary>
     private const int DimGreenPaint = 19;
 
-    /// <summary>Attempts to calculate.</summary>
     internal static bool TryCalculate(ushort pointer, ReadOnlySpan<Bgr555> initial,
         IReadOnlyDictionary<ushort, Bgr555> supplied, out Bgr555 color)
     {
@@ -43,7 +42,6 @@ internal static class TitleAmbientColorDefinitions
         return false;
     }
 
-    /// <summary>Channel.</summary>
     private static int Channel(int first, int phase)
     {
         int steps = Math.Min(TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.TubeDimmingSteps,
@@ -57,7 +55,6 @@ internal static class TitleAmbientColorDefinitions
             ? quotient + 1 : quotient;
     }
 
-    /// <summary>Attempts to coordinates.</summary>
     private static bool TryCoordinates(TitleScreenAmbientPaletteFxProgramDefinition program,
         ushort pointer, out int frame, out int index)
     {

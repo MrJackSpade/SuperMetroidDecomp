@@ -13,12 +13,9 @@ internal static class SamusProjectileRadiusDefinitions
     /// <summary>The 805 timed instruction owners, calculated from native program layout.</summary>
     internal static IReadOnlyList<ushort> TimedRecordPointers { get; } = new TimedRecordSequence();
 
-    /// <summary>Represents timed record sequence.</summary>
     private sealed class TimedRecordSequence : IReadOnlyList<ushort>
     {
-        /// <summary>Gets count.</summary>
         public int Count => SamusProjectileInstructionDefinitions.EnumerateTimedPointers().Count();
-        /// <summary>Gets an indexed value.</summary>
         public ushort this[int index]
         {
             get
@@ -29,9 +26,7 @@ internal static class SamusProjectileRadiusDefinitions
                 throw new IndexOutOfRangeException();
             }
         }
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<ushort> GetEnumerator() => SamusProjectileInstructionDefinitions.EnumerateTimedPointers().GetEnumerator();
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -221,7 +216,7 @@ internal static class SamusProjectileRadiusDefinitions
     }
     /// <summary>$93:9CCF..9D47 and 9E37..9EAF: the five outward long-beam poses,
     /// paired with alternate artwork and then traversed back toward the center.</summary>
-    private enum PlasmaWaveSpreadPose { /** <summary>Identifies centered.</summary> */ Centered, /** <summary>Identifies first split.</summary> */ FirstSplit, /** <summary>Identifies middle.</summary> */ Middle, /** <summary>Identifies outer shoulder.</summary> */ OuterShoulder, /** <summary>Identifies fully spread.</summary> */ FullySpread }
+    private enum PlasmaWaveSpreadPose { Centered, FirstSplit, Middle, OuterShoulder, FullySpread }
 
     /// <summary>$93:9CD3/9CE3/9CF3/9D03/9D13: selected 12/16/17/20/24 hit reach for the five
     /// semantic diagonal spread poses. The same source sprites have short-axis extents 20/26/29/31/32;
@@ -236,7 +231,6 @@ internal static class SamusProjectileRadiusDefinitions
         PlasmaWaveSpreadPose.FullySpread => 24,
         _ => throw new IndexOutOfRangeException(),
     };
-    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(int address)
     {
         if (address is MurderBeamRadiusAddress or MurderBeamRadiusAddress + 1)

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents compiled enemy visual selector assertions verification.</summary>
 internal static class CompiledEnemyVisualSelectorAssertionsVerification
 {
     /// <summary>

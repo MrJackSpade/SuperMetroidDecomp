@@ -8,7 +8,6 @@ internal abstract class FirefleaInstructionProgramDefinitions
 {
     /// <summary><c>InstList_Fireflea</c> at $A3:8C2F.</summary>
     internal const ushort Loop = 0x8c2f;
-    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 52;
 
     /// <summary>Whether an address is one of the 52 visual operands.</summary>
@@ -17,7 +16,6 @@ internal abstract class FirefleaInstructionProgramDefinitions
         address <= Loop + (FrameCount - 1) * 4 + 2 &&
         (address - Loop - 2) % 4 == 0;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Loop;

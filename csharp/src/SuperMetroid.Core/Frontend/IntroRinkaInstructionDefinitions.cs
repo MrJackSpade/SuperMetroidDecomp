@@ -15,7 +15,6 @@ internal static class IntroRinkaInstructionDefinitions
     /// <summary>$8B:CE1B, exclusive end after the spawner's delete opcode.</summary>
     internal const ushort EndPointer = 0xce1b;
 
-    /// <summary>program word.</summary>
     private static ushort ProgramWord(int word)
     {
         if (word < 6)
@@ -41,7 +40,6 @@ internal static class IntroRinkaInstructionDefinitions
         };
     }
 
-    /// <summary>read byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -50,7 +48,6 @@ internal static class IntroRinkaInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
-    /// <summary>read word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is < StartPointer or >= (EndPointer - 1))

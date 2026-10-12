@@ -14,10 +14,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents game options page cases verification.</summary>
 internal static class GameOptionsPageCasesVerification
 {
-    /// <summary>Verifies game options page cases.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game-options page tilemaps")]
     internal static void VerifyGameOptionsPageCases()
     {
@@ -54,7 +52,6 @@ internal static class GameOptionsPageCasesVerification
                 "unsupported options tilemap selector");
     }
 
-    /// <summary>Looks up options pages command.</summary>
     [VerificationCommand("--lookup-options-pages")]
     internal static int LookupOptionsPagesCommand()
     {

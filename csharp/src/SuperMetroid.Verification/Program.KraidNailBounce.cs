@@ -5,10 +5,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SharedSlopeHeightsVerification;
 
-/// <summary>Represents kraid nail bounce verification.</summary>
 internal static class KraidNailBounceVerification
 {
-    /// <summary>Verifies kraid nail bounce.</summary>
     internal static void VerifyKraidNailBounce(SuperMetroidAddressSpace rom)
     {
         var words = new ushort[32 * 32];

@@ -99,7 +99,6 @@ public static class XrayRevealTilemap
         }
     }
 
-    /// <summary>Destination.</summary>
     private static int Destination(int column, int row) => row * XrayTilemapLayout.MetatileRowStride +
         (column == XrayTilemapLayout.MetatileColumns - 1 ? XrayTilemapLayout.ScreenWords : column * 2);
 }

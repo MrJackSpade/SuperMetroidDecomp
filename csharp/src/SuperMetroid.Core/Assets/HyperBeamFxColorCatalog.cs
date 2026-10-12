@@ -24,20 +24,13 @@ namespace SuperMetroid.Core.Assets;
 /// separate full-body Hyper Beam palette or palette-program controls.</remarks>
 public sealed class HyperBeamFxColorCatalog
 {
-    /// <summary>Stores colors.</summary>
     private readonly Dictionary<int, Bgr555> colors = new();
-    /// <summary>Stores neutral intensity.</summary>
     private readonly int neutralIntensity;
-    /// <summary>Stores neutral overrides.</summary>
     private readonly LoadingPaletteInputView.Channels neutralOverrides;
-    /// <summary>Stores paired inputs.</summary>
     private readonly Dictionary<int, PairedChannels> pairedInputs = new();
-    /// <summary>Stores endpoint inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> endpointInputs = new();
-    /// <summary>Stores shade inputs.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> shadeInputs = new();
 
-    /// <summary>Initializes a new hyper beam fx color catalog instance.</summary>
     private HyperBeamFxColorCatalog(Bgr555[][] frames)
     {
         neutralIntensity = frames[0][0].Red;
@@ -130,17 +123,12 @@ public sealed class HyperBeamFxColorCatalog
         frame == 0 ? (white.Red, null) :
         frame == 4 ? (null, red.Red) :
         color is 3 or 7 ? (null, red.Green) : (red.Red, null);
-    /// <summary>Represents paired channels.</summary>
     internal readonly struct PairedChannels
     {
-        /// <summary>Stores red.</summary>
         private readonly int? red;
-        /// <summary>Stores green.</summary>
         private readonly int? green;
-        /// <summary>Stores blue.</summary>
         private readonly int? blue;
 
-        /// <summary>Initializes a new paired channels instance.</summary>
         internal PairedChannels(Bgr555 supplied, bool redHue, int? sharedRed = null, int? sharedGreen = null)
         {
             int suppliedRed = supplied.Red, suppliedGreen = supplied.Green;
@@ -150,14 +138,12 @@ public sealed class HyperBeamFxColorCatalog
             blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
         }
 
-        /// <summary>Resolve.</summary>
         internal Bgr555 Resolve(bool redHue, int sharedRed = 0, int sharedGreen = 0)
         {
             int resolvedRed = red ?? sharedRed, resolvedGreen = green ?? sharedGreen;
             return new(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed));
         }
     }
-    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -228,7 +214,6 @@ public sealed class HyperBeamFxColorCatalog
         return bytes;
     }
 
-    /// <summary>Reject duplicate properties.</summary>
     private static void RejectDuplicateProperties(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Hyper Beam FX color property."));

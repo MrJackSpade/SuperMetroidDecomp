@@ -10,7 +10,6 @@ internal sealed record LoadedSolution(string RepositoryRoot, IReadOnlyList<(Proj
 /// <summary>Loads and compiles every project listed in a .slnx solution, failing on any load or compile error.</summary>
 internal static class SolutionLoader
 {
-    /// <summary>Loads async.</summary>
     public static async Task<LoadedSolution> LoadAsync(string solutionPath)
     {
         string solutionDirectory = Path.GetDirectoryName(solutionPath)!;

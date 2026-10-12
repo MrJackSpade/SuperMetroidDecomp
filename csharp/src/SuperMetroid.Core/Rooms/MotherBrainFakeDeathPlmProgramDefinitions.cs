@@ -17,7 +17,6 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitions
     /// <summary>Native size of each timer/draw/delete list in bytes.</summary>
     internal const int ProgramByteLength = 6;
 
-    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - Start;

@@ -16,7 +16,6 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents eye door plms verification.</summary>
 internal static class EyeDoorPlmsVerification
 {
     /// <summary>
@@ -33,7 +32,6 @@ internal static class EyeDoorPlmsVerification
             "  Eye doors: mirrored setup, slot order, effects, shot filters, persistence, and blue-door conversion agree.");
     }
 
-    /// <summary>Verifies eye door enemy projectiles.</summary>
     private static void VerifyEyeDoorEnemyProjectiles()
     {
         var bus = new TestAddressSpace();
@@ -112,7 +110,6 @@ internal static class EyeDoorPlmsVerification
             "smoke advances cartridge RNG once after sampling current seed");
     }
 
-    /// <summary>Verifies eye door orientation.</summary>
     private static void VerifyEyeDoorOrientation(
         EyeDoorOrientation orientation,
         bool useSuperMissile)
@@ -220,7 +217,6 @@ internal static class EyeDoorPlmsVerification
         }
     }
 
-    /// <summary>Seed eye door fixture rom.</summary>
     internal static void SeedEyeDoorFixtureRom(
         TestAddressSpace bus,
         EyeDoorOrientation orientation)
@@ -279,7 +275,6 @@ internal static class EyeDoorPlmsVerification
         WriteOneBlockDraw(bus, 0xf020, 0x8003);
     }
 
-    /// <summary>Seed passive eye door list.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one passive eye-door instruction list")]
     private static void SeedPassiveEyeDoorList(
         TestAddressSpace bus,
@@ -298,7 +293,6 @@ internal static class EyeDoorPlmsVerification
         SeedPlmProgramWords(bus, openedTarget, (ushort)RoomPlmInstruction.Delete);
     }
 
-    /// <summary>Steps eye door plms.</summary>
     private static void StepEyeDoorPlms(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -306,7 +300,6 @@ internal static class EyeDoorPlmsVerification
         BackgroundTilemapStreamer streamer) =>
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
-    /// <summary>Eye door plms command.</summary>
     [VerificationCommand("--eye-door-plms")]
     internal static int EyeDoorPlmsCommand()
     {

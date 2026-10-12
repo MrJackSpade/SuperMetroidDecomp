@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
-/// <summary>Represents intro egg effect parts verification.</summary>
 internal static class IntroEggEffectPartsVerification
 {
-    /// <summary>Verifies intro egg effect parts.</summary>
     internal static void VerifyIntroEggEffectParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("egg-effect", value.AppendIdentity);

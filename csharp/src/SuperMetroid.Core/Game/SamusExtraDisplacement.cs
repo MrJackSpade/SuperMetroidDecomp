@@ -66,7 +66,6 @@ internal static class SamusExtraDisplacement
         return extra == 0 ? null : AddPositiveDownwardBias(extra);
     }
 
-    /// <summary>Adds positive downward bias.</summary>
     private static int AddPositiveDownwardBias(int displacement) =>
         displacement < 0
             ? displacement

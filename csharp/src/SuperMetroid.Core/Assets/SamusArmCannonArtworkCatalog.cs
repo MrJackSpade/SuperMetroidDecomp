@@ -11,20 +11,13 @@ public sealed class SamusArmCannonArtworkCatalog
     /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
     private static readonly FixedGridShape TileSourceShape =
         new(SamusRenderingRomData.ArmCannon.DirectionCount, SamusArmCannonArtworkFormat.FramesPerDirection);
-    /// <summary>Stores pose pointers.</summary>
     private readonly Dictionary<int, ushort> posePointers = new();
-    /// <summary>Stores drawing data.</summary>
     private readonly Dictionary<int, byte> drawingData = new();
-    /// <summary>Stores attributes.</summary>
     private readonly Dictionary<int, ushort> attributes = new();
-    /// <summary>Stores tile sources.</summary>
     private readonly Dictionary<int, ushort> tileSources = new();
-    /// <summary>Stores tiles.</summary>
     private readonly RoomCharacterAtlas tiles;
-    /// <summary>Stores body geometry.</summary>
     private readonly SamusBodyArtworkCatalog? bodyGeometry;
 
-    /// <summary>Initializes a new samus arm cannon artwork catalog instance.</summary>
     private SamusArmCannonArtworkCatalog(ushort[] posePointers, byte[] drawingData,
         ushort[] attributes, ushort[][] tileSources, RoomCharacterAtlas tiles,
         SamusBodyArtworkCatalog? bodyGeometry = null)
@@ -62,7 +55,6 @@ public sealed class SamusArmCannonArtworkCatalog
         this.tiles = tiles;
     }
 
-    /// <summary>With body geometry.</summary>
     internal SamusArmCannonArtworkCatalog WithBodyGeometry(SamusBodyArtworkCatalog body) => new(
         Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount).Select(PoseDrawingData).ToArray(),
         Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
@@ -96,15 +88,12 @@ public sealed class SamusArmCannonArtworkCatalog
 
     // Placement and PNG admission are distinct file boundaries. The installer can
     // identify the failing file without attributing JSON errors to the tile sheet.
-    /// <summary>Represents placement.</summary>
     internal sealed record Placement(ushort[] PosePointers, byte[] DrawingData,
         ushort[] Attributes, ushort[][] TileSources);
 
-    /// <summary>From placement.</summary>
     internal static SamusArmCannonArtworkCatalog FromPlacement(Placement placement, RoomCharacterAtlas tiles) =>
         new(placement.PosePointers, placement.DrawingData, placement.Attributes, placement.TileSources, tiles);
 
-    /// <summary>Loads placement.</summary>
     internal static Placement LoadPlacement(Stream json)
     {
         SamusArmCannonArtworkDocument document;
@@ -228,17 +217,14 @@ public sealed class SamusArmCannonArtworkCatalog
         return false;
     }
 
-    /// <summary>Requires byte.</summary>
     private static byte RequireByte(int value, string name) => (uint)value <= byte.MaxValue
         ? (byte)value
         : throw new InvalidDataException($"Arm-cannon {name} is not a byte.");
 
-    /// <summary>Requires word.</summary>
     private static ushort RequireWord(int value, string name) => (uint)value <= ushort.MaxValue
         ? (ushort)value
         : throw new InvalidDataException($"Arm-cannon {name} is not a word.");
 
-    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -979,7 +965,6 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>$90:C663 DrawArmCannon emits one small OBJ and transfers one32-byte4bpp tile: its horizontal footprint is eight pixels.</summary>
     private const int CoverWidthPixels = 8;
 
-    /// <summary>Reflect cover x.</summary>
     internal static byte ReflectCoverX(byte coordinate) => unchecked((byte)(-unchecked((sbyte)coordinate) - CoverWidthPixels));
 
     /// <summary>Opposite-facing cover origins reflect the eight-pixel footprint around Samus's origin.</summary>
@@ -1025,7 +1010,6 @@ public static class SamusArmCannonArtworkFormat
         return selected >= 0;
     }
 
-    /// <summary>Represents tile orientation.</summary>
     private enum TileOrientation
     {
         /// <summary>$90:C7B9 selects vertical frames from $9A:9A00.</summary>
@@ -1099,7 +1083,6 @@ public static class SamusArmCannonArtworkFormat
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

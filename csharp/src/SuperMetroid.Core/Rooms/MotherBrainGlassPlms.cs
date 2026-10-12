@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -7,32 +7,22 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Mother Brain's glass PLM ($D6DE): its setup, shatter projectiles and the room argument it keeps after deletion.</summary>
 internal sealed class MotherBrainGlassPlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
-    /// <summary>Stores sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
-    /// <summary>Initializes a new mother brain glass plms instance.</summary>
     internal MotherBrainGlassPlms(PlmRoomBindings bindings, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
         _slotTable = slotTable;
         _sounds = sounds;
     }
-    /// <summary>Stores mother brain glass pre instruction.</summary>
     private const ushort MotherBrainGlassPreInstruction = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction;
-    /// <summary>Stores mother brain glass shard definition.</summary>
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
-    /// <summary>Stores mother brain glass projectile requests.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
-    /// <summary>Stores mother brain glass slot index.</summary>
     private int _motherBrainGlassSlotIndex = -1;
-    /// <summary>Stores mother brain glass was loaded.</summary>
     private bool _motherBrainGlassWasLoaded;
-    /// <summary>Stores mother brain glass last room argument.</summary>
     private ushort _motherBrainGlassLastRoomArgument;
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
@@ -91,10 +81,8 @@ internal sealed class MotherBrainGlassPlms
                 _motherBrainGlassLastRoomArgument + 1));
     }
 
-    /// <summary>Begins mother brain glass frame.</summary>
     internal void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
-    /// <summary>Resets mother brain glass state.</summary>
     internal void ResetMotherBrainGlassState()
     {
         _motherBrainGlassProjectileRequests.Clear();
@@ -104,7 +92,6 @@ internal sealed class MotherBrainGlassPlms
         _motherBrainGlassRoomWidth = 0;
     }
 
-    /// <summary>Runs mother brain glass pre instruction.</summary>
     internal static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
         if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass || slot.PreInstruction == 0)
@@ -123,7 +110,6 @@ internal sealed class MotherBrainGlassPlms
         slot.LoopTimer = 0;
     }
 
-    /// <summary>Attempts to execute mother brain glass instruction.</summary>
     internal bool TryExecuteMotherBrainGlassInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -223,10 +209,8 @@ internal sealed class MotherBrainGlassPlms
         return EventNumber.MotherBrainGlassDestroyed;
     }
 
-    /// <summary>Stores mother brain glass room width.</summary>
     private int _motherBrainGlassRoomWidth;
 
-    /// <summary>Attempts to get mother brain glass slot.</summary>
     private bool TryGetMotherBrainGlassSlot(out PlmSlot? slot)
     {
         if ((uint)_motherBrainGlassSlotIndex < (uint)_slotTable._slots.Length)
@@ -242,7 +226,6 @@ internal sealed class MotherBrainGlassPlms
         return false;
     }
 
-    /// <summary>On plm deleted.</summary>
     internal void OnPlmDeleted(PlmSlot slot)
     {
         if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass)

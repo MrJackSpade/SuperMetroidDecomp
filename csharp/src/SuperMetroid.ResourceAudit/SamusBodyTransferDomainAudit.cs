@@ -6,7 +6,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Rejects provably invalid constants without inventing per-set bounds for native cross-group selection.</summary>
 internal static class SamusBodyTransferDomainAudit
 {
-    /// <summary>invalid constants.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(SamusBodyArtworkCatalog).FullName) return null;

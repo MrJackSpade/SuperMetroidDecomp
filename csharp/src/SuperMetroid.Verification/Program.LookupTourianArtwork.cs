@@ -3,12 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents lookup tourian artwork verification.</summary>
 internal static class LookupTourianArtworkVerification
 {
     // Decode the original instructions, not the replacement operand roster or offsets.
     // Widths follow bank_87.asm at revision 362be646929cf8e483f692b73a6561cfc2dc1d0d.
-    /// <summary>Original tourian frames.</summary>
     internal static IEnumerable<(ushort Operand, int Source)> OriginalTourianFrames(
         ISnesAddressSpace rom, ushort header)
     {
@@ -18,7 +16,6 @@ internal static class LookupTourianArtworkVerification
                     0x870000 | ReadVerificationWord(rom, 0x870000 | (instruction.Cursor + 2)));
     }
 
-    /// <summary>Original tourian instructions.</summary>
     internal static IEnumerable<(ushort Cursor, ushort Code, int Width)> OriginalTourianInstructions(
         ISnesAddressSpace rom, ushort header)
     {
@@ -48,7 +45,6 @@ internal static class LookupTourianArtworkVerification
         }
     }
 
-    /// <summary>Verifies tourian statue artwork sources.</summary>
     internal static void VerifyTourianStatueArtworkSources(ISnesAddressSpace rom)
     {
         int total = 0;

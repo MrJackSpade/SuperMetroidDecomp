@@ -9,17 +9,13 @@ internal abstract class NuclearWaffleProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_PuromiBody</c> at $86:BB5E.</summary>
     internal const ushort Initial = 0xbb5e;
 
-    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 12;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => FrameCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + index * 4 + 2);
     }
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Initial;

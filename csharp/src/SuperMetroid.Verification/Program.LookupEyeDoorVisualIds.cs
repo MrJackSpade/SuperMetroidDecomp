@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Rooms;
 
-/// <summary>Represents lookup eye door visual ids verification.</summary>
 internal static class LookupEyeDoorVisualIdsVerification
 {
-    /// <summary>Verifies eye door visual ids.</summary>
     internal static void VerifyEyeDoorVisualIds()
     {
         // Original 23-entry public override identity contract, before the naming conversion.

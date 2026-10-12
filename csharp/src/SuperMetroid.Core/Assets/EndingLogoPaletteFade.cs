@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Assets;
 /// This identifies the exact quantizer, not the historical tool that generated it.</summary>
 internal sealed class EndingLogoPaletteFade
 {
-    /// <summary>Defines color count.</summary>
     internal const int ColorCount = 16 * 2 * 16;
     /// <summary>Caller-supplied drawing colors. Stock $8C:EFE9 uses independent yellow
     /// face, blue/cyan edging, orange-sector shades and a dark outline, as confirmed by
@@ -19,12 +18,9 @@ internal sealed class EndingLogoPaletteFade
     /// retained artwork; numerical cases would merely recite the drawing's palette.
     /// Temporal samples are calculated separately, not covered by this disposition.</summary>
     private readonly Bgr555[] spriteEndpoint;
-    /// <summary>Stores background endpoint.</summary>
     private readonly Bgr555[]? backgroundEndpoint;
-    /// <summary>Stores background gradient.</summary>
     private readonly EndingLogoBackgroundPalette? backgroundGradient;
 
-    /// <summary>Initializes a new ending logo palette fade instance.</summary>
     private EndingLogoPaletteFade(ReadOnlySpan<Bgr555> endpoints)
     {
         backgroundGradient = EndingLogoBackgroundPalette.TryCreate(endpoints[..16]);

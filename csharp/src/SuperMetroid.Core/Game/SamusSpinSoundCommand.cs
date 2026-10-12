@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Selects the current spin sound for cartridge Samus command $1C ($90:F41E).</summary>
 internal static class SamusSpinSoundCommand
 {
-    /// <summary>Selects.</summary>
     public static SoundEffectId? Select(ISnesAddressSpace bus, SamusState samus)
     {
         var movement = samus.PoseMetadata.ReadMovementType(bus);

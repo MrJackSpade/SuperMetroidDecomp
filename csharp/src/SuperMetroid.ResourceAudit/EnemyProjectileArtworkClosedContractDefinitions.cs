@@ -3,7 +3,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Validated direct/program projectile compositions, including complete legacy inheritance.</summary>
 internal static class EnemyProjectileArtworkClosedContractDefinitions
 {
-    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemyProjectileSpritemapCatalog", "installed-enemy-projectile-direct-and-program-frames",

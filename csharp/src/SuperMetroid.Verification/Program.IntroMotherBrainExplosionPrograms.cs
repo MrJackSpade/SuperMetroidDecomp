@@ -2,10 +2,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents intro mother brain explosion programs verification.</summary>
 internal static class IntroMotherBrainExplosionProgramsVerification
 {
-    /// <summary>Verifies intro mother brain explosion programs.</summary>
     internal static void VerifyIntroMotherBrainExplosionPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(IntroMotherBrainExplosionProgramsRomByte(rom, address), IntroMotherBrainExplosionProgramsRomByte(rom, address + 1)));
@@ -27,11 +25,9 @@ internal static class IntroMotherBrainExplosionProgramsVerification
             AssertThrows<InvalidDataException>(() => IntroMotherBrainExplosionInstructionDefinitions.ReadWord(pointer), "explosion word crosses boundary");
     }
 
-    /// <summary>Intro mother brain explosion programs rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain explosion programs")]
     private static byte IntroMotherBrainExplosionProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies intro mother brain explosion frame catalog.</summary>
     internal static void VerifyIntroMotherBrainExplosionFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["small-explosion-0", "small-explosion-1", "small-explosion-2", "small-explosion-3", "small-explosion-4", "small-explosion-5",
@@ -55,7 +51,6 @@ internal static class IntroMotherBrainExplosionProgramsVerification
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "explosion enumeration preserves indexed order");
     }
 
-    /// <summary>Intro mother brain explosion frame catalog rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain explosion frame catalog")]
     private static byte IntroMotherBrainExplosionFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

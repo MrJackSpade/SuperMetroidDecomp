@@ -27,7 +27,6 @@ internal static class RoomPlmCollectibleDrawDefinitions
     /// <summary>Dynamic-item second-frame selector table at $84:E077.</summary>
     internal const ushort DynamicFrame1Table = 0xe077;
 
-    /// <summary>Gets or sets all.</summary>
     internal static IEnumerable<RoomPlmCollectibleDrawFrame> All
     {
         get
@@ -64,12 +63,10 @@ internal static class RoomPlmCollectibleDrawDefinitions
     }
 
     /// <summary>The six draw-list groups in address order; holes between them are not draw lists.</summary>
-    private enum DrawGroup { /** <summary>Identifies empty.</summary> */ Empty, /** <summary>Identifies orb.</summary> */ Orb, /** <summary>Identifies orb burst.</summary> */ OrbBurst, /** <summary>Identifies tank.</summary> */ Tank, /** <summary>Identifies dynamic.</summary> */ Dynamic, /** <summary>Identifies shot reveal.</summary> */ ShotReveal }
+    private enum DrawGroup { Empty, Orb, OrbBurst, Tank, Dynamic, ShotReveal }
 
-    /// <summary>Stores draw groups.</summary>
     private static readonly DrawGroup[] DrawGroups = Enum.GetValues<DrawGroup>();
 
-    /// <summary>Span of.</summary>
     private static (ushort First, int Count) SpanOf(DrawGroup group) => group switch
     {
         DrawGroup.Empty => (Empty, 1),
@@ -81,7 +78,6 @@ internal static class RoomPlmCollectibleDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
     };
 
-    /// <summary>Tries to resolve.</summary>
     private static bool TryResolve(ushort pointer, bool includeId, out RoomPlmCollectibleDrawFrame frame)
     {
         foreach (DrawGroup group in DrawGroups)
@@ -106,20 +102,17 @@ internal static class RoomPlmCollectibleDrawDefinitions
         return false;
     }
 
-    /// <summary>Tank kind name.</summary>
     private static string TankKindName(int kind) => kind switch
     {
         0 => "energy", 1 => "missile", 2 => "super-missile", _ => "power-bomb",
     };
 
-    /// <summary>Tries to index.</summary>
     private static bool TryIndex(ushort pointer, ushort first, int count, out int index)
     {
         int offset = pointer - first;
         index = offset / 6;
         return offset >= 0 && offset % 6 == 0 && index < count;
     }
-    /// <summary>Tries to get by id.</summary>
     internal static bool TryGetById(string id, out RoomPlmCollectibleDrawFrame frame)
     {
         foreach (var candidate in All)

@@ -22,7 +22,6 @@ internal static class DeadTourianCorpseDefinitions
     /// <summary>$A9:DC08, CorpseRotEntryFinishedHook_Normal: shared completion callback.</summary>
     private const ushort Finish = 0xdc08;
 
-    /// <summary>For.</summary>
     internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species,int variantIndex)
     {
         int first = species switch

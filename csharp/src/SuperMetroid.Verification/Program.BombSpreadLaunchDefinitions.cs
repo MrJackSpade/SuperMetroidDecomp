@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents bomb spread launch definitions verification.</summary>
 internal static class BombSpreadLaunchDefinitionsVerification
 {
-    /// <summary>Verifies bomb spread launch definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb spread launch definitions")]
     internal static void VerifyBombSpreadLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -47,7 +45,6 @@ internal static class BombSpreadLaunchDefinitionsVerification
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");
     }
 
-    /// <summary>New bomb spread launch read guard.</summary>
     private static CartridgeReadGuard NewBombSpreadLaunchReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
                 address >= SamusBombSpreadRomData.FuseTimers &&

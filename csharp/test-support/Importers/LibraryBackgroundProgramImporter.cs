@@ -12,7 +12,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$8F library background command lists and their staged sources → LibraryBackgroundProgram")]
 internal static class LibraryBackgroundProgramImporter
 {
-    /// <summary>Reads.</summary>
     public static LibraryBackgroundProgram Read(ISnesAddressSpace source, ushort pointer)
     {
         Ensure.NotNull(source);
@@ -123,7 +122,6 @@ internal static class LibraryBackgroundProgramImporter
         }
     }
 
-    /// <summary>Reads import byte.</summary>
     private static byte ReadImportByte(ISnesAddressSpace source, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

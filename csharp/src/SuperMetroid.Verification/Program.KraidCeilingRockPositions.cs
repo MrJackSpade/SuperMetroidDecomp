@@ -3,10 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid ceiling rock positions verification.</summary>
 internal static class KraidCeilingRockPositionsVerification
 {
-    /// <summary>Verifies kraid ceiling rock coordinates.</summary>
     internal static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1)));
@@ -18,11 +16,9 @@ internal static class KraidCeilingRockPositionsVerification
                 "Ceiling rock byte-window bounds");
     }
 
-    /// <summary>Kraid ceiling rock coordinates rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock coordinates")]
     private static byte KraidCeilingRockCoordinatesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies kraid ceiling rock positions.</summary>
     internal static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
@@ -61,11 +57,9 @@ internal static class KraidCeilingRockPositionsVerification
         Console.WriteLine("Kraid ceiling rocks: all 18 byte reads and 589824 actual growth updates match with placement reads forbidden.");
     }
 
-    /// <summary>Kraid ceiling rock positions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock positions")]
     private static byte KraidCeilingRockPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>New kraid ceiling guard.</summary>
     private static CartridgeReadGuard NewKraidCeilingGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa7acb3 and <= 0xa7acc5, _ => "Unexpected migrated ceiling placement read.")

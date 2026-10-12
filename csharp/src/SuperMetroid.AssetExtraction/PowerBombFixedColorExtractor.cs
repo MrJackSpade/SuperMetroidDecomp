@@ -26,7 +26,6 @@ public static class PowerBombFixedColorExtractor
         });
     }
 
-    /// <summary>Reads.</summary>
     private static PaletteRgb5[] Read(ISnesAddressSpace bus, PowerBombFixedColorSequence sequence)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),

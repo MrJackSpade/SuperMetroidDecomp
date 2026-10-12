@@ -20,7 +20,6 @@ using static RoomPaletteFxPresentationVerification;
 using static SuiteTimingVerification;
 using static TitleGradientVerification;
 
-/// <summary>Represents palette fx instruction codes verification.</summary>
 internal static class PaletteFxInstructionCodesVerification
 {
     /// <summary>
@@ -117,7 +116,6 @@ internal static class PaletteFxInstructionCodesVerification
         }
     }
 
-    /// <summary>Verifies palette fx delete program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled standalone palette-FX delete instruction words")]
     private static void VerifyPaletteFxDeleteProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -176,7 +174,6 @@ internal static class PaletteFxInstructionCodesVerification
             "empty room palette-FX deletion has no presentation payload");
     }
 
-    /// <summary>Verifies title screen ambient palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Title Screen Ambient palette-FX program mechanics words")]
     internal static void VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -238,7 +235,6 @@ internal static class PaletteFxInstructionCodesVerification
             "compiled title-screen ambient mechanics words");
     }
 
-    /// <summary>Verifies nintendo logo fade palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Nintendo Logo Fade palette-FX program mechanics words")]
     private static void VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -321,7 +317,6 @@ internal static class PaletteFxInstructionCodesVerification
         }
     }
 
-    /// <summary>Verifies title logo fade palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Title Logo Fade palette-FX program mechanics words")]
     private static void VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -396,7 +391,6 @@ internal static class PaletteFxInstructionCodesVerification
             "title-logo fade retains every live color");
     }
 
-    /// <summary>Verifies post credits icon glare palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Post Credits Icon Glare palette-FX program mechanics words")]
     internal static void VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -483,7 +477,6 @@ internal static class PaletteFxInstructionCodesVerification
             "post-credits icon glare retains every live color");
     }
 
-    /// <summary>Verifies samus loading suit palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Samus Loading Suit palette-FX program mechanics words")]
     internal static void VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -658,7 +651,6 @@ internal static class PaletteFxInstructionCodesVerification
             "compiled Samus-loading byte operands");
     }
 
-    /// <summary>Verifies unused cinematic fade palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Unused Cinematic Fade palette-FX program mechanics words")]
     private static void VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -731,7 +723,6 @@ internal static class PaletteFxInstructionCodesVerification
             "unused cinematic fade retains every live color");
     }
 
-    /// <summary>Verifies zebes explosion gunship palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Gunship palette-FX program mechanics words")]
     internal static void VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -818,7 +809,6 @@ internal static class PaletteFxInstructionCodesVerification
             "ending gunship reveal retains every live color");
     }
 
-    /// <summary>Verifies zebes explosion layer fade palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Layer Fade palette-FX program mechanics words")]
     private static void VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -887,7 +877,6 @@ internal static class PaletteFxInstructionCodesVerification
             "compiled Zebes explosion layer-fade mechanics words");
     }
 
-    /// <summary>Verifies zebes explosion ambient palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Ambient palette-FX program mechanics words")]
     private static void VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -948,7 +937,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(40, mechanicsWords, "compiled Zebes explosion ambient mechanics words");
     }
 
-    /// <summary>Verifies zebes explosion whiteout palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Whiteout palette-FX program mechanics words")]
     private static void VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1024,7 +1012,6 @@ internal static class PaletteFxInstructionCodesVerification
         }
     }
 
-    /// <summary>Verifies zebes explosion finale palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Finale palette-FX program mechanics words")]
     private static void VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1098,7 +1085,6 @@ internal static class PaletteFxInstructionCodesVerification
             "Zebes explosion finale retains every live color");
     }
 
-    /// <summary>Verifies zebes explosion foreground palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Foreground palette-FX program mechanics words")]
     internal static void VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1173,7 +1159,6 @@ internal static class PaletteFxInstructionCodesVerification
             "Zebes explosion foreground retains every live color");
     }
 
-    /// <summary>Verifies exploding zebes fade palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Exploding Zebes Fade palette-FX program mechanics words")]
     private static void VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1244,7 +1229,6 @@ internal static class PaletteFxInstructionCodesVerification
             "exploding-Zebes fade retains every live color");
     }
 
-    /// <summary>Verifies cinematic glow palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Cinematic Glow palette-FX program mechanics words")]
     private static void VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1305,7 +1289,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(64, mechanicsWords, "compiled cinematic-glow mechanics words");
     }
 
-    /// <summary>Verifies planet zebes text palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Planet Zebes Text palette-FX program mechanics words")]
     internal static void VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1375,7 +1358,6 @@ internal static class PaletteFxInstructionCodesVerification
             "compiled PLANET ZEBES text-fade mechanics words");
     }
 
-    /// <summary>Verifies ceres cinematic light palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Cinematic Light palette-FX program mechanics words")]
     private static void VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1484,7 +1466,6 @@ internal static class PaletteFxInstructionCodesVerification
         }
     }
 
-    /// <summary>Verifies crateria escape lightning palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Crateria Escape Lightning palette-FX program mechanics words")]
     internal static void VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1535,7 +1516,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(52, mechanicsWords, "compiled late-Crateria escape mechanics words");
     }
 
-    /// <summary>Verifies upper crateria escape red flash palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Upper Crateria Escape Red Flash palette-FX program mechanics words")]
     private static void VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1577,7 +1557,6 @@ internal static class PaletteFxInstructionCodesVerification
             guardedPresentationReads.Value, "upper-Crateria escape flash retains every live color");
     }
 
-    /// <summary>Verifies old tourian escape accent palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Old Tourian Escape Accent palette-FX program mechanics words")]
     internal static void VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1652,7 +1631,6 @@ internal static class PaletteFxInstructionCodesVerification
             "compiled old-Tourian escape accent mechanics words");
     }
 
-    /// <summary>Verifies old tourian escape red flash palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Old Tourian Escape Red Flash palette-FX program mechanics words")]
     private static void VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1735,7 +1713,6 @@ internal static class PaletteFxInstructionCodesVerification
             "old-Tourian red flash retains every live color through its cycle");
     }
 
-    /// <summary>Verifies tourian escape shared red flash palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Escape Shared Red Flash palette-FX program mechanics words")]
     private static void VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1813,7 +1790,6 @@ internal static class PaletteFxInstructionCodesVerification
         }
     }
 
-    /// <summary>Verifies tourian escape red flash palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Escape Red Flash palette-FX program mechanics words")]
     private static void VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1881,7 +1857,6 @@ internal static class PaletteFxInstructionCodesVerification
             "compiled early Tourian escape red-flash mechanics words");
     }
 
-    /// <summary>Verifies norfair environmental palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Norfair Environmental palette-FX program mechanics words")]
     internal static void VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -1975,7 +1950,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(16, mechanicsBytes, "compiled Norfair heat-phase bytes");
     }
 
-    /// <summary>Verifies beacon palette fx program mechanics definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Beacon palette-FX program mechanics words")]
     private static void VerifyBeaconPaletteFxProgramMechanicsDefinitions(
@@ -2080,7 +2054,6 @@ internal static class PaletteFxInstructionCodesVerification
             "beacon resumes after the native eighteen-byte skip");
     }
 
-    /// <summary>Verifies tourian glow palette fx program mechanics definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Glow palette-FX program mechanics words")]
     private static void VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(
@@ -2184,7 +2157,6 @@ internal static class PaletteFxInstructionCodesVerification
             "Tourian glow pre-instruction deletes its owner when two later slots exist");
     }
 
-    /// <summary>Verifies maridia environmental palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Maridia Environmental palette-FX program mechanics words")]
     internal static void VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -2263,7 +2235,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(44, mechanicsWords, "compiled Maridia environmental mechanics words");
     }
 
-    /// <summary>Verifies crateria lightning palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Crateria Lightning palette-FX program mechanics words")]
     internal static void VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -2361,7 +2332,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(4, mechanicsBytes, "compiled Crateria lightning mechanics bytes");
     }
 
-    /// <summary>Verifies red brinstar glow palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Red Brinstar Glow palette-FX program mechanics words")]
     private static void VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
@@ -2443,7 +2413,6 @@ internal static class PaletteFxInstructionCodesVerification
             "Red Brinstar glow program retains live colors through loop");
     }
 
-    /// <summary>Verifies brinstar blue spore palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Brinstar Blue Spore palette-FX program mechanics words")]
     internal static void VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
@@ -2549,7 +2518,6 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(66, mechanicsWords, "compiled Brinstar blue-spore mechanics words");
     }
 
-    /// <summary>Verifies torizo belly palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Torizo Belly palette-FX program mechanics words")]
     private static void VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
@@ -2647,7 +2615,6 @@ internal static class PaletteFxInstructionCodesVerification
             "Torizo belly owner rejects adjacent heat pre-instruction code");
     }
 
-    /// <summary>Verifies tourian statue grey palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Statue Grey palette-FX program mechanics words")]
     private static void VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
@@ -2746,7 +2713,6 @@ internal static class PaletteFxInstructionCodesVerification
             "Tourian statue grey owner rejects adjacent pre-instruction code");
     }
 
-    /// <summary>Verifies wrecked ship green light palette fx program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Wrecked Ship Green Light palette-FX program mechanics words")]
     private static void VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
@@ -2831,7 +2797,6 @@ internal static class PaletteFxInstructionCodesVerification
             "Wrecked Ship green-light owner rejects adjacent code");
     }
 
-    /// <summary>Verifies palette fx heat program mechanics definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled suit heat palette-FX program mechanics words")]
     internal static void VerifyPaletteFxHeatProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
@@ -2934,7 +2899,6 @@ internal static class PaletteFxInstructionCodesVerification
 
     }
 
-    /// <summary>Verifies palette fx heat instruction list definitions.</summary>
     internal static void VerifyPaletteFxHeatInstructionListDefinitions(
         ISnesAddressSpace bus)
     {
@@ -3028,7 +2992,6 @@ internal static class PaletteFxInstructionCodesVerification
             "retail Norfair heat owner publishes on frame-eight boundaries");
     }
 
-    /// <summary>Creates palette fx mechanics forbidden bus.</summary>
     internal static CartridgeReadGuard NewPaletteFxMechanicsForbiddenBus(
         ISnesAddressSpace inner, out StrongBox<int> presentationReads)
     {
@@ -3717,10 +3680,8 @@ internal static class PaletteFxInstructionCodesVerification
 
     // Keeping this tiny helper avoids a name collision between the method and the catalog
     // in diagnostic stack traces while retaining the catalog's precise domain name.
-    /// <summary>Palette fx instruction codes type.</summary>
     private static Type PaletteFxInstructionCodesType() => typeof(PaletteFxInstruction);
 
-    /// <summary>Asserts palette fx catalog.</summary>
     private static void AssertPaletteFxCatalog(
         Type catalog,
         int expectedCount,
@@ -3740,7 +3701,6 @@ internal static class PaletteFxInstructionCodesVerification
         }
     }
 
-    /// <summary>Palette fx instruction codes command.</summary>
     [VerificationCommand("--palette-fx-instruction-codes")]
     internal static int PaletteFxInstructionCodesCommand()
     {

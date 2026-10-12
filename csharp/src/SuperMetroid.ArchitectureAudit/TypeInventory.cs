@@ -30,16 +30,11 @@ internal static class TypeInventory
     /// <summary>A context-bag candidate: this many service-typed members on a type that only carries them.</summary>
     internal const int ContextBagMembers = 8;
 
-    /// <summary>Stores back reference.</summary>
     internal const string BackReference = "back-reference";
-    /// <summary>Stores service locator.</summary>
     internal const string ServiceLocator = "service-locator";
-    /// <summary>Stores context bag.</summary>
     internal const string ContextBag = "context-bag";
-    /// <summary>Stores large.</summary>
     internal const string Large = "large";
 
-    /// <summary>Collect.</summary>
     public static IReadOnlyList<TypeEntry> Collect(LoadedSolution solution)
     {
         var entries = new Dictionary<string, (INamedTypeSymbol Symbol, SortedSet<string> Assemblies, SortedSet<string> Files, Compilation Compilation)>(StringComparer.Ordinal);
@@ -70,7 +65,6 @@ internal static class TypeInventory
             .ToList();
     }
 
-    /// <summary>Describe.</summary>
     private static TypeEntry Describe(string key, INamedTypeSymbol type, IReadOnlyCollection<string> assemblies,
         IReadOnlyCollection<string> files, Dictionary<string, string> backReferences, HashSet<string> parameterObjects)
     {
@@ -101,7 +95,6 @@ internal static class TypeInventory
             parameterObject ? "constructor-parameters" : Disposition(type, kind, partial), flags);
     }
 
-    /// <summary>Disposition.</summary>
     private static string Disposition(INamedTypeSymbol type, string kind, string partial)
     {
         if (partial is "generated-boundary" or "generated")
@@ -188,7 +181,6 @@ internal static class TypeInventory
         return result;
     }
 
-    /// <summary>Indicates whether stored by creator.</summary>
     private static bool IsStoredByCreator(SyntaxNode creation, SemanticModel model, INamedTypeSymbol creator)
     {
         SyntaxNode? parent = creation.Parent;
@@ -205,7 +197,6 @@ internal static class TypeInventory
                SymbolEqualityComparer.Default.Equals(target.ContainingType, creator) && !target.IsStatic;
     }
 
-    /// <summary>Indicates whether service locator.</summary>
     private static bool IsServiceLocator(INamedTypeSymbol type) =>
         type.AllInterfaces.Any(contract => contract.ToDisplayString() == "System.IServiceProvider") ||
         type.GetMembers().OfType<IMethodSymbol>().Any(method =>
@@ -213,7 +204,6 @@ internal static class TypeInventory
             SymbolEqualityComparer.Default.Equals(method.ReturnType, method.TypeParameters[0]) &&
             method.Name is "Get" or "GetService" or "GetRequiredService" or "Resolve" or "Locate");
 
-    /// <summary>Indicates whether context bag.</summary>
     private static bool IsContextBag(INamedTypeSymbol type)
     {
         if (type.TypeKind != TypeKind.Class || type.IsStatic)
@@ -229,12 +219,10 @@ internal static class TypeInventory
         return services >= ContextBagMembers && !behavior;
     }
 
-    /// <summary>Indicates whether service.</summary>
     private static bool IsService(ITypeSymbol type) =>
         type.TypeKind is TypeKind.Interface or TypeKind.Class && type.SpecialType == SpecialType.None &&
         type.ContainingNamespace?.ToDisplayString().StartsWith("SuperMetroid", StringComparison.Ordinal) == true;
 
-    /// <summary>Kind.</summary>
     private static string Kind(INamedTypeSymbol type) => type.TypeKind switch
     {
         TypeKind.Enum => "enum",
@@ -244,7 +232,6 @@ internal static class TypeInventory
         _ => type.IsRecord ? "record" : type.IsStatic ? "static class" : "class",
     };
 
-    /// <summary>Scope.</summary>
     private static string Scope(IReadOnlyCollection<string> assemblies, IReadOnlyCollection<string> files)
     {
         if (files.Any(file => file.StartsWith("csharp/test-support/", StringComparison.Ordinal)) ||
@@ -257,7 +244,6 @@ internal static class TypeInventory
         return "product";
     }
 
-    /// <summary>All types.</summary>
     private static IEnumerable<INamedTypeSymbol> AllTypes(INamespaceSymbol root)
     {
         foreach (INamespaceOrTypeSymbol member in root.GetMembers())
@@ -275,7 +261,6 @@ internal static class TypeInventory
         }
     }
 
-    /// <summary>With nested.</summary>
     private static IEnumerable<INamedTypeSymbol> WithNested(INamedTypeSymbol type)
     {
         if (!type.IsImplicitlyDeclared)
@@ -285,16 +270,13 @@ internal static class TypeInventory
                 yield return inner;
     }
 
-    /// <summary>Key.</summary>
     private static string Key(INamedTypeSymbol type) => type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat).Replace("global::", "", StringComparison.Ordinal);
 
-    /// <summary>Indicates whether repository source.</summary>
     private static bool IsRepositorySource(string root, string path) =>
         path.Length != 0 && Path.GetFullPath(path).StartsWith(Path.GetFullPath(root), StringComparison.OrdinalIgnoreCase) &&
         !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
         !path.Contains($"{Path.DirectorySeparatorChar}test-temp{Path.DirectorySeparatorChar}", StringComparison.Ordinal);
 
-    /// <summary>Relative.</summary>
     private static string Relative(string root, string path) =>
         Path.GetRelativePath(root, path).Replace('\\', '/');
 }

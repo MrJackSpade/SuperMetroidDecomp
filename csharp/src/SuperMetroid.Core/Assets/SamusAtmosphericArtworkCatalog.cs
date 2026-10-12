@@ -9,9 +9,7 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 public sealed class SamusAtmosphericArtworkCatalog
 {
-    /// <summary>Stores type one.</summary>
     private readonly Dictionary<int, ushort> typeOne = new();
-    /// <summary>Stores shared type four.</summary>
     private readonly Dictionary<int, ushort> sharedTypeFour = new();
 
     /// <summary>Captures selected four-frame attribute lists, retaining independent differences from calculated stock words without retaining caller arrays.</summary>
@@ -65,25 +63,19 @@ public sealed class SamusAtmosphericArtworkCatalog
         return true;
     }
 
-    /// <summary>Resolves.</summary>
     private ushort Resolve(bool footstep, int frame) =>
         (footstep ? typeOne : sharedTypeFour).TryGetValue(frame, out ushort attributes)
             ? attributes : SamusAtmosphericArtworkDefinitions.Attributes(footstep, frame);
 
-    /// <summary>Represents frame sequence.</summary>
     private sealed class FrameSequence(SamusAtmosphericArtworkCatalog owner, bool footstep) : IReadOnlyList<ushort>
     {
-        /// <summary>Gets count.</summary>
         public int Count => SamusMovementRomData.Environment.DirectAtmosphericFrameCount;
-        /// <summary>Gets an indexed value.</summary>
         public ushort this[int index] => (uint)index < Count
             ? owner.Resolve(footstep, index) : throw new ArgumentOutOfRangeException(nameof(index));
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int frame = 0; frame < Count; frame++) yield return this[frame];
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

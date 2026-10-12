@@ -14,10 +14,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
-/// <summary>Represents plm draw clone verification.</summary>
 internal static class PlmDrawCloneVerification
 {
-    /// <summary>verify plm draw clone.</summary>
     internal static void VerifyPlmDrawClone()
     {
         foreach (ushort instruction in new[] { RoomPlmInstruction.DrawPlmBlock,
@@ -47,7 +45,6 @@ internal static class PlmDrawCloneVerification
         Console.WriteLine("  Both native PLM draw entry points restore terrain, redraw, yield, and resume identically.");
     }
 
-    /// <summary>plm draw clone command.</summary>
     [VerificationCommand("--plm-draw-clone")]
     internal static int PlmDrawCloneCommand()
     {

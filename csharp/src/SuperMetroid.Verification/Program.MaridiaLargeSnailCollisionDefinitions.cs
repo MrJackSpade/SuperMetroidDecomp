@@ -15,10 +15,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ExtendedCollisionReferenceVerification;
 
-/// <summary>Represents maridia large snail collision definitions verification.</summary>
 internal static class MaridiaLargeSnailCollisionDefinitionsVerification
 {
-    /// <summary>Verifies installed oum visual selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Oum visual selectors")]
     internal static void VerifyInstalledOumVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -55,7 +53,6 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
             "frames with no ROM reads.");
     }
 
-    /// <summary>Verifies maridia large snail collision definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia large snail collision definitions")]
     internal static void VerifyMaridiaLargeSnailCollisionDefinitions()
     {
@@ -169,13 +166,11 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         ];
     }
 
-    /// <summary>New oum no read bus.</summary>
     private static CartridgeReadGuard NewOumNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Oum frame or collision read ROM byte ${address:X6}.")
             .RejectWrites(address => $"Installed Oum frame or collision wrote ROM byte ${address:X6}.");
 
-    /// <summary>Verifies oum collision command.</summary>
     [VerificationCommand("--verify-oum-collision")]
     internal static int VerifyOumCollisionCommand()
     {

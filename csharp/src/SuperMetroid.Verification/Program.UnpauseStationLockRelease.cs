@@ -16,7 +16,6 @@ using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents unpause station lock release verification.</summary>
 internal static class UnpauseStationLockReleaseVerification
 {
     /// <summary>
@@ -56,7 +55,6 @@ internal static class UnpauseStationLockReleaseVerification
         Console.WriteLine("  Unpause station lock: command $0C frees a station-locked Samus.");
     }
 
-    /// <summary>Unpause station lock release command.</summary>
     [VerificationCommand("--unpause-station-lock-release")]
     internal static int UnpauseStationLockReleaseCommand()
     {

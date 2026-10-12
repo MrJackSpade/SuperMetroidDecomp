@@ -16,10 +16,8 @@ using static KraidRoomProgramMappingVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents kraid room plms verification.</summary>
 internal static class KraidRoomPlmsVerification
 {
-    /// <summary>Verifies compiled kraid room plms.</summary>
     internal static void VerifyCompiledKraidRoomPlms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -52,7 +50,6 @@ internal static class KraidRoomPlmsVerification
             "Kraid room PLMs: eight reachable programs and ten physical draws match ROM; all live ceiling/spike paths, timing and collision run without source reads.");
     }
 
-    /// <summary>Verifies kraid mutation.</summary>
     private static void VerifyKraidMutation(
         PlmHeaderId header, int expectedDeletionFrame, ushort firstFinalWord,
         int changedBlockCount)
@@ -107,7 +104,6 @@ internal static class KraidRoomPlmsVerification
             $"Kraid mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
-    /// <summary>Creates kraid room source guard.</summary>
     internal static CartridgeReadGuard NewKraidRoomSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x84 &&
@@ -119,7 +115,6 @@ internal static class KraidRoomPlmsVerification
                   (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmDrawDefinitions.EndExclusive)),
             address => $"Kraid mutation reread migrated source ${address:X6}.");
 
-    /// <summary>Kraid room plms command.</summary>
     [VerificationCommand("--kraid-room-plms")]
     internal static int KraidRoomPlmsCommand()
     {

@@ -26,7 +26,6 @@ internal static class CrocomireBodyCollisionDefinitions
     /// <summary>Native bank containing Crocomire's body frames and hitboxes.</summary>
     internal const byte Bank = 0xa4;
 
-/// <summary>Stores frames.</summary>
 private static readonly CollisionRecordRuns<CrocomireBodyCollisionComponent> Frames = CollisionRecordRuns<CrocomireBodyCollisionComponent>.Frames(
         new(0xbfc4,
         [
@@ -91,38 +90,23 @@ private static readonly CollisionRecordRuns<CrocomireBodyCollisionComponent> Fra
             [new(new(0, 0), 0xcb15)],
         ]));
 
-    /// <summary>Stores list cb07.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB07 = [new(-78, 32, -16, 43, 0xb93d, 0xbab4)];
-    /// <summary>Stores list cb15.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB15 = [new(-95, 11, -16, 11, 0xb93d, 0xbab4)];
-    /// <summary>Stores list cb23.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB23 = [new(-69, 31, -16, 44, 0xb93d, 0xbab4)];
-    /// <summary>Stores list cb31.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB31 = [new(-60, 18, -16, 32, 0xb93d, 0xbab4)];
-    /// <summary>Stores list cb3 f.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB3F = [new(-80, 13, -16, 27, 0xb93d, 0xbab4)];
-    /// <summary>Stores list cb4 f.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB4F = [new(-95, -6, -16, 27, 0xb93d, 0xb951)];
-    /// <summary>Stores list cb5 f.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB5F = [new(-59, -9, -16, 5, 0xb93d, 0xb951)];
-    /// <summary>Stores list cb6 d.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCB6D = [new(-93, -36, -30, -13, 0xb93d, 0xb951)];
-    /// <summary>Stores list cbc5.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCBC5 = [new(-50, -37, 40, -16, 0x8023, 0xba05), new(-52, -58, 42, -38, 0x8023, 0x802d), new(-32, -13, 40, 0, 0x8023, 0x802d)];
-    /// <summary>Stores list cbeb.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCBEB = [new(-46, -53, 13, -16, 0x8023, 0xba05), new(-41, -74, 16, -57, 0x8023, 0x802d), new(-37, -16, 16, -3, 0x8023, 0x802d)];
-    /// <summary>Stores list cc11.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCC11 = [new(-37, -50, 38, -4, 0xb93d, 0x802d)];
-    /// <summary>Stores list cc1 f.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCC1F = [new(-38, -48, 37, 52, 0xb93d, 0xb968)];
-    /// <summary>Stores list cc2 d.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] ListCC2D = [new(-38, -4, 42, 52, 0xb93d, 0xb951)];
 
-    /// <summary>Checks whether frame.</summary>
     internal static bool HasFrame(ushort frame) => Frames.TryGet(frame, out _) ||
         CrocomireCorpseCollisionDefinitions.HasFrame(frame);
 
-    /// <summary>Components at.</summary>
     internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(ushort frame) =>
         Frames.TryGet(frame, out CrocomireBodyCollisionComponent[] components)
             ? components

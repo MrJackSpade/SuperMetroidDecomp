@@ -310,10 +310,8 @@ internal static class ProjectileTrailCoordinateDefinitions
             new(0x9bff36, [0xff, 0xff, 0xff, 0xff, 0xff]),
         ]);
 
-    /// <summary>Represents observation run.</summary>
     private readonly record struct ObservationRun(int Start, byte[] Bytes);
 
-    /// <summary>create observations.</summary>
     private static FrozenDictionary<int, byte> CreateObservations(ObservationRun[] runs)
     {
         var bytes = new Dictionary<int, byte>();
@@ -330,16 +328,14 @@ internal static class ProjectileTrailCoordinateDefinitions
     private readonly record struct TrailFrame(Offset16<RoomPixels> Left, Offset16<RoomPixels> Right);
 
     /// <summary>How a block's right sparkle reflects its left sparkle across the travel axis.</summary>
-    private enum Reflection { /** <summary>Identifies across vertical.</summary> */ AcrossVertical, /** <summary>Identifies across horizontal.</summary> */ AcrossHorizontal, /** <summary>Identifies across diagonal down right.</summary> */ AcrossDiagonalDownRight, /** <summary>Identifies across diagonal up right.</summary> */ AcrossDiagonalUpRight, /** <summary>Identifies through origin.</summary> */ ThroughOrigin }
+    private enum Reflection { AcrossVertical, AcrossHorizontal, AcrossDiagonalDownRight, AcrossDiagonalUpRight, ThroughOrigin }
 
-    /// <summary>Represents stored frame.</summary>
     private readonly record struct StoredFrame(Offset16<RoomPixels> Left, Reflection Reflection);
 
-    /// <summary>Stores frames.</summary>
     private static readonly FrozenDictionary<int, StoredFrame> Frames = CreateFrames();
 
     /// <summary>The four signed bytes of one trail frame record, in record order.</summary>
-    private enum RecordField { /** <summary>Identifies left x.</summary> */ LeftX, /** <summary>Identifies left y.</summary> */ LeftY, /** <summary>Identifies right x.</summary> */ RightX, /** <summary>Identifies right y.</summary> */ RightY }
+    private enum RecordField { LeftX, LeftY, RightX, RightY }
 
     /// <summary>
     /// $9B:A4B3-A4F5: the beam-bit dispatch read by $9B:A418/A42A/A43C.
@@ -443,7 +439,6 @@ internal static class ProjectileTrailCoordinateDefinitions
 
     // This family packs its two vertical sequences first, followed by each side's
     // three nonvertical directions; the other spread families pack octants in order.
-    /// <summary>ice spazer direction.</summary>
     private static int IceSpazerDirection(SamusProjectileDirection direction) => direction switch
     {
         SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => 0,
@@ -454,7 +449,6 @@ internal static class ProjectileTrailCoordinateDefinitions
         _ => throw new InvalidOperationException($"Undefined SamusProjectileDirection {direction}."),
     };
 
-    /// <summary>try pointer.</summary>
     private static bool TryPointer(int address, out ushort pointer)
     {
         pointer = 0;
@@ -583,7 +577,6 @@ internal static class ProjectileTrailCoordinateDefinitions
         return offset >= 0 && offset < count * 4 && offset % 4 == 0;
     }
 
-    /// <summary>frame.</summary>
     private static TrailFrame Frame(Offset16<RoomPixels> left, Offset16<RoomPixels> right) => new(left, right);
     /// <summary>
     /// Trail sparkle placements by native record address. Each record pairs a left and a right
@@ -699,7 +692,6 @@ internal static class ProjectileTrailCoordinateDefinitions
             [ChargedBeamTrails_WaveIcePlasma_5 + 21 * 4] = new(16, -24),
         }.ToFrozenDictionary();
 
-    /// <summary>try stored frame.</summary>
     private static bool TryStoredFrame(int address, out TrailFrame frame)
     {
         if (!Frames.TryGetValue(address, out StoredFrame stored))
@@ -713,7 +705,6 @@ internal static class ProjectileTrailCoordinateDefinitions
         return true;
     }
 
-    /// <summary>reflect.</summary>
     private static Offset16<RoomPixels> Reflect(Reflection reflection, Offset16<RoomPixels> left) => reflection switch
     {
         Reflection.AcrossVertical => left.MirroredX(),
@@ -724,7 +715,6 @@ internal static class ProjectileTrailCoordinateDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(reflection)),
     };
 
-    /// <summary>try read byte.</summary>
     internal static bool TryReadByte(int address, out byte value)
     {
         if (address == EmptyFamilyWrappedCoordinateByte)
@@ -764,7 +754,6 @@ internal static class ProjectileTrailCoordinateDefinitions
         value = 0; return false;
     }
 
-    /// <summary>read compiled word.</summary>
     internal static ushort ReadCompiledWord(int address)
     {
         int next = SnesAddressMath.AddWithinBank(address, 1);
@@ -802,7 +791,6 @@ internal static class ProjectileTrailCoordinateDefinitions
             "and is not a mutable bank-$9B low-half alias.");
     }
 
-    /// <summary>read coordinate word.</summary>
     internal static ushort ReadCoordinateWord(ISnesAddressSpace bus, ushort operand, ushort index)
     {
         int address = (SamusProjectileRomData.Banks.PaletteAndTrailData + operand + index) & SnesCpuAddressLayout.AddressMask;
@@ -819,7 +807,6 @@ internal static class ProjectileTrailCoordinateDefinitions
         return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
-    /// <summary>read coordinate operand byte.</summary>
     private static byte ReadCoordinateOperandByte(
         ISnesAddressSpace bus, int address, byte memoryDataRegister)
     {

@@ -14,7 +14,6 @@ internal abstract class BoulderInstructionProgramDefinitions
     /// <summary><c>$A6:86CB</c>, the eight-frame right-moving rolling loop.</summary>
     internal const ushort Right = 0x86cb;
 
-    /// <summary>Indicates whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (Left + 2);

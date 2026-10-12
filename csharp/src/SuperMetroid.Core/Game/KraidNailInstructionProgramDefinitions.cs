@@ -9,9 +9,7 @@ internal abstract class KraidNailInstructionProgramDefinitions
     /// <summary><c>InstList_KraidNail</c> at $A7:8B0A.</summary>
     internal const ushort Loop = 0x8b0a;
 
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 8;
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => PresentationWordCount + 2;
 
     /// <summary>Eight four-byte frames last three ticks each, followed by Goto
@@ -24,14 +22,12 @@ internal abstract class KraidNailInstructionProgramDefinitions
             : new((ushort)(Loop + 4 * PresentationWordCount + 2 * (index - PresentationWordCount)),
                 index == PresentationWordCount ? (ushort)CommonEnemyInstruction.Goto : Loop);
     }
-    /// <summary>is presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (Loop + 2);
         return (uint)offset < 4 * PresentationWordCount && offset % 4 == 0;
     }
 
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

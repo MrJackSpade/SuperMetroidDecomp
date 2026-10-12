@@ -3,7 +3,6 @@ using SuperMetroid.Core.Input;
 /// <summary>Verification access to <see cref="ControllerInputState"/> members production does not use.</summary>
 internal static class ControllerInputStateAccess
 {
-    /// <summary>Provides verification helpers for <see cref="ControllerInputState"/>.</summary>
     extension(ControllerInputState self)
     {
         /// <summary>Typed view of <see cref="ControllerInputState.Current"/> for gameplay button tests.</summary>

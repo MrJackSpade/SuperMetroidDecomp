@@ -10,7 +10,6 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents slow consumer fixture.</summary>
 internal static class SlowConsumerFixture
 {
     /// <summary>Retail $8F:A3AE room header: room-local gameplay/pause fixture, matching portable capture tests.</summary>

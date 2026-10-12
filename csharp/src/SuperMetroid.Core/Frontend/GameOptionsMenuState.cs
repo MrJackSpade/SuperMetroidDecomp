@@ -11,47 +11,27 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class GameOptionsMenuState
 {
     // OBJ layer reused across renders; the span overload clears it first. Never saved state.
-    /// <summary>Stores object layer scratch.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
-    /// <summary>Stores frame buffer.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState? audio;
-    /// <summary>Stores ppu.</summary>
     private readonly MenuPpuState ppu;
-    /// <summary>Stores oam.</summary>
     private readonly OamBuffer oam = new();
-    /// <summary>Stores controller.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Stores map presentation.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
-    /// <summary>Stores primary tilemap.</summary>
     private readonly byte[] primaryTilemap;
-    /// <summary>Stores controller english tilemap.</summary>
     private readonly byte[] controllerEnglishTilemap;
-    /// <summary>Stores controller japanese tilemap.</summary>
     private readonly byte[] controllerJapaneseTilemap;
-    /// <summary>Stores special english tilemap.</summary>
     private readonly byte[] specialEnglishTilemap;
-    /// <summary>Stores special japanese tilemap.</summary>
     private readonly byte[] specialJapaneseTilemap;
-    /// <summary>Stores visible tilemap.</summary>
     private byte[] visibleTilemap;
-    /// <summary>Stores page.</summary>
     private GameOptionsPage page = GameOptionsPage.Primary;
-    /// <summary>Stores dissolve destination.</summary>
     private GameOptionsPage dissolveDestination = GameOptionsPage.Primary;
-    /// <summary>Stores brightness.</summary>
     private int brightness;
-    /// <summary>Stores bg1 vertical scroll.</summary>
     private int bg1VerticalScroll;
-    /// <summary>Stores missile timer.</summary>
     private int missileTimer = 1;
-    /// <summary>Stores missile frame.</summary>
     private int missileFrame;
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
@@ -277,7 +257,6 @@ public sealed class GameOptionsMenuState
             unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
     }
 
-    /// <summary>Prepares render oam.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -291,7 +270,6 @@ public sealed class GameOptionsMenuState
         oam.FinalizeFrame();
     }
 
-    /// <summary>Steps primary.</summary>
     private void StepPrimary(SnesButton pressed)
     {
         if ((pressed & SnesButton.Up) != 0)
@@ -344,7 +322,6 @@ public sealed class GameOptionsMenuState
         }
     }
 
-    /// <summary>Steps controller.</summary>
     private void StepController(SnesButton pressed)
     {
         if ((pressed & SnesButton.Up) != 0)
@@ -418,7 +395,6 @@ public sealed class GameOptionsMenuState
         }
     }
 
-    /// <summary>Steps special.</summary>
     private void StepSpecial(SnesButton pressed)
     {
         if ((pressed & SnesButton.Up) != 0)
@@ -467,14 +443,12 @@ public sealed class GameOptionsMenuState
         LoadVisiblePage();
     }
 
-    /// <summary>Begins dissolve to.</summary>
     private void BeginDissolveTo(GameOptionsPage destination)
     {
         dissolveDestination = destination;
         Phase = GameOptionsPhase.DissolveOut;
     }
 
-    /// <summary>Loads visible page.</summary>
     private void LoadVisiblePage()
     {
         visibleTilemap = page switch
@@ -496,7 +470,6 @@ public sealed class GameOptionsMenuState
         ppu.LoadBg1(visibleTilemap);
     }
 
-    /// <summary>Applies language palette bits.</summary>
     private void ApplyLanguagePaletteBits()
     {
         (mapPresentation ?? throw new InvalidOperationException(
@@ -504,7 +477,6 @@ public sealed class GameOptionsMenuState
             .GameOptions.ApplyLanguage(primaryTilemap, JapaneseText);
     }
 
-    /// <summary>Applies special palette bits.</summary>
     private void ApplySpecialPaletteBits()
     {
         var content = mapPresentation ?? throw new InvalidOperationException(
@@ -515,7 +487,6 @@ public sealed class GameOptionsMenuState
             GameOptionsPresentationDefinitions.MoonwalkToggle, MoonwalkEnabled);
     }
 
-    /// <summary>Applies controller labels.</summary>
     private void ApplyControllerLabels()
     {
         var content = mapPresentation ?? throw new InvalidOperationException(
@@ -527,7 +498,6 @@ public sealed class GameOptionsMenuState
         }
     }
 
-    /// <summary>Cursor position.</summary>
     private (ushort X, ushort Y) CursorPosition()
     {
         GameOptionsPage? cursorPage = GameOptionsCursorPolicy.Select(Phase);
@@ -545,7 +515,6 @@ public sealed class GameOptionsMenuState
         return (checked((ushort)point.X), checked((ushort)point.Y));
     }
 
-    /// <summary>Steps missile.</summary>
     private void StepMissile()
     {
         if (--missileTimer != 0)
@@ -555,7 +524,6 @@ public sealed class GameOptionsMenuState
             MenuMissileAnimationDefinitions.FrameDuration;
     }
 
-    /// <summary>Presentation page name.</summary>
     private static string PresentationPageName(GameOptionsPage value) => value switch
     {
         GameOptionsPage.Primary => GameOptionsPresentationDefinitions.PrimaryMenu,
@@ -564,19 +532,16 @@ public sealed class GameOptionsMenuState
         _ => throw new InvalidOperationException($"Unknown options page {value}."),
     };
 
-    /// <summary>Queues move sound.</summary>
     private void QueueMoveSound() =>
         audio?.QueueSound(
             SoundEffectLibrary1Sounds.MenuCursor,
             maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
 
-    /// <summary>Queues select sound.</summary>
     private void QueueSelectSound() =>
         audio?.QueueSound(
             SoundEffectLibrary1Sounds.MenuConfirm,
             maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
 
-    /// <summary>Applies brightness.</summary>
     private void ApplyBrightness(Span<Rgba32> pixels)
     {
         for (int pixel = 0; pixel < pixels.Length; pixel++)
@@ -627,13 +592,9 @@ public enum GameOptionsPhase
     LoadingMenu,
 }
 
-/// <summary>Represents game options page.</summary>
 internal enum GameOptionsPage
 {
-    /// <summary>Identifies primary.</summary>
     Primary,
-    /// <summary>Identifies controller.</summary>
     Controller,
-    /// <summary>Identifies special.</summary>
     Special,
 }

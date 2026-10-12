@@ -10,7 +10,6 @@ internal static class RipperVisualDefinitions
     /// <summary>$A2:E527, the three left-facing ordinary Ripper two-part compositions, followed by right-facing ones.</summary>
     private const ushort OrdinaryLeftFrame = 0xe527;
 
-    /// <summary>Frame at.</summary>
     internal static ushort FrameAt(EnemyDefinitionId enemyDefinition, ushort address)
     {
         bool ordinary = enemyDefinition switch
@@ -42,7 +41,6 @@ internal static class RipperVisualDefinitions
             drawing * fullCompositionBytes - (drawing / 2) * (fullCompositionBytes - shortCompositionBytes));
     }
 
-    /// <summary>Checks whether visual offset.</summary>
     private static bool IsVisualOffset(int offset) =>
         offset >= 0 && offset <= 32 && offset % 20 <= 12 && (offset % 20 & 3) == 0;
 }

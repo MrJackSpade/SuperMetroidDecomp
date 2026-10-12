@@ -28,12 +28,9 @@ internal abstract class SkulteraInstructionProgramDefinitions
     private static readonly ushort[] TurnHalfDurations = [13, 10, 8, 6];
     /// <summary>$A3:902C/9062: swimming cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort SwimmingDuration = 14;
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 32;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 22;
 
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -58,7 +55,6 @@ internal abstract class SkulteraInstructionProgramDefinitions
             ? (ushort)SkulteraInstruction.SetTurnFinishedFlag : (ushort)CommonEnemyInstruction.Sleep);
     }
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -68,7 +64,6 @@ internal abstract class SkulteraInstructionProgramDefinitions
             : (ushort)((startsLeft ? TurningRight : TurningLeft) + 2 + 4 * (local - 3));
     }
 
-    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)

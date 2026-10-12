@@ -11,19 +11,14 @@ namespace SuperMetroid.Core.Frontend;
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores ppu.</summary>
     private readonly MenuPpuState ppu;
-    /// <summary>Stores icons.</summary>
     private readonly FileSelectMapIcons icons;
-    /// <summary>Stores sprites.</summary>
     [NonSerialized] private MapSpriteCatalog? sprites;
     /// <summary>Live menu-owned VRAM containing the installed BG1 area map, BG2 frame, and map characters; not the gameplay room's VRAM instance.</summary>
     public SnesVram Vram => ppu.Vram;
     /// <summary>Live menu-owned CGRAM, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public SnesCgram Cgram => ppu.Cgram;
-    /// <summary>Gets map system.</summary>
     internal Bank80SystemState MapSystem => icons.MapSystem;
 
     /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu PPU owner, following $81:A725/$82:9517 without choosing a load station or advancing menu timing.</summary>
@@ -59,7 +54,6 @@ public sealed class FileSelectRoomMapGraphics
         LoadFrame(mapPresentation.Screens, area);
     }
 
-    /// <summary>Loads frame.</summary>
     private void LoadFrame(MapScreenPresentation? screens, AreaId area)
     {
         (screens ?? throw new InvalidOperationException(
@@ -121,15 +115,11 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     // OBJ scratch reused across draws; never part of saved state (restores reallocate it).
-    /// <summary>Stores obj scratch.</summary>
     [NonSerialized] private Rgba32[]? objScratch;
     // Owned frames: each is valid until the same method renders again.
-    /// <summary>Stores frame only buffer.</summary>
     [NonSerialized] private Rgba32[]? frameOnlyBuffer;
-    /// <summary>Stores backgrounds buffer.</summary>
     [NonSerialized] private Rgba32[]? backgroundsBuffer;
 
-    /// <summary>Prepares icons.</summary>
     private OamBuffer PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
     {

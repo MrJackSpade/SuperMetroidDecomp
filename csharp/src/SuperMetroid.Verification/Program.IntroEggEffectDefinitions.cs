@@ -15,10 +15,8 @@ using System.Reflection;
 using static IntroEggEffectProgramsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents intro egg effect definitions verification.</summary>
 internal static class IntroEggEffectDefinitionsVerification
 {
-    /// <summary>Verifies intro egg effect definitions.</summary>
     internal static void VerifyIntroEggEffectDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -79,7 +77,6 @@ internal static class IntroEggEffectDefinitionsVerification
             "  Intro egg effects: 21 actor words and 76 instruction/delete bytes match; six fragments and four slime drops complete without source-list reads.");
     }
 
-    /// <summary>Verifies intro egg effect actor.</summary>
     private static void VerifyIntroEggEffectActor(
         SuperMetroidAddressSpace retail,
         ushort definitionPointer,
@@ -94,7 +91,6 @@ internal static class IntroEggEffectDefinitionsVerification
             $"{name} instruction list");
     }
 
-    /// <summary>Creates intro egg effect definition guard.</summary>
     private static CartridgeReadGuard NewIntroEggEffectDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => address is >= 0x8bcecd and < 0x8bcef7 or
@@ -102,7 +98,6 @@ internal static class IntroEggEffectDefinitionsVerification
                 >= 0x8bce53 and < 0x8bce55,
             address => $"Intro egg effect reread compiled definition byte ${address:X6}.");
 
-    /// <summary>Intro egg effect definitions command.</summary>
     [VerificationCommand("--intro-egg-effect-definitions")]
     internal static int IntroEggEffectDefinitionsCommand()
     {

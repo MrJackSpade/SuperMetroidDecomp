@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Three centered sixteen-pixel baby poses,packed at the end of the intro egg atlas.</summary>
 internal sealed class IntroConfusedBabyParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
@@ -14,9 +13,7 @@ internal sealed class IntroConfusedBabyParts(int frame) : IReadOnlyList<Compiled
                 return supplied.CalculateIfMatching(new IntroConfusedBabyParts(frame));
         return supplied;
     }
-    /// <summary>Gets count.</summary>
     public int Count => 1;
-    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -28,16 +25,13 @@ internal sealed class IntroConfusedBabyParts(int frame) : IReadOnlyList<Compiled
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         yield return this[0];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Represents intro confused baby atlas.</summary>
 internal static class IntroConfusedBabyAtlas
 {
     /// <summary>Tile$11E,first sixteen-pixel baby drawing in the upper atlas-row pair final columns.</summary>

@@ -24,10 +24,8 @@ public enum SkreeEnemyFunction : ushort
 /// </summary>
 public sealed class SkreeEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new skree enemy state instance.</summary>
     internal SkreeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets or sets variable A, reloaded to 21 while diving and counted down while burrowing.</summary>

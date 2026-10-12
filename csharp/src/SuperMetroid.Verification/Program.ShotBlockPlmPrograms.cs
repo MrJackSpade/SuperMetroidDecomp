@@ -16,10 +16,8 @@ using SuperMetroid.Core.Spatial;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents shot block plm programs verification.</summary>
 internal static class ShotBlockPlmProgramsVerification
 {
-    /// <summary>Verifies shot block program operands.</summary>
     internal static void VerifyShotBlockProgramOperands()
     {
         // #1157: the first draw operand of a permanent 1x1 shot block ($84:CBBC)
@@ -60,7 +58,6 @@ internal static class ShotBlockPlmProgramsVerification
         Console.WriteLine("#1157: permanent-shot-block failure and all eight shared timed-record operand contracts confirmed on RAM-only memory.");
     }
 
-    /// <summary>Verifies shot block plm programs.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for shot block PLM programs")]
     internal static void VerifyShotBlockPlmPrograms()
     {
@@ -200,7 +197,6 @@ internal static class ShotBlockPlmProgramsVerification
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
     }
 
-    /// <summary>Verifies respawning shot size selection.</summary>
     private static void VerifyRespawningShotSizeSelection(SuperMetroidAddressSpace rom)
     {
         ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
@@ -213,7 +209,6 @@ internal static class ShotBlockPlmProgramsVerification
             AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot size domain");
     }
 
-    /// <summary>Verifies permanent shot size selection.</summary>
     private static void VerifyPermanentShotSizeSelection(SuperMetroidAddressSpace rom)
     {
         ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
@@ -226,13 +221,11 @@ internal static class ShotBlockPlmProgramsVerification
             AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot size domain");
     }
 
-    /// <summary>Shot block native program layouts.</summary>
     private static (ushort Start, int Frames, bool RestoreWord)[] ShotBlockNativeProgramLayouts() =>
         [(0xcadf,7,true),(0xcb02,8,false),(0xcb27,8,false),(0xcb4c,8,false),
          (0xcbb7,4,false),(0xcbcc,4,false),(0xcbe1,4,false),(0xcbf6,4,false),
          (0xcb71,7,true),(0xcb94,7,true),(0xcc0b,4,false),(0xcc20,4,false),(0xcd53,4,false)];
 
-    /// <summary>Verifies shot block program control mapping.</summary>
     private static void VerifyShotBlockProgramControlMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new List<ushort>();
@@ -254,7 +247,6 @@ internal static class ShotBlockPlmProgramsVerification
         }
     }
 
-    /// <summary>Verifies shot block program draw mapping.</summary>
     private static void VerifyShotBlockProgramDrawMapping(SuperMetroidAddressSpace rom)
     {
         var addresses = new HashSet<ushort>();
@@ -270,7 +262,6 @@ internal static class ShotBlockPlmProgramsVerification
         }
     }
 
-    /// <summary>Verifies shot block program sound mapping.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for shot block program sound mapping")]
     private static void VerifyShotBlockProgramSoundMapping(SuperMetroidAddressSpace rom)
     {
@@ -286,7 +277,6 @@ internal static class ShotBlockPlmProgramsVerification
         }
     }
 
-    /// <summary>Verifies shot block stock visual mapping.</summary>
     private static void VerifyShotBlockStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa345,0xa34b,0xa351,0xa357,0xa35d,0xa365,0xa36d,0xa375,
@@ -346,7 +336,6 @@ internal static class ShotBlockPlmProgramsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmShotBlockVisualCatalog(native.Skip(1).Select(pair => new RoomPlmShotBlockVisualEntry(pair.Key, pair.Value))), "shot-block imported stock still requires complete coverage");
     }
 
-    /// <summary>Verifies shot block visual separation.</summary>
     private static void VerifyShotBlockVisualSeparation(
         ISnesAddressSpace rom, HashSet<int> forbidden)
     {
@@ -417,7 +406,6 @@ internal static class ShotBlockPlmProgramsVerification
             "visual catalog rejects collision bits in editable data");
     }
 
-    /// <summary>Verifies shot block visual installation.</summary>
     private static void VerifyShotBlockVisualInstallation(ISnesAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("shot-block-visual");
@@ -481,13 +469,11 @@ internal static class ShotBlockPlmProgramsVerification
         }
     }
 
-    /// <summary>Represents shot block fixture.</summary>
     internal sealed record ShotBlockFixture(
         RoomLevelData Level,
         BackgroundTilemapStreamer Streamer,
         RoomPlmSystem Plms);
 
-    /// <summary>New shot block fixture.</summary>
     private static ShotBlockFixture NewShotBlockFixture(byte behavior)
     {
         const int width = 8;
@@ -503,12 +489,10 @@ internal static class ShotBlockPlmProgramsVerification
         return new ShotBlockFixture(level, level.CreateBackgroundStreamer(), plms);
     }
 
-    /// <summary>New shot block program read guard.</summary>
     internal static CartridgeReadGuard NewShotBlockProgramReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
         new CartridgeReadGuard(source).Forbid(forbidden.Contains,
             address => $"Production PLM handler read compiled control byte ${address:X6}.");
 
-    /// <summary>Shot block program operands command.</summary>
     [VerificationCommand("--shot-block-program-operands")]
     internal static int ShotBlockProgramOperandsCommand()
     {
@@ -516,7 +500,6 @@ internal static class ShotBlockPlmProgramsVerification
         return 0;
     }
 
-    /// <summary>Shot block plm programs command.</summary>
     [VerificationCommand("--shot-block-plm-programs")]
     internal static int ShotBlockPlmProgramsCommand()
     {

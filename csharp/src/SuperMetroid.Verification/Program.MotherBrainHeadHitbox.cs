@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents mother brain head hitbox verification.</summary>
 internal static class MotherBrainHeadHitboxVerification
 {
     // #1269: the head enemy keeps InstList_MotherBrainHead_InitialDummy for life, so its
@@ -21,7 +20,6 @@ internal static class MotherBrainHeadHitboxVerification
     // +$10,+$17). The visible brain runs a separate list in the draw hook. The port ran the
     // brain list on the head enemy, testing the drawn frame's shape instead: in the 100%
     // movie a charged beam that native lands on the head missed it.
-    /// <summary>Verifies mother brain head hitbox.</summary>
     internal static void VerifyMotherBrainHeadHitbox()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -55,7 +53,6 @@ internal static class MotherBrainHeadHitboxVerification
         Console.WriteLine("Mother Brain head hitbox: the head enemy keeps $A320; the brain list runs separately.");
     }
 
-    /// <summary>Mother brain head hitbox command.</summary>
     [VerificationCommand("--mother-brain-head-hitbox")]
     internal static int MotherBrainHeadHitboxCommand()
     {

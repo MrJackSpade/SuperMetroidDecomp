@@ -6,10 +6,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
-/// <summary>Represents botwoon visuals verification.</summary>
 internal static class BotwoonVisualsVerification
 {
-    /// <summary>Verifies installed botwoon visuals.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledBotwoonVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)

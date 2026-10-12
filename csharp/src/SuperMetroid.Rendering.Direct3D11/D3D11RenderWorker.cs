@@ -9,49 +9,27 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// never synchronously block its message pump while DXGI may be interacting with the window.</remarks>
 public sealed class D3D11RenderWorker
 {
-    /// <summary>Stores mailbox.</summary>
     private readonly LatestRenderFrameMailbox mailbox;
-    /// <summary>Stores gate.</summary>
     private readonly RenderPresentationGate gate;
-    /// <summary>Stores wake.</summary>
     private readonly AutoResetEvent wake = new(false);
-    /// <summary>Stores lifecycle.</summary>
     private readonly Lock lifecycle = new();
-    /// <summary>Stores ready.</summary>
     private readonly TaskCompletionSource<string> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    /// <summary>Stores completion.</summary>
     private readonly TaskCompletionSource completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    /// <summary>Stores fault.</summary>
     private ExceptionDispatchInfo? fault;
-    /// <summary>Stores stopping.</summary>
     private bool stopping;
-    /// <summary>Stores resize.</summary>
     private Extent16<DisplayPixels>? resize;
-    /// <summary>Stores presented.</summary>
     private long presented, occluded, stale;
-    /// <summary>Stores last consumed sequence.</summary>
     private long lastConsumedSequence;
-    /// <summary>Stores retained redraws.</summary>
     private long retainedRedraws;
-    /// <summary>Stores last drawn size.</summary>
     private long lastDrawnSize;
-    /// <summary>Stores surface suspended.</summary>
     private bool surfaceSuspended;
-    /// <summary>Stores device recoveries.</summary>
     private long deviceRecoveries;
-    /// <summary>Stores last device loss.</summary>
     private D3D11DeviceLossDiagnostic? lastDeviceLoss;
-    /// <summary>Stores cpu composition timing.</summary>
     private readonly RenderTimingWindow cpuCompositionTiming;
-    /// <summary>Stores cpu presentation timing.</summary>
     private readonly RenderTimingWindow cpuPresentationTiming;
-    /// <summary>Stores gpu composition timing.</summary>
     private readonly RenderTimingWindow gpuCompositionTiming;
-    /// <summary>Stores gpu frame timing.</summary>
     private readonly RenderTimingWindow gpuFrameTiming;
-    /// <summary>Stores cpu upload timing.</summary>
     private readonly RenderTimingWindow cpuUploadTiming;
-    /// <summary>Stores submitted upload bytes.</summary>
     private long submittedUploadBytes, submittedUploadCalls;
     /// <summary>Thread-safe cumulative UpdateSubresource byte count for completed render/presentation attempts, including composition and display uploads; retained redraws count and this is not GPU memory residency.</summary>
     public long SubmittedUploadBytes => Interlocked.Read(ref submittedUploadBytes);
@@ -63,9 +41,7 @@ public sealed class D3D11RenderWorker
     /// <returns>Independently sampled thread-safe timing histories without waiting for the render owner or GPU.</returns>
     public RenderWorkerTimings CaptureTimings() => new(cpuCompositionTiming.Snapshot(),
         cpuPresentationTiming.Snapshot(), gpuCompositionTiming.Snapshot(), gpuFrameTiming.Snapshot());
-    /// <summary>Stores gpu composition milliseconds.</summary>
     private double gpuCompositionMilliseconds = double.NaN;
-    /// <summary>Stores valid gpu timing samples.</summary>
     private long validGpuTimingSamples, invalidGpuTimingSamples, skippedGpuTimingSamples;
     /// <summary>Thread-safe count of completed timestamp samples rejected for a disjoint/zero-frequency clock or inconsistent ordering; they do not enter the timing distributions.</summary>
     public long InvalidGpuTimingSamples => Interlocked.Read(ref invalidGpuTimingSamples);
@@ -73,7 +49,6 @@ public sealed class D3D11RenderWorker
     public long SkippedGpuTimingSamples => Interlocked.Read(ref skippedGpuTimingSamples);
     /// <summary>Thread-safe count of successful device/resource recreations after startup, excluding failed recovery attempts and the initial device.</summary>
     public long DeviceRecoveries => Interlocked.Read(ref deviceRecoveries);
-    /// <summary>Stores before render for verification.</summary>
     private readonly Action? beforeRenderForVerification;
 
     /// <summary>Initial startup task returning the actual device's diagnostic description once renderer/swapchain/timer resources are ready; startup failure faults the task, and later recovery does not replace its result.</summary>
@@ -96,7 +71,6 @@ public sealed class D3D11RenderWorker
         int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
         : this(window, clientSize, generation, kind, null, timingCapacity) { }
 
-    /// <summary>Initializes a new d3 d11 render worker instance.</summary>
     internal D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
         Action? beforeRenderForVerification, int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
     {
@@ -173,14 +147,12 @@ public sealed class D3D11RenderWorker
         return completion.Task;
     }
 
-    /// <summary>Verifies running.</summary>
     private void VerifyRunning()
     {
         ThrowIfFaulted();
         if (stopping) throw new InvalidOperationException("GPU worker is stopping.");
     }
 
-    /// <summary>Runs.</summary>
     private void Run(nint window, Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind)
     {
         try
@@ -221,7 +193,6 @@ public sealed class D3D11RenderWorker
         }
     }
 
-    /// <summary>Runs device.</summary>
     private void RunDevice(nint window, ref Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind,
         ref RenderFrameSnapshot? retained, ref bool suspended, ref int consecutiveLosses)
     {

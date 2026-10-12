@@ -9,10 +9,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy tile artwork dachora colors verification.</summary>
 internal static class EnemyTileArtworkDachoraColorsVerification
 {
-    /// <summary>Verifies installed dachora colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Dachora colors and selector pointers")]
     internal static void VerifyInstalledDachoraColors(

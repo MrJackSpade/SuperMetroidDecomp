@@ -79,24 +79,14 @@ internal static class GrappleFiringDefinitions
 /// to up facing left, with distinct downward-facing hand poses at indices 4 and 5.</summary>
 internal enum GrappleOriginDirection : byte
 {
-    /// <summary>Identifies up facing right.</summary>
     UpFacingRight = 0,
-    /// <summary>Identifies up right.</summary>
     UpRight = 1,
-    /// <summary>Identifies right.</summary>
     Right = 2,
-    /// <summary>Identifies down right.</summary>
     DownRight = 3,
-    /// <summary>Identifies down facing right.</summary>
     DownFacingRight = 4,
-    /// <summary>Identifies down facing left.</summary>
     DownFacingLeft = 5,
-    /// <summary>Identifies down left.</summary>
     DownLeft = 6,
-    /// <summary>Identifies left.</summary>
     Left = 7,
-    /// <summary>Identifies up left.</summary>
     UpLeft = 8,
-    /// <summary>Identifies up facing left.</summary>
     UpFacingLeft = 9,
 }

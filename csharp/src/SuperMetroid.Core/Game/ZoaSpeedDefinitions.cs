@@ -29,7 +29,6 @@ public static class ZoaSpeedDefinitions
     // NTSC stage selection; initialization and the trailing record are stationary.
     // Compose the native whole-word/fraction-word byte layout before taking a
     // byte, so odd offsets and windows crossing record boundaries remain exact.
-    /// <summary>byte.</summary>
     private static byte Byte(int offset)
     {
         uint speed = RecordSpeeds[offset / 4];

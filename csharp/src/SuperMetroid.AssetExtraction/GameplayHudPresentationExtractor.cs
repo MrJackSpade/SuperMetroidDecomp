@@ -71,13 +71,11 @@ public static class GameplayHudPresentationExtractor
         return output.ToArray();
     }
 
-    /// <summary>Reads cells.</summary>
     private static GameplayHudCell[] ReadCells(ISnesAddressSpace bus, int address, int count) =>
         Enumerable.Range(0, count)
             .Select(index => Cell(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * sizeof(ushort))))
             .ToArray();
 
-    /// <summary>Cell.</summary>
     private static GameplayHudCell Cell(ushort raw)
     {
         var word = new SnesBgTilemapWord(raw);
@@ -92,7 +90,6 @@ public static class GameplayHudPresentationExtractor
         };
     }
 
-    /// <summary>Point.</summary>
     private static Position16<TilemapCells> Point(int index) =>
         new(checked((ushort)(index % GameplayHudDefinitions.Width)), checked((ushort)(index / GameplayHudDefinitions.Width)));
 }

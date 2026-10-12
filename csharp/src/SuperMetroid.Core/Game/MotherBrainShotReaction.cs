@@ -9,7 +9,6 @@ internal readonly record struct MotherBrainShotReactionResult(ushort WalkCounter
 /// </summary>
 internal static class MotherBrainShotReaction
 {
-    /// <summary>resolve.</summary>
     public static MotherBrainShotReactionResult Resolve(
         ushort form,
         MotherBrainProjectileType projectileType,

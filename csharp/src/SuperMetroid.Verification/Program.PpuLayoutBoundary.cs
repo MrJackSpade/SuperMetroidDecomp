@@ -14,7 +14,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ppu layout boundary verification.</summary>
 internal static class PpuLayoutBoundaryVerification
 {
     /// <summary>
@@ -97,7 +96,6 @@ internal static class PpuLayoutBoundaryVerification
         AssertEqual((ushort)0xab8c, map.ReadWord(0x0100), "a map fill keeps the interleaved character byte");
     }
 
-    /// <summary>Vram round trip.</summary>
     [PpuLayoutBoundary("exact hardware test: VRAM alias coherence through two region views")]
     private static void VramRoundTrip(PpuLayoutCell writer, PpuLayoutCell reader, ushort seed, string context)
     {
@@ -117,7 +115,6 @@ internal static class PpuLayoutBoundaryVerification
         AssertEqual((ushort)(seed ^ (end - 1) * 0x9e37), read.ReadWord(end - 1 - reader.Offset), $"{context} last word");
     }
 
-    /// <summary>Cgram round trip.</summary>
     [PpuLayoutBoundary("exact hardware test: CGRAM alias coherence through two palette views")]
     private static void CgramRoundTrip(PpuLayoutCell writer, PpuLayoutCell reader, int seed, string context)
     {
@@ -356,7 +353,6 @@ internal static class PpuLayoutBoundaryVerification
         }
     }
 
-    /// <summary>Ppu layout boundary command.</summary>
     [VerificationCommand("--ppu-layout-boundary")]
     internal static int PpuLayoutBoundaryCommand()
     {

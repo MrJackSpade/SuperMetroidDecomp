@@ -9,16 +9,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class FirefleaEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Stores minimum ypositions.</summary>
     private readonly ushort[] _minimumYPositions;
-    /// <summary>Stores maximum ypositions.</summary>
     private readonly ushort[] _maximumYPositions;
-    /// <summary>Stores speed table indexes.</summary>
     private readonly ushort[] _speedTableIndexes;
 
-    /// <summary>Initializes a new fireflea enemy state instance.</summary>
     internal FirefleaEnemyState(
         RoomEnemySlot slot,
         ushort[] minimumYPositions,

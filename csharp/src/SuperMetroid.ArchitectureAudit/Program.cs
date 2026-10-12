@@ -11,10 +11,8 @@ namespace SuperMetroid.ArchitectureAudit;
 /// </summary>
 internal static class Program
 {
-    /// <summary>Defines usage.</summary>
     private const string Usage = "Usage: SuperMetroid.ArchitectureAudit --solution <SuperMetroid.Full.slnx> [--write]";
 
-    /// <summary>Stores json.</summary>
     private static readonly JsonSerializerOptions Json = new()
     {
         WriteIndented = true,
@@ -22,7 +20,6 @@ internal static class Program
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    /// <summary>main.</summary>
     private static async Task<int> Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
@@ -95,7 +92,6 @@ internal static class Program
         return problems;
     }
 
-    /// <summary>reviewed.</summary>
     private static object Reviewed(TypeEntry entry, IReadOnlyList<Review> reviews)
     {
         Review? review = reviews.FirstOrDefault(candidate => candidate.Type == entry.Type);
@@ -113,7 +109,6 @@ internal static class Program
         };
     }
 
-    /// <summary>Represents review document.</summary>
     private sealed record ReviewDocument(IReadOnlyList<Review> Reviews);
 
     /// <summary>A reviewed acceptance of a type's flags.</summary>

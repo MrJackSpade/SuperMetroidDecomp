@@ -7,10 +7,8 @@ using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents bomb charge rejection verification.</summary>
 internal static class BombChargeRejectionVerification
 {
-    /// <summary>Verifies bomb charge rejection.</summary>
     internal static void VerifyBombChargeRejection()
     {
         Suite(nameof(VerifyBombChargeRelease), () => VerifyBombChargeRelease());
@@ -49,7 +47,6 @@ internal static class BombChargeRejectionVerification
         }
     }
 
-    /// <summary>Verifies bomb charge release.</summary>
     private static void VerifyBombChargeRelease()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

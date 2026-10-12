@@ -14,7 +14,6 @@ using System.Text;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
-/// <summary>Represents debugger state layout verification.</summary>
 internal static class DebuggerStateLayoutVerification
 {
     /// <summary>
@@ -68,7 +67,6 @@ internal static class DebuggerStateLayoutVerification
         }
     }
 
-    /// <summary>serialize debugger graph.</summary>
     private static byte[] SerializeDebuggerGraph(object root)
     {
         using var stream = new MemoryStream();
@@ -76,14 +74,12 @@ internal static class DebuggerStateLayoutVerification
         return stream.ToArray();
     }
 
-    /// <summary>deserialize debugger graph.</summary>
     private static T DeserializeDebuggerGraph<T>(byte[] graph) where T : class
     {
         using var stream = new MemoryStream(graph, writable: false);
         return DebuggerObjectGraphSerializer.Deserialize<T>(stream);
     }
 
-    /// <summary>debugger state layout command.</summary>
     [VerificationCommand("--debugger-state-layout")]
     internal static int DebuggerStateLayoutCommand()
     {

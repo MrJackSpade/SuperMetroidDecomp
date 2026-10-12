@@ -6,10 +6,8 @@ namespace SuperMetroid.Android;
 internal sealed record AndroidSettingDefinition(string Label, string Section, string Key,
     string[] Values, Func<SuperMetroidGameOptions, string> Read);
 
-/// <summary>Represents android setting definitions.</summary>
 internal static class AndroidSettingDefinitions
 {
-    /// <summary>Stores all.</summary>
     internal static readonly AndroidSettingDefinition[] All =
     [
         new("Door-transition autosaves", "Game", "DoorTransitionAutosave", ["true", "false"], o => o.DoorTransitionAutosave.ToString().ToLowerInvariant()),

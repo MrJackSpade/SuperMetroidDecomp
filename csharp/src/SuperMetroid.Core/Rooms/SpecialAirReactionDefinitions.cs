@@ -182,7 +182,6 @@ public static class SpecialAirReactionDefinitions
         };
     }
 
-    /// <summary>Validates.</summary>
     private static void Validate(AreaId area, byte areaReactionIndex, string context)
     {
         _ = AreaIds.ToIndex(area);

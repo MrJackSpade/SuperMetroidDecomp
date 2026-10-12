@@ -3,10 +3,8 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static RoomFxRomDataVerification;
 
-/// <summary>Represents room fx shared random verification.</summary>
 internal static class RoomFxSharedRandomVerification
 {
-    /// <summary>Verifies room fx shared random state.</summary>
     internal static void VerifyRoomFxSharedRandomState(TestAddressSpace bus, SnesVram vram,
         SnesCgram cgram, RoomLayer3FxState fx, ushort record, RoomFxType type)
     {

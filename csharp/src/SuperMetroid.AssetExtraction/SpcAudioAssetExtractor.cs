@@ -24,7 +24,6 @@ public static class SpcAudioAssetExtractor
         return Extract(definition => SpcUploadStreamReader.Read(cartridge, definition.SnesAddress, includeExecutionAddress: true), audioDirectory);
     }
 
-    /// <summary>Extract.</summary>
     internal static AudioAssetManifest Extract(Func<AudioUploadAssetDefinition, byte[]> readStream, string audioDirectory)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
@@ -102,7 +101,6 @@ public static class SpcAudioAssetExtractor
         return manifest;
     }
 
-    /// <summary>Extract bank metadata.</summary>
     private static AudioBankMetadata ExtractBankMetadata(
         AudioUploadAssetDefinition definition,
         byte[] ram,
@@ -200,7 +198,6 @@ public static class SpcAudioAssetExtractor
             samples);
     }
 
-    /// <summary>Extract sound libraries.</summary>
     private static List<AudioSoundLibraryMetadata> ExtractSoundLibraries(
         byte[] commonRam,
         bool[] commonWritten,
@@ -354,7 +351,6 @@ public static class SpcAudioAssetExtractor
         return false;
     }
 
-    /// <summary>Validates upload stream.</summary>
     private static void ValidateUploadStream(ReadOnlySpan<byte> stream, string name)
     {
         byte[] scratch = new byte[SpcDriverData.ApuRamSize];
@@ -369,7 +365,6 @@ public static class SpcAudioAssetExtractor
         }
     }
 
-    /// <summary>Applies upload.</summary>
     private static void ApplyUpload(byte[] ram, bool[] written, ReadOnlySpan<byte> stream)
     {
         int offset = 0;
@@ -402,7 +397,6 @@ public static class SpcAudioAssetExtractor
         }
     }
 
-    /// <summary>Reads word.</summary>
     private static ushort ReadWord(byte[] bytes, int address) =>
         unchecked((ushort)(SnesLittleEndian.Word(bytes[address], bytes[address + 1])));
 
@@ -413,26 +407,19 @@ public static class SpcAudioAssetExtractor
     /// </summary>
     private sealed class CanonicalSampleBuilder
     {
-        /// <summary>Stores audio directory.</summary>
         private readonly string audioDirectory;
-        /// <summary>Stores samples directory.</summary>
         private readonly string samplesDirectory;
-        /// <summary>Stores ids by content.</summary>
         private readonly Dictionary<string, string> idsByContent = new(StringComparer.Ordinal);
-        /// <summary>Stores metadata.</summary>
         private readonly List<AudioCanonicalSampleMetadata> metadata = [];
 
-        /// <summary>Initializes a new canonical sample builder instance.</summary>
         internal CanonicalSampleBuilder(string audioDirectory, string samplesDirectory)
         {
             this.audioDirectory = audioDirectory;
             this.samplesDirectory = samplesDirectory;
         }
 
-        /// <summary>Gets metadata.</summary>
         internal IReadOnlyList<AudioCanonicalSampleMetadata> Metadata => metadata;
 
-        /// <summary>Adds.</summary>
         internal string Add(byte dataIndex, byte source, short[] pcm, int? loopSampleIndex)
         {
             byte[] pcmBytes = new byte[checked(pcm.Length * sizeof(short))];

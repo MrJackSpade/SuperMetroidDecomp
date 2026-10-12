@@ -15,10 +15,8 @@ using static EnemyDropsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents grapple enemy death verification.</summary>
 internal static class GrappleEnemyDeathVerification
 {
-    /// <summary>Verifies grapple enemy death.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleEnemyDeath()
     {
@@ -80,7 +78,6 @@ internal static class GrappleEnemyDeathVerification
         Console.WriteLine("  Grapple enemy death: visible animated explosion, drop conversion, position and kill counter agree.");
     }
 
-    /// <summary>Grapple enemy death rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple enemy death")]
     private static byte GrappleEnemyDeathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
@@ -97,7 +94,6 @@ internal static class GrappleEnemyDeathVerification
         }
     }
 
-    /// <summary>Verifies grapple death cleanup ordinary poses.</summary>
     private static void VerifyGrappleDeathCleanupOrdinaryPoses()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -139,7 +135,6 @@ internal static class GrappleEnemyDeathVerification
         Console.WriteLine("  Grapple enemy-death cleanup: reported 07->07, 51->01, and 01->01 routes pass.");
     }
 
-    /// <summary>Grapple enemy death command.</summary>
     [VerificationCommand("--grapple-enemy-death")]
     internal static int GrappleEnemyDeathCommand()
     {

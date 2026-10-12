@@ -12,44 +12,25 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class SamusFramePhases
 {
-    /// <summary>Stores artwork.</summary>
     private readonly RuntimeArtwork _artwork;
-    /// <summary>Stores bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
-    /// <summary>Stores controller1.</summary>
     private readonly ControllerInputState _controller1;
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores enemy phase.</summary>
     private readonly EnemyFramePhase _enemyPhase;
-    /// <summary>Stores freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Stores game time.</summary>
     private readonly GameTimeState _gameTime;
-    /// <summary>Stores nmi.</summary>
     private readonly NmiClock _nmi;
-    /// <summary>Stores options.</summary>
     private readonly GameplayOptions _options;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
-    /// <summary>Stores projectiles.</summary>
     private readonly SamusProjectileSystem _projectiles;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores room palette fx.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
-    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new samus frame phases instance.</summary>
     internal SamusFramePhases(SamusFramePhasesDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -163,7 +144,6 @@ internal sealed class SamusFramePhases
         return grappleOwnsMovement;
     }
 
-    /// <summary>Loads grapple palette.</summary>
     internal void LoadGrapplePalette()
     {
         // Both ordinary HUD firing and debug entry select the installed native palette.
@@ -228,7 +208,6 @@ internal sealed class SamusFramePhases
                     $"uninitialized pose ${(int)_player.Samus.Pose:X2} has no translated $90:A337 mover.");
         }
     }
-    /// <summary>Steps grounded samus movement.</summary>
     internal void StepGroundedSamusMovement(SamusHandlerFrame frame, bool enemyMainAlreadyRan, Func<bool> alphaInputLocked, SamusState samus, ScrollBoundaryCamera camera)
     {
         if (_player.GroundedSamusMovementEnabled)
@@ -1075,7 +1054,6 @@ Landed: true, HitCeiling: false);
         }
     }
 
-    /// <summary>Applies samus animation transitions.</summary>
     internal void ApplySamusAnimationTransitions(SamusHandlerFrame frame, SamusState samus)
     {
         if (_player.GroundedSamusMovementEnabled && !frame.DeathOwnsSamus && !frame.SuitOwnsSamus &&

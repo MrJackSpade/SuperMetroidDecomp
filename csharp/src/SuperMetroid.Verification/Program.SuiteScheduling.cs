@@ -16,7 +16,6 @@ using System.Text.Json;
 using static FullRunSuitesVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents suite scheduling verification.</summary>
 internal static class SuiteSchedulingVerification
 {
     /// <summary>
@@ -146,7 +145,6 @@ internal static class SuiteSchedulingVerification
         return 0;
     }
 
-    /// <summary>Runs worker suites.</summary>
     private static void RunWorkerSuites(RegisteredSuite[] suites, TextWriter protocol, StringWriter output, StringWriter error)
     {
         while (Console.In.ReadLine() is { } line)
@@ -178,14 +176,12 @@ internal static class SuiteSchedulingVerification
         }).ToArray();
     }
 
-    /// <summary>Reads suite durations.</summary>
     private static Dictionary<string, double> ReadSuiteDurations() =>
         File.Exists(SuiteDurationsPath)
             ? JsonSerializer.Deserialize<Dictionary<string, double>>(File.ReadAllText(SuiteDurationsPath))
                 ?? throw new InvalidDataException($"{SuiteDurationsPath} is empty.")
             : [];
 
-    /// <summary>Writes suite durations.</summary>
     private static void WriteSuiteDurations(string[] keys, double[] durations)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath))!);
@@ -197,12 +193,9 @@ internal static class SuiteSchedulingVerification
     /// <summary>A <c>--suite-worker</c> child process of this verifier, driven over its standard streams.</summary>
     internal sealed class SuiteWorkerProcess : IDisposable
     {
-        /// <summary>Stores process.</summary>
         private readonly Process process;
-        /// <summary>Stores unexpected error.</summary>
         private readonly System.Text.StringBuilder unexpectedError = new();
 
-        /// <summary>Initializes a new suite worker process instance.</summary>
         private SuiteWorkerProcess(Process process)
         {
             this.process = process;
@@ -215,7 +208,6 @@ internal static class SuiteSchedulingVerification
             process.BeginErrorReadLine();
         }
 
-        /// <summary>Start.</summary>
         internal static SuiteWorkerProcess Start()
         {
             string host = Environment.ProcessPath ?? throw new InvalidOperationException("The verifier's host executable path is unknown.");
@@ -249,7 +241,6 @@ internal static class SuiteSchedulingVerification
             return report;
         }
 
-        /// <summary>Describe exit.</summary>
         internal string DescribeExit()
         {
             process.WaitForExit();
@@ -258,7 +249,6 @@ internal static class SuiteSchedulingVerification
                     (unexpectedError.Length == 0 ? "" : Environment.NewLine + unexpectedError);
         }
 
-        /// <summary>Disposes.</summary>
         public void Dispose()
         {
             if (!process.HasExited)
@@ -270,7 +260,6 @@ internal static class SuiteSchedulingVerification
         }
     }
 
-    /// <summary>Renders contract command.</summary>
     [VerificationCommand("--render-contract")]
     internal static int RenderContractCommand()
     {
@@ -292,7 +281,6 @@ internal static class SuiteSchedulingVerification
     [VerificationCommand("--suite-worker")]
     internal static int SuiteWorkerCommand() => RunSuiteWorker(FullRunSuites());
 
-    /// <summary>Runs full suite.</summary>
     private static int RunFullSuite(bool serial)
     {
         Console.WriteLine("Verifying translated Super Metroid routines...");

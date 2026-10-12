@@ -8,7 +8,6 @@ internal abstract class RidleyExplosionInstructionProgramDefinitions
     /// <summary>The 29 native six-byte lists ending at $A6:CAEF.</summary>
     internal const int ProgramCount = 29;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - First;

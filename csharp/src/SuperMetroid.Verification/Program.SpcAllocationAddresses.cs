@@ -12,10 +12,8 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 
-/// <summary>Represents spc allocation addresses verification.</summary>
 internal static class SpcAllocationAddressesVerification
 {
-    /// <summary>Verifies spc allocation addresses.</summary>
     internal static void VerifySpcAllocationAddresses()
     {
         // Independent original kSomeAddrs and SpcPlayer member offsets from
@@ -36,7 +34,6 @@ internal static class SpcAllocationAddressesVerification
         }
     }
 
-    /// <summary>Runs the spc allocation addresses lookup command.</summary>
     [VerificationCommand("--lookup-spc-allocation-addresses")]
     internal static int LookupSpcAllocationAddressesCommand()
     {

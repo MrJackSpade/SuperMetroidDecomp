@@ -12,10 +12,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-/// <summary>Represents crocomire presentation1193 verification.</summary>
 internal static class CrocomirePresentation1193Verification
 {
-    /// <summary>Verifies crocomire presentation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
@@ -159,7 +157,6 @@ internal static class CrocomirePresentation1193Verification
         }
     }
 
-    /// <summary>Verifies crocomire spike compatibility.</summary>
     private static void VerifyCrocomireSpikeCompatibility(SuperMetroidRuntime runtime,
         ISnesAddressSpace bus, RoomFxAnimatedTileAtlas stock)
     {
@@ -201,14 +198,12 @@ internal static class CrocomirePresentation1193Verification
             "Absent legacy spike state restarts the current room's selected object");
     }
 
-    /// <summary>Crocomire spike animation command.</summary>
     [VerificationCommand("--crocomire-spike-animation")]
     internal static int CrocomireSpikeAnimationCommand()
     {
         return VerifyCrocomirePresentation(true);
     }
 
-    /// <summary>Crocomire comeback rumble command.</summary>
     [VerificationCommand("--crocomire-comeback-rumble")]
     internal static int CrocomireComebackRumbleCommand()
     {

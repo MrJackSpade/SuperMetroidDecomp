@@ -6,10 +6,8 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static YardInstructionProgramDefinitionsVerification;
 
-/// <summary>Represents yard visuals verification.</summary>
 internal static class YardVisualsVerification
 {
-    /// <summary>Verifies installed yard visuals.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Yard visuals")]
     internal static void VerifyInstalledYardVisuals(

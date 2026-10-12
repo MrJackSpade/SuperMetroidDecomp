@@ -13,10 +13,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents ridley acid verification.</summary>
 internal static class RidleyAcidVerification
 {
-    /// <summary>Verifies ridley acid.</summary>
     internal static void VerifyRidleyAcid()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -79,7 +77,6 @@ internal static class RidleyAcidVerification
         }
     }
 
-    /// <summary>Ridley acid command.</summary>
     [VerificationCommand("--ridley-acid")]
     internal static int RidleyAcidCommand()
     {

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents signed sine fixture verification.</summary>
 internal static class SignedSineFixtureVerification
 {
     /// <summary>

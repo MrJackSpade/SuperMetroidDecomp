@@ -22,21 +22,13 @@ internal static class YardDirectionDefinitions
     /// <summary>The eight mutually exclusive surface orientations at $A3:CD42.</summary>
     private enum SurfaceDirection : ushort
     {
-        /// <summary>Identifies upside right moving up.</summary>
         UpsideRightMovingUp,
-        /// <summary>Identifies upside right moving down.</summary>
         UpsideRightMovingDown,
-        /// <summary>Identifies upside left moving up.</summary>
         UpsideLeftMovingUp,
-        /// <summary>Identifies upside left moving down.</summary>
         UpsideLeftMovingDown,
-        /// <summary>Identifies upside down moving left.</summary>
         UpsideDownMovingLeft,
-        /// <summary>Identifies upside down moving right.</summary>
         UpsideDownMovingRight,
-        /// <summary>Identifies upside up moving left.</summary>
         UpsideUpMovingLeft,
-        /// <summary>Identifies upside up moving right.</summary>
         UpsideUpMovingRight,
     }
 

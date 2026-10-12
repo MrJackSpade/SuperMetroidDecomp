@@ -13,7 +13,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using static AssertionsVerification;
 
-/// <summary>Represents implicit scroll residue verification.</summary>
 internal static class ImplicitScrollResidueVerification
 {
     /// <summary>
@@ -42,7 +41,6 @@ internal static class ImplicitScrollResidueVerification
         Console.WriteLine("  Implicit scroll residue: $A7B3 keeps $A7DE's bytes past its six cells.");
     }
 
-    /// <summary>Implicit scroll residue command.</summary>
     [VerificationCommand("--implicit-scroll-residue")]
     internal static int ImplicitScrollResidueCommand()
     {

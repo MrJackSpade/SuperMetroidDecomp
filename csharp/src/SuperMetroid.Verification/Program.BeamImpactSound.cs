@@ -13,7 +13,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents beam impact sound verification.</summary>
 internal static class BeamImpactSoundVerification
 {
     /// <summary>
@@ -67,7 +66,6 @@ internal static class BeamImpactSoundVerification
         throw new InvalidOperationException("The beam never reached the wall at block 44.");
     }
 
-    /// <summary>beam impact sound command.</summary>
     [VerificationCommand("--beam-impact-sound")]
     internal static int BeamImpactSoundCommand()
     {

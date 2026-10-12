@@ -18,7 +18,6 @@ using static PaletteJsonContractsLegacyVerification;
 using static PaletteJsonContractsVisibleVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents palette json contracts verification.</summary>
 internal static class PaletteJsonContractsVerification
 {
     /// <summary>Finite source-inventoried palette formats; no gameplay or ROM-read discovery.</summary>
@@ -102,22 +101,18 @@ internal static class PaletteJsonContractsVerification
             "legacy overrides and exact visible palette/animation isolation.");
     }
 
-    /// <summary>Represents palette json contract.</summary>
     internal sealed record PaletteJsonContract(string Name, JsonObject Document, Action<Stream> Load,
         bool CaseInsensitive = false);
 
-    /// <summary>palette contract document.</summary>
     internal static JsonObject PaletteContractDocument(object document) => (JsonObject)JsonSerializer.SerializeToNode(
         document, document.GetType(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
 
-    /// <summary>load palette contract.</summary>
     private static void LoadPaletteContract(PaletteJsonContract contract, string json)
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json), writable: false);
         contract.Load(stream);
     }
 
-    /// <summary>mutate.</summary>
     private static string Mutate(JsonObject source, Action<JsonObject> mutation)
     {
         var copy = (JsonObject)source.DeepClone();
@@ -125,7 +120,6 @@ internal static class PaletteJsonContractsVerification
         return copy.ToJsonString();
     }
 
-    /// <summary>palette contract node.</summary>
     private static JsonNode? PaletteContractNode(JsonNode root, string[] path)
     {
         JsonNode? node = root;
@@ -133,7 +127,6 @@ internal static class PaletteJsonContractsVerification
         return node;
     }
 
-    /// <summary>set palette contract node.</summary>
     private static void SetPaletteContractNode(JsonNode root, string[] path, JsonNode? value)
     {
         JsonNode parent = PaletteContractNode(root, path[..^1])!;
@@ -141,7 +134,6 @@ internal static class PaletteJsonContractsVerification
         else parent[path[^1]] = value;
     }
 
-    /// <summary>palette contract array paths.</summary>
     private static IEnumerable<string[]> PaletteContractArrayPaths(JsonNode? node, string[]? path = null)
     {
         path ??= [];
@@ -155,7 +147,6 @@ internal static class PaletteJsonContractsVerification
                 foreach (string[] child in PaletteContractArrayPaths(pair.Value, [.. path, pair.Key])) yield return child;
     }
 
-    /// <summary>palette contract color paths.</summary>
     private static IEnumerable<string[]> PaletteContractColorPaths(JsonNode? node, string[]? path = null)
     {
         path ??= [];
@@ -169,7 +160,6 @@ internal static class PaletteJsonContractsVerification
             foreach (string[] child in PaletteContractColorPaths(array[0], [.. path, "0"])) yield return child;
     }
 
-    /// <summary>palette json contracts command.</summary>
     [VerificationCommand("--palette-json-contracts")]
     internal static int PaletteJsonContractsCommand()
     {

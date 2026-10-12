@@ -2,18 +2,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 
-/// <summary>Represents lookup mother brain mutation programs verification.</summary>
 internal static class LookupMotherBrainMutationProgramsVerification
 {
-    /// <summary>Verifies mother brain mutation program controls.</summary>
     internal static void VerifyMotherBrainMutationProgramControls(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, false));
 
-    /// <summary>Verifies mother brain mutation program draws.</summary>
     internal static void VerifyMotherBrainMutationProgramDraws(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, true));
 
-    /// <summary>Verifies mother brain mutation program field.</summary>
     private static void VerifyMotherBrainMutationProgramField(ISnesAddressSpace rom, bool draw)
     {
         // Independent original list starts, including the two unused row lists.
@@ -42,7 +38,6 @@ internal static class LookupMotherBrainMutationProgramsVerification
         }
     }
 
-    /// <summary>Mother brain mutation program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain mutation program field")]
     private static byte MotherBrainMutationProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

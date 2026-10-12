@@ -2,10 +2,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents xray extensions verification.</summary>
 internal static class XrayExtensionsVerification
 {
-    /// <summary>Verifies xray extensions.</summary>
     internal static void VerifyXrayExtensions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

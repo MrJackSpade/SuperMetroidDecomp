@@ -2,19 +2,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-/// <summary>Represents lookup scroll programs verification.</summary>
 internal static class LookupScrollProgramsVerification
 {
-    /// <summary>Verifies scroll program identities.</summary>
     internal static void VerifyScrollProgramIdentities(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,0);
-    /// <summary>Verifies scroll program indices.</summary>
     internal static void VerifyScrollProgramIndices(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,1);
-    /// <summary>Verifies scroll program states.</summary>
     internal static void VerifyScrollProgramStates(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,2);
-    /// <summary>Verifies scroll program termination.</summary>
     internal static void VerifyScrollProgramTermination(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,3);
 
-    /// <summary>Verifies scroll program field.</summary>
     private static void VerifyScrollProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Original generated owner at 8de735494b5027ed7ff3609760fd8ed982e96f08; expected operands come from ROM.
@@ -89,7 +83,6 @@ internal static class LookupScrollProgramsVerification
         AssertEqual(743,totalBytes,"Scroll original byte count");
     }
 
-    /// <summary>Scroll program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for scroll program field")]
     private static byte ScrollProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

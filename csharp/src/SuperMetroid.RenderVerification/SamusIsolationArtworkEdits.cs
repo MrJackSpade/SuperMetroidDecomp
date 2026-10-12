@@ -7,7 +7,6 @@ using SuperMetroid.Core.Game;
 /// <summary>Conspicuous, valid disk edits used only by the paired Samus isolation fixtures.</summary>
 internal static class SamusIsolationArtworkEdits
 {
-    /// <summary>write body.</summary>
     internal static void WriteBody(GameInstallation installation)
     {
         Edit(SamusBodyArtworkFiles.ManifestFileName, document =>
@@ -65,7 +64,6 @@ internal static class SamusIsolationArtworkEdits
         return (stock, compile(editedStream));
     }
 
-    /// <summary>shift.</summary>
     private static void Shift(JsonNode node, int amount, bool signed)
     {
         JsonArray values = node.AsArray();
@@ -76,7 +74,6 @@ internal static class SamusIsolationArtworkEdits
         }
     }
 
-    /// <summary>recolor words.</summary>
     private static void RecolorWords(JsonNode node)
     {
         JsonArray values = node.AsArray();
@@ -85,7 +82,6 @@ internal static class SamusIsolationArtworkEdits
             else values[index] = values[index]!.GetValue<int>() ^ 0x7fff;
     }
 
-    /// <summary>recolor rgb.</summary>
     private static void RecolorRgb(JsonNode node)
     {
         if (node is JsonObject record)

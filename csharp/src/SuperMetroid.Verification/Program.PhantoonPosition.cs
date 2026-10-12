@@ -13,10 +13,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents phantoon position verification.</summary>
 internal static class PhantoonPositionVerification
 {
-    /// <summary>Verifies phantoon position.</summary>
     internal static void VerifyPhantoonPosition()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -88,7 +86,6 @@ internal static class PhantoonPositionVerification
         Console.WriteLine($"  Phantoon: 1400 live/NMI/capture frames follow {positions.Count} distinct body positions.");
     }
 
-    /// <summary>Phantoon position command.</summary>
     [VerificationCommand("--phantoon-position")]
     internal static int PhantoonPositionCommand()
     {

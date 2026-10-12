@@ -7,10 +7,8 @@ using SuperMetroid.Core.Runtime;
 using static AttractInputFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents grapple demo trajectory verification.</summary>
 internal static class GrappleDemoTrajectoryVerification
 {
-    /// <summary>Verifies grapple demo trajectory.</summary>
     internal static void VerifyGrappleDemoTrajectory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

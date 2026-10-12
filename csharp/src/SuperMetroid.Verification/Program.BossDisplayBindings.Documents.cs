@@ -2,24 +2,17 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using static EnemyContentIdentityFixtureVerification;
 
-/// <summary>Represents boss display bindings documents verification.</summary>
 internal static class BossDisplayBindingsDocumentsVerification
 {
     /// <summary>Distinct authored poses let assertions detect using the physical frame by mistake.</summary>
     internal sealed class BossDisplayDocuments
     {
-        /// <summary>Stores json.</summary>
         private readonly EnemyIdentityFixture json = new();
-        /// <summary>Gets oam.</summary>
         internal EnemyExtendedFrameDocument Oam { get; }
-        /// <summary>Gets crocomire.</summary>
         internal EnemyBg2FrameDocument Crocomire { get; }
-        /// <summary>Gets phantoon.</summary>
         internal EnemyBg2FrameDocument Phantoon { get; }
-        /// <summary>Gets draygon.</summary>
         internal EnemyBg2FrameDocument Draygon { get; }
 
-        /// <summary>Initializes a new boss display documents instance.</summary>
         internal BossDisplayDocuments(bool edited)
         {
             Oam = json.ExtendedDocument();
@@ -39,14 +32,11 @@ internal static class BossDisplayBindingsDocumentsVerification
             Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, edited);
         }
 
-        /// <summary>Builds.</summary>
         internal EnemyTileArtworkCatalog Build(bool extended = true, byte? omitBg2Bank = null) => EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = extended ? EnemyExtendedFrameCatalog.Load(json.Json(Oam)) : null, CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitions.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitions.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) });
 
-        /// <summary>Selected.</summary>
         internal EnemyExtendedFrameDefinition Selected(EnemyExtendedFrameDefinition native) =>
             EnemyExtendedFrameDefinitions.Frames.ToArray().Single(frame => frame.Name == Oam.DisplayFrames![native.Name]);
 
-        /// <summary>Writes.</summary>
         internal EnemyBg2WriteDocument[] Writes(byte bank, ushort pointer)
         {
             (EnemyBg2FrameDocument Document, EnemyBg2FrameDefinition[] Definitions) family = bank switch
@@ -61,7 +51,6 @@ internal static class BossDisplayBindingsDocumentsVerification
             return [];
         }
 
-        /// <summary>Families.</summary>
         internal static IEnumerable<(EnemyDefinitionId Definition, EnemyExtendedFrameDefinition[] Frames)> Families()
         {
             EnemyExtendedFrameDefinition[] all = EnemyExtendedFrameDefinitions.Frames.ToArray();
@@ -73,7 +62,6 @@ internal static class BossDisplayBindingsDocumentsVerification
                 (frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal) || frame.Name.StartsWith("draygon_bg2_", StringComparison.Ordinal))).ToArray());
         }
 
-        /// <summary>bg2.</summary>
         private static EnemyBg2FrameDocument Bg2(EnemyBg2FrameDefinitionSequence definitions, bool edited) => new()
         {
             Version = 1,

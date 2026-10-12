@@ -20,7 +20,6 @@ using static EndingMode7ArtworkVerification;
 using static EndingObjectArtworkVerification;
 using static EndingPaletteArtworkVerification;
 
-/// <summary>Represents intro artwork post slices verification.</summary>
 internal static class IntroArtworkPostSlicesVerification
 {
     /// <summary>
@@ -48,7 +47,6 @@ internal static class IntroArtworkPostSlicesVerification
         }
     }
 
-    /// <summary>intro artwork post slices command.</summary>
     [VerificationCommand("--intro-artwork-post-slices")]
     internal static int IntroArtworkPostSlicesCommand()
     {

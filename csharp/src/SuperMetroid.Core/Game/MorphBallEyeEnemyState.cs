@@ -26,10 +26,8 @@ public enum MorphBallEyeAiFunction : ushort
 /// </summary>
 public sealed class MorphBallEyeEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new morph ball eye enemy state instance.</summary>
     internal MorphBallEyeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>
@@ -118,7 +116,6 @@ public sealed class MorphBallEyeBeamState
     /// <summary>Raw SNES COLDATA blue selector/component byte.</summary>
     public byte Blue { get; internal set; } = 0x80;
 
-    /// <summary>Resets.</summary>
     internal void Reset()
     {
         Phase = MorphBallEyeBeamPhase.Inactive;

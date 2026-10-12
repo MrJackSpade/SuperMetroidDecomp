@@ -22,10 +22,8 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
 
     /// <summary>$84:B927-$B92F: Samus must be strictly right of X $F0 and below Y $820.</summary>
     internal const ushort WakeTargetX = 0x00f0;
-    /// <summary>Defines wake target y.</summary>
     internal const ushort WakeTargetY = 0x0820;
 
-    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch

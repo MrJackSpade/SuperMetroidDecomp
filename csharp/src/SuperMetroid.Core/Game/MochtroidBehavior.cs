@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,16 +7,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Mochtroid species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MochtroidBehavior : IEnemySpecies
 {
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Initializes a new mochtroid behavior instance.</summary>
     internal MochtroidBehavior(EnemyTerrain terrain, EnemyAudioQueue audio, EnemyFrameContext frameContext, EnemyCollision collision)
     {
         _terrain = terrain;
@@ -25,14 +20,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         _collision = collision;
     }
 
-    /// <summary>Stores mochtroid attachment damage period.</summary>
     private const ushort MochtroidAttachmentDamagePeriod = 0x0050;
-    /// <summary>Stores mochtroid maximum velocity.</summary>
     private const int MochtroidMaximumVelocity = 3;
-    /// <summary>Stores mochtroid attached velocity.</summary>
     private const int MochtroidAttachedVelocity = 1 << 16;
 
-    /// <summary>Stores mochtroid states.</summary>
     internal readonly MochtroidEnemyState?[] _mochtroidStates =
         new MochtroidEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -86,7 +77,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Runs mochtroid free flight.</summary>
     private void RunMochtroidFreeFlight(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -117,7 +107,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies
             slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
-    /// <summary>Clamp mochtroid velocity.</summary>
     private static int ClampMochtroidVelocity(int velocity)
     {
         short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
@@ -128,7 +117,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         return velocity;
     }
 
-    /// <summary>Runs mochtroid attached flight.</summary>
     private void RunMochtroidAttachedFlight(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -154,7 +142,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         _terrain.MoveEnemyVertically(level, slot, yVelocity);
     }
 
-    /// <summary>Runs mochtroid shake.</summary>
     private static void RunMochtroidShake(RoomEnemySlot slot, MochtroidEnemyState state)
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
@@ -170,19 +157,16 @@ internal sealed class MochtroidBehavior : IEnemySpecies
             slot, state, MochtroidInstructionProgramDefinitions.FreeFlight);
     }
 
-    /// <summary>Store mochtroid xvelocity.</summary>
     private static void StoreMochtroidXVelocity(MochtroidEnemyState state, int velocity)
     {
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromRaw(velocity));
     }
 
-    /// <summary>Store mochtroid yvelocity.</summary>
     private static void StoreMochtroidYVelocity(MochtroidEnemyState state, int velocity)
     {
         state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromRaw(velocity));
     }
 
-    /// <summary>Sets mochtroid instruction list.</summary>
     internal static void SetMochtroidInstructionList(
         RoomEnemySlot slot,
         MochtroidEnemyState state,
@@ -255,12 +239,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         samus.KnockbackTimer = 0;
     }
 
-    /// <summary>Requires mochtroid state.</summary>
     private MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>
         _mochtroidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mochtroid state.");
 
-    /// <summary>Registers mochtroid initialization ai.</summary>
     internal void RegisterMochtroidInitializationAi(EnemyAiTable table)
     {
 
@@ -270,7 +252,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers mochtroid main ai.</summary>
     internal void RegisterMochtroidMainAi(EnemyAiTable table)
     {
 
@@ -280,7 +261,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers mochtroid touch.</summary>
     internal void RegisterMochtroidTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&
@@ -299,7 +279,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies
     {
     }
 
-    /// <summary>Registers mochtroid shot reactions.</summary>
     internal static void RegisterMochtroidShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&

@@ -11,20 +11,13 @@ using SuperMetroid.Core.Rooms;
 /// </summary>
 internal sealed class InstalledSamusIsolationTests
 {
-    /// <summary>Stores artwork.</summary>
     private readonly InstalledSamusArtworkFixture artwork;
-    /// <summary>Stores suits.</summary>
     private readonly (SamusSuitColorCatalog Stock, SamusSuitColorCatalog Edited) suits;
-    /// <summary>Stores cycles.</summary>
     private readonly (SamusFullBodyCycleColorCatalog Stock, SamusFullBodyCycleColorCatalog Edited) cycles;
-    /// <summary>Stores crystal.</summary>
     private readonly (CrystalFlashColorCatalog Stock, CrystalFlashColorCatalog Edited) crystal;
-    /// <summary>Stores beams.</summary>
     private readonly BeamPaletteCatalog beams;
-    /// <summary>Stores comparisons.</summary>
     private int comparisons, draws, changedOam, changedTiles, changedColors, scenarios;
 
-    /// <summary>Initializes a new installed samus isolation tests instance.</summary>
     private InstalledSamusIsolationTests(InstalledSamusArtworkFixture artwork, string root)
     {
         this.artwork = artwork;
@@ -39,7 +32,6 @@ internal sealed class InstalledSamusIsolationTests
         beams = BeamPaletteCatalog.Load(stream);
     }
 
-    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run(InstalledSamusArtworkFixture artwork, string root)
     {
         var tests = new InstalledSamusIsolationTests(artwork, root);
@@ -55,7 +47,6 @@ internal sealed class InstalledSamusIsolationTests
             $"{tests.changedColors} changed CGRAM observations. No ROM, import or player data is used.");
     }
 
-    /// <summary>create.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private Pair Create(SamusPoseId pose = SamusPoseId.FacingRightNormalPose,
         ushort equipment = 0, SamusLiquidMedium medium = SamusLiquidMedium.Air, bool lowCeiling = false)
@@ -64,29 +55,18 @@ internal sealed class InstalledSamusIsolationTests
         return new Pair(this, pose, equipment, medium, lowCeiling);
     }
 
-    /// <summary>Represents actor.</summary>
     private sealed class Actor
     {
-        /// <summary>Stores memory.</summary>
         internal readonly SuperMetroidAddressSpace Memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        /// <summary>Stores samus.</summary>
         internal readonly SamusState Samus;
-        /// <summary>Stores level.</summary>
         internal readonly RoomLevelData Level;
-        /// <summary>Stores colors.</summary>
         internal readonly SnesCgram Colors = new();
-        /// <summary>Stores tiles.</summary>
         internal readonly SnesVram Tiles = new();
-        /// <summary>Stores body.</summary>
         internal readonly SamusBodyArtworkCatalog Body;
-        /// <summary>Stores suits.</summary>
         internal readonly SamusSuitColorCatalog Suits;
-        /// <summary>Stores cycles.</summary>
         internal readonly SamusFullBodyCycleColorCatalog Cycles;
-        /// <summary>Stores crystal.</summary>
         internal readonly CrystalFlashColorCatalog Crystal;
 
-        /// <summary>Initializes a new actor instance.</summary>
         internal Actor(InstalledSamusIsolationTests tests, bool edited, SamusPoseId pose,
             ushort equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
@@ -117,16 +97,11 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
-    /// <summary>Represents pair.</summary>
     private sealed class Pair
     {
-        /// <summary>Stores tests.</summary>
         private readonly InstalledSamusIsolationTests tests;
-        /// <summary>Gets stock.</summary>
         internal Actor Stock { get; }
-        /// <summary>Gets edited.</summary>
         internal Actor Edited { get; }
-        /// <summary>Initializes a new pair instance.</summary>
         internal Pair(InstalledSamusIsolationTests tests, SamusPoseId pose,
             ushort equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
@@ -136,7 +111,6 @@ internal sealed class InstalledSamusIsolationTests
             Check("initialization");
         }
 
-        /// <summary>apply.</summary>
         internal void Apply(string context, Action<Actor> operation, bool draw = true)
         {
             operation(Stock); operation(Edited);
@@ -144,7 +118,6 @@ internal sealed class InstalledSamusIsolationTests
             if (draw) Draw(context);
         }
 
-        /// <summary>apply.</summary>
         internal T Apply<T>(string context, Func<Actor, T> operation, bool draw = true)
         {
             T expected = operation(Stock), actual = operation(Edited);
@@ -154,7 +127,6 @@ internal sealed class InstalledSamusIsolationTests
             return expected;
         }
 
-        /// <summary>check.</summary>
         internal void Check(string context)
         {
             new SamusMechanicsSnapshot(Stock.Samus).RequireSame(new(Edited.Samus), context);
@@ -166,7 +138,6 @@ internal sealed class InstalledSamusIsolationTests
             if (!new CgramPalettes(Stock.Colors).ImageEquals(new CgramPalettes(Edited.Colors))) tests.changedColors++;
         }
 
-        /// <summary>draw.</summary>
         [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
         internal void Draw(string context, ushort frame = 0)
         {
@@ -191,10 +162,8 @@ internal sealed class InstalledSamusIsolationTests
     }
 
     // Geometry belongs only to this constructed room, not to any cartridge definition.
-    /// <summary>Defines room width.</summary>
     private const int RoomWidth = 32, RoomHeight = 32, FloorRow = 24, FloorY = FloorRow * 16;
 
-    /// <summary>check snapshot sensitivity.</summary>
     private static void CheckSnapshotSensitivity()
     {
         var samus = InstalledFixtures.CreateSamus();
@@ -223,7 +192,6 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
-    /// <summary>Throws when the asserted condition is false.</summary>
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }
 
@@ -271,7 +239,6 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {context}: {frames} matching fall calls plus stand/crouch/release animation; edited draw offsets stay cosmetic.");
     }
 
-    /// <summary>check movement.</summary>
     private void CheckMovement()
     {
         foreach (SamusLiquidMedium medium in new[] { SamusLiquidMedium.Air,
@@ -331,7 +298,6 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
-    /// <summary>check jump.</summary>
     private void CheckJump(SamusLiquidMedium medium, bool left, bool highJump)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
@@ -360,7 +326,6 @@ internal sealed class InstalledSamusIsolationTests
         Require(landed && minimumY < startY, label + ": must rise and collide with the floor, not merely stay equal");
     }
 
-    /// <summary>check posture.</summary>
     private void CheckPosture(SamusLiquidMedium medium, bool left)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
@@ -380,7 +345,6 @@ internal sealed class InstalledSamusIsolationTests
         CompleteAnimation(pair, left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose, label + " unmorphing");
     }
 
-    /// <summary>check pose collision.</summary>
     private void CheckPoseCollision()
     {
         foreach (bool blocked in new[] { false, true })
@@ -395,14 +359,12 @@ internal sealed class InstalledSamusIsolationTests
         }
     }
 
-    /// <summary>animate.</summary>
     private static void Animate(Actor actor, ushort frame)
     {
         actor.Samus.Presentation.AnimateNoFx(actor.Memory, new SamusAnimationStep { NmiFrameCounter = frame });
         if (actor.Samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(actor.Memory)) actor.Samus.CommitPoseHistory(actor.Memory);
     }
 
-    /// <summary>complete animation.</summary>
     private static void CompleteAnimation(Pair pair, SamusPoseId target, string context)
     {
         for (ushort frame = 0; frame < 120 && pair.Stock.Samus.Pose != target; frame++)
@@ -414,10 +376,8 @@ internal sealed class InstalledSamusIsolationTests
         Require(pair.Stock.Samus.Pose == target, context + ": authored animation transition did not finish");
     }
 
-    /// <summary>Defines flash chord.</summary>
     private const ushort FlashChord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
 
-    /// <summary>check special sequences.</summary>
     private void CheckSpecialSequences()
     {
         foreach (bool left in new[] { false, true }) CheckCrystalFlash(left);
@@ -435,7 +395,6 @@ internal sealed class InstalledSamusIsolationTests
         foreach (bool left in new[] { false, true }) CheckDrained(left);
     }
 
-    /// <summary>prepare flash.</summary>
     private static SamusState PrepareFlash(SamusState samus)
     {
         samus.Health = 1; samus.MaxHealth = 1599;
@@ -443,7 +402,6 @@ internal sealed class InstalledSamusIsolationTests
         return samus;
     }
 
-    /// <summary>check crystal flash.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private void CheckCrystalFlash(bool left)
     {
@@ -488,7 +446,6 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {context}: {frames} identical movement/animation/palette calls; all thirty ammo drains and release verified.");
     }
 
-    /// <summary>check stored shine.</summary>
     private void CheckStoredShine()
     {
         Pair pair = Create();
@@ -502,7 +459,6 @@ internal sealed class InstalledSamusIsolationTests
             "Edited stored-shine colors must retain the 180-call expiration");
     }
 
-    /// <summary>check shinespark.</summary>
     private void CheckShinespark(SamusPoseId target)
     {
         bool left = ((int)target & 1) == 0;
@@ -541,7 +497,6 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {context}: 29 windup calls and {frames} identical launch/crash/release calls.");
     }
 
-    /// <summary>check suit pickup.</summary>
     private void CheckSuitPickup(SamusSuitPickupKind kind)
     {
         Pair pair = Create();
@@ -565,7 +520,6 @@ internal sealed class InstalledSamusIsolationTests
         Console.WriteLine($"  {kind} suit: {frames} identical stage/window/pose/control calls; edited suit colors applied.");
     }
 
-    /// <summary>check death.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private void CheckDeath(SamusPoseId source, ushort suit)
     {
@@ -604,7 +558,6 @@ internal sealed class InstalledSamusIsolationTests
             context + ": death must retain its exact 16+60+135 call lifetime");
     }
 
-    /// <summary>check reserve.</summary>
     private void CheckReserve()
     {
         Pair pair = Create();
@@ -625,13 +578,10 @@ internal sealed class InstalledSamusIsolationTests
             !pair.Stock.Samus.InputLocked, "Reserve recovery failed to refill and release");
     }
 
-    /// <summary>Represents death assets.</summary>
     private sealed class DeathAssets(SamusDeathTileAtlas tiles) : IVramAssetProvider, IInstalledArtworkTransferSource
     {
-        /// <summary>try resolve.</summary>
         public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
             tiles.TryResolve(sourceAddress, byteCount, out data);
-        /// <summary>resolve.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException("Death fixture received an unrelated typed asset " + asset);
     }

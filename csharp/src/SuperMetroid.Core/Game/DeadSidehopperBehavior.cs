@@ -7,25 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The dead sidehopper species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DeadSidehopperBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
 
-    /// <summary>Stores dead monsters.</summary>
     private readonly DeadMonsterFrame _deadMonsters;
 
-    /// <summary>Initializes a new dead sidehopper behavior instance.</summary>
     internal DeadSidehopperBehavior(DeadSidehopperBehaviorDependencies dependencies)
     {
         _deadMonsters = dependencies.DeadMonsters;
@@ -60,20 +51,14 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines dead monster solid property.</summary>
     private const ushort DeadMonsterSolidProperty = 0x8000;
-    /// <summary>Defines dead monster interaction rejected property.</summary>
     internal const ushort DeadMonsterInteractionRejectedProperty = 0x0400;
 
-    /// <summary>Stores dead sidehopper states.</summary>
     internal readonly DeadSidehopperEnemyState?[] _deadSidehopperStates =
         new DeadSidehopperEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Stores dead sidehopper level.</summary>
     private RoomLevelData? _deadSidehopperLevel;
-    /// <summary>Stores dead sidehopper camera x.</summary>
     private ushort _deadSidehopperCameraX;
 
-    /// <summary>reset dead sidehopper room state.</summary>
     internal void ResetDeadSidehopperRoomState()
     {
         Array.Clear(_deadSidehopperStates);
@@ -82,7 +67,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         _deadSidehopperCameraX = 0;
     }
 
-    /// <summary>begin dead sidehopper frame.</summary>
     internal void BeginDeadSidehopperFrame()
     {
         _deadMonsters.Clear();
@@ -152,7 +136,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
 
-    /// <summary>initialize dead sidehopper corpse state.</summary>
     private DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(
         RoomEnemySlot slot,
         ushort graphicsVariant,
@@ -185,7 +168,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         DispatchDeadSidehopperState(slot, state, samus, level, cameraX);
     }
 
-    /// <summary>dispatch dead sidehopper state.</summary>
     internal void DispatchDeadSidehopperState(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
@@ -319,7 +301,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
             verticalDisplacement);
     }
 
-    /// <summary>move dead sidehopper axis direct.</summary>
     private static void MoveDeadSidehopperAxisDirect(
         RoomEnemySlot slot,
         bool horizontal,
@@ -340,7 +321,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>require dead sidehopper level.</summary>
     private static RoomLevelData RequireDeadSidehopperLevel(RoomLevelData? level) =>
         level ?? throw new InvalidDataException(
             "Dead sidehopper crossed into terrain-driven movement without room level data.");
@@ -445,7 +425,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
             _deadSidehopperCameraX);
     }
 
-    /// <summary>trigger dead sidehopper rotting.</summary>
     private static void TriggerDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
@@ -455,7 +434,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
             EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
 
-    /// <summary>run dead sidehopper rotting.</summary>
     private void RunDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
@@ -472,7 +450,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         BuildDeadSidehopperVramTransfers(state);
     }
 
-    /// <summary>initialize dead sidehopper graphics.</summary>
     internal void InitializeDeadSidehopperGraphics(ushort graphicsVariant)
     {
         ReadOnlySpan<byte> installedTiles = _deadMonsters.InstalledCorpseTiles();
@@ -491,7 +468,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>copy or move dead sidehopper pixel row.</summary>
     internal void CopyOrMoveDeadSidehopperPixelRow(
         DeadSidehopperEnemyState state,
         ushort yOffset,
@@ -527,7 +503,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>finish dead sidehopper corpse row.</summary>
     private void FinishDeadSidehopperCorpseRow(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
@@ -544,11 +519,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
             _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust.Value;
     }
 
-    /// <summary>build dead sidehopper vram transfers.</summary>
     private void BuildDeadSidehopperVramTransfers(DeadSidehopperEnemyState state) =>
         _deadMonsters.AppendVramTransfers(state.VramTablePointer);
 
-    /// <summary>queue dead sidehopper frame vram transfers.</summary>
     [PpuLayoutBoundary("codec: staged dead-monster corpse DMA records' native destinations")]
     internal void QueueDeadSidehopperFrameVramTransfers(VramWriteQueue? queue)
     {
@@ -563,7 +536,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>set dead sidehopper instruction.</summary>
     internal static void SetDeadSidehopperInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -571,7 +543,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>require dead sidehopper state.</summary>
     private DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = _deadSidehopperStates[slot.SlotIndex] ??
@@ -594,7 +565,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         BeginDeadSidehopperFrame();
     }
 
-    /// <summary>register dead sidehopper bomb reactions.</summary>
     internal void RegisterDeadSidehopperBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
@@ -602,7 +572,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
             c => ResolveDeadSidehopperShot(c.Enemy));
     }
 
-    /// <summary>register dead sidehopper initialization ai.</summary>
     internal void RegisterDeadSidehopperInitializationAi(EnemyAiTable table)
     {
 
@@ -612,7 +581,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead sidehopper main ai.</summary>
     internal void RegisterDeadSidehopperMainAi(EnemyAiTable table)
     {
 
@@ -622,7 +590,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead sidehopper owned instructions.</summary>
     internal void RegisterDeadSidehopperOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -632,7 +599,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead sidehopper power bomb reactions.</summary>
     internal void RegisterDeadSidehopperPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
@@ -642,7 +608,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead sidehopper shot reactions.</summary>
     internal void RegisterDeadSidehopperShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
@@ -659,7 +624,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register dead sidehopper touch.</summary>
     internal void RegisterDeadSidehopperTouch(EnemyAiTable table)
     {
         // Before Shitroid finishes feeding, `$A9:DD44` uses normal contact damage without a death animation. At

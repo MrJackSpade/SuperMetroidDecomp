@@ -8,9 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable, ROM-independent projectile visual compositions; no damage, collision or timing fields.</summary>
 public sealed class ProjectileSpriteCatalog
 {
-    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
-    /// <summary>Initializes a new projectile sprite catalog instance.</summary>
     private ProjectileSpriteCatalog(Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
 
     /// <summary>Emits one installed projectile composition in authored OAM order using native projectile coordinate wrapping, without advancing animation or collision state.</summary>
@@ -38,7 +36,6 @@ public sealed class ProjectileSpriteCatalog
 
     // Charge flares use the same native part format but have a separate required
     // identity set, so existing projectile overrides remain compatible.
-    /// <summary>Loads frames.</summary>
     internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
     {
         int requiredCount = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
@@ -119,7 +116,6 @@ public sealed class ProjectileSpriteCatalog
         return new(frames);
     }
 
-    /// <summary>Reject duplicate properties.</summary>
     private static void RejectDuplicateProperties(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate projectile composition property {name}."));

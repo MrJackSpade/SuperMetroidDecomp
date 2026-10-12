@@ -15,7 +15,6 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents baby metroid death explosion sound verification.</summary>
 internal static class BabyMetroidDeathExplosionSoundVerification
 {
     /// <summary>
@@ -66,7 +65,6 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         Console.WriteLine("  Escape explosion sounds: Baby Metroid's in library three, Mother Brain's dust and door in library two.");
     }
 
-    /// <summary>Baby metroid death explosion sound command.</summary>
     [VerificationCommand("--baby-metroid-death-explosion-sound")]
     internal static int BabyMetroidDeathExplosionSoundCommand()
     {

@@ -43,10 +43,8 @@ internal static class ChozoStatuePlmProgramDefinitions
         BlockSlope,
     }
 
-    /// <summary>Stores program lists.</summary>
     private static readonly ProgramList[] ProgramLists = Enum.GetValues<ProgramList>();
 
-    /// <summary>start of.</summary>
     private static ushort StartOf(ProgramList list) => list switch
     {
         ProgramList.CrumblePlug => CrumblePlugStart,
@@ -56,7 +54,6 @@ internal static class ChozoStatuePlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(ProgramList)} {(int)list}."),
     };
 
-    /// <summary>end of.</summary>
     private static ushort EndOf(ProgramList list) => list switch
     {
         ProgramList.CrumblePlug => CrumblePlugEnd,
@@ -66,7 +63,6 @@ internal static class ChozoStatuePlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(ProgramList)} {(int)list}."),
     };
 
-    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -75,7 +71,6 @@ internal static class ChozoStatuePlmProgramDefinitions
         value = (ushort)(SnesLittleEndian.Word(ByteAt(list, offset), ByteAt(list, offset + 1)));
         return true;
     }
-    /// <summary>try read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -83,7 +78,6 @@ internal static class ChozoStatuePlmProgramDefinitions
         value = ByteAt(list, address - StartOf(list));
         return true;
     }
-    /// <summary>try locate.</summary>
     private static bool TryLocate(ushort address, out ProgramList list)
     {
         foreach (ProgramList candidate in ProgramLists)
@@ -97,7 +91,6 @@ internal static class ChozoStatuePlmProgramDefinitions
         list = default;
         return false;
     }
-    /// <summary>byte at.</summary>
     private static byte ByteAt(ProgramList list, int offset) =>
         (byte)(WordAt(list, offset & ~1) >> ((offset & 1) * 8));
 

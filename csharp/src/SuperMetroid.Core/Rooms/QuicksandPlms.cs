@@ -1,14 +1,12 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Quicksand reaction PLMs and the allocation-full check their spawns depend on.</summary>
 internal sealed class QuicksandPlms
 {
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
-    /// <summary>Initializes a new quicksand plms instance.</summary>
     internal QuicksandPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;

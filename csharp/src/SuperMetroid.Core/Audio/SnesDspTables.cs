@@ -44,7 +44,6 @@ internal static class SnesDspTables
             (ushort)(tap2 * scale + .5), (ushort)(tap3 * scale + .5));
     }
 
-    /// <summary>Gaussian raw.</summary>
     private static double GaussianRaw(int index)
     {
         double k = 511.5 - index;

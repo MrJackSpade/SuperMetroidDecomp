@@ -8,7 +8,6 @@ using static LibraryBackgroundProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents room background library parity verification.</summary>
 internal static class RoomBackgroundLibraryParityVerification
 {
     /// <summary>
@@ -31,7 +30,6 @@ internal static class RoomBackgroundLibraryParityVerification
                 $"library background $8F:{listPointer:X4} WRAM byte {offset}");
     }
 
-    /// <summary>Verifies library background installed parity.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom, GameInstallation installed)
@@ -188,12 +186,10 @@ internal static class RoomBackgroundLibraryParityVerification
             "installed-art binding retains WRAM background transfer high byte");
     }
 
-    /// <summary>Creates library background unknown list read guard.</summary>
     private static CartridgeReadGuard NewLibraryBackgroundUnknownListReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x8ff000 and <= 0x8fffff,
             address => $"Installed background interpreted unknown list at ${address:X6}.");
 
-    /// <summary>Creates library background visual read guard.</summary>
     private static MutableCartridgeReadGuard NewLibraryBackgroundVisualReadGuard(
         ISnesAddressSpace source, IReadOnlyList<LibraryBackgroundSource> entries)
     {

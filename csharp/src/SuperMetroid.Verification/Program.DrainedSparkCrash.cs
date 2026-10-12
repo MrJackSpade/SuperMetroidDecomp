@@ -13,7 +13,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents drained spark crash verification.</summary>
 internal static class DrainedSparkCrashVerification
 {
     /// <summary>
@@ -54,7 +53,6 @@ internal static class DrainedSparkCrashVerification
         Console.WriteLine("  Drained spark crash: the crash keeps its handler through the drain and stands Samus up.");
     }
 
-    /// <summary>drained spark crash command.</summary>
     [VerificationCommand("--drained-spark-crash")]
     internal static int DrainedSparkCrashCommand()
     {

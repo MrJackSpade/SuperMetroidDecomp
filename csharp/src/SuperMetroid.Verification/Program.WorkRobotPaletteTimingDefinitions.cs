@@ -16,10 +16,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents work robot palette timing definitions verification.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification
 {
-    /// <summary>Verifies work robot palette timing definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot palette timing definitions")]
     internal static void VerifyWorkRobotPaletteTimingDefinitions(
@@ -140,7 +138,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             "the complete 193-call edited-color production cycle pass with ROM reads forbidden.");
     }
 
-    /// <summary>Creates work robot palette timing read guard.</summary>
     private static CartridgeReadGuard NewWorkRobotPaletteTimingReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
@@ -164,7 +161,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             },
             address => $"Work Robot palette handler attempted control read ${address:X6}.");
 
-    /// <summary>Work robot palette timing definitions command.</summary>
     [VerificationCommand("--work-robot-palette-timing-definitions")]
     internal static int WorkRobotPaletteTimingDefinitionsCommand()
     {

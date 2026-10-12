@@ -16,17 +16,14 @@ using SuperMetroid.Core.Spatial;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ki hunter acid spit instruction program definitions verification.</summary>
 internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies ki hunter acid spit instruction program definitions.</summary>
     internal static void VerifyKiHunterAcidSpitInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKiHunterAcidSpitInstructionProgramDefinitions), () => VerifyKiHunterAcidSpitInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies ki hunter acid spit instruction program definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyKiHunterAcidSpitInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -180,7 +177,6 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes ki hunter acid spit instruction mechanics allocation.</summary>
     private static int ProbeKiHunterAcidSpitInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -194,7 +190,6 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Creates ki hunter acid spit instruction guard.</summary>
     private static CartridgeReadGuard NewKiHunterAcidSpitInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -203,7 +198,6 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
                 address => $"Production read compiled KiHunter acid mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount, KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Kihunter acid spit instruction mechanics command.</summary>
     [VerificationCommand("--kihunter-acid-spit-instruction-mechanics")]
     internal static int KihunterAcidSpitInstructionMechanicsCommand()
     {

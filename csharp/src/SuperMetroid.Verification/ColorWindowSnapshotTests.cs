@@ -15,10 +15,8 @@ using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents color window snapshot tests verification.</summary>
 internal static class ColorWindowSnapshotTestsVerification
 {
-    /// <summary>verify color window snapshots.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyColorWindowSnapshots()
     {
@@ -113,7 +111,6 @@ internal static class ColorWindowSnapshotTestsVerification
         }
     }
 
-    /// <summary>color window fixture command.</summary>
     [VerificationCommand("--color-window-fixture")]
     internal static int ColorWindowFixtureCommand()
     {

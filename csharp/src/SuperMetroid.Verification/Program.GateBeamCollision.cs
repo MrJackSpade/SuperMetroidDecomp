@@ -15,10 +15,8 @@ using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 using static WaveDoorBandsVerification;
 
-/// <summary>Represents gate beam collision verification.</summary>
 internal static class GateBeamCollisionVerification
 {
-    /// <summary>Verifies kronic gate beam collision.</summary>
     internal static void VerifyKronicGateBeamCollision()
     {
         Suite(nameof(VerifyGateScanTermination), () => VerifyGateScanTermination());
@@ -49,7 +47,6 @@ internal static class GateBeamCollisionVerification
         Console.WriteLine("PASS Kronic Boost native initial gate-beam impact and no switch activation.");
     }
 
-    /// <summary>Verifies gate scan termination.</summary>
     private static void VerifyGateScanTermination()
     {
         // Two adjacent gate probes make an unwanted second scan observable as a
@@ -81,7 +78,6 @@ internal static class GateBeamCollisionVerification
         }
     }
 
-    /// <summary>Gate beam collision command.</summary>
     [VerificationCommand("--gate-beam-collision")]
     internal static int GateBeamCollisionCommand()
     {

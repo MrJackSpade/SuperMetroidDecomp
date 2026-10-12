@@ -7,10 +7,8 @@ using static DoorDefinitionsVerification;
 using static LookupFxTilemapSourcesVerification;
 using static TilemapJsonContractsVerification;
 
-/// <summary>Represents lookup fx tilemap dispatch verification.</summary>
 internal static class LookupFxTilemapDispatchVerification
 {
-    /// <summary>Verifies fx tilemap page dispatch.</summary>
     internal static void VerifyFxTilemapPageDispatch(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         var native = new Dictionary<RoomFxType, byte[]>();
@@ -77,7 +75,6 @@ internal static class LookupFxTilemapDispatchVerification
         }
     }
 
-    /// <summary>Fx tilemap page dispatch rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for FX tilemap page dispatch")]
     private static byte FxTilemapPageDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

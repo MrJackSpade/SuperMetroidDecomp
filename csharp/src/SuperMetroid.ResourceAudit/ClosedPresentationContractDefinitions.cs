@@ -2,7 +2,6 @@ namespace SuperMetroid.ResourceAudit;
 
 /// <summary>A source file that declares or implements a closed provider.</summary>
 internal sealed record ReviewedSource(string Path);
-/// <summary>Represents closed presentation contract.</summary>
 internal sealed record ClosedPresentationContract(string Type, string Rule, string[] Methods,
     ReviewedSource[] Sources);
 
@@ -13,7 +12,6 @@ internal sealed record ClosedPresentationContract(string Type, string Rule, stri
 /// </summary>
 internal static class ClosedPresentationContractDefinitions
 {
-    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         .. MenuClosedPresentationContractDefinitions.All,

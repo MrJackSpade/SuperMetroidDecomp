@@ -13,10 +13,8 @@ using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents load station definitions verification.</summary>
 internal static class LoadStationDefinitionsVerification
 {
-    /// <summary>Verifies compiled load station definitions.</summary>
     internal static void VerifyCompiledLoadStationDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -32,7 +30,6 @@ internal static class LoadStationDefinitionsVerification
         Console.WriteLine("Load stations: all134 original records, seven area lengths, six placement fields and complete byte area/station bounds pass.");
     }
 
-    /// <summary>Original load station count.</summary>
     private static int OriginalLoadStationCount(SuperMetroidAddressSpace rom, int area)
     {
         // Original pointer table includes the debug-list start after Ceres; that
@@ -43,7 +40,6 @@ internal static class LoadStationDefinitionsVerification
         return (end - start) / 14;
     }
 
-    /// <summary>Verifies load station domain.</summary>
     private static void VerifyLoadStationDomain(SuperMetroidAddressSpace rom)
     {
         int total = 0;
@@ -71,20 +67,13 @@ internal static class LoadStationDefinitionsVerification
         AssertEqual(134, total, "All original retail station slots");
     }
 
-    /// <summary>Verifies load station room pointer.</summary>
     private static void VerifyLoadStationRoomPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.RoomPointer, "RoomPointer");
-    /// <summary>Verifies load station door pointer.</summary>
     private static void VerifyLoadStationDoorPointer(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.DoorPointer, "DoorPointer");
-    /// <summary>Verifies load station camera x.</summary>
     private static void VerifyLoadStationCameraX(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.X, "CameraX");
-    /// <summary>Verifies load station camera y.</summary>
     private static void VerifyLoadStationCameraY(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.CameraPosition.Y, "CameraY");
-    /// <summary>Verifies load station samus yoffset.</summary>
     private static void VerifyLoadStationSamusYOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusOffset.Y, "SamusYOffset");
-    /// <summary>Verifies load station samus xoffset.</summary>
     private static void VerifyLoadStationSamusXOffset(SuperMetroidAddressSpace rom) => VerifyLoadStationField(rom, entry => entry.SamusOffset.X, "SamusXOffset");
 
-    /// <summary>Verifies load station field.</summary>
     private static void VerifyLoadStationField(SuperMetroidAddressSpace rom,
         Func<LoadStationEntry, int> field, string name)
     {
@@ -106,7 +95,6 @@ internal static class LoadStationDefinitionsVerification
         AssertEqual(134, total, "Complete original field domain including placeholders and Ceres exception");
     }
 
-    /// <summary>Loads station definitions command.</summary>
     [VerificationCommand("--load-station-definitions")]
     internal static int LoadStationDefinitionsCommand()
     {

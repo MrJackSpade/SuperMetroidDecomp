@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Compiles shared pause-art atlas references without interpreting controls or inventory.</summary>
 internal static class PauseTileGrid
 {
-    /// <summary>From word.</summary>
     public static PauseBackdropCell FromWord(ushort raw, string name)
     {
         var word = new Game.MapTileWord(raw);
@@ -25,7 +24,6 @@ internal static class PauseTileGrid
         };
     }
 
-    /// <summary>Compile.</summary>
     public static byte[] Compile(PauseBackdropCell[] cells, string name)
     {
         var bytes = new byte[cells.Length * sizeof(ushort)];

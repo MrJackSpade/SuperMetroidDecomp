@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
@@ -8,16 +8,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Projectile hits on enemies: the collision prelude, reflection, the intro Mother Brain missile, and the start of the impact explosion.</summary>
 internal sealed class ProjectileEnemyImpacts
 {
-    /// <summary>Stores animation.</summary>
     private readonly ProjectileAnimation _animation;
-    /// <summary>Stores earthquakes.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
-    /// <summary>Stores slot table.</summary>
     private readonly ProjectileSlotTable _slotTable;
-    /// <summary>Stores terrain collision.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
 
-    /// <summary>Initializes a new projectile enemy impacts instance.</summary>
     internal ProjectileEnemyImpacts(ProjectileAnimation animation, ProjectileEarthquakes earthquakes, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision)
     {
         _animation = animation;

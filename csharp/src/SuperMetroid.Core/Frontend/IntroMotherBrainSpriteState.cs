@@ -14,26 +14,17 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
-    /// <summary>Stores instruction pointer.</summary>
     private ushort instructionPointer = IntroMotherBrainDefinitions.MotherBrain.InstructionList;
-    /// <summary>Stores instruction timer.</summary>
     private ushort instructionTimer = 1;
-    /// <summary>Stores hurt flash timer.</summary>
     private ushort hurtFlashTimer;
-    /// <summary>Stores exploding timer.</summary>
     private ushort explodingTimer;
-    /// <summary>Stores page two instruction started.</summary>
     private bool pageTwoInstructionStarted;
-    /// <summary>Stores crossfading to page two.</summary>
     private bool crossfadingToPageTwo;
 
-    /// <summary>Gets position.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
-    /// <summary>Gets palette bits.</summary>
     public static ushort PaletteBits => IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
 
-    /// <summary>Gets or sets sprite map pointer.</summary>
     public ushort SpriteMapPointer { get; private set; }
 
     /// <summary>Number of missiles consumed by <c>$8B:B786</c>, from zero through four.</summary>
@@ -167,11 +158,9 @@ internal sealed class IntroMotherBrainSpriteState
         }
     }
 
-    /// <summary>Add.</summary>
     private static ushort Add(ushort pointer, int byteCount) =>
         unchecked((ushort)(pointer + byteCount));
 
-    /// <summary>Applies screen shake.</summary>
     private void ApplyScreenShake(ushort cinematicFrameCounter)
     {
         // $8B:B877 adds four on even cinematic frames and subtracts four on odd frames.

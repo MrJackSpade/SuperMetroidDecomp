@@ -7,13 +7,10 @@ namespace SuperMetroid.Core.Assets;
 /// and their adjoining cells. Preserve the native publication order.</summary>
 internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates replacement sprite parts when the pointer matches this artwork series; otherwise returns the supplied composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == CeresFlightSpriteDefinitions.StationUnderAttack
             ? supplied.CalculateIfMatching(new CeresStationParts()) : supplied;
-    /// <summary>Gets the number of items in this collection.</summary>
     public int Count => 41;
-    /// <summary>Accesses a value by index or range.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -98,15 +95,12 @@ internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
-    /// <summary>Returns an enumerator over this collection.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Returns an enumerator over this collection.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
-/// <summary>Represents ceres station atlas.</summary>
 internal static class CeresStationAtlas
 {
     /// <summary>TileE6, top strip at Y=-48 in8C:9150.</summary>

@@ -53,22 +53,14 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
     // These reviewed script choices determine movement callback and event/acid branch timing.
     // The half-gait and every-update policies are selected choreography, not consequences of physics.
     // No independent movement-step, artwork or room-geometry exemption is implied.
-    /// <summary>Stores low direction controls.</summary>
     private const int LowDirectionControls = RunFrames * 2 + 8;
-    /// <summary>Stores high direction controls.</summary>
     private const int HighDirectionControls = RunFrames * 2 + 6;
-    /// <summary>Stores low tide controls.</summary>
     private const int LowTideControls = 2 + 2 * LowDirectionControls;
-    /// <summary>Stores high tide controls.</summary>
     private const int HighTideControls = 2 + 2 * HighDirectionControls;
-    /// <summary>Stores departure frames.</summary>
     private const int DepartureFrames = 3 * RunFrames;
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => LowTideControls + HighTideControls + 1 + 2 * DepartureFrames + 2;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 4 * RunFrames + 1 + DepartureFrames;
 
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -121,7 +113,6 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             tail == 0 ? (ushort)CommonEnemyInstruction.Goto : RunningForEscapeMaximumSpeed);
     }
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -138,7 +129,6 @@ internal abstract class EscapeDachoraInstructionProgramDefinitions
             : (ushort)(RunningForEscapeAccelerating + (index - 4 * RunFrames - 1) * 6 + sizeof(ushort));
     }
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

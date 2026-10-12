@@ -16,10 +16,8 @@ using static PhantoonInstructionProgramDefinitionsVerification;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents phantoon report1196 verification.</summary>
 internal static class PhantoonReport1196Verification
 {
-    /// <summary>Verifies phantoon intro flame sound.</summary>
     internal static void VerifyPhantoonIntroFlameSound()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -53,7 +51,6 @@ internal static class PhantoonReport1196Verification
         Console.WriteLine("Phantoon intro flame: actual spawn sends library 3 / 1D / Max6 through the production audio queue.");
     }
 
-    /// <summary>Verifies phantoon death wave initialization.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyPhantoonDeathWaveInitialization()
     {
@@ -100,7 +97,6 @@ internal static class PhantoonReport1196Verification
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; all rendered rows align before wave advancement.");
     }
 
-    /// <summary>Phantoon intro flame sound command.</summary>
     [VerificationCommand("--phantoon-intro-flame-sound")]
     internal static int PhantoonIntroFlameSoundCommand()
     {
@@ -108,7 +104,6 @@ internal static class PhantoonReport1196Verification
         return 0;
     }
 
-    /// <summary>Phantoon death wave initialization command.</summary>
     [VerificationCommand("--phantoon-death-wave-initialization")]
     internal static int PhantoonDeathWaveInitializationCommand()
     {

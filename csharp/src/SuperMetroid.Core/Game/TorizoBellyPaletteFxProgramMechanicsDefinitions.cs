@@ -32,12 +32,9 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
     /// <summary>Golden Torizo belly setup program at $8D:E331.</summary>
     private const ushort GoldenProgram = 0xe331;
 
-    /// <summary>Represents program definitions.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<TorizoBellyPaletteFxProgramDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 2;
-        /// <summary>Gets an indexed value.</summary>
         public TorizoBellyPaletteFxProgramDefinition this[int index] => index switch
         {
             (int)TorizoBellyPaletteOwner.BombTorizo => Create(TorizoBellyPaletteOwner.BombTorizo, BombDefinition, BombProgram),
@@ -45,19 +42,16 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
 
-        /// <summary>Creates.</summary>
         private static TorizoBellyPaletteFxProgramDefinition Create(
             TorizoBellyPaletteOwner owner, ushort definition, ushort start) =>
             new(owner, definition, start, (ushort)(start + 8),
                 (ushort)(start + 8 + FrameCount * FrameByteCount));
 
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<TorizoBellyPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
@@ -104,7 +98,6 @@ public static class TorizoBellyPaletteFxProgramMechanicsDefinitions
 /// <summary>One Torizo-specific entry and six-frame belly palette loop.</summary>
 public sealed class TorizoBellyPaletteFxProgramDefinition
 {
-    /// <summary>Initializes a new torizo belly palette fx program definition instance.</summary>
     internal TorizoBellyPaletteFxProgramDefinition(
         TorizoBellyPaletteOwner owner,
         ushort definitionPointer,

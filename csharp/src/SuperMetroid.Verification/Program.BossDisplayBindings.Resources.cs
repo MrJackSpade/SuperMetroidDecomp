@@ -6,10 +6,8 @@ using static BossDisplayBindingsFixtureVerification;
 using static BossDisplayBindingsVerification;
 using static EnemyContentIdentityFixtureVerification;
 
-/// <summary>Represents boss display bindings resources verification.</summary>
 internal static class BossDisplayBindingsResourcesVerification
 {
-    /// <summary>Verifies boss display resources.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {

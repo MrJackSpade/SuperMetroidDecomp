@@ -7,10 +7,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static PauseEquipmentRulesVerification;
 
-/// <summary>Represents pause equipment labels verification.</summary>
 internal static class PauseEquipmentLabelsVerification
 {
-    /// <summary>Verifies pause equipment label assets.</summary>
     internal static void VerifyPauseEquipmentLabelAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original)
     {
@@ -123,7 +121,6 @@ internal static class PauseEquipmentLabelsVerification
         };
     }
 
-    /// <summary>New pause equipment label read guard.</summary>
     private static CartridgeReadGuard NewPauseEquipmentLabelReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x82bf32 and < 0x82c0b2,

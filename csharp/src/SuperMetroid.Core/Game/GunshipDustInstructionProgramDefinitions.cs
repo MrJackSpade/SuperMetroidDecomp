@@ -10,7 +10,6 @@ internal readonly record struct GunshipDustInstructionProgramDefinition(
 /// <summary>Each dust pair adds one tick per two poses, reaching its terminal hold after four poses.</summary>
 internal readonly record struct GunshipDustDurations(int Length, ushort Initial)
 {
-    /// <summary>Gets an indexed value.</summary>
     internal ushort this[int frame] => (uint)frame < Length
         ? (ushort)(Initial + Math.Min(frame / 2, 2)) : throw new IndexOutOfRangeException();
 }
@@ -39,14 +38,10 @@ internal abstract class GunshipDustInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GunshipLiftoffDustClouds_IndexA_0</c> at $86:A265.</summary>
     internal const ushort IndexA = 0xa265;
 
-    /// <summary>Gets program count.</summary>
     internal static int ProgramCount => 6;
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 76;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 46;
 
-    /// <summary>Program.</summary>
     internal static GunshipDustInstructionProgramDefinition Program(int index)
     {
         if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
@@ -58,7 +53,6 @@ internal abstract class GunshipDustInstructionProgramDefinitions
             new(count, initialDuration));
     }
 
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         Ensure.AtLeastZero(index);
@@ -101,7 +95,6 @@ internal abstract class GunshipDustInstructionProgramDefinitions
         throw new ArgumentOutOfRangeException(nameof(index));
     }
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         Ensure.AtLeastZero(index);
@@ -118,7 +111,6 @@ internal abstract class GunshipDustInstructionProgramDefinitions
         throw new ArgumentOutOfRangeException(nameof(index));
     }
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

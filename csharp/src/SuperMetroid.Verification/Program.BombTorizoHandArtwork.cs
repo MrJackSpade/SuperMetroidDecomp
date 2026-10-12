@@ -13,7 +13,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using static BombTorizoHandVerification;
 
-/// <summary>Represents bomb torizo hand artwork verification.</summary>
 internal static class BombTorizoHandArtworkVerification
 {
     /// <summary>Confirm #1162's exact PLM-to-installed-art-to-NMI handoff, not a room sweep.</summary>
@@ -44,7 +43,6 @@ internal static class BombTorizoHandArtworkVerification
         }
     }
 
-    /// <summary>Verifies bomb torizo debris override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyBombTorizoDebrisOverride(string directory,
         EnemyTileArtworkCatalog stock, TorizoInstructionTileSheetDefinition page)
@@ -86,7 +84,6 @@ internal static class BombTorizoHandArtworkVerification
             "a missing required debris page is rejected at installation loading, not during play");
     }
 
-    /// <summary>Bomb torizo hand fixture palette.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
         GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
@@ -95,7 +92,6 @@ internal static class BombTorizoHandArtworkVerification
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount)
                     .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
 
-    /// <summary>Bomb torizo hand artwork command.</summary>
     [VerificationCommand("--bomb-torizo-hand-artwork")]
     internal static int BombTorizoHandArtworkCommand()
     {

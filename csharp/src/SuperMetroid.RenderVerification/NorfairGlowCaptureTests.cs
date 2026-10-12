@@ -5,10 +5,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents norfair glow capture tests.</summary>
 internal static class NorfairGlowCaptureTests
 {
-    /// <summary>Run.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -56,7 +54,6 @@ internal static class NorfairGlowCaptureTests
     }
 }
 
-/// <summary>Represents norfair glow fixture.</summary>
 internal static class NorfairGlowFixture
 {
     /// <summary>$8F:A788 Cathedral, a heated Norfair room with glowing foreground rock.</summary>

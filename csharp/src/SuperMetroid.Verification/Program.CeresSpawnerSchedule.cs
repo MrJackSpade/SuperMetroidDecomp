@@ -2,10 +2,8 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ceres spawner schedule verification.</summary>
 internal static class CeresSpawnerScheduleVerification
 {
-    /// <summary>Verifies ceres spawner schedule.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres spawner schedule")]
     internal static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
     {

@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents statue walk definitions verification.</summary>
 internal static class StatueWalkDefinitionsVerification
 {
-    /// <summary>Verifies compiled statue walking.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for statue walking")]
     internal static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
     {

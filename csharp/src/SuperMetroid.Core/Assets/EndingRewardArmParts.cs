@@ -11,19 +11,12 @@ namespace SuperMetroid.Core.Assets;
 /// Shoulder geometry and the split-pose grid are calculated separately.</summary>
 internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Stores arm.</summary>
     private readonly Offset16<OamPixels>[]? arm;
-    /// <summary>Stores split origin.</summary>
     private readonly Offset16<OamPixels> splitOrigin;
-    /// <summary>Stores edited tiles.</summary>
     private readonly int[]? editedTiles;
-    /// <summary>Stores pose.</summary>
     private readonly Pose pose;
-    /// <summary>Stores shoulder.</summary>
     private readonly Offset16<OamPixels> shoulder;
-    /// <summary>Stores split arm.</summary>
     private readonly bool splitArm;
-    /// <summary>Initializes a new ending reward arm parts instance.</summary>
     private EndingRewardArmParts(SpriteComposition supplied, Pose pose)
     {
         this.pose = pose;
@@ -54,7 +47,6 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         shoulder = new(checked((short)shoulderPart.X.SignedOffset), unchecked((sbyte)shoulderPart.Y));
     }
 
-    /// <summary>Splits offset.</summary>
     internal static Offset16<OamPixels> SplitOffset(int index)
     {
         if ((uint)index >= 3) throw new ArgumentOutOfRangeException(nameof(index));
@@ -62,7 +54,6 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         return new(checked((short)(index == 2 ? 8 : 0)), checked((short)(index == 0 ? 8 : 0)));
     }
 
-    /// <summary>Stock tile.</summary>
     internal static int StockTile(Pose pose, int index)
     {
         int stage = pose - Pose.SamusArmFromEndingFrame1;
@@ -76,7 +67,6 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         int variant = (stage - 2) / 3;
         return EndingRewardArmAtlas.PairedUpper + 2 * variant + (index == 0 ? 32 : 0);
     }
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         foreach (Pose pose in EndingRewardSpriteFrameSeries.Arm)
@@ -91,11 +81,8 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         }
         return supplied;
     }
-    /// <summary>Gets arm count.</summary>
     private int ArmCount => splitArm ? 3 : 2;
-    /// <summary>Gets count.</summary>
     public int Count => ArmCount + 3;
-    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -122,16 +109,13 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Represents ending reward arm atlas.</summary>
 internal static class EndingRewardArmAtlas
 {
     /// <summary>Tile$EE, initial pose's lower large arm piece.</summary>

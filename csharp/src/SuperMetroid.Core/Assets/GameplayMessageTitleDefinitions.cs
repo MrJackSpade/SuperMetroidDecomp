@@ -42,7 +42,6 @@ public static class GameplayMessageTitleDefinitions
     /// <summary>BG priority bit applied to compiled title glyph words.</summary>
     public const ushort PriorityWord = 0x2000;
 
-    /// <summary>Stores supported message ids.</summary>
     private static readonly GameplayMessageId[] SupportedMessageIds =
     [
         GameplayMessageId.EnergyTank,

@@ -13,13 +13,10 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Strict deterministic conversion between named JSON saves and cartridge SRAM.</summary>
 public static class GameSaveJsonCodec
 {
-    /// <summary>Stores all equipment flags.</summary>
     private static readonly SamusEquipmentFlags AllEquipmentFlags =
         Enum.GetValues<SamusEquipmentFlags>().Aggregate((left, right) => left | right);
-    /// <summary>Stores all beam flags.</summary>
     private static readonly SamusBeamFlags AllBeamFlags =
         Enum.GetValues<SamusBeamFlags>().Aggregate((left, right) => left | right);
-    /// <summary>Stores all boss flags.</summary>
     private static readonly BossBits AllBossFlags =
         Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
 
@@ -104,7 +101,6 @@ public static class GameSaveJsonCodec
         saveRam.SetGameCompleted(document.GameCompleted);
     }
 
-    /// <summary>Captures slot.</summary>
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
     {
         Slot = slot.Slot,
@@ -163,7 +159,6 @@ public static class GameSaveJsonCodec
         },
     };
 
-    /// <summary>To snapshot.</summary>
     private static SuperMetroidSaveSnapshot ToSnapshot(GameSaveSlotJsonDocument slot)
     {
         ValidateSlot(slot, slot.Slot);
@@ -235,7 +230,6 @@ public static class GameSaveJsonCodec
         };
     }
 
-    /// <summary>Validates.</summary>
     private static void Validate(GameSaveJsonDocument document)
     {
         Ensure.NotNull(document);
@@ -257,7 +251,6 @@ public static class GameSaveJsonCodec
         }
     }
 
-    /// <summary>Validates slot.</summary>
     private static void ValidateSlot(GameSaveSlotJsonDocument slot, int expectedSlot)
     {
         if (slot.Slot != expectedSlot)
@@ -319,7 +312,6 @@ public static class GameSaveJsonCodec
         _ = DecodeExploredAreas(progression.ExploredAreas);
     }
 
-    /// <summary>Creates options.</summary>
     private static JsonSerializerOptions CreateOptions()
     {
         var options = new JsonSerializerOptions
@@ -332,13 +324,11 @@ public static class GameSaveJsonCodec
         return options;
     }
 
-    /// <summary>Captures events.</summary>
     private static string[] CaptureEvents(ReadOnlySpan<byte> bytes) =>
         CaptureSetBits(bytes).Select(bit => Enum.IsDefined((EventNumber)bit)
             ? ((EventNumber)bit).ToString()
             : $"0x{bit:X2}").ToArray();
 
-    /// <summary>Decodes events.</summary>
     private static byte[] DecodeEvents(string[] events)
     {
         if (events is null)
@@ -361,7 +351,6 @@ public static class GameSaveJsonCodec
         return DecodeSetBits(bits, Bank80SystemState.EventByteCount, "progression.events");
     }
 
-    /// <summary>Captures set bits.</summary>
     private static int[] CaptureSetBits(ReadOnlySpan<byte> bytes)
     {
         var result = new List<int>();
@@ -376,7 +365,6 @@ public static class GameSaveJsonCodec
         return result.ToArray();
     }
 
-    /// <summary>Decodes set bits.</summary>
     private static byte[] DecodeSetBits(int[] bits, int byteCount, string property)
     {
         if (bits is null)
@@ -396,7 +384,6 @@ public static class GameSaveJsonCodec
         return result;
     }
 
-    /// <summary>Captures explored areas.</summary>
     private static ExploredAreaJsonDocument[] CaptureExploredAreas(ReadOnlySpan<byte> bytes)
     {
         var areas = new ExploredAreaJsonDocument[Bank80SystemState.ExploredMapAreaCount];
@@ -420,7 +407,6 @@ public static class GameSaveJsonCodec
         return areas;
     }
 
-    /// <summary>Decodes explored areas.</summary>
     private static byte[] DecodeExploredAreas(ExploredAreaJsonDocument[] areas)
     {
         if (areas.Length != Bank80SystemState.ExploredMapAreaCount)
@@ -490,7 +476,6 @@ public static class GameSaveJsonCodec
         return root.ToJsonString();
     }
 
-    /// <summary>Decodes legacy pages.</summary>
     private static byte[] DecodeLegacyPages(JsonArray pages)
     {
         int size = GameSaveJsonFormat.PreservationPageByteCount;
@@ -513,12 +498,9 @@ public static class GameSaveJsonCodec
         return sram;
     }
 
-    /// <summary>Represents legacy sram page.</summary>
     private sealed record LegacySramPage
     {
-        /// <summary>Gets or initializes offset.</summary>
         public required string Offset { get; init; }
-        /// <summary>Gets or initializes bytes.</summary>
         public required string Bytes { get; init; }
     }
 }

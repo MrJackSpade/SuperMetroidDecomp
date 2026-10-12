@@ -15,7 +15,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents reserve auto frontend verification.</summary>
 internal static class ReserveAutoFrontendVerification
 {
     /// <summary>The native HUD digit tilemap word for <paramref name="digit"/> at $80:9DBF.</summary>
@@ -34,7 +33,6 @@ internal static class ReserveAutoFrontendVerification
         return bus.ReadCartridgeWord(address);
     }
 
-    /// <summary>Verifies reserve auto frontend.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyReserveAutoFrontend()
     {
@@ -184,7 +182,6 @@ internal static class ReserveAutoFrontendVerification
         Console.WriteLine("Automatic reserve frontend: nonfinal freeze and same-frame completion movement pass.");
     }
 
-    /// <summary>Reserve auto frontend command.</summary>
     [VerificationCommand("--reserve-auto-frontend")]
     internal static int ReserveAutoFrontendCommand()
     {

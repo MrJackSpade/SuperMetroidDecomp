@@ -20,7 +20,6 @@ internal static class SamusEaterPlmProgramDefinitions
     /// <summary>First byte of the following treadmill program at $84:AD38.</summary>
     internal const ushort EndExclusive = 0xad38;
 
-    /// <summary>Tries to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (TryReadMechanicsByte(address, out byte low) &&
@@ -33,7 +32,6 @@ internal static class SamusEaterPlmProgramDefinitions
         return false;
     }
 
-    /// <summary>Tries to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address is < FloorStart or >= EndExclusive)
@@ -65,7 +63,6 @@ internal static class SamusEaterPlmProgramDefinitions
     /// <summary>Library-two sound $31 at $84:ACCD/$AD0D accompanies each chewing loop.</summary>
     private const byte ChewSound = 0x31;
 
-    /// <summary>Instruction word.</summary>
     private static ushort InstructionWord(int offset, bool ceiling, int start) => offset switch
     {
         0 => (ushort)RoomPlmInstruction.InstallPreInstruction,

@@ -14,10 +14,8 @@ using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static WindowRegisterCacheVerification;
 
-/// <summary>Represents hardware windows verification.</summary>
 internal static class HardwareWindowsVerification
 {
-    /// <summary>Verifies hardware windows.</summary>
     internal static void VerifyHardwareWindows()
     {
         Suite(nameof(VerifyWindowRegisterCache), () => VerifyWindowRegisterCache());
@@ -56,7 +54,6 @@ internal static class HardwareWindowsVerification
         Console.WriteLine($"Hardware windows: {cases} membership comparisons cover enable/invert, logic, inclusive edges and empty intervals.");
     }
 
-    /// <summary>Verifies packed window registers.</summary>
     private static void VerifyPackedWindowRegisters()
     {
         for (int selected = 0; selected < 6; selected++)
@@ -83,7 +80,6 @@ internal static class HardwareWindowsVerification
         }
     }
 
-    /// <summary>Hardware windows command.</summary>
     [VerificationCommand("--hardware-windows")]
     internal static int HardwareWindowsCommand()
     {

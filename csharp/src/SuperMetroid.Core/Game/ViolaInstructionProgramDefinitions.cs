@@ -17,9 +17,7 @@ internal abstract class ViolaInstructionProgramDefinitions
     /// <summary><c>InstList_Viola_Normal</c> at $A3:B5EF.</summary>
     internal const ushort NormalLoop = 0xb5ef;
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 30;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 14;
 
     /// <summary>Four axis-setting entries converge on fourteen ten-tick frames; the last entry falls through.</summary>
@@ -44,14 +42,12 @@ internal abstract class ViolaInstructionProgramDefinitions
             : new((ushort)(NormalLoop + 56 + 2 * (word - 14)), word == 14 ? (ushort)CommonEnemyInstruction.Goto : NormalLoop);
     }
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(NormalLoop + 2 + 4 * index);
     }
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

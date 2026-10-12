@@ -15,10 +15,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ridley explosion definitions verification.</summary>
 internal static class RidleyExplosionDefinitionsVerification
 {
-    /// <summary>Verifies ridley explosion definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion definitions")]
     internal static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -133,7 +131,6 @@ internal static class RidleyExplosionDefinitionsVerification
             "spawns match the cartridge with migrated reads forbidden.");
     }
 
-    /// <summary>Verifies ridley death explosion production spawns.</summary>
     private static void VerifyRidleyDeathExplosionProductionSpawns(
         SuperMetroidAddressSpace rom)
     {
@@ -172,7 +169,6 @@ internal static class RidleyExplosionDefinitionsVerification
         }
     }
 
-    /// <summary>Verifies ridley explosion production initializer.</summary>
     private static void VerifyRidleyExplosionProductionInitializer(
         SuperMetroidAddressSpace rom)
     {
@@ -261,7 +257,6 @@ internal static class RidleyExplosionDefinitionsVerification
         AssertEqual(32, cases, "Ridley breakup production initializer case count");
     }
 
-    /// <summary>New ridley explosion definition read guard.</summary>
     private static CartridgeReadGuard NewRidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is
                 >= 0xa6c6ce and < 0xa6c6fe or
@@ -274,7 +269,6 @@ internal static class RidleyExplosionDefinitionsVerification
                 >= 0xa6c8cc and < 0xa6c8d4,
             address => $"Ridley breakup attempted migrated definition read ${address:X6}.");
 
-    /// <summary>Ridley explosion definitions command.</summary>
     [VerificationCommand("--ridley-explosion-definitions")]
     internal static int RidleyExplosionDefinitionsCommand()
     {

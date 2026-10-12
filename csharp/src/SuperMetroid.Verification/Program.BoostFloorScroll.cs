@@ -13,10 +13,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents boost floor scroll verification.</summary>
 internal static class BoostFloorScrollVerification
 {
-    /// <summary>Verifies boost floor scroll.</summary>
     internal static void VerifyBoostFloorScroll()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -63,7 +61,6 @@ internal static class BoostFloorScrollVerification
         Console.WriteLine($"Dachora floor descent completed: SamusY={samus.Position.Y.Whole}, cameraY={runtime.Room.Camera.PixelPosition.Y}.");
     }
 
-    /// <summary>Boost floor scroll command.</summary>
     [VerificationCommand("--boost-floor-scroll")]
     internal static int BoostFloorScrollCommand()
     {

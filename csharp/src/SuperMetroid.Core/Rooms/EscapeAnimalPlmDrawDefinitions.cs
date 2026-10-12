@@ -16,7 +16,6 @@ internal enum EscapeAnimalDraw : ushort
 /// <summary>Three-block vertical rescue-wall mutations, independent of editable art.</summary>
 internal static class EscapeAnimalPlmDrawDefinitions
 {
-    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         var list = (EscapeAnimalDraw)pointer;

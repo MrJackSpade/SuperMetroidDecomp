@@ -19,20 +19,13 @@ namespace SuperMetroid.Core.Assets;
 /// inventory's endingGunshipIndependentInkReview.</remarks>
 internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
-    /// <summary>Stores colors.</summary>
     private readonly Dictionary<ushort, Bgr555> colors;
-    /// <summary>Stores highlight.</summary>
     private readonly Channels highlight, hullLight, hullShadeLight, hullShadeMiddle, hullShadeDark;
-    /// <summary>Stores deep shadow.</summary>
     private readonly Channels deepShadow, blackDetail;
-    /// <summary>Stores cockpit light.</summary>
     private readonly Channels cockpitLight, cockpitMiddle, cockpitDark;
-    /// <summary>Stores underside light.</summary>
     private readonly Channels undersideLight, undersideMiddle, undersideDark;
-    /// <summary>Stores underside blue offset.</summary>
     private readonly int undersideBlueOffset;
 
-    /// <summary>Initializes a new ending gunship palette input view instance.</summary>
     internal EndingGunshipPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
@@ -66,45 +59,34 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
         foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) colors.Remove(Pointer(ink));
     }
 
-    /// <summary>Represents channels.</summary>
     private readonly struct Channels
     {
-        /// <summary>Stores red.</summary>
         private readonly int? red, green, blue;
-        /// <summary>Initializes a new channels instance.</summary>
         internal Channels(Bgr555 supplied, int? expectedRed, int? expectedGreen, int? expectedBlue)
         {
             red = (supplied.Red) == expectedRed ? null : supplied.Red;
             green = (supplied.Green) == expectedGreen ? null : supplied.Green;
             blue = (supplied.Blue) == expectedBlue ? null : supplied.Blue;
         }
-        /// <summary>Red.</summary>
         internal int Red(int calculated) => red ?? calculated;
-        /// <summary>Gets green.</summary>
         internal int Green => green ?? 0;
-        /// <summary>Gets blue.</summary>
         internal int Blue => blue ?? 0;
-        /// <summary>Applies.</summary>
         internal Bgr555 Apply(int r, int g, int b) => new(red ?? r, green ?? g, blue ?? b);
     }
 
-    /// <summary>Gold.</summary>
     private static Bgr555 Gold(Channels channels, int red, int greenOffset) =>
         channels.Apply(red, Math.Max(0, red - greenOffset), 0);
-    /// <summary>Cockpit.</summary>
     private Bgr555 Cockpit(Channels channels)
     {
         int blue = cockpitLight.Green == 0 ? 0 : Math.Min(31, channels.Green * cockpitLight.Blue / cockpitLight.Green);
         return channels.Apply(0, channels.Green, blue);
     }
-    /// <summary>Underside.</summary>
     private Bgr555 Underside(Channels channels)
     {
         int red = channels.Red(0);
         return channels.Apply(red, red, Math.Clamp(red + undersideBlueOffset, 0, 31));
     }
 
-    /// <summary>Attempts to get value.</summary>
     public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         // Colors 0, 2 and 15 of the final frame are not inks; they stay stored values.
@@ -135,15 +117,10 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
         return colors.TryGetValue(pointer, out value);
     }
 
-    /// <summary>Pointer.</summary>
     private static ushort Pointer(EndingGunshipPaletteInk ink) => ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(15, (int)ink);
-    /// <summary>Gets an indexed value.</summary>
     public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
-    /// <summary>Gets count.</summary>
     public int Count => colors.Count + 13;
-    /// <summary>Contains key.</summary>
     public bool ContainsKey(ushort key) => TryGetValue(key, out _);
-    /// <summary>Gets keys.</summary>
     public IEnumerable<ushort> Keys
     {
         get
@@ -152,13 +129,10 @@ internal sealed class EndingGunshipPaletteInputView : IReadOnlyDictionary<ushort
             foreach (EndingGunshipPaletteInk ink in Enum.GetValues<EndingGunshipPaletteInk>()) yield return Pointer(ink);
         }
     }
-    /// <summary>Gets values.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
-    /// <summary>Returns an enumerator over this sequence.</summary>
     public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

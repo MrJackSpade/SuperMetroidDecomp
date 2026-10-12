@@ -9,10 +9,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents retail door capture tests.</summary>
 internal static class RetailDoorCaptureTests
 {
-    /// <summary>Runs.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         foreach (bool left in new[] { false, true })
@@ -31,7 +29,6 @@ internal static class RetailDoorCaptureTests
         }
     }
 
-    /// <summary>Verifies transition.</summary>
     internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer, SuperMetroidRuntime runtime, ISnesAddressSpace bus, RetailDoorCase doorCase, string context, Action<RenderFrameSnapshot>? publish = null)
     {
             PublishDoor(runtime, bus, doorCase.Door);
@@ -55,7 +52,6 @@ internal static class RetailDoorCaptureTests
             Console.WriteLine($"{device.Kind}: {context} retail door: {frames} exact frames, {scrollFrames} scroll frames, destination verified.");
     }
 
-    /// <summary>Publishes door.</summary>
     internal static void PublishDoor(SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort pointer)
     {
         // Same staged approach as the existing visual regression: discover the real

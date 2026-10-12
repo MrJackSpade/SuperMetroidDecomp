@@ -16,10 +16,8 @@ using static KraidContourCaseMappingsVerification;
 using static KraidHeadCommandMappingVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid head instructions verification.</summary>
 internal static class KraidHeadInstructionsVerification
 {
-    /// <summary>Verifies kraid head instruction definitions.</summary>
     internal static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
@@ -52,11 +50,9 @@ internal static class KraidHeadInstructionsVerification
             "Kraid head programs: 28 commands, 91 stream words, both sound callbacks, all entry timers, mutable low-half growth selection, and production interpretation pass with the private streams forbidden.");
     }
 
-    /// <summary>Kraid head instruction definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid head instruction definitions")]
     private static byte KraidHeadInstructionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies production interpreter.</summary>
     private static void VerifyProductionInterpreter(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -115,7 +111,6 @@ internal static class KraidHeadInstructionsVerification
         }
     }
 
-    /// <summary>Verifies timer and growth consumers.</summary>
     private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
@@ -182,19 +177,14 @@ internal static class KraidHeadInstructionsVerification
             "Kraid growth reads its live low-half alias through typed WRAM");
     }
 
-    /// <summary>Represents kraid head program read guard.</summary>
     [CpuBusBoundary("exact bus test: witnesses that Kraid reads the $A7:1002 live tilemap alias only through typed WRAM reads, never the generic bus, with compiled head-program bytes forbidden")]
     internal sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        /// <summary>Gets or sets mutable tilemap.</summary>
         public ushort MutableTilemap { get; set; }
-        /// <summary>Gets or sets forbidden read attempts.</summary>
         public int ForbiddenReadAttempts { get; private set; }
-        /// <summary>Gets or sets untyped low half read attempts.</summary>
         public int UntypedLowHalfReadAttempts { get; private set; }
 
-        /// <summary>Reads cartridge byte.</summary>
         public byte ReadCartridgeByte(int address)
         {
             if (address is 0xa71002 or 0xa71003)
@@ -212,7 +202,6 @@ internal static class KraidHeadInstructionsVerification
             return source.ReadCartridgeByte(address);
         }
 
-        /// <summary>Reads work ram byte.</summary>
         public byte ReadWorkRamByte(int address) => address switch
         {
             0xa71002 => (byte)MutableTilemap,
@@ -221,16 +210,13 @@ internal static class KraidHeadInstructionsVerification
                 "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address),
         };
 
-        /// <summary>Reads save ram byte.</summary>
         public byte ReadSaveRamByte(int address) =>
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Kraid head guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
-        /// <summary>Writes byte.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    /// <summary>Kraid head instruction definitions command.</summary>
     [VerificationCommand("--kraid-head-instruction-definitions")]
     internal static int KraidHeadInstructionDefinitionsCommand()
     {

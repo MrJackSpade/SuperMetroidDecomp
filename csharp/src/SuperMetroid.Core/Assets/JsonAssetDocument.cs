@@ -19,7 +19,6 @@ internal static class JsonAssetDocument
         return Read<T>(json, options, typeof(T).Name);
     }
 
-    /// <summary>Reads.</summary>
     internal static T Read<T>(Stream json, JsonSerializerOptions options, string description)
     {
         Ensure.NotNull(json);
@@ -42,7 +41,6 @@ internal static class JsonAssetDocument
         }
     }
 
-    /// <summary>Reads.</summary>
     private static T Read<T>(ReadOnlySpan<byte> json, JsonSerializerOptions options, string description)
     {
         try
@@ -61,7 +59,6 @@ internal static class JsonAssetDocument
         }
     }
 
-    /// <summary>Rent.</summary>
     private static byte[] Rent(Stream json, out int byteCount)
     {
         if (json.CanSeek)
@@ -156,14 +153,10 @@ internal static class JsonAssetDocument
     /// </summary>
     private sealed class ObjectNames
     {
-        /// <summary>Stores names.</summary>
         private readonly List<PropertyName> names = [];
-        /// <summary>Stores first by hash.</summary>
         private readonly Dictionary<ulong, int> firstByHash = [];
-        /// <summary>Stores irregular.</summary>
         private readonly List<int> irregular = [];
 
-        /// <summary>Clears.</summary>
         internal void Clear()
         {
             names.Clear();
@@ -171,7 +164,6 @@ internal static class JsonAssetDocument
             irregular.Clear();
         }
 
-        /// <summary>Contains.</summary>
         internal bool Contains(ReadOnlySpan<byte> json, PropertyName name, bool ignoreCase, StringComparer comparer)
         {
             if (!TryHash(json, name, ignoreCase, out ulong hash))
@@ -190,7 +182,6 @@ internal static class JsonAssetDocument
             return false;
         }
 
-        /// <summary>Adds.</summary>
         internal void Add(ReadOnlySpan<byte> json, PropertyName name, bool ignoreCase)
         {
             names.Add(name);
@@ -198,7 +189,6 @@ internal static class JsonAssetDocument
             else irregular.Add(names.Count - 1);
         }
 
-        /// <summary>Attempts to hash.</summary>
         private static bool TryHash(ReadOnlySpan<byte> json, PropertyName name, bool ignoreCase, out ulong hash)
         {
             hash = 14695981039346656037;
@@ -213,7 +203,6 @@ internal static class JsonAssetDocument
         }
     }
 
-    /// <summary>Same.</summary>
     private static bool Same(ReadOnlySpan<byte> json, PropertyName left, PropertyName right, bool ignoreCase, StringComparer comparer)
     {
         if (left.Decoded is null && right.Decoded is null)
@@ -225,7 +214,6 @@ internal static class JsonAssetDocument
         return comparer.Equals(Text(json, left), Text(json, right));
     }
 
-    /// <summary>Text.</summary>
     private static string Text(ReadOnlySpan<byte> json, PropertyName name) =>
         name.Decoded ?? Encoding.UTF8.GetString(json.Slice(name.Start, name.Length));
 }

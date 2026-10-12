@@ -3,13 +3,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 tables and fixed-point constants for n00b-tube projectiles.</summary>
 public static class NoobTubeProjectileRomData
 {
-    /// <summary>Stores shard offset words.</summary>
     private static readonly Offset16<RoomPixels>[] ShardOffsetWords =
         [new(-56, 8), new(-64, -12), new(-20, -26), new(-40, -24), new(-64, -32), new(-48, 28), new(-24, 16), new(-40, -8), new(0, -24), new(-8, 16)];
-    /// <summary>Stores shard velocity words.</summary>
     private static readonly EightEightVector<RoomPixels>[] ShardVelocityWords =
         [new(-384, 320), new(-384, -256), new(-160, -416), new(-288, -288), new(-288, -288), new(-320, 448), new(-96, 576), new(-352, -96), new(0, -288), new(-64, 384)];
-    /// <summary>Stores bubble offset words.</summary>
     private static readonly Offset16<RoomPixels>[] BubbleOffsetWords =
         [new(40, 80), new(80, 72), new(104, 84), new(120, 32), new(152, 64), new(184, 84)];
 

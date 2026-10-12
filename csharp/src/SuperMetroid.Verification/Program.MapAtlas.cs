@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static MapPresentationVerification;
 
-/// <summary>Represents map atlas verification.</summary>
 internal static class MapAtlasVerification
 {
-    /// <summary>Verifies map atlas integration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map tile atlas")]
     internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,

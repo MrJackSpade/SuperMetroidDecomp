@@ -17,10 +17,8 @@ using static KraidInstalledPresentationResourcesVerification;
 using static KraidInstalledPresentationTailVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid installed presentation verification.</summary>
 internal static class KraidInstalledPresentationVerification
 {
-    /// <summary>Verifies kraid installed presentation.</summary>
     internal static void VerifyKraidInstalledPresentation()
     {
         Suite(nameof(VerifyKraidWorkingMapTail), () => VerifyKraidWorkingMapTail());
@@ -38,7 +36,6 @@ internal static class KraidInstalledPresentationVerification
         Console.WriteLine("PASS installed Kraid maps, head frames, room characters and HUD restoration.");
     }
 
-    /// <summary>Kraid installed presentation command.</summary>
     [VerificationCommand("--kraid-installed-presentation")]
     internal static int KraidInstalledPresentationCommand()
     {

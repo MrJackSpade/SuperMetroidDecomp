@@ -2,10 +2,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-/// <summary>Represents rom decompression verification.</summary>
 internal static class RomDecompressionVerification
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     [CpuBusBoundary("exact bus test: RomDataReader fixed-bank, word, long and compressed-stream framing reads exactly the declared LoROM bytes")]
     public static int Run()
     {
@@ -73,7 +71,6 @@ internal static class RomDecompressionVerification
         return 0;
     }
 
-    /// <summary>reject.</summary>
     private static void Reject(Action action)
     {
         try { action(); }
@@ -81,7 +78,6 @@ internal static class RomDecompressionVerification
         throw new InvalidDataException("Malformed/truncated compressed stream was accepted.");
     }
 
-    /// <summary>reject range.</summary>
     private static void RejectRange(Action action)
     {
         try { action(); }
@@ -89,20 +85,14 @@ internal static class RomDecompressionVerification
         throw new InvalidDataException("Fixed-bank cartridge import crossed into a mutable low window.");
     }
 
-    /// <summary>Represents stream bus.</summary>
     [CpuBusBoundary("exact bus test: witnesses LoROM traversal order and read extent of a cartridge stream")]
     private sealed class StreamBus(byte[] bytes) : ISnesAddressSpace, IImportCartridgeSource
     {
         // Deliberately cross xx:FFFF -> (xx+1):8000 inside the first literal run.
-        /// <summary>Defines start.</summary>
         public const int Start = 0x94fffc;
-        /// <summary>Stores next.</summary>
         private SnesAddress next = SnesAddress.FromBusAddress(Start);
-        /// <summary>Gets or sets reads.</summary>
         public int Reads { get; private set; }
-        /// <summary>read byte.</summary>
         public static byte ReadByte(int address) => throw new InvalidOperationException("Decompression must use the typed cartridge source.");
-        /// <summary>read cartridge byte.</summary>
         public byte ReadCartridgeByte(int address)
         {
             if (address != (int)next || Reads >= bytes.Length)
@@ -110,7 +100,6 @@ internal static class RomDecompressionVerification
             next = next.NextLoRomByte();
             return bytes[Reads++];
         }
-        /// <summary>write byte.</summary>
         public void WriteByte(int address, byte value) => throw new NotSupportedException();
     }
 }

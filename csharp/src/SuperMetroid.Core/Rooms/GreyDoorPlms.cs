@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -7,14 +7,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Grey door PLMs: condition identification (boss, mini-boss, Torizo, statue, event), flash and opening.</summary>
 internal sealed class GreyDoorPlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Stores drawing.</summary>
     private readonly PlmBlockDrawing _drawing;
-    /// <summary>Stores sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
-    /// <summary>Initializes a new grey door plms instance.</summary>
     internal GreyDoorPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -22,7 +18,6 @@ internal sealed class GreyDoorPlms
         _sounds = sounds;
     }
 
-    /// <summary>Attempts to step grey door.</summary>
     internal bool TryStepGreyDoor(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, ushort enemyDeaths, byte enemyDeathQuota)
     {
         GreyDoorPlmState? door = slot.GreyDoor;
@@ -132,7 +127,6 @@ internal sealed class GreyDoorPlms
         return false;
     }
 
-    /// <summary>Checks whether the grey door condition is satisfied.</summary>
     private bool IsGreyDoorConditionSatisfied(
         GreyDoorCondition condition,
         ushort enemyDeaths,
@@ -159,7 +153,6 @@ internal sealed class GreyDoorPlms
         };
     }
 
-    /// <summary>Applies grey door setup.</summary>
     private static void ApplyGreyDoorSetup(RoomLevelData level, int blockIndex)
     {
         // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
@@ -207,7 +200,6 @@ internal sealed class GreyDoorPlms
             wasOpened ? GreyDoorPhase.ConvertToBlue : GreyDoorPhase.Locked);
     }
 
-    /// <summary>Attempts to identify grey door.</summary>
     internal static bool TryIdentifyGreyDoor(
         PlmHeaderId header,
         out ColoredDoorOrientation orientation)

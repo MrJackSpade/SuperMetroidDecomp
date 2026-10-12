@@ -13,7 +13,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using static RetailGameFixtureVerification;
 
-/// <summary>Represents low percent intro timeline verification.</summary>
 internal static class LowPercentIntroTimelineVerification
 {
     /// <summary>
@@ -165,7 +164,6 @@ internal static class LowPercentIntroTimelineVerification
         }
     }
 
-    /// <summary>Low percent intro timeline command.</summary>
     [VerificationCommand("--low-percent-intro-timeline")]
     internal static int LowPercentIntroTimelineCommand()
     {

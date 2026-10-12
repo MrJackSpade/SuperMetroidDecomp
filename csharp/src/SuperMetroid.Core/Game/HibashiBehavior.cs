@@ -1,13 +1,11 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Hibashi species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class HibashiBehavior : IEnemySpecies
 {
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Initializes a new hibashi behavior instance.</summary>
     internal HibashiBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -63,7 +61,6 @@ internal sealed class HibashiBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Stores hibashi states.</summary>
     internal readonly HibashiEnemyState?[] _hibashiStates =
         new HibashiEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -197,12 +194,10 @@ internal sealed class HibashiBehavior : IEnemySpecies
         return _slotTable._slots[graphics.SlotIndex + 1];
     }
 
-    /// <summary>require hibashi state.</summary>
     private HibashiEnemyState RequireHibashiState(RoomEnemySlot slot) =>
         _hibashiStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hibashi state.");
 
-    /// <summary>register hibashi initialization ai.</summary>
     internal void RegisterHibashiInitializationAi(EnemyAiTable table)
     {
 
@@ -212,7 +207,6 @@ internal sealed class HibashiBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register hibashi main ai.</summary>
     internal void RegisterHibashiMainAi(EnemyAiTable table)
     {
 
@@ -222,7 +216,6 @@ internal sealed class HibashiBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register hibashi owned instructions.</summary>
     internal void RegisterHibashiOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

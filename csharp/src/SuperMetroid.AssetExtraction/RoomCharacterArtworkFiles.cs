@@ -17,7 +17,6 @@ public static class RoomCharacterArtworkFiles
 {
     /// <summary>Stock character manifest filename recording cartridge provenance, PNG hashes, and required native planar transfer lengths.</summary>
     public const string ManifestFileName = "room-characters.json";
-    /// <summary>Stores format version.</summary>
     private const int FormatVersion = 2;
 
     /// <summary>Creates stock indexed PNGs for CRE, distinct room graphics-set sources, and Tourian-statue ghost characters, plus their manifest.</summary>
@@ -118,7 +117,6 @@ public static class RoomCharacterArtworkFiles
     /// <summary>Used by installer completeness checks; overrides do not affect stock provenance.</summary>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
-    /// <summary>Expected sources.</summary>
     private static Dictionary<string, int> ExpectedSources()
     {
         var sources = new Dictionary<string, int>
@@ -135,7 +133,6 @@ public static class RoomCharacterArtworkFiles
         return sources;
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -143,11 +140,9 @@ public static class RoomCharacterArtworkFiles
         WriteIndented = true,
     };
 
-    /// <summary>Represents room character file manifest.</summary>
     private sealed record RoomCharacterFileManifest(
         int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomCharacterFileEntry> Entries);
 
-    /// <summary>Represents room character file entry.</summary>
     private sealed record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
 }

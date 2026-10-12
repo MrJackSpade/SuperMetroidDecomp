@@ -1,17 +1,13 @@
-namespace SuperMetroid.Core.Game;
+﻿namespace SuperMetroid.Core.Game;
 
 /// <summary>The old Tourian escape-shaft wall species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class OldTourianEscapeShaftWallBehavior
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Initializes a new old tourian escape shaft wall behavior instance.</summary>
     internal OldTourianEscapeShaftWallBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -43,7 +39,6 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     }
 
 
-    /// <summary>register wall explosion sound instruction.</summary>
     internal void RegisterWallExplosionSoundInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, projectile => OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind),

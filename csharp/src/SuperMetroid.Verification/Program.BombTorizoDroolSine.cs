@@ -16,10 +16,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents bomb torizo drool sine verification.</summary>
 internal static class BombTorizoDroolSineVerification
 {
-    /// <summary>verify bomb torizo drool sine.</summary>
     internal static void VerifyBombTorizoDroolSine(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -66,7 +64,6 @@ internal static class BombTorizoDroolSineVerification
             "Bomb Torizo drool sine: 544 real random/facing spawns preserve native XY velocity with the entire signed-sine ROM table forbidden.");
     }
 
-    /// <summary>verify bomb torizo drool spawn.</summary>
     private static void VerifyBombTorizoDroolSpawn(
         SuperMetroidAddressSpace rom,
         Action<RoomEnemySystem, RoomEnemySlot> spawn,
@@ -105,7 +102,6 @@ internal static class BombTorizoDroolSineVerification
             $"Bomb Torizo {scenario} random {random:X2} X origin");
     }
 
-    /// <summary>read bomb torizo drool word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool words")]
     private static ushort ReadBombTorizoDroolWord(
         SuperMetroidAddressSpace rom,
@@ -116,12 +112,10 @@ internal static class BombTorizoDroolSineVerification
         return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
     }
 
-    /// <summary>new bomb torizo drool sine read guard.</summary>
     private static CartridgeReadGuard NewBombTorizoDroolSineReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa0b3c3 and < 0xa0b643,
             address => $"Bomb Torizo drool attempted migrated sine or negative-cosine read ${address:X6}.");
 
-    /// <summary>remaining signed sine consumers command.</summary>
     [VerificationCommand("--remaining-signed-sine-consumers")]
     internal static int RemainingSignedSineConsumersCommand()
     {

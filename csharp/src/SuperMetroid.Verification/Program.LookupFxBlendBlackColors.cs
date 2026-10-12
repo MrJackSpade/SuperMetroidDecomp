@@ -4,20 +4,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents lookup fx blend black colors verification.</summary>
 internal static class LookupFxBlendBlackColorsVerification
 {
-    /// <summary>Original black blend ids.</summary>
     private static byte[] OriginalBlackBlendIds() => [0x02, 0x42, 0x48, 0xe2, 0xe8, 0xee];
 
-    /// <summary>Verifies fx blend black red.</summary>
     internal static void VerifyFxBlendBlackRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 0);
-    /// <summary>Verifies fx blend black green.</summary>
     internal static void VerifyFxBlendBlackGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 5);
-    /// <summary>Verifies fx blend black blue.</summary>
     internal static void VerifyFxBlendBlackBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 10);
 
-    /// <summary>Verifies fx blend black component.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFxBlendBlackComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
     {
@@ -32,7 +26,6 @@ internal static class LookupFxBlendBlackColorsVerification
         }
     }
 
-    /// <summary>Verifies fx blend black storage and edits.</summary>
     internal static void VerifyFxBlendBlackStorageAndEdits(RoomFxPaletteBlendCatalog stock)
     {
         for (int value = 0; value <= byte.MaxValue; value++)
@@ -64,7 +57,6 @@ internal static class LookupFxBlendBlackColorsVerification
         }
     }
 
-    /// <summary>Creates black blend source guard.</summary>
     internal static CartridgeReadGuard NewBlackBlendSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => OriginalBlackBlendIds().Any(id => address == 0x89aa06 + id || address == 0x89aa07 + id),

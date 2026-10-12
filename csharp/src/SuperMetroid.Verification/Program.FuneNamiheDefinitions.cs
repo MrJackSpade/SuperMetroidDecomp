@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents fune namihe definitions verification.</summary>
 internal static class FuneNamiheDefinitionsVerification
 {
-    /// <summary>Verifies fune namihe definitions.</summary>
     internal static void VerifyFuneNamiheDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyFuneNamiheProgramSelection), () => VerifyFuneNamiheProgramSelection(rom));
@@ -46,7 +44,6 @@ internal static class FuneNamiheDefinitionsVerification
             "Fune/Namihe definitions: eight native selectors and all eight real idle/active installs pass with table reads forbidden.");
     }
 
-    /// <summary>Verifies fune namihe program selection.</summary>
     private static void VerifyFuneNamiheProgramSelection(SuperMetroidAddressSpace rom)
     {
         ushort[] cursors = [0x96d3, 0x96d5, 0x96d7, 0x96d9, 0x96db, 0x96dd, 0x96df, 0x96e1];
@@ -66,7 +63,6 @@ internal static class FuneNamiheDefinitionsVerification
                 "Fune/Namihe selection rejects distant and wrapped cursors");
     }
 
-    /// <summary>Fune namihe program selection rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe program selection")]
     private static byte FuneNamiheProgramSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

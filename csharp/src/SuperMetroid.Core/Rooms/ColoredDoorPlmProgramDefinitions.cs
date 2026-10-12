@@ -35,12 +35,10 @@ internal static class ColoredDoorPlmProgramDefinitions
     private const ushort BlueFlashDraw = 0xa9b3;
 
     /// <summary>The three contiguous per-color instruction blobs, in address order.</summary>
-    private enum ColorBlob { /** <summary>Identifies yellow.</summary> */ Yellow, /** <summary>Identifies green.</summary> */ Green, /** <summary>Identifies red.</summary> */ Red }
+    private enum ColorBlob { Yellow, Green, Red }
 
-    /// <summary>Stores color blobs.</summary>
     private static readonly ColorBlob[] ColorBlobs = Enum.GetValues<ColorBlob>();
 
-    /// <summary>last byte of.</summary>
     private static ushort LastByteOf(ColorBlob blob) => blob switch
     {
         ColorBlob.Yellow => YellowEnd,
@@ -57,7 +55,6 @@ internal static class ColoredDoorPlmProgramDefinitions
         return false;
     }
 
-    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

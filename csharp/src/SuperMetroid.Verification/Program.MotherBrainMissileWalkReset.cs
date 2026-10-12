@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents mother brain missile walk reset verification.</summary>
 internal static class MotherBrainMissileWalkResetVerification
 {
     // #1269: a missile hitting Mother Brain's head zeroes walk counter $7E:780E ($A9:B57A).
@@ -21,7 +20,6 @@ internal static class MotherBrainMissileWalkResetVerification
     // body turn, but the port's missile branch wrote only the encounter projection. In the
     // 100% movie the phase-three counter stayed $40 after a missile where native reset it,
     // and Mother Brain later inched forward instead of retreating.
-    /// <summary>Verifies mother brain missile walk reset.</summary>
     internal static void VerifyMotherBrainMissileWalkReset()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -55,7 +53,6 @@ internal static class MotherBrainMissileWalkResetVerification
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");
     }
 
-    /// <summary>Mother brain missile walk reset command.</summary>
     [VerificationCommand("--mother-brain-missile-walk-reset")]
     internal static int MotherBrainMissileWalkResetCommand()
     {

@@ -50,23 +50,16 @@ internal static class TorizoInstructionVramArtworkDefinitions
     /// <summary>Mutually exclusive artwork roles in the installed manifest and content-hash order.</summary>
     private enum PageRole
     {
-        /// <summary>Identifies shared death.</summary>
-        SharedDeath, /** <summary>Identifies statue crumble.</summary> */ StatueCrumble, /** <summary>Identifies left attack.</summary> */ LeftAttack, /** <summary>Identifies right attack.</summary> */ RightAttack,
-        /// <summary>Identifies golden awakening.</summary>
-        GoldenAwakening, /** <summary>Identifies golden left attack.</summary> */ GoldenLeftAttack, /** <summary>Identifies golden right attack.</summary> */ GoldenRightAttack, /** <summary>Identifies chozo debris.</summary> */ ChozoDebris,
+        SharedDeath, StatueCrumble, LeftAttack, RightAttack,
+        GoldenAwakening, GoldenLeftAttack, GoldenRightAttack, ChozoDebris,
     }
 
-    /// <summary>Gets all.</summary>
     internal static PageSequence All => default;
 
-    /// <summary>Represents page sequence.</summary>
     internal readonly struct PageSequence : IReadOnlyList<TorizoInstructionTileSheetDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 8;
-        /// <summary>Gets length.</summary>
         public int Length => Count;
-        /// <summary>Gets an indexed value.</summary>
         public TorizoInstructionTileSheetDefinition this[int index] => (PageRole)index switch
         {
             PageRole.SharedDeath => SharedDeath,
@@ -79,12 +72,10 @@ internal static class TorizoInstructionVramArtworkDefinitions
             PageRole.ChozoDebris => ChozoDebris,
             _ => throw new IndexOutOfRangeException(),
         };
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<TorizoInstructionTileSheetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
@@ -103,10 +94,8 @@ public sealed class TorizoInstructionVramArtwork
                 content.Append("tiles", page.Transfer.Span);
         });
 
-    /// <summary>Stores pages.</summary>
     private readonly RoomCharacterAtlas[] pages;
 
-    /// <summary>Initializes a new torizo instruction vram artwork instance.</summary>
     internal TorizoInstructionVramArtwork(RoomCharacterAtlas[] pages)
     {
         Ensure.NotNull(pages);
@@ -122,7 +111,6 @@ public sealed class TorizoInstructionVramArtwork
         this.pages = [.. pages];
     }
 
-    /// <summary>Attempts to resolve.</summary>
     internal bool TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> characters)
     {

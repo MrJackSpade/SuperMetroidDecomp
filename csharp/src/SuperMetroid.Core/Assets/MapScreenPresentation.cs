@@ -7,9 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable compiled map-screen layers authored as named JSON tile grids.</summary>
 public sealed class MapScreenPresentation
 {
-    /// <summary>Stores pages.</summary>
     private readonly Dictionary<string, byte[]> pages;
-    /// <summary>Initializes a new map screen presentation instance.</summary>
     private MapScreenPresentation(Dictionary<string, byte[]> pages) => this.pages = pages;
     /// <summary>Copies the named, compiled 32-by-32 tilemap page into <paramref name="destination"/>.</summary>
     public void LoadTo(VramRegion destination, string page) => destination.Load(pages[page]);

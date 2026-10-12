@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents rio instruction program definitions verification.</summary>
 internal static class RioInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies rio instruction program definitions.</summary>
     internal static void VerifyRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyRioInstructionProgramDefinitions), () => VerifyRioInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies rio instruction program definitions.</summary>
     internal static void VerifyRioInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
@@ -137,7 +134,6 @@ internal static class RioInstructionProgramDefinitionsVerification
             "compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
-    /// <summary>Execute rio program.</summary>
     internal static void ExecuteRioProgram(
         RoomEnemySystem enemies,
         object?[] processArguments,
@@ -153,7 +149,6 @@ internal static class RioInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe rio instruction mechanics allocation.</summary>
     private static int ProbeRioInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -167,14 +162,12 @@ internal static class RioInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads rio instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Rio instruction words")]
     internal static ushort ReadRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
 
-    /// <summary>New rio instruction read guard.</summary>
     internal static CartridgeReadGuard NewRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -190,7 +183,6 @@ internal static class RioInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa20000, RioInstructionProgramDefinitions.PresentationWordCount, RioInstructionProgramDefinitions.PresentationWordAddress);
     }
 
-    /// <summary>Rio instruction mechanics command.</summary>
     [VerificationCommand("--rio-instruction-mechanics")]
     internal static int RioInstructionMechanicsCommand()
     {

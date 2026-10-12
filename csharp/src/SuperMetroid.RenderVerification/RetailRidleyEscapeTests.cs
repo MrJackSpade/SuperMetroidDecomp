@@ -9,7 +9,6 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Native AI-driven escape after staging either retail termination condition at hover.</summary>
 internal static class RetailRidleyEscapeTests
 {
-    /// <summary>Runs.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         foreach (bool hitThreshold in new[] { false, true })
@@ -68,7 +67,6 @@ internal static class RetailRidleyEscapeTests
     }
 }
 
-/// <summary>Represents ridley escape fixture definitions.</summary>
 internal static class RidleyEscapeFixtureDefinitions
 {
     /// <summary>Ceres hover AI branches to the fake retreat at 100 registered projectile contacts.</summary>

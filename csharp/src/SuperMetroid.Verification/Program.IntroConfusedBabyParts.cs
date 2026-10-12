@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
-/// <summary>Represents intro confused baby parts verification.</summary>
 internal static class IntroConfusedBabyPartsVerification
 {
-    /// <summary>Verifies intro confused baby parts.</summary>
     internal static void VerifyIntroConfusedBabyParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ConfusedBaby", value.AppendIdentity);

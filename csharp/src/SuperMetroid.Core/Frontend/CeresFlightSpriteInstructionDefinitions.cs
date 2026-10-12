@@ -26,7 +26,6 @@ internal static class CeresFlightSpriteInstructionDefinitions
     private const ushort SmallAsteroidStart = 0xcc4f;
     /// <summary>$8B:CC57, two-frame purple-vortex loop.</summary>
     private const ushort VortexStart = 0xcc57;
-    /// <summary>Loop byte.</summary>
     private static byte LoopByte(int offset, ushort start, ushort frame)
     {
         ushort word = (offset / 2) switch
@@ -40,7 +39,6 @@ internal static class CeresFlightSpriteInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
-    /// <summary>Vortex byte.</summary>
     private static byte VortexByte(int offset)
     {
         ushort word = (offset / 2) switch
@@ -54,7 +52,6 @@ internal static class CeresFlightSpriteInstructionDefinitions
         };
         return (byte)(word >> (8 * (offset & 1)));
     }
-    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= RearClusterStart and < RearClusterEnd)
@@ -71,7 +68,6 @@ internal static class CeresFlightSpriteInstructionDefinitions
             $"Ceres flight instruction $8B:{pointer:X4} leaves its compiled lists.");
     }
 
-    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         ushort next = unchecked((ushort)(pointer + 1));
@@ -92,7 +88,6 @@ internal static class CeresFlightSpriteInstructionDefinitions
         LargeAsteroid,
     }
 
-    /// <summary>Starts of.</summary>
     private static ushort StartOf(CompiledList list) => list switch
     {
         CompiledList.RearCluster => RearClusterStart,
@@ -101,7 +96,6 @@ internal static class CeresFlightSpriteInstructionDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(CompiledList)} {list}."),
     };
 
-    /// <summary>End of.</summary>
     private static ushort EndOf(CompiledList list) => list switch
     {
         CompiledList.RearCluster => RearClusterEnd,
@@ -110,7 +104,6 @@ internal static class CeresFlightSpriteInstructionDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(CompiledList)} {list}."),
     };
 
-    /// <summary>List containing.</summary>
     private static CompiledList ListContaining(ushort pointer)
     {
         foreach (CompiledList list in Enum.GetValues<CompiledList>())

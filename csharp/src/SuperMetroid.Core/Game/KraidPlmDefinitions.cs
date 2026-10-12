@@ -36,24 +36,19 @@ public static class KraidPlmDefinitions
     /// </summary>
     public static IReadOnlyList<KraidPlmRequest> DefeatedRoom { get; } = new DefeatedRoomSequence();
 
-    /// <summary>Represents defeated room sequence.</summary>
     private sealed class DefeatedRoomSequence : IReadOnlyList<KraidPlmRequest>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 2;
-        /// <summary>Gets an indexed value.</summary>
         public KraidPlmRequest this[int index] => index switch
         {
             0 => ClearCeiling,
             1 => ClearSpikes,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<KraidPlmRequest> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -64,9 +59,7 @@ public static class KraidPlmDefinitions
     /// </summary>
     private sealed class GrowthCeilingSequence : IReadOnlyList<KraidPlmRequest>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 9;
-        /// <summary>Gets or sets an indexed value.</summary>
         public KraidPlmRequest this[int index]
         {
             get
@@ -79,12 +72,10 @@ public static class KraidPlmDefinitions
                 return new(new(column, 0x12), header);
             }
         }
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<KraidPlmRequest> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>

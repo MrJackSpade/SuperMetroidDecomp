@@ -8,9 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// vertical arm strips and independently positioned head/upper-body grids.</summary>
 internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Stores lower.</summary>
     private readonly EndingRewardSuitlessGridParts lower = new(Pose.SuitlessSamusLowerBody);
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusStanding))
@@ -19,9 +17,7 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
             return supplied.CalculateIfMatching(new EndingRewardSuitlessStandingParts(true));
         return supplied;
     }
-    /// <summary>Gets count.</summary>
     public int Count => 28;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -94,12 +90,10 @@ internal sealed class EndingRewardSuitlessStandingParts(bool armsStraight) : IRe
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

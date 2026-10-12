@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents phantoon patterns verification.</summary>
 internal static class PhantoonPatternsVerification
 {
-    /// <summary>Verifies compiled phantoon patterns.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon patterns")]
     internal static void VerifyCompiledPhantoonPatterns(SuperMetroidAddressSpace rom)
     {
@@ -107,7 +105,6 @@ internal static class PhantoonPatternsVerification
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");
     }
 
-    /// <summary>New phantoon pattern read guard.</summary>
     internal static CartridgeReadGuard NewPhantoonPatternReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa7cda5 and < 0xa7cded or

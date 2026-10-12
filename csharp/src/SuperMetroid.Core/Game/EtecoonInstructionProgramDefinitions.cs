@@ -52,7 +52,6 @@ internal abstract class EtecoonInstructionProgramDefinitions
     /// <summary>Native program bank $A7.</summary>
     internal const byte Bank = 0xa7;
 
-    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe81e),
         Entry(LookRightAtSamusAndRunLeft),
@@ -136,12 +135,9 @@ internal abstract class EtecoonInstructionProgramDefinitions
         Frame(32),
         Frame(32),
         Op((ushort)CommonEnemyInstruction.Sleep));
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

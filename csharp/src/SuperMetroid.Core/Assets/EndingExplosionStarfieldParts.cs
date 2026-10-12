@@ -13,14 +13,10 @@ namespace SuperMetroid.Core.Assets;
 /// This does not exempt the calculated attributes, tile pixels or actor motion.</remarks>
 internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Stores stars.</summary>
     private readonly Star[] stars;
-    /// <summary>Represents star.</summary>
     private readonly record struct Star(int X, byte Y, int Tile);
-    /// <summary>Initializes a new ending explosion starfield parts instance.</summary>
     private EndingExplosionStarfieldParts(Star[] stars) => this.stars = stars;
 
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Stars)) return supplied;
@@ -35,9 +31,7 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
         return supplied.CalculateIfMatching(new EndingExplosionStarfieldParts(stars));
     }
 
-    /// <summary>Gets count.</summary>
     public int Count => stars.Length;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -48,11 +42,9 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
                 SnesObjAttributeWord.Create(star.Tile, 0, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

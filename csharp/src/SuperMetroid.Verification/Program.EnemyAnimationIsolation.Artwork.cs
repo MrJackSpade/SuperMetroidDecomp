@@ -5,10 +5,8 @@ using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyContentIdentityFixtureVerification;
 using static GoldenTorizoRightOrbFramesVerification;
 
-/// <summary>Represents enemy animation isolation artwork verification.</summary>
 internal static class EnemyAnimationIsolationArtworkVerification
 {
-    /// <summary>Creates edited enemy animation artwork.</summary>
     internal static EnemyTileArtworkCatalog CreateEditedEnemyAnimationArtwork()
     {
         var fixture = new EnemyIdentityFixture();
@@ -50,7 +48,6 @@ internal static class EnemyAnimationIsolationArtworkVerification
             EnemyProjectileSpritemapCatalog.Load(fixture.Json(projectile)));
     }
 
-    /// <summary>Edited animation parts.</summary>
     private static SpriteVisualPart[] EditedAnimationParts(int tile) =>
     [
         new SpriteVisualPart
@@ -65,7 +62,6 @@ internal static class EnemyAnimationIsolationArtworkVerification
         },
     ];
 
-    /// <summary>Asserts edited animation draw.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void AssertEditedAnimationDraw(EnemyAnimationFixture edited, OamBuffer drawn, int frame)
     {

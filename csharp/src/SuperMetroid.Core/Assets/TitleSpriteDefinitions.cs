@@ -28,7 +28,6 @@ public static class TitleSpriteDefinitions
         }
     }
 
-    /// <summary>frame.</summary>
     private static ushort Frame(TitleTextSequenceDefinition sequence, int frame) =>
         TitleSequenceInstructionDefinitions.ReadWord(sequence.InstructionAddress +
             frame * TitleSequenceRomData.TextSequences.TimedEntryByteCount + sizeof(ushort));

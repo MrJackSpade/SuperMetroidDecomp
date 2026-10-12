@@ -26,7 +26,6 @@ internal abstract class KraidFootInstructionProgramDefinitions
     /// <summary>Adjacent unreferenced fast-backwards program at $A7:893D.</summary>
     internal const ushort AdjacentUnusedFastBackward = 0x893d;
 
-    /// <summary>Generate.</summary>
     internal static void Generate(ref MechanicsSelection words, ref PresentationSelection presentation)
     {
         ushort cursor = Initial;
@@ -69,16 +68,11 @@ internal abstract class KraidFootInstructionProgramDefinitions
         throw new InvalidDataException($"Kraid foot mechanics pointer $A7:{address:X4} is not compiled.");
     }
 
-    /// <summary>Represents mechanics selection.</summary>
     internal struct MechanicsSelection(int targetIndex, int targetAddress, bool includeHighByte)
     {
-        /// <summary>Stores count.</summary>
         private int count;
-        /// <summary>Stores found.</summary>
         internal bool Found;
-        /// <summary>Stores selected.</summary>
         internal InstructionMechanicsWord Selected;
-        /// <summary>Adds.</summary>
         internal void Add(InstructionMechanicsWord word)
         {
             if (count == targetIndex || word.Address == targetAddress ||
@@ -91,14 +85,10 @@ internal abstract class KraidFootInstructionProgramDefinitions
         }
     }
 
-    /// <summary>Represents presentation selection.</summary>
     internal struct PresentationSelection(int targetIndex)
     {
-        /// <summary>Stores count.</summary>
         private int count;
-        /// <summary>Stores selected.</summary>
         internal ushort Selected;
-        /// <summary>Adds.</summary>
         internal void Add(ushort address)
         {
             if (count == targetIndex) Selected = address;
@@ -106,7 +96,6 @@ internal abstract class KraidFootInstructionProgramDefinitions
         }
     }
 
-    /// <summary>Adds forward program.</summary>
     private static void AddForwardProgram(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -188,7 +177,6 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, (ushort)CommonEnemyInstruction.Sleep);
     }
 
-    /// <summary>Adds backward program.</summary>
     private static void AddBackwardProgram(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -235,7 +223,6 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, WalkingBackward);
     }
 
-    /// <summary>Adds vertical and horizontal.</summary>
     private static void AddVerticalAndHorizontal(
         ref MechanicsSelection words,
         ref ushort cursor,
@@ -246,7 +233,6 @@ internal abstract class KraidFootInstructionProgramDefinitions
         AddInstruction(ref words, ref cursor, horizontal);
     }
 
-    /// <summary>Adds instruction.</summary>
     private static void AddInstruction(
         ref MechanicsSelection words,
         ref ushort cursor,
@@ -256,7 +242,6 @@ internal abstract class KraidFootInstructionProgramDefinitions
         cursor = unchecked((ushort)(cursor + 2));
     }
 
-    /// <summary>Adds frame.</summary>
     private static void AddFrame(
         ref MechanicsSelection words,
         ref PresentationSelection presentation,
@@ -268,7 +253,6 @@ internal abstract class KraidFootInstructionProgramDefinitions
         cursor = unchecked((ushort)(cursor + 4));
     }
 
-    /// <summary>Requires cursor.</summary>
     private static void RequireCursor(ushort actual, ushort expected)
     {
         if (actual != expected)

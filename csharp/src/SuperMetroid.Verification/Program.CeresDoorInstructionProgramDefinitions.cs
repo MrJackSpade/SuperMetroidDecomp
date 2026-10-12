@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ceres door instruction program definitions verification.</summary>
 internal static class CeresDoorInstructionProgramDefinitionsVerification
 {
-    /// <summary>verify ceres door instruction program definitions.</summary>
     internal static void VerifyCeresDoorInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresDoorInstructionProgramDefinitions), () => VerifyCeresDoorInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>verify ceres door instruction program definitions.</summary>
     internal static void VerifyCeresDoorInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -224,7 +221,6 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>probe ceres door instruction mechanics allocation.</summary>
     private static int ProbeCeresDoorInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -236,7 +232,6 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>new ceres door instruction program read guard.</summary>
     private static CartridgeReadGuard NewCeresDoorInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(CeresDoorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -245,7 +240,6 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
                 CeresDoorInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Ceres door visual selector byte ${address:X6}.");
 
-    /// <summary>ceres door instruction mechanics command.</summary>
     [VerificationCommand("--ceres-door-instruction-mechanics")]
     internal static int CeresDoorInstructionMechanicsCommand()
     {

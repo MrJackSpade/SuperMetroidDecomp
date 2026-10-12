@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents golden torizo jump landing definitions verification.</summary>
 internal static class GoldenTorizoJumpLandingDefinitionsVerification
 {
-    /// <summary>verify golden torizo jump landing definitions.</summary>
     internal static void VerifyGoldenTorizoJumpLandingDefinitions(ISnesAddressSpace rom)
     {
         const int bank = 0xaa0000;
@@ -41,7 +39,6 @@ internal static class GoldenTorizoJumpLandingDefinitionsVerification
             "Golden Torizo landing catalog does not claim the next opcode");
     }
 
-    /// <summary>golden torizo jump landing definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo jump landing definitions")]
     private static byte GoldenTorizoJumpLandingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

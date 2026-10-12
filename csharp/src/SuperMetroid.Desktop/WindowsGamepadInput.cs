@@ -17,14 +17,10 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed partial class WindowsGamepadInput
 {
-    /// <summary>Stores rediscovery interval seconds.</summary>
     private const double RediscoveryIntervalSeconds = 1.0;
 
-    /// <summary>Stores active device id.</summary>
     private uint activeDeviceId = WindowsGamepadIdentifiers.NoDevice;
-    /// <summary>Stores active capabilities.</summary>
     private JoystickCapabilities activeCapabilities;
-    /// <summary>Stores next discovery timestamp.</summary>
     private long nextDiscoveryTimestamp;
 
     /// <summary>Name reported by the active joystick driver, or null while disconnected.</summary>
@@ -61,7 +57,6 @@ internal sealed partial class WindowsGamepadInput
         return MapAndRemember(position);
     }
 
-    /// <summary>Discover first connected device.</summary>
     private void DiscoverFirstConnectedDevice()
     {
         uint possibleDeviceCount = NativeMethods.JoyGetNumberOfDevices();
@@ -95,7 +90,6 @@ internal sealed partial class WindowsGamepadInput
         }
     }
 
-    /// <summary>Forget active device.</summary>
     private void ForgetActiveDevice()
     {
         if (DeviceName is not null)
@@ -106,7 +100,6 @@ internal sealed partial class WindowsGamepadInput
         LastSnapshot = default;
     }
 
-    /// <summary>Attempts to read.</summary>
     private static bool TryRead(uint deviceId, out JoystickPosition position)
     {
         position = new JoystickPosition
@@ -119,7 +112,6 @@ internal sealed partial class WindowsGamepadInput
             WindowsMultimediaResult.NoError;
     }
 
-    /// <summary>Map and remember.</summary>
     private SnesButton MapAndRemember(JoystickPosition position)
     {
         LastSnapshot = CreateSnapshot(position, activeCapabilities);
@@ -128,14 +120,12 @@ internal sealed partial class WindowsGamepadInput
             faceButtonLayout: ResolveFaceButtonLayout(activeCapabilities));
     }
 
-    /// <summary>Resolves face button layout.</summary>
     private static GenericGamepadFaceButtonLayout ResolveFaceButtonLayout(
         JoystickCapabilities capabilities) =>
         WindowsGamepadIdentifiers.ResolveFaceButtonLayout(
             capabilities.ManufacturerId,
             capabilities.ProductId);
 
-    /// <summary>Creates snapshot.</summary>
     private static GenericGamepadSnapshot CreateSnapshot(
         JoystickPosition position,
         JoystickCapabilities capabilities)
@@ -163,7 +153,6 @@ internal sealed partial class WindowsGamepadInput
             Buttons: position.Buttons);
     }
 
-    /// <summary>Normalize axis.</summary>
     private static short NormalizeAxis(uint value, uint minimum, uint maximum)
     {
         if (maximum <= minimum)
@@ -183,62 +172,37 @@ internal sealed partial class WindowsGamepadInput
         return checked((short)normalized);
     }
 
-    /// <summary>Represents joystick capabilities.</summary>
     [StructLayout(LayoutKind.Sequential)]
     [SpatialComponents("Win32 interop: winmm's JOYCAPSW declares each axis range as separate fields.")]
     private struct JoystickCapabilities
     {
-        /// <summary>Stores manufacturer id.</summary>
         public ushort ManufacturerId;
-        /// <summary>Stores product id.</summary>
         public ushort ProductId;
 
-        /// <summary>Stores product name.</summary>
         public FixedUtf16Name ProductName;
 
-        /// <summary>Stores xminimum.</summary>
         public uint XMinimum;
-        /// <summary>Stores xmaximum.</summary>
         public uint XMaximum;
-        /// <summary>Stores yminimum.</summary>
         public uint YMinimum;
-        /// <summary>Stores ymaximum.</summary>
         public uint YMaximum;
-        /// <summary>Stores zminimum.</summary>
         public uint ZMinimum;
-        /// <summary>Stores zmaximum.</summary>
         public uint ZMaximum;
-        /// <summary>Stores button count.</summary>
         public uint ButtonCount;
-        /// <summary>Stores minimum period.</summary>
         public uint MinimumPeriod;
-        /// <summary>Stores maximum period.</summary>
         public uint MaximumPeriod;
-        /// <summary>Stores rminimum.</summary>
         public uint RMinimum;
-        /// <summary>Stores rmaximum.</summary>
         public uint RMaximum;
-        /// <summary>Stores uminimum.</summary>
         public uint UMinimum;
-        /// <summary>Stores umaximum.</summary>
         public uint UMaximum;
-        /// <summary>Stores vminimum.</summary>
         public uint VMinimum;
-        /// <summary>Stores vmaximum.</summary>
         public uint VMaximum;
-        /// <summary>Stores capabilities.</summary>
         public uint Capabilities;
-        /// <summary>Stores maximum axis count.</summary>
         public uint MaximumAxisCount;
-        /// <summary>Stores axis count.</summary>
         public uint AxisCount;
-        /// <summary>Stores maximum button count.</summary>
         public uint MaximumButtonCount;
 
-        /// <summary>Stores registry key.</summary>
         public FixedUtf16Name RegistryKey;
 
-        /// <summary>Stores oem vx d.</summary>
         public FixedUtf16Path OemVxD;
     }
 
@@ -246,7 +210,6 @@ internal sealed partial class WindowsGamepadInput
     [InlineArray(32)]
     private struct FixedUtf16Name
     {
-        /// <summary>Stores first.</summary>
         private ushort first;
 
         /// <summary>The text before the field's first NUL terminator.</summary>
@@ -257,18 +220,15 @@ internal sealed partial class WindowsGamepadInput
     [InlineArray(260)]
     private struct FixedUtf16Path
     {
-        /// <summary>Stores first.</summary>
         private ushort first;
 
         /// <summary>The text before the field's first NUL terminator.</summary>
         public override readonly string ToString() => FixedUtf16.Read(this);
     }
 
-    /// <summary>Represents fixed utf16.</summary>
     private static class FixedUtf16
     {
         // WCHAR units are stored as ushort: char is not blittable under runtime marshalling.
-        /// <summary>Reads.</summary>
         public static string Read(ReadOnlySpan<ushort> field)
         {
             ReadOnlySpan<char> text = MemoryMarshal.Cast<ushort, char>(field);
@@ -277,54 +237,36 @@ internal sealed partial class WindowsGamepadInput
         }
     }
 
-    /// <summary>Represents joystick position.</summary>
     [StructLayout(LayoutKind.Sequential)]
     [SpatialComponents("Win32 interop: winmm's JOYINFOEX declares each axis reading as separate fields.")]
     private struct JoystickPosition
     {
-        /// <summary>Stores size.</summary>
         public uint Size;
-        /// <summary>Stores flags.</summary>
         public uint Flags;
-        /// <summary>Stores x.</summary>
         public uint X;
-        /// <summary>Stores y.</summary>
         public uint Y;
-        /// <summary>Stores z.</summary>
         public uint Z;
-        /// <summary>Stores r.</summary>
         public uint R;
-        /// <summary>Stores u.</summary>
         public uint U;
-        /// <summary>Stores v.</summary>
         public uint V;
-        /// <summary>Stores buttons.</summary>
         public uint Buttons;
-        /// <summary>Stores button number.</summary>
         public uint ButtonNumber;
-        /// <summary>Stores point of view.</summary>
         public uint PointOfView;
-        /// <summary>Stores reserved1.</summary>
         public uint Reserved1;
-        /// <summary>Stores reserved2.</summary>
         public uint Reserved2;
     }
 
-    /// <summary>Represents native methods.</summary>
     private static partial class NativeMethods
     {
-        /// <summary>Joy get number of devices.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "joyGetNumDevs")]
         public static partial uint JoyGetNumberOfDevices();
 
-        /// <summary>Joy get device capabilities.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "joyGetDevCapsW")]
         public static partial WindowsMultimediaResult JoyGetDeviceCapabilities(
             uint deviceId,
             ref JoystickCapabilities capabilities,
             uint capabilitiesByteCount);
 
-        /// <summary>Joy get position.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "joyGetPosEx")]
         public static partial WindowsMultimediaResult JoyGetPosition(
             uint deviceId,

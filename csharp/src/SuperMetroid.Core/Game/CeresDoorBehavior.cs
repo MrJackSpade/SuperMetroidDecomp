@@ -1,26 +1,18 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Ceres door species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CeresDoorBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores ridley encounter.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
-    /// <summary>Initializes a new ceres door behavior instance.</summary>
     internal CeresDoorBehavior(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter)
     {
         _room = room;
@@ -118,17 +110,11 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Defines ceres door rumble duration.</summary>
     private const ushort CeresDoorRumbleDuration = 0x0030;
-    /// <summary>Defines ceres door rumble interval.</summary>
     private const ushort CeresDoorRumbleInterval = 4;
-    /// <summary>Defines ceres door rumble sound effect.</summary>
     private const ushort CeresDoorRumbleSoundEffect = 0x0025;
-    /// <summary>Defines ceres door smoke animation.</summary>
     private const ushort CeresDoorSmokeAnimation = 3;
-    /// <summary>Defines ceres door explosion animation.</summary>
     private const ushort CeresDoorExplosionAnimation = 0x000c;
-    /// <summary>Defines ceres door escaped status.</summary>
     private const ushort CeresDoorEscapedStatus = 0x8000;
 
 
@@ -139,7 +125,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastCeresDoorSoundEffectLibrary2 { get; private set; }
 
-    /// <summary>Gets selected ceres door visual.</summary>
     private CeresDoorVisualCatalog SelectedCeresDoorVisual =>
         _room.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
             "Ceres door requires installed visual artwork.");
@@ -310,7 +295,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, CeresDoorRumbleSoundEffect), maximumQueued: 6);
     }
 
-    /// <summary>Runs ceres door palette animation.</summary>
     internal void RunCeresDoorPaletteAnimation()
     {
         // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances
@@ -329,7 +313,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         SelectedCeresDoorVisual.LoadAnimationColors(_presentation._cgram!, colorRow);
     }
 
-    /// <summary>Register ceres door initialization ai.</summary>
     internal void RegisterCeresDoorInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_CeresDoor, null, (slot, level, samus, controllerInput, cameraX) =>
@@ -338,7 +321,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register ceres door main ai.</summary>
     internal void RegisterCeresDoorMainAi(EnemyAiTable table)
     {
 
@@ -348,7 +330,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register ceres door owned instructions.</summary>
     internal void RegisterCeresDoorOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

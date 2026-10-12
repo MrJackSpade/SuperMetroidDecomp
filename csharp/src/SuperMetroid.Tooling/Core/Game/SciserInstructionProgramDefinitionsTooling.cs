@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(SciserInstructionProgramDefinitions))]
 internal abstract class SciserInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => SciserInstructionProgramDefinitions.SurfaceCount * 8;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => SciserInstructionProgramDefinitions.SurfaceCount * 4;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -20,13 +17,11 @@ internal abstract class SciserInstructionProgramDefinitionsTooling : IInstructio
         ushort address = (ushort)(SciserInstructionProgramDefinitions.UpsideRight + index / 8 * SciserInstructionProgramDefinitions.ProgramBytes + offset);
         return new(address, SciserInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(SciserInstructionProgramDefinitions.UpsideRight + index / 4 * SciserInstructionProgramDefinitions.ProgramBytes + 6 + index % 4 * 4);
     }
-    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;

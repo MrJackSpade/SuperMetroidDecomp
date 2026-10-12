@@ -16,7 +16,6 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using static EnemyContentIdentityFixtureVerification;
 
-/// <summary>Represents enemy legacy overrides verification.</summary>
 internal static class EnemyLegacyOverridesVerification
 {
     /// <summary>
@@ -138,7 +137,6 @@ internal static class EnemyLegacyOverridesVerification
             .Select(schema => ((int)schema, EnemySpritemapDefinitions.FrameCount(schema)))
             .OrderBy(schema => schema.Item1)];
 
-    /// <summary>Enemy legacy overrides command.</summary>
     [VerificationCommand("--enemy-legacy-overrides")]
     internal static int EnemyLegacyOverridesCommand()
     {

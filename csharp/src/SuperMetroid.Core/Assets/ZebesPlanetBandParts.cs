@@ -8,13 +8,10 @@ namespace SuperMetroid.Core.Assets;
 /// atlas seam, including its documented one-cell-left tile mismatch.</summary>
 internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(CeresDestructionBackdrop? backdrop, SpriteComposition supplied) =>
         backdrop == CeresDestructionBackdrop.Planet
             ? supplied.CalculateIfMatching(new ZebesPlanetBandParts()) : supplied;
-    /// <summary>Gets count.</summary>
     public int Count => 50;
-    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -90,15 +87,12 @@ internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
-/// <summary>Represents zebes planet band atlas.</summary>
 internal static class ZebesPlanetBandAtlas
 {
     /// <summary>Tile00, northwest two-by-two small-cell patch, with empty top-left.</summary>
@@ -123,7 +117,7 @@ internal static class ZebesPlanetBandAtlas
     /// <summary>Tile88, left end of the seven-small-part bottom rim at Y=32.</summary>
     internal const int BottomRim = 0x88;
 
-    /// <summary>Advances a horizontal strip through atlas columns; crossing sixteen
+    /// <summary>Advance a horizontal strip through atlas columns; crossing sixteen
     /// columns skips the atlas row occupied by the bottom halves of large parts.</summary>
     internal static int TwoRowStrip(int start, int column)
     {

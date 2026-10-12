@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents viola instruction program definitions verification.</summary>
 internal static class ViolaInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies viola instruction program definitions.</summary>
     internal static void VerifyViolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyViolaInstructionProgramDefinitions), () => VerifyViolaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies viola instruction program definitions.</summary>
     internal static void VerifyViolaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -111,7 +108,6 @@ internal static class ViolaInstructionProgramDefinitionsVerification
             "mechanics bytes forbidden.");
     }
 
-    /// <summary>Execute viola program.</summary>
     private static void ExecuteViolaProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -126,7 +122,6 @@ internal static class ViolaInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes viola instruction mechanics allocation.</summary>
     private static int ProbeViolaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -140,14 +135,12 @@ internal static class ViolaInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Creates viola instruction read guard.</summary>
     private static CartridgeReadGuard NewViolaInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ViolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Viola mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, ViolaInstructionProgramDefinitions.PresentationWordCount, ViolaInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Viola instruction program definitions command.</summary>
     [VerificationCommand("--viola-instruction-program-definitions")]
     internal static int ViolaInstructionProgramDefinitionsCommand()
     {

@@ -19,9 +19,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class SuperMetroidGame
 {
-    /// <summary>Stores screen fade.</summary>
     private readonly ScreenFadeTimer screenFade = new();
-    /// <summary>Stores menu nmi.</summary>
     private readonly MenuNmiFrameCounters menuNmi = new();
 
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
@@ -274,81 +272,47 @@ public sealed class SuperMetroidGame
         }
     }
 
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
 
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
     public SuperMetroidGameOptions ConfiguredOptions { get; private set; }
-    /// <summary>Stores display.</summary>
     private readonly FrontendDisplay display;
-    /// <summary>Stores save ram.</summary>
     private readonly SuperMetroidSaveRam saveRam;
 
     /// <summary>Boot-time <see cref="Bank80SystemState.MainGameLoopCarry"/>; fixed for the session.</summary>
     private readonly bool bootMainLoopCarry;
-    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState audio = new();
-    /// <summary>Stores title.</summary>
     private TitleSequenceState? title;
-    /// <summary>Stores file select.</summary>
     private FileSelectMenuState? fileSelect;
-    /// <summary>Stores file select map.</summary>
     private FileSelectMapMenuState? fileSelectMap;
-    /// <summary>Stores options.</summary>
     private GameOptionsMenuState? options;
-    /// <summary>Stores game over.</summary>
     private GameOverMenuState? gameOver;
-    /// <summary>Stores intro.</summary>
     private IntroCinematicState? intro;
-    /// <summary>Stores ceres destruction.</summary>
     private CeresDestructionCinematicState? ceresDestruction;
-    /// <summary>Stores ending credits.</summary>
     private EndingCreditsState? endingCredits;
-    /// <summary>Stores pause menu.</summary>
     private PauseMenuState? pauseMenu;
-    /// <summary>Stores runtime.</summary>
     private SuperMetroidRuntime? runtime;
-    /// <summary>Stores ceres departure.</summary>
     private readonly CeresDepartureState ceresDeparture = new();
-    /// <summary>Stores reserve recovery.</summary>
     private readonly SamusReserveAutoRecoveryState reserveRecovery = new();
-    /// <summary>Stores door transition.</summary>
     private readonly DoorTransitionState doorTransition = new();
 
-    /// <summary>Stores selected save slot.</summary>
     private int selectedSaveSlot;
-    /// <summary>Stores loading existing save.</summary>
     private bool loadingExistingSave;
-    /// <summary>Stores spacetime intro restart slot.</summary>
     private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
-    /// <summary>Stores post ceres fade brightness.</summary>
     private byte postCeresFadeBrightness;
-    /// <summary>Stores post ceres fade counter.</summary>
     private int postCeresFadeCounter = 1;
-    /// <summary>Stores gameplay fade leads to ceres arrival.</summary>
     private bool gameplayFadeLeadsToCeresArrival;
-    /// <summary>Stores pause brightness.</summary>
     private byte pauseBrightness = PauseFadeTiming.FullyLit;
-    /// <summary>Stores death palette fade.</summary>
     private CartridgePaletteTransition? deathPaletteFade;
-    /// <summary>Stores time up palette fade.</summary>
     private CartridgePaletteTransition? timeUpPaletteFade;
-    /// <summary>Stores death fade brightness.</summary>
     private byte deathFadeBrightness = 15;
-    /// <summary>Stores death fade counter.</summary>
     private int deathFadeCounter;
-    /// <summary>Stores ending fade brightness.</summary>
     private byte endingFadeBrightness = 15;
-    /// <summary>Stores ending fade counter.</summary>
     private int endingFadeCounter;
-    /// <summary>Stores last audio commands.</summary>
     private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
         Array.Empty<CartridgeAudioCommand>();
-    /// <summary>Stores audio acknowledgements.</summary>
     private CartridgeAudioAcknowledgements audioAcknowledgements;
-    /// <summary>Stores last audio runtime gameplay publication.</summary>
     private ulong? lastAudioRuntimeGameplayPublication;
-    /// <summary>Stores last audio room state pointer.</summary>
     private ushort? lastAudioRoomStatePointer;
 
     /// <summary>Creates a reset-state session, reading the selected SRAM slot and capturing the native boot carry before any dispatcher frame runs.</summary>
@@ -1475,7 +1439,6 @@ public sealed class SuperMetroidGame
                 soundSuppressed: request.SoundSuppressed);
     }
 
-    /// <summary>Collect door sound wait audio requests.</summary>
     private void CollectDoorSoundWaitAudioRequests(SuperMetroidRuntime source)
     {
         // This coroutine completes no ordinary gameplay publication. Only the
@@ -1491,7 +1454,6 @@ public sealed class SuperMetroidGame
                     soundSuppressed: request.SoundSuppressed);
     }
 
-    /// <summary>Gets phase name.</summary>
     private string PhaseName => GameState switch
     {
         SuperMetroidGameState.Reset => "Reset",
@@ -1548,7 +1510,6 @@ public sealed class SuperMetroidGame
         _ => throw new InvalidOperationException($"Undefined SuperMetroidGameState {GameState}."),
     };
 
-    /// <summary>Can enter pause.</summary>
     private bool CanEnterPause(
         bool messageBoxOwnedFrame,
         bool samusInputLockedAtFrameStart)
@@ -1667,7 +1628,6 @@ public sealed class SuperMetroidGame
         }
     }
 
-    /// <summary>Route out of health.</summary>
     private bool RouteOutOfHealth()
     {
         if (runtime?.Player.Samus is not SamusState samus || unchecked((short)samus.Health) > 0)
@@ -1796,7 +1756,6 @@ public sealed class SuperMetroidGame
         finally { display.EndCapture(); }
     }
 
-    /// <summary>Applies display brightness.</summary>
     private void ApplyDisplayBrightness(byte brightness)
     {
         // Every published level is a write of the brightness register $51; pause entry
@@ -1914,7 +1873,6 @@ public sealed class SuperMetroidGame
         display.PublishBlack();
     }
 
-    /// <summary>Applies selected game options.</summary>
     private void ApplySelectedGameOptions()
     {
         // Live edits in options take precedence over the snapshot loaded at file select.
@@ -1945,7 +1903,6 @@ public sealed class SuperMetroidGame
             slot.ReserveEnergy,
             slot.ReserveMode));
 
-    /// <summary>Setup selected game.</summary>
     private bool SetupSelectedGame()
     {
         CreateGameplayRuntime();
@@ -2103,7 +2060,6 @@ public sealed class SuperMetroidGame
         GameState = SuperMetroidGameState.MainGameplayFadeIn;
     }
 
-    /// <summary>Handles gunship landing save.</summary>
     private void HandleGunshipLandingSave()
     {
         if (runtime is null ||
@@ -2112,7 +2068,6 @@ public sealed class SuperMetroidGame
         SaveRamChanged?.Invoke();
     }
 
-    /// <summary>Handles save station persistence.</summary>
     private void HandleSaveStationPersistence()
     {
         if (runtime?.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)
@@ -2126,22 +2081,14 @@ public sealed class SuperMetroidGame
         SaveRamChanged?.Invoke();
     }
 
-    /// <summary>Stores demo set.</summary>
     private int demoSet;
-    /// <summary>Stores demo scene.</summary>
     private int demoScene;
-    /// <summary>Stores demo frames remaining.</summary>
     private int demoFramesRemaining;
-    /// <summary>Stores demo hold frames remaining.</summary>
     private int demoHoldFramesRemaining;
-    /// <summary>Stores demo load frames remaining.</summary>
     private int demoLoadFramesRemaining = -1;
-    /// <summary>Stores demo cancelled.</summary>
     private bool demoCancelled;
-    /// <summary>Stores demo has next scene.</summary>
     private bool demoHasNextScene;
 
-    /// <summary>Advances attract demo.</summary>
     private void StepAttractDemo(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         switch (GameState)
@@ -2253,7 +2200,6 @@ public sealed class SuperMetroidGame
         }
     }
 
-    /// <summary>Finishes attract playback.</summary>
     private void FinishAttractPlayback(bool cancelled)
     {
         demoCancelled = cancelled;
@@ -2261,7 +2207,6 @@ public sealed class SuperMetroidGame
         display.PublishBlack();
     }
 
-    /// <summary>Available demo set count.</summary>
     internal int AvailableDemoSetCount()
     {
         // VerifySRAM unlocks the fourth set only when at least one valid slot exists.
@@ -2291,9 +2236,7 @@ public sealed class SuperMetroidGame
 
     // NMI continuations still owed by the current $82:8000 loading dispatch, and the
     // dispatcher state it selects after its final wait returns.
-    /// <summary>Stores game loading waits remaining.</summary>
     private int gameLoadingWaitsRemaining;
-    /// <summary>Stores game loading completion.</summary>
     private GameLoadingCompletion gameLoadingCompletion;
 
     /// <summary>
@@ -2347,9 +2290,7 @@ public sealed class SuperMetroidGame
 
     // State $09's door function before state $0A. Every door hit installs $82:E17D; a
     // downward elevator replaces it with the $82:E19F delay.
-    /// <summary>Stores waiting for downwards elevator.</summary>
     private bool waitingForDownwardsElevator;
-    /// <summary>Stores downwards elevator delay timer.</summary>
     private int downwardsElevatorDelayTimer;
 
     /// <summary>
@@ -2395,14 +2336,11 @@ public sealed class SuperMetroidGame
     }
 
     // Before a room exists, the frontend still owns the cartridge's live RNG word.
-    /// <summary>Stores menu random.</summary>
     private Bank80SystemState? menuRandom;
 
-    /// <summary>Gets frontend random owner.</summary>
     private Bank80SystemState FrontendRandomOwner =>
         runtime?.System ?? (menuRandom ??= new Bank80SystemState());
 
-    /// <summary>Release runtime preserving random.</summary>
     private void ReleaseRuntimePreservingRandom()
     {
         (menuRandom ??= new()).SetRandomNumber(FrontendRandomOwner.RandomNumber);

@@ -7,10 +7,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy tile artwork shitroid colors verification.</summary>
 internal static class EnemyTileArtworkShitroidColorsVerification
 {
-    /// <summary>Verifies installed shitroid colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
     internal static void VerifyInstalledShitroidColors(

@@ -20,10 +20,8 @@ using static LookupLiquidTilemapsVerification;
 using static LookupSporeTilemapVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents room fx layer3 tilemaps verification.</summary>
 internal static class RoomFxLayer3TilemapsVerification
 {
-    /// <summary>Verifies room fx layer3 tilemaps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for every room-FX BG3 tilemap page")]
     internal static void VerifyRoomFxLayer3Tilemaps()
@@ -61,7 +59,6 @@ internal static class RoomFxLayer3TilemapsVerification
         Console.WriteLine("  Room-FX BG3 tilemaps: six complete native pages and five guarded installed loads pass.");
     }
 
-    /// <summary>Verifies room fx layer3 tilemap override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxLayer3TilemapOverride(
         string stock, string overrides, AreaMapPresentationCatalog baseline)
@@ -109,7 +106,6 @@ internal static class RoomFxLayer3TilemapsVerification
         Console.WriteLine("Room-FX BG3 override: edited lava tile reaches VRAM and removal restores stock.");
     }
 
-    /// <summary>Loads constructed room fx tilemap.</summary>
     private static SnesVram LoadConstructedRoomFxTilemap(RoomFxType type,
         RoomFxLayer3TilemapCatalog catalog, RoomFxPaletteBlendCatalog paletteColors,
         out CartridgeReadGuard guarded)
@@ -130,7 +126,6 @@ internal static class RoomFxLayer3TilemapsVerification
         return vram;
     }
 
-    /// <summary>Creates forbidden room fx tilemap bus.</summary>
     private static CartridgeReadGuard NewForbiddenRoomFxTilemapBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x8a ||
@@ -138,7 +133,6 @@ internal static class RoomFxLayer3TilemapsVerification
                 address < RoomFxRomData.Tables.Layer3TilemapPointers + 14,
             address => $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");
 
-    /// <summary>Runs the fx tilemap sources lookup command.</summary>
     [VerificationCommand("--lookup-fx-tilemap-sources")]
     internal static int LookupFxTilemapSourcesCommand()
     {
@@ -146,7 +140,6 @@ internal static class RoomFxLayer3TilemapsVerification
         return 0;
     }
 
-    /// <summary>Room fx layer3 tilemaps command.</summary>
     [VerificationCommand("--room-fx-layer3-tilemaps")]
     internal static int RoomFxLayer3TilemapsCommand()
     {

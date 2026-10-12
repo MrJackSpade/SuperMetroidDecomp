@@ -13,10 +13,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents ceiling wrap room verification.</summary>
 internal static class CeilingWrapRoomVerification
 {
-    /// <summary>Verifies frog speedway runtime trace.</summary>
     internal static void VerifyFrogSpeedwayRuntimeTrace(string path, ushort beams = 5, bool dash = true)
     {
         string[] native = File.ReadLines(path).Skip(1).ToArray();
@@ -49,7 +47,6 @@ internal static class CeilingWrapRoomVerification
         Console.WriteLine($"PASS {native.Length} native Speedway frames: beams={beams} dash={dash} endpoint={samus.Position.X.Whole}.");
     }
 
-    /// <summary>Verifies frog speedway pool collision.</summary>
     internal static void VerifyFrogSpeedwayPoolCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -87,7 +84,6 @@ internal static class CeilingWrapRoomVerification
         Console.WriteLine("PASS Frog Speedway: live ceiling-shot overload permits unchanged speed-block entry at frame 343.");
     }
 
-    /// <summary>Ceiling wrap room command.</summary>
     [VerificationCommand("--ceiling-wrap-room")]
     internal static int CeilingWrapRoomCommand()
     {
@@ -95,7 +91,6 @@ internal static class CeilingWrapRoomVerification
         return 0;
     }
 
-    /// <summary>Ceiling wrap runtime command.</summary>
     [VerificationCommand("--ceiling-wrap-runtime")]
     internal static int CeilingWrapRuntimeCommand()
     {
@@ -103,7 +98,6 @@ internal static class CeilingWrapRoomVerification
         return 0;
     }
 
-    /// <summary>Ceiling wrap success command.</summary>
     [VerificationCommand("--ceiling-wrap-success")]
     internal static int CeilingWrapSuccessCommand()
     {

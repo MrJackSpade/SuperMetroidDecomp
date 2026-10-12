@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Bank-$8B/$8C definitions for the rescued animals' escape pod ($EF21).</summary>
 internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePresentation
 {
-    /// <summary>Stores presentation.</summary>
     internal static readonly EndingAnimalEscapeDefinitions Presentation = new();
     /// <summary>$8B:DD98 tests event $0F, then $DDA7 forces native byte slot $04.</summary>
     internal const int NativeSlot = 2;
@@ -27,19 +26,14 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     internal const ushort InstructionStart = 0xecd9;
     /// <summary>$8C:BC41-BC56 defines four single-small-OBJ frames, centered at (-4,-4).</summary>
     private const ushort FrameStart = 0xbc41;
-    /// <summary>Stores frame stride.</summary>
     private const ushort FrameStride = 7;
-    /// <summary>Stores frame count.</summary>
     private const int FrameCount = 4;
-    /// <summary>Stores sprite offset.</summary>
     private const ushort SpriteOffset = 4;
     /// <summary>$8C:BC43 starts the priority-three, palette-seven pod tiles $1E0-$1E3.</summary>
     private const ushort FirstAttributes = 0x3fe0;
-    /// <summary>Gets program.</summary>
     private static ReadOnlySpan<ushort> Program =>
         [1, 0xbc41, 1, 0xbc48, 1, 0xbc4f, 1, 0xbc56, 0x94bc, InstructionStart];
 
-    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         int offset = pointer - InstructionStart;
@@ -48,7 +42,6 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
         return Program[offset / 2];
     }
 
-    /// <summary>Draws.</summary>
     public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
     {
         int offset = pointer - FrameStart;

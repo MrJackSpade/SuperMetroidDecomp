@@ -30,7 +30,6 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
         }
     });
 
-    /// <summary>Stores custom words.</summary>
     private readonly Dictionary<ushort, ushort[]>? customWords;
 
     /// <summary>Validates all six linked restoration layouts and copies visual differences without changing linked parent/child collision or restoration programs.</summary>
@@ -80,7 +79,6 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
 
     // Every cell in a linked restoration uses the same visual tile; only its
     // collision link changes. Keep domain identity and geometry in the draw owners.
-    /// <summary>describe.</summary>
     private static bool Describe(ushort pointer, out int runs, out ushort stockWord)
     {
         if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out var bomb))

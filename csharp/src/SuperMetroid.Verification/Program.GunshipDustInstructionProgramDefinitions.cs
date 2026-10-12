@@ -14,15 +14,12 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents gunship dust instruction program definitions verification.</summary>
 internal static class GunshipDustInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies gunship dust instruction program definitions.</summary>
     internal static void VerifyGunshipDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGunshipDustInstructionProgramDefinitions), () => VerifyGunshipDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    /// <summary>Verifies gunship dust instruction program definitions.</summary>
     internal static void VerifyGunshipDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -128,11 +125,9 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Gunship dust instruction program definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship dust instruction program definitions")]
     private static byte GunshipDustInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Probe gunship dust instruction mechanics allocation.</summary>
     private static int ProbeGunshipDustInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -146,14 +141,12 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New gunship dust instruction guard.</summary>
     private static CartridgeReadGuard NewGunshipDustInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(GunshipDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled gunship dust mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, GunshipDustInstructionProgramDefinitions.PresentationWordCount, GunshipDustInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Gunship dust instruction mechanics command.</summary>
     [VerificationCommand("--gunship-dust-instruction-mechanics")]
     internal static int GunshipDustInstructionMechanicsCommand()
     {

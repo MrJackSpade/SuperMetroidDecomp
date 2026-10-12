@@ -3,15 +3,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The five mutually exclusive enemy-death animation variants.</summary>
 internal enum EnemyDeathAnimation : ushort
 {
-    /// <summary>Identifies small explosion.</summary>
     SmallExplosion = 0,
-    /// <summary>Identifies killed by samus contact.</summary>
     KilledBySamusContact = 1,
-    /// <summary>Identifies normal explosion.</summary>
     NormalExplosion = 2,
-    /// <summary>Identifies mini kraid explosion.</summary>
     MiniKraidExplosion = 3,
-    /// <summary>Identifies big explosion.</summary>
     BigExplosion = 4,
 }
 

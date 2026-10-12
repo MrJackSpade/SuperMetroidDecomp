@@ -9,16 +9,11 @@ namespace SuperMetroid.Core.Assets;
 /// Replacing those strokes with coordinate cases would merely disguise the font.</summary>
 internal sealed class MenuShoulderButtonArtwork
 {
-    /// <summary>Defines tile count.</summary>
     internal const int TileCount = 4;
-    /// <summary>Stores left letter.</summary>
     private readonly ushort leftLetter, rightLetter;
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, byte>? edits;
-    /// <summary>Contains.</summary>
     internal static bool Contains(int tile) => tile is >= 0x28 and <= 0x2a or 0x2e;
 
-    /// <summary>Initializes a new menu shoulder button artwork instance.</summary>
     internal MenuShoulderButtonArtwork(IndexedPngImage image)
     {
         leftLetter = ReadLetter(0x29);
@@ -44,14 +39,12 @@ internal sealed class MenuShoulderButtonArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
-    /// <summary>Pixel.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
-    /// <summary>Basis.</summary>
     private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         if (point.Y == 7) return 0;

@@ -2,24 +2,16 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
-/// <summary>Represents lookup torizo door program verification.</summary>
 internal static class LookupTorizoDoorProgramVerification
 {
-    /// <summary>Verifies torizo door controls.</summary>
     internal static void VerifyTorizoDoorControls(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 0);
-    /// <summary>Verifies torizo door draws.</summary>
     internal static void VerifyTorizoDoorDraws(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 1);
-    /// <summary>Verifies torizo door targets.</summary>
     internal static void VerifyTorizoDoorTargets(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 2);
-    /// <summary>Verifies torizo door sounds.</summary>
     internal static void VerifyTorizoDoorSounds(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 3);
-    /// <summary>Verifies torizo door hit count.</summary>
     internal static void VerifyTorizoDoorHitCount(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 4);
 
-    /// <summary>Verifies torizo door callback.</summary>
     internal static void VerifyTorizoDoorCallback(SuperMetroidAddressSpace rom) => VerifyTorizoDoorField(rom, 5);
 
-    /// <summary>Verifies torizo door field.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo door field")]
     private static void VerifyTorizoDoorField(SuperMetroidAddressSpace rom, int field)
     {

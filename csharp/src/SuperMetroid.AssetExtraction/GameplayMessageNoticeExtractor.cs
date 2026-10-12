@@ -104,7 +104,6 @@ public static class GameplayMessageNoticeExtractor
         return output.ToArray();
     }
 
-    /// <summary>Reads selection.</summary>
     private static GameplayMessageTitleCell[] ReadSelection(
         ISnesAddressSpace bus,
         int sourceWord)

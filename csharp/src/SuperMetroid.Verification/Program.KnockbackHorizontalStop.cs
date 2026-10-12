@@ -2,10 +2,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents knockback horizontal stop verification.</summary>
 internal static class KnockbackHorizontalStopVerification
 {
-    /// <summary>Verifies knockback horizontal stop.</summary>
     internal static void VerifyKnockbackHorizontalStop()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

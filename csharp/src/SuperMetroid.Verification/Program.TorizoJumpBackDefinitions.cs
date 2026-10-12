@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents torizo jump back definitions verification.</summary>
 internal static class TorizoJumpBackDefinitionsVerification
 {
-    /// <summary>Verifies torizo jump back definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo jump back definitions")]
     internal static void VerifyTorizoJumpBackDefinitions(ISnesAddressSpace rom)
     {
@@ -123,7 +121,6 @@ internal static class TorizoJumpBackDefinitionsVerification
         Suite(nameof(VerifyTorizoJumpBackLeftDefinitions), () => VerifyTorizoJumpBackLeftDefinitions(rom));
     }
 
-    /// <summary>Verifies torizo jump back left definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo jump back left definitions")]
     private static void VerifyTorizoJumpBackLeftDefinitions(ISnesAddressSpace rom)
     {

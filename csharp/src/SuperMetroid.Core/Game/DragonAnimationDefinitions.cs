@@ -56,7 +56,6 @@ internal static class DragonAnimationDefinitions
         DragonAnimationSelector selector) =>
         (DragonAnimationSelector)(RequireLiveIndex(selector) & 1);
 
-    /// <summary>Requires live index.</summary>
     private static int RequireLiveIndex(DragonAnimationSelector selector)
     {
         int index = (int)selector;

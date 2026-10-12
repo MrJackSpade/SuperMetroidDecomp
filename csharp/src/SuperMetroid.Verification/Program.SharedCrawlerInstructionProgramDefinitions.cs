@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents shared crawler instruction program definitions verification.</summary>
 internal static class SharedCrawlerInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies shared crawler instruction program definitions.</summary>
     internal static void VerifySharedCrawlerInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies shared crawler instruction program definitions.</summary>
     internal static void VerifySharedCrawlerInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
@@ -107,7 +104,6 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
               "execute without cartridge visual-selector reads.");
     }
 
-    /// <summary>Execute shared crawler program.</summary>
     private static void ExecuteSharedCrawlerProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -122,7 +118,6 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes shared crawler instruction mechanics allocation.</summary>
     private static int ProbeSharedCrawlerInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -136,14 +131,12 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads shared crawler instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for shared crawler instruction words")]
     internal static ushort ReadSharedCrawlerInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
 
-    /// <summary>Creates shared crawler instruction read guard.</summary>
     private static CartridgeReadGuard NewSharedCrawlerInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
         var guard = new CartridgeReadGuard(source).Forbid(SharedCrawlerInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -154,7 +147,6 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa30000, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
-    /// <summary>Shared crawler instruction program definitions command.</summary>
     [VerificationCommand("--shared-crawler-instruction-program-definitions")]
     internal static int SharedCrawlerInstructionProgramDefinitionsCommand()
     {

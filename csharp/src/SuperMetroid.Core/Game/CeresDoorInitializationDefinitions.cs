@@ -3,19 +3,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The seven mutually exclusive meanings of Ceres-door population parameter one.</summary>
 internal enum CeresDoorVariant : ushort
 {
-    /// <summary>Identifies normal facing right.</summary>
     NormalFacingRight = 0,
-    /// <summary>Identifies normal facing left.</summary>
     NormalFacingLeft = 1,
-    /// <summary>Identifies rotating elevator pre explosion overlay.</summary>
     RotatingElevatorPreExplosionOverlay = 2,
-    /// <summary>Identifies ridley room facing right.</summary>
     RidleyRoomFacingRight = 3,
-    /// <summary>Identifies rotating elevator invisible wall.</summary>
     RotatingElevatorInvisibleWall = 4,
-    /// <summary>Identifies ridley escape mode7 left wall.</summary>
     RidleyEscapeMode7LeftWall = 5,
-    /// <summary>Identifies ridley escape mode7 right wall.</summary>
     RidleyEscapeMode7RightWall = 6,
 }
 

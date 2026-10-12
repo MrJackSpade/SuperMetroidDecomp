@@ -5,24 +5,15 @@ namespace SuperMetroid.Game;
 /// <summary>First-launch ROM selection and recoverable installation without blocking the UI thread.</summary>
 internal sealed class RomSetupForm : Form
 {
-    /// <summary>Stores source path.</summary>
     private readonly string? sourcePath;
-    /// <summary>Stores stopping.</summary>
     private readonly CancellationTokenSource stopping = new();
-    /// <summary>Stores status.</summary>
     private readonly Label status = new() { AutoSize = false, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft };
-    /// <summary>Stores choose.</summary>
     private readonly Button choose = new() { Text = "Choose ROM…", AutoSize = true };
-    /// <summary>Stores progress bar.</summary>
     private readonly ProgressBar progressBar = new() { Dock = DockStyle.Bottom, Height = 12, Style = ProgressBarStyle.Marquee };
-    /// <summary>Stores busy.</summary>
     private bool busy;
-    /// <summary>Stores close requested.</summary>
     private bool closeRequested;
-    /// <summary>Gets or sets installation.</summary>
     public GameInstallation? Installation { get; private set; }
 
-    /// <summary>Initializes a new rom setup form instance.</summary>
     public RomSetupForm(string[] arguments)
     {
         if (arguments.Length > 1) throw new ArgumentException("Supply at most one ROM path.");
@@ -61,14 +52,12 @@ internal sealed class RomSetupForm : Form
         AcceptButton = choose;
     }
 
-    /// <summary>on shown.</summary>
     protected override async void OnShown(EventArgs e)
     {
         base.OnShown(e);
         await Prepare(string.IsNullOrWhiteSpace(sourcePath) ? null : sourcePath);
     }
 
-    /// <summary>prepare.</summary>
     private async Task Prepare(string? source)
     {
         busy = true;
@@ -95,7 +84,6 @@ internal sealed class RomSetupForm : Form
         else if (Installation is not null) { DialogResult = DialogResult.OK; Close(); }
     }
 
-    /// <summary>on form closing.</summary>
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
         if (busy)
@@ -107,7 +95,6 @@ internal sealed class RomSetupForm : Form
         base.OnFormClosing(e);
     }
 
-    /// <summary>Releases resources held by this instance.</summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing) stopping.Dispose();

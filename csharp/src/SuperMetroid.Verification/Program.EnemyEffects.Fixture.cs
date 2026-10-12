@@ -7,26 +7,18 @@ using SuperMetroid.Core.Spatial;
 using static EnemyAnimationIsolationFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents enemy effects fixture verification.</summary>
 internal static class EnemyEffectsFixtureVerification
 {
     /// <summary>Known melt phases, pure RAM and authored PNG/JSON; no cartridge capability.</summary>
     internal sealed class CrocomireEffectFixture
     {
-        /// <summary>Stores private instance.</summary>
         private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
-        /// <summary>Gets memory.</summary>
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        /// <summary>Gets vram.</summary>
         internal SnesVram Vram { get; } = new();
-        /// <summary>Gets enemies.</summary>
         internal RoomEnemySystem Enemies { get; } = new();
-        /// <summary>Gets actor.</summary>
         internal CrocomireEnemyState Actor { get; }
-        /// <summary>Gets effect.</summary>
         internal CrocomireDeathState Effect { get; } = new();
 
-        /// <summary>Initializes a new crocomire effect fixture instance.</summary>
         internal CrocomireEffectFixture(CrocomireMeltingArtwork? art = null)
         {
             if (art is not null)
@@ -45,11 +37,9 @@ internal static class EnemyEffectsFixtureVerification
             Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
         }
 
-        /// <summary>Bind.</summary>
         private void Bind(string field, object value) => typeof(RoomEnemySystem)
             .GetField(field, PrivateInstance)!.SetValue(Enemies, value);
 
-        /// <summary>Initializes map.</summary>
         internal void InitializeMap(int source) => typeof(RoomEnemySystem)
             .GetMethod("InitializeCrocomireMeltingTilemap", PrivateInstance)!
             .CreateDelegate<Action<CrocomireEnemyState, int, ushort>>(Enemies)(
@@ -60,11 +50,9 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Runs one Crocomire melting step, selected from the fixture's Crocomire behavior, on its actor.</summary>
         internal void Call(Func<CrocomireBehavior, Action<CrocomireEnemyState>> select) => select(Enemies.CrocomireBehavior)(Actor);
 
-        /// <summary>Dissolve.</summary>
         internal void Dissolve() => new Action<CrocomireEnemyState, SamusState?>(Enemies.CrocomireBehavior.RunCrocomireMelting)(Actor, null);
     }
 
-    /// <summary>Asserts crocomire effect mechanics.</summary>
     internal static void AssertCrocomireEffectMechanics(CrocomireEffectFixture expected,
         CrocomireEffectFixture actual, string context)
     {
@@ -86,7 +74,6 @@ internal static class EnemyEffectsFixtureVerification
 
     // Decode authored bitplanes and write a genuine indexed PNG so fixtures exercise the
     // production asset compiler, rather than injecting unvalidated private buffers.
-    /// <summary>Effect png.</summary>
     internal static MemoryStream EffectPng(int byteCount, int usedBytes, byte pattern)
     {
         var bytes = new byte[byteCount];
@@ -100,12 +87,10 @@ internal static class EnemyEffectsFixtureVerification
         return output;
     }
 
-    /// <summary>Corpse effect artwork.</summary>
     internal static RoomCharacterAtlas CorpseEffectArtwork(byte pattern) => RoomCharacterAtlas.Load(
         EffectPng(MotherBrainCorpseArtworkDefinitions.ByteCount, MotherBrainCorpseArtworkDefinitions.ByteCount, pattern),
         MotherBrainCorpseArtworkDefinitions.ByteCount);
 
-    /// <summary>Melt effect json.</summary>
     internal static string MeltEffectJson(int seed = 0) => JsonSerializer.Serialize(new CrocomireMeltingTilemapDocument
     {
         Version = CrocomireMeltingArtworkFormat.TilemapVersion,
@@ -119,7 +104,6 @@ internal static class EnemyEffectsFixtureVerification
             }).ToArray(),
     }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-    /// <summary>Melt effect artwork.</summary>
     internal static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,
         int seed = 0, string? firstJson = null)
     {

@@ -1,6 +1,5 @@
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>Represents ending reward graphics upload definitions.</summary>
 internal static class EndingRewardGraphicsUploadDefinitions
 {
     /// <summary>$7F:4000: decompressed post-credits icon staging buffer.</summary>
@@ -30,7 +29,6 @@ internal static class EndingRewardGraphicsUploadDefinitions
         return index * (ChunkBytes / sizeof(ushort));
     }
 
-    /// <summary>Validates index.</summary>
     private static void ValidateIndex(int index)
     {
         if ((uint)index >= EndingRewardJumpDefinitions.UploadCount)

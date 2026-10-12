@@ -6,19 +6,15 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.ResourceAudit;
 
-/// <summary>Represents provider index domain.</summary>
 internal readonly record struct ProviderIndexDomain(int First, int Count, int Stride = 1, int? Additional = null, int? AdditionalMaximum = null)
 {
-    /// <summary>Contains.</summary>
     internal bool Contains(int value) => (Additional is int extra && value >= extra && value <= (AdditionalMaximum ?? extra)) || value >= First && (value - First) % Stride == 0 && (value - First) / Stride < Count;
-    /// <summary>Gets description.</summary>
     internal string Description => $"{First}..{First + (Count - 1) * Stride}, stride {Stride}" + (Additional is int extra ? $" or {extra}..{AdditionalMaximum ?? extra}" : "");
 }
 
 /// <summary>Finite index domains from the source-reviewed loader/selector contracts.</summary>
 internal static class ClosedPresentationIndexDefinitions
 {
-    /// <summary>Get.</summary>
     internal static ProviderIndexDomain? Get(string type, string method, string parameter) => (type, method, parameter) switch
     {
         ("GameplayHudPresentation", "TryApplyIcon", "itemIndex") => new(0, 5),

@@ -8,7 +8,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 using static AssertionsVerification;
 
-/// <summary>Represents spatial debugger migrations verification.</summary>
 internal static class SpatialDebuggerMigrationsVerification
 {
     /// <summary>
@@ -263,7 +262,6 @@ internal static class SpatialDebuggerMigrationsVerification
     /// <summary>A legacy field payload: an array of the retired per-line scroll pair, written in its historical shape.</summary>
     internal sealed record RetiredLineScrolls(Position16<BgPlanePixels>[] Lines);
 
-    /// <summary>Writes retired neck point.</summary>
     private static void WriteRetiredNeckPoint(BinaryWriter writer, Stream data, Position16<RoomPixels> point)
     {
         const byte newObjectMarker = 2, fieldPayloadKind = 5;
@@ -282,7 +280,6 @@ internal static class SpatialDebuggerMigrationsVerification
         }
     }
 
-    /// <summary>Writes retired line scrolls.</summary>
     private static void WriteRetiredLineScrolls(BinaryWriter writer, Stream data, Position16<BgPlanePixels>[] lines)
     {
         const byte newObjectMarker = 2, arrayPayloadKind = 3, fieldPayloadKind = 5;

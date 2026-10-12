@@ -2,10 +2,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents lookup rain velocity verification.</summary>
 internal static class LookupRainVelocityVerification
 {
-    /// <summary>Verifies rain horizontal velocity.</summary>
     internal static void VerifyRainHorizontalVelocity(SuperMetroidAddressSpace rom)
     {
         for (int selection = 0; selection < 4; selection++)

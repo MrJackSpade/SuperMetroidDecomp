@@ -16,10 +16,8 @@ using static LookupRetailDoorHeadersVerification;
 using static LookupRetailDoorListsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents door definitions verification.</summary>
 internal static class DoorDefinitionsVerification
 {
-    /// <summary>Verifies compiled door definitions.</summary>
     internal static void VerifyCompiledDoorDefinitions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -32,7 +30,6 @@ internal static class DoorDefinitionsVerification
         Console.WriteLine("Doors: all597 physical headers, full elevator overlap and262 room lists match original ROM; collision resolves without native reads.");
     }
 
-    /// <summary>Verifies compiled door list collision.</summary>
     internal static void VerifyCompiledDoorListCollision()
     {
         DoorListDefinition landingDoors = DoorDefinitionsTooling.GetList(
@@ -47,7 +44,6 @@ internal static class DoorDefinitionsVerification
 
     }
 
-    /// <summary>Enumerate retail door pointers.</summary>
     internal static IEnumerable<ushort> EnumerateRetailDoorPointers()
     {
         for (int pointer = DoorHeaderRomDataConstants.PreFxBlockStart;
@@ -65,18 +61,15 @@ internal static class DoorDefinitionsVerification
         }
     }
 
-    /// <summary>Reads verification word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for door definition words")]
     internal static ushort ReadVerificationWord(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>New door no read address space.</summary>
     internal static CartridgeReadGuard NewDoorNoReadAddressSpace() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Compiled door collision read address ${address:X6}.")
             .RejectWrites(address => $"Compiled door collision wrote address ${address:X6}.");
 
-    /// <summary>Door definitions command.</summary>
     [VerificationCommand("--door-definitions")]
     internal static int DoorDefinitionsCommand()
     {

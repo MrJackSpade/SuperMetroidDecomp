@@ -28,12 +28,9 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] ShotDurations = [1, 3, 6, 5, 5, 5, 6];
     // Closed-emitter hold 1 and airborne/stalk holds 5 are the same authored cadence (reviewed under #1165).
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 28;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 17;
 
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -73,7 +70,6 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
         });
     }
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -84,13 +80,11 @@ internal abstract class SporeSpawnProjectileInstructionProgramDefinitions
         int shot = index - 10;
         return (ushort)(SporeShot + (shot == 0 ? 2 : shot < 4 ? 8 + 4 * (shot - 1) : 22 + 4 * (shot - 4)));
     }
-    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.SporeSpawnStalk or
         RoomEnemyProjectileKind.SporeSpawnSpore or
         RoomEnemyProjectileKind.SporeSpawnSpawner;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

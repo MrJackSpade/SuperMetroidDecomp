@@ -11,7 +11,6 @@ internal static class MorphBallEyeVisualDefinitions
     /// <summary>Native eye-body and mount spritemap bank.</summary>
     internal const byte Bank = 0xa8;
 
-    /// <summary>frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, 0x9210, "morph_eye_active_0"),

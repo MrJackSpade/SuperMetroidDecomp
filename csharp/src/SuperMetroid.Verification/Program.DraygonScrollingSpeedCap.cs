@@ -13,7 +13,6 @@ using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents draygon scrolling speed cap verification.</summary>
 internal static class DraygonScrollingSpeedCapVerification
 {
     /// <summary>
@@ -43,7 +42,6 @@ internal static class DraygonScrollingSpeedCapVerification
         Console.WriteLine("  Draygon scrolling-speed cap: carried Samus's previous position stays within twelve pixels.");
     }
 
-    /// <summary>previous after draygon move.</summary>
     private static (ushort X, ushort Y) PreviousAfterDraygonMove(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, FixedPosition<RoomPixels> checkpoint, Position16<RoomPixels> body)
     {
@@ -60,7 +58,6 @@ internal static class DraygonScrollingSpeedCapVerification
         return samus.PeekPreviousPositionWords(checkpoint);
     }
 
-    /// <summary>draygon scrolling speed cap command.</summary>
     [VerificationCommand("--draygon-scrolling-speed-cap")]
     internal static int DraygonScrollingSpeedCapCommand()
     {

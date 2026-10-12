@@ -2,10 +2,8 @@ using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents spc dsp publication verification.</summary>
 internal static class SpcDspPublicationVerification
 {
-    /// <summary>Verifies spc dsp publication.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC DSP publication")]
     internal static void VerifySpcDspPublication(ISnesAddressSpace rom)

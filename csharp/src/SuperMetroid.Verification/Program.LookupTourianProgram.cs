@@ -4,10 +4,8 @@ using static DoorDefinitionsVerification;
 using static LookupTourianArtworkVerification;
 using static LookupTourianDescriptorsVerification;
 
-/// <summary>Represents lookup tourian program verification.</summary>
 internal static class LookupTourianProgramVerification
 {
-    /// <summary>Verifies tourian statue source operand positions.</summary>
     private static void VerifyTourianStatueSourceOperandPositions(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -26,7 +24,6 @@ internal static class LookupTourianProgramVerification
         }
     }
 
-    /// <summary>Verifies tourian statue instruction opcodes.</summary>
     private static void VerifyTourianStatueInstructionOpcodes(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -34,7 +31,6 @@ internal static class LookupTourianProgramVerification
             VerifyTourianStatueOriginalWord(rom, header, instruction.Cursor);
     }
 
-    /// <summary>Verifies tourian statue subsequent durations.</summary>
     private static void VerifyTourianStatueSubsequentDurations(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -42,7 +38,6 @@ internal static class LookupTourianProgramVerification
             VerifyTourianStatueOriginalWord(rom, header, frame.Cursor);
     }
 
-    /// <summary>Verifies tourian statue branch destinations.</summary>
     private static void VerifyTourianStatueBranchDestinations(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -59,7 +54,6 @@ internal static class LookupTourianProgramVerification
         }
     }
 
-    /// <summary>Verifies tourian statue busy state operand.</summary>
     private static void VerifyTourianStatueBusyStateOperand(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
@@ -70,7 +64,6 @@ internal static class LookupTourianProgramVerification
         }
     }
 
-    /// <summary>Verifies tourian statue mechanics domain.</summary>
     private static void VerifyTourianStatueMechanicsDomain(ISnesAddressSpace rom)
     {
         int total = 0;
@@ -93,7 +86,6 @@ internal static class LookupTourianProgramVerification
         AssertEqual(184, total, "All original mechanics words partitioned by named field/control proofs");
     }
 
-    /// <summary>Verifies tourian statue original word.</summary>
     private static void VerifyTourianStatueOriginalWord(ISnesAddressSpace rom, ushort header, ushort pointer)
     {
         AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header, out var definition),
@@ -102,7 +94,6 @@ internal static class LookupTourianProgramVerification
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Original statue control word");
     }
 
-    /// <summary>Verifies tourian statue program mappings.</summary>
     internal static void VerifyTourianStatueProgramMappings(ISnesAddressSpace rom)
     {
         VerifyTourianStatueSourceOperandPositions(rom);

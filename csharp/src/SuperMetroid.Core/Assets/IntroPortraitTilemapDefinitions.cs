@@ -13,10 +13,8 @@ internal static class IntroPortraitTilemapDefinitions
     private const int Top = 5;
     /// <summary>$97:88CC: chosen blank tile $3FE and palette three, no priority or reflections; RGB paint and tile pixels are separate.</summary>
     private const ushort Blank = 0x0ffe;
-    /// <summary>Stores style.</summary>
     private const ushort Style = 3 << 10;
 
-    /// <summary>Compile.</summary>
     internal static byte[] Compile()
     {
         const int columns = IntroCinematicArtworkFormat.TileColumns;

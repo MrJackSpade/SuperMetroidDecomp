@@ -14,7 +14,6 @@ using SuperMetroid.AssetExtraction;
 using static LookupAnimatedAreasVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents area animated tile object definitions verification.</summary>
 internal static class AreaAnimatedTileObjectDefinitionsVerification
 {
     /// <summary>
@@ -40,7 +39,6 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
             "selectors are compiled; both production owners reject their ROM sources.");
     }
 
-    /// <summary>verify compiled area selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled area selection")]
     private static void VerifyCompiledAreaSelection(
         ISnesAddressSpace rom,
@@ -75,7 +73,6 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
                     $"{SnesAddress.FromBusAddress(address)}.")
             .RejectWrites(_ => "Read-only verification bus.");
 
-    /// <summary>is compiled area animated tile source.</summary>
     private static bool IsCompiledAreaAnimatedTileSource(int address)
     {
         if (address >= AreaAnimatedTileObjectDefinitions.NativeListPointerTable &&
@@ -105,7 +102,6 @@ internal static class AreaAnimatedTileObjectDefinitionsVerification
         return false;
     }
 
-    /// <summary>area animated tile definitions command.</summary>
     [VerificationCommand("--area-animated-tile-definitions")]
     internal static int AreaAnimatedTileDefinitionsCommand()
     {

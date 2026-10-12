@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 
-/// <summary>Represents pause palette sound verification.</summary>
 internal static class PausePaletteSoundVerification
 {
-    /// <summary>Verifies pause palette sound.</summary>
     internal static void VerifyPausePaletteSound()
     {
         string rom = Path.GetFullPath("Super Metroid.smc");

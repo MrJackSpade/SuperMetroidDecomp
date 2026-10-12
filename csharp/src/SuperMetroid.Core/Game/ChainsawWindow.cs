@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,10 +6,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The misaligned Chainsaw callback: it stores into the shared cached window registers ($60..$6D) before running the power-bomb pre-instruction.</summary>
 internal sealed class ChainsawWindow
 {
-    /// <summary>Stores animation.</summary>
     private readonly ProjectileAnimation _animation;
 
-    /// <summary>Initializes a new chainsaw window instance.</summary>
     internal ChainsawWindow(ProjectileAnimation animation)
     {
         _animation = animation;

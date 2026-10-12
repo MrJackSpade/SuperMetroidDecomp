@@ -3,10 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid rock launch definitions verification.</summary>
 internal static class KraidRockLaunchDefinitionsVerification
 {
-    /// <summary>Verifies kraid rock launch speed selection.</summary>
     private static void VerifyKraidRockLaunchSpeedSelection(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -18,11 +16,9 @@ internal static class KraidRockLaunchDefinitionsVerification
         }
     }
 
-    /// <summary>Kraid rock launch speed selection rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock launch speed selection")]
     private static byte KraidRockLaunchSpeedSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies kraid rock launch definitions.</summary>
     internal static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         Suite(nameof(VerifyKraidRockLaunchSpeedSelection), () => VerifyKraidRockLaunchSpeedSelection(rom));
@@ -70,11 +66,9 @@ internal static class KraidRockLaunchDefinitionsVerification
         Console.WriteLine("Kraid rock launch: eight native words and 65536 actual wrapped spawns pass with table reads and RNG advances forbidden.");
     }
 
-    /// <summary>Kraid rock launch definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock launch definitions")]
     private static byte KraidRockLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Creates kraid rock guard.</summary>
     private static CartridgeReadGuard NewKraidRockGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .ForbidRange(0xa7bc65, 0xa7bc75 - 0xa7bc65, _ => "Unexpected migrated Kraid rock velocity read.")

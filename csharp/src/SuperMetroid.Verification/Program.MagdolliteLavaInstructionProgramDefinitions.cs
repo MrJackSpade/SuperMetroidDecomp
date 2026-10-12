@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents magdollite lava instruction program definitions verification.</summary>
 internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies magdollite lava instruction program definitions.</summary>
     internal static void VerifyMagdolliteLavaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies magdollite lava instruction program definitions.</summary>
     internal static void VerifyMagdolliteLavaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -184,7 +181,6 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes magdollite lava instruction mechanics allocation.</summary>
     private static int ProbeMagdolliteLavaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -202,7 +198,6 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New magdollite lava instruction guard.</summary>
     private static CartridgeReadGuard NewMagdolliteLavaInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -211,7 +206,6 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Magdollite/shared mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount, MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Magdollite lava instruction mechanics command.</summary>
     [VerificationCommand("--magdollite-lava-instruction-mechanics")]
     internal static int MagdolliteLavaInstructionMechanicsCommand()
     {

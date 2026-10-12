@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static HZoomerInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents hzoomer artwork verification.</summary>
 internal static class HZoomerArtworkVerification
 {
-    /// <summary>Verifies installed hzoomer instruction frames.</summary>
     internal static void VerifyInstalledHZoomerInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {

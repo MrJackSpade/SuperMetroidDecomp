@@ -13,17 +13,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents mama turtle instruction program definitions verification.</summary>
 internal static class MamaTurtleInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies mama turtle instruction program definitions.</summary>
     internal static void VerifyMamaTurtleInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMamaTurtleInstructionProgramDefinitions), () => VerifyMamaTurtleInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies mama turtle instruction program definitions.</summary>
     internal static void VerifyMamaTurtleInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -89,7 +86,6 @@ internal static class MamaTurtleInstructionProgramDefinitionsVerification
             "byte ownership, 75 presentation addresses, bounds and allocation checks pass.");
     }
 
-    /// <summary>Probe mama turtle instruction mechanics allocation.</summary>
     private static int ProbeMamaTurtleInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -103,7 +99,6 @@ internal static class MamaTurtleInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Mama turtle instruction program definitions command.</summary>
     [VerificationCommand("--mama-turtle-instruction-program-definitions")]
     internal static int MamaTurtleInstructionProgramDefinitionsCommand()
     {

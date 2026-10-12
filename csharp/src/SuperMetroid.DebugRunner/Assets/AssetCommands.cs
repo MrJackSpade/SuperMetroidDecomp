@@ -6,10 +6,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents asset commands.</summary>
 internal static class AssetCommands
 {
-/// <summary>Runs.</summary>
 public static int Run(string[] args)
 {
 try
@@ -183,7 +181,6 @@ catch (Exception exception)
 
 }
 
-/// <summary>Resolves workspace path.</summary>
 static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
 {
     ArgumentException.ThrowIfNullOrWhiteSpace(argument);
@@ -222,7 +219,6 @@ static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
     return Path.GetFullPath(Path.Combine(repositoryRoot, argument));
 }
 
-/// <summary>Parses loop replacement.</summary>
 static PcmSampleLoopReplacement ParseLoopReplacement(string value)
 {
     if (value.Equals("preserve", StringComparison.OrdinalIgnoreCase))
@@ -238,7 +234,6 @@ static PcmSampleLoopReplacement ParseLoopReplacement(string value)
         $"Replacement loop '{value}' must be 'preserve', 'none', or a non-negative PCM sample index.");
 }
 
-/// <summary>Contains standalone assets segment.</summary>
 static bool ContainsStandaloneAssetsSegment(string path)
 {
     string normalized = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
@@ -248,7 +243,6 @@ static bool ContainsStandaloneAssetsSegment(string path)
             StringComparison.OrdinalIgnoreCase);
 }
 
-/// <summary>Finds repository root.</summary>
 static string? FindRepositoryRoot()
 {
     // AppContext.BaseDirectory handles a directly launched Debug/Release executable;
@@ -266,7 +260,6 @@ static string? FindRepositoryRoot()
     return null;
 }
 
-/// <summary>Requires raw asset directory.</summary>
 static void RequireRawAssetDirectory(string path)
 {
     if (!Directory.Exists(path))
@@ -289,7 +282,6 @@ static void RequireRawAssetDirectory(string path)
     }
 }
 
-/// <summary>Decode if compressed.</summary>
 static byte[] DecodeIfCompressed(byte[] stored, bool palette, TileFormat? format, out bool compressed)
 {
     compressed = false;
@@ -312,7 +304,6 @@ static byte[] DecodeIfCompressed(byte[] stored, bool palette, TileFormat? format
     return candidate;
 }
 
-/// <summary>Classify tile format.</summary>
 static TileFormat? ClassifyTileFormat(string name)
 {
     // These prefixes come from semantic labels in the annotated disassembly. Tile tables,
@@ -333,10 +324,8 @@ static TileFormat? ClassifyTileFormat(string name)
     return TileFormat.Planar4Bpp;
 }
 
-/// <summary>Represents tile format.</summary>
-internal enum TileFormat { /** <summary>Identifies planar2 bpp.</summary> */ Planar2Bpp, /** <summary>Identifies planar4 bpp.</summary> */ Planar4Bpp, /** <summary>Identifies mode7.</summary> */ Mode7 }
+internal enum TileFormat { Planar2Bpp, Planar4Bpp, Mode7 }
 
-/// <summary>Represents asset record.</summary>
 internal sealed record AssetRecord(
     string? Png);
 

@@ -55,9 +55,7 @@ internal abstract class PhantoonInstructionProgramDefinitions
     /// <summary>Mouth preparation dwell at A7:CCEB/CCEF. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort MouthPreparationFrames = 5;
 
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 58;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 27;
 
     /// <summary>Calculates control positions from named sleep, transition, callback and loop layouts.</summary>
@@ -110,15 +108,12 @@ internal abstract class PhantoonInstructionProgramDefinitions
         return SleepWord(InitialMouth, index - 56);
     }
 
-    /// <summary>frame.</summary>
     private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
         new((ushort)(start + frame * 4), duration);
 
-    /// <summary>sleep word.</summary>
     private static InstructionMechanicsWord SleepWord(ushort start, int word) =>
         new((ushort)(start + word * 4), word == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
 
-    /// <summary>close word.</summary>
     private static InstructionMechanicsWord CloseWord(ushort start, int word, bool pickPattern)
     {
         if (word < 2) return Frame(start, word, word == 0 ? (ushort)1 : EyeTransitionFrames);
@@ -172,16 +167,13 @@ internal abstract class PhantoonInstructionProgramDefinitions
         return PhantoonBg2FrameDefinitions.MouthPose(0);
     }
 
-    /// <summary>is presentation word.</summary>
     internal static bool IsPresentationWord(ushort address) => PresentationIndex(address) >= 0;
-    /// <summary>frame at.</summary>
     internal static ushort FrameAt(ushort address)
     {
         int index = PresentationIndex(address);
         return index >= 0 ? PresentationFrame(index)
             : throw new InvalidDataException($"Phantoon visual operand $A7:{address:X4} is not compiled.");
     }
-    /// <summary>presentation index.</summary>
     private static int PresentationIndex(ushort address)
     {
         int low = 0, high = PresentationWordCount - 1;

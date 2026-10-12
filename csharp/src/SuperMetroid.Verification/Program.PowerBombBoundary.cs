@@ -2,10 +2,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents power bomb boundary verification.</summary>
 internal static class PowerBombBoundaryVerification
 {
-    /// <summary>Verifies power bomb boundary.</summary>
     internal static void VerifyPowerBombBoundary()
     {
         var level = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(new ushort[25], new byte[25], new ushort[25]), new byte[8]);

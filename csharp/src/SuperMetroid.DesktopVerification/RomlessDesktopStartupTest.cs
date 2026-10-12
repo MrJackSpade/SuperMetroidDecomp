@@ -11,7 +11,6 @@ using SuperMetroid.Desktop;
 /// </summary>
 internal static class RomlessDesktopStartupTest
 {
-    /// <summary>Runs.</summary>
     public static void Run(string sourceRom)
     {
         string tempRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp"));

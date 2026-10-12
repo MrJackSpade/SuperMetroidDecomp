@@ -19,7 +19,6 @@ using static MotherBrainBodyPresentationVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents boss display bindings verification.</summary>
 internal static class BossDisplayBindingsVerification
 {
     /// <summary>Acceptance for the source-identified mismatch between selected OAM and physical BG2.</summary>
@@ -77,7 +76,6 @@ internal static class BossDisplayBindingsVerification
             $"mixed remaps, native new-frame gating and {hitSamples} compiled collision samples ({hits} hits). RAM-only production.");
     }
 
-    /// <summary>Asserts boss bg2.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void AssertBossBg2(SnesVram actual, EnemyBg2WriteDocument[] writes)
     {
@@ -89,7 +87,6 @@ internal static class BossDisplayBindingsVerification
             AssertEqual(expected[index], actual.ReadWord(EnemyBg2FrameLayout.VramBase + index), "boss BG2 exact ordered destinations and payload");
     }
 
-    /// <summary>Asserts boss display mechanics.</summary>
     internal static void AssertBossDisplayMechanics(BossDisplayFixture baseline, BossDisplayFixture edited, string context)
     {
         AssertAnimationValues(baseline.Actor, edited.Actor, context);
@@ -100,7 +97,6 @@ internal static class BossDisplayBindingsVerification
         AssertTrue(baseline.Enemies.Audio.MusicRequests.SequenceEqual(edited.Enemies.Audio.MusicRequests), context + " preserves music callbacks");
     }
 
-    /// <summary>Boss display bindings command.</summary>
     [VerificationCommand("--boss-display-bindings")]
     internal static int BossDisplayBindingsCommand()
     {

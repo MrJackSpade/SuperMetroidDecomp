@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -19,17 +19,12 @@ internal abstract class OldTourianEscapeShaftWallExplosionDefinitionsTooling : I
         0xb46a, 0xb46c, 0xb46e,
     ];
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => WordAddresses.Length;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) =>
         new(WordAddresses[index], OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(WordAddresses[index]));
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordAddress(index);
 
-    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

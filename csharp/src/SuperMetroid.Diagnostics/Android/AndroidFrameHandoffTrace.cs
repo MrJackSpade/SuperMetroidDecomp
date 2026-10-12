@@ -9,11 +9,8 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidFrameHandoffTrace(int capacity = 2048)
 {
-    /// <summary>Stores entries.</summary>
     private readonly Entry[] entries = new Entry[capacity > 0 ? capacity : throw new ArgumentOutOfRangeException(nameof(capacity))];
-    /// <summary>Stores next.</summary>
     private int next, count;
-    /// <summary>Record.</summary>
     public void Record(char kind, long sequence, long ticks)
     {
         entries[next] = new Entry(ticks, sequence, kind, GC.CollectionCount(0), GC.CollectionCount(2));
@@ -21,7 +18,6 @@ internal sealed class AndroidFrameHandoffTrace(int capacity = 2048)
         count = Math.Min(count + 1, entries.Length);
     }
 
-    /// <summary>Flush.</summary>
     public void Flush(Action<string> write)
     {
         if (count == 0) return;
@@ -36,6 +32,5 @@ internal sealed class AndroidFrameHandoffTrace(int capacity = 2048)
         next = count = 0;
     }
 
-    /// <summary>Represents entry.</summary>
     private readonly record struct Entry(long Ticks, long Sequence, char Kind, int Gen0, int Gen2);
 }

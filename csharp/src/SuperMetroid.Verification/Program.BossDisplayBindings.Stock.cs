@@ -18,7 +18,6 @@ using static BossDisplayBindingsVerification;
 using static EnemyContentIdentityFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents boss display bindings stock verification.</summary>
 internal static class BossDisplayBindingsStockVerification
 {
     /// <summary>
@@ -80,7 +79,6 @@ internal static class BossDisplayBindingsStockVerification
             $"{nativeLists.Count} compiled collision lists; exact RAM-only packed drawing and installation acceptance.");
     }
 
-    /// <summary>stock boss writes.</summary>
     private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(EnemyTileArtworkCatalog catalog, EnemyExtendedFrameDefinition frame)
     {
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
@@ -94,7 +92,6 @@ internal static class BossDisplayBindingsStockVerification
         return exists ? writes : ReadOnlyMemory<EnemyBg2TilemapWrite>.Empty;
     }
 
-    /// <summary>verify boss display installation.</summary>
     private static void VerifyBossDisplayInstallation(string stock, string overrides, EnemyTileArtworkCatalog baseline)
     {
         var json = new EnemyIdentityFixture();
@@ -121,7 +118,6 @@ internal static class BossDisplayBindingsStockVerification
         Console.WriteLine("PASS boss installation: validated stock manifest, selected remaps/identity/reload and malformed/missing-resource rejection.");
     }
 
-    /// <summary>boss display stock command.</summary>
     [VerificationCommand("--boss-display-stock")]
     internal static int BossDisplayStockCommand()
     {

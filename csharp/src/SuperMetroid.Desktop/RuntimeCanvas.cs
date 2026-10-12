@@ -7,9 +7,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>Nearest-neighbor display for one 256x224 SNES frame at the 4:3 TV aspect.</summary>
 public sealed class RuntimeCanvas : Control
 {
-    /// <summary>Stores frame.</summary>
     private Bitmap? frame;
-    /// <summary>Stores gpu owned.</summary>
     private bool gpuOwned;
 
     /// <summary>Excludes GDI paint/erase from the swapchain-owned HWND.</summary>

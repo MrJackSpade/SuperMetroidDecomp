@@ -3,10 +3,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
 using System.Runtime.InteropServices;
 
-/// <summary>Represents program.</summary>
 internal static class Program
 {
-    /// <summary>Main.</summary>
     [STAThread]
     private static int Main(string[] args)
     {
@@ -141,14 +139,10 @@ internal static class Program
 /// <summary>Named Win32 process-error policy for the playable executable.</summary>
 static partial class NativeGameProcess
 {
-    /// <summary>Stores sem fail critical errors.</summary>
     internal const uint SemFailCriticalErrors = 0x0001;
-    /// <summary>Stores sem no gp fault error box.</summary>
     internal const uint SemNoGpFaultErrorBox = 0x0002;
-    /// <summary>Stores sem no open file error box.</summary>
     internal const uint SemNoOpenFileErrorBox = 0x8000;
 
-    /// <summary>Sets error mode.</summary>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }

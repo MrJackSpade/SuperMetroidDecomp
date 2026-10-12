@@ -84,10 +84,8 @@ public readonly record struct SbugVelocityWords(ushort Pixel, ushort Subpixel)
 /// </summary>
 public sealed class SbugEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new sbug enemy state instance.</summary>
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A; the long lifetime used only by behavior four.</summary>

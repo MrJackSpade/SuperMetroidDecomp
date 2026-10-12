@@ -10,25 +10,19 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
     /// <summary>Direct library-two sound operand at the eight $84:C9F9-$CACA entries.</summary>
     internal const byte BreakSoundId = 0x0a;
 
-    /// <summary>Represents program.</summary>
     private readonly record struct Program(ushort Start, bool Respawns, int Dimension)
     {
-        /// <summary>Gets frame count.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
-        /// <summary>Gets terminal.</summary>
         internal ushort Terminal => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
-    /// <summary>Defines program count.</summary>
     private const int ProgramCount = 8;
 
     // Native BTS order selects size in its low two bits and permanent versus
     // respawning behavior in bit two. Descriptors are values, not a stored table.
-    /// <summary>program at.</summary>
     private static Program ProgramAt(int index) => new(
         RoomPlmInstructionLists.ContactCrumbleByReactionIndex(index), index < 4, index & 3);
 
-    /// <summary>try read draw pointer word.</summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -56,7 +50,6 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
         return false;
     }
 
-    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -108,7 +101,6 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
         return false;
     }
 
-    /// <summary>try read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

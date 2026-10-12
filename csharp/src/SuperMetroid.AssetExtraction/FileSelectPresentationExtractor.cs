@@ -221,7 +221,6 @@ public static class FileSelectPresentationExtractor
         }
     }
 
-    /// <summary>Reads patch.</summary>
     private static RawPatch ReadPatch(ISnesAddressSpace bus, ushort pointer)
     {
         var cells = new List<RawPatchCell>();
@@ -243,7 +242,6 @@ public static class FileSelectPresentationExtractor
         }
     }
 
-    /// <summary>Applies.</summary>
     private static void Apply(ushort[] page, RawPatch patch, int byteOffset)
     {
         Position16<TilemapCells> anchor = Point(byteOffset);
@@ -256,7 +254,6 @@ public static class FileSelectPresentationExtractor
         }
     }
 
-    /// <summary>Blank page.</summary>
     private static ushort[] BlankPage()
     {
         var page = new ushort[FileSelectPresentationDefinitions.CellCount];
@@ -264,7 +261,6 @@ public static class FileSelectPresentationExtractor
         return page;
     }
 
-    /// <summary>Slot.</summary>
     private static FileSelectSlotFieldDocument Slot(int energyOffset, int timeOffset) => new()
     {
         EnergyAnchor = Point(energyOffset),
@@ -273,7 +269,6 @@ public static class FileSelectPresentationExtractor
         TimeValueAnchor = Point(timeOffset),
     };
 
-    /// <summary>Document.</summary>
     private static FileSelectPatchDocument Document(RawPatch patch) => new()
     {
         Cells = patch.Cells.Select(cell => new FileSelectPatchCellDocument
@@ -284,7 +279,6 @@ public static class FileSelectPresentationExtractor
         }).ToArray(),
     };
 
-    /// <summary>Cells.</summary>
     private static MapPresentationCell[] Cells(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length % sizeof(ushort) != 0)
@@ -295,7 +289,6 @@ public static class FileSelectPresentationExtractor
         return Cells(words);
     }
 
-    /// <summary>Cells.</summary>
     private static MapPresentationCell[] Cells(ReadOnlySpan<ushort> words)
     {
         var cells = new MapPresentationCell[words.Length];
@@ -304,7 +297,6 @@ public static class FileSelectPresentationExtractor
         return cells;
     }
 
-    /// <summary>Cell.</summary>
     private static MapPresentationCell Cell(ushort raw)
     {
         var word = new SnesBgTilemapWord(raw);
@@ -319,7 +311,6 @@ public static class FileSelectPresentationExtractor
         };
     }
 
-    /// <summary>Point.</summary>
     private static Position16<TilemapCells> Point(int byteOffset)
     {
         int cell = byteOffset / sizeof(ushort);
@@ -327,8 +318,6 @@ public static class FileSelectPresentationExtractor
             checked((ushort)(cell / FileSelectPresentationDefinitions.Width)));
     }
 
-    /// <summary>Represents raw patch.</summary>
     private sealed record RawPatch(RawPatchCell[] Cells);
-    /// <summary>Represents raw patch cell.</summary>
     private readonly record struct RawPatchCell(Offset16<TilemapCells> Offset, ushort Word);
 }

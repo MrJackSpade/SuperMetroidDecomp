@@ -19,10 +19,8 @@ using static LookupCollectibleSelectorsVerification;
 using static LookupCollectibleStockVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents collectible visuals verification.</summary>
 internal static class CollectibleVisualsVerification
 {
-    /// <summary>Verifies collectible visuals.</summary>
     internal static void VerifyCollectibleVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -124,7 +122,6 @@ internal static class CollectibleVisualsVerification
             "source-read guards, and installation validation pass.");
     }
 
-    /// <summary>Verifies collectible visual installation.</summary>
     private static void VerifyCollectibleVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("collectible-visual");
@@ -180,12 +177,10 @@ internal static class CollectibleVisualsVerification
         }
     }
 
-    /// <summary>Reads collectible visual word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for collectible visual words")]
     internal static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
         ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
 
-    /// <summary>New collectible draw read guard.</summary>
     private static CartridgeReadGuard NewCollectibleDrawReadGuard(ISnesAddressSpace source)
     {
         var blocked = new HashSet<int>();
@@ -201,7 +196,6 @@ internal static class CollectibleVisualsVerification
             address => $"Live collectible read compiled draw or selector byte ${address:X6}.");
     }
 
-    /// <summary>Collectible visuals command.</summary>
     [VerificationCommand("--collectible-visuals")]
     internal static int CollectibleVisualsCommand()
     {

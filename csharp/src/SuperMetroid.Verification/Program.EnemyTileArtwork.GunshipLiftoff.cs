@@ -7,10 +7,8 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents enemy tile artwork gunship liftoff verification.</summary>
 internal static class EnemyTileArtworkGunshipLiftoffVerification
 {
-    /// <summary>Verifies installed gunship liftoff artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed gunship liftoff transfers")]
     internal static void VerifyInstalledGunshipLiftoffArtwork(

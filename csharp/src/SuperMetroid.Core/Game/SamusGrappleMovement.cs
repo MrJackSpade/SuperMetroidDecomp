@@ -527,7 +527,6 @@ public static class SamusGrappleMovement
             RopeLengthBlocked: ropeLengthBlocked);
     }
 
-    /// <summary>Advances locked.</summary>
     private static GrappleMovementResult StepLocked(
         RoomLevelData level,
         SamusState samus,
@@ -616,7 +615,6 @@ public static class SamusGrappleMovement
         SamusKnockbackMovement.Start(bus, samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = 5 });
     }
 
-    /// <summary>Advances wall grab.</summary>
     private static GrappleMovementResult StepWallGrab(
         RoomLevelData level,
         SamusState samus,
@@ -644,7 +642,6 @@ public static class SamusGrappleMovement
             grapple.Phase);
     }
 
-    /// <summary>Advances wall grab release.</summary>
     private static GrappleMovementResult StepWallGrabRelease(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -692,7 +689,6 @@ public static class SamusGrappleMovement
             grapple.Phase);
     }
 
-    /// <summary>Completes grapple wall jump.</summary>
     private static GrappleMovementResult CompleteGrappleWallJump(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -710,7 +706,6 @@ public static class SamusGrappleMovement
             WallJumpStarted: true);
     }
 
-    /// <summary>Completes dropped.</summary>
     private static GrappleMovementResult CompleteDropped(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -737,7 +732,6 @@ public static class SamusGrappleMovement
             PendingDropPose: deferPoseChange ? targetPose : null);
     }
 
-    /// <summary>Selects dropped pose.</summary>
     private static SamusPoseId SelectDroppedPose(ISnesAddressSpace bus, SamusState samus)
     {
         // Swinging `$B2/$B3` bypass the direction tables and always fall to ordinary
@@ -762,7 +756,6 @@ public static class SamusGrappleMovement
         return GrappleConnectionDefinitions.DroppedPose(shotDirection, compact: samus.Kinematics.Radius.Y < 17);
     }
 
-    /// <summary>Attempts to handle special angle.</summary>
     private static bool TryHandleSpecialAngle(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -807,12 +800,10 @@ public static class SamusGrappleMovement
         return false;
     }
 
-    /// <summary>Clamp previous position.</summary>
     private static Position16<RoomPixels> ClampPreviousPosition(
         Position16<RoomPixels> current, Position16<RoomPixels> previous) =>
         new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
 
-    /// <summary>Clamp previous axis.</summary>
     private static ushort ClampPreviousAxis(ushort current, ushort previous)
     {
         short displacement = unchecked((short)(current - previous));
@@ -823,7 +814,6 @@ public static class SamusGrappleMovement
         return previous;
     }
 
-    /// <summary>Queues firing cancellation.</summary>
     private static GrappleMovementResult QueueFiringCancellation(SamusGrappleState grapple)
     {
         grapple.CancelFromConnectedPose = false;
@@ -834,7 +824,6 @@ public static class SamusGrappleMovement
             OwnsMovement: false);
     }
 
-    /// <summary>Publishes firing geometry.</summary>
     private static void PublishFiringGeometry(SamusState samus, SamusGrappleState grapple)
     {
         // Whole endpoint offsets are the signed upper words of the two 16.16 accumulators.
@@ -847,7 +836,6 @@ public static class SamusGrappleMovement
         grapple.BeamStart = samus.Position.Whole + grapple.FlareOffset;
     }
 
-    /// <summary>React at endpoint.</summary>
     private static GrappleBlockReaction ReactAtEndpoint(
         RoomLevelData level,
         SamusState samus,
@@ -1032,7 +1020,6 @@ public static class SamusGrappleMovement
         throw new InvalidDataException("Grapple extension chain exceeded sixteen blocks.");
     }
 
-    /// <summary>Connect accepted firing core.</summary>
     private static GrappleMovementResult ConnectAcceptedFiringCore(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -1267,7 +1254,6 @@ public static class SamusGrappleMovement
         });
     }
 
-    /// <summary>Initializes beam animation.</summary>
     private static void InitializeBeamAnimation(SamusGrappleState grapple)
     {
         // `$9B:C51E` installs counter one after initializing the rope instruction slots.
@@ -1290,7 +1276,6 @@ public static class SamusGrappleMovement
         }
     }
 
-    /// <summary>Refresh firing draw origins.</summary>
     private static void RefreshFiringDrawOrigins(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -1310,7 +1295,6 @@ public static class SamusGrappleMovement
             flare.X, unchecked((short)(flare.Y - graphicsYOffset)));
     }
 
-    /// <summary>Reads flare origin.</summary>
     private static (short X, short Y) ReadFlareOrigin(SamusGrappleState grapple, byte direction, bool running)
     {
         var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(
@@ -1561,11 +1545,9 @@ public static class SamusGrappleMovement
         return CompleteFiringCancellation(bus, level, samus);
     }
 
-    /// <summary>Queues grapple sound.</summary>
     private static void QueueGrappleSound(SamusState samus, SamusSoundRequest request) =>
         samus.LiquidPhysics.QueueMovementSound(request.SoundEffect, request.MaximumQueued);
 
-    /// <summary>Position samus from pendulum.</summary>
     private static void PositionSamusFromPendulum(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -1603,7 +1585,6 @@ public static class SamusGrappleMovement
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ropeStart.Pixel.X + offset.X)), unchecked((ushort)(ropeStart.Pixel.Y + offset.Y))));
     }
 
-    /// <summary>Propel samus from swing.</summary>
     private static void PropelSamusFromSwing(
         SamusState samus,
         SamusGrappleState grapple)
@@ -1675,7 +1656,6 @@ public static class SamusGrappleMovement
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
-    /// <summary>Clears connected grapple.</summary>
     private static void ClearConnectedGrapple(SamusGrappleState grapple)
     {
         // `$9B:C8C5/$C9CE` share the same long cleanup tail. Palette, sound, and HUD-item
@@ -1700,7 +1680,6 @@ public static class SamusGrappleMovement
         ClearFlareAnimation(grapple);
     }
 
-    /// <summary>Clears flare animation.</summary>
     private static void ClearFlareAnimation(SamusGrappleState grapple)
     {
         // `$9B:C856/$C8C5/$C9CE/$CB8B` all clear these same shared charge/grapple WRAM
@@ -1710,7 +1689,6 @@ public static class SamusGrappleMovement
         grapple.FlareAnimationTimer = 0;
     }
 
-    /// <summary>Scale coordinate.</summary>
     private static int ScaleCoordinate(short sine, int length) => sine switch
     {
         -256 => -length,
@@ -1719,13 +1697,11 @@ public static class SamusGrappleMovement
         _ => SnesEightEight.Multiply(sine, length),
     };
 
-    /// <summary>Reads signed sine.</summary>
     private static short ReadSignedSine(int index)
     {
         return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
     }
 
-    /// <summary>Applies rope and direction input.</summary>
     private static void ApplyRopeAndDirectionInput(
         SamusGrappleState grapple,
         ushort controllerInput,
@@ -1780,7 +1756,6 @@ public static class SamusGrappleMovement
         grapple.DirectionInputAcceleration = 0;
     }
 
-    /// <summary>Applies rope length delta.</summary>
     private static bool ApplyRopeLengthDelta(
         RoomLevelData level,
         SamusState samus,
@@ -1849,7 +1824,6 @@ public static class SamusGrappleMovement
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
         grapple.Angle.TableIndex == SnesAngle.HalfTurn.TableIndex;
 
-    /// <summary>Calculates gravity.</summary>
     private static void CalculateGravity(SamusGrappleState grapple)
     {
         // $9B:BC1F is deliberately quadrant-based rather than trigonometric. The four
@@ -1900,7 +1874,6 @@ public static class SamusGrappleMovement
         }
     }
 
-    /// <summary>Integrate angular velocity.</summary>
     private static void IntegrateAngularVelocity(SamusGrappleState grapple)
     {
         int velocity = grapple.AngularVelocity +
@@ -1919,7 +1892,6 @@ public static class SamusGrappleMovement
             SamusGrappleRomData.Physics.MaximumAngularVelocity));
     }
 
-    /// <summary>Applies jump impulse.</summary>
     private static void ApplyJumpImpulse(SamusGrappleState grapple, ushort newlyPressedInput)
     {
         // $9B:BD44 only admits this extra angular impulse during the 16-frame terrain-
@@ -1944,7 +1916,6 @@ public static class SamusGrappleMovement
         }
     }
 
-    /// <summary>Advances angle with terrain collision.</summary>
     private static GrappleSwingCollisionResult AdvanceAngleWithTerrainCollision(
         RoomLevelData level,
         SamusState samus,
@@ -2033,7 +2004,6 @@ public static class SamusGrappleMovement
         return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
     }
 
-    /// <summary>Probes swinging body.</summary>
     private static GrappleSwingCollisionResult ProbeSwingingBody(
         RoomLevelData level,
         SamusState samus,
@@ -2063,7 +2033,6 @@ public static class SamusGrappleMovement
         return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
     }
 
-    /// <summary>Calculates collision point.</summary>
     private static GrappleCollisionPoint CalculateCollisionPoint(
         SamusGrappleState grapple,
         byte angleByte,
@@ -2091,7 +2060,6 @@ public static class SamusGrappleMovement
             Block: new(unchecked((byte)(point.X >> 4)), unchecked((byte)(point.Y >> 4))));
     }
 
-    /// <summary>Indicates whether swing collision.</summary>
     private static bool IsSwingCollision(
         RoomLevelData level,
         SamusState samus,
@@ -2165,7 +2133,6 @@ public static class SamusGrappleMovement
         throw new InvalidDataException("Grapple swing extension chain exceeded sixteen blocks.");
     }
 
-    /// <summary>Indicates whether still connected to supported block.</summary>
     private static bool IsStillConnectedToSupportedBlock(
         RoomLevelData level,
         SamusState samus,
@@ -2181,7 +2148,6 @@ public static class SamusGrappleMovement
         return reaction.Carry;
     }
 
-    /// <summary>Applies swing spike damage.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
         byte behavior,
@@ -2213,7 +2179,6 @@ public static class SamusGrappleMovement
         samus.KnockbackTimer = 0x000a;
     }
 
-    /// <summary>Negated arithmetic half.</summary>
     private static short NegatedArithmeticHalf(short value) =>
         unchecked((short)-(value >> 1));
 }

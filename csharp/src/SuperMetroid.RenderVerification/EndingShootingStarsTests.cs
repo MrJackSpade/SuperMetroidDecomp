@@ -9,10 +9,8 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents ending shooting stars tests.</summary>
 internal static class EndingShootingStarsTests
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

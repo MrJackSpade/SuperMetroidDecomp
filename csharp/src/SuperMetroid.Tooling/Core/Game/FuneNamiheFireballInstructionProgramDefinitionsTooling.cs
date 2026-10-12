@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,14 +7,10 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(FuneNamiheFireballInstructionProgramDefinitions))]
 internal abstract class FuneNamiheFireballInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress(index);
     // Each facing has three five-tick frames followed by a jump to its start.
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 10;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -24,7 +20,6 @@ internal abstract class FuneNamiheFireballInstructionProgramDefinitionsTooling :
             (word < 3 ? 4 * word : 12 + 2 * (word - 3)));
         return new(address, FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
-    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

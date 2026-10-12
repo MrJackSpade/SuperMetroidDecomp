@@ -13,7 +13,6 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions
     internal const int FrameBytes = 2 * sizeof(ushort);
     /// <summary>$86:C79A/C7BB/C7DC store a call opcode word followed by its three-byte callback.</summary>
     internal const int CallbackBytes = sizeof(ushort) + 3;
-    /// <summary>Defines stage bytes.</summary>
     internal const int StageBytes = FramesPerStage * FrameBytes + CallbackBytes;
     /// <summary>$86:C7F9, Delete following all three complete stages.</summary>
     internal const ushort TerminalDelete = Initial + StageCount * StageBytes;
@@ -21,7 +20,6 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions
     /// <summary>$86:C796/C79F/C7A3/C7A7/C7AB/C7AF/C7B3: selected frame holds,
     /// repeated in the next two stages (the repetition is calculated). Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] Durations = [3, 3, 2, 2, 1, 1, 1];
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => StageCount * FramesPerStage;
 
     /// <summary>Calculates the interleaved spritemap operand, skipping the first frame's external call.</summary>
@@ -31,11 +29,9 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions
         return (ushort)(StageStart(index / FramesPerStage) + FrameOffset(index % FramesPerStage) + sizeof(ushort));
     }
 
-    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == TerminalDelete) return (ushort)EnemyProjectileInstruction.Delete;
@@ -51,7 +47,6 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions
             $"Mother Brain hand-beam mechanics pointer ${address:X4} is outside its translated program.");
     }
 
-    /// <summary>Reads external function.</summary>
     internal static int ReadExternalFunction(ushort instructionAddress)
     {
         if (instructionAddress >= Initial && instructionAddress < TerminalDelete &&
@@ -60,8 +55,6 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitions
             $"Mother Brain hand-beam external call ${instructionAddress:X4} is not translated.");
     }
 
-    /// <summary>Stage start.</summary>
     internal static int StageStart(int stage) => Initial + stage * StageBytes;
-    /// <summary>Frame offset.</summary>
     internal static int FrameOffset(int frame) => frame * FrameBytes + (frame == 0 ? 0 : CallbackBytes);
 }

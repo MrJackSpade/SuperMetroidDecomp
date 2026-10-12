@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-/// <summary>Represents gameplay hud presentation verification.</summary>
 internal static class GameplayHudPresentationVerification
 {
-    /// <summary>verify gameplay hud presentation assets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyGameplayHudPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original,
@@ -169,11 +167,9 @@ internal static class GameplayHudPresentationVerification
         Console.WriteLine("Gameplay HUD presentation: exact stock/live parity, ROM guard, layout/art edits, rebind and strict failures pass.");
     }
 
-    /// <summary>gameplay hud presentation assets rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay HUD presentation assets")]
     private static byte GameplayHudPresentationAssetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>in hud range.</summary>
     private static bool InHudRange(int address, int start, int length) =>
         (uint)(address - start) < (uint)length;
 }

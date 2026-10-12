@@ -1,14 +1,12 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class OwtchBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
 
-    /// <summary>Initializes a new owtch behavior instance.</summary>
     internal OwtchBehavior(EnemyRoomBinding room)
     {
         _room = room;
@@ -38,10 +36,8 @@ internal sealed class OwtchBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines owtch maximum burial depth.</summary>
     private const ushort OwtchMaximumBurialDepth = 16;
 
-    /// <summary>Stores owtch states.</summary>
     internal readonly OwtchEnemyState?[] _owtchStates =
         new OwtchEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -229,7 +225,6 @@ internal sealed class OwtchBehavior : IEnemySpecies
     private static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
         unchecked((short)((ushort)state.Behavior - 1)) < 0;
 
-    /// <summary>Sets owtch instruction list.</summary>
     private static void SetOwtchInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -237,12 +232,10 @@ internal sealed class OwtchBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>Requires owtch state.</summary>
     private OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
         _owtchStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Owtch state.");
 
-    /// <summary>Register owtch bomb reactions.</summary>
     internal void RegisterOwtchBombReactions(EnemyAiTable table)
     {
         // Owtch's shell accepts common damage only during its vulnerable state zero.
@@ -253,7 +246,6 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register owtch initialization ai.</summary>
     internal void RegisterOwtchInitializationAi(EnemyAiTable table)
     {
 
@@ -263,7 +255,6 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register owtch main ai.</summary>
     internal void RegisterOwtchMainAi(EnemyAiTable table)
     {
 
@@ -273,7 +264,6 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register owtch owned instructions.</summary>
     internal void RegisterOwtchOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -283,7 +273,6 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register owtch shot reactions.</summary>
     internal void RegisterOwtchShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&

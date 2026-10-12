@@ -144,30 +144,22 @@ internal static class BotwoonAnimations
     /// <summary>Number of frames in the spit's cycle.</summary>
     internal const int SpitPhaseCount = 5;
 
-    /// <summary>Stores octants.</summary>
     private static readonly BotwoonFacing[] Octants =
     [
         BotwoonFacing.Up, BotwoonFacing.UpRight, BotwoonFacing.Right, BotwoonFacing.DownRight,
         BotwoonFacing.Down, BotwoonFacing.DownLeft, BotwoonFacing.Left, BotwoonFacing.UpLeft,
     ];
 
-    /// <summary>Defines mouth closed before spit.</summary>
     private const int MouthClosedBeforeSpit = 32;
-    /// <summary>Defines mouth open after spit.</summary>
     private const int MouthOpenAfterSpit = 16;
-    /// <summary>Defines mouth open after spit left.</summary>
     private const int MouthOpenAfterSpitLeft = 25;
-    /// <summary>Defines body frame duration.</summary>
     private const int BodyFrameDuration = 8;
-    /// <summary>Defines spit frame duration.</summary>
     private const int SpitFrameDuration = 3;
 
-    /// <summary>Stores hidden head.</summary>
     private static readonly AnimationTimeline<BotwoonHeadFrame, BotwoonHeadCue> HiddenHead =
         new(AnimationStep<BotwoonHeadFrame, BotwoonHeadCue>.Show(BotwoonHeadFrame.Hidden, 1),
             AnimationStep<BotwoonHeadFrame, BotwoonHeadCue>.Hold);
 
-    /// <summary>Stores head timelines.</summary>
     private static readonly Dictionary<BotwoonHeadProgram, AnimationTimeline<BotwoonHeadFrame, BotwoonHeadCue>> HeadTimelines =
         Enum.GetValues<BotwoonFacing>().SelectMany(facing => new[]
         {
@@ -175,7 +167,6 @@ internal static class BotwoonAnimations
             (new BotwoonHeadProgram(BotwoonHeadProgramKind.Spitting, facing), SpittingHead(facing)),
         }).Append((BotwoonHeadProgram.Hidden, HiddenHead)).ToDictionary(entry => entry.Item1, entry => entry.Item2);
 
-    /// <summary>Stores segment timelines.</summary>
     private static readonly Dictionary<BotwoonSegmentProgram, AnimationTimeline<BotwoonProjectileFrame, NoAnimationCue>> SegmentTimelines =
         Enum.GetValues<BotwoonFacing>().SelectMany(facing => new[]
         {
@@ -220,13 +211,11 @@ internal static class BotwoonAnimations
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
-    /// <summary>Moving head.</summary>
     private static AnimationTimeline<BotwoonHeadFrame, BotwoonHeadCue> MovingHead(BotwoonFacing facing) => new(
         AnimationStep<BotwoonHeadFrame, BotwoonHeadCue>.Publish(BotwoonHeadCue.ApplyFacingRadius),
         AnimationStep<BotwoonHeadFrame, BotwoonHeadCue>.Show(BotwoonHeadFrame.Closed(facing), 1),
         AnimationStep<BotwoonHeadFrame, BotwoonHeadCue>.Hold);
 
-    /// <summary>Spitting head.</summary>
     private static AnimationTimeline<BotwoonHeadFrame, BotwoonHeadCue> SpittingHead(BotwoonFacing facing) => new(
         AnimationStep<BotwoonHeadFrame, BotwoonHeadCue>.Show(BotwoonHeadFrame.Closed(facing), MouthClosedBeforeSpit),
         AnimationStep<BotwoonHeadFrame, BotwoonHeadCue>.Publish(BotwoonHeadCue.ApplyFacingRadius),
@@ -237,13 +226,11 @@ internal static class BotwoonAnimations
             facing == BotwoonFacing.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
         AnimationStep<BotwoonHeadFrame, BotwoonHeadCue>.Hold);
 
-    /// <summary>Body link.</summary>
     private static AnimationTimeline<BotwoonProjectileFrame, NoAnimationCue> BodyLink(BotwoonFacing facing) => new(
         [.. Enumerable.Range(0, BodyPhaseCount).Select(phase => AnimationStep<BotwoonProjectileFrame, NoAnimationCue>.Show(
             new(BotwoonProjectileFrameKind.Body, facing, phase), BodyFrameDuration)),
          AnimationStep<BotwoonProjectileFrame, NoAnimationCue>.Loop]);
 
-    /// <summary>Still segment.</summary>
     private static AnimationTimeline<BotwoonProjectileFrame, NoAnimationCue> StillSegment(BotwoonProjectileFrame frame) => new(
         AnimationStep<BotwoonProjectileFrame, NoAnimationCue>.Show(frame, 1),
         AnimationStep<BotwoonProjectileFrame, NoAnimationCue>.Hold);

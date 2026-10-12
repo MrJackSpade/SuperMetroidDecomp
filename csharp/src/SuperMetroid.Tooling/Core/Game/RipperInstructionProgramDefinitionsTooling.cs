@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(RipperInstructionProgramDefinitions))]
 internal abstract class RipperInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 36;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 24;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -23,14 +20,12 @@ internal abstract class RipperInstructionProgramDefinitionsTooling : IInstructio
             record == 4 ? (ushort)CommonEnemyInstruction.Goto : start;
         return new((ushort)(start + offset), value);
     }
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(RipperInstructionProgramDefinitions.ProgramStart(index / 4) + 4 * (index % 4) + 2);
     }
-    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000)

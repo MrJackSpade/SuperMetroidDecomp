@@ -46,14 +46,10 @@ public static class RoomFxAtmosphereTilemapDefinitions
 /// </summary>
 internal sealed class RoomFxAtmosphereTilemap
 {
-    /// <summary>Stores type.</summary>
     private readonly RoomFxType type;
-    /// <summary>Stores preserved bits.</summary>
     private readonly ushort[] preservedBits;
-    /// <summary>Stores custom fields.</summary>
     private readonly Dictionary<int, ushort>? customFields;
 
-    /// <summary>Initializes a new room fx atmosphere tilemap instance.</summary>
     public RoomFxAtmosphereTilemap(RoomFxType type, ReadOnlySpan<byte> bytes)
     {
         ushort mask = RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type);

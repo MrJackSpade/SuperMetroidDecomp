@@ -7,26 +7,16 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Native logo actors followed by E58A's sixteen palette transfers.</summary>
 internal sealed class EndingLogo
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores landed.</summary>
     private readonly Action landed;
-    /// <summary>Stores actors.</summary>
     private readonly IntroDiscoverySprite[] actors = new IntroDiscoverySprite[4];
-    /// <summary>Stores speeds.</summary>
     private readonly int[] speeds = [EndingLogoDefinitions.InitialSpeed, EndingLogoDefinitions.InitialSpeed];
-    /// <summary>Stores settled.</summary>
     private readonly bool[] settled = new bool[2];
-    /// <summary>Stores palette artwork.</summary>
     [NonSerialized] private EndingPaletteCatalog? paletteArtwork;
-    /// <summary>Gets or sets crossfade started.</summary>
     public bool CrossfadeStarted { get; private set; }
-    /// <summary>Gets or sets palette step.</summary>
     public int PaletteStep { get; private set; }
-    /// <summary>Gets completed.</summary>
     public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
 
-    /// <summary>Initializes a new ending logo instance.</summary>
     public EndingLogo(ISnesAddressSpace bus, SnesCgram cgram, Action landed,
         EndingPaletteCatalog? paletteArtwork = null)
     {
@@ -51,7 +41,6 @@ internal sealed class EndingLogo
     /// <summary>Restored scene state keeps its current CGRAM; only future transfers change.</summary>
     public void BindPaletteArtwork(EndingPaletteCatalog? value) => paletteArtwork = value;
 
-    /// <summary>step.</summary>
     public void Step(SnesCgram cgram, Func<ushort, ushort>? instructionWord = null)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
@@ -76,7 +65,6 @@ internal sealed class EndingLogo
         }
     }
 
-    /// <summary>move half.</summary>
     private void MoveHalf(int index)
     {
         var actor = actors[index];
@@ -94,7 +82,6 @@ internal sealed class EndingLogo
         else speeds[index] += EndingLogoDefinitions.Acceleration;
     }
 
-    /// <summary>instruction.</summary>
     private ushort Instruction(EndingLogoInstruction opcode, ushort cursor)
     {
         if (opcode != EndingLogoInstruction.GreyOut)
@@ -103,7 +90,6 @@ internal sealed class EndingLogo
         return cursor;
     }
 
-    /// <summary>draw.</summary>
     public OamBuffer Draw(EndingLogoSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();

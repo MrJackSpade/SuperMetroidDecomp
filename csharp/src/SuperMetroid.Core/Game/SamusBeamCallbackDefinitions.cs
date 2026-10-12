@@ -40,13 +40,11 @@ internal static class SamusBeamCallbackDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 
-    /// <summary>translated.</summary>
     private static SamusBeamCallbackDefinition Translated(
         ushort nativePointer,
         SamusProjectilePreInstruction translated) =>
         new(nativePointer, translated);
 
-    /// <summary>untranslated.</summary>
     private static SamusBeamCallbackDefinition Untranslated(ushort nativePointer) =>
         new(nativePointer, null);
 }

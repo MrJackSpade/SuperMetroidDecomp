@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents phantoon motion definitions verification.</summary>
 internal static class PhantoonMotionDefinitionsVerification
 {
-    /// <summary>Verifies compiled phantoon motion.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon motion")]
     internal static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
     {

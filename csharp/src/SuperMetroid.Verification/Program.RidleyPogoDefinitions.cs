@@ -6,10 +6,8 @@ using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ridley pogo definitions verification.</summary>
 internal static class RidleyPogoDefinitionsVerification
 {
-    /// <summary>Verifies compiled ridley pogo.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley pogo")]
     internal static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
     {
@@ -63,7 +61,6 @@ internal static class RidleyPogoDefinitionsVerification
         Console.WriteLine("Ridley pogo: all indirect native records and 1572864 actual initializations preserve RNG, signed speed and asymmetric acceleration without ROM reads.");
     }
 
-    /// <summary>Verifies ridley attack timer random reads.</summary>
     private static void VerifyRidleyAttackTimerRandomReads(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();

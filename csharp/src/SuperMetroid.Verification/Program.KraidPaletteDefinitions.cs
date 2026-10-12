@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents kraid palette definitions verification.</summary>
 internal static class KraidPaletteDefinitionsVerification
 {
-    /// <summary>Verifies kraid palette source addresses.</summary>
     internal static void VerifyKraidPaletteSourceAddresses(SuperMetroidAddressSpace rom)
     {
         (KraidPaletteSource Source, int Instruction)[] nativeLoads =
@@ -27,11 +25,9 @@ internal static class KraidPaletteDefinitionsVerification
                 "Unknown palette address source rejected");
     }
 
-    /// <summary>Kraid palette source addresses rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid palette source addresses")]
     private static byte KraidPaletteSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies kraid palette source lengths.</summary>
     internal static void VerifyKraidPaletteSourceLengths()
     {
         // Independent bank_A7 symbol extents: next definition starts immediately

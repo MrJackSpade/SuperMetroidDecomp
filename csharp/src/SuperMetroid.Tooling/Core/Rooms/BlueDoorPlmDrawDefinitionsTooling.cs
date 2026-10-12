@@ -1,9 +1,8 @@
-namespace SuperMetroid.Core.Rooms;
+﻿namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Development-tool members of <see cref="BlueDoorPlmDrawDefinitions"/>; never linked by player hosts.</summary>
 internal static class BlueDoorPlmDrawDefinitionsTooling
 {
-    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get

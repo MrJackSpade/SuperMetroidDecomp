@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents spore spawn projectile definitions verification.</summary>
 internal static class SporeSpawnProjectileDefinitionsVerification
 {
-    /// <summary>Verifies spore spawn projectile definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn projectile definitions")]
     internal static void VerifySporeSpawnProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -87,7 +85,6 @@ internal static class SporeSpawnProjectileDefinitionsVerification
             "Spore Spawn projectile definitions: eight geometry words, 256 movement bytes, all real spawns and 512 movement/mirroring handoffs pass with source tables forbidden.");
     }
 
-    /// <summary>New spore spawn projectile read guard.</summary>
     private static CartridgeReadGuard NewSporeSpawnProjectileReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x86dcb9 and < 0x86dcc1 or
                 >= 0x86dce6 and < 0x86dcee or

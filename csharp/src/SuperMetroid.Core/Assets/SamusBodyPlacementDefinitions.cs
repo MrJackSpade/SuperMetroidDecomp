@@ -187,7 +187,6 @@ internal static class SamusBodyPlacementDefinitions
         catch (InvalidDataException) { return false; }
     }
 
-    /// <summary>Tries to opaque bottom.</summary>
     private static bool TryOpaqueBottom(SamusBodyArtworkCatalog art, SamusPoseId pose, ushort frame,
         bool drawBottom, out int bottom)
     {

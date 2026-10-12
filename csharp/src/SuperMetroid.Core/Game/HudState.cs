@@ -21,11 +21,8 @@ public sealed class HudState
     /// <summary>VRAM word $5820, one 32-cell row beyond the BG3 tilemap base $5800; direct VRAM byte access uses twice this address.</summary>
     public const ushort VramDestination = 0x5820;
 
-    /// <summary>Stores tiles.</summary>
     private readonly ushort[] _tiles = new ushort[MutableTileCount];
-    /// <summary>Stores previous selected item.</summary>
     private ushort _previousSelectedItem;
-    /// <summary>Stores presentation.</summary>
     [NonSerialized] private GameplayHudPresentation? presentation;
 
     /// <summary>Native $05F7: suppress minimap updates after a boss initializer.</summary>
@@ -319,14 +316,12 @@ public sealed class HudState
         HudMemory.EnqueueMutableTilemapUpload(queue);
     }
 
-    /// <summary>Draws health.</summary>
     private void DrawHealth(ushort health, ushort maxHealth)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD energy requires installed presentation assets.")).ApplyEnergy(_tiles, health, maxHealth);
     }
 
-    /// <summary>Draws auto reserve.</summary>
     private void DrawAutoReserve(bool containsEnergy)
     {
         (presentation ?? throw new InvalidOperationException(
@@ -341,35 +336,30 @@ public sealed class HudState
             "HUD reserve indicator requires installed presentation assets.")).ClearAutoReserve(_tiles);
     }
 
-    /// <summary>Adds missile icon.</summary>
     private void AddMissileIcon()
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex: 0);
     }
 
-    /// <summary>Adds two by two icon.</summary>
     private void AddTwoByTwoIcon(int itemIndex)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD icons require installed presentation assets.")).TryApplyIcon(_tiles, itemIndex);
     }
 
-    /// <summary>Toggle item highlight.</summary>
     private void ToggleItemHighlight(ushort selectedItem, int paletteIndex)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD selection requires installed presentation assets.")).ToggleItemHighlight(_tiles, selectedItem, paletteIndex);
     }
 
-    /// <summary>Draws ammo.</summary>
     private void DrawAmmo(int itemIndex, ushort value)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD ammunition requires installed presentation assets.")).ApplyAmmo(_tiles, itemIndex, value);
     }
 
-    /// <summary>Applies current presentation state.</summary>
     private void ApplyCurrentPresentationState(SamusState samus)
     {
         if (presentation is null) return;
@@ -388,7 +378,6 @@ public sealed class HudState
         presentation.ToggleItemHighlight(_tiles, samus.SelectedHudItem, presentation.SelectedPalette);
     }
 
-    /// <summary>Native minimap cell index.</summary>
     private static int NativeMinimapCellIndex(Position16<TilemapCells> output) =>
         26 + output.Y * WidthInTiles + output.X;
 

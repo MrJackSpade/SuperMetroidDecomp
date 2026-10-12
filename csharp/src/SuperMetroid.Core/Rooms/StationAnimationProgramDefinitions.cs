@@ -22,7 +22,6 @@ internal enum StationAnimationList : ushort
 /// <summary>Immutable timing and draw-list selections for the four station animation families.</summary>
 internal static class StationAnimationProgramDefinitions
 {
-    /// <summary>Represents frame.</summary>
     internal readonly record struct Frame(ushort Duration, ushort DrawPointer);
 
     /// <summary>Timed frames in each list: three for map/resource cycles, one for each save entry.</summary>

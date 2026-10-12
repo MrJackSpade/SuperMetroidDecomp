@@ -2,10 +2,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
-/// <summary>Represents viewport parity verification.</summary>
 internal static class ViewportParityVerification
 {
-    /// <summary>Verifies viewport tile row parity.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyViewportTileRowParity()
     {

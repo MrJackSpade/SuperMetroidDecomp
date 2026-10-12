@@ -16,10 +16,8 @@ using SuperMetroid.Desktop;
 using static DoorDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
 
-/// <summary>Represents file copy arrow verification.</summary>
 internal static class FileCopyArrowVerification
 {
-    /// <summary>Verifies file copy arrow.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFileCopyArrow()
     {
@@ -109,11 +107,9 @@ internal static class FileCopyArrowVerification
         Console.WriteLine("Copy arrow: all six native slot pairs match OAM; confirmation-only visibility and palette timing pass.");
     }
 
-    /// <summary>File copy arrow rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file copy arrow")]
     private static byte FileCopyArrowRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>File copy arrow command.</summary>
     [VerificationCommand("--file-copy-arrow")]
     internal static int FileCopyArrowCommand()
     {

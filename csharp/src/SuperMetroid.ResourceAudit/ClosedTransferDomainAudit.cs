@@ -6,7 +6,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Transfer length constraints apply only after an owned legacy source is selected.</summary>
 internal static class ClosedTransferDomainAudit
 {
-    /// <summary>Invalid constants.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.Name != "TryResolve") return null;

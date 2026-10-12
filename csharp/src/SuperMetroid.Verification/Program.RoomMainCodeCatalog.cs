@@ -4,7 +4,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-/// <summary>Represents room main code catalog verification.</summary>
 internal static class RoomMainCodeCatalogVerification
 {
     /// <summary>
@@ -68,7 +67,6 @@ internal static class RoomMainCodeCatalogVerification
             $"all {retailMainPointers.Count} nonzero callback kinds are catalogued.");
     }
 
-    /// <summary>Tries to parse room header pointer.</summary>
     internal static ushort? TryParseRoomHeaderPointer(string line)
     {
         string[] fields = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -94,7 +92,6 @@ internal static class RoomMainCodeCatalogVerification
         return pointer == 0xe82c ? null : pointer;
     }
 
-    /// <summary>Builds room state audit contexts.</summary>
     internal static RoomStateSelectionContext[] BuildRoomStateAuditContexts()
     {
         var contexts = new List<RoomStateSelectionContext>

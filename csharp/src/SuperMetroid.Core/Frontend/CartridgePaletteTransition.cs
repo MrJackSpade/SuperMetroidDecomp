@@ -9,11 +9,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class CartridgePaletteTransition
 {
-    /// <summary>Stores target.</summary>
     private readonly Bgr555[] target;
-    /// <summary>Stores denominator.</summary>
     private readonly int denominator;
-    /// <summary>Stores numerator.</summary>
     private readonly GradualColorChangeCounter numerator;
 
     /// <param name="target">All 256 destination CGRAM colors in native order; copied into the transition's target buffer.</param>
@@ -67,11 +64,9 @@ internal sealed class CartridgePaletteTransition
     /// <summary>Updates the native target buffer without resetting fade progress or current colors.</summary>
     internal void SetTargetColor(int index, Bgr555 color) => target[index] = color;
 
-    /// <summary>calculate color.</summary>
     private Bgr555 CalculateColor(int step, Bgr555 current, Bgr555 destination) =>
         current.Zip(destination, (_, from, to) => CalculateComponent(step, from, to));
 
-    /// <summary>calculate component.</summary>
     private int CalculateComponent(int step, int current, int destination)
     {
         if (step == 0)

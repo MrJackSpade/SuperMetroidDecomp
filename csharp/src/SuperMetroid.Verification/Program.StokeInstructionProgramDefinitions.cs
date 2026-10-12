@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents stoke instruction program definitions verification.</summary>
 internal static class StokeInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies stoke instruction program definitions.</summary>
     internal static void VerifyStokeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyStokeInstructionProgramDefinitions), () => VerifyStokeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies stoke instruction program definitions.</summary>
     internal static void VerifyStokeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -193,7 +190,6 @@ internal static class StokeInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe stoke instruction mechanics allocation.</summary>
     private static int ProbeStokeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -205,7 +201,6 @@ internal static class StokeInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New stoke instruction program read guard.</summary>
     private static CartridgeReadGuard NewStokeInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(StokeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -213,7 +208,6 @@ internal static class StokeInstructionProgramDefinitionsVerification
             .ForbidWords(0xa20000, StokeInstructionProgramDefinitionsTooling.PresentationWordCount, StokeInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Stoke instruction byte ${address:X6}.");
 
-    /// <summary>Stoke instruction mechanics command.</summary>
     [VerificationCommand("--stoke-instruction-mechanics")]
     internal static int StokeInstructionMechanicsCommand()
     {

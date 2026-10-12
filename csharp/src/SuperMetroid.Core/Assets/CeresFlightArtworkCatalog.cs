@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresFlightArtworkCatalog
 {
-    /// <summary>Initializes a new ceres flight artwork catalog instance.</summary>
     private CeresFlightArtworkCatalog(byte[] mode7Characters, byte[] mode7Maps,
         byte[] objectCharacters, CeresFlightPalette palette,
         CeresFlightSpritePresentation sprites, CeresFlightActorLayout actors)
@@ -110,7 +109,6 @@ public sealed class CeresFlightArtworkCatalog
         json.Write(bytes);
     }
 
-    /// <summary>Reads map.</summary>
     private static CeresFlightMapDocument ReadMap(Stream json)
     {
         CeresFlightMapDocument document;

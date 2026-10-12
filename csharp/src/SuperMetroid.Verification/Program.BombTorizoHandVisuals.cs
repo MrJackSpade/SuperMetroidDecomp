@@ -5,10 +5,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using static LookupBombTorizoHandStockVerification;
 
-/// <summary>Represents bomb torizo hand visuals verification.</summary>
 internal static class BombTorizoHandVisualsVerification
 {
-    /// <summary>Verifies bomb torizo hand visual installation.</summary>
     internal static void VerifyBombTorizoHandVisualInstallation()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

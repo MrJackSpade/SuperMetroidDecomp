@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents zero instruction program definitions verification.</summary>
 internal static class ZeroInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies zero instruction program definitions.</summary>
     internal static void VerifyZeroInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZeroInstructionProgramDefinitions), () => VerifyZeroInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies zero instruction program definitions.</summary>
     internal static void VerifyZeroInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -107,7 +104,6 @@ internal static class ZeroInstructionProgramDefinitionsVerification
             "mechanics bytes forbidden.");
     }
 
-    /// <summary>Executes zero program.</summary>
     private static void ExecuteZeroProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -122,7 +118,6 @@ internal static class ZeroInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes zero instruction mechanics allocation.</summary>
     private static int ProbeZeroInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -136,14 +131,12 @@ internal static class ZeroInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New zero instruction read guard.</summary>
     private static CartridgeReadGuard NewZeroInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ZeroInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Zero mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, ZeroInstructionProgramDefinitions.PresentationWordCount, ZeroInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Zero instruction program definitions command.</summary>
     [VerificationCommand("--zero-instruction-program-definitions")]
     internal static int ZeroInstructionProgramDefinitionsCommand()
     {

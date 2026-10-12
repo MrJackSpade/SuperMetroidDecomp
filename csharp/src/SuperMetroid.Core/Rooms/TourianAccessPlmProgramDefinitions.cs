@@ -39,7 +39,6 @@ internal static class TourianAccessPlmProgramDefinitions
         ClearDelete = Clear + 4,
     }
 
-    /// <summary>Tries to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (Enum.IsDefined((ControlWord)address))
@@ -75,7 +74,6 @@ internal static class TourianAccessPlmProgramDefinitions
         return false;
     }
 
-    /// <summary>Tries to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == Crumble + 2)

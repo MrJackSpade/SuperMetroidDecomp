@@ -7,14 +7,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class CrocomireBg2FrameDefinitions
 {
-    /// <summary>Stores version.</summary>
     internal const int Version = 1;
-    /// <summary>Stores file name.</summary>
     internal const string FileName = "crocomire-bg2-frames.json";
-    /// <summary>Stores bank.</summary>
     internal const byte Bank = CrocomireBodyVisualDefinitions.Bank;
 
-    /// <summary>Gets frames.</summary>
     internal static EnemyBg2FrameDefinitionSequence Frames =>
         new(CrocomireBodyVisualDefinitions.MixedBg2FrameCount, Frame);
 

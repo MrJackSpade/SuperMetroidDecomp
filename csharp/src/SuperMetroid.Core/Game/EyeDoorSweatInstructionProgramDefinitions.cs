@@ -12,9 +12,7 @@ internal abstract class EyeDoorSweatInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_EyeDoorSweat_Impact</c> at $86:B61D.</summary>
     internal const ushort Impact = 0xb61d;
 
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 8;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 4;
 
     /// <summary>Falling draws once and loops; impact clears movement, draws three frames and deletes.</summary>
@@ -32,13 +30,11 @@ internal abstract class EyeDoorSweatInstructionProgramDefinitions
         };
     }
 
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index == 0 ? Initial + 2 : Impact + 4 + 4 * (index - 1));
     }
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

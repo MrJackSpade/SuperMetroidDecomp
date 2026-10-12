@@ -4,10 +4,8 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
-/// <summary>Represents strict failures verification.</summary>
 internal static class StrictFailuresVerification
 {
-/// <summary>verify strict failure boundaries.</summary>
 internal static void VerifyStrictFailureBoundaries()
 {
     var duplicateBindings = new ControllerBindings(

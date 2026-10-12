@@ -8,10 +8,8 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
 
-/// <summary>Represents pause equipment base assets verification.</summary>
 internal static class PauseEquipmentBaseAssetsVerification
 {
-    /// <summary>Verifies pause equipment base assets.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment base tilemap")]
     internal static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original)
@@ -134,7 +132,6 @@ internal static class PauseEquipmentBaseAssetsVerification
         }
     }
 
-    /// <summary>New pause equipment base read guard.</summary>
     private static CartridgeReadGuard NewPauseEquipmentBaseReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(PauseEquipmentBaseDefinitions.Source,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort),

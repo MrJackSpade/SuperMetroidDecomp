@@ -27,10 +27,8 @@ public enum BoulderAiFunction : ushort
 /// </summary>
 public sealed class BoulderEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new boulder enemy state instance.</summary>
     internal BoulderEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Current bank-$A6 indirect AI target, backed by common variable A here and corresponding to native <c>Boulder.function</c> at $0FA8,x.</summary>

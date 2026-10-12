@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -27,8 +27,6 @@ internal sealed class BeamChargeState
     /// </summary>
     public ushort SamusChargePaletteIndex { get; internal set; }
 
-    /// <summary>Stores flare frames.</summary>
     internal readonly ushort[] _flareFrames = new ushort[3];
-    /// <summary>Stores flare timers.</summary>
     internal readonly ushort[] _flareTimers = new ushort[3];
 }

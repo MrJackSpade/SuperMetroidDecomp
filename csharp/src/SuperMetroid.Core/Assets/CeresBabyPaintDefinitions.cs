@@ -13,24 +13,15 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresBabyPaintDefinitions
 {
-    /// <summary>Defines maximum.</summary>
     private const int Maximum = (1 << 5) - 1;
-    /// <summary>Defines brightness step.</summary>
     private const int BrightnessStep = 3;
-    /// <summary>Stores body.</summary>
     private readonly CeresRidleyFadeColorDefinitions? body;
-    /// <summary>Stores standalone body.</summary>
     private readonly CeresRidleyBodyPaintDefinitions? standaloneBody;
-    /// <summary>Stores row count.</summary>
     private readonly int rowCount;
-    /// <summary>Stores glass red.</summary>
     private readonly int glassRed, glassBlue, glassMiddleRed, glassGreenStep;
-    /// <summary>Stores dome tint.</summary>
     private readonly int domeTint, domeGreen, domeShadeStep, outlineRed;
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new ceres baby paint definitions instance.</summary>
     internal CeresBabyPaintDefinitions(Bgr555[][] rows, CeresRidleyFadeColorDefinitions body)
         : this(rows[0], 4)
     {
@@ -49,7 +40,6 @@ internal sealed class CeresBabyPaintDefinitions
             if (Calculate(0, color) != initial[color]) edits.Add(color, initial[color]);
     }
 
-    /// <summary>Initializes a new ceres baby paint definitions instance.</summary>
     private CeresBabyPaintDefinitions(ReadOnlySpan<Bgr555> initial, int rowCount)
     {
         if (initial.Length != 15) throw new ArgumentException("Baby paint requires fifteen colors.", nameof(initial));
@@ -60,7 +50,6 @@ internal sealed class CeresBabyPaintDefinitions
         domeShadeStep = domeGreen - initial[2].Green; outlineRed = initial[8].Red;
     }
 
-    /// <summary>Resolve.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         if ((uint)row >= rowCount) throw new ArgumentOutOfRangeException(nameof(row));
@@ -68,7 +57,6 @@ internal sealed class CeresBabyPaintDefinitions
         return edits.TryGetValue(row * 15 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
-    /// <summary>Calculate.</summary>
     private Bgr555 Calculate(int row, int color)
     {
         Bgr555 basis = Initial(color);
@@ -86,7 +74,6 @@ internal sealed class CeresBabyPaintDefinitions
         return Bgr555.Saturating(basis.Red + redAddition, green, blue);
     }
 
-    /// <summary>Initial.</summary>
     private Bgr555 Initial(int color) => color switch
     {
         0 => Pack(glassRed, Maximum, glassBlue),
@@ -103,9 +90,7 @@ internal sealed class CeresBabyPaintDefinitions
         _ => Pack(0, Maximum - 2 * glassGreenStep, Maximum - 2 * glassGreenStep),
     };
 
-    /// <summary>Body color.</summary>
     private Bgr555 BodyColor(int color) => body is not null ? body.Resolve(15, color) : standaloneBody!.Color(color);
 
-    /// <summary>Pack.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => Bgr555.Saturating(red, green, blue);
 }

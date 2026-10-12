@@ -11,10 +11,8 @@ using static LookupTubeDrawsVerification;
 using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 
-/// <summary>Represents noob tube plm draw definitions verification.</summary>
 internal static class NoobTubePlmDrawDefinitionsVerification
 {
-    /// <summary>Verifies noob tube plm draw definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Noob Tube PLM draw definitions")]
     internal static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -55,7 +53,6 @@ internal static class NoobTubePlmDrawDefinitionsVerification
             "  N00b-tube PLM: seven guarded native layouts and editable stock/override appearance preserve physical blocks.");
     }
 
-    /// <summary>Verifies noob tube native draw path.</summary>
     private static void VerifyNoobTubeNativeDrawPath(
         byte[] bank84,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists,
@@ -120,7 +117,6 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         }
     }
 
-    /// <summary>Verifies noob tube visual installation.</summary>
     private static void VerifyNoobTubeVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("noob-tube-visual");
@@ -178,7 +174,6 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         }
     }
 
-    /// <summary>New noob tube draw read guard.</summary>
     private static CartridgeReadGuard NewNoobTubeDrawReadGuard(
         ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>

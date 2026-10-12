@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents golden torizo stunned definitions verification.</summary>
 internal static class GoldenTorizoStunnedDefinitionsVerification
 {
-    /// <summary>verify golden torizo stunned definitions.</summary>
     internal static void VerifyGoldenTorizoStunnedDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
@@ -66,7 +64,6 @@ internal static class GoldenTorizoStunnedDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
-    /// <summary>golden torizo stunned definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo stunned definitions")]
     private static byte GoldenTorizoStunnedDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

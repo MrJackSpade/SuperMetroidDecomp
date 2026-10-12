@@ -13,10 +13,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents mother brain plasma impact verification.</summary>
 internal static class MotherBrainPlasmaImpactVerification
 {
-    /// <summary>Verifies mother brain plasma impact.</summary>
     internal static int VerifyMotherBrainPlasmaImpact()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -89,7 +87,6 @@ internal static class MotherBrainPlasmaImpactVerification
         }
     }
 
-    /// <summary>Mother brain plasma impact command.</summary>
     [VerificationCommand("--mother-brain-plasma-impact")]
     internal static int MotherBrainPlasmaImpactCommand()
     {

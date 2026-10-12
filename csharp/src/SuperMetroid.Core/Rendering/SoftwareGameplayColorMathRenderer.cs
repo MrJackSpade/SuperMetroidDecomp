@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("backend: software PPU gameplay colour-math compositor")]
 public static class SoftwareGameplayColorMathRenderer
 {
-    /// <summary>Render.</summary>
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         byte objectSelection, Rgba32[]? outputBuffer)
     {
@@ -33,7 +32,6 @@ public static class SoftwareGameplayColorMathRenderer
         finally { ArrayPool<Rgba32>.Shared.Return(objects); }
     }
 
-    /// <summary>Render with scratch.</summary>
     private static Rgba32[] RenderWithScratch(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
         byte objectSelection, Rgba32[] output, Rgba32[] objects, byte[] priorities, byte[] palettes)
     {

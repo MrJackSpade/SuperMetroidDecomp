@@ -6,7 +6,6 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Extracts Draygon's BG2 appearance, excluding native collision lists.</summary>
 internal static class DraygonBg2FrameFiles
 {
-    /// <summary>extract.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus) =>
         EnemyBg2FrameFiles.Extract(bus, DraygonBg2FrameDefinitions.Bank,
             DraygonBg2FrameDefinitions.Frames,

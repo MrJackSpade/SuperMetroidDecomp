@@ -3,7 +3,6 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents samus movement rom data verification.</summary>
 internal static class SamusMovementRomDataVerification
 {
     /// <summary>
@@ -113,7 +112,6 @@ internal static class SamusMovementRomDataVerification
             "records, liquid tables, effects, and 32 slope profiles are in range.");
     }
 
-    /// <summary>Touch range.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle reads at both ends of a Samus movement data range")]
     internal static void TouchRange(
         SuperMetroidAddressSpace bus,

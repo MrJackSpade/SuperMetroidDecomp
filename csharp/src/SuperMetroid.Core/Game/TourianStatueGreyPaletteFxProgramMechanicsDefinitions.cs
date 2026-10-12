@@ -29,14 +29,10 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
     /// <summary>CGRAM byte $C0: first statue palette, with palette row eight skipped.</summary>
     private const ushort FirstColorByte = 0xc0;
 
-    /// <summary>Stores definitions.</summary>
     internal static readonly IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition> Definitions = new ProgramEntries();
-    /// <summary>Represents program entries.</summary>
     private sealed class ProgramEntries : IReadOnlyList<TourianStatueGreyPaletteFxProgramDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => 4;
-        /// <summary>Gets or sets an indexed value.</summary>
         public TourianStatueGreyPaletteFxProgramDefinition this[int index]
         {
             get
@@ -50,13 +46,11 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
                     usesGoto: index < Count - 1);
             }
         }
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<TourianStatueGreyPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary><c>InstList_PaletteFXObject_Common_GreyOutTourianStatue</c> at $8D:E23E.</summary>
@@ -142,7 +136,6 @@ public static class TourianStatueGreyPaletteFxProgramMechanicsDefinitions
 /// <summary>One boss-specific entry into the shared Tourian statue grey-out program.</summary>
 public sealed class TourianStatueGreyPaletteFxProgramDefinition
 {
-    /// <summary>Initializes a new tourian statue grey palette fx program definition instance.</summary>
     internal TourianStatueGreyPaletteFxProgramDefinition(
         TourianStatueBoss boss,
         ushort definitionPointer,

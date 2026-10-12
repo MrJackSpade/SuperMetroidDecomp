@@ -7,13 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable SR388 egg and baby OAM art; animation and motion remain compiled.</summary>
 public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSpritePresentation
 {
-    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroDiscoveryActorSpritePresentation), frames);
 
-    /// <summary>Initializes a new intro discovery actor sprite presentation instance.</summary>
     private IntroDiscoveryActorSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

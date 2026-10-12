@@ -6,7 +6,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Preserves the reviewed correlated pause selectors; a short category cannot borrow another category's capacity.</summary>
 internal static class PausePresentationDomainAudit
 {
-    /// <summary>Invalid constants.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         string type = operation.TargetMethod.ContainingType.ToDisplayString(), method = operation.TargetMethod.Name;

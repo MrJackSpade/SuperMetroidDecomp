@@ -13,17 +13,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents mother brain baby instruction program definitions verification.</summary>
 internal static class MotherBrainBabyInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies mother brain baby instruction program definitions.</summary>
     internal static void VerifyMotherBrainBabyInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMotherBrainBabyInstructionProgramDefinitions), () => VerifyMotherBrainBabyInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies mother brain baby instruction program definitions.</summary>
     internal static void VerifyMotherBrainBabyInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -77,7 +74,6 @@ internal static class MotherBrainBabyInstructionProgramDefinitionsVerification
             "rejections, callback/adjacent-code rejection and allocation checks pass.");
     }
 
-    /// <summary>Probe mother brain baby instruction mechanics allocation.</summary>
     private static int ProbeMotherBrainBabyInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -89,7 +85,6 @@ internal static class MotherBrainBabyInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Mother brain baby instruction mechanics command.</summary>
     [VerificationCommand("--mother-brain-baby-instruction-mechanics")]
     internal static int MotherBrainBabyInstructionMechanicsCommand()
     {

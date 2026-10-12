@@ -11,10 +11,8 @@ using static GraphDigestVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents grapple flare presentation verification.</summary>
 internal static class GrappleFlarePresentationVerification
 {
-    /// <summary>Verifies grapple flare presentation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
@@ -131,11 +129,9 @@ internal static class GrappleFlarePresentationVerification
         }
     }
 
-    /// <summary>Grapple flare presentation rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple flare presentation")]
     private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies grapple flare actor binding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleFlareActorBinding(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
@@ -190,13 +186,11 @@ internal static class GrappleFlarePresentationVerification
         }
     }
 
-    /// <summary>New grapple flare presentation guard.</summary>
     private static CartridgeReadGuard NewGrappleFlarePresentationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x90c481 and < 0x90c4b5 or >= 0x93a225 and < 0x93a231,
                 address => $"Grapple flare still reads compiled cadence/selector at {address:X6}.");
 
-    /// <summary>Reads native grapple flare spritemap offset.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native Grapple flare spritemap-offset rows")]
     private static ushort ReadNativeGrappleFlareSpritemapOffset(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

@@ -9,10 +9,8 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Verification access to <see cref="BotwoonWallPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class BotwoonWallPlmProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>BotwoonWallPlmProgramDefinitions</c>.</summary>
     extension(BotwoonWallPlmProgramDefinitions)
     {
-        /// <summary>Enumerates cartridge word addresses covered by this definition.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             yield return BotwoonWallPlmProgramDefinitions.Crumble;
@@ -37,7 +35,6 @@ internal static class BotwoonWallPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="ChozoStatuePlmDefinitions"/> members production does not use.</summary>
 internal static class ChozoStatuePlmDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>ChozoStatuePlmDefinitions</c>.</summary>
     extension(ChozoStatuePlmDefinitions)
     {
         /// <summary>Enumerate the five semantic spawn cases in the original published order.</summary>
@@ -58,10 +55,8 @@ internal static class ChozoStatuePlmDefinitionsAccess
 /// <summary>Verification access to <see cref="CrocomireArenaPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class CrocomireArenaPlmProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>CrocomireArenaPlmProgramDefinitions</c>.</summary>
     extension(CrocomireArenaPlmProgramDefinitions)
     {
-        /// <summary>Enumerates cartridge word addresses covered by this definition.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             for (int address = CrocomireArenaPlmProgramDefinitions.ClearBridge; address < CrocomireArenaPlmProgramDefinitions.EndExclusive; address += 2)
@@ -73,7 +68,6 @@ internal static class CrocomireArenaPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="DoorClosingPlmRomData"/> members production does not use.</summary>
 internal static class DoorClosingPlmRomDataAccess
 {
-    /// <summary>Provides verification-only extensions for <c>DoorClosingPlmRomData</c>.</summary>
     extension(DoorClosingPlmRomData)
     {
         /// <summary>Returns the bank-$84 header selected by a raw orientation byte, or the table's zero word.</summary>
@@ -85,7 +79,6 @@ internal static class DoorClosingPlmRomDataAccess
 /// <summary>Verification access to <see cref="DoorScrollPrograms"/> members production does not use.</summary>
 internal static class DoorScrollProgramsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>DoorScrollPrograms</c>.</summary>
     extension(DoorScrollPrograms)
     {
         /// <summary>Original callback catalog order, generated without a stored registration table.</summary>
@@ -178,10 +171,8 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
     /// <summary>$84:BC61: adjacent upward-gate program, outside the downward-gate decoder.</summary>
     private const ushort ResidentEnd = 0xbc61;
 
-    /// <summary>Provides verification-only extensions for <c>DownwardGatePlmProgramDefinitions</c>.</summary>
     extension(DownwardGatePlmProgramDefinitions)
     {
-        /// <summary>Enumerates compiled mechanics word addresses and values.</summary>
         internal static IEnumerable<(ushort Address, ushort Value)> MechanicsWords
         {
             get
@@ -193,7 +184,6 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
             }
         }
 
-        /// <summary>Enumerates compiled mechanics byte addresses and values.</summary>
         internal static IEnumerable<(ushort Address, byte Value)> MechanicsBytes
         {
             get
@@ -208,10 +198,8 @@ internal static class DownwardGatePlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="KraidRoomPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class KraidRoomPlmProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>KraidRoomPlmProgramDefinitions</c>.</summary>
     extension(KraidRoomPlmProgramDefinitions)
     {
-        /// <summary>Enumerates cartridge word addresses covered by this definition.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             for (int address = KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1; address < KraidRoomPlmProgramDefinitions.EndExclusive; address++)
@@ -224,7 +212,6 @@ internal static class KraidRoomPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="LandingSiteEntryState"/> members production does not use.</summary>
 internal static class LandingSiteEntryStateAccess
 {
-    /// <summary>Provides verification-only extensions for <c>LandingSiteEntryState</c>.</summary>
     extension(LandingSiteEntryState)
     {
         /// <summary>Selects the intro landing-cutscene door and its compiled command-E record.</summary>
@@ -278,7 +265,6 @@ internal static class LandingSiteEntryStateAccess
 /// <summary>Verification access to <see cref="LibraryBackgroundProgramDefinitions"/> members production does not use.</summary>
 internal static class LibraryBackgroundProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>LibraryBackgroundProgramDefinitions</c>.</summary>
     extension(LibraryBackgroundProgramDefinitions)
     {
         /// <summary>Finds a command-E transfer for one door in a compiled program.</summary>
@@ -301,10 +287,8 @@ internal static class LibraryBackgroundProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainFakeDeathPlmDrawDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainFakeDeathPlmDrawDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>MotherBrainFakeDeathPlmDrawDefinitions</c>.</summary>
     extension(MotherBrainFakeDeathPlmDrawDefinitions)
     {
-        /// <summary>try get.</summary>
         internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
         {
             // Native order: background, regular, then boundary draw families.
@@ -326,13 +310,10 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainFakeDeathPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainFakeDeathPlmProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>MotherBrainFakeDeathPlmProgramDefinitions</c>.</summary>
     extension(MotherBrainFakeDeathPlmProgramDefinitions)
     {
-        /// <summary>Gets program count.</summary>
         internal static int ProgramCount => (MotherBrainFakeDeathPlmProgramDefinitions.EndExclusive - MotherBrainFakeDeathPlmProgramDefinitions.Start) / MotherBrainFakeDeathPlmProgramDefinitions.ProgramByteLength;
 
-        /// <summary>Enumerates cartridge word addresses covered by this definition.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses() =>
             Enumerable.Range(0, MotherBrainFakeDeathPlmProgramDefinitions.ProgramCount * 3)
                 .Select(index => checked((ushort)(MotherBrainFakeDeathPlmProgramDefinitions.Start + index * 2)));
@@ -342,10 +323,8 @@ internal static class MotherBrainFakeDeathPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="NoobTubePlmProgramDefinitions"/> members production does not use.</summary>
 internal static class NoobTubePlmProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>NoobTubePlmProgramDefinitions</c>.</summary>
     extension(NoobTubePlmProgramDefinitions)
     {
-        /// <summary>Enumerates word addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int offset = 0; offset <= 0x30; offset += 2)
@@ -356,7 +335,6 @@ internal static class NoobTubePlmProgramDefinitionsAccess
             yield return checked((ushort)(PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "AlreadyBrokenStart") + 2));
         }
 
-        /// <summary>Enumerates byte addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             yield return PrivateState.StaticField<ushort>(typeof(NoobTubePlmProgramDefinitions), "BreakSoundAddress");
@@ -367,7 +345,6 @@ internal static class NoobTubePlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="ResidentDoorClosingDefinitions"/> members production does not use.</summary>
 internal static class ResidentDoorClosingDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>ResidentDoorClosingDefinitions</c>.</summary>
     extension(ResidentDoorClosingDefinitions)
     {
         /// <summary>Enumerates the twenty supported identities in original header order without cached records.</summary>
@@ -403,15 +380,12 @@ internal static class ResidentDoorClosingDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomCallbackDefinitions"/> members production does not use.</summary>
 internal static class RoomCallbackDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomCallbackDefinitions</c>.</summary>
     extension(RoomCallbackDefinitions)
     {
-        /// <summary>pointer of.</summary>
         internal static ushort PointerOf(RoomMainCallback callback) => Enum.IsDefined(callback)
             ? (ushort)callback
             : throw new ArgumentOutOfRangeException(nameof(callback));
 
-        /// <summary>pointer of.</summary>
         internal static ushort PointerOf(RoomSetupCallback callback) => Enum.IsDefined(callback)
             ? (ushort)callback
             : throw new ArgumentOutOfRangeException(nameof(callback));
@@ -421,7 +395,6 @@ internal static class RoomCallbackDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomCollisionBlock"/> members production does not use.</summary>
 internal static class RoomCollisionBlockAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomCollisionBlock</c>.</summary>
     extension(RoomCollisionBlock self)
     {
         /// <summary>Low ten bits selecting the visual 16×16 block definition.</summary>
@@ -432,7 +405,6 @@ internal static class RoomCollisionBlockAccess
 /// <summary>Verification access to <see cref="RoomLevelData"/> members production does not use.</summary>
 internal static class RoomLevelDataAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomLevelData</c>.</summary>
     extension(RoomLevelData self)
     {
         /// <summary>
@@ -476,7 +448,6 @@ internal static class RoomLevelStreamDefinitionsAccess
     private static object InstalledStreams =>
         PrivateState.Property<object>(PrivateState.StaticField<object>(typeof(RoomLevelStreamDefinitions), "Installed"), "Value");
 
-    /// <summary>Provides verification-only extensions for <c>RoomLevelStreamDefinitions</c>.</summary>
     extension(RoomLevelStreamDefinitions)
     {
         /// <summary>Every distinct level-data source referenced by the compiled retail room states.</summary>
@@ -504,7 +475,6 @@ internal static class RoomLevelStreamDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomLevelWord"/> members production does not use.</summary>
 internal static class RoomLevelWordAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomLevelWord</c>.</summary>
     extension(RoomLevelWord self)
     {
         /// <summary>Replaces only the parent-block visual transforms.</summary>
@@ -520,7 +490,6 @@ internal static class RoomLevelWordAccess
 /// <summary>Verification access to <see cref="RoomPlmBlueDoorVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmBlueDoorVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmBlueDoorVisualCatalog</c>.</summary>
     extension(RoomPlmBlueDoorVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
@@ -531,10 +500,8 @@ internal static class RoomPlmBlueDoorVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmBombBlockProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmBombBlockProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmBombBlockProgramDefinitions</c>.</summary>
     extension(RoomPlmBombBlockProgramDefinitions)
     {
-        /// <summary>Enumerates word addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmBombBlockProgramDefinitions), "ProgramCount"); index++)
@@ -553,7 +520,6 @@ internal static class RoomPlmBombBlockProgramDefinitionsAccess
             }
         }
 
-        /// <summary>Enumerates byte addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmBombBlockProgramDefinitions), "ProgramCount"); index++)
@@ -569,10 +535,8 @@ internal static class RoomPlmBombBlockProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmBombBlockRestoreDrawDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmBombBlockRestoreDrawDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmBombBlockRestoreDrawDefinitions</c>.</summary>
     extension(RoomPlmBombBlockRestoreDrawDefinitions)
     {
-        /// <summary>try get.</summary>
         internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
         {
             if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmBombBlockRestoreDrawDefinitions.Draw draw))
@@ -589,7 +553,6 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmBombTorizoHandVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmBombTorizoHandVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmBombTorizoHandVisualCatalog</c>.</summary>
     extension(RoomPlmBombTorizoHandVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -600,7 +563,6 @@ internal static class RoomPlmBombTorizoHandVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmBotwoonWallVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmBotwoonWallVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmBotwoonWallVisualCatalog</c>.</summary>
     extension(RoomPlmBotwoonWallVisualCatalog)
     {
         /// <summary>The native stock appearance is the visual part of the calculated
@@ -612,7 +574,6 @@ internal static class RoomPlmBotwoonWallVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmChozoStatueVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmChozoStatueVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmChozoStatueVisualCatalog</c>.</summary>
     extension(RoomPlmChozoStatueVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -623,7 +584,6 @@ internal static class RoomPlmChozoStatueVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmCollectibleVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmCollectibleVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmCollectibleVisualCatalog</c>.</summary>
     extension(RoomPlmCollectibleVisualCatalog)
     {
         /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
@@ -634,7 +594,6 @@ internal static class RoomPlmCollectibleVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmColoredDoorVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmColoredDoorVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmColoredDoorVisualCatalog</c>.</summary>
     extension(RoomPlmColoredDoorVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
@@ -645,10 +604,8 @@ internal static class RoomPlmColoredDoorVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmContactCrumbleProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmContactCrumbleProgramDefinitions</c>.</summary>
     extension(RoomPlmContactCrumbleProgramDefinitions)
     {
-        /// <summary>Enumerates word addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmContactCrumbleProgramDefinitions), "ProgramCount"); index++)
@@ -664,7 +621,6 @@ internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
             }
         }
 
-        /// <summary>Enumerates byte addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmContactCrumbleProgramDefinitions), "ProgramCount"); index++)
@@ -676,10 +632,8 @@ internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmContactCrumbleRestoreDrawDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmContactCrumbleRestoreDrawDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmContactCrumbleRestoreDrawDefinitions</c>.</summary>
     extension(RoomPlmContactCrumbleRestoreDrawDefinitions)
     {
-        /// <summary>try get.</summary>
         internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
         {
             if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmContactCrumbleRestoreDrawDefinitions.Draw draw))
@@ -696,7 +650,6 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmCrocomireVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmCrocomireVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmCrocomireVisualCatalog</c>.</summary>
     extension(RoomPlmCrocomireVisualCatalog)
     {
         /// <summary>Calculate stock appearances from the draw geometry; retain only customized frames.</summary>
@@ -707,7 +660,6 @@ internal static class RoomPlmCrocomireVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmDownwardGateVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmDownwardGateVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmDownwardGateVisualCatalog</c>.</summary>
     extension(RoomPlmDownwardGateVisualCatalog)
     {
         /// <summary>Calculate stock appearances from physical draws; store only customized frames.</summary>
@@ -718,7 +670,6 @@ internal static class RoomPlmDownwardGateVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmDraygonCannonVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmDraygonCannonVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmDraygonCannonVisualCatalog</c>.</summary>
     extension(RoomPlmDraygonCannonVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -729,7 +680,6 @@ internal static class RoomPlmDraygonCannonVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmDynamicCollectibleArtCatalog"/> members production does not use.</summary>
 internal static class RoomPlmDynamicCollectibleArtCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmDynamicCollectibleArtCatalog</c>.</summary>
     extension(RoomPlmDynamicCollectibleArtCatalog)
     {
         /// <summary>Resolve stock directly; retain only customized item artwork.</summary>
@@ -740,7 +690,6 @@ internal static class RoomPlmDynamicCollectibleArtCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmElevatorPlatformVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmElevatorPlatformVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmElevatorPlatformVisualCatalog</c>.</summary>
     extension(RoomPlmElevatorPlatformVisualCatalog)
     {
         /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
@@ -751,7 +700,6 @@ internal static class RoomPlmElevatorPlatformVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmEscapeGateVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmEscapeGateVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmEscapeGateVisualCatalog</c>.</summary>
     extension(RoomPlmEscapeGateVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
@@ -762,7 +710,6 @@ internal static class RoomPlmEscapeGateVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmEyeDoorVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmEyeDoorVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmEyeDoorVisualCatalog</c>.</summary>
     extension(RoomPlmEyeDoorVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; retain only customized frames.</summary>
@@ -773,10 +720,8 @@ internal static class RoomPlmEyeDoorVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmGrappleBlockProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmGrappleBlockProgramDefinitions</c>.</summary>
     extension(RoomPlmGrappleBlockProgramDefinitions)
     {
-        /// <summary>Enumerates word addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmGrappleBlockProgramDefinitions), "ProgramCount"); index++)
@@ -795,7 +740,6 @@ internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
             }
         }
 
-        /// <summary>Enumerates byte addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(RoomPlmGrappleBlockProgramDefinitions), "ProgramCount"); index++)
@@ -807,7 +751,6 @@ internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmGrappleBlockVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmGrappleBlockVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmGrappleBlockVisualCatalog</c>.</summary>
     extension(RoomPlmGrappleBlockVisualCatalog)
     {
         /// <summary>Stock visuals use the calculated draw word without storing derived entries.</summary>
@@ -818,7 +761,6 @@ internal static class RoomPlmGrappleBlockVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmGreyDoorVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmGreyDoorVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmGreyDoorVisualCatalog</c>.</summary>
     extension(RoomPlmGreyDoorVisualCatalog)
     {
         /// <summary>Calculate stock visuals directly; only selected custom frames need storage.</summary>
@@ -829,10 +771,8 @@ internal static class RoomPlmGreyDoorVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmKraidVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmKraidVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmKraidVisualCatalog</c>.</summary>
     extension(RoomPlmKraidVisualCatalog)
     {
-        /// <summary>stock.</summary>
         internal static RoomPlmKraidVisualCatalog Stock() => new(
             KraidRoomPlmDrawDefinitions.All.Select(draw =>
                 new RoomPlmKraidVisualEntry(
@@ -846,7 +786,6 @@ internal static class RoomPlmKraidVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmLinkedRestoreVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmLinkedRestoreVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmLinkedRestoreVisualCatalog</c>.</summary>
     extension(RoomPlmLinkedRestoreVisualCatalog)
     {
         /// <summary>Stock words are calculated from the physical draw's visual portion.</summary>
@@ -857,10 +796,8 @@ internal static class RoomPlmLinkedRestoreVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmMaridiaElevatubeVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmMaridiaElevatubeVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmMaridiaElevatubeVisualCatalog</c>.</summary>
     extension(RoomPlmMaridiaElevatubeVisualCatalog)
     {
-        /// <summary>stock.</summary>
         internal static RoomPlmMaridiaElevatubeVisualCatalog Stock() => new(
             [new RoomPlmMaridiaElevatubeVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId,
@@ -871,7 +808,6 @@ internal static class RoomPlmMaridiaElevatubeVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmMotherBrainFakeDeathVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmMotherBrainFakeDeathVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmMotherBrainFakeDeathVisualCatalog</c>.</summary>
     extension(RoomPlmMotherBrainFakeDeathVisualCatalog)
     {
         /// <summary>Project stock appearance from physical cells without a duplicate stock cache.</summary>
@@ -882,7 +818,6 @@ internal static class RoomPlmMotherBrainFakeDeathVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmMotherBrainGlassVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmMotherBrainGlassVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmMotherBrainGlassVisualCatalog</c>.</summary>
     extension(RoomPlmMotherBrainGlassVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -893,7 +828,6 @@ internal static class RoomPlmMotherBrainGlassVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmNoobTubeVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmNoobTubeVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmNoobTubeVisualCatalog</c>.</summary>
     extension(RoomPlmNoobTubeVisualCatalog)
     {
         /// <summary>Calculate original appearances directly; store only customized frames.</summary>
@@ -904,10 +838,8 @@ internal static class RoomPlmNoobTubeVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmPopulationDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmPopulationDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmPopulationDefinitions</c>.</summary>
     extension(RoomPlmPopulationDefinitions)
     {
-        /// <summary>Enumerates recognized PLM pointers in the native address range.</summary>
         internal static IEnumerable<ushort> Pointers
         {
             get
@@ -923,7 +855,6 @@ internal static class RoomPlmPopulationDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmSamusEaterVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmSamusEaterVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmSamusEaterVisualCatalog</c>.</summary>
     extension(RoomPlmSamusEaterVisualCatalog)
     {
         /// <summary>Stock appearance is calculated from the physical draw's visual bits without a cache.</summary>
@@ -934,10 +865,8 @@ internal static class RoomPlmSamusEaterVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmScrollProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmScrollProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmScrollProgramDefinitions</c>.</summary>
     extension(RoomPlmScrollProgramDefinitions)
     {
-        /// <summary>Enumerates recognized PLM pointers in the native address range.</summary>
         internal static IEnumerable<ushort> Pointers
         {
             get
@@ -961,7 +890,6 @@ internal static class RoomPlmScrollProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmShotBlockProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomPlmShotBlockProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmShotBlockProgramDefinitions</c>.</summary>
     extension(RoomPlmShotBlockProgramDefinitions)
     {
         /// <summary>All authored control-word addresses, excluding draw-list operands.</summary>
@@ -978,7 +906,6 @@ internal static class RoomPlmShotBlockProgramDefinitionsAccess
             }
         }
 
-        /// <summary>Enumerates byte addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             foreach (object program in PrivateState.StaticField<Array>(typeof(RoomPlmShotBlockProgramDefinitions), "Programs"))
@@ -990,7 +917,6 @@ internal static class RoomPlmShotBlockProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPlmShotBlockVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmShotBlockVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmShotBlockVisualCatalog</c>.</summary>
     extension(RoomPlmShotBlockVisualCatalog)
     {
         /// <summary>Native visual selections, useful when no installed override is present.</summary>
@@ -1001,10 +927,8 @@ internal static class RoomPlmShotBlockVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmSpeedBoosterVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmSpeedBoosterVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmSpeedBoosterVisualCatalog</c>.</summary>
     extension(RoomPlmSpeedBoosterVisualCatalog)
     {
-        /// <summary>stock.</summary>
         internal static RoomPlmSpeedBoosterVisualCatalog Stock() => new(
             [new RoomPlmSpeedBoosterVisualEntry(
                 SpeedBoosterBlockPlmDrawDefinitions.BombRevealVisualId,
@@ -1016,7 +940,6 @@ internal static class RoomPlmSpeedBoosterVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmSporeSpawnCeilingVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmSporeSpawnCeilingVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmSporeSpawnCeilingVisualCatalog</c>.</summary>
     extension(RoomPlmSporeSpawnCeilingVisualCatalog)
     {
         /// <summary>Calculate each stock square from its physical draw word; retain only custom artwork.</summary>
@@ -1027,7 +950,6 @@ internal static class RoomPlmSporeSpawnCeilingVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmStationVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmStationVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmStationVisualCatalog</c>.</summary>
     extension(RoomPlmStationVisualCatalog)
     {
         /// <summary>Calculate stock appearances directly; retain only customized frames.</summary>
@@ -1038,7 +960,6 @@ internal static class RoomPlmStationVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomPlmSystem"/> members production does not use.</summary>
 internal static class RoomPlmSystemAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmSystem</c>.</summary>
     extension(RoomPlmSystem)
     {
         /// <summary>
@@ -1073,7 +994,6 @@ internal static class RoomPlmSystemAccess
             return CollectiblePlms.TryIdentifyPermanentCollectible(header, out _, out _);
         }
 
-        /// <summary>is colored door header.</summary>
         internal static bool IsColoredDoorHeader(PlmHeaderId header) => header is
             PlmHeaderId.YellowDoorFacingLeft or PlmHeaderId.YellowDoorFacingRight or
             PlmHeaderId.YellowDoorFacingUp or PlmHeaderId.YellowDoorFacingDown or
@@ -1083,7 +1003,6 @@ internal static class RoomPlmSystemAccess
             PlmHeaderId.RedDoorFacingUp or PlmHeaderId.RedDoorFacingDown;
     }
 
-    /// <summary>Provides verification-only extensions for <c>RoomPlmSystem</c>.</summary>
     extension(RoomPlmSystem self)
     {
         /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
@@ -1292,7 +1211,6 @@ internal static class RoomPlmSystemAccess
             }
         }
 
-        /// <summary>snapshot.</summary>
         internal RoomPlmSlotSnapshot Snapshot(int index)
         {
             object slot = self.SlotTable._slots[index];
@@ -1588,7 +1506,6 @@ internal static class RoomPlmSystemAccess
             => self.Step(bus, level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
-    /// <summary>active slots.</summary>
     private static IEnumerable<object> ActiveSlots(RoomPlmSystem plms) =>
         plms.SlotTable._slots.Where(slot => PrivateState.Property<bool>(slot, "Active"));
 
@@ -1603,7 +1520,6 @@ internal static class RoomPlmSystemAccess
 /// <summary>Verification access to <see cref="RoomPlmTourianAccessVisualCatalog"/> members production does not use.</summary>
 internal static class RoomPlmTourianAccessVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomPlmTourianAccessVisualCatalog</c>.</summary>
     extension(RoomPlmTourianAccessVisualCatalog)
     {
         /// <summary>Calculate stock row appearance from physical draw words; retain only custom artwork.</summary>
@@ -1614,7 +1530,6 @@ internal static class RoomPlmTourianAccessVisualCatalogAccess
 /// <summary>Verification access to <see cref="RoomVisualLayoutCatalog"/> members production does not use.</summary>
 internal static class RoomVisualLayoutCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>RoomVisualLayoutCatalog</c>.</summary>
     extension(RoomVisualLayoutCatalog)
     {
         /// <summary>Explicitly partial geometry fixtures; never an installed production catalog.</summary>
@@ -1627,10 +1542,8 @@ internal static class RoomVisualLayoutCatalogAccess
 /// <summary>Verification access to <see cref="SpeedBoosterBlockPlmDrawDefinitions"/> members production does not use.</summary>
 internal static class SpeedBoosterBlockPlmDrawDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>SpeedBoosterBlockPlmDrawDefinitions</c>.</summary>
     extension(SpeedBoosterBlockPlmDrawDefinitions)
     {
-        /// <summary>try get.</summary>
         internal static bool TryGet(ushort pointer,
             out RoomPlmShotBlockDrawDefinitions.DrawList list)
         {
@@ -1648,10 +1561,8 @@ internal static class SpeedBoosterBlockPlmDrawDefinitionsAccess
 /// <summary>Verification access to <see cref="SpeedBoosterBlockPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class SpeedBoosterBlockPlmProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>SpeedBoosterBlockPlmProgramDefinitions</c>.</summary>
     extension(SpeedBoosterBlockPlmProgramDefinitions)
     {
-        /// <summary>Enumerates word addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsWordAddresses()
         {
             yield return SpeedBoosterBlockPlmProgramDefinitions.BombReveal;
@@ -1672,7 +1583,6 @@ internal static class SpeedBoosterBlockPlmProgramDefinitionsAccess
             }
         }
 
-        /// <summary>Enumerates byte addresses whose mechanics are compiled into this definition.</summary>
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < PrivateState.StaticField<int>(typeof(SpeedBoosterBlockPlmProgramDefinitions), "ProgramCount"); index++)
@@ -1684,10 +1594,8 @@ internal static class SpeedBoosterBlockPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="SporeSpawnCeilingPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class SporeSpawnCeilingPlmProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>SporeSpawnCeilingPlmProgramDefinitions</c>.</summary>
     extension(SporeSpawnCeilingPlmProgramDefinitions)
     {
-        /// <summary>Enumerates cartridge word addresses covered by this definition.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             yield return SporeSpawnCeilingPlmProgramDefinitions.Crumble;
@@ -1706,7 +1614,6 @@ internal static class SporeSpawnCeilingPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="StationAccessPlmDefinitions"/> members production does not use.</summary>
 internal static class StationAccessPlmDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>StationAccessPlmDefinitions</c>.</summary>
     extension(StationAccessPlmDefinitions)
     {
         /// <summary>Enumerate the six named station/side cases in their native BTS order.</summary>
@@ -1728,13 +1635,10 @@ internal static class StationAccessPlmDefinitionsAccess
 /// <summary>Verification access to <see cref="StationAnimationProgramDefinitions"/> members production does not use.</summary>
 internal static class StationAnimationProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>StationAnimationProgramDefinitions</c>.</summary>
     extension(StationAnimationProgramDefinitions)
     {
-        /// <summary>lists.</summary>
         internal static IEnumerable<StationAnimationList> Lists() => Enum.GetValues<StationAnimationList>();
 
-        /// <summary>native words.</summary>
         internal static IEnumerable<(ushort Address, ushort Value)> NativeWords()
         {
             foreach (StationAnimationList list in StationAnimationProgramDefinitions.Lists())
@@ -1751,10 +1655,8 @@ internal static class StationAnimationProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="TourianAccessPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class TourianAccessPlmProgramDefinitionsAccess
 {
-    /// <summary>Provides verification-only extensions for <c>TourianAccessPlmProgramDefinitions</c>.</summary>
     extension(TourianAccessPlmProgramDefinitions)
     {
-        /// <summary>Enumerates cartridge word addresses covered by this definition.</summary>
         internal static IEnumerable<ushort> NativeWordAddresses()
         {
             yield return TourianAccessPlmProgramDefinitions.Crumble;
@@ -1777,7 +1679,6 @@ internal static class TourianAccessPlmProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="XrayOverlayVisualCatalog"/> members production does not use.</summary>
 internal static class XrayOverlayVisualCatalogAccess
 {
-    /// <summary>Provides verification-only extensions for <c>XrayOverlayVisualCatalog</c>.</summary>
     extension(XrayOverlayVisualCatalog)
     {
         /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
@@ -1790,7 +1691,6 @@ internal static class XrayOverlayVisualCatalogAccess
 /// <summary>Verification access to the cartridge encoding of <see cref="CartridgeDoorOrientation"/>.</summary>
 internal static class CartridgeDoorOrientationAccess
 {
-    /// <summary>Provides verification-only extensions for <c>CartridgeDoorOrientation</c>.</summary>
     extension(CartridgeDoorOrientation orientation)
     {
         /// <summary>The cartridge byte, as <c>$82:DE2C</c> stores it in <c>DoorDirection</c>.</summary>

@@ -6,7 +6,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Checks known tuple components without pretending unknown caller values have been proven safe.</summary>
 internal static class PlmVisualDomainAudit
 {
-    /// <summary>Invalid constants.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.Name != "GetWord") return null;

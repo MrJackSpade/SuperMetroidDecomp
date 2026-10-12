@@ -5,10 +5,8 @@ using SuperMetroid.Core.Input;
 using static GrappleFiringDefinitionsVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents samus hud definitions verification.</summary>
 internal static class SamusHudDefinitionsVerification
 {
-    /// <summary>Verifies samus hud definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus HUD definitions")]
     internal static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -86,7 +84,6 @@ internal static class SamusHudDefinitionsVerification
         Console.WriteLine("Samus HUD definitions: 28 handler words, all 219 bounded posture-index observations, 512 transition cases, 3036 native-pose Grapple admission cases and 506 real charge-preservation cases pass with policy reads forbidden.");
     }
 
-    /// <summary>Creates hud policy read guard.</summary>
     private static MutableCartridgeReadGuard NewHudPolicyReadGuard(ISnesAddressSpace source)
     {
         int postureStart = SamusHudRomData.TransitionFlags -

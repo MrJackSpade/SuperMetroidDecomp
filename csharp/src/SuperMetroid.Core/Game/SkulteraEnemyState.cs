@@ -23,20 +23,13 @@ public enum SkulteraEnemyFunction : ushort
 /// </summary>
 public sealed class SkulteraEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Stores radii.</summary>
     private readonly ushort[] _radii;
-    /// <summary>Stores turn finished flags.</summary>
     private readonly ushort[] _turnFinishedFlags;
-    /// <summary>Stores angle deltas.</summary>
     private readonly ushort[] _angleDeltas;
-    /// <summary>Stores previous yoffsets.</summary>
     private readonly ushort[] _previousYOffsets;
-    /// <summary>Stores current yoffsets.</summary>
     private readonly ushort[] _currentYOffsets;
 
-    /// <summary>Initializes a new skultera enemy state instance.</summary>
     internal SkulteraEnemyState(
         RoomEnemySlot slot,
         ushort[] radii,

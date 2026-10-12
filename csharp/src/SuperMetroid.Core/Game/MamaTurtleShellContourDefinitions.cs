@@ -10,7 +10,6 @@ internal static class MamaTurtleShellContourDefinitions
     /// <summary>Maximum horizontal distance represented by either contour half.</summary>
     internal const int HalfWidth = 24;
 
-    /// <summary>Gets offsets.</summary>
     private static ReadOnlySpan<short> Offsets =>
     [
         -16, -16, -16, -16, -15, -15, -15, -15,

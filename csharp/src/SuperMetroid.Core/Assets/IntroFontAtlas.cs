@@ -3,10 +3,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable 2-bpp font used by the English opening narration.</summary>
 public sealed class IntroFontAtlas
 {
-    /// <summary>Stores supplied transfer.</summary>
     private readonly byte[]? suppliedTransfer;
 
-    /// <summary>Initializes a new intro font atlas instance.</summary>
     private IntroFontAtlas(byte[] transfer) => suppliedTransfer =
         transfer.AsSpan().SequenceEqual(IntroFontGlyphDefinitions.Compile()) ? null : transfer;
 

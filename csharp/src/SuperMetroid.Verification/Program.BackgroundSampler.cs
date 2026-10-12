@@ -2,10 +2,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
-/// <summary>Represents background sampler verification.</summary>
 internal static class BackgroundSamplerVerification
 {
-    /// <summary>Verifies background sampler.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyBackgroundSampler()
     {

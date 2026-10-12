@@ -2,7 +2,6 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents grapple compiled math verification.</summary>
 internal static class GrappleCompiledMathVerification
 {
     /// <summary>Independent cartridge samples exercise the production radial and
@@ -73,7 +72,6 @@ internal static class GrappleCompiledMathVerification
         Console.WriteLine($"Compiled grapple: {pointCount} native radial coordinates/biases and {releaseCount} release velocities match without a production bus.");
     }
 
-    /// <summary>Compiled grapple math rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled grapple math")]
     private static byte CompiledGrappleMathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

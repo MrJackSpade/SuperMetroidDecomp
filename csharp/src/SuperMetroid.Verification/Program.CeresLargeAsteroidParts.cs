@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
-/// <summary>Represents ceres large asteroid parts verification.</summary>
 internal static class CeresLargeAsteroidPartsVerification
 {
-    /// <summary>Verifies ceres large asteroid parts.</summary>
     internal static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeAsteroid", value.AppendIdentity);

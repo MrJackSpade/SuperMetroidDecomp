@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public sealed class ManagedPcmSample
 {
-    /// <summary>Stores samples.</summary>
     private readonly short[] samples;
 
     /// <summary>Creates an immutable validated mono PCM replacement sample.</summary>
@@ -58,9 +57,7 @@ public sealed class ManagedPcmSample
 /// <summary>Source-number mappings installed by one common or music-bank upload.</summary>
 public sealed class ManagedPcmSampleBank
 {
-    /// <summary>Stores samples.</summary>
     private readonly Dictionary<byte, ManagedPcmSample> samples;
-    /// <summary>Stores loop entry sources.</summary>
     private readonly Dictionary<byte, byte> loopEntrySources;
 
     /// <summary>Creates an immutable source-number mapping for one native sample upload.</summary>

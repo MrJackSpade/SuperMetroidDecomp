@@ -57,7 +57,6 @@ public static class CeresMode7TransferDefinitions
     private const int PlatformColumn = 14, PlatformRow = 12;
     /// <summary>$A6:ACE2/ACF5/AD08: baby map position (4,10), an authored layout placement.</summary>
     private const int BabyColumn = 4, BabyRow = 10;
-    /// <summary>Represents wing region.</summary>
     private readonly record struct WingRegion(int Column, int Width);
     /// <summary>$A6:AD49/AD80: the six wing row extents trace the drawn wing silhouette and are authored drawing content; row stepping and packed paired-frame addresses derive from them (see residualScalarInputsReview).</summary>
     private static readonly WingRegion[] WingRegions =
@@ -108,7 +107,6 @@ public static class CeresMode7TransferDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Allocation-free view of the authored character selectors in one contiguous Ceres Mode 7 map-row transfer.</summary>
@@ -130,7 +128,6 @@ public static class CeresMode7TransferDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$A6:F918/F91C: the selected light and dark platform left caps in the source Mode7 atlas. Their adjacent cells are the corresponding interior strips.</summary>

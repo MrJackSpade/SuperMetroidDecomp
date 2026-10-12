@@ -36,11 +36,8 @@ public sealed class RoomPlmKraidVisualCatalog
         }
     });
 
-    /// <summary>Stores crumble first.</summary>
     private ushort[] crumbleFirst = [], crumbleSecond = [], crumbleThird = [];
-    /// <summary>Stores ceiling background1.</summary>
     private ushort[] ceilingBackground1 = [], ceilingBackground2 = [], ceilingBackground3 = [];
-    /// <summary>Stores spike first.</summary>
     private ushort[] spikeFirst = [], spikeSecond = [], clearCeiling = [], clearSpikes = [];
 
     /// <summary>Selects one of the ten named $84:9367..93BF Kraid draw roles.</summary>

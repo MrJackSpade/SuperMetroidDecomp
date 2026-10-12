@@ -13,10 +13,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents reported shaft momentum verification.</summary>
 internal static class ReportedShaftMomentumVerification
 {
-    /// <summary>Verifies reported shaft momentum.</summary>
     internal static void VerifyReportedShaftMomentum()
     {
         // #1158, recording inputs 5842..5849: neutral controller, left spin pose,
@@ -51,7 +49,6 @@ internal static class ReportedShaftMomentumVerification
         Console.WriteLine("#1158: recorded no-Left drift matches native spin momentum; no movement alteration required.");
     }
 
-    /// <summary>Reported shaft momentum command.</summary>
     [VerificationCommand("--reported-shaft-momentum")]
     internal static int ReportedShaftMomentumCommand()
     {

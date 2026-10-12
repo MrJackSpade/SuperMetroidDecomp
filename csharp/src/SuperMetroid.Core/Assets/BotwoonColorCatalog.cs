@@ -20,13 +20,10 @@ public sealed class BotwoonColorCatalog
             }
         });
 
-    /// <summary>Stores health.</summary>
     private readonly BotwoonHealthPaintDefinitions health;
 
-    /// <summary>Initializes a new botwoon color catalog instance.</summary>
     private BotwoonColorCatalog(Bgr555[][] rows) => health = new(rows);
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -86,7 +83,6 @@ public sealed class BotwoonColorCatalog
         return bytes;
     }
 
-    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int band)
     {
         if (source is null ||
@@ -106,7 +102,6 @@ public sealed class BotwoonColorCatalog
         return compiled;
     }
 
-    /// <summary>Rejects duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Botwoon color property {name}."));

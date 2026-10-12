@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 /// </summary>
 internal static class Program
 {
-    /// <summary>Main.</summary>
     private static int Main(string[] args)
     {
         if (OperatingSystem.IsWindows())
@@ -45,7 +44,6 @@ internal static class Program
 /// </summary>
 static partial class NativeConsoleProcess
 {
-    /// <summary>Sets error mode.</summary>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }

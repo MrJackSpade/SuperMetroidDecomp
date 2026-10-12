@@ -5,10 +5,8 @@ using static ColorWordsVerification;
 using static GraphDigestVerification;
 using Hardware = SuperMetroid.Core.Hardware;
 
-/// <summary>Represents render packet codec tests verification.</summary>
 internal static class RenderPacketCodecTestsVerification
 {
-    /// <summary>Verifies render packet codec.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyRenderPacketCodec()
     {
@@ -94,7 +92,6 @@ internal static class RenderPacketCodecTestsVerification
         Console.WriteLine("  Display fixture codec: stable round trip, identity, fades, truncation, signature/version and trailing-data rejection agree.");
     }
 
-    /// <summary>Round trip render packet.</summary>
     internal static RenderFrameSnapshot RoundTripRenderPacket(RenderFrameSnapshot frame)
     {
         byte[] bytes = RenderFrameSnapshotWriter.Serialize(frame);
@@ -105,7 +102,6 @@ internal static class RenderPacketCodecTestsVerification
         return restored;
     }
 
-    /// <summary>Verifies bg2 viewport packets.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyBg2ViewportPackets()
     {

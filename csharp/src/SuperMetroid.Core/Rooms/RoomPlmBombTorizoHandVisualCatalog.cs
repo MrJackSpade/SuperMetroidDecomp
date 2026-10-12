@@ -31,7 +31,6 @@ public sealed class RoomPlmBombTorizoHandVisualCatalog
         }
     });
 
-    /// <summary>Stores custom blocks.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates complete hand-frame coverage and copies only authored visual differences, leaving Bombs gating, collision, draw geometry and debris/music choreography fixed.</summary>

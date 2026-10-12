@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents color words verification.</summary>
 internal static class ColorWordsVerification
 {
     // Verification fixtures read cartridge palettes as raw words; each decodes strictly as a

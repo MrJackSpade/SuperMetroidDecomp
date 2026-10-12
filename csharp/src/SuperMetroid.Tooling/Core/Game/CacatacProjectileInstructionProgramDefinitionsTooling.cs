@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,13 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CacatacProjectileInstructionProgramDefinitions))]
 internal abstract class CacatacProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => CacatacProjectileInstructionProgramDefinitions.PresentationWordCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 2 * CacatacProjectileInstructionProgramDefinitions.ProgramCount;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -21,7 +17,6 @@ internal abstract class CacatacProjectileInstructionProgramDefinitionsTooling : 
         return new((ushort)(CacatacProjectileInstructionProgramDefinitions.LeftFacingUp + 6 * (index / 2) + (sleep ? 4 : 0)),
             sleep ? (ushort)EnemyProjectileInstruction.Sleep : (ushort)1);
     }
-    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0x860000)

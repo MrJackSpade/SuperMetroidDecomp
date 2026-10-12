@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(WorkRobotInstructionProgramDefinitions))]
 internal abstract class WorkRobotInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 367;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 227;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -22,7 +19,6 @@ internal abstract class WorkRobotInstructionProgramDefinitionsTooling : IInstruc
         }
         throw new InvalidOperationException("Work Robot mechanics-word index is inconsistent.");
     }
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -30,7 +26,6 @@ internal abstract class WorkRobotInstructionProgramDefinitionsTooling : IInstruc
             if (WorkRobotInstructionProgramDefinitions.ProgramWord((ushort)address) == WorkRobotInstructionProgramDefinitions.PresentationOperand && index-- == 0) return (ushort)address;
         throw new InvalidOperationException("Work Robot presentation-word index is inconsistent.");
     }
-    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;

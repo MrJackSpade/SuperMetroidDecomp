@@ -5,7 +5,6 @@ using static ProjectileSoundRoutingVerification;
 using static SamusMovementRomDataVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents samus projectile rom data verification.</summary>
 internal static class SamusProjectileRomDataVerification
 {
     /// <summary>
@@ -178,7 +177,6 @@ internal static class SamusProjectileRomDataVerification
             "instructions, missiles, explosions, trails, and slopes are in range.");
     }
 
-    /// <summary>read projectile word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus projectile data words")]
     internal static ushort ReadProjectileWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);

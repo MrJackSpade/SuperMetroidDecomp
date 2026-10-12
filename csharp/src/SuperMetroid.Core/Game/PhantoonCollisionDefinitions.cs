@@ -50,17 +50,11 @@ internal static class PhantoonCollisionDefinitions
     // Authored silhouette inputs, retained for #1165: half widths, tentacle near/far extents and
     // the vertical bounds are fitted to the drawing. Pixel-centered reflection supplies every
     // opposite X edge, so only these extents are stored.
-    /// <summary>Defines body half width.</summary>
     private const short BodyHalfWidth = 33;
-    /// <summary>Defines eye half width.</summary>
     private const short EyeHalfWidth = 9;
-    /// <summary>Defines center tentacle half width.</summary>
     private const short CenterTentacleHalfWidth = 12;
-    /// <summary>Defines side tentacle inner extent.</summary>
     private const short SideTentacleInnerExtent = 16;
-    /// <summary>Defines side tentacle outer extent.</summary>
     private const short SideTentacleOuterExtent = 23;
-    /// <summary>Stores required vertical bounds.</summary>
     private static readonly (short Top, short Bottom)[] RequiredVerticalBounds =
         [(-40, 56), (22, 39), (52, 71), (53, 70), (53, 69)];
 
@@ -85,7 +79,6 @@ internal static class PhantoonCollisionDefinitions
 
         static (short Left, short Right) Centered(short halfWidth) => ((short)-halfWidth, (short)(halfWidth - 1));
     }
-    /// <summary>components at.</summary>
     internal static ComponentSequence ComponentsAt(ushort pointer)
     {
         if (!PhantoonBg2FrameDefinitions.IsFrame(pointer))
@@ -104,33 +97,26 @@ internal static class PhantoonCollisionDefinitions
         };
     }
 
-    /// <summary>hitboxes at.</summary>
     internal static HitboxSequence HitboxesAt(ushort pointer) =>
         new(ClosedNativeWords.Decode<PhantoonHitboxList>(pointer, "Phantoon hitbox list"));
 
     /// <summary>Native frame components use their actor origin; tentacle frames have two inert components.</summary>
     internal readonly struct ComponentSequence(PhantoonHitboxList list, int count) : IReadOnlyList<PhantoonCollisionComponent>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => count;
-        /// <summary>Accesses a value by index or range.</summary>
         public PhantoonCollisionComponent this[int index] => (uint)index < Count
             ? new(Offset16<RoomPixels>.Zero, (ushort)list) : throw new IndexOutOfRangeException();
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<PhantoonCollisionComponent> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     /// <summary>$A7:E06C repeats the full body's eye rectangle at $A7:E03C; hidden lists use a no-op point.</summary>
     internal readonly struct HitboxSequence(PhantoonHitboxList list) : IReadOnlyList<PhantoonCollisionHitbox>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => list == PhantoonHitboxList.FullBody ? RequiredVerticalBounds.Length : 1;
-        /// <summary>Accesses a value by index or range.</summary>
         public PhantoonCollisionHitbox this[int index]
         {
             get
@@ -140,12 +126,10 @@ internal static class PhantoonCollisionDefinitions
                 return BodyHitbox(list == PhantoonHitboxList.EyeOnly ? 1 : index);
             }
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<PhantoonCollisionHitbox> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

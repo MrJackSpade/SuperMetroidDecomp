@@ -3,10 +3,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ceres backdrop programs verification.</summary>
 internal static class CeresBackdropProgramsVerification
 {
-    /// <summary>Verifies ceres backdrop programs.</summary>
     internal static void VerifyCeresBackdropPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcc3f, 0xcc47, false));
@@ -18,7 +16,6 @@ internal static class CeresBackdropProgramsVerification
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcd9b, 0xcda3, false));
     }
 
-    /// <summary>Verifies ceres backdrop program.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres backdrop program")]
     private static void VerifyCeresBackdropProgram(ISnesAddressSpace rom, ushort start, ushort end, bool title)
     {

@@ -17,10 +17,8 @@ using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents file select room map verification.</summary>
 internal static class FileSelectRoomMapVerification
 {
-    /// <summary>Verifies file select room map graphics.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for file-select room-map labels and frames")]
     internal static void VerifyFileSelectRoomMapGraphics()
@@ -97,7 +95,6 @@ internal static class FileSelectRoomMapVerification
         }
     }
 
-    /// <summary>Verifies map cancel presentation.</summary>
     internal static void VerifyMapCancelPresentation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -145,7 +142,6 @@ internal static class FileSelectRoomMapVerification
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
-    /// <summary>Verifies file select map animations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     internal static void VerifyFileSelectMapAnimations()
     {
@@ -226,7 +222,6 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(2, resumed.LastFinalizedSpriteCount, "both available direction shapes draw");
     }
 
-    /// <summary>Verifies file select map icons.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyFileSelectMapIcons()
     {
@@ -294,14 +289,12 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(0x3c, defeated.LowTable[7], "defeated boss changes to palette six");
     }
 
-    /// <summary>Verifies saved game map frontend.</summary>
     internal static void VerifySavedGameMapFrontend()
     {
         Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(4));
         Suite(nameof(VerifySavedGameMapFrontend), () => VerifySavedGameMapFrontend(6));
     }
 
-    /// <summary>Verifies saved game map frontend.</summary>
     private static void VerifySavedGameMapFrontend(ushort savedArea)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -382,7 +375,6 @@ internal static class FileSelectRoomMapVerification
 
     }
 
-    /// <summary>Verifies file select map navigation.</summary>
     private static void VerifyFileSelectMapNavigation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -433,7 +425,6 @@ internal static class FileSelectRoomMapVerification
         AssertThrows<InvalidOperationException>(() => back.CompleteAreaReturn(), "unsolicited area-return completion fails");
     }
 
-    /// <summary>Verifies file select map scroll.</summary>
     private static void VerifyFileSelectMapScroll()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -476,7 +467,6 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(stoppedX, precedence.Scroll.X, "held input cannot scroll beyond unavailable arrow");
     }
 
-    /// <summary>Verifies file select station marker.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyFileSelectStationMarker()
     {
@@ -532,35 +522,30 @@ internal static class FileSelectRoomMapVerification
             "station lookup cannot cross the sixteen-slot domain");
     }
 
-    /// <summary>Map icons fixture command.</summary>
     [VerificationCommand("--map-icons-fixture")]
     internal static int MapIconsFixtureCommand()
     {
      VerifyFileSelectMapIcons(); return 0; 
     }
 
-    /// <summary>Map animation fixture command.</summary>
     [VerificationCommand("--map-animation-fixture")]
     internal static int MapAnimationFixtureCommand()
     {
      VerifyFileSelectMapAnimations(); return 0; 
     }
 
-    /// <summary>Saved map fixture command.</summary>
     [VerificationCommand("--saved-map-fixture")]
     internal static int SavedMapFixtureCommand()
     {
      VerifySavedGameMapFrontend(); return 0; 
     }
 
-    /// <summary>Map cancel fixture command.</summary>
     [VerificationCommand("--map-cancel-fixture")]
     internal static int MapCancelFixtureCommand()
     {
      VerifyMapCancelPresentation(); return 0; 
     }
 
-    /// <summary>Station marker fixture command.</summary>
     [VerificationCommand("--station-marker-fixture")]
     internal static int StationMarkerFixtureCommand()
     {

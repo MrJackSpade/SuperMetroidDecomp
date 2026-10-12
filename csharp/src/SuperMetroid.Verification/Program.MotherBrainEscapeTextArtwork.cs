@@ -5,10 +5,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-/// <summary>Represents mother brain escape text artwork verification.</summary>
 internal static class MotherBrainEscapeTextArtworkVerification
 {
-    /// <summary>Verifies installed mother brain escape text artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain escape-text characters and transfer records")]
     internal static void VerifyInstalledMotherBrainEscapeTextArtwork(
@@ -90,7 +88,6 @@ internal static class MotherBrainEscapeTextArtworkVerification
             "  Mother Brain escape text art: five guarded OBJ pages, cartridge parity, visible edit, reload and invalid override pass.");
     }
 
-    /// <summary>Transfer mother brain escape text pages.</summary>
     private static SnesVram TransferMotherBrainEscapeTextPages(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
     {
@@ -111,7 +108,6 @@ internal static class MotherBrainEscapeTextArtworkVerification
         return vram;
     }
 
-    /// <summary>New mother brain escape text read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainEscapeTextReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
             MotherBrainEscapeTextArtworkDefinitions.ByteCount,

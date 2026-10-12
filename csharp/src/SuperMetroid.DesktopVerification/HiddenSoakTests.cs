@@ -12,10 +12,8 @@ using SuperMetroid.Core.Spatial;
 
 using static DesktopVerificationSupport;
 
-/// <summary>Represents hidden soak tests.</summary>
 internal static class HiddenSoakTests
 {
-    /// <summary>run hidden soak.</summary>
     internal static async Task RunHiddenSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds), "Use 5..300 seconds per scene.");
@@ -107,7 +105,6 @@ internal static class HiddenSoakTests
         }, new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
     }
 
-    /// <summary>mix and submit.</summary>
     private static void MixAndSubmit(SpcAudioEngine audio, WaveOutAudioDevice output, SuperMetroidGame game,
         CapturedFrontendFrame frame, ref long nonzero, ref long count)
     {
@@ -119,7 +116,6 @@ internal static class HiddenSoakTests
     }
 }
 
-/// <summary>Represents hidden soak rooms.</summary>
 internal static class HiddenSoakRooms
 {
     /// <summary>Retail $8F:A3AE room-local ordinary gameplay fixture.</summary>

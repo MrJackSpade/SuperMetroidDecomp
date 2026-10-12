@@ -49,24 +49,15 @@ public readonly record struct PlatformMovementFunctions(
 /// </remarks>
 public sealed class PlatformEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Stores movement functions.</summary>
     private readonly PlatformMovementFunctions[] _movementFunctions;
-    /// <summary>Stores previous positions.</summary>
     private readonly ushort[] _previousPositions;
-    /// <summary>Stores vertically moving flags.</summary>
     private readonly ushort[] _verticallyMovingFlags;
-    /// <summary>Stores vertically still flags.</summary>
     private readonly ushort[] _verticallyStillFlags;
-    /// <summary>Stores maximum yspeed table indexes.</summary>
     private readonly ushort[] _maximumYSpeedTableIndexes;
-    /// <summary>Stores previous ymovement functions.</summary>
     private readonly ushort[] _previousYMovementFunctions;
-    /// <summary>Stores suspensor platform flags.</summary>
     private readonly ushort[] _suspensorPlatformFlags;
 
-    /// <summary>Initializes a new platform enemy state instance.</summary>
     internal PlatformEnemyState(RoomEnemySlot slot, PlatformSharedTables tables)
     {
         _slot = slot;

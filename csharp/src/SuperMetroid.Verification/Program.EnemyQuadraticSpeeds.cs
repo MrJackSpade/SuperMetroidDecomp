@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents enemy quadratic speeds verification.</summary>
 internal static class EnemyQuadraticSpeedsVerification
 {
-    /// <summary>Verifies compiled quadratic enemy speeds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled quadratic enemy speeds")]
     internal static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {

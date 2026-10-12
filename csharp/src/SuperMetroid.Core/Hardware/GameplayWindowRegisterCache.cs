@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Hardware;
 [PpuLayoutBoundary("backend: gameplay window/screen-selection register cache")]
 public sealed class GameplayWindowRegisterCache
 {
-    /// <summary>Stores bytes.</summary>
     private readonly byte[] _bytes = new byte[
         GameplayWindowRegisterAddresses.SubscreenWindow - GameplayWindowRegisterAddresses.Window12Selection + 1];
 
@@ -112,7 +111,6 @@ public sealed class GameplayWindowRegisterCache
             Read(GameplayWindowRegisterLayout.MainScreenWindow));
     }
 
-    /// <summary>Index.</summary>
     private int Index(ushort address)
     {
         int index = address - GameplayWindowRegisterAddresses.Window12Selection;

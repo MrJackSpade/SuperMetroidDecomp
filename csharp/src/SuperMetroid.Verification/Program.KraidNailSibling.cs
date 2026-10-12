@@ -4,26 +4,20 @@ using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid nail sibling verification.</summary>
 internal static class KraidNailSiblingVerification
 {
-    /// <summary>Verifies kraid nail launch xfraction.</summary>
     internal static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 0, value => value.XFraction));
 
-    /// <summary>Verifies kraid nail launch xwhole.</summary>
     internal static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 2, value => value.XWhole));
 
-    /// <summary>Verifies kraid nail launch yfraction.</summary>
     internal static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 4, value => value.YFraction));
 
-    /// <summary>Verifies kraid nail launch ywhole.</summary>
     internal static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 6, value => value.YWhole));
 
-    /// <summary>Verifies kraid nail launch field.</summary>
     private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
         Func<(ushort XFraction, ushort XWhole, ushort YFraction, ushort YWhole), ushort> field)
     {
@@ -43,11 +37,9 @@ internal static class KraidNailSiblingVerification
         }
     }
 
-    /// <summary>Kraid nail launch field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail launch field")]
     private static byte KraidNailLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies kraid nail sibling.</summary>
     internal static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidNailLaunchXFraction), () => VerifyKraidNailLaunchXFraction(rom));
@@ -94,7 +86,6 @@ internal static class KraidNailSiblingVerification
         Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and four sibling flags match native launch handoff without ROM access.");
     }
 
-    /// <summary>Kraid nail sibling rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail sibling")]
     private static byte KraidNailSiblingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

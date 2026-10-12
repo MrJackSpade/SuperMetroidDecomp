@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$82 menu spritemap parts → menu sprites")]
 internal static class MenuSpriteExtractor
 {
-    /// <summary>Read.</summary>
     public static SpriteVisualPart[] Read(ISnesAddressSpace bus, ushort id)
     {
         int address = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuPpuState.SpritemapPointerTableAddress + id * 2);

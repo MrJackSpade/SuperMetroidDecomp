@@ -37,13 +37,9 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class GameOverBabyColorCatalog
 {
-    /// <summary>Stores inputs.</summary>
     private readonly Dictionary<int, Bgr555> inputs = new();
-    /// <summary>Stores differences.</summary>
     private readonly Dictionary<int, LoadingPaletteInputView.Channels> differences = new();
-    /// <summary>Stores green cry red.</summary>
     private readonly int greenCryRed;
-    /// <summary>Stores glass cry red.</summary>
     private readonly int glassCryRed;
 
     /// <summary>Captures values from the four named palettes already validated by the presentation loader.</summary>
@@ -94,7 +90,6 @@ internal sealed class GameOverBabyColorCatalog
         }
     }
 
-    /// <summary>read.</summary>
     internal Bgr555 Read(GameOverBabyPalette palette, int color)
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
@@ -120,31 +115,24 @@ internal sealed class GameOverBabyColorCatalog
         return differences.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
 
-    /// <summary>green shade.</summary>
     private static Bgr555 GreenShade(Bgr555 darkest, int color) =>
         darkest.WithGreen(Math.Min(31, darkest.Green + (4 - color) * 5));
 
-    /// <summary>warm cry.</summary>
     private static Bgr555 WarmCry(Bgr555 idle) =>
         new(Math.Min(31, idle.Red + 5), idle.Green, Math.Max(0, idle.Blue - 5));
 
-    /// <summary>cool cry.</summary>
     private static Bgr555 CoolCry(Bgr555 idle, int ink) =>
         new(ink == 15 ? idle.Red : Math.Min(31, idle.Red + 5), Math.Min(31, idle.Green + 5), WarmCry(idle).Blue);
 
-    /// <summary>green cry.</summary>
     private Bgr555 GreenCry(Bgr555 idle) =>
         new(greenCryRed, Math.Min(31, idle.Green + 5), greenCryRed);
 
-    /// <summary>glass cry.</summary>
     private Bgr555 GlassCry(Bgr555 idle) =>
         new(glassCryRed, idle.Green, idle.Green);
 
-    /// <summary>middle shade.</summary>
     private static Bgr555 MiddleShade(Bgr555 bright, Bgr555 dark) =>
         bright.Zip(dark, (_, light, shadow) => (light + shadow) / 2);
 
-    /// <summary>cry shade.</summary>
     private static Bgr555 CryShade(Bgr555 previous, GameOverBabyPalette palette, int ink, Bgr555 highlight)
     {
         Bgr555 bright = Brighten(previous, 3);

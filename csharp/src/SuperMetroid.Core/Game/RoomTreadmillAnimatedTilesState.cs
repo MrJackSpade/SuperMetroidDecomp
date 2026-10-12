@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class RoomTreadmillAnimatedTilesState
 {
-    /// <summary>Stores objects.</summary>
     private readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>

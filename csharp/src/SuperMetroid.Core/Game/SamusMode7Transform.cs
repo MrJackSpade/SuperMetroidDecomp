@@ -51,7 +51,6 @@ public readonly record struct SamusMode7Transform(
             unchecked((ushort)(Center.Y - transformedVerticalDistance)));
     }
 
-    /// <summary>multiply signed8 point8.</summary>
     private static ushort MultiplySigned8Point8(ushort left, ushort right)
     {
         int product = unchecked((short)left) * unchecked((short)right);

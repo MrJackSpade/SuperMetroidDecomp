@@ -7,11 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
 public sealed class GrappleSpriteCatalog
 {
-    /// <summary>Stores segments.</summary>
     private readonly ushort[]? segments;
     /// <summary>Selected small-OBJ endpoint attribute word used by both connected and unconnected drawing paths; native $94:B13D/$B17D supplies tile $20, palette 5 and priority 3.</summary>
     public ushort Endpoint { get; }
-    /// <summary>Initializes a new grapple sprite catalog instance.</summary>
     private GrappleSpriteCatalog(ushort endpoint, ushort[] segments)
     {
         Endpoint = endpoint;
@@ -28,7 +26,6 @@ public sealed class GrappleSpriteCatalog
             ? segments is null ? GrappleSpriteDefinitions.StockSegment(frame) : segments[frame]
             : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
 
-    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -58,7 +55,6 @@ public sealed class GrappleSpriteCatalog
         return new(Compile(document.Endpoint), document.Segments.Select(Compile).ToArray());
     }
 
-    /// <summary>Compiles.</summary>
     private static ushort Compile(GrappleSpriteStyle? style)
     {
         if (style is null || style.TileColumn is < 0 or >= ProjectileSpriteDefinitions.TileColumns || style.TileRow is < 0 or >= ProjectileSpriteDefinitions.TileRows ||
@@ -79,7 +75,6 @@ public sealed class GrappleSpriteCatalog
         return bytes;
     }
 
-    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Grapple sprite property."));

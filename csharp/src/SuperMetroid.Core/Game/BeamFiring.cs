@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -8,18 +8,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Firing beams, missiles and the Hyper Beam: charge cancellation, spawn position and velocity, the interaction-immunity timer $18AC, and the charged and combo launch paths.</summary>
 internal sealed class BeamFiring
 {
-    /// <summary>Stores animation.</summary>
     private readonly ProjectileAnimation _animation;
-    /// <summary>Stores charge.</summary>
     private readonly BeamChargeState _charge;
-    /// <summary>Stores combos.</summary>
     private readonly BeamCombos _combos;
-    /// <summary>Stores slot table.</summary>
     private readonly ProjectileSlotTable _slotTable;
-    /// <summary>Stores terrain collision.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
 
-    /// <summary>Initializes a new beam firing instance.</summary>
     internal BeamFiring(ProjectileAnimation animation, BeamChargeState charge, BeamCombos combos, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision)
     {
         _animation = animation;
@@ -68,7 +62,6 @@ internal sealed class BeamFiring
         ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
     }
 
-    /// <summary>Cancel charge.</summary>
     private void CancelCharge()
     {
         _charge.FlareCounter = 0;
@@ -76,7 +69,6 @@ internal sealed class BeamFiring
         _animation.ClearFlareAnimationState();
     }
 
-    /// <summary>Handles beam input.</summary>
     internal (int? Slot, ushort Sound, byte MaximumQueued) HandleBeamInput(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -232,7 +224,6 @@ internal sealed class BeamFiring
             : (null, 0, 0);
     }
 
-    /// <summary>Attempts to fire beam.</summary>
     private (int? Slot, ushort Sound) TryFireBeam(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -354,7 +345,6 @@ internal sealed class BeamFiring
         return (slotIndex, sound);
     }
 
-    /// <summary>Attempts to fire hyper beam.</summary>
     private (int? Slot, ushort Sound) TryFireHyperBeam(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -442,7 +432,6 @@ internal sealed class BeamFiring
         return (slotIndex, sound);
     }
 
-    /// <summary>Attempts to fire missile.</summary>
     internal (int? Slot, ushort Sound) TryFireMissile(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -538,7 +527,6 @@ internal sealed class BeamFiring
         return (slotIndex, isSuperMissile ? (ushort)4 : (ushort)3);
     }
 
-    /// <summary>Initializes position.</summary>
     internal static void InitializePosition(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -555,7 +543,6 @@ internal sealed class BeamFiring
         slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + origin.X)), unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset))));
     }
 
-    /// <summary>Initializes power beam velocity.</summary>
     internal static void InitializePowerBeamVelocity(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot)
@@ -571,7 +558,6 @@ internal sealed class BeamFiring
         InitializeDirectionalVelocity(bus, slot, speed);
     }
 
-    /// <summary>Initializes directional velocity.</summary>
     internal static void InitializeDirectionalVelocity(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot,

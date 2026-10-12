@@ -8,24 +8,16 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Ceres Ridley, shared Norfair Ridley health, and private Baby draw colors.</summary>
 public sealed class CeresRidleyColorCatalog
 {
-    /// <summary>Stores start.</summary>
     private readonly CeresRidleyStartColorDefinitions start;
-    /// <summary>Stores eye fade.</summary>
     private readonly CeresRidleyFadeColorDefinitions eyeFade;
-    /// <summary>Stores body fade.</summary>
     private readonly CeresRidleyFadeColorDefinitions bodyFade;
-    /// <summary>Stores health.</summary>
     private readonly CeresRidleyHealthPaintDefinitions health;
-    /// <summary>Stores alarm.</summary>
     private readonly CeresRidleyAlarmColorDefinitions alarm;
-    /// <summary>Stores retreat bg.</summary>
     private readonly Dictionary<int, Bgr555> retreatBg = [];
     /// <summary>Only supplied differences from the first eight door paints: native $A6:AA01-AA10 repeats $A6:E171-E180.</summary>
     private readonly Dictionary<int, Bgr555> retreatShared = [];
-    /// <summary>Stores baby.</summary>
     private readonly CeresBabyPaintDefinitions baby;
 
-    /// <summary>Initializes a new ceres ridley color catalog instance.</summary>
     private CeresRidleyColorCatalog(CeresRidleyColorParts parts)
     {
         this.start = new(parts.Start, parts.Baby);
@@ -43,7 +35,6 @@ public sealed class CeresRidleyColorCatalog
         this.baby = parts.Baby;
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -57,7 +48,6 @@ public sealed class CeresRidleyColorCatalog
             throw new ArgumentOutOfRangeException(nameof(color));
         return retreatBg.TryGetValue(color, out Bgr555 edited) ? edited : CalculateRetreatBg(color);
     }
-    /// <summary>Calculates retreat bg.</summary>
     private Bgr555 CalculateRetreatBg(int color) => color < 11 ? bodyFade.Resolve(1, color)
         : color < 14 ? eyeFade.Resolve(14, color - 11) : CeresRidleyMode7PaintDefinitions.RetreatNeutral;
     /// <summary>Returns one BGR555 retreat shared color, index 0..7; unedited values reuse startup colors 1..8, matching native $A6:AA01 and $A6:E171.</summary>
@@ -182,7 +172,6 @@ public sealed class CeresRidleyColorCatalog
         return bytes;
     }
 
-    /// <summary>Compiles rows.</summary>
     private static Bgr555[][] CompileRows(PaletteRgb5[][]? rows, int count,
         int colorsPerRow, string name)
     {
@@ -194,7 +183,6 @@ public sealed class CeresRidleyColorCatalog
         return compiled;
     }
 
-    /// <summary>Compiles.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string name)
     {
         if (colors is null || colors.Length != count)
@@ -211,7 +199,6 @@ public sealed class CeresRidleyColorCatalog
         return compiled;
     }
 
-    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Ceres Ridley color property {name}."));

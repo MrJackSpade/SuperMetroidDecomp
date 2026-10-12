@@ -82,7 +82,6 @@ public static class SnesGameplayFrameRenderer
     // and is not a useful breakpoint surface for ordinary gameplay debugging. Without the
     // attribute, Debug JIT call/range-check overhead alone consumes most of the 16.67 ms
     // video-frame budget.
-    /// <summary>Composite ordinary gameplay viewport.</summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void CompositeOrdinaryGameplayViewport(
         Span<Rgba32> output,
@@ -251,7 +250,6 @@ public static class SnesGameplayFrameRenderer
         }
     }
 
-    /// <summary>Attempts to decode ordinary gameplay bg pixel.</summary>
     [System.Runtime.CompilerServices.MethodImpl(
         System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
     private static bool TryDecodeOrdinaryGameplayBgPixel(
@@ -294,7 +292,6 @@ public static class SnesGameplayFrameRenderer
             destination[color] = source[color].ToRgba32();
     }
 
-    /// <summary>Draws hud.</summary>
     private static void DrawHud(
         Span<Rgba32> output,
         SnesVram vram,
@@ -713,7 +710,6 @@ public static class SnesGameplayFrameRenderer
             verticalWave: true);
     }
 
-    /// <summary>Builds lava acid bg2 wave.</summary>
     private static ushort[] BuildLavaAcidBg2Wave(
         ushort baseScroll,
         ushort bg2VerticalScroll,
@@ -775,7 +771,6 @@ public static class SnesGameplayFrameRenderer
         }
     }
 
-    /// <summary>Reads power bomb half width.</summary>
     private static int ReadPowerBombHalfWidth(
         SamusPowerBombExplosionState explosion,
         int yFromCenter)
@@ -849,15 +844,12 @@ public static class SnesGameplayFrameRenderer
         return selectedHalfWidth;
     }
 
-    /// <summary>Expand five bit.</summary>
     private static byte ExpandFiveBit(byte value) =>
         (byte)(((value & 0x1f) << 3) | ((value & 0x1f) >> 2));
 
-    /// <summary>Saturating add.</summary>
     private static byte SaturatingAdd(byte left, byte right) =>
         (byte)Math.Min(byte.MaxValue, left + right);
 
-    /// <summary>Saturating subtract.</summary>
     private static byte SaturatingSubtract(byte left, byte right) =>
         (byte)Math.Max(byte.MinValue, left - right);
 
@@ -892,7 +884,6 @@ public static class SnesGameplayFrameRenderer
         static Offset16<ScreenPixels> Direction(int x, int y) => new(checked((short)x), checked((short)y));
     }
 
-    /// <summary>Creates backdrop.</summary>
     private static Rgba32[] CreateBackdrop(SnesCgram cgram, Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(cgram);
@@ -906,7 +897,6 @@ public static class SnesGameplayFrameRenderer
         return output;
     }
 
-    /// <summary>Draws hud and objects.</summary>
     private static void DrawHudAndObjects(
         Rgba32[] output,
         SnesVram vram,

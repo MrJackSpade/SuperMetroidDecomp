@@ -144,7 +144,6 @@ public sealed class CeresElevatorShaftRoomMainState
         return Snapshot(matrixChanged: true);
     }
 
-    /// <summary>is inside departure trigger.</summary>
     private static bool IsInsideDepartureTrigger(SamusState samus) =>
         // `$89:ACD0` uses strict X > 112, inclusive X <= 144, inclusive Y >= 75,
         // and strict Y < 128. Both whole and fractional vertical speed must be zero.
@@ -155,13 +154,11 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Kinematics.YSpeed == 0 &&
         samus.Kinematics.YSubspeed == 0;
 
-    /// <summary>snapshot.</summary>
     private CeresElevatorShaftRoomMainResult Snapshot(bool matrixChanged) => new(
         Transform,
         matrixChanged,
         DepartureRequestedThisFrame);
 
-    /// <summary>create initial transform.</summary>
     private static SamusMode7Transform CreateInitialTransform() => new(
         MatrixA: 0x0100,
         MatrixB: 0,

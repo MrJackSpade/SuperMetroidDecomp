@@ -17,7 +17,6 @@ using static RetailRuntimeFixtureVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents samus morph ball verification.</summary>
 internal static class SamusMorphBallVerification
 {
 
@@ -1643,7 +1642,6 @@ internal static void VerifySamusMorphBallMovement()
     Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
 }
 
-/// <summary>Runs power bomb to initial boundary.</summary>
 private static void RunPowerBombToInitialBoundary(
     ISnesAddressSpace bus,
     RoomLevelData level,
@@ -1879,7 +1877,6 @@ static void InstallBombReactionPlmFixture(TestAddressSpace bus)
     bus.WriteBytes(0x84a4f3, [0x01, 0x00, 0xb6, 0xb0, 0x00, 0x00]);
 }
 
-    /// <summary>Samus morph ball command.</summary>
     [VerificationCommand("--samus-morph-ball")]
     internal static int SamusMorphBallCommand()
     {

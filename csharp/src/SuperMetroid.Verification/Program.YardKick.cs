@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents yard kick verification.</summary>
 internal static class YardKickVerification
 {
-    /// <summary>verify yard kick words.</summary>
     internal static void VerifyYardKickWords(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var assets = LoadFixtureRoomAssets(bus, room);
@@ -46,7 +44,6 @@ internal static class YardKickVerification
         Console.WriteLine($"Yard kicks: {cases} contact-dispatch cases preserve signed words, fractions and vertical-table cap.");
     }
 
-    /// <summary>read native yard kick vertical speed.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $A3:D517 Yard kick vertical-speed table")]
     private static (ushort Fraction, ushort Whole) ReadNativeYardKickVerticalSpeed(ISnesAddressSpace bus, int index) =>
         (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D517 + index * 4),

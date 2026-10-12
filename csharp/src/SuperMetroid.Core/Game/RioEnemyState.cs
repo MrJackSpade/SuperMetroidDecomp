@@ -23,10 +23,8 @@ public enum RioEnemyFunction : ushort
 /// </summary>
 public sealed class RioEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new rio enemy state instance.</summary>
     internal RioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Horizontal velocity retained while the hovering phase temporarily stops X.</summary>

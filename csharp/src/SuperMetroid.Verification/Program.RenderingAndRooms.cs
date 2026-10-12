@@ -19,7 +19,6 @@ using static MapSpritesVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents rendering and rooms verification.</summary>
 internal static class RenderingAndRoomsVerification
 {
 
@@ -284,7 +283,6 @@ internal static void VerifyHudStateAndBg3Rendering()
     Console.WriteLine("  HUD: inventory, live minimap coordinates/blink, WRAM upload, and BG3 pixels agree.");
 }
 
-/// <summary>Reads fixture map word.</summary>
 [CpuBusBoundary("exact bus test: reads a seeded bank-$B5 area-map tilemap word back from the synthetic cartridge fixture to restore it")]
 static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
     SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -364,7 +362,6 @@ static void SeedSingleSmallObjSpritemap(TestAddressSpace bus) =>
 static void SeedBg3TilemapEntry(TestAddressSpace bus) =>
     bus.WriteBytes(0x818000, [0x02, 0x04]);
 
-/// <summary>Seed mother brain walk program.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Mother Brain bank-$A9 walk program")]
 internal static void SeedMotherBrainWalkProgram(
     TestAddressSpace bus,
@@ -392,7 +389,6 @@ internal static void SeedMotherBrainWalkProgram(
         WriteTestWord(bus, 0xa90000 | unchecked((ushort)(listAddress + index * 2)), words[index]);
 }
 
-/// <summary>Seed mother brain crouch fast program.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Mother Brain bank-$A9 fast crouch program")]
 internal static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
 {
@@ -1272,7 +1268,6 @@ static TestAddressSpace CreatePowerBombColorMathWindowCartridge()
     return bus;
 }
 
-/// <summary>Verifies power bomb color math window.</summary>
 internal static void VerifyPowerBombColorMathWindow()
 {
     TestAddressSpace bus = CreatePowerBombColorMathWindowCartridge();
@@ -1343,7 +1338,6 @@ internal static void VerifyPowerBombColorMathWindow()
     Console.WriteLine("  Power bomb: ROM curve bands, rendered-frame timing, and center-outward shapes agree.");
 }
 
-/// <summary>Creates opaque black gameplay frame.</summary>
 static Rgba32[] CreateOpaqueBlackGameplayFrame()
 {
     var frame = new Rgba32[
@@ -1406,7 +1400,6 @@ internal static void VerifyScrollingSkyState()
 // Exercises bank-$90 firing and movement, bank-$93 animation, and bank-$94 solid collision
 // for an uncharged power beam without sharing implementation code with the production path.
 
-    /// <summary>Hud state command.</summary>
     [VerificationCommand("--hud-state")]
     internal static int HudStateCommand()
     {
@@ -1414,7 +1407,6 @@ internal static void VerifyScrollingSkyState()
         return 0;
     }
 
-    /// <summary>Cartridge room state selection command.</summary>
     [VerificationCommand("--cartridge-room-state-selection")]
     internal static int CartridgeRoomStateSelectionCommand()
     {
@@ -1422,7 +1414,6 @@ internal static void VerifyScrollingSkyState()
         return 0;
     }
 
-    /// <summary>Room sky tilemaps command.</summary>
     [VerificationCommand("--room-sky-tilemaps")]
     internal static int RoomSkyTilemapsCommand()
     {

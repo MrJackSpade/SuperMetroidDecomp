@@ -17,51 +17,33 @@ internal static class RoomPlmShotBlockProgramDefinitions
     /// <summary>Program roles in the native control-address enumeration order.</summary>
     private enum Role
     {
-        /// <summary>Identifies respawning shot1x1.</summary>
         RespawningShot1x1,
-        /// <summary>Identifies respawning shot2x1.</summary>
         RespawningShot2x1,
-        /// <summary>Identifies respawning shot1x2.</summary>
         RespawningShot1x2,
-        /// <summary>Identifies respawning shot2x2.</summary>
         RespawningShot2x2,
-        /// <summary>Identifies permanent shot1x1.</summary>
         PermanentShot1x1,
-        /// <summary>Identifies permanent shot2x1.</summary>
         PermanentShot2x1,
-        /// <summary>Identifies permanent shot1x2.</summary>
         PermanentShot1x2,
-        /// <summary>Identifies permanent shot2x2.</summary>
         PermanentShot2x2,
-        /// <summary>Identifies respawning super missile.</summary>
         RespawningSuperMissile,
-        /// <summary>Identifies respawning power bomb.</summary>
         RespawningPowerBomb,
-        /// <summary>Identifies permanent super missile.</summary>
         PermanentSuperMissile,
-        /// <summary>Identifies permanent power bomb.</summary>
         PermanentPowerBomb,
-        /// <summary>Identifies enemy breakable terrain.</summary>
         EnemyBreakableTerrain,
     }
 
-    /// <summary>Represents program.</summary>
     private readonly record struct Program(Role Role, ushort Start, bool Respawns, bool RestoresLevelWord,
         ushort FirstDraw, int DrawStride, ushort RestoreDraw = 0,
         RoomPlmInstruction SoundOpcode = RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
     {
-        /// <summary>Gets frame count.</summary>
         internal int FrameCount => Respawns ? RestoresLevelWord ? 7 : 8 : 4;
-        /// <summary>Gets terminal address.</summary>
         internal ushort TerminalAddress => checked((ushort)(Start + 3 + 4 * FrameCount));
     }
 
     // Enumeration preserves the public control-address order; named program roles
     // determine shape, restoration and sound routing instead of stored records.
-    /// <summary>Stores programs.</summary>
     private static readonly Program[] Programs = [.. Enum.GetValues<Role>().Select(ProgramFor)];
 
-    /// <summary>Starts of.</summary>
     private static ushort StartOf(Role role) => role switch
     {
         Role.RespawningShot1x1 => RoomPlmInstructionLists.RespawningShotBlock1x1,
@@ -80,7 +62,6 @@ internal static class RoomPlmShotBlockProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
     };
 
-    /// <summary>Program for.</summary>
     private static Program ProgramFor(Role role)
     {
         bool respawns = role is Role.RespawningShot1x1 or Role.RespawningShot2x1 or
@@ -189,7 +170,6 @@ internal static class RoomPlmShotBlockProgramDefinitions
         return false;
     }
 
-    /// <summary>Tries to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         foreach (Program program in Programs)

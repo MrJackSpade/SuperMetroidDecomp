@@ -7,14 +7,11 @@ using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents grapple connection definitions verification.</summary>
 internal static class GrappleConnectionDefinitionsVerification
 {
-    /// <summary>Represents the special grapple handler callback.</summary>
     internal delegate bool SpecialGrappleHandler(ISnesAddressSpace bus, SamusState samus,
         SamusGrappleState grapple, Position16<RoomPixels> previous, out GrappleMovementResult result);
 
-    /// <summary>Verifies grapple connection definitions.</summary>
     internal static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleConnectionDefinitionsRomByte(rom, address), GrappleConnectionDefinitionsRomByte(rom, address + 1)));
@@ -49,11 +46,9 @@ internal static class GrappleConnectionDefinitionsVerification
         Console.WriteLine("Grapple connection definitions: 100 native words and 48 policy bytes, 3072 address classifications with loud non-catalog rejection, and real connection/angle/cancel/drop dispatch pass with migrated reads forbidden.");
     }
 
-    /// <summary>Grapple connection definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple connection definitions")]
     private static byte GrappleConnectionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies grapple connection dispatch.</summary>
     private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleConnectionDispatchRomByte(rom, address), GrappleConnectionDispatchRomByte(rom, address + 1)));
@@ -106,11 +101,9 @@ internal static class GrappleConnectionDefinitionsVerification
         }
     }
 
-    /// <summary>Grapple connection dispatch rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple connection dispatch")]
     private static byte GrappleConnectionDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies grapple special connections.</summary>
     private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom, ISnesAddressSpace guard)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleSpecialConnectionsRomByte(rom, address), GrappleSpecialConnectionsRomByte(rom, address + 1)));
@@ -169,11 +162,9 @@ internal static class GrappleConnectionDefinitionsVerification
         }
     }
 
-    /// <summary>Grapple special connections rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple special connections")]
     private static byte GrappleSpecialConnectionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies grapple cancellation and drop.</summary>
     private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
     {
         var cancel = typeof(SamusGrappleMovement).GetMethod("HandleFiringPoseChange", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -247,11 +238,9 @@ internal static class GrappleConnectionDefinitionsVerification
         }
     }
 
-    /// <summary>Grapple cancellation and drop rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple cancellation and drop")]
     private static byte GrappleCancellationAndDropRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Creates grapple connection read guard.</summary>
     private static CartridgeReadGuard NewGrappleConnectionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x9bb8b8 and < 0x9bb8d4 or >= 0x9bc3c6 and < 0x9bc48e or >= 0x9bc9ba and < 0x9bc9ce,

@@ -6,14 +6,10 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("codec: restores a render snapshot into software PPU memory")]
 internal sealed class SoftwarePpuSnapshotMemory
 {
-    /// <summary>Gets vram.</summary>
     internal SnesVram Vram { get; } = new();
-    /// <summary>Gets cgram.</summary>
     internal SnesCgram Cgram { get; } = new();
-    /// <summary>Gets oam.</summary>
     internal OamBuffer Oam { get; } = new();
 
-    /// <summary>Initializes a new software ppu snapshot memory instance.</summary>
     internal SoftwarePpuSnapshotMemory(PpuMemorySnapshot snapshot) => Load(snapshot);
 
     /// <summary>Replaces every modeled byte, so a pooled reader carries nothing between frames.</summary>

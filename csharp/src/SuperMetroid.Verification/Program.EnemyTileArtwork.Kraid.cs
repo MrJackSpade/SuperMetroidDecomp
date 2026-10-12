@@ -10,10 +10,8 @@ using static EnemyContentIdentityFixtureVerification;
 using static KraidInstalledPresentationOracleVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy tile artwork kraid verification.</summary>
 internal static class EnemyTileArtworkKraidVerification
 {
-    /// <summary>verify installed kraid background.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
     internal static void VerifyInstalledKraidBackground(
@@ -84,7 +82,6 @@ internal static class EnemyTileArtworkKraidVerification
         Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, directory, stock));
     }
 
-    /// <summary>verify installed kraid head frames.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid head frames")]
     private static void VerifyInstalledKraidHeadFrames(
@@ -158,7 +155,6 @@ internal static class EnemyTileArtworkKraidVerification
         Suite(nameof(VerifyInstalledKraidBg3Restoration), () => VerifyInstalledKraidBg3Restoration(rom, directory, stock));
     }
 
-    /// <summary>verify installed kraid bg3 restoration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid BG3 restoration")]
     private static void VerifyInstalledKraidBg3Restoration(
@@ -253,7 +249,6 @@ internal static class EnemyTileArtworkKraidVerification
             "Kraid BG3 uses the current HUD PNG override after catalog reload");
     }
 
-    /// <summary>run kraid bg3 restoration.</summary>
     private static SnesVram RunKraidBg3Restoration(
         EnemyTileArtworkCatalog enemyArtwork,
         HudTileAtlas hud,
@@ -295,7 +290,6 @@ internal static class EnemyTileArtworkKraidVerification
         return vram;
     }
 
-    /// <summary>verify installed kraid room background.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid room background")]
     private static void VerifyInstalledKraidRoomBackground(
@@ -346,7 +340,6 @@ internal static class EnemyTileArtworkKraidVerification
             "malformed Kraid room-background PNG override fails at load");
     }
 
-    /// <summary>upload kraid room background.</summary>
     private static SnesVram UploadKraidRoomBackground(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -359,7 +352,6 @@ internal static class EnemyTileArtworkKraidVerification
         return vram;
     }
 
-    /// <summary>run kraid head frame.</summary>
     private static (KraidEnemyState State, SnesVram Vram) RunKraidHeadFrame(
         EnemyTileArtworkCatalog artwork, ushort pointer)
     {
@@ -374,7 +366,6 @@ internal static class EnemyTileArtworkKraidVerification
         return (state, vram);
     }
 
-    /// <summary>build kraid working map.</summary>
     internal static KraidEnemyState BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -386,7 +377,6 @@ internal static class EnemyTileArtworkKraidVerification
         return state;
     }
 
-    /// <summary>transfer kraid visible pages.</summary>
     private static SnesVram TransferKraidVisiblePages(KraidEnemyState state)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

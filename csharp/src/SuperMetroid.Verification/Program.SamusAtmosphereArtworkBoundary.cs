@@ -14,7 +14,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents samus atmosphere artwork boundary verification.</summary>
 internal static class SamusAtmosphereArtworkBoundaryVerification
 {
 
@@ -26,7 +25,6 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
         bus.WriteByte(SamusMovementRomData.Banks.Movement + 1, 0x34);
     }
 
-    /// <summary>Verifies samus atmosphere artwork boundary.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
@@ -87,7 +85,6 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
         }
     }
 
-    /// <summary>Samus atmosphere artwork boundary command.</summary>
     [VerificationCommand("--samus-atmosphere-artwork-boundary")]
     internal static int SamusAtmosphereArtworkBoundaryCommand()
     {

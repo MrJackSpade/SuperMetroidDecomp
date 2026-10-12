@@ -54,15 +54,12 @@ using static NinjaSpacePiratePaletteArtworkVerification;
 using static SuiteTimingVerification;
 using static TorizoInstructionVramArtworkVerification;
 
-/// <summary>Represents enemy tile artwork verification.</summary>
 internal static class EnemyTileArtworkVerification
 {
-    /// <summary>Reads native enemy tiles.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native tile bytes")]
     private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, RoomEnemyDefinition definition, int byteCount) =>
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
 
-    /// <summary>Loads native enemy palette.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native palette DMA")]
     private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, RoomEnemyDefinition definition)
     {
@@ -87,7 +84,6 @@ internal static class EnemyTileArtworkVerification
         return expected;
     }
 
-    /// <summary>Verifies enemy tile artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyEnemyTileArtwork()
     {
@@ -349,7 +345,6 @@ internal static class EnemyTileArtworkVerification
             Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");
     }
 
-    /// <summary>Enemy tile artwork command.</summary>
     [VerificationCommand("--enemy-tile-artwork")]
     internal static int EnemyTileArtworkCommand()
     {

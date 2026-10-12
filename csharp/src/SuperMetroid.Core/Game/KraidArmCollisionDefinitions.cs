@@ -7,46 +7,35 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class KraidArmCollisionDefinitions
 {
-    /// <summary>Stores bank.</summary>
     internal const byte Bank = 0xa7;
 
-    /// <summary>Stores phase0.</summary>
     private static readonly Offset16<RoomPixels>[] Phase0 =
         [new(-36, -33), new(-28, -24),
          new(-36, -40), new(-28, -31)];
-    /// <summary>Stores phase1.</summary>
     private static readonly Offset16<RoomPixels>[] Phase1 =
         [new(-38, -33), new(-30, -26),
          new(-36, -40), new(-28, -31)];
-    /// <summary>Stores phase2.</summary>
     private static readonly Offset16<RoomPixels>[] Phase2 =
         [new(-48, -13), new(-38, -13),
          new(-45, -27), new(-37, -19)];
-    /// <summary>Stores phase3.</summary>
     private static readonly Offset16<RoomPixels>[] Phase3 =
         [new(-46, -13), new(-37, -13),
          new(-45, -19), new(-36, -18)];
-    /// <summary>Stores phase4.</summary>
     private static readonly Offset16<RoomPixels>[] Phase4 =
         [new(-45, 8), new(-38, 2),
          new(-46, 3), new(-39, -3)];
-    /// <summary>Stores phase5.</summary>
     private static readonly Offset16<RoomPixels>[] Phase5 =
         [new(-44, 8), new(-37, 2),
          new(-46, 4), new(-39, -2)];
-    /// <summary>Stores phase6.</summary>
     private static readonly Offset16<RoomPixels>[] Phase6 =
         [new(-39, 10), new(-38, 0),
          new(-43, 10), new(-41, -2)];
-    /// <summary>Stores phase7.</summary>
     private static readonly Offset16<RoomPixels>[] Phase7 =
         [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
-    /// <summary>Stores phase8.</summary>
     private static readonly Offset16<RoomPixels>[] Phase8 =
         [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
-    /// <summary>Stores phase9.</summary>
     private static readonly Offset16<RoomPixels>[] Phase9 =
         [new(-39, 10), new(-38, 0),
          new(-42, 9), new(-42, -2)];
@@ -57,9 +46,7 @@ internal static class KraidArmCollisionDefinitions
     private const ushort FirstSingleComponentFrame = 0x92a1;
     /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
     private const ushort SecondSingleComponentFrame = 0x92ab;
-    /// <summary>Stores general frame bytes.</summary>
     private const int GeneralFrameBytes = 2 + 5 * 8;
-    /// <summary>Stores geometry.</summary>
     private static readonly KraidArmCollisionGeometry[] Geometry =
     [
         new(-13, -11, -3, -5),
@@ -111,7 +98,6 @@ internal static class KraidArmCollisionDefinitions
         return EnemyAiCodePointers.BankA7.KraidArmShot;
     }
 
-    /// <summary>Rectangle.</summary>
     internal static KraidArmCollisionHitbox Rectangle(int index)
     {
         if ((uint)index >= RectangleCount) throw new IndexOutOfRangeException();
@@ -197,7 +183,6 @@ internal static class KraidArmCollisionDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(SingleComponentFrame)} {(int)frame}."),
     };
 
-    /// <summary>Attempts to get components.</summary>
     internal static bool TryGetComponents(ushort pointer,
         out KraidArmComponentSequence components)
     {
@@ -257,14 +242,12 @@ internal static class KraidArmCollisionDefinitions
 /// <param name="Offset">The component origin relative to Kraid's arm enemy, in room pixels.</param>
 /// <param name="HitboxPointer">The component's bank-$A7 hitbox list.</param>
 internal readonly record struct KraidArmCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
-/// <summary>Represents kraid arm collision hitbox.</summary>
 internal readonly record struct KraidArmCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
 /// <summary>Ordered rectangle view that attaches calculated callbacks without storing them per record.</summary>
 internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
 {
-    /// <summary>Gets an indexed value.</summary>
     internal KraidArmCollisionHitbox this[int index]
     {
         get
@@ -273,27 +256,20 @@ internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
             return KraidArmCollisionDefinitions.Rectangle(Start + index);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public Enumerator GetEnumerator() => new(this);
-    /// <summary>Represents enumerator.</summary>
     internal struct Enumerator(KraidArmHitboxSequence sequence)
     {
-        /// <summary>Stores next.</summary>
         private int next;
-        /// <summary>Moves next.</summary>
         public bool MoveNext() => next++ < sequence.Length;
-        /// <summary>Gets current.</summary>
         public KraidArmCollisionHitbox Current => sequence[next - 1];
     }
 }
 
-/// <summary>Represents kraid arm collision geometry.</summary>
 internal readonly record struct KraidArmCollisionGeometry(short Left, short Top, short Right, short Bottom);
 
 /// <summary>Ordered physical component view with calculated hitbox selectors.</summary>
 internal readonly record struct KraidArmComponentSequence(int Pose, int Length)
 {
-    /// <summary>Gets an indexed value.</summary>
     internal KraidArmCollisionComponent this[int index]
     {
         get
@@ -302,16 +278,11 @@ internal readonly record struct KraidArmComponentSequence(int Pose, int Length)
             return KraidArmCollisionDefinitions.Component(Pose, index);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public Enumerator GetEnumerator() => new(this);
-    /// <summary>Represents enumerator.</summary>
     internal struct Enumerator(KraidArmComponentSequence sequence)
     {
-        /// <summary>Stores next.</summary>
         private int next;
-        /// <summary>Moves next.</summary>
         public bool MoveNext() => next++ < sequence.Length;
-        /// <summary>Gets current.</summary>
         public KraidArmCollisionComponent Current => sequence[next - 1];
     }
 }

@@ -52,7 +52,6 @@ internal static class ExploredMapPackingDefinitions
     /// </summary>
     internal readonly struct OccupiedByteIndexes(IAreaMapView stockRules) : IReadOnlyList<byte>
     {
-        /// <summary>Gets count.</summary>
         public int Count
         {
             get
@@ -64,7 +63,6 @@ internal static class ExploredMapPackingDefinitions
             }
         }
 
-        /// <summary>Gets an indexed value.</summary>
         public byte this[int index]
         {
             get
@@ -76,7 +74,6 @@ internal static class ExploredMapPackingDefinitions
             }
         }
 
-        /// <summary>Contains.</summary>
         private bool Contains(int nativeByte)
         {
             int pageBytes = AreaMapLayout.HeightInTiles * AreaMapLayout.PageWidthInTiles / 8;
@@ -88,13 +85,11 @@ internal static class ExploredMapPackingDefinitions
             return false;
         }
 
-        /// <summary>Gets enumerator.</summary>
         public IEnumerator<byte> GetEnumerator()
         {
             for (int candidate = 0; candidate < Bank80SystemState.ExploredMapBytesPerArea; candidate++)
                 if (Contains(candidate)) yield return checked((byte)candidate);
         }
-        /// <summary>Gets enumerator.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

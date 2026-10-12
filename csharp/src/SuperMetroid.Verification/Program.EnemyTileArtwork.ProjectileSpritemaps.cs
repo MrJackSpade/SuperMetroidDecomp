@@ -8,10 +8,8 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents enemy tile artwork projectile spritemaps verification.</summary>
 internal static class EnemyTileArtworkProjectileSpritemapsVerification
 {
-    /// <summary>Verifies installed enemy projectile spritemaps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemyProjectileSpritemaps(
         ISnesAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
@@ -992,7 +990,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         }
     }
 
-    /// <summary>New enemy projectile visual guard.</summary>
     private static CartridgeReadGuard NewEnemyProjectileVisualGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {

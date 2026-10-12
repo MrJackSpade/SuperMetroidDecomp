@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -10,9 +10,7 @@ internal sealed class EnemyAudioQueue
     // Enemy AI can execute several independent actors in one frame. A single nullable
     // "last sound" loses calls when two actors publish during that pass, so new translations
     // use the same append-only-per-frame shape already proven by Samus and PLM audio.
-    /// <summary>Stores sound requests.</summary>
     private readonly List<EnemySoundRequest> _soundRequests = [];
-    /// <summary>Stores music requests.</summary>
     private readonly List<EnemyMusicRequest> _musicRequests = [];
 
     /// <summary>
@@ -45,7 +43,6 @@ internal sealed class EnemyAudioQueue
     // Enemy initialization runs while a room loads, outside EnemyMain's publication window,
     // and its frontend consumes the requests within that same update. Nothing here
     // survives an update boundary, so debugger snapshots never contain it.
-    /// <summary>Stores initialization music delayed8.</summary>
     [NonSerialized] private List<MusicCommand>? _initializationMusicDelayed8;
 
     /// <summary>
@@ -78,7 +75,6 @@ internal sealed class EnemyAudioQueue
             SoundSuppressed: PowerBomb?.IsActive == true));
     }
 
-    /// <summary>queue legacy sound.</summary>
     internal void QueueLegacySound(
         ushort? soundId,
         SoundEffectLibrary library,
@@ -88,7 +84,6 @@ internal sealed class EnemyAudioQueue
             QueueEnemySound(SoundEffectId.FromCartridge(library, value), maximumQueued);
     }
 
-    /// <summary>queue legacy music.</summary>
     internal void QueueLegacyMusic(MusicCommand? command, MusicCommandDelay? delay)
     {
         if (command is MusicCommand value && delay is MusicCommandDelay wait)

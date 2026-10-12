@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,14 +6,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Norfair rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NorfairRioBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Initializes a new norfair rio behavior instance.</summary>
     internal NorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable)
     {
         _room = room;
@@ -21,21 +17,16 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         _slotTable = slotTable;
     }
 
-    /// <summary>Stores norfair rio horizontal trigger distance.</summary>
     private const ushort NorfairRioHorizontalTriggerDistance = 0x00c0;
-    /// <summary>Stores norfair rio gravity.</summary>
     private const ushort NorfairRioGravity = 32;
-    /// <summary>Stores norfair rio dive sound.</summary>
     private const ushort NorfairRioDiveSound = 0x0065;
 
-    /// <summary>Stores norfair rio states.</summary>
     internal readonly NorfairRioEnemyState?[] _norfairRioStates =
         new NorfairRioEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Most recent library-two dive sound request produced during this frame.</summary>
     public ushort? LastNorfairRioSoundEffect { get; private set; }
 
-    /// <summary>Resets norfair rio room state.</summary>
     internal void ResetNorfairRioRoomState()
     {
         Array.Clear(_norfairRioStates);
@@ -234,7 +225,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         return true;
     }
 
-    /// <summary>Follow norfair rio parent.</summary>
     private void FollowNorfairRioParent(
         RoomEnemySlot follower,
         NorfairRioEnemyState followerState)
@@ -269,7 +259,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
             parent.Position.Y.Whole + (short)parentState.FollowerYOffset))));
     }
 
-    /// <summary>Begins norfair rio return.</summary>
     private static void BeginNorfairRioReturn(
         RoomEnemySlot slot,
         NorfairRioEnemyState state)
@@ -282,7 +271,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         state.Function = NorfairRioEnemyFunction.ReturnToPerch;
     }
 
-    /// <summary>Moves norfair rio horizontally.</summary>
     private void MoveNorfairRioHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -297,7 +285,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Installs norfair rio instruction list.</summary>
     private static void InstallNorfairRioInstructionList(
         RoomEnemySlot slot,
         NorfairRioEnemyState state,
@@ -312,7 +299,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>Gets preceding norfair rio slot.</summary>
     private RoomEnemySlot GetPrecedingNorfairRioSlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -320,7 +306,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         return _slotTable._slots[follower.SlotIndex - 1];
     }
 
-    /// <summary>Validates norfair rio parent.</summary>
     private void ValidateNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
@@ -333,19 +318,16 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Requires norfair rio level.</summary>
     private static void RequireNorfairRioLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Norfair Rio movement requires room level data.");
     }
 
-    /// <summary>Requires norfair rio state.</summary>
     private NorfairRioEnemyState RequireNorfairRioState(RoomEnemySlot slot) =>
         _norfairRioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair Rio state.");
 
-    /// <summary>Registers norfair rio initialization ai.</summary>
     internal void RegisterNorfairRioInitializationAi(EnemyAiTable table)
     {
 
@@ -355,7 +337,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers norfair rio main ai.</summary>
     internal void RegisterNorfairRioMainAi(EnemyAiTable table)
     {
 
@@ -369,7 +350,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers norfair rio owned instructions.</summary>
     internal void RegisterNorfairRioOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

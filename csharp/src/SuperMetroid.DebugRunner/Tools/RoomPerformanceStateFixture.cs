@@ -10,7 +10,6 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Representative retail-room fixtures for Android performance issues #361-363.</summary>
 internal static class RoomPerformanceStateFixture
 {
-    /// <summary>export.</summary>
     public static int Export(string scene, string destination)
     {
         if (scene is not ("save" or "map" or "surface"))

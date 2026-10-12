@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,19 +6,15 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The eye door species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EyeDoorBehavior
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Initializes a new eye door behavior instance.</summary>
     internal EyeDoorBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
         _projectiles = projectiles;
     }
 
-    /// <summary>Stores eye door projectile system.</summary>
     private Bank80SystemState? _eyeDoorProjectileSystem;
 
     /// <summary>
@@ -77,7 +73,6 @@ internal sealed class EyeDoorBehavior
         }
     }
 
-    /// <summary>Initializes eye door projectile.</summary>
     private static void InitializeEyeDoorProjectile(
         RoomEnemyProjectileSlot projectile,
         EyeDoorProjectileRequest request,
@@ -97,7 +92,6 @@ internal sealed class EyeDoorBehavior
             EyeDoorEnemyProjectileRomData.ProjectileOriginWord(offsetWord + 1)));
     }
 
-    /// <summary>Initializes eye door sweat.</summary>
     private static void InitializeEyeDoorSweat(
         RoomEnemyProjectileSlot projectile,
         ushort parameter,
@@ -119,7 +113,6 @@ internal sealed class EyeDoorBehavior
             EyeDoorEnemyProjectileRomData.SweatVelocityWord(velocityWord + 1));
     }
 
-    /// <summary>Initializes eye door smoke.</summary>
     internal void InitializeEyeDoorSmoke(
         RoomEnemyProjectileSlot projectile,
         ushort parameter,
@@ -141,7 +134,6 @@ internal sealed class EyeDoorBehavior
         _room.Random.Generate();
     }
 
-    /// <summary>Runs eye door projectile pre instruction.</summary>
     internal void RunEyeDoorProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -171,7 +163,6 @@ internal sealed class EyeDoorBehavior
         }
     }
 
-    /// <summary>Runs eye door sweat pre instruction.</summary>
     internal static void RunEyeDoorSweatPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -190,14 +181,12 @@ internal sealed class EyeDoorBehavior
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 12))));
     }
 
-    /// <summary>Reads eye door acceleration.</summary>
     internal static short ReadEyeDoorAcceleration(int tableIndex)
     {
         short sample = EnemyTrigonometryTables.SignedSine(unchecked((byte)tableIndex));
         return unchecked((short)(sample >> 4));
     }
 
-    /// <summary>Sets eye door effect impact list.</summary>
     private static void SetEyeDoorEffectImpactList(
         RoomEnemyProjectileSlot projectile,
         ushort instructionList)
@@ -207,7 +196,6 @@ internal sealed class EyeDoorBehavior
         projectile.InstructionTimer = 1;
     }
 
-    /// <summary>Moves eye door effect horizontally.</summary>
     private static bool MoveEyeDoorEffectHorizontally(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -249,7 +237,6 @@ internal sealed class EyeDoorBehavior
         return near >= current ? near : current;
     }
 
-    /// <summary>Moves eye door effect vertically.</summary>
     private static bool MoveEyeDoorEffectVertically(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -325,7 +312,6 @@ internal sealed class EyeDoorBehavior
         return false;
     }
 
-    /// <summary>Registers eye door projectiles.</summary>
     internal void RegisterEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>

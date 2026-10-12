@@ -141,7 +141,6 @@ public static class GenericGamepadInput
         return result;
     }
 
-    /// <summary>is pressed.</summary>
     private static bool IsPressed(uint buttons, int zeroBasedButtonIndex) =>
         (buttons & (1u << zeroBasedButtonIndex)) != 0;
 }

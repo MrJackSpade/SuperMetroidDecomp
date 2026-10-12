@@ -4,10 +4,8 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents asset import verification.</summary>
 internal static class AssetImportVerification
 {
-/// <summary>Runs.</summary>
 public static int Run(string? romPath)
 {
 using var temporaryScratch = new TestScratchDirectory("import-verification");
@@ -197,58 +195,40 @@ finally
 
 }
 
-/// <summary>Checks.</summary>
 static void Check(bool value, string description, bool quiet = false)
 {
     if (!value) throw new InvalidDataException(description);
     if (!quiet) Console.WriteLine("PASS " + description);
 }
-/// <summary>Rejects.</summary>
 static void Reject<T>(Action action) where T : Exception
 {
     try { action(); }
     catch (T) { return; }
     throw new InvalidDataException($"Expected {typeof(T).Name}.");
 }
-/// <summary>Represents inline progress.</summary>
 sealed class InlineProgress(Action<string> report) : IProgress<string>
 {
-    /// <summary>Report.</summary>
     public void Report(string value) => report(value);
 }
-/// <summary>Represents non seekable stream.</summary>
 sealed class NonSeekableStream(byte[] bytes) : Stream
 {
-    /// <summary>Stores inner.</summary>
     private readonly MemoryStream inner = new(bytes);
-    /// <summary>Gets or sets bytes read.</summary>
     public int BytesRead { get; private set; }
-    /// <summary>Gets can read.</summary>
     public override bool CanRead => true;
-    /// <summary>Gets can seek.</summary>
     public override bool CanSeek => false;
-    /// <summary>Gets can write.</summary>
     public override bool CanWrite => false;
-    /// <summary>Rejects length queries on the non-seekable fixture stream.</summary>
     public override long Length => throw new NotSupportedException();
-    /// <summary>Rejects position queries and assignments on the non-seekable fixture stream.</summary>
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-    /// <summary>Reads at most 8,191 bytes from the non-seekable fixture stream.</summary>
     public override int Read(byte[] buffer, int offset, int count)
     {
         int read = inner.Read(buffer, offset, Math.Min(count, 8191));
         BytesRead += read;
         return read;
     }
-    /// <summary>Flush.</summary>
     public override void Flush() => throw new NotSupportedException();
-    /// <summary>Seek.</summary>
     public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-    /// <summary>Sets length.</summary>
     public override void SetLength(long value) => throw new NotSupportedException();
-    /// <summary>Rejects writes to the read-only fixture stream.</summary>
     public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-    /// <summary>Dispose.</summary>
     protected override void Dispose(bool disposing) { if (disposing) inner.Dispose(); base.Dispose(disposing); }
 }
 }

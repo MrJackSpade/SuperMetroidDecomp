@@ -7,14 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// grid; draw order traverses edge strips before the interior rows.</summary>
 internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
         pointer == EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump)
             ? supplied.CalculateIfMatching(new EndingRewardPrepareJumpParts()) : supplied;
 
-    /// <summary>Gets count.</summary>
     public int Count => 22;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -40,12 +37,10 @@ internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSprit
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

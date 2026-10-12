@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -6,10 +6,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Fune/Namihe species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FuneNamiheBehavior : IEnemySpecies
 {
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Initializes a new fune namihe behavior instance.</summary>
     internal FuneNamiheBehavior(EnemyProjectileEngine projectiles)
     {
         _projectiles = projectiles;
@@ -57,7 +55,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Stores fune namihe states.</summary>
     internal readonly FuneNamiheEnemyState?[] _funeNamiheStates =
         new FuneNamiheEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -67,7 +64,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastFuneNamiheSoundEffect { get; private set; }
 
-    /// <summary>Checks whether fune namihe definition.</summary>
     internal static bool IsFuneNamiheDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is EnemyDefinitionId.Fune or
             EnemyDefinitionId.Namihe;
@@ -199,12 +195,10 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
             : FuneNamiheEnemyFunction.FuneWaitForCooldown;
     }
 
-    /// <summary>Requires fune namihe state.</summary>
     private FuneNamiheEnemyState RequireFuneNamiheState(RoomEnemySlot slot) =>
         _funeNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fune/Namihe state.");
 
-    /// <summary>Register fune namihe projectiles.</summary>
     internal static void RegisterFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -214,7 +208,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.NamiFuneFireball);
     }
 
-    /// <summary>Register fune namihe initialization ai.</summary>
     internal void RegisterFuneNamiheInitializationAi(EnemyAiTable table)
     {
 
@@ -224,7 +217,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register fune namihe main ai.</summary>
     internal void RegisterFuneNamiheMainAi(EnemyAiTable table)
     {
 
@@ -234,7 +226,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register fune namihe owned instructions.</summary>
     internal void RegisterFuneNamiheOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -243,7 +234,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
             return TryProcessFuneNamiheInstruction(slot, word, ref cursor);
         });
     }
-    /// <summary>Defines nami fune fireball pre instruction.</summary>
     private const ushort NamiFuneFireballPreInstruction =
         (ushort)EnemyProjectilePreInstruction.NamiFuneFireball;
 

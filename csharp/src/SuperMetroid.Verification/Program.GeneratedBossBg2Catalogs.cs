@@ -2,10 +2,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents generated boss bg2 catalogs verification.</summary>
 internal static class GeneratedBossBg2CatalogsVerification
 {
-    /// <summary>Verifies phantoon generated bg2 catalog.</summary>
     internal static void VerifyPhantoonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected =
@@ -41,7 +39,6 @@ internal static class GeneratedBossBg2CatalogsVerification
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
                 "Phantoon generated catalog loads native stream");
     }
-    /// <summary>Verifies draygon generated bg2 catalog.</summary>
     internal static void VerifyDraygonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected =
@@ -89,7 +86,6 @@ internal static class GeneratedBossBg2CatalogsVerification
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
                 "Draygon generated catalog loads native stream");
     }
-    /// <summary>Verifies generated bg2 catalog.</summary>
     private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, EnemyBg2FrameDefinition[] expected, EnemyBg2FrameDefinitionSequence frames, Bg2CatalogAccess access)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GeneratedBg2CatalogRomByte(rom, address), GeneratedBg2CatalogRomByte(rom, address + 1)));
@@ -119,7 +115,6 @@ internal static class GeneratedBossBg2CatalogsVerification
         return generatedJson;
     }
 
-    /// <summary>Generated bg2 catalog rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for generated BG2 catalog")]
     private static byte GeneratedBg2CatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

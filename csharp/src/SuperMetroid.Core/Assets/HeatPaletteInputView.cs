@@ -18,22 +18,14 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
-    /// <summary>Stores colors.</summary>
     private readonly Dictionary<ushort, Bgr555> colors;
-    /// <summary>Stores red target.</summary>
     private readonly int redTarget;
-    /// <summary>Stores mixed red target.</summary>
     private readonly int mixedRedTarget;
-    /// <summary>Stores mixed green target.</summary>
     private readonly int mixedGreenTarget;
-    /// <summary>Stores green override.</summary>
     private readonly int? greenOverride;
-    /// <summary>Stores blue override.</summary>
     private readonly int? blueOverride;
-    /// <summary>Stores mixed blue override.</summary>
     private readonly int? mixedBlueOverride;
 
-    /// <summary>Initializes a new heat palette input view instance.</summary>
     internal HeatPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
@@ -52,7 +44,6 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
         colors.Remove(0xe55e);
     }
 
-    /// <summary>Reads base.</summary>
     private Bgr555 ReadBase(ushort pointer)
     {
         if (colors.TryGetValue(pointer, out Bgr555 value)) return value;
@@ -61,7 +52,6 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
         throw new InvalidDataException($"Missing installed heat base ${pointer:X4}.");
     }
 
-    /// <summary>Tries to get value.</summary>
     public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         if (pointer == 0xe55c)
@@ -80,13 +70,9 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
         return colors.TryGetValue(pointer, out value);
     }
 
-    /// <summary>Gets an indexed value.</summary>
     public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
-    /// <summary>Gets count.</summary>
     public int Count => colors.Count + 2;
-    /// <summary>Contains key.</summary>
     public bool ContainsKey(ushort key) => key is 0xe55c or 0xe55e || colors.ContainsKey(key);
-    /// <summary>Gets or sets keys.</summary>
     public IEnumerable<ushort> Keys
     {
         get
@@ -96,13 +82,10 @@ internal sealed class HeatPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
             yield return 0xe55e;
         }
     }
-    /// <summary>Gets values.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

@@ -61,7 +61,6 @@ internal abstract class CeresBabyInstructionProgramDefinitions
     /// </summary>
     public static int MechanicsWordCount => 43;
 
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -100,9 +99,7 @@ internal abstract class CeresBabyInstructionProgramDefinitions
         });
     }
 
-    /// <summary>Stores spritemap operand count.</summary>
     internal const int SpritemapOperandCount = 20;
-    /// <summary>Stores palette operand count.</summary>
     internal const int PaletteOperandCount = 13;
 
     /// <summary>Enumerates the twelve expressive and one final palette operands.</summary>

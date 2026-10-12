@@ -3,7 +3,6 @@ using System.Text;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents enemy visual selector generator.</summary>
 internal static class EnemyVisualSelectorGenerator
 {
     /// <summary>Regenerates the checked-in compiled enemy visual-selector catalog from the inventory.</summary>

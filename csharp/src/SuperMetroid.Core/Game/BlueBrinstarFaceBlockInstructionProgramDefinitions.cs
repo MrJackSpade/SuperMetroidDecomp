@@ -15,13 +15,11 @@ internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitions
 
     /// <summary><c>$A8:E828</c>, the one-frame neutral program installed at initialization.</summary>
     internal const ushort Initial = 0xe828;
-    /// <summary>is presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - SamusLeft;
         return (uint)offset < 28 ? offset % 14 % 4 == 2 : address == Initial + 2;
     }
-    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - SamusLeft;

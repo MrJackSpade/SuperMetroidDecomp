@@ -1,9 +1,7 @@
 using SuperMetroid.Android;
 
-/// <summary>Represents android session command verification.</summary>
 internal static class AndroidSessionCommandVerification
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     public static void Run()
     {
         var commands = new AndroidSessionCommands();
@@ -35,7 +33,6 @@ internal static class AndroidSessionCommandVerification
         Console.WriteLine("PASS Android command shutdown: normal result, pending/late failure, and 100 enqueue/close races.");
     }
 
-    /// <summary>check failure.</summary>
     private static void CheckFailure(Task<string> result, Exception expected)
     {
         if (!result.IsFaulted || result.Exception?.InnerException != expected)

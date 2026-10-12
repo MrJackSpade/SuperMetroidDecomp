@@ -23,7 +23,6 @@ internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions
     /// <summary>Native program bank $86.</summary>
     internal const byte Bank = 0x86;
 
-    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xb293),
         Entry(RightInitial),
@@ -68,12 +67,9 @@ internal abstract class GoldenTorizoSuperMissileInstructionProgramDefinitions
         Frame(5),
         Frame(5),
         Op((ushort)EnemyProjectileInstruction.Delete));
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

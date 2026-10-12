@@ -17,9 +17,7 @@ internal static class CeresSteamCollisionDefinitions
     /// <summary>Native bank of the extended maps at $A6:F142-$F250.</summary>
     internal const byte Bank = 0xa6;
 
-    /// <summary>Defines touch.</summary>
     private const ushort Touch = EnemyAiCodePointers.BankA6.CeresSteamTouch;
-    /// <summary>Defines shot.</summary>
     private const ushort Shot = EnemyAiCodePointers.BankA0.NoOp;
 
     /// <summary>First ten-byte extended frame, ExtendedSpritemap_CeresSteam_Up_0 at $A6:F142.</summary>
@@ -59,13 +57,10 @@ internal static class CeresSteamCollisionDefinitions
             [new(25, -11, 40, 3, Touch, Shot)],
         ]));
 
-    /// <summary>Gets frame pointers.</summary>
     internal static FrameSequence FramePointers { get; } = new();
-    /// <summary>has frame.</summary>
     internal static bool HasFrame(ushort frame) =>
         frame >= FirstFrame && frame < FirstFrame + 280 && (frame - FirstFrame) % 10 == 0;
 
-    /// <summary>components at.</summary>
     internal static ComponentSequence ComponentsAt(ushort frame)
     {
         if (!HasFrame(frame))
@@ -76,43 +71,31 @@ internal static class CeresSteamCollisionDefinitions
         return new(pose >= 5 ? EmptyHitboxes : (ushort)(FirstHitboxes + 14 * (5 * direction + pose)));
     }
 
-    /// <summary>Represents frame sequence.</summary>
     internal sealed class FrameSequence : IReadOnlyList<ushort>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => 28;
-        /// <summary>Gets the number of elements in this view.</summary>
         public int Length => Count;
-        /// <summary>Accesses a value by index or range.</summary>
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(FirstFrame + 10 * index) : throw new IndexOutOfRangeException();
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
-    /// <summary>Represents component sequence.</summary>
     internal readonly struct ComponentSequence(ushort hitboxPointer) : IReadOnlyList<CeresSteamCollisionComponent>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => 1;
-        /// <summary>Accesses a value by index or range.</summary>
         public CeresSteamCollisionComponent this[int index] => index == 0
             ? new(Offset16<RoomPixels>.Zero, hitboxPointer) : throw new IndexOutOfRangeException();
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<CeresSteamCollisionComponent> GetEnumerator()
         {
             yield return this[0];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>hitboxes at.</summary>
     internal static ReadOnlySpan<CeresSteamCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGet(list, out CeresSteamCollisionHitbox[] hitboxes)
             ? hitboxes

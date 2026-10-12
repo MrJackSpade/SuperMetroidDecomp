@@ -90,6 +90,5 @@ public static class StandardObjectArtworkFiles
     /// <param name="stockDirectory">Installed stock standard OBJ artwork directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
-    /// <summary>Represents manifest.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256, string PngSha256);
 }

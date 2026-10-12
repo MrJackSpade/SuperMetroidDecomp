@@ -14,7 +14,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents baby metroid wall clear timing verification.</summary>
 internal static class BabyMetroidWallClearTimingVerification
 {
     /// <summary>
@@ -64,7 +63,6 @@ internal static class BabyMetroidWallClearTimingVerification
         Console.WriteLine("  Baby Metroid wall clear: the wall is gone before Samus moves that frame.");
     }
 
-    /// <summary>baby metroid wall clear timing command.</summary>
     [VerificationCommand("--baby-metroid-wall-clear-timing")]
     internal static int BabyMetroidWallClearTimingCommand()
     {

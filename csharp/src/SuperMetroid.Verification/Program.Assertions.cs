@@ -365,14 +365,11 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     IImportCartridgeSource,
     IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource
 {
-    /// <summary>Stores bytes.</summary>
     private readonly Dictionary<int, byte> _bytes = [];
 
-    /// <summary>Has seeded byte.</summary>
     [CpuBusAccess]
     internal bool HasSeededByte(int address) => _bytes.ContainsKey(address);
 
-    /// <summary>Reads byte.</summary>
     [CpuBusAccess]
     public byte ReadByte(int address)
     {
@@ -382,7 +379,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         return _bytes.GetValueOrDefault(address);
     }
 
-    /// <summary>Reads cartridge byte.</summary>
     public byte ReadCartridgeByte(int address)
     {
         SnesAddress source = SnesAddress.FromBusAddress(address);
@@ -395,13 +391,10 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     // This sparse fixture stores exactly the CPU addresses written by its test setup.
     // It deliberately does not synthesize bank mirrors; callers can assert that a
     // translated routine chooses the intended mutable alias itself.
-    /// <summary>Reads work ram byte.</summary>
     public byte ReadWorkRamByte(int address) => ReadByte(address);
 
-    /// <summary>Reads save ram byte.</summary>
     public byte ReadSaveRamByte(int address) => ReadByte(address);
 
-    /// <summary>Writes byte.</summary>
     public void WriteByte(int address, byte value)
     {
         if ((uint)address > 0x00ff_ffff)
@@ -410,7 +403,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         _bytes[address] = value;
     }
 
-    /// <summary>Writes bytes.</summary>
     [CpuBusAccess]
     public void WriteBytes(int startAddress, ReadOnlySpan<byte> values)
     {
@@ -418,12 +410,10 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             WriteByte(startAddress + index, values[index]);
     }
 
-    /// <summary>Reads enemy definition.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(this, pointer);
 
 
-    /// <summary>Reads falling tube population.</summary>
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer)
     {
         int address = MotherBrainFallingTubePopulationDefinitions.NativeBank | pointer;
@@ -431,7 +421,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), Word(8), Word(10), Word(12), Word(14));
     }
 
-    /// <summary>Reads enemy population.</summary>
     public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer)
     {
         int cursor = RoomEnemyRomLayout.PopulationBank | pointer;
@@ -451,7 +440,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");
     }
 
-    /// <summary>Reads enemy graphics set.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer)
     {
         int cursor = RoomEnemyRomLayout.TilesetBank | pointer;
@@ -471,7 +459,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
         throw new InvalidDataException($"Fixture graphics set ${pointer:X4} is unterminated.");
     }
 
-    /// <summary>Reads fixture word.</summary>
     private ushort ReadFixtureWord(int address) =>
         SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
 }
@@ -483,7 +470,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
 /// </summary>
 internal static partial class NativeConsoleProcess
 {
-    /// <summary>Sets error mode.</summary>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
 }
@@ -501,14 +487,12 @@ internal static partial class NativeConsoleProcess
 /// </remarks>
 internal static class VerificationAssert
 {
-    /// <summary>Asserts true.</summary>
     internal static void AssertTrue(bool condition, string context)
     {
         if (!condition)
             throw new InvalidOperationException($"Verification failed: {context}.");
     }
 
-    /// <summary>Asserts equal.</summary>
     internal static void AssertEqual<T>(T expected, T actual, string context)
     {
         // EqualityComparer<T>.Default handles primitives, records, nullable values, and
@@ -520,23 +504,18 @@ internal static class VerificationAssert
         }
     }
 
-    /// <summary>Asserts equal.</summary>
     internal static void AssertEqual(int expected, byte actual, string context) =>
         AssertEqual<byte>(checked((byte)expected), actual, context);
 
-    /// <summary>Asserts equal.</summary>
     internal static void AssertEqual(int expected, sbyte actual, string context) =>
         AssertEqual<sbyte>(checked((sbyte)expected), actual, context);
 
-    /// <summary>Asserts equal.</summary>
     internal static void AssertEqual(int expected, ushort actual, string context) =>
         AssertEqual<ushort>(checked((ushort)expected), actual, context);
 
-    /// <summary>Asserts equal.</summary>
     internal static void AssertEqual(int expected, short actual, string context) =>
         AssertEqual<short>(checked((short)expected), actual, context);
 
-    /// <summary>Asserts equal.</summary>
     internal static void AssertEqual(int expected, ushort? actual, string context) =>
         AssertEqual<ushort?>(checked((ushort)expected), actual, context);
 
@@ -552,7 +531,6 @@ internal static class VerificationAssert
     internal static void AssertEqual(int expectedWord, Bgr555? actual, string context) =>
         AssertEqual<Bgr555?>(Bgr555.FromWord(checked((ushort)expectedWord)), actual, context);
 
-    /// <summary>Asserts throws.</summary>
     internal static TException AssertThrows<TException>(Action action, string context)
         where TException : Exception
     {
@@ -569,7 +547,6 @@ internal static class VerificationAssert
             $"Verification failed: {context}; expected {typeof(TException).Name}.");
     }
 
-    /// <summary>Runs the stream4 hud icons lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-hud-icons")]
     internal static int LookupStream4HudIconsCommand()
     {
@@ -579,7 +556,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 hud template lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-hud-template")]
     internal static int LookupStream4HudTemplateCommand()
     {
@@ -589,7 +565,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 hud top row lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-hud-top-row")]
     internal static int LookupStream4HudTopRowCommand()
     {
@@ -599,7 +574,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 hud auto lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-hud-auto")]
     internal static int LookupStream4HudAutoCommand()
     {
@@ -609,7 +583,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 draygon layout lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-draygon-layout")]
     internal static int LookupStream4DraygonLayoutCommand()
     {
@@ -620,7 +593,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 draygon intro lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-draygon-intro")]
     internal static int LookupStream4DraygonIntroCommand()
     {
@@ -631,7 +603,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 draygon sprite lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-draygon-sprite")]
     internal static int LookupStream4DraygonSpriteCommand()
     {
@@ -642,7 +613,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 draygon background lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-draygon-background")]
     internal static int LookupStream4DraygonBackgroundCommand()
     {
@@ -654,7 +624,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 draygon health lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-draygon-health")]
     internal static int LookupStream4DraygonHealthCommand()
     {
@@ -665,7 +634,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 norfair reveal lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-norfair-reveal")]
     internal static int LookupStream4NorfairRevealCommand()
     {
@@ -676,7 +644,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 ceres door materials lookup command.</summary>
     [VerificationCommand("--lookup-stream5-ceres-door-materials")]
     internal static int LookupStream5CeresDoorMaterialsCommand()
     {
@@ -688,7 +655,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 exploded door paints lookup command.</summary>
     [VerificationCommand("--lookup-stream3-exploded-door-paints")]
     internal static int LookupStream3ExplodedDoorPaintsCommand()
     {
@@ -700,7 +666,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 auxiliary complete lookup command.</summary>
     [VerificationCommand("--lookup-stream3-auxiliary-complete")]
     internal static int LookupStream3AuxiliaryCompleteCommand()
     {
@@ -713,7 +678,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 ceres platform lookup command.</summary>
     [VerificationCommand("--lookup-stream5-ceres-platform")]
     internal static int LookupStream5CeresPlatformCommand()
     {
@@ -724,7 +688,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 ceres overlay complete lookup command.</summary>
     [VerificationCommand("--lookup-stream5-ceres-overlay-complete")]
     internal static int LookupStream5CeresOverlayCompleteCommand()
     {
@@ -737,7 +700,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 projectile programs lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-projectile-programs")]
     internal static int LookupStream1ProjectileProgramsCommand()
     {
@@ -748,7 +710,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 projectile radii lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-projectile-radii")]
     internal static int LookupStream1ProjectileRadiiCommand()
     {
@@ -759,7 +720,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 world foreground lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-world-foreground")]
     internal static int LookupStream1WorldForegroundCommand()
     {
@@ -770,7 +730,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 world background lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-world-background")]
     internal static int LookupStream1WorldBackgroundCommand()
     {
@@ -782,7 +741,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 death pixels lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-death-pixels")]
     internal static int LookupStream1DeathPixelsCommand()
     {
@@ -794,7 +752,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 foreground cadence lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-foreground-cadence")]
     internal static int LookupStream4ForegroundCadenceCommand()
     {
@@ -805,7 +762,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 title ambient complete lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-title-ambient-complete")]
     internal static int LookupStream4TitleAmbientCompleteCommand()
     {
@@ -817,7 +773,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 baby normal target lookup command.</summary>
     [VerificationCommand("--lookup-stream3-baby-normal-target")]
     internal static int LookupStream3BabyNormalTargetCommand()
     {
@@ -830,7 +785,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 drained geometry lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-drained-geometry")]
     internal static int LookupStream1DrainedGeometryCommand()
     {
@@ -841,7 +795,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 baby initial fade lookup command.</summary>
     [VerificationCommand("--lookup-stream3-baby-initial-fade")]
     internal static int LookupStream3BabyInitialFadeCommand()
     {
@@ -853,7 +806,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 posture geometry lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-posture-geometry")]
     internal static int LookupStream1PostureGeometryCommand()
     {
@@ -864,7 +816,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 landing placement lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-landing-placement")]
     internal static int LookupStream1LandingPlacementCommand()
     {
@@ -875,7 +826,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 metroid pulse lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-metroid-pulse")]
     internal static int LookupStream1MetroidPulseCommand()
     {
@@ -886,7 +836,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 atmospheric cadence lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-atmospheric-cadence")]
     internal static int LookupStream1AtmosphericCadenceCommand()
     {
@@ -898,7 +847,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 rainbow materials lookup command.</summary>
     [VerificationCommand("--lookup-stream3-rainbow-materials")]
     internal static int LookupStream3RainbowMaterialsCommand()
     {
@@ -909,7 +857,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 ghost palette lookup command.</summary>
     [VerificationCommand("--lookup-stream2-ghost-palette")]
     internal static int LookupStream2GhostPaletteCommand()
     {
@@ -919,7 +866,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 timer cadence lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-timer-cadence")]
     internal static int LookupStream1TimerCadenceCommand()
     {
@@ -930,7 +876,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 timer glyphs lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-timer-glyphs")]
     internal static int LookupStream1TimerGlyphsCommand()
     {
@@ -940,7 +885,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 slope speeds lookup command.</summary>
     [VerificationCommand("--lookup-stream5-slope-speeds")]
     internal static int LookupStream5SlopeSpeedsCommand()
     {
@@ -952,7 +896,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 crocomire paint lookup command.</summary>
     [VerificationCommand("--lookup-stream5-crocomire-paint")]
     internal static int LookupStream5CrocomirePaintCommand()
     {
@@ -962,7 +905,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 falling tube population layout lookup command.</summary>
     [VerificationCommand("--lookup-stream3-falling-tube-population-layout")]
     internal static int LookupStream3FallingTubePopulationLayoutCommand()
     {
@@ -972,7 +914,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 intro palette rows lookup command.</summary>
     [VerificationCommand("--lookup-stream3-intro-palette-rows")]
     internal static int LookupStream3IntroPaletteRowsCommand()
     {
@@ -982,7 +923,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 intro layouts lookup command.</summary>
     [VerificationCommand("--lookup-stream3-intro-layouts")]
     internal static int LookupStream3IntroLayoutsCommand()
     {
@@ -993,7 +933,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 ceres source pages lookup command.</summary>
     [VerificationCommand("--lookup-stream5-ceres-source-pages")]
     internal static int LookupStream5CeresSourcePagesCommand()
     {
@@ -1004,7 +943,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 body frame basis lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-body-frame-basis")]
     internal static int LookupStream1BodyFrameBasisCommand()
     {
@@ -1015,7 +953,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 body frame final lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-body-frame-final")]
     internal static int LookupStream1BodyFrameFinalCommand()
     {
@@ -1026,7 +963,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 body facing lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-body-facing")]
     [VerificationCommand("--lookup-stream-1-xray-frames")]
     internal static int LookupStream1BodyFacingCommand()
@@ -1042,7 +978,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 body oam bases lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-body-oam-bases")]
     internal static int LookupStream1BodyOamBasesCommand()
     {
@@ -1053,7 +988,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 hurt blend lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-hurt-blend")]
     internal static int LookupStream1HurtBlendCommand()
     {
@@ -1065,7 +999,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 hand beam body layout lookup command.</summary>
     [VerificationCommand("--lookup-stream3-hand-beam-body-layout")]
     internal static int LookupStream3HandBeamBodyLayoutCommand()
     {
@@ -1076,7 +1009,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 map landmarks lookup command.</summary>
     [VerificationCommand("--lookup-stream5-map-landmarks")]
     internal static int LookupStream5MapLandmarksCommand()
     {
@@ -1087,7 +1019,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 baby instruction layout lookup command.</summary>
     [VerificationCommand("--lookup-stream3-baby-instruction-layout")]
     internal static int LookupStream3BabyInstructionLayoutCommand()
     {
@@ -1100,7 +1031,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 baby body sharing lookup command.</summary>
     [VerificationCommand("--lookup-stream3-baby-body-sharing")]
     internal static int LookupStream3BabyBodySharingCommand()
     {
@@ -1112,7 +1042,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 hand beam layout lookup command.</summary>
     [VerificationCommand("--lookup-stream3-hand-beam-layout")]
     internal static int LookupStream3HandBeamLayoutCommand()
     {
@@ -1125,7 +1054,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 phantoon timers lookup command.</summary>
     [VerificationCommand("--lookup-stream5-phantoon-timers")]
     internal static int LookupStream5PhantoonTimersCommand()
     {
@@ -1139,7 +1067,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 power programs lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-power-programs")]
     internal static int LookupStream1PowerProgramsCommand()
     {
@@ -1155,7 +1082,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 phantoon collision lookup command.</summary>
     [VerificationCommand("--lookup-stream5-phantoon-collision")]
     internal static int LookupStream5PhantoonCollisionCommand()
     {
@@ -1166,7 +1092,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 phantoon fade lookup command.</summary>
     [VerificationCommand("--lookup-stream5-phantoon-fade")]
     internal static int LookupStream5PhantoonFadeCommand()
     {
@@ -1177,7 +1102,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ending font spaces lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ending-font-spaces")]
     [VerificationCommand("--lookup-stream-4-ending-font-outline")]
     internal static int LookupStream4EndingFontSpacesCommand()
@@ -1189,7 +1113,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 map buttons lookup command.</summary>
     [VerificationCommand("--lookup-stream5-map-buttons")]
     internal static int LookupStream5MapButtonsCommand()
     {
@@ -1200,7 +1123,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 mode7 transfers lookup command.</summary>
     [VerificationCommand("--lookup-stream5-mode7-transfers")]
     internal static int LookupStream5Mode7TransfersCommand()
     {
@@ -1211,7 +1133,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 menu borders lookup command.</summary>
     [VerificationCommand("--lookup-stream3-menu-borders")]
     internal static int LookupStream3MenuBordersCommand()
     {
@@ -1224,7 +1145,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 maridia colors lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-maridia-colors")]
     internal static int LookupStream4MaridiaColorsCommand()
     {
@@ -1235,7 +1155,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 planet text lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-planet-text")]
     internal static int LookupStream4PlanetTextCommand()
     {
@@ -1246,7 +1165,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ceres health lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ceres-health")]
     internal static int LookupStream4CeresHealthCommand()
     {
@@ -1257,7 +1175,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ceres zoom retreat lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ceres-zoom-retreat")]
     internal static int LookupStream4CeresZoomRetreatCommand()
     {
@@ -1268,7 +1185,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ceres retreat shared lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ceres-retreat-shared")]
     internal static int LookupStream4CeresRetreatSharedCommand()
     {
@@ -1279,7 +1195,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ceres start lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ceres-start")]
     [VerificationCommand("--lookup-stream-4-ceres-baby")]
     internal static int LookupStream4CeresStartCommand()
@@ -1292,7 +1207,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ceres fades lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ceres-fades")]
     internal static int LookupStream4CeresFadesCommand()
     {
@@ -1303,7 +1217,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 beam paint lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-beam-paint")]
     internal static int LookupStream4BeamPaintCommand()
     {
@@ -1313,7 +1226,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 norfair initial lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-norfair-initial")]
     internal static int LookupStream4NorfairInitialCommand()
     {
@@ -1323,7 +1235,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 botwoon health lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-botwoon-health")]
     internal static int LookupStream4BotwoonHealthCommand()
     {
@@ -1333,7 +1244,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ceres alarm lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ceres-alarm")]
     internal static int LookupStream4CeresAlarmCommand()
     {
@@ -1344,7 +1254,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 maridia palette lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-maridia-palette")]
     internal static int LookupStream4MaridiaPaletteCommand()
     {
@@ -1355,7 +1264,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ending shake lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ending-shake")]
     internal static int LookupStream4EndingShakeCommand()
     {
@@ -1366,7 +1274,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 oam pointers lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-oam-pointers")]
     internal static int LookupStream1OamPointersCommand()
     {
@@ -1376,7 +1283,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 body transfers lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-body-transfers")]
     internal static int LookupStream1BodyTransfersCommand()
     {
@@ -1387,7 +1293,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 cannon placement lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-cannon-placement")]
     internal static int LookupStream1CannonPlacementCommand()
     {
@@ -1398,7 +1303,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 animation pointers lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-animation-pointers")]
     internal static int LookupStream1AnimationPointersCommand()
     {
@@ -1411,7 +1315,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 dachora programs lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-dachora-programs")]
     internal static int LookupStream1DachoraProgramsCommand()
     {
@@ -1422,7 +1325,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 powamp programs lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-powamp-programs")]
     internal static int LookupStream1PowampProgramsCommand()
     {
@@ -1433,7 +1335,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 timer layout lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-timer-layout")]
     internal static int LookupStream1TimerLayoutCommand()
     {
@@ -1444,7 +1345,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 flare placement lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-flare-placement")]
     internal static int LookupStream1FlarePlacementCommand()
     {
@@ -1455,7 +1355,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the mochtroid visuals lookup command.</summary>
     [VerificationCommand("--lookup-mochtroid-visuals")]
     internal static int LookupMochtroidVisualsCommand()
     {
@@ -1468,7 +1367,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 environmental catalogs lookup command.</summary>
     [VerificationCommand("--lookup-stream2-environmental-catalogs")]
     internal static int LookupStream2EnvironmentalCatalogsCommand()
     {
@@ -1479,7 +1377,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 backdrop geometry lookup command.</summary>
     [VerificationCommand("--lookup-stream2-backdrop-geometry")]
     internal static int LookupStream2BackdropGeometryCommand()
     {
@@ -1490,7 +1387,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu sprite geometry lookup command.</summary>
     [VerificationCommand("--lookup-menu-sprite-geometry")]
     internal static int LookupMenuSpriteGeometryCommand()
     {
@@ -1502,7 +1398,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 equipment base geometry lookup command.</summary>
     [VerificationCommand("--lookup-stream2-equipment-base-geometry")]
     internal static int LookupStream2EquipmentBaseGeometryCommand()
     {
@@ -1513,7 +1408,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 wireframe mirrors lookup command.</summary>
     [VerificationCommand("--lookup-stream2-wireframe-mirrors")]
     internal static int LookupStream2WireframeMirrorsCommand()
     {
@@ -1524,7 +1418,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro caret registration lookup command.</summary>
     [VerificationCommand("--lookup-intro-caret-registration")]
     internal static int LookupIntroCaretRegistrationCommand()
     {
@@ -1538,7 +1431,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the enemy frame registration lookup command.</summary>
     [VerificationCommand("--lookup-enemy-frame-registration")]
     internal static int LookupEnemyFrameRegistrationCommand()
     {
@@ -1549,7 +1441,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the small game tables lookup command.</summary>
     [VerificationCommand("--lookup-small-game-tables")]
     internal static int LookupSmallGameTablesCommand()
     {
@@ -1560,7 +1451,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the dachora colors lookup command.</summary>
     [VerificationCommand("--lookup-dachora-colors")]
     internal static int LookupDachoraColorsCommand()
     {
@@ -1571,7 +1461,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 spore health ramp lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-spore-health-ramp")]
     internal static int LookupStream4SporeHealthRampCommand()
     {
@@ -1582,7 +1471,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 spore fade lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-spore-fade")]
     internal static int LookupStream4SporeFadeCommand()
     {
@@ -1596,7 +1484,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 beam basis lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-beam-basis")]
     internal static int LookupStream4BeamBasisCommand()
     {
@@ -1608,7 +1495,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 cannon basis lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-cannon-basis")]
     internal static int LookupStream1CannonBasisCommand()
     {
@@ -1620,7 +1506,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ending subtitle lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ending-subtitle")]
     internal static int LookupStream4EndingSubtitleCommand()
     {
@@ -1631,7 +1516,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 ending panel lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-ending-panel")]
     internal static int LookupStream4EndingPanelCommand()
     {
@@ -1643,7 +1527,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 tail rest lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-tail-rest")]
     internal static int LookupStream4TailRestCommand()
     {
@@ -1654,7 +1537,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 baby phase lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-baby-phase")]
     internal static int LookupStream4BabyPhaseCommand()
     {
@@ -1665,7 +1547,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 body pixels lookup command.</summary>
     [VerificationCommand("--lookup-stream-1-body-pixels")]
     internal static int LookupStream1BodyPixelsCommand()
     {
@@ -1676,7 +1557,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 pipe programs lookup command.</summary>
     [VerificationCommand("--lookup-stream2-pipe-programs")]
     internal static int LookupStream2PipeProgramsCommand()
     {
@@ -1688,7 +1568,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 body placements lookup command.</summary>
     [VerificationCommand("--lookup-stream2-body-placements")]
     internal static int LookupStream2BodyPlacementsCommand()
     {
@@ -1700,7 +1579,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 crawler animations lookup command.</summary>
     [VerificationCommand("--lookup-stream2-crawler-animations")]
     internal static int LookupStream2CrawlerAnimationsCommand()
     {
@@ -1712,7 +1590,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream2 gunship transfers lookup command.</summary>
     [VerificationCommand("--lookup-stream2-gunship-transfers")]
     [VerificationCommand("--lookup-stream2-reserve-geometry")]
     [VerificationCommand("--lookup-stream2-ghost-norfair")]
@@ -1745,7 +1622,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream1 lookup command.</summary>
     [VerificationCommand("--lookup-stream-1")]
     internal static int LookupStream1Command()
     {
@@ -1794,7 +1670,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 lookup command.</summary>
     [VerificationCommand("--lookup-stream-4")]
     internal static int LookupStream4Command()
     {
@@ -1821,7 +1696,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 crocomire order lookup command.</summary>
     [VerificationCommand("--lookup-stream5-crocomire-order")]
     internal static int LookupStream5CrocomireOrderCommand()
     {
@@ -1832,7 +1706,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 actor layouts lookup command.</summary>
     [VerificationCommand("--lookup-stream5-actor-layouts")]
     [VerificationCommand("--lookup-stream5-initialization")]
     [VerificationCommand("--lookup-stream5-palette-entries")]
@@ -1850,7 +1723,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the file select names lookup command.</summary>
     [VerificationCommand("--lookup-file-select-names")]
     internal static int LookupFileSelectNamesCommand()
     {
@@ -1867,7 +1739,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the map sprite cases lookup command.</summary>
     [VerificationCommand("--lookup-map-sprite-cases")]
     internal static int LookupMapSpriteCasesCommand()
     {
@@ -1879,7 +1750,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu title font lookup command.</summary>
     [VerificationCommand("--lookup-menu-title-font")]
     [VerificationCommand("--lookup-menu-large-font")]
     internal static int LookupMenuTitleFontCommand()
@@ -1892,7 +1762,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu thin border pixels lookup command.</summary>
     [VerificationCommand("--lookup-menu-thin-border-pixels")]
     internal static int LookupMenuThinBorderPixelsCommand()
     {
@@ -1904,7 +1773,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu beveled square pixels lookup command.</summary>
     [VerificationCommand("--lookup-menu-beveled-square-pixels")]
     internal static int LookupMenuBeveledSquarePixelsCommand()
     {
@@ -1916,7 +1784,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the map arrow pixels lookup command.</summary>
     [VerificationCommand("--lookup-map-arrow-pixels")]
     [VerificationCommand("--lookup-map-pulse-pixels")]
     [VerificationCommand("--lookup-defeated-boss-pixels")]
@@ -1932,7 +1799,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu shoulder highlight pixels lookup command.</summary>
     [VerificationCommand("--lookup-menu-shoulder-highlight-pixels")]
     internal static int LookupMenuShoulderHighlightPixelsCommand()
     {
@@ -1944,7 +1810,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu shoulder button pixels lookup command.</summary>
     [VerificationCommand("--lookup-menu-shoulder-button-pixels")]
     internal static int LookupMenuShoulderButtonPixelsCommand()
     {
@@ -1956,7 +1821,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu panel pixels lookup command.</summary>
     [VerificationCommand("--lookup-menu-panel-pixels")]
     internal static int LookupMenuPanelPixelsCommand()
     {
@@ -1968,7 +1832,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the elevator lettering lookup command.</summary>
     [VerificationCommand("--lookup-elevator-lettering")]
     [VerificationCommand("--lookup-menu-outlined-lettering")]
     [VerificationCommand("--lookup-menu-compact-lettering")]
@@ -1982,7 +1845,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu small font lookup command.</summary>
     [VerificationCommand("--lookup-menu-small-font")]
     internal static int LookupMenuSmallFontCommand()
     {
@@ -1994,7 +1856,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the highlight tile pixels lookup command.</summary>
     [VerificationCommand("--lookup-highlight-tile-pixels")]
     internal static int LookupHighlightTilePixelsCommand()
     {
@@ -2006,7 +1867,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the reserve tile pixels lookup command.</summary>
     [VerificationCommand("--lookup-reserve-tile-pixels")]
     internal static int LookupReserveTilePixelsCommand()
     {
@@ -2018,7 +1878,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause reserve frames lookup command.</summary>
     [VerificationCommand("--lookup-pause-reserve-frames")]
     internal static int LookupPauseReserveFramesCommand()
     {
@@ -2030,7 +1889,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause reserve anchors lookup command.</summary>
     [VerificationCommand("--lookup-pause-reserve-anchors")]
     internal static int LookupPauseReserveAnchorsCommand()
     {
@@ -2042,7 +1900,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending explosion frame catalog lookup command.</summary>
     [VerificationCommand("--lookup-ending-explosion-frame-catalog")]
     internal static int LookupEndingExplosionFrameCatalogCommand()
     {
@@ -2054,7 +1911,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending text regions lookup command.</summary>
     [VerificationCommand("--lookup-ending-text-regions")]
     internal static int LookupEndingTextRegionsCommand()
     {
@@ -2066,7 +1922,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending glyphs lookup command.</summary>
     [VerificationCommand("--lookup-ending-glyphs")]
     internal static int LookupEndingGlyphsCommand()
     {
@@ -2078,7 +1933,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending gunship program lookup command.</summary>
     [VerificationCommand("--lookup-ending-gunship-program")]
     internal static int LookupEndingGunshipProgramCommand()
     {
@@ -2090,7 +1944,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending gunship colors lookup command.</summary>
     [VerificationCommand("--lookup-ending-gunship-colors")]
     internal static int LookupEndingGunshipColorsCommand()
     {
@@ -2103,7 +1956,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending logo glare program lookup command.</summary>
     [VerificationCommand("--lookup-ending-logo-glare-program")]
     internal static int LookupEndingLogoGlareProgramCommand()
     {
@@ -2115,7 +1967,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending logo glare lookup command.</summary>
     [VerificationCommand("--lookup-ending-logo-glare")]
     internal static int LookupEndingLogoGlareCommand()
     {
@@ -2128,7 +1979,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending logo fade lookup command.</summary>
     [VerificationCommand("--lookup-ending-logo-fade")]
     internal static int LookupEndingLogoFadeCommand()
     {
@@ -2140,7 +1990,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending palette metadata lookup command.</summary>
     [VerificationCommand("--lookup-ending-palette-metadata")]
     internal static int LookupEndingPaletteMetadataCommand()
     {
@@ -2152,7 +2001,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending fragment metadata lookup command.</summary>
     [VerificationCommand("--lookup-ending-fragment-metadata")]
     internal static int LookupEndingFragmentMetadataCommand()
     {
@@ -2164,7 +2012,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending cloud definitions lookup command.</summary>
     [VerificationCommand("--lookup-ending-cloud-definitions")]
     internal static int LookupEndingCloudDefinitionsCommand()
     {
@@ -2176,7 +2023,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending reward actors lookup command.</summary>
     [VerificationCommand("--lookup-ending-reward-actors")]
     internal static int LookupEndingRewardActorsCommand()
     {
@@ -2187,7 +2033,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending reward programs lookup command.</summary>
     [VerificationCommand("--lookup-ending-reward-programs")]
     internal static int LookupEndingRewardProgramsCommand()
     {
@@ -2199,7 +2044,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending explosion programs lookup command.</summary>
     [VerificationCommand("--lookup-ending-explosion-programs")]
     internal static int LookupEndingExplosionProgramsCommand()
     {
@@ -2211,7 +2055,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending logo actors lookup command.</summary>
     [VerificationCommand("--lookup-ending-logo-actors")]
     internal static int LookupEndingLogoActorsCommand()
     {
@@ -2222,7 +2065,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending logo programs lookup command.</summary>
     [VerificationCommand("--lookup-ending-logo-programs")]
     internal static int LookupEndingLogoProgramsCommand()
     {
@@ -2234,7 +2076,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending completion programs lookup command.</summary>
     [VerificationCommand("--lookup-ending-completion-programs")]
     internal static int LookupEndingCompletionProgramsCommand()
     {
@@ -2246,7 +2087,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ending logo tables lookup command.</summary>
     [VerificationCommand("--lookup-ending-logo-tables")]
     internal static int LookupEndingLogoTablesCommand()
     {
@@ -2259,7 +2099,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the audio upload catalog lookup command.</summary>
     [VerificationCommand("--lookup-audio-upload-catalog")]
     internal static int LookupAudioUploadCatalogCommand()
     {
@@ -2271,7 +2110,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres initial metadata lookup command.</summary>
     [VerificationCommand("--lookup-ceres-initial-metadata")]
     internal static int LookupCeresInitialMetadataCommand()
     {
@@ -2283,7 +2121,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres flight metadata lookup command.</summary>
     [VerificationCommand("--lookup-ceres-flight-metadata")]
     internal static int LookupCeresFlightMetadataCommand()
     {
@@ -2295,7 +2132,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres zebes metadata lookup command.</summary>
     [VerificationCommand("--lookup-ceres-zebes-metadata")]
     internal static int LookupCeresZebesMetadataCommand()
     {
@@ -2307,7 +2143,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres placement selectors lookup command.</summary>
     [VerificationCommand("--lookup-ceres-placement-selectors")]
     internal static int LookupCeresPlacementSelectorsCommand()
     {
@@ -2321,7 +2156,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres spawner schedule lookup command.</summary>
     [VerificationCommand("--lookup-ceres-spawner-schedule")]
     internal static int LookupCeresSpawnerScheduleCommand()
     {
@@ -2333,7 +2167,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres flight programs lookup command.</summary>
     [VerificationCommand("--lookup-ceres-flight-programs")]
     internal static int LookupCeresFlightProgramsCommand()
     {
@@ -2352,7 +2185,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres backdrop programs lookup command.</summary>
     [VerificationCommand("--lookup-ceres-backdrop-programs")]
     internal static int LookupCeresBackdropProgramsCommand()
     {
@@ -2367,7 +2199,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres explosion programs lookup command.</summary>
     [VerificationCommand("--lookup-ceres-explosion-programs")]
     internal static int LookupCeresExplosionProgramsCommand()
     {
@@ -2384,7 +2215,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres burst layout lookup command.</summary>
     [VerificationCommand("--lookup-ceres-burst-layout")]
     internal static int LookupCeresBurstLayoutCommand()
     {
@@ -2396,7 +2226,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres blast placement lookup command.</summary>
     [VerificationCommand("--lookup-ceres-blast-placement")]
     internal static int LookupCeresBlastPlacementCommand()
     {
@@ -2412,7 +2241,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the spc sound streams lookup command.</summary>
     [VerificationCommand("--lookup-spc-sound-streams")]
     internal static int LookupSpcSoundStreamsCommand()
     {
@@ -2426,7 +2254,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the spc sound policies lookup command.</summary>
     [VerificationCommand("--lookup-spc-sound-policies")]
     internal static int LookupSpcSoundPoliciesCommand()
     {
@@ -2440,7 +2267,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro egg effect programs lookup command.</summary>
     [VerificationCommand("--lookup-intro-egg-effect-programs")]
     internal static int LookupIntroEggEffectProgramsCommand()
     {
@@ -2454,7 +2280,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro rinka programs lookup command.</summary>
     [VerificationCommand("--lookup-intro-rinka-programs")]
     internal static int LookupIntroRinkaProgramsCommand()
     {
@@ -2468,7 +2293,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro baby discovery instructions lookup command.</summary>
     [VerificationCommand("--lookup-intro-baby-discovery-instructions")]
     internal static int LookupIntroBabyDiscoveryInstructionsCommand()
     {
@@ -2488,7 +2312,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro scientist instructions lookup command.</summary>
     [VerificationCommand("--lookup-intro-scientist-instructions")]
     internal static int LookupIntroScientistInstructionsCommand()
     {
@@ -2502,7 +2325,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro eye instructions lookup command.</summary>
     [VerificationCommand("--lookup-intro-eye-instructions")]
     internal static int LookupIntroEyeInstructionsCommand()
     {
@@ -2514,7 +2336,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro mother brain instructions lookup command.</summary>
     [VerificationCommand("--lookup-intro-mother-brain-instructions")]
     internal static int LookupIntroMotherBrainInstructionsCommand()
     {
@@ -2528,7 +2349,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro mother brain input lookup command.</summary>
     [VerificationCommand("--lookup-intro-mother-brain-input")]
     internal static int LookupIntroMotherBrainInputCommand()
     {
@@ -2540,7 +2360,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro mother brain collision lookup command.</summary>
     [VerificationCommand("--lookup-intro-mother-brain-collision")]
     internal static int LookupIntroMotherBrainCollisionCommand()
     {
@@ -2552,7 +2371,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro mother brain explosion programs lookup command.</summary>
     [VerificationCommand("--lookup-intro-mother-brain-explosion-programs")]
     internal static int LookupIntroMotherBrainExplosionProgramsCommand()
     {
@@ -2566,7 +2384,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the intro caret instructions lookup command.</summary>
     [VerificationCommand("--lookup-intro-caret-instructions")]
     internal static int LookupIntroCaretInstructionsCommand()
     {
@@ -2578,7 +2395,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the spc dsp publication lookup command.</summary>
     [VerificationCommand("--lookup-spc-dsp-publication")]
     internal static int LookupSpcDspPublicationCommand()
     {
@@ -2590,7 +2406,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the spc pan samples lookup command.</summary>
     [VerificationCommand("--lookup-spc-pan-samples")]
     internal static int LookupSpcPanSamplesCommand()
     {
@@ -2602,7 +2417,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause wireframe selection lookup command.</summary>
     [VerificationCommand("--lookup-pause-wireframe-selection")]
     internal static int LookupPauseWireframeSelectionCommand()
     {
@@ -2614,7 +2428,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause equipment masks lookup command.</summary>
     [VerificationCommand("--lookup-pause-equipment-masks")]
     internal static int LookupPauseEquipmentMasksCommand()
     {
@@ -2628,7 +2441,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause selector anchors lookup command.</summary>
     [VerificationCommand("--lookup-pause-selector-anchors")]
     internal static int LookupPauseSelectorAnchorsCommand()
     {
@@ -2640,7 +2452,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause selector compositions lookup command.</summary>
     [VerificationCommand("--lookup-pause-selector-compositions")]
     internal static int LookupPauseSelectorCompositionsCommand()
     {
@@ -2652,7 +2463,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause selector durations lookup command.</summary>
     [VerificationCommand("--lookup-pause-selector-durations")]
     internal static int LookupPauseSelectorDurationsCommand()
     {
@@ -2664,7 +2474,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the map arrow durations lookup command.</summary>
     [VerificationCommand("--lookup-map-arrow-durations")]
     internal static int LookupMapArrowDurationsCommand()
     {
@@ -2676,7 +2485,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the map arrow cases lookup command.</summary>
     [VerificationCommand("--lookup-map-arrow-cases")]
     internal static int LookupMapArrowCasesCommand()
     {
@@ -2688,7 +2496,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause button spans lookup command.</summary>
     [VerificationCommand("--lookup-pause-button-spans")]
     internal static int LookupPauseButtonSpansCommand()
     {
@@ -2701,7 +2508,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the pause categories lookup command.</summary>
     [VerificationCommand("--lookup-pause-categories")]
     internal static int LookupPauseCategoriesCommand()
     {
@@ -2713,7 +2519,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the map indicator lookup command.</summary>
     [VerificationCommand("--lookup-map-indicator")]
     internal static int LookupMapIndicatorCommand()
     {
@@ -2726,7 +2531,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the save marker coordinates lookup command.</summary>
     [VerificationCommand("--lookup-save-marker-coordinates")]
     internal static int LookupSaveMarkerCoordinatesCommand()
     {
@@ -2738,7 +2542,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the map area cases lookup command.</summary>
     [VerificationCommand("--lookup-map-area-cases")]
     internal static int LookupMapAreaCasesCommand()
     {
@@ -2750,7 +2553,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the save marker eligibility lookup command.</summary>
     [VerificationCommand("--lookup-save-marker-eligibility")]
     internal static int LookupSaveMarkerEligibilityCommand()
     {
@@ -2762,7 +2564,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the map load anchors lookup command.</summary>
     [VerificationCommand("--lookup-map-load-anchors")]
     internal static int LookupMapLoadAnchorsCommand()
     {
@@ -2775,7 +2576,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the file select helmet lookup command.</summary>
     [VerificationCommand("--lookup-file-select-helmet")]
     internal static int LookupFileSelectHelmetCommand()
     {
@@ -2787,7 +2587,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the game over baby animation lookup command.</summary>
     [VerificationCommand("--lookup-game-over-baby-animation")]
     internal static int LookupGameOverBabyAnimationCommand()
     {
@@ -2799,7 +2598,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the game over baby colors lookup command.</summary>
     [VerificationCommand("--lookup-game-over-baby-colors")]
     internal static int LookupGameOverBabyColorsCommand()
     {
@@ -2811,7 +2609,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the game over text lookup command.</summary>
     [VerificationCommand("--lookup-game-over-text")]
     internal static int LookupGameOverTextCommand()
     {
@@ -2824,7 +2621,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the file select navigation lookup command.</summary>
     [VerificationCommand("--lookup-file-select-navigation")]
     internal static int LookupFileSelectNavigationCommand()
     {
@@ -2837,7 +2633,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the map window motion lookup command.</summary>
     [VerificationCommand("--lookup-map-window-motion")]
     internal static int LookupMapWindowMotionCommand()
     {
@@ -2856,7 +2651,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the menu missile lookup command.</summary>
     [VerificationCommand("--lookup-menu-missile")]
     internal static int LookupMenuMissileCommand()
     {
@@ -2869,7 +2663,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the options geometry lookup command.</summary>
     [VerificationCommand("--lookup-options-geometry")]
     internal static int LookupOptionsGeometryCommand()
     {
@@ -2885,7 +2678,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the controller buttons lookup command.</summary>
     [VerificationCommand("--lookup-controller-buttons")]
     internal static int LookupControllerButtonsCommand()
     {
@@ -2898,7 +2690,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Hyper beam fx colors command.</summary>
     [VerificationCommand("--hyper-beam-fx-colors")]
     internal static int HyperBeamFxColorsCommand()
     {
@@ -2909,7 +2700,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fallback door closing lookup command.</summary>
     [VerificationCommand("--lookup-fallback-door-closing")]
     internal static int LookupFallbackDoorClosingCommand()
     {
@@ -2921,7 +2711,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the resident door closing lookup command.</summary>
     [VerificationCommand("--lookup-resident-door-closing")]
     internal static int LookupResidentDoorClosingCommand()
     {
@@ -2933,7 +2722,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Dynamic collectible graphics command.</summary>
     [VerificationCommand("--dynamic-collectible-graphics")]
     internal static int DynamicCollectibleGraphicsCommand()
     {
@@ -2945,7 +2733,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the tourian program lookup command.</summary>
     [VerificationCommand("--lookup-tourian-program")]
     internal static int LookupTourianProgramCommand()
     {
@@ -2960,7 +2747,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the tourian descriptors lookup command.</summary>
     [VerificationCommand("--lookup-tourian-descriptors")]
     internal static int LookupTourianDescriptorsCommand()
     {
@@ -2973,7 +2759,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the tourian artwork lookup command.</summary>
     [VerificationCommand("--lookup-tourian-artwork")]
     internal static int LookupTourianArtworkCommand()
     {
@@ -2985,7 +2770,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the treadmill mechanics lookup command.</summary>
     [VerificationCommand("--lookup-treadmill-mechanics")]
     internal static int LookupTreadmillMechanicsCommand()
     {
@@ -3000,7 +2784,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Samus charge phases command.</summary>
     [VerificationCommand("--samus-charge-phases")]
     internal static int SamusChargePhasesCommand()
     {
@@ -3011,7 +2794,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the full body colors lookup command.</summary>
     [VerificationCommand("--lookup-full-body-colors")]
     internal static int LookupFullBodyColorsCommand()
     {
@@ -3023,7 +2805,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the loading layout lookup command.</summary>
     [VerificationCommand("--lookup-loading-layout")]
     internal static int LookupLoadingLayoutCommand()
     {
@@ -3035,7 +2816,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the loading colors lookup command.</summary>
     [VerificationCommand("--lookup-loading-colors")]
     internal static int LookupLoadingColorsCommand()
     {
@@ -3069,7 +2849,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the heat colors lookup command.</summary>
     [VerificationCommand("--lookup-heat-colors")]
     internal static int LookupHeatColorsCommand()
     {
@@ -3115,7 +2894,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the heat selectors lookup command.</summary>
     [VerificationCommand("--lookup-heat-selectors")]
     internal static int LookupHeatSelectorsCommand()
     {
@@ -3128,7 +2906,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the ceres haze lookup command.</summary>
     [VerificationCommand("--lookup-ceres-haze")]
     internal static int LookupCeresHazeCommand()
     {
@@ -3142,7 +2919,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the palette fx areas lookup command.</summary>
     [VerificationCommand("--lookup-palette-fx-areas")]
     internal static int LookupPaletteFxAreasCommand()
     {
@@ -3155,7 +2931,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the palette fx dispatch lookup command.</summary>
     [VerificationCommand("--lookup-palette-fx-dispatch")]
     internal static int LookupPaletteFxDispatchCommand()
     {
@@ -3167,7 +2942,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the sky chunk pointers lookup command.</summary>
     [VerificationCommand("--lookup-sky-chunk-pointers")]
     internal static int LookupSkyChunkPointersCommand()
     {
@@ -3180,7 +2954,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the sky sections lookup command.</summary>
     [VerificationCommand("--lookup-sky-sections")]
     internal static int LookupSkySectionsCommand()
     {
@@ -3196,7 +2969,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the quake suppression lookup command.</summary>
     [VerificationCommand("--lookup-quake-suppression")]
     internal static int LookupQuakeSuppressionCommand()
     {
@@ -3208,7 +2980,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the quake sound selection lookup command.</summary>
     [VerificationCommand("--lookup-quake-sound-selection")]
     internal static int LookupQuakeSoundSelectionCommand()
     {
@@ -3220,7 +2991,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the liquid wave lookup command.</summary>
     [VerificationCommand("--lookup-liquid-wave")]
     internal static int LookupLiquidWaveCommand()
     {
@@ -3233,7 +3003,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the rain velocity lookup command.</summary>
     [VerificationCommand("--lookup-rain-velocity")]
     internal static int LookupRainVelocityCommand()
     {
@@ -3245,7 +3014,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the retail door lists lookup command.</summary>
     [VerificationCommand("--lookup-retail-door-lists")]
     internal static int LookupRetailDoorListsCommand()
     {
@@ -3257,7 +3025,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid arm hitbox lists lookup command.</summary>
     [VerificationCommand("--lookup-kraid-arm-hitbox-lists")]
     internal static int LookupKraidArmHitboxListsCommand()
     {
@@ -3269,7 +3036,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Room plm populations command.</summary>
     [VerificationCommand("--room-plm-populations")]
     internal static int RoomPlmPopulationsCommand()
     {
@@ -3283,7 +3049,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the scroll programs lookup command.</summary>
     [VerificationCommand("--lookup-scroll-programs")]
     internal static int LookupScrollProgramsCommand()
     {
@@ -3296,7 +3061,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Eye door plm draws command.</summary>
     [VerificationCommand("--eye-door-plm-draws")]
     internal static int EyeDoorPlmDrawsCommand()
     {
@@ -3307,7 +3071,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Station access plm definitions command.</summary>
     [VerificationCommand("--station-access-plm-definitions")]
     internal static int StationAccessPlmDefinitionsCommand()
     {
@@ -3318,7 +3081,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Elevator platform visuals command.</summary>
     [VerificationCommand("--elevator-platform-visuals")]
     internal static int ElevatorPlatformVisualsCommand()
     {
@@ -3330,7 +3092,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Chozo plm definitions command.</summary>
     [VerificationCommand("--chozo-plm-definitions")]
     internal static int ChozoPlmDefinitionsCommand()
     {
@@ -3341,7 +3102,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Mother brain glass instruction mechanics command.</summary>
     [VerificationCommand("--mother-brain-glass-instruction-mechanics")]
     internal static int MotherBrainGlassInstructionMechanicsCommand()
     {
@@ -3352,7 +3112,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Mother brain glass shard definitions command.</summary>
     [VerificationCommand("--mother-brain-glass-shard-definitions")]
     internal static int MotherBrainGlassShardDefinitionsCommand()
     {
@@ -3363,7 +3122,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Mother brain glass plm draws command.</summary>
     [VerificationCommand("--mother-brain-glass-plm-draws")]
     internal static int MotherBrainGlassPlmDrawsCommand()
     {
@@ -3374,7 +3132,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Noob tube plm draws command.</summary>
     [VerificationCommand("--noob-tube-plm-draws")]
     internal static int NoobTubePlmDrawsCommand()
     {
@@ -3385,7 +3142,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Colored door plm draws command.</summary>
     [VerificationCommand("--colored-door-plm-draws")]
     internal static int ColoredDoorPlmDrawsCommand()
     {
@@ -3396,7 +3152,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Blue door plm draws command.</summary>
     [VerificationCommand("--blue-door-plm-draws")]
     internal static int BlueDoorPlmDrawsCommand()
     {
@@ -3407,7 +3162,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Grey door plm draws command.</summary>
     [VerificationCommand("--grey-door-plm-draws")]
     internal static int GreyDoorPlmDrawsCommand()
     {
@@ -3419,7 +3173,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the escape gate lookup command.</summary>
     [VerificationCommand("--lookup-escape-gate")]
     internal static int LookupEscapeGateCommand()
     {
@@ -3433,7 +3186,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the retail plm headers lookup command.</summary>
     [VerificationCommand("--lookup-retail-plm-headers")]
     internal static int LookupRetailPlmHeadersCommand()
     {
@@ -3447,7 +3199,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Downward gate definitions command.</summary>
     [VerificationCommand("--downward-gate-definitions")]
     internal static int DownwardGateDefinitionsCommand()
     {
@@ -3458,7 +3209,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Speed booster escape definitions command.</summary>
     [VerificationCommand("--speed-booster-escape-definitions")]
     internal static int SpeedBoosterEscapeDefinitionsCommand()
     {
@@ -3469,7 +3219,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the speed escape program lookup command.</summary>
     [VerificationCommand("--lookup-speed-escape-program")]
     internal static int LookupSpeedEscapeProgramCommand()
     {
@@ -3483,7 +3232,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Samus eater plm definitions command.</summary>
     [VerificationCommand("--samus-eater-plm-definitions")]
     internal static int SamusEaterPlmDefinitionsCommand()
     {
@@ -3494,7 +3242,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the special air lookup command.</summary>
     [VerificationCommand("--lookup-special-air")]
     internal static int LookupSpecialAirCommand()
     {
@@ -3506,7 +3253,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the speed blocks lookup command.</summary>
     [VerificationCommand("--lookup-speed-blocks")]
     internal static int LookupSpeedBlocksCommand()
     {
@@ -3517,7 +3263,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the grapple blocks lookup command.</summary>
     [VerificationCommand("--lookup-grapple-blocks")]
     internal static int LookupGrappleBlocksCommand()
     {
@@ -3528,7 +3273,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the block reaction selectors lookup command.</summary>
     [VerificationCommand("--lookup-block-reaction-selectors")]
     internal static int LookupBlockReactionSelectorsCommand()
     {
@@ -3551,7 +3295,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the phase two rear leg lookup command.</summary>
     [VerificationCommand("--lookup-phase-two-rear-leg")]
     internal static int LookupPhaseTwoRearLegCommand()
     {
@@ -3563,7 +3306,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the auxiliary palettes lookup command.</summary>
     [VerificationCommand("--lookup-auxiliary-palettes")]
     internal static int LookupAuxiliaryPalettesCommand()
     {
@@ -3575,7 +3317,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 door quake decoding lookup command.</summary>
     [VerificationCommand("--lookup-stream5-door-quake-decoding")]
     internal static int LookupStream5DoorQuakeDecodingCommand()
     {
@@ -3586,7 +3327,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the arm cannon selectors lookup command.</summary>
     [VerificationCommand("--lookup-arm-cannon-selectors")]
     internal static int LookupArmCannonSelectorsCommand()
     {
@@ -3598,7 +3338,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream5 ceres flight palette lookup command.</summary>
     [VerificationCommand("--lookup-stream5-ceres-flight-palette")]
     internal static int LookupStream5CeresFlightPaletteCommand()
     {
@@ -3609,7 +3348,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 oum layout lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-oum-layout")]
     internal static int LookupStream4OumLayoutCommand()
     {
@@ -3620,7 +3358,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream4 breakup order lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-breakup-order")]
     internal static int LookupStream4BreakupOrderCommand()
     {
@@ -3632,7 +3369,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the stream3 lookup command.</summary>
     [VerificationCommand("--lookup-stream-3")]
     internal static int LookupStream3Command()
     {
@@ -3643,7 +3379,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the shot block draws lookup command.</summary>
     [VerificationCommand("--lookup-shot-block-draws")]
     internal static int LookupShotBlockDrawsCommand()
     {
@@ -3655,7 +3390,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the botwoon wall lookup command.</summary>
     [VerificationCommand("--lookup-botwoon-wall")]
     internal static int LookupBotwoonWallCommand()
     {
@@ -3670,7 +3404,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the botwoon hole bounds lookup command.</summary>
     [VerificationCommand("--lookup-botwoon-hole-bounds")]
     internal static int LookupBotwoonHoleBoundsCommand()
     {
@@ -3683,7 +3416,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the botwoon path descriptors lookup command.</summary>
     [VerificationCommand("--lookup-botwoon-path-descriptors")]
     internal static int LookupBotwoonPathDescriptorsCommand()
     {
@@ -3694,7 +3426,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the botwoon projectile programs lookup command.</summary>
     [VerificationCommand("--lookup-botwoon-projectile-programs")]
     internal static int LookupBotwoonProjectileProgramsCommand()
     {
@@ -3706,7 +3437,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the botwoon program selection lookup command.</summary>
     [VerificationCommand("--lookup-botwoon-program-selection")]
     internal static int LookupBotwoonProgramSelectionCommand()
     {
@@ -3717,7 +3447,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the botwoon head programs lookup command.</summary>
     [VerificationCommand("--lookup-botwoon-head-programs")]
     internal static int LookupBotwoonHeadProgramsCommand()
     {
@@ -3729,7 +3458,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the torizo statue programs lookup command.</summary>
     [VerificationCommand("--lookup-torizo-statue-programs")]
     internal static int LookupTorizoStatueProgramsCommand()
     {
@@ -3742,7 +3470,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the torizo dormant and drool lookup command.</summary>
     [VerificationCommand("--lookup-torizo-dormant-and-drool")]
     internal static int LookupTorizoDormantAndDroolCommand()
     {
@@ -3755,7 +3482,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the face block programs lookup command.</summary>
     [VerificationCommand("--lookup-face-block-programs")]
     internal static int LookupFaceBlockProgramsCommand()
     {
@@ -3767,7 +3493,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the beetom programs lookup command.</summary>
     [VerificationCommand("--lookup-beetom-programs")]
     internal static int LookupBeetomProgramsCommand()
     {
@@ -3779,7 +3504,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the platform programs lookup command.</summary>
     [VerificationCommand("--lookup-platform-programs")]
     internal static int LookupPlatformProgramsCommand()
     {
@@ -3791,7 +3515,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the elevator programs lookup command.</summary>
     [VerificationCommand("--lookup-elevator-programs")]
     internal static int LookupElevatorProgramsCommand()
     {
@@ -3804,7 +3527,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the growing shutter definitions lookup command.</summary>
     [VerificationCommand("--lookup-growing-shutter-definitions")]
     internal static int LookupGrowingShutterDefinitionsCommand()
     {
@@ -3815,7 +3537,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the shutter visuals lookup command.</summary>
     [VerificationCommand("--lookup-shutter-visuals")]
     internal static int LookupShutterVisualsCommand()
     {
@@ -3830,7 +3551,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the shutter pose programs lookup command.</summary>
     [VerificationCommand("--lookup-shutter-pose-programs")]
     internal static int LookupShutterPoseProgramsCommand()
     {
@@ -3842,7 +3562,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the shutter initial functions lookup command.</summary>
     [VerificationCommand("--lookup-shutter-initial-functions")]
     internal static int LookupShutterInitialFunctionsCommand()
     {
@@ -3855,7 +3574,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the vertical shutter programs lookup command.</summary>
     [VerificationCommand("--lookup-vertical-shutter-programs")]
     internal static int LookupVerticalShutterProgramsCommand()
     {
@@ -3867,7 +3585,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fune namihe programs lookup command.</summary>
     [VerificationCommand("--lookup-fune-namihe-programs")]
     internal static int LookupFuneNamiheProgramsCommand()
     {
@@ -3881,7 +3598,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fune namihe fireball programs lookup command.</summary>
     [VerificationCommand("--lookup-fune-namihe-fireball-programs")]
     internal static int LookupFuneNamiheFireballProgramsCommand()
     {
@@ -3894,7 +3610,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the enemy fireball launches lookup command.</summary>
     [VerificationCommand("--lookup-enemy-fireball-launches")]
     internal static int LookupEnemyFireballLaunchesCommand()
     {
@@ -3906,7 +3621,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the boyon programs lookup command.</summary>
     [VerificationCommand("--lookup-boyon-programs")]
     internal static int LookupBoyonProgramsCommand()
     {
@@ -3919,7 +3633,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the boulder programs lookup command.</summary>
     [VerificationCommand("--lookup-boulder-programs")]
     internal static int LookupBoulderProgramsCommand()
     {
@@ -3932,7 +3645,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the alcoon programs lookup command.</summary>
     [VerificationCommand("--lookup-alcoon-programs")]
     internal static int LookupAlcoonProgramsCommand()
     {
@@ -3948,7 +3660,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the atomic programs lookup command.</summary>
     [VerificationCommand("--lookup-atomic-programs")]
     internal static int LookupAtomicProgramsCommand()
     {
@@ -3961,7 +3672,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the draygon intro commands lookup command.</summary>
     [VerificationCommand("--lookup-draygon-intro-commands")]
     internal static int LookupDraygonIntroCommandsCommand()
     {
@@ -3974,7 +3684,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid draws lookup command.</summary>
     [VerificationCommand("--lookup-kraid-draws")]
     internal static int LookupKraidDrawsCommand()
     {
@@ -3992,7 +3701,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid room programs lookup command.</summary>
     [VerificationCommand("--lookup-kraid-room-programs")]
     internal static int LookupKraidRoomProgramsCommand()
     {
@@ -4004,7 +3712,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fake kraid spike rows lookup command.</summary>
     [VerificationCommand("--lookup-fake-kraid-spike-rows")]
     internal static int LookupFakeKraidSpikeRowsCommand()
     {
@@ -4016,7 +3723,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fake kraid spit velocities lookup command.</summary>
     [VerificationCommand("--lookup-fake-kraid-spit-velocities")]
     internal static int LookupFakeKraidSpitVelocitiesCommand()
     {
@@ -4030,7 +3736,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fake kraid projectile programs lookup command.</summary>
     [VerificationCommand("--lookup-fake-kraid-projectile-programs")]
     internal static int LookupFakeKraidProjectileProgramsCommand()
     {
@@ -4044,7 +3749,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fake kraid programs lookup command.</summary>
     [VerificationCommand("--lookup-fake-kraid-programs")]
     internal static int LookupFakeKraidProgramsCommand()
     {
@@ -4058,7 +3762,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid visual selectors lookup command.</summary>
     [VerificationCommand("--lookup-kraid-visual-selectors")]
     internal static int LookupKraidVisualSelectorsCommand()
     {
@@ -4073,7 +3776,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid spit speeds lookup command.</summary>
     [VerificationCommand("--lookup-kraid-spit-speeds")]
     internal static int LookupKraidSpitSpeedsCommand()
     {
@@ -4085,7 +3787,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid palette definitions lookup command.</summary>
     [VerificationCommand("--lookup-kraid-palette-definitions")]
     internal static int LookupKraidPaletteDefinitionsCommand()
     {
@@ -4099,7 +3800,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid health thresholds lookup command.</summary>
     [VerificationCommand("--lookup-kraid-health-thresholds")]
     internal static int LookupKraidHealthThresholdsCommand()
     {
@@ -4113,7 +3813,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid ceiling order lookup command.</summary>
     [VerificationCommand("--lookup-kraid-ceiling-order")]
     internal static int LookupKraidCeilingOrderCommand()
     {
@@ -4129,7 +3828,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid sink mappings lookup command.</summary>
     [VerificationCommand("--lookup-kraid-sink-mappings")]
     internal static int LookupKraidSinkMappingsCommand()
     {
@@ -4141,7 +3839,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid defeated plms lookup command.</summary>
     [VerificationCommand("--lookup-kraid-defeated-plms")]
     internal static int LookupKraidDefeatedPlmsCommand()
     {
@@ -4156,7 +3853,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid growth plms lookup command.</summary>
     [VerificationCommand("--lookup-kraid-growth-plms")]
     internal static int LookupKraidGrowthPlmsCommand()
     {
@@ -4171,7 +3867,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid movement lookup command.</summary>
     [VerificationCommand("--lookup-kraid-movement")]
     internal static int LookupKraidMovementCommand()
     {
@@ -4183,7 +3878,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid nail launch lookup command.</summary>
     [VerificationCommand("--lookup-kraid-nail-launch")]
     internal static int LookupKraidNailLaunchCommand()
     {
@@ -4199,7 +3893,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid camera lookup command.</summary>
     [VerificationCommand("--lookup-kraid-camera")]
     internal static int LookupKraidCameraCommand()
     {
@@ -4213,7 +3906,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid arm component selectors lookup command.</summary>
     [VerificationCommand("--lookup-kraid-arm-component-selectors")]
     internal static int LookupKraidArmComponentSelectorsCommand()
     {
@@ -4225,7 +3917,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid arm callbacks lookup command.</summary>
     [VerificationCommand("--lookup-kraid-arm-callbacks")]
     internal static int LookupKraidArmCallbacksCommand()
     {
@@ -4237,7 +3928,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid arm physical frames lookup command.</summary>
     [VerificationCommand("--lookup-kraid-arm-physical-frames")]
     internal static int LookupKraidArmPhysicalFramesCommand()
     {
@@ -4252,7 +3942,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid foot coordinates lookup command.</summary>
     [VerificationCommand("--lookup-kraid-foot-coordinates")]
     internal static int LookupKraidFootCoordinatesCommand()
     {
@@ -4269,7 +3958,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid contour cases lookup command.</summary>
     [VerificationCommand("--lookup-kraid-contour-cases")]
     internal static int LookupKraidContourCasesCommand()
     {
@@ -4283,7 +3971,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid nail contour lookup command.</summary>
     [VerificationCommand("--lookup-kraid-nail-contour")]
     internal static int LookupKraidNailContourCommand()
     {
@@ -4297,7 +3984,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid mouth mappings lookup command.</summary>
     [VerificationCommand("--lookup-kraid-mouth-mappings")]
     internal static int LookupKraidMouthMappingsCommand()
     {
@@ -4311,7 +3997,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid head programs lookup command.</summary>
     [VerificationCommand("--lookup-kraid-head-programs")]
     internal static int LookupKraidHeadProgramsCommand()
     {
@@ -4324,7 +4009,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid rock programs lookup command.</summary>
     [VerificationCommand("--lookup-kraid-rock-programs")]
     internal static int LookupKraidRockProgramsCommand()
     {
@@ -4338,7 +4022,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid small programs lookup command.</summary>
     [VerificationCommand("--lookup-kraid-small-programs")]
     internal static int LookupKraidSmallProgramsCommand()
     {
@@ -4354,7 +4037,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid arm programs lookup command.</summary>
     [VerificationCommand("--lookup-kraid-arm-programs")]
     internal static int LookupKraidArmProgramsCommand()
     {
@@ -4368,7 +4050,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid foot programs lookup command.</summary>
     [VerificationCommand("--lookup-kraid-foot-programs")]
     internal static int LookupKraidFootProgramsCommand()
     {
@@ -4382,7 +4063,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire skeleton frames lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-skeleton-frames")]
     internal static int LookupCrocomireSkeletonFramesCommand()
     {
@@ -4396,7 +4076,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the kraid foot frames lookup command.</summary>
     [VerificationCommand("--lookup-kraid-foot-frames")]
     internal static int LookupKraidFootFramesCommand()
     {
@@ -4410,7 +4089,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the boss oam roots lookup command.</summary>
     [VerificationCommand("--lookup-boss-oam-roots")]
     internal static int LookupBossOamRootsCommand()
     {
@@ -4426,7 +4104,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the mother brain visual catalogs lookup command.</summary>
     [VerificationCommand("--lookup-mother-brain-visual-catalogs")]
     internal static int LookupMotherBrainVisualCatalogsCommand()
     {
@@ -4440,7 +4117,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the phantoon draygon bg2 catalogs lookup command.</summary>
     [VerificationCommand("--lookup-phantoon-draygon-bg2-catalogs")]
     internal static int LookupPhantoonDraygonBg2CatalogsCommand()
     {
@@ -4454,7 +4130,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire bg2 catalog lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-bg2-catalog")]
     internal static int LookupCrocomireBg2CatalogCommand()
     {
@@ -4467,7 +4142,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire body frames lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-body-frames")]
     internal static int LookupCrocomireBodyFramesCommand()
     {
@@ -4480,7 +4154,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire tongue collision lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-tongue-collision")]
     internal static int LookupCrocomireTongueCollisionCommand()
     {
@@ -4494,7 +4167,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire bg2 poses lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-bg2-poses")]
     internal static int LookupCrocomireBg2PosesCommand()
     {
@@ -4507,7 +4179,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire melt transfers lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-melt-transfers")]
     internal static int LookupCrocomireMeltTransfersCommand()
     {
@@ -4522,7 +4193,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire projectile programs lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-projectile-programs")]
     internal static int LookupCrocomireProjectileProgramsCommand()
     {
@@ -4536,7 +4206,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire tongue program lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-tongue-program")]
     internal static int LookupCrocomireTongueProgramCommand()
     {
@@ -4550,7 +4219,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the crocomire spike motion lookup command.</summary>
     [VerificationCommand("--lookup-crocomire-spike-motion")]
     internal static int LookupCrocomireSpikeMotionCommand()
     {
@@ -4565,7 +4233,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the combo sine alias lookup command.</summary>
     [VerificationCommand("--lookup-combo-sine-alias")]
     internal static int LookupComboSineAliasCommand()
     {
@@ -4578,7 +4245,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the zoa animation lookup command.</summary>
     [VerificationCommand("--lookup-zoa-animation")]
     internal static int LookupZoaAnimationCommand()
     {
@@ -4590,7 +4256,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the zoa program lookup command.</summary>
     [VerificationCommand("--lookup-zoa-program")]
     internal static int LookupZoaProgramCommand()
     {
@@ -4604,7 +4269,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the zoa speed cases lookup command.</summary>
     [VerificationCommand("--lookup-zoa-speed-cases")]
     internal static int LookupZoaSpeedCasesCommand()
     {
@@ -4616,7 +4280,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the grapple origin cases lookup command.</summary>
     [VerificationCommand("--lookup-grapple-origin-cases")]
     internal static int LookupGrappleOriginCasesCommand()
     {
@@ -4631,7 +4294,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the suit beam curve lookup command.</summary>
     [VerificationCommand("--lookup-suit-beam-curve")]
     internal static int LookupSuitBeamCurveCommand()
     {
@@ -4643,7 +4305,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the absolute tangent lookup command.</summary>
     [VerificationCommand("--lookup-absolute-tangent")]
     internal static int LookupAbsoluteTangentCommand()
     {
@@ -4656,7 +4317,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the shaktool joint algorithms lookup command.</summary>
     [VerificationCommand("--lookup-shaktool-joint-algorithms")]
     internal static int LookupShaktoolJointAlgorithmsCommand()
     {
@@ -4669,7 +4329,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the power bomb base curves lookup command.</summary>
     [VerificationCommand("--lookup-power-bomb-base-curves")]
     internal static int LookupPowerBombBaseCurvesCommand()
     {
@@ -4683,7 +4342,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the shaktool orbit lookup command.</summary>
     [VerificationCommand("--lookup-shaktool-orbit")]
     internal static int LookupShaktoolOrbitCommand()
     {
@@ -4696,7 +4354,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the signed sine review lookup command.</summary>
     [VerificationCommand("--lookup-signed-sine-review")]
     internal static int LookupSignedSineReviewCommand()
     {
@@ -4711,7 +4368,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the half wave algorithms lookup command.</summary>
     [VerificationCommand("--lookup-half-wave-algorithms")]
     internal static int LookupHalfWaveAlgorithmsCommand()
     {
@@ -4725,7 +4381,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the spc pitch basis lookup command.</summary>
     [VerificationCommand("--lookup-spc-pitch-basis")]
     internal static int LookupSpcPitchBasisCommand()
     {
@@ -4738,7 +4393,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the spc effect selection lookup command.</summary>
     [VerificationCommand("--lookup-spc-effect-selection")]
     internal static int LookupSpcEffectSelectionCommand()
     {
@@ -4751,7 +4405,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the spc note percentages lookup command.</summary>
     [VerificationCommand("--lookup-spc-note-percentages")]
     internal static int LookupSpcNotePercentagesCommand()
     {
@@ -4765,7 +4418,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the window curves lookup command.</summary>
     [VerificationCommand("--lookup-window-curves")]
     internal static int LookupWindowCurvesCommand()
     {
@@ -4779,7 +4431,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the running cadence review lookup command.</summary>
     [VerificationCommand("--lookup-running-cadence-review")]
     internal static int LookupRunningCadenceReviewCommand()
     {
@@ -4792,7 +4443,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the shared speed review lookup command.</summary>
     [VerificationCommand("--lookup-shared-speed-review")]
     internal static int LookupSharedSpeedReviewCommand()
     {
@@ -4806,7 +4456,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the grapple launch algorithms lookup command.</summary>
     [VerificationCommand("--lookup-grapple-launch-algorithms")]
     internal static int LookupGrappleLaunchAlgorithmsCommand()
     {
@@ -4821,7 +4470,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fireflea melt algorithms lookup command.</summary>
     [VerificationCommand("--lookup-fireflea-melt-algorithms")]
     internal static int LookupFirefleaMeltAlgorithmsCommand()
     {
@@ -4835,7 +4483,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the fireflea gunship algorithms lookup command.</summary>
     [VerificationCommand("--lookup-fireflea-gunship-algorithms")]
     internal static int LookupFirefleaGunshipAlgorithmsCommand()
     {
@@ -4848,7 +4495,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the owtch shake algorithms lookup command.</summary>
     [VerificationCommand("--lookup-owtch-shake-algorithms")]
     internal static int LookupOwtchShakeAlgorithmsCommand()
     {
@@ -4861,7 +4507,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the slope algorithms lookup command.</summary>
     [VerificationCommand("--lookup-slope-algorithms")]
     internal static int LookupSlopeAlgorithmsCommand()
     {
@@ -4874,7 +4519,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Shaktool segment algorithms command.</summary>
     [VerificationCommand("--shaktool-segment-algorithms")]
     internal static int ShaktoolSegmentAlgorithmsCommand()
     {
@@ -4886,7 +4530,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Work robot initial selection command.</summary>
     [VerificationCommand("--work-robot-initial-selection")]
     internal static int WorkRobotInitialSelectionCommand()
     {
@@ -4898,7 +4541,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the phase algorithms lookup command.</summary>
     [VerificationCommand("--lookup-phase-algorithms")]
     internal static int LookupPhaseAlgorithmsCommand()
     {
@@ -4913,7 +4555,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Runs the palette algorithms lookup command.</summary>
     [VerificationCommand("--lookup-palette-algorithms")]
     internal static int LookupPaletteAlgorithmsCommand()
     {

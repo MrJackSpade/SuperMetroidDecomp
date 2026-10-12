@@ -50,9 +50,7 @@ public sealed class SuperMetroidRuntime
 
     /// <summary>The <see cref="RoomLoader"/> owner of this SuperMetroidRuntime.</summary>
     internal RoomLoader RoomLoader { get; }
-    /// <summary>Gets enemy room effects.</summary>
     internal EnemyRoomEffects EnemyRoomEffects { get; }
-    /// <summary>Gets attract session.</summary>
     internal AttractDemoSession AttractSession { get; } = new();
 
     /// <summary>The <see cref="GameplayDisplayState"/> owner of this SuperMetroidRuntime.</summary>
@@ -100,7 +98,6 @@ public sealed class SuperMetroidRuntime
     /// <summary>The <see cref="RuntimeArtwork"/> owner of this SuperMetroidRuntime.</summary>
     internal RuntimeArtwork Artwork { get; }
 
-    /// <summary>Stores address space.</summary>
     internal readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>
@@ -374,7 +371,6 @@ public sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Steps frame guarded.</summary>
     private RuntimeFrameResult StepFrameGuarded(
         ushort controller1Input,
         RuntimeFrameRequest frameRequest,
@@ -1061,7 +1057,6 @@ public sealed class SuperMetroidRuntime
         System.UpdateHeldInput(timerReset, Controller1.Current, Controller1.NewlyPressed);
     }
 
-    /// <summary>Snapshot.</summary>
     internal RuntimeFrameResult Snapshot(
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
@@ -1078,7 +1073,6 @@ public sealed class SuperMetroidRuntime
 
     // Final gameplay frame, reused by every software render of this runtime. A rendered
     // frame is valid until the next render; hosts and tests that keep one must copy it.
-    /// <summary>Gets gameplay frame buffer.</summary>
     [field: NonSerialized]
     internal Rgba32[] GameplayFrameBuffer =>
         field ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
@@ -1094,7 +1088,6 @@ public sealed class SuperMetroidRuntime
         bool StationaryScriptControlLocked,
         bool SuitOwnsSamus);
 
-    /// <summary>Stores suspended frame tail.</summary>
     internal SuspendedGameplayFrameTail? _suspendedFrameTail;
 
 

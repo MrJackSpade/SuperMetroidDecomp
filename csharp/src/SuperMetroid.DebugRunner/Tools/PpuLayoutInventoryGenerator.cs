@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ppu layout inventory generator.</summary>
 internal static class PpuLayoutInventoryGenerator
 {
     /// <summary>

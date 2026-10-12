@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents dachora instruction program definitions verification.</summary>
 internal static class DachoraInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies dachora instruction program definitions.</summary>
     internal static void VerifyDachoraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDachoraInstructionProgramDefinitions), () => VerifyDachoraInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies dachora instruction program definitions.</summary>
     internal static void VerifyDachoraInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -143,7 +140,6 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             "ROM reads forbidden.");
     }
 
-    /// <summary>Execute dachora program.</summary>
     private static void ExecuteDachoraProgram(
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -161,7 +157,6 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes dachora instruction mechanics allocation.</summary>
     private static int ProbeDachoraInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -175,7 +170,6 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Creates dachora instruction read guard.</summary>
     private static CartridgeReadGuard NewDachoraInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(DachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -183,7 +177,6 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             .ObserveWords(0xa70000, DachoraInstructionProgramDefinitions.PresentationWordCount,
                 DachoraInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Dachora instruction program definitions command.</summary>
     [VerificationCommand("--dachora-instruction-program-definitions")]
     internal static int DachoraInstructionProgramDefinitionsCommand()
     {

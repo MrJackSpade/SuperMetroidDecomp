@@ -16,17 +16,14 @@ using static ImportedSpritemapsVerification;
 using static KraidSmallProgramsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid lint instruction program definitions verification.</summary>
 internal static class KraidLintInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies kraid lint instruction program definitions.</summary>
     internal static void VerifyKraidLintInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidLintInstructionProgramDefinitions), () => VerifyKraidLintInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies kraid lint instruction program definitions.</summary>
     internal static void VerifyKraidLintInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -108,7 +105,6 @@ internal static class KraidLintInstructionProgramDefinitionsVerification
             "bytes forbidden.");
     }
 
-    /// <summary>Probes kraid lint instruction mechanics allocation.</summary>
     private static int ProbeKraidLintInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -120,7 +116,6 @@ internal static class KraidLintInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New kraid lint instruction guard.</summary>
     private static CartridgeReadGuard NewKraidLintInstructionGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -140,7 +135,6 @@ internal static class KraidLintInstructionProgramDefinitionsVerification
         return guard;
     }
 
-    /// <summary>Kraid lint instruction mechanics command.</summary>
     [VerificationCommand("--kraid-lint-instruction-mechanics")]
     internal static int KraidLintInstructionMechanicsCommand()
     {

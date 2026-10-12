@@ -13,7 +13,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents released samus falls off draygon verification.</summary>
 internal static class ReleasedSamusFallsOffDraygonVerification
 {
     /// <summary>
@@ -64,7 +63,6 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         Console.WriteLine("  Released Samus falls: a mid-frame Draygon release still detects the missing floor.");
     }
 
-    /// <summary>released samus falls off draygon command.</summary>
     [VerificationCommand("--released-samus-falls-off-draygon")]
     internal static int ReleasedSamusFallsOffDraygonCommand()
     {

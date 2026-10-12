@@ -7,10 +7,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>One of the six cartridge-authored shell fragments spawned by egg opcode $A918.</summary>
 internal sealed class IntroEggParticle
 {
-    /// <summary>Stores sprite.</summary>
     private readonly IntroDiscoverySprite sprite;
 
-    /// <summary>Initializes a new intro egg particle instance.</summary>
     public IntroEggParticle(byte index)
     {
         IntroEggEffectActorDefinition definition = IntroEggEffectDefinitions.Particle(index);
@@ -27,7 +25,6 @@ internal sealed class IntroEggParticle
         sprite.PreInstructionPointerForDiscovery(definition.PreInstruction);
     }
 
-    /// <summary>Advances.</summary>
     public void Step()
     {
         if (!sprite.IsActive)
@@ -61,12 +58,10 @@ internal sealed class IntroEggParticle
         sprite.Step(instructionWord: IntroEggEffectInstructionDefinitions.ReadWord);
     }
 
-    /// <summary>Draws.</summary>
     public void Draw(OamBuffer oam,
         IntroEggEffectSpritePresentation? installedArt = null) =>
         sprite.Draw(oam, installedArt: installedArt);
 
-    /// <summary>Adds sixteen sixteen velocity.</summary>
     private static void AddSixteenSixteenVelocity(
         IntroDiscoverySprite sprite,
         bool horizontal,

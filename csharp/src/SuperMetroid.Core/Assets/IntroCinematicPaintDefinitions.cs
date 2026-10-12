@@ -53,7 +53,6 @@ internal static class IntroCinematicPaintDefinitions
     /// <summary>$8C:E44B: blue-only outline intensity.</summary>
     private const int PortraitOutlineBlue = 5;
 
-    /// <summary>Matches.</summary>
     internal static bool Matches(ReadOnlySpan<byte> bytes)
     {
         for (int index = 0; index < 256; index++)
@@ -61,7 +60,6 @@ internal static class IntroCinematicPaintDefinitions
         return true;
     }
 
-    /// <summary>Color.</summary>
     internal static Bgr555 Color(int row, int ink)
     {
         if ((uint)row >= 16 || (uint)ink >= 16) throw new ArgumentOutOfRangeException(nameof(row));
@@ -84,7 +82,6 @@ internal static class IntroCinematicPaintDefinitions
         };
     }
 
-    /// <summary>Font.</summary>
     private static Bgr555 Font(int ink)
     {
         int group = ink / 4;
@@ -97,39 +94,33 @@ internal static class IntroCinematicPaintDefinitions
             _ => Pack(0, FontShadow(group + 1), 0),
         };
     }
-    /// <summary>Font shadow.</summary>
     private static int FontShadow(int depth)
     {
         if (depth == 4) return FontShadowDark;
         double intensity = (Math.Sqrt(31) * (4 - depth) + Math.Sqrt(FontShadowDark) * depth) / 4;
         return (int)Math.Ceiling(intensity * intensity);
     }
-    /// <summary>Font zero.</summary>
     private static Bgr555 FontZero(int shade)
     {
         int green = Gamma(31, FontZeroGreenDark, shade, 2);
         return Pack(0, green, FontZeroBlue * green / 31);
     }
-    /// <summary>Sepia.</summary>
     private static Bgr555 Sepia(int ink)
     {
         int level = ink <= 6 ? (31 * (6 - ink) + SepiaDark * (ink - 1) + SepiaIntervals - 1) / SepiaIntervals
             : SepiaDark - (ink - 6) * SepiaOutlineStep;
         return Pack(level, level, Math.Max(0, level - SepiaBlueDeficit));
     }
-    /// <summary>Warm.</summary>
     private static Bgr555 Warm(int ink, int tint)
     {
         Bgr555 color = Sepia(ink);
         return Pack(Math.Min(31, (color.Red) + tint), Math.Min(31, (color.Green) + tint), color.Blue);
     }
-    /// <summary>Plate.</summary>
     private static Bgr555 Plate()
     {
         Bgr555 color = MotherBrainHealthPaintDefinitions.PlateHighlight;
         return Pack((color.Red) - PlateShade, (color.Green) - PlateShade, (color.Blue) - PlateShade);
     }
-    /// <summary>Scene.</summary>
     private static Bgr555 Scene(int ink) => ink switch
     {
         1 => Neutral(SceneHighlight), 2 => Sepia(4), 3 => Pack(SceneDark, SceneDark, SceneDarkBlue),
@@ -137,32 +128,27 @@ internal static class IntroCinematicPaintDefinitions
         8 => Neutral(LowNeutral), 10 => Warm(5, StrongWarmTint), 11 => Warm(6, StrongWarmTint),
         12 => Sepia(7), 13 or 14 => Sepia(1), _ => Bgr555.Black,
     };
-    /// <summary>Object one.</summary>
     private static Bgr555 ObjectOne(int ink) => ink switch
     {
         1 or 5 or 10 or 13 or 15 => Plate(), 2 or 6 or 11 => Warm(5, WarmTint),
         3 or 7 or 12 => Warm(6, WarmTint), 4 or 8 => Sepia(7),
         9 => Pack(ObjectAccentRed, 0, ObjectAccentBlue), 14 => Sepia(1), _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
-    /// <summary>Object four.</summary>
     private static Bgr555 ObjectFour(int ink) => ink switch
     {
         1 or 5 or 14 => Sepia(5), 2 or 7 => Sepia(3), 3 => Neutral(Contour), 4 => Sepia(1), 6 => Sepia(2),
         8 or 9 or 10 or 12 => Sepia(4), 11 or 13 or 15 => Sepia(6), _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
-    /// <summary>Object five.</summary>
     private static Bgr555 ObjectFive(int ink) => ink switch
     {
         1 or 15 => Sepia(1), 14 => Neutral(Contour),
         _ => ((ink - 2) % 3) switch { 0 => Warm(4, StrongWarmTint), 1 => Warm(5, WarmTint), _ => Sepia(6) },
     };
-    /// <summary>Crossfade.</summary>
     private static Bgr555 Crossfade(int ink) => ink switch
     {
         <= 8 => Sepia(ink), <= 12 => Pack(0, 0, (31 * (12 - ink) + CrossfadeBlueDark * (ink - 9)) / 3),
         13 => Pack(0, 31, 0), 14 => Pack(0, CrossfadeAccentGreen, CrossfadeAccentBlue), _ => Bgr555.Black,
     };
-    /// <summary>Mother brain.</summary>
     private static Bgr555 MotherBrain(int ink) => ink switch
     {
         1 or 13 or 14 => Sepia(1), 2 => Sepia(4), 3 => Neutral(Contour), 4 => Neutral(DeepContour),
@@ -170,7 +156,6 @@ internal static class IntroCinematicPaintDefinitions
         8 => Neutral(PlateDarkNeutral), 9 => Plate(), 10 => Warm(5, StrongWarmTint), 11 => Warm(6, StrongWarmTint),
         12 => Sepia(7), _ => Bgr555.Black,
     };
-    /// <summary>Portrait.</summary>
     private static Bgr555 Portrait(int ink)
     {
         if (ink is 9 or 14 or 15)
@@ -193,14 +178,11 @@ internal static class IntroCinematicPaintDefinitions
             4 => Pack(0, VisorGlintGreen, VisorGlintBlue), 6 => PortraitContour, 12 => PortraitDeep,
             _ => throw new ArgumentOutOfRangeException(nameof(ink)) };
     }
-    /// <summary>Gamma.</summary>
     private static int Gamma(int first, int last, int shade, int intervals)
     {
         double intensity = (Math.Sqrt(first) * (intervals - shade) + Math.Sqrt(last) * shade) / intervals;
         return (int)Math.Floor(intensity * intensity + 0.5);
     }
-    /// <summary>Neutral.</summary>
     private static Bgr555 Neutral(int value) => Pack(value, value, value);
-    /// <summary>Pack.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

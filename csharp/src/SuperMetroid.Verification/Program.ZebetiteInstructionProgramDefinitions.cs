@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents zebetite instruction program definitions verification.</summary>
 internal static class ZebetiteInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies zebetite instruction program definitions.</summary>
     internal static void VerifyZebetiteInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZebetiteInstructionProgramDefinitions), () => VerifyZebetiteInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies zebetite instruction program definitions.</summary>
     internal static void VerifyZebetiteInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -134,7 +131,6 @@ internal static class ZebetiteInstructionProgramDefinitionsVerification
             "programs, and ten native sprite selections pass with zero live operand reads.");
     }
 
-    /// <summary>Probes zebetite instruction mechanics allocation.</summary>
     private static int ProbeZebetiteInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -148,14 +144,12 @@ internal static class ZebetiteInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Creates zebetite instruction read guard.</summary>
     private static CartridgeReadGuard NewZebetiteInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ZebetiteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Zebetite mechanics byte ${address:X6}.")
             .ObserveWords(0xa60000, ZebetiteInstructionProgramDefinitions.PresentationWordCount, ZebetiteInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Zebetite instruction program definitions command.</summary>
     [VerificationCommand("--zebetite-instruction-program-definitions")]
     internal static int ZebetiteInstructionProgramDefinitionsCommand()
     {

@@ -33,7 +33,6 @@ public sealed class RoomPlmSystem
     /// <summary>The <see cref="PlmSlotTable"/> owner of this RoomPlmSystem.</summary>
     internal PlmRoomBindings Bindings { get; }
 
-    /// <summary>Gets slot table.</summary>
     internal PlmSlotTable SlotTable { get; }
 
     /// <summary>The <see cref="PlmSoundQueue"/> owner of this RoomPlmSystem.</summary>
@@ -138,7 +137,6 @@ public sealed class RoomPlmSystem
         BossRoomMutations = new BossRoomMutationPlms(SlotTable);
     }
 
-    /// <summary>Gets door plms.</summary>
     internal DoorPlms DoorPlms { get; }
 
     /// <summary>
@@ -264,7 +262,6 @@ public sealed class RoomPlmSystem
         return Drawing._tilemapUpdates;
     }
 
-    /// <summary>Execute instruction stream.</summary>
     private void ExecuteInstructionStream(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, RoomScrollGrid? scrolls, ushort collectedItems)
     {
         // An instruction list may execute multiple negative instruction words before it
@@ -540,11 +537,9 @@ public sealed class RoomPlmSystem
         throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
     }
 
-    /// <summary>Reads plm work ram word.</summary>
     internal static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
         new PlmLowBankAliasMemory(memory).Word(offset);
 
-    /// <summary>Reads plm work ram byte.</summary>
     internal static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
         new PlmLowBankAliasMemory(memory).Byte(offset);
 
@@ -552,7 +547,6 @@ public sealed class RoomPlmSystem
     // compiled family claims only its own exact control addresses; all other bank-$84
     // identities must have compiled mechanics.
     // A low-window wrap may still read live WRAM; no branch can read cartridge bytes.
-    /// <summary>Reads program word.</summary>
     internal static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadWord(address, out ushort value)
             ? value
@@ -562,7 +556,6 @@ public sealed class RoomPlmSystem
                 : throw new InvalidDataException(
                     $"PLM program word $84:{address:X4} has no compiled definition.");
 
-    /// <summary>Reads program byte.</summary>
     internal static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadByte(address, out byte value)
             ? value

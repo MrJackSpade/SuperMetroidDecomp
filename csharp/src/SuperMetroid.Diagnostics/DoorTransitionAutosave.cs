@@ -7,7 +7,6 @@ namespace SuperMetroid.Desktop;
 /// <summary>Host recovery snapshots taken after the destination fade and that frame's audio have completed.</summary>
 internal static class DoorTransitionAutosave
 {
-    /// <summary>Tries to save.</summary>
     internal static DebuggerSaveStateMetadata? TrySave(bool enabled, bool replay,
         SuperMetroidGameState previousState, DebuggerSaveStateStore store,
         SuperMetroidAddressSpace bus, SuperMetroidGame game, ManagedSpcPlayer? audio)

@@ -327,7 +327,6 @@ using static ZoaAnimationDefinitionsVerification;
 using static ZoaInstructionProgramDefinitionsVerification;
 using static ZoaSpeedDefinitionsVerification;
 
-/// <summary>Represents enemy trigonometry verification.</summary>
 internal static class EnemyTrigonometryVerification
 {
     /// <summary>
@@ -658,7 +657,6 @@ internal static class EnemyTrigonometryVerification
     /// <summary>The whole family in registry order, in this process.</summary>
     internal static void VerifyCompiledEnemyTrigonometry() => RunSuitesSerially(CompiledEnemyTrigonometrySuites());
 
-    /// <summary>Verifies compiled enemy sine.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy sine")]
     private static void VerifyCompiledEnemySine()
     {
@@ -726,7 +724,6 @@ internal static class EnemyTrigonometryVerification
         Console.WriteLine("Compiled enemy sine: 256 exact samples, 65,536 byte inputs including both Sbug vector phases, and 8,388,608 unsigned products (two wrapped offsets) pass without any production bus dependency.");
     }
 
-    /// <summary>Verifies compiled signed trigonometry.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled signed trigonometry")]
     internal static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
@@ -785,7 +782,6 @@ internal static class EnemyTrigonometryVerification
         Console.WriteLine("Compiled tide: all 65,536 phases in four option combinations preserve exact offset, phase advance and small-tide precedence without a bus.");
     }
 
-    /// <summary>Compiled enemy sine command.</summary>
     [VerificationCommand("--compiled-enemy-sine")]
     internal static int CompiledEnemySineCommand()
     {
@@ -793,7 +789,6 @@ internal static class EnemyTrigonometryVerification
         return 0;
     }
 
-    /// <summary>Liquid tide phase command.</summary>
     [VerificationCommand("--liquid-tide-phase")]
     internal static int LiquidTidePhaseCommand()
     {
@@ -803,7 +798,6 @@ internal static class EnemyTrigonometryVerification
     }
 }
 
-/// <summary>Represents enemy math reference data.</summary>
 internal static class EnemyMathReferenceData
 {
     /// <summary>Pinned $A0:B443-$B642 sign-extended 8.8 sine words.</summary>

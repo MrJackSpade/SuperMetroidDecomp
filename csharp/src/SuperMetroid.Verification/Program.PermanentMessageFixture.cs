@@ -3,10 +3,8 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents permanent message fixture verification.</summary>
 internal static class PermanentMessageFixtureVerification
 {
-    /// <summary>create permanent message fixture.</summary>
     internal static GameplayMessageBoxState CreatePermanentMessageFixture()
     {
         string directory = RepositoryInstallation.Installation.MapDirectory;

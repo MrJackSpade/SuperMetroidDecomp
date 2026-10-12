@@ -12,10 +12,8 @@ using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents mother brain later contact verification.</summary>
 internal static class MotherBrainLaterContactVerification
 {
-    /// <summary>Verifies mother brain later contact.</summary>
     internal static int VerifyMotherBrainLaterContact()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -79,7 +77,6 @@ internal static class MotherBrainLaterContactVerification
         return 0;
     }
 
-    /// <summary>Mother brain later contact command.</summary>
     [VerificationCommand("--mother-brain-later-contact")]
     internal static int MotherBrainLaterContactCommand()
     {

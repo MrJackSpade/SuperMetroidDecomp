@@ -5,10 +5,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents retail crocomire capture tests.</summary>
 internal static class RetailCrocomireCaptureTests
 {
-    /// <summary>Runs.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -71,7 +69,6 @@ internal static class RetailCrocomireCaptureTests
     }
 }
 
-/// <summary>Represents crocomire capture fixture.</summary>
 internal static class CrocomireCaptureFixture
 {
     /// <summary>Retail bank-$8F Crocomire room header, shared with the production death audit.</summary>

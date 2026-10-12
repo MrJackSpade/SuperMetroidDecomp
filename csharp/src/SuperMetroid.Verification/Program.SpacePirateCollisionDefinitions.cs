@@ -14,10 +14,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ExtendedCollisionReferenceVerification;
 
-/// <summary>Represents space pirate collision definitions verification.</summary>
 internal static class SpacePirateCollisionDefinitionsVerification
 {
-    /// <summary>Verifies space pirate collision definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate collision definitions")]
     internal static void VerifySpacePirateCollisionDefinitions()
     {
@@ -278,12 +276,10 @@ internal static class SpacePirateCollisionDefinitionsVerification
         }
     }
 
-    /// <summary>New space pirate collision read guard.</summary>
     private static CartridgeReadGuard NewSpacePirateCollisionReadGuard(ISnesAddressSpace source, HashSet<int> blocked) =>
         new CartridgeReadGuard(source).Forbid(blocked.Contains,
             address => $"Compiled Space Pirate collision read native byte ${address:X6}.");
 
-    /// <summary>Verifies space pirate collision command.</summary>
     [VerificationCommand("--verify-space-pirate-collision")]
     internal static int VerifySpacePirateCollisionCommand()
     {

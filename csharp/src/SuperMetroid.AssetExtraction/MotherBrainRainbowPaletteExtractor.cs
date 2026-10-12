@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM bank-$AD rainbow and grey-transition colors → Mother Brain rainbow palettes")]
 internal static class MotherBrainRainbowPaletteExtractor
 {
-    /// <summary>Extract.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents intro eye instructions verification.</summary>
 internal static class IntroEyeInstructionsVerification
 {
-    /// <summary>Verifies intro eye instructions.</summary>
     internal static void VerifyIntroEyeInstructions(ISnesAddressSpace rom)
     {
         for (int pointer = 0xd5df; pointer < 0xd629; pointer++)
@@ -24,7 +22,6 @@ internal static class IntroEyeInstructionsVerification
         AssertThrows<InvalidDataException>(() => IntroEyeAnimationDefinitions.TryReadWord(0xd628, out _), "eye word crosses program boundary");
     }
 
-    /// <summary>Intro eye instructions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro eye instructions")]
     private static byte IntroEyeInstructionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

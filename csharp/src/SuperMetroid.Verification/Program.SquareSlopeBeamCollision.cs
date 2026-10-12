@@ -13,7 +13,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents square slope beam collision verification.</summary>
 internal static class SquareSlopeBeamCollisionVerification
 {
     /// <summary>
@@ -36,7 +35,6 @@ internal static class SquareSlopeBeamCollisionVerification
         Console.WriteLine("  Square-slope beam collision: half-height, flipped and quarter slopes stop the beam.");
     }
 
-    /// <summary>Beam explodes at slope.</summary>
     private static bool BeamExplodesAtSlope(byte slopeBts)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -85,7 +83,6 @@ internal static class SquareSlopeBeamCollisionVerification
         throw new InvalidOperationException("The beam reached neither the slope nor the wall.");
     }
 
-    /// <summary>Square slope beam collision command.</summary>
     [VerificationCommand("--square-slope-beam-collision")]
     internal static int SquareSlopeBeamCollisionCommand()
     {

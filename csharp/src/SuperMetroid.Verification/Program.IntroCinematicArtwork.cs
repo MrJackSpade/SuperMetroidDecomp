@@ -39,7 +39,6 @@ using static SamusAnimationDelayDefinitionsVerification;
 using static SamusBodyArtworkVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents intro cinematic artwork verification.</summary>
 internal static class IntroCinematicArtworkVerification
 {
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
@@ -616,7 +615,6 @@ internal static class IntroCinematicArtworkVerification
         }
     }
 
-    /// <summary>verify intro eye artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
@@ -691,7 +689,6 @@ internal static class IntroCinematicArtworkVerification
             "installed eye lists and all four frames avoid native source reads");
     }
 
-    /// <summary>verify intro caret sprite artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroCaretSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
@@ -812,7 +809,6 @@ internal static class IntroCinematicArtworkVerification
             "installed caret blink avoids cartridge instruction and visual reads");
     }
 
-    /// <summary>verify intro mother brain collision.</summary>
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
@@ -841,7 +837,6 @@ internal static class IntroCinematicArtworkVerification
             "flashback setup never rereads the physical level source");
     }
 
-    /// <summary>verify intro mother brain sprite artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
@@ -924,7 +919,6 @@ internal static class IntroCinematicArtworkVerification
         File.Delete(overridePath);
     }
 
-    /// <summary>verify intro mother brain explosion sprite artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroMotherBrainExplosionSpriteArtwork(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, IntroCinematicArtworkCatalog stock,
@@ -1020,7 +1014,6 @@ internal static class IntroCinematicArtworkVerification
         File.Delete(overridePath);
     }
 
-    /// <summary>new intro artwork source read guard.</summary>
     internal static MutableCartridgeReadGuard NewIntroArtworkSourceReadGuard(ISnesAddressSpace source,
         IntroArtworkSources blocked = IntroArtworkSources.None)
     {
@@ -1222,25 +1215,16 @@ internal static class IntroCinematicArtworkVerification
     [Flags]
     internal enum IntroArtworkSources
     {
-        /// <summary>Identifies none.</summary>
         None = 0,
-        /// <summary>Identifies intro mother brain explosions.</summary>
         IntroMotherBrainExplosions = 1 << 0,
-        /// <summary>Identifies intro rinkas.</summary>
         IntroRinkas = 1 << 1,
-        /// <summary>Identifies intro egg effects.</summary>
         IntroEggEffects = 1 << 2,
-        /// <summary>Identifies intro discovery actors.</summary>
         IntroDiscoveryActors = 1 << 3,
-        /// <summary>Identifies intro scientist sprites.</summary>
         IntroScientistSprites = 1 << 4,
-        /// <summary>Identifies ceres flight sprites.</summary>
         CeresFlightSprites = 1 << 5,
-        /// <summary>Identifies ceres destruction sprites.</summary>
         CeresDestructionSprites = 1 << 6,
     }
 
-    /// <summary>intro artwork components fixture command.</summary>
     [VerificationCommand("--intro-artwork-components-fixture")]
     internal static int IntroArtworkComponentsFixtureCommand()
     {
@@ -1248,7 +1232,6 @@ internal static class IntroCinematicArtworkVerification
         return 0;
     }
 
-    /// <summary>intro cinematic artwork command.</summary>
     [VerificationCommand("--intro-cinematic-artwork")]
     internal static int IntroCinematicArtworkCommand()
     {
@@ -1257,7 +1240,6 @@ internal static class IntroCinematicArtworkVerification
         return 0;
     }
 
-    /// <summary>samus body artwork command.</summary>
     [VerificationCommand("--samus-body-artwork")]
     internal static int SamusBodyArtworkCommand()
     {

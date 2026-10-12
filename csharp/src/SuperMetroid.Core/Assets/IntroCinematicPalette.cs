@@ -7,10 +7,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>The opening narration's full, editable native-precision CGRAM image.</summary>
 public sealed class IntroCinematicPalette
 {
-    /// <summary>Stores rows.</summary>
     private readonly PaletteRow[] rows;
 
-    /// <summary>Initializes a new intro cinematic palette instance.</summary>
     [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
     private IntroCinematicPalette(byte[] nativeBytes)
     {
@@ -64,20 +62,13 @@ public sealed class IntroCinematicPalette
         new CgramPalettes(cgram).All.LoadPortBytes(Transfer.Span);
     }
 
-    /// <summary>Represents palette row.</summary>
     private sealed class PaletteRow
     {
-        /// <summary>Stores background.</summary>
         private readonly Bgr555 background, foreground;
-        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
-        /// <summary>Stores cycle.</summary>
         private readonly bool cycle;
-        /// <summary>Stores shared gradient.</summary>
         private readonly PaletteRow? sharedGradient;
-        /// <summary>Stores cross fade inputs.</summary>
         private readonly Bgr555[]? crossFadeInputs;
-        /// <summary>Initializes a new palette row instance.</summary>
         internal PaletteRow(Bgr555[] colors, bool allowCycle, PaletteRow? crossFadeSource)
         {
             if (crossFadeSource is not null && MatchesCrossFade(colors, crossFadeSource))
@@ -99,7 +90,6 @@ public sealed class IntroCinematicPalette
                 break;
             }
         }
-        /// <summary>Matches cross fade.</summary>
         private static bool MatchesCrossFade(Bgr555[] colors, PaletteRow source)
         {
             for (int color = 1; color <= 8; color++)
@@ -110,7 +100,6 @@ public sealed class IntroCinematicPalette
                 if (colors[9 + shade] != new Bgr555(0, 0, blue - shade * IntroCinematicPaletteFormat.CrossFadeBlueStep)) return false;
             return true;
         }
-        /// <summary>Resolves.</summary>
         internal Bgr555 Resolve(int color)
         {
             if (crossFadeInputs is not null)
@@ -124,7 +113,6 @@ public sealed class IntroCinematicPalette
             return supplied is not null ? supplied[color] :
                 color == 0 ? background : cycle ? CycleColor(color) : foreground;
         }
-        /// <summary>Cycle color.</summary>
         private Bgr555 CycleColor(int color)
         {
             int decrease = (color - 1) % IntroCinematicPaletteFormat.NeutralCycleLength *

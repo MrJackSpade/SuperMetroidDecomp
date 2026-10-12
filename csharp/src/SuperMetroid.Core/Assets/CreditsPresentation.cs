@@ -6,12 +6,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable staff-credit text compiled into the cartridge's fixed row cadence.</summary>
 public sealed class CreditsPresentation
 {
-    /// <summary>Stores lines.</summary>
     private readonly CreditsLineDocument[]? lines;
-    /// <summary>Stores fixture rows.</summary>
     private readonly ushort[][]? fixtureRows;
 
-    /// <summary>Initializes a new credits presentation instance.</summary>
     private CreditsPresentation(CreditsLineDocument[]? lines, ushort[][]? fixtureRows, string contentIdentity)
     {
         this.lines = lines;
@@ -129,7 +126,6 @@ public sealed class CreditsPresentation
         output.Write(bytes);
     }
 
-    /// <summary>Validates line.</summary>
     private static void ValidateLine(CreditsLineDefinition definition, CreditsLineDocument line)
     {
         foreach (char character in line.Text)
@@ -148,7 +144,6 @@ public sealed class CreditsPresentation
         }
     }
 
-    /// <summary>Renders line.</summary>
     private static ushort[] RenderLine(CreditsLineDefinition definition, CreditsLineDocument line, bool bottom)
     {
         ushort[] row = BlankRow();
@@ -158,13 +153,11 @@ public sealed class CreditsPresentation
                 CreditsPresentationDefinitions.CompileGlyph(line.Text[index], definition.Style, bottom), attributes);
         return row;
     }
-    /// <summary>Applies attributes.</summary>
     private static ushort ApplyAttributes(ushort glyph, ushort attributes) =>
         glyph == CreditsPresentationDefinitions.BlankWord
             ? glyph
             : unchecked((ushort)(glyph | attributes));
 
-    /// <summary>Blank row.</summary>
     private static ushort[] BlankRow() =>
         Enumerable.Repeat(CreditsPresentationDefinitions.BlankWord,
             CreditsPresentationDefinitions.TilemapWidth).ToArray();

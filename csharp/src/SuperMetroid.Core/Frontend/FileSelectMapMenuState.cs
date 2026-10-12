@@ -15,41 +15,23 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class FileSelectMapMenuState
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState audio;
-    /// <summary>Stores area.</summary>
     private readonly int area;
-    /// <summary>Stores used stations.</summary>
     private readonly ushort[] usedStations = new ushort[FileSelectMapRomData.AreaCount];
-    /// <summary>Stores area graphics.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
-    /// <summary>Stores room graphics.</summary>
     private readonly FileSelectRoomMapGraphics roomGraphics;
-    /// <summary>Stores scroll.</summary>
     private FileSelectMapScroll scroll;
-    /// <summary>Stores marker.</summary>
     private FileSelectStationMarker marker;
-    /// <summary>Stores station index.</summary>
     private readonly ushort stationIndex;
-    /// <summary>Stores marker drawn.</summary>
     private bool markerDrawn;
-    /// <summary>Stores animations.</summary>
     private readonly FileSelectMapAnimations animations;
-    /// <summary>Stores draw arrows.</summary>
     private bool drawArrows;
-    /// <summary>Stores navigation.</summary>
     private readonly FileSelectMapNavigation navigation;
-    /// <summary>Stores entry.</summary>
     private readonly FileSelectMapEntry entry;
-    /// <summary>Stores return window.</summary>
     private FileSelectMapWindow? returnWindow;
-    /// <summary>Stores pending frames.</summary>
     private int pendingFrames;
-    /// <summary>Stores brightness.</summary>
     private byte brightness = 15;
-    /// <summary>Stores map presentation.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
@@ -115,7 +97,6 @@ public sealed class FileSelectMapMenuState
         marker.BindPosition(bus, (AreaId)area, stationIndex, catalog?.SaveMarkers);
     }
 
-    /// <summary>Creates scroll for current content.</summary>
     private FileSelectMapScroll CreateScrollForCurrentContent()
     {
         var typedArea = (AreaId)area;
@@ -204,7 +185,6 @@ public sealed class FileSelectMapMenuState
     }
 
     // Final frame for composed phases; a returned frame is valid until this menu renders again.
-    /// <summary>Stores frame buffer.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Draws the current 256-by-224 entry, area, room, or clipped transition scene and applies current master brightness without consuming input or advancing any timers.</summary>
@@ -240,7 +220,6 @@ public sealed class FileSelectMapMenuState
         return pixels;
     }
 
-    /// <summary>Queues.</summary>
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, maximumQueued: 6);
 
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
@@ -278,7 +257,6 @@ public sealed class FileSelectMapMenuState
         return new(scene.Memory, scene.Layers, scene.ObjectSelection, brightness);
     }
 
-    /// <summary>Window.</summary>
     private static LayeredRenderSnapshot Window(LayeredRenderSnapshot areaScene, LayeredRenderSnapshot roomScene, FileSelectMapWindow window)
     {
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
@@ -291,7 +269,6 @@ public sealed class FileSelectMapMenuState
         return Insert(areaScene, roomScene, left, top, right + 1, bottom);
     }
 
-    /// <summary>Insert.</summary>
     private static LayeredRenderSnapshot Insert(LayeredRenderSnapshot basis, LayeredRenderSnapshot inside,
         int left, int top, int right, int bottom)
     {

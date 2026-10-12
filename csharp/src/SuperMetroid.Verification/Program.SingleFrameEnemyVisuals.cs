@@ -7,12 +7,10 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static PolypRockInstructionProgramDefinitionsVerification;
 
-/// <summary>Represents single frame enemy visuals verification.</summary>
 internal static class SingleFrameEnemyVisualsVerification
 {
     // #1166: confirm the statically identified single-operand omissions, including
     // the installed compositions consumed immediately after instruction selection.
-    /// <summary>verify single frame enemy visuals.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifySingleFrameEnemyVisuals()
     {

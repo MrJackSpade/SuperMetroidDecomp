@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -8,11 +8,8 @@ namespace SuperMetroid.Core.Game;
 internal abstract class AlcoonInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
     // Each facing occupies112 bytes: walking28, three-shot volley72, two sleeping poses12.
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 68;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 44;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -31,7 +28,6 @@ internal abstract class AlcoonInstructionProgramDefinitionsTooling : IInstructio
         ushort address = (ushort)(AlcoonInstructionProgramDefinitions.WalkingLeft + 112 * (index / 34) + offset);
         return new(address, AlcoonInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -47,7 +43,6 @@ internal abstract class AlcoonInstructionProgramDefinitionsTooling : IInstructio
         else offset = frame == 19 ? 98 : 102 + 6 * (frame - 20);
         return (ushort)(AlcoonInstructionProgramDefinitions.WalkingLeft + 112 * (index / 22) + offset);
     }
-    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;

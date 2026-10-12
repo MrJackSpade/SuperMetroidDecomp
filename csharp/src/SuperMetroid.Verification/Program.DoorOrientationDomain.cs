@@ -2,7 +2,6 @@ using System.Reflection;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 
-/// <summary>Represents door orientation domain verification.</summary>
 internal static class DoorOrientationDomainVerification
 {
     /// <summary>

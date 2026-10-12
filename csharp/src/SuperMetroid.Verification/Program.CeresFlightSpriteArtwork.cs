@@ -8,10 +8,8 @@ using SuperMetroid.Core.Rendering;
 using static CeresFlightArtworkVerification;
 using static MapSpritesVerification;
 
-/// <summary>Represents ceres flight sprite artwork verification.</summary>
 internal static class CeresFlightSpriteArtworkVerification
 {
-    /// <summary>Verifies ceres flight sprite artwork.</summary>
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
         SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock,
         ISnesAddressSpace guardedBus)

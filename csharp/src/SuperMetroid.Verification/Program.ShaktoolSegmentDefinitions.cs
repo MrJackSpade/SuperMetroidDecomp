@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents shaktool segment definitions verification.</summary>
 internal static class ShaktoolSegmentDefinitionsVerification
 {
-    /// <summary>verify shaktool segment definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool segment definitions")]
     internal static void VerifyShaktoolSegmentDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -84,37 +82,30 @@ internal static class ShaktoolSegmentDefinitionsVerification
             "Shaktool segment definitions: 56 native words, all seven real initializers and the group callback reset pass with source tables forbidden.");
     }
 
-    /// <summary>verify shaktool property selection.</summary>
     private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
             definition => definition.PropertyMask, "property selection"));
 
-    /// <summary>verify shaktool initial angle algorithm.</summary>
     internal static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
             definition => definition.InitialOrbitAngle, "initial angle algorithm"));
 
-    /// <summary>verify shaktool owner offset algorithm.</summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
             definition => definition.OwnerNativeOffset, "owner offset"));
 
-    /// <summary>verify shaktool initial instruction selection.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInstructionAddress,
             definition => definition.InitialInstruction, "initial instruction selection"));
 
-    /// <summary>verify shaktool layer selection.</summary>
     private static void VerifyShaktoolLayerSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeLayerAddress,
             definition => definition.Layer, "layer selection"));
 
-    /// <summary>verify shaktool callback selection.</summary>
     private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeCallbackAddress,
             definition => (ushort)definition.PreInstruction, "callback selection"));
 
-    /// <summary>verify shaktool definition field.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool definition field")]
     private static void VerifyShaktoolDefinitionField(SuperMetroidAddressSpace rom,
         int nativeAddress, Func<ShaktoolSegmentDefinition, ushort> select, string label)
@@ -131,7 +122,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool {label} rejects {invalid}");
     }
 
-    /// <summary>new shaktool segment read guard.</summary>
     private static CartridgeReadGuard NewShaktoolSegmentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xaade95 and < 0xaadf05,
             address => $"Shaktool attempted migrated segment-definition read ${address:X6}.");

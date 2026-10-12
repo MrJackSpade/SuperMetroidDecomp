@@ -19,10 +19,8 @@ using static IntroScientistInstructionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents intro baby actor definitions verification.</summary>
 internal static class IntroBabyActorDefinitionsVerification
 {
-    /// <summary>Verifies intro baby actor definitions.</summary>
     internal static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -232,11 +230,9 @@ internal static class IntroBabyActorDefinitionsVerification
             "  Intro baby actors: definition, 138 discovery, 142 scientist, 72 demo-input and 768 collision bytes match; full guarded scenes pass.");
     }
 
-    /// <summary>Intro baby actor definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby actor definitions")]
     private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Creates intro baby actor definition guard.</summary>
     private static CartridgeReadGuard NewIntroBabyActorDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address =>
@@ -269,18 +265,14 @@ internal static class IntroBabyActorDefinitionsVerification
     /// <summary>A demo owner that accepts every pre-instruction without effect and has no private routines (#633).</summary>
     internal sealed class InertPreInstructionDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
     {
-        /// <summary>Reads instruction word.</summary>
         public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
 
-        /// <summary>Attempts to run pre instruction.</summary>
         public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => true;
 
-        /// <summary>Runs special instruction.</summary>
         public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
             DemoInputInstructionResult.NotHandled(cursor);
     }
 
-    /// <summary>Intro baby actor definitions command.</summary>
     [VerificationCommand("--intro-baby-actor-definitions")]
     internal static int IntroBabyActorDefinitionsCommand()
     {

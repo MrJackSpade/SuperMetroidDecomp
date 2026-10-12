@@ -12,7 +12,6 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Unpaced, room-local CPU baseline. Not a presentation, waveOut-underrun, or five-minute soak gate.</summary>
 internal static class SimulationProfile
 {
-    /// <summary>Runs.</summary>
     internal static void Run()
     {
         VerifyPublicationProfiler();
@@ -37,7 +36,6 @@ internal static class SimulationProfile
         }, new JsonSerializerOptions { WriteIndented = true }));
     }
 
-    /// <summary>Measure.</summary>
     private static object Measure(ushort room, bool paused)
     {
         var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
@@ -103,9 +101,7 @@ internal static class SimulationProfile
             NonzeroPcmSamples = nonzeroPcmSamples };
     }
 
-    /// <summary>Indicates whether paused.</summary>
     private static bool IsPaused(SuperMetroidGame game) => game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
-    /// <summary>Verifies publication profiler.</summary>
     private static void VerifyPublicationProfiler()
     {
         // Exclude the CLR's first thread-static/type initialization from steady-state recording.
@@ -126,18 +122,15 @@ internal static class SimulationProfile
         catch (InvalidOperationException) { nestedRejected = true; }
         if (!nestedRejected) throw new InvalidOperationException("Nested profiling would double count work.");
     }
-    /// <summary>Distribution.</summary>
     private static Timing Distribution(double[] values)
     {
         Array.Sort(values);
         return new(values[(int)Math.Ceiling(values.Length * .50) - 1], values[(int)Math.Ceiling(values.Length * .95) - 1],
             values[(int)Math.Ceiling(values.Length * .99) - 1], values[^1]);
     }
-    /// <summary>Represents timing.</summary>
     private readonly record struct Timing(double P50, double P95, double P99, double Maximum);
 }
 
-/// <summary>Represents simulation profile rooms.</summary>
 internal static class SimulationProfileRooms
 {
     /// <summary>Retail $8F:CEFB room header: Maridia glass tube, logical room $04/$01.</summary>

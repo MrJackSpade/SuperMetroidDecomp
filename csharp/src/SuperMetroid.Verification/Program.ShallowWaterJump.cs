@@ -13,13 +13,11 @@ using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents shallow water jump verification.</summary>
 internal static class ShallowWaterJumpVerification
 {
     /// <summary>The checked-in native trace for issue #1258, one row per jump frame.</summary>
     private const string ShallowWaterJumpNativeTracePath = "csharp/test-fixtures/issue-1258-water-jump/native.csv";
 
-    /// <summary>Verifies shallow water jump.</summary>
     internal static void VerifyShallowWaterJump()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -33,7 +31,6 @@ internal static class ShallowWaterJumpVerification
         AssertSequenceEqual(native, rows, "reported shallow-water jump matches native pose, position, velocity, radius and medium on every frame");
     }
 
-    /// <summary>Shallow water jump command.</summary>
     [VerificationCommand("--shallow-water-jump")]
     internal static int ShallowWaterJumpCommand()
     {

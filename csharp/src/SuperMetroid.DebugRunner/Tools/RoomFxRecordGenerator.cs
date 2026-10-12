@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using System.Text;
 
-/// <summary>Represents room fx record generator.</summary>
 internal static class RoomFxRecordGenerator
 {
     /// <summary>One-time code generator for typed FX setup data from the pinned retail ROM.</summary>

@@ -3,10 +3,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents mode7 smoke tests.</summary>
 internal static class Mode7SmokeTests
 {
-    /// <summary>Runs.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

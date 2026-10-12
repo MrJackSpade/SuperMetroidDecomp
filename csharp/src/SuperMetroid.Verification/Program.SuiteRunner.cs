@@ -2,7 +2,6 @@ using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
 
-/// <summary>Represents suite runner verification.</summary>
 internal static class SuiteRunnerVerification
 {
     /// <summary>
@@ -49,7 +48,6 @@ internal static class SuiteRunnerVerification
         return result is int code ? code : 0;
     }
 
-    /// <summary>Suite command.</summary>
     [VerificationCommand("--suite", "verifierMethod", Description = "Runs one verifier method by name.")]
     internal static int SuiteCommand(string verifierMethod)
     {

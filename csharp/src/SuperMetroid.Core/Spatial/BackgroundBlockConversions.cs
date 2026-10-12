@@ -29,6 +29,5 @@ public static class BackgroundBlockConversions
     public static Position16<RoomBlocks> ToSourceBlocks(this Position16<Bg2Pixels> layer) =>
         new(SignExtendedBlock(layer.X), SignExtendedBlock(layer.Y));
 
-    /// <summary>Sign extended block.</summary>
     private static ushort SignExtendedBlock(ushort position) => unchecked((ushort)((short)position >> 4));
 }

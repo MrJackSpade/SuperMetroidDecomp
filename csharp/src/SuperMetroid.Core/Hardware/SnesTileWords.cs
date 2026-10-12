@@ -20,15 +20,10 @@ public enum SnesTileFlipFlags : ushort
 [SnesEncodingOwner]
 public readonly record struct SnesBgTilemapWord(ushort Raw)
 {
-    /// <summary>Defines character mask.</summary>
     private const ushort CharacterMask = 0x03ff;
-    /// <summary>Defines palette shift.</summary>
     private const int PaletteShift = 10;
-    /// <summary>Defines palette mask.</summary>
     private const ushort PaletteMask = 0x0007;
-    /// <summary>Defines priority mask.</summary>
     private const ushort PriorityMask = 0x2000;
-    /// <summary>Defines flip mask.</summary>
     private const ushort FlipMask = 0xc000;
 
     /// <summary>Gets the ten-bit character number, from 0 through 1023, relative to the background's character base.</summary>
@@ -96,7 +91,6 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
         return new SnesBgTilemapWord(unchecked((ushort)((Raw & ~fieldMask) | paletteBits)));
     }
 
-    /// <summary>Validates flips.</summary>
     private static void ValidateFlips(SnesTileFlipFlags flips)
     {
         if ((flips & ~(SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)) != 0)
@@ -114,17 +108,11 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
 [SnesEncodingOwner]
 public readonly record struct SnesObjAttributeWord(ushort Raw)
 {
-    /// <summary>Defines tile number mask.</summary>
     private const ushort TileNumberMask = 0x01ff;
-    /// <summary>Defines palette shift.</summary>
     private const int PaletteShift = 9;
-    /// <summary>Defines priority shift.</summary>
     private const int PriorityShift = 12;
-    /// <summary>Defines three bit mask.</summary>
     private const ushort ThreeBitMask = 0x0007;
-    /// <summary>Defines two bit mask.</summary>
     private const ushort TwoBitMask = 0x0003;
-    /// <summary>Defines flip mask.</summary>
     private const ushort FlipMask = 0xc000;
 
     /// <summary>Gets the nine-bit OBJ character number, from 0 through 511, including the tile-page select bit.</summary>
@@ -142,7 +130,6 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     /// <summary>Gets whether the object's rows are drawn in reverse vertical order.</summary>
     public bool FlipVertically => (FlipFlags & SnesTileFlipFlags.Vertical) != 0;
 
-    /// <summary>Defines palette field mask.</summary>
     private const ushort PaletteFieldMask = ThreeBitMask << PaletteShift;
 
     /// <summary>Encodes every field in one standard two-byte low-OAM attribute record.</summary>
@@ -205,7 +192,6 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
     public SnesObjAttributeWord Or(SnesObjAttributeWord attributes) =>
         new(unchecked((ushort)(Raw | attributes.Raw)));
 
-    /// <summary>Validates flips.</summary>
     private static void ValidateFlips(SnesTileFlipFlags flips)
     {
         if ((flips & ~(SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)) != 0)
@@ -225,11 +211,8 @@ public readonly record struct SnesObjAttributeWord(ushort Raw)
 [SnesEncodingOwner]
 public readonly record struct SnesOamHighTablePair
 {
-    /// <summary>Defines pair mask.</summary>
     private const byte PairMask = 0x03;
-    /// <summary>Defines xhigh mask.</summary>
     private const byte XHighMask = 0x01;
-    /// <summary>Defines large object mask.</summary>
     private const byte LargeObjectMask = 0x02;
 
     /// <summary>Gets the unshifted two-bit pair, from 0 through 3, before placement in a shared high-OAM byte.</summary>
@@ -267,9 +250,7 @@ public readonly record struct SnesOamHighTablePair
 [SnesEncodingOwner]
 public readonly record struct SnesSpritemapXWord(ushort Raw)
 {
-    /// <summary>Defines offset mask.</summary>
     private const ushort OffsetMask = 0x01ff;
-    /// <summary>Defines large object mask.</summary>
     private const ushort LargeObjectMask = 0x8000;
     /// <summary>Gets whether bit 15 selects the larger of the PPU's configured OBJ sizes.</summary>
     public bool IsLarge => (Raw & LargeObjectMask) != 0;

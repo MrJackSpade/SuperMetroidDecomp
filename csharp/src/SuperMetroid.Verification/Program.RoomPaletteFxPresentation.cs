@@ -9,10 +9,8 @@ using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 using static TitleGradientVerification;
 
-/// <summary>Represents room palette fx presentation verification.</summary>
 internal static class RoomPaletteFxPresentationVerification
 {
-    /// <summary>Verifies extracted room palette fx presentation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room palette-FX color words")]
     internal static void VerifyExtractedRoomPaletteFxPresentation(
         SuperMetroidAddressSpace bus)
@@ -174,7 +172,6 @@ internal static class RoomPaletteFxPresentationVerification
             "fifty-five installed programs match native execution without color-source reads.");
     }
 
-    /// <summary>Verifies extracted ending gunship palette fx presentation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending gunship palette-FX color words")]
     internal static void VerifyExtractedEndingGunshipPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
@@ -254,7 +251,6 @@ internal static class RoomPaletteFxPresentationVerification
             "gunship does not invent missing interpolation inputs");
     }
 
-    /// <summary>Verifies extracted logo glare palette fx presentation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for logo glare palette-FX color words")]
     internal static void VerifyExtractedLogoGlarePaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
@@ -311,7 +307,6 @@ internal static class RoomPaletteFxPresentationVerification
             "glare does not invent a missing base color");
     }
 
-    /// <summary>Verifies extracted samus loading palette fx presentation.</summary>
     internal static void VerifyExtractedSamusLoadingPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
@@ -476,7 +471,6 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
-    /// <summary>Verifies extracted samus heat palette fx presentation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus heat palette-FX color words")]
     internal static void VerifyExtractedSamusHeatPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
@@ -717,7 +711,6 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
-    /// <summary>Verifies installed palette fx family.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an installed palette-FX family's native color words")]
     private static void VerifyInstalledPaletteFxFamily(ISnesAddressSpace bus, RoomPaletteFxPresentation presentation, string description, PaletteFxFamilyShape shape, int framesToRun, ushort samusY = 0)
     {
@@ -765,7 +758,6 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
-    /// <summary>Verifies extracted wrecked ship palette fx presentation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Wrecked Ship palette-FX color words")]
     private static void VerifyExtractedWreckedShipPaletteFxPresentation(
         ISnesAddressSpace bus,
@@ -823,7 +815,6 @@ internal static class RoomPaletteFxPresentationVerification
         }
     }
 
-    /// <summary>Verifies extracted maridia palette fx presentation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia palette-FX color words")]
     private static void VerifyExtractedMaridiaPaletteFxPresentation(
         ISnesAddressSpace bus,
@@ -876,7 +867,6 @@ internal static class RoomPaletteFxPresentationVerification
             "installed Maridia palette loops avoid cartridge color reads");
     }
 
-    /// <summary>Verifies room palette fx presentation validation.</summary>
     private static void VerifyRoomPaletteFxPresentationValidation(
         byte[] extracted, ISnesAddressSpace bus)
     {

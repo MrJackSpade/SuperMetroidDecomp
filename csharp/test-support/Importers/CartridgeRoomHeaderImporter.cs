@@ -1,4 +1,4 @@
-using SuperMetroid.Core;
+﻿using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -12,7 +12,6 @@ public static class CartridgeRoomHeaderImporter
 {
     // This is the import/reference decoder. Gameplay uses the compiled room branches;
     // importing native headers must remain independent of those generated definitions.
-    /// <summary>Selects imported state.</summary>
     private static ushort SelectImportedState(ISnesAddressSpace bus, ushort cursor,
         RoomStateSelectionContext selection)
     {

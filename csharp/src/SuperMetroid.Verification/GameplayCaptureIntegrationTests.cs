@@ -12,10 +12,8 @@ using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents gameplay capture integration tests verification.</summary>
 internal static class GameplayCaptureIntegrationTestsVerification
 {
-    /// <summary>Verifies gameplay capture integration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     internal static void VerifyGameplayCaptureIntegration()
     {

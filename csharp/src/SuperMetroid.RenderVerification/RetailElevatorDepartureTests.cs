@@ -11,7 +11,6 @@ using SuperMetroid.Rendering.Direct3D11;
 /// <summary>Focused downward ride, staged on the carrier rather than reached by a multi-room trace.</summary>
 internal static class RetailElevatorDepartureTests
 {
-    /// <summary>Run.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -70,7 +69,6 @@ internal static class RetailElevatorDepartureTests
     }
 }
 
-/// <summary>Represents elevator capture fixture definitions.</summary>
 internal static class ElevatorCaptureFixtureDefinitions
 {
     /// <summary>Native elevator attachment uses a 26-pixel Samus center offset above the carrier; matches the existing ElevatorAudit fixture.</summary>

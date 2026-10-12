@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
 
-/// <summary>Represents eye window snapshot tests verification.</summary>
 internal static class EyeWindowSnapshotTestsVerification
 {
-    /// <summary>verify eye window snapshots.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyEyeWindowSnapshots()
     {
@@ -59,7 +57,6 @@ internal static class EyeWindowSnapshotTestsVerification
         }
     }
 
-    /// <summary>verify reported eye native endpoints.</summary>
     private static void VerifyReportedEyeNativeEndpoints(ISnesAddressSpace bus)
     {
         // These endpoints were emitted by executing ROM $88:E987, not by the

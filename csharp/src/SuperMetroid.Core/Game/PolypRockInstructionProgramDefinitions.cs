@@ -20,12 +20,10 @@ internal abstract class PolypRockInstructionProgramDefinitions
     /// <summary>EnemyProjSpritemaps_LavaquakeRocks at $8D:9340, selected by $86:BBD7.</summary>
     internal const ushort Spritemap = 0x9340;
 
-    /// <summary>Frame at.</summary>
     internal static ushort FrameAt(ushort operandAddress) => operandAddress == PresentationWord
         ? Spritemap
         : throw new InvalidDataException($"Unknown Polyp-rock visual operand $86:{operandAddress:X4}.");
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 2;
     /// <summary>$86:BBD5-BBD9 installs one static rock pose then sleeps.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => index switch
@@ -35,7 +33,6 @@ internal abstract class PolypRockInstructionProgramDefinitions
         _ => throw new IndexOutOfRangeException(),
     };
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

@@ -6,10 +6,8 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
 
-/// <summary>Represents ending explosion slot order verification.</summary>
 internal static class EndingExplosionSlotOrderVerification
 {
-    /// <summary>Verifies ending explosion slot order.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingExplosionSlotOrder()
     {

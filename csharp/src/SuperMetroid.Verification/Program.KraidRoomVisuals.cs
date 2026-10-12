@@ -18,10 +18,8 @@ using static KraidRoomVisualSelectionVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents kraid room visuals verification.</summary>
 internal static class KraidRoomVisualsVerification
 {
-    /// <summary>Verifies kraid room visuals.</summary>
     internal static void VerifyKraidRoomVisuals()
     {
         Suite(nameof(VerifyKraidRoomVisualSelection), () => VerifyKraidRoomVisualSelection());
@@ -115,7 +113,6 @@ internal static class KraidRoomVisualsVerification
             "Kraid room visuals: ten native draws, live ceiling/spike edits, elevatube owner isolation, physical/timing separation, stock repair and strict failures pass.");
     }
 
-    /// <summary>Verifies kraid visual owner isolation.</summary>
     private static void VerifyKraidVisualOwnerIsolation(
         RoomPlmKraidVisualCatalog edited)
     {
@@ -153,7 +150,6 @@ internal static class KraidRoomVisualsVerification
             "elevatube does not read migrated Kraid source data");
     }
 
-    /// <summary>Verifies kraid draw.</summary>
     private static void VerifyKraidDraw(PlmHeaderId header, ushort drawPointer, int blockOffset, ushort physicalWord, ushort visualWord, KraidRoomVisualCatalogs catalogs, ushort layer1X)
     {
         const int width = 32;
@@ -192,7 +188,6 @@ internal static class KraidRoomVisualsVerification
             $"Kraid draw ${drawPointer:X4} reads no migrated source bytes");
     }
 
-    /// <summary>Kraid room visuals command.</summary>
     [VerificationCommand("--kraid-room-visuals")]
     internal static int KraidRoomVisualsCommand()
     {

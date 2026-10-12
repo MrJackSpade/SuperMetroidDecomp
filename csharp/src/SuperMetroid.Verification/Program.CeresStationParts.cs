@@ -3,10 +3,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
-/// <summary>Represents ceres station parts verification.</summary>
 internal static class CeresStationPartsVerification
 {
-    /// <summary>Verifies ceres station parts.</summary>
     internal static void VerifyCeresStationParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
@@ -60,7 +58,6 @@ internal static class CeresStationPartsVerification
             }
         }
     }
-    /// <summary>Checks ceres station loader.</summary>
     internal static void CheckCeresStationLoader(ushort pointer, SpriteVisualPart[] visual)
     {
         var definition = CeresFlightSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pointer == pointer);

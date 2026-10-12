@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,13 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MotherBrainTurretInstructionProgramDefinitions))]
 internal abstract class MotherBrainTurretInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress(index);
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 49;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -34,12 +30,10 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitionsTooling : 
             _ => new((ushort)(MotherBrainTurretInstructionProgramDefinitions.BulletTouchOrShot + 4 + 4 * (index - 43)), index == 47 ? (ushort)32 : (ushort)8),
         };
     }
-    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address) =>
         (SnesAddressMath.BankBase(address)) == EnemyProjectileCodePointers.BankBase &&
         (MotherBrainTurretInstructionProgramDefinitions.TryRead(unchecked((ushort)address), out _) ||
          MotherBrainTurretInstructionProgramDefinitions.TryRead(unchecked((ushort)(address - 1)), out _));
-    /// <summary>Pose word.</summary>
     internal static InstructionMechanicsWord PoseWord(ushort first, int index) =>
         new((ushort)(first + 6 * (index / 2) + 4 * (index % 2)),
             index % 2 == 0 ? (ushort)1 : (ushort)EnemyProjectileInstruction.Sleep);

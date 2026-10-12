@@ -2,10 +2,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static GraphDigestVerification;
 
-/// <summary>Represents render frame handoff tests verification.</summary>
 internal static class RenderFrameHandoffTestsVerification
 {
-    /// <summary>verify render frame handoff.</summary>
     internal static void VerifyRenderFrameHandoff()
     {
         byte[] fades = [2, 12];

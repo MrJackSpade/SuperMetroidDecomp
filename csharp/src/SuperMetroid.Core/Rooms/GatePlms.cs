@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
@@ -6,23 +6,17 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Gate PLMs: the shot-switched vertical gates and the downward gate with its sounds and projectile requests.</summary>
 internal sealed class GatePlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
-    /// <summary>Stores sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
-    /// <summary>Initializes a new gate plms instance.</summary>
     internal GatePlms(PlmRoomBindings bindings, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
         _slotTable = slotTable;
         _sounds = sounds;
     }
-    /// <summary>Stores downward gate projectile requests.</summary>
     internal readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
-    /// <summary>Stores pending downward gate sounds.</summary>
     internal readonly List<PlmSoundRequest> _pendingDownwardGateSounds = new();
 
     /// <summary>
@@ -37,7 +31,6 @@ internal sealed class GatePlms
         return requests;
     }
 
-    /// <summary>Sets up downward gate slot.</summary>
     internal void SetupDownwardGateSlot(RoomLevelData level, PlmSlot slot)
     {
         slot.Gate = new DownwardGatePlmState();
@@ -58,7 +51,6 @@ internal sealed class GatePlms
             slot.BlockIndex));
     }
 
-    /// <summary>Sets up downward gate shot block.</summary>
     internal static void SetupDownwardGateShotBlock(RoomLevelData level, PlmSlot slot)
     {
         DownwardGateShotBlockDefinition definition =
@@ -74,7 +66,6 @@ internal sealed class GatePlms
             WriteDownwardGateShotBlock(level, slot.BlockIndex + 1, definition.RightBlockWord);
     }
 
-    /// <summary>Writes downward gate shot block.</summary>
     private static void WriteDownwardGateShotBlock(RoomLevelData level, int blockIndex, ushort word)
     {
         _ = level.GetCollisionBlockByIndex(blockIndex);
@@ -155,14 +146,12 @@ internal sealed class GatePlms
         return true;
     }
 
-    /// <summary>Publish pending downward gate sounds.</summary>
     internal void PublishPendingDownwardGateSounds()
     {
         _sounds._soundRequests.AddRange(_pendingDownwardGateSounds);
         _pendingDownwardGateSounds.Clear();
     }
 
-    /// <summary>Runs downward gate pre instruction.</summary>
     internal void RunDownwardGatePreInstruction(PlmSlot slot)
     {
         if (slot.Gate is null)
@@ -187,7 +176,6 @@ internal sealed class GatePlms
         slot.PreInstruction = (ushort)DownwardGatePreInstruction.Inert;
     }
 
-    /// <summary>Checks whether samus inside downward gate column.</summary>
     private bool IsSamusInsideDownwardGateColumn(PlmSlot slot)
     {
         SamusState? samus = _bindings.Samus?.Current;
@@ -202,11 +190,9 @@ internal sealed class GatePlms
                 DownwardGatePlmRomData.GateHeightInBlocks;
     }
 
-    /// <summary>Checks whether left trigger.</summary>
     private static bool IsLeftTrigger(DownwardGateTriggerBehavior trigger) =>
         ((byte)trigger & 1) == 0;
 
-    /// <summary>Header for gate trigger.</summary>
     private static PlmHeaderId HeaderForGateTrigger(DownwardGateTriggerBehavior trigger) => trigger switch
     {
         DownwardGateTriggerBehavior.GreenLeft => PlmHeaderId.LeftGreenGateTrigger,
@@ -220,7 +206,6 @@ internal sealed class GatePlms
         _ => throw new ArgumentOutOfRangeException(nameof(trigger), trigger, null),
     };
 
-    /// <summary>Gate trigger accepts projectile.</summary>
     private static bool GateTriggerAcceptsProjectile(
         DownwardGateTriggerBehavior trigger,
         SamusProjectileTypeWord projectileType)
@@ -242,6 +227,5 @@ internal sealed class GatePlms
         };
     }
 
-    /// <summary>Represents downward gate plm state.</summary>
     internal sealed class DownwardGatePlmState;
 }

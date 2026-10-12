@@ -17,9 +17,7 @@ public static class SamusAtmosphericArtworkFiles
     public const string ArtworkFileName = "samus-atmosphere.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and the atmospheric JSON's SHA-256.</summary>
     public const string ManifestFileName = "samus-atmosphere-manifest.json";
-    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 1;
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -88,7 +86,6 @@ public static class SamusAtmosphericArtworkFiles
         }
     }
 
-    /// <summary>build.</summary>
     private static SamusAtmosphericArtworkCatalog Build(ArtworkDocument document, string source)
     {
         if (document.Version != FormatVersion || document.TypeOne is null ||
@@ -97,7 +94,6 @@ public static class SamusAtmosphericArtworkFiles
         return new SamusAtmosphericArtworkCatalog(document.TypeOne, document.SharedTypeFour);
     }
 
-    /// <summary>read list.</summary>
     private static ushort[] ReadList(ISnesAddressSpace bus, ushort pointer)
     {
         var words = new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount];
@@ -106,7 +102,6 @@ public static class SamusAtmosphericArtworkFiles
         return words;
     }
 
-    /// <summary>assert pointer.</summary>
     private static void AssertPointer(ISnesAddressSpace bus, int table, int type, ushort expected)
     {
         ushort actual = CartridgeImportSource.Require(bus).ReadCartridgeWord((table + type * 2));
@@ -115,8 +110,6 @@ public static class SamusAtmosphericArtworkFiles
                 $"Atmospheric type {type} points to ${actual:X4}, expected ${expected:X4}.");
     }
 
-    /// <summary>Represents artwork document.</summary>
     private sealed record ArtworkDocument(int Version, ushort[] TypeOne, ushort[] SharedTypeFour);
-    /// <summary>Represents artwork manifest.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256, string ArtworkSha256);
 }

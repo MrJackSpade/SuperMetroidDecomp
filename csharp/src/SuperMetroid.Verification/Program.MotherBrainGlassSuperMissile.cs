@@ -13,7 +13,6 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents mother brain glass super missile verification.</summary>
 internal static class MotherBrainGlassSuperMissileVerification
 {
     // #1269: In Mother Brain's first form the bank-$A0 walker marks the colliding projectile
@@ -21,7 +20,6 @@ internal static class MotherBrainGlassSuperMissileVerification
     // runs the normal damage. The next projectile pass removes the marked Super Missile and
     // its pair. The port converted the missile on the spot, leaving the pair live to hit the
     // glass again: in the 100% movie Mother Brain dropped to 2400 instead of 2700.
-    /// <summary>Verifies mother brain glass super missile.</summary>
     internal static void VerifyMotherBrainGlassSuperMissile()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -75,7 +73,6 @@ internal static class MotherBrainGlassSuperMissileVerification
         Console.WriteLine("Mother Brain glass Super Missile: one marked hit, $6E, and the pair removed on the next pass.");
     }
 
-    /// <summary>Mother brain glass super missile command.</summary>
     [VerificationCommand("--mother-brain-glass-super-missile")]
     internal static int MotherBrainGlassSuperMissileCommand()
     {

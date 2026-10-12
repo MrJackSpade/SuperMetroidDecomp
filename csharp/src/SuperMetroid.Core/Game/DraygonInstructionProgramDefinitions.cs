@@ -152,7 +152,6 @@ internal abstract class DraygonInstructionProgramDefinitions
     /// <summary>Native program bank $A5.</summary>
     internal const byte Bank = 0xa5;
 
-    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0x97b9),
         Entry(Sleep),
@@ -590,7 +589,6 @@ internal abstract class DraygonInstructionProgramDefinitions
         Frame(6),
         Op((ushort)CommonEnemyInstruction.Goto, TailFacingRightIdle0));
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

@@ -59,10 +59,8 @@ public enum EtecoonAiFunction : ushort
 /// </summary>
 public sealed class EtecoonEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new etecoon enemy state instance.</summary>
     internal EtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

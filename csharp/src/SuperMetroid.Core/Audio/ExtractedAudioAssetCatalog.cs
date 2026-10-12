@@ -14,19 +14,13 @@ public sealed class ExtractedAudioAssetCatalog
 {
     /// <summary>JSON manifest filename beneath the selected audio root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
-    /// <summary>Stores streams.</summary>
     private readonly IReadOnlyDictionary<int, byte[]> streams;
-    /// <summary>Stores sample banks.</summary>
     private readonly IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks;
-    /// <summary>Stores instrument banks.</summary>
     private readonly IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>>
         instrumentBanks;
-    /// <summary>Stores music banks.</summary>
     private readonly IReadOnlyDictionary<int, AudioBankMetadata> musicBanks;
-    /// <summary>Stores canonical sample count.</summary>
     private readonly int canonicalSampleCount;
 
-    /// <summary>Initializes a new extracted audio asset catalog instance.</summary>
     private ExtractedAudioAssetCatalog(ExtractedAudioAssetParts parts)
     {
         this.streams = parts.Streams;
@@ -185,27 +179,16 @@ public sealed class ExtractedAudioAssetCatalog
     /// <summary>A write-only stream that appends every byte to an incremental hash.</summary>
     private sealed class HashingWriteStream(IncrementalHash hash) : Stream
     {
-        /// <summary>Reports that the hashing stream cannot be read.</summary>
         public override bool CanRead => false;
-        /// <summary>Reports that the hashing stream cannot seek.</summary>
         public override bool CanSeek => false;
-        /// <summary>Reports that the hashing stream accepts writes.</summary>
         public override bool CanWrite => true;
-        /// <summary>Rejects length queries because the hashing stream does not track a length.</summary>
         public override long Length => throw new NotSupportedException();
-        /// <summary>Rejects position queries and assignments because the hashing stream cannot seek.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-        /// <summary>Writes.</summary>
         public override void Write(byte[] buffer, int offset, int count) => hash.AppendData(buffer, offset, count);
-        /// <summary>Writes.</summary>
         public override void Write(ReadOnlySpan<byte> buffer) => hash.AppendData(buffer);
-        /// <summary>Flush.</summary>
         public override void Flush() { }
-        /// <summary>Reads.</summary>
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-        /// <summary>Seek.</summary>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-        /// <summary>Sets length.</summary>
         public override void SetLength(long value) => throw new NotSupportedException();
     }
 
@@ -272,7 +255,6 @@ public sealed class ExtractedAudioAssetCatalog
     /// <summary>Stable SFX command IDs and their compiled routing/allocation metadata.</summary>
     public IReadOnlyList<AudioSoundLibraryMetadata> SoundLibraries { get; }
 
-    /// <summary>Validates instruments.</summary>
     private static System.Collections.ObjectModel.ReadOnlyCollection<AudioInstrumentMetadata>
         ValidateInstruments(
         AudioBankMetadata bank)
@@ -317,7 +299,6 @@ public sealed class ExtractedAudioAssetCatalog
         return Array.AsReadOnly(ordered);
     }
 
-    /// <summary>Loads canonical samples.</summary>
     private static Dictionary<string, ManagedPcmSample> LoadCanonicalSamples(
         string root,
         IReadOnlyList<AudioCanonicalSampleMetadata> definitions)
@@ -359,7 +340,6 @@ public sealed class ExtractedAudioAssetCatalog
         return samples;
     }
 
-    /// <summary>Validates music bank.</summary>
     private static void ValidateMusicBank(AudioBankMetadata bank)
     {
         if (bank.TrackPointers is null || bank.MusicTracks is null ||
@@ -422,7 +402,6 @@ public sealed class ExtractedAudioAssetCatalog
         _ = SpcMusicDefinitionCodec.CompileBank(bank);
     }
 
-    /// <summary>Validates sound definitions.</summary>
     private static (
         IReadOnlyList<AudioSoundProgramMetadata> Programs,
         IReadOnlyList<AudioSoundLibraryMetadata> Libraries) ValidateSoundDefinitions(
@@ -509,7 +488,6 @@ public sealed class ExtractedAudioAssetCatalog
             Array.AsReadOnly(manifest.SoundLibraries.ToArray()));
     }
 
-    /// <summary>Resolves contained path.</summary>
     private static string ResolveContainedPath(string root, string relativePath)
     {
         if (Path.IsPathRooted(relativePath))
@@ -523,7 +501,6 @@ public sealed class ExtractedAudioAssetCatalog
         return path;
     }
 
-    /// <summary>Reads manifest.</summary>
     private static AudioAssetManifest ReadManifest(string root)
     {
         return DeserializeManifest(Path.Combine(root, ManifestFileName));
@@ -540,7 +517,6 @@ public sealed class ExtractedAudioAssetCatalog
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
-    /// <summary>Validates override compatibility.</summary>
     private static void ValidateOverrideCompatibility(
         AudioAssetManifest stock,
         AudioAssetManifest selected,
@@ -746,10 +722,8 @@ public sealed record AudioSoundEffectMetadata(
     byte Configuration,
     IReadOnlyList<string> ChannelPrograms);
 
-/// <summary>Represents audio asset json.</summary>
 internal static class AudioAssetJson
 {
-    /// <summary>Stores options.</summary>
     internal static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -766,10 +740,8 @@ internal static class AudioAssetJson
     private sealed class MusicInstructionConverter : JsonConverter<AudioMusicInstructionMetadata>
     {
         // Operation names repeat across every program; keep one instance of each.
-        /// <summary>Stores operations.</summary>
         [ThreadStatic] private static Dictionary<string, string>? operations;
 
-        /// <summary>Reads.</summary>
         public override AudioMusicInstructionMetadata Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartObject)
@@ -813,7 +785,6 @@ internal static class AudioAssetJson
             return new AudioMusicInstructionMetadata(operation!, opcode, timing!, arguments!);
         }
 
-        /// <summary>Operation.</summary>
         private static string Operation(ref Utf8JsonReader reader)
         {
             if (reader.TokenType != JsonTokenType.String)
@@ -829,7 +800,6 @@ internal static class AudioAssetJson
             return name;
         }
 
-        /// <summary>Writes.</summary>
         public override void Write(Utf8JsonWriter writer, AudioMusicInstructionMetadata value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
@@ -849,7 +819,6 @@ internal static class AudioAssetJson
     /// </summary>
     private sealed class ExactByteListConverter : JsonConverter<IReadOnlyList<byte>>
     {
-        /// <summary>Reads.</summary>
         public override IReadOnlyList<byte> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartArray)
@@ -882,7 +851,6 @@ internal static class AudioAssetJson
             }
         }
 
-        /// <summary>Writes.</summary>
         public override void Write(Utf8JsonWriter writer, IReadOnlyList<byte> value, JsonSerializerOptions options)
         {
             writer.WriteStartArray();

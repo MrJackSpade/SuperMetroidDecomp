@@ -10,15 +10,10 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class FileSelectMapNavigation
 {
-    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
-    /// <summary>Stores area.</summary>
     private readonly int area;
-    /// <summary>Stores previous input.</summary>
     private ushort previousInput;
-    /// <summary>Stores labels.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.WorldMapLabelLayout? labels;
-    /// <summary>Binds labels.</summary>
     internal void BindLabels(SuperMetroid.Core.Assets.WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Creates normal area/room-map navigation for a saved area's native index.</summary>

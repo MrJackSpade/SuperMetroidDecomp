@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -7,10 +7,8 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class PlmShotBlockVisuals
 {
-    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
 
-    /// <summary>Initializes a new plm shot block visuals instance.</summary>
     internal PlmShotBlockVisuals(RoomPlmSystem plms)
     {
         _plms = plms;

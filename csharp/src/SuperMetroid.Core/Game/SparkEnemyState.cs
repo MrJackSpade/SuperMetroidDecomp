@@ -28,10 +28,8 @@ public enum SparkEnemyFunction : ushort
 /// </summary>
 public sealed class SparkEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new spark enemy state instance.</summary>
     internal SparkEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets or sets variable B, the literal bank-$A8 indirect main-function address.</summary>

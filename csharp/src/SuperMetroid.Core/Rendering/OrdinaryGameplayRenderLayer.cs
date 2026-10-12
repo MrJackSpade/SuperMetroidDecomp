@@ -33,7 +33,6 @@ public readonly record struct OrdinaryGameplayRegisters(
 /// </summary>
 public sealed record OrdinaryGameplayRenderLayer : RenderLayer
 {
-    /// <summary>Stores main screen layers by line.</summary>
     private readonly ushort[] mainScreenLayersByLine;
     /// <summary>Captured register values for this composition operation; PPU memory and OAM belong to the enclosing render snapshot, not this value.</summary>
     public OrdinaryGameplayRegisters Registers { get; }

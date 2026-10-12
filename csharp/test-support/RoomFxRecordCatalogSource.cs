@@ -13,7 +13,6 @@ internal static class RoomFxRecordCatalogSource
     internal static readonly string GeneratedPath = Path.GetFullPath(Path.Combine(
         "csharp", "src", "SuperMetroid.Core", "Game", "RoomFxRecordDefinitions.Generated.cs"));
 
-    /// <summary>capture retail room fx records.</summary>
     [CpuBusBoundary("codec: ROM bank-$83 room FX record lists → RoomFxRecordDefinition catalog source")]
     internal static SortedDictionary<ushort, RoomFxRecordDefinition> CaptureRetailRoomFxRecords(
         ISnesAddressSpace bus)
@@ -99,7 +98,6 @@ internal static class RoomFxRecordCatalogSource
         return records;
     }
 
-    /// <summary>render room fx definitions.</summary>
     internal static string RenderRoomFxDefinitions(
         IEnumerable<RoomFxRecordDefinition> records)
     {

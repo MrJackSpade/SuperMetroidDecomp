@@ -15,7 +15,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusMovementRomDataVerification;
 
-/// <summary>Represents samus grapple rom data verification.</summary>
 internal static class SamusGrappleRomDataVerification
 {
     /// <summary>
@@ -138,7 +137,6 @@ internal static class SamusGrappleRomDataVerification
             $"{segmentPointerCount} segment sets, three connection tables, and special angles are in range.");
     }
 
-    /// <summary>Grapple movement command.</summary>
     [VerificationCommand("--grapple-movement")]
     internal static int GrappleMovementCommand()
     {

@@ -12,12 +12,9 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport report)
 {
-    /// <summary>Stores inspected.</summary>
     private readonly HashSet<string> inspected = new(StringComparer.Ordinal);
-    /// <summary>Stores references.</summary>
     private int references;
 
-    /// <summary>inspect.</summary>
     public void Inspect(ClassDeclarationSyntax declaration, SemanticModel semantic)
     {
         if (!declaration.Members.OfType<PropertyDeclarationSyntax>()
@@ -102,7 +99,6 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
         }
     }
 
-    /// <summary>complete.</summary>
     public void Complete() => report.Coverage.Add(new("compiled-presentation-operands", references,
         exports.Count(ResourceDomains.CompiledSelector) + exports.Count(ResourceDomains.EnemyProjectileProgram) +
         exports.Count(ResourceDomains.EnemyProjectileSprite)));

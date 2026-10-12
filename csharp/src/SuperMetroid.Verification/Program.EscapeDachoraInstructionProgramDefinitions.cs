@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents escape dachora instruction program definitions verification.</summary>
 internal static class EscapeDachoraInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies escape dachora instruction program definitions.</summary>
     internal static void VerifyEscapeDachoraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEscapeDachoraInstructionProgramDefinitions), () => VerifyEscapeDachoraInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies escape dachora instruction program definitions.</summary>
     internal static void VerifyEscapeDachoraInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -108,7 +105,6 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
             "ROM reads forbidden.");
     }
 
-    /// <summary>Creates escape dachora program system.</summary>
     internal static RoomEnemySystem CreateEscapeDachoraProgramSystem(
         ISnesAddressSpace bus)
     {
@@ -123,7 +119,6 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
         return enemies;
     }
 
-    /// <summary>Runs forced escape dachora instructions.</summary>
     private static void RunForcedEscapeDachoraInstructions(
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -141,7 +136,6 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe escape dachora instruction mechanics allocation.</summary>
     private static int ProbeEscapeDachoraInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -153,7 +147,6 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New escape dachora instruction read guard.</summary>
     internal static CartridgeReadGuard NewEscapeDachoraInstructionReadGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source).Forbid(
@@ -173,7 +166,6 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
         return guard;
     }
 
-    /// <summary>Escape dachora instruction mechanics command.</summary>
     [VerificationCommand("--escape-dachora-instruction-mechanics")]
     internal static int EscapeDachoraInstructionMechanicsCommand()
     {

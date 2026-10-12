@@ -109,7 +109,6 @@ public sealed class MaridiaElevatubeRoomMainState
         return movement;
     }
 
-    /// <summary>Ensure active.</summary>
     private void EnsureActive(DoorSetupCode setupCode)
     {
         if (IsActive)

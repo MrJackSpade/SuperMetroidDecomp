@@ -7,10 +7,8 @@ using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
 
-/// <summary>Represents message snapshot tests verification.</summary>
 internal static class MessageSnapshotTestsVerification
 {
-    /// <summary>Verifies message snapshots.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void VerifyMessageSnapshots()
     {

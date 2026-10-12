@@ -12,31 +12,23 @@ internal static class RoomPlmBombBlockProgramDefinitions
     /// <summary>Projectile-triggered library-two sound at the eight $84:CC3C-$CD3E heads.</summary>
     internal const byte ProjectileBreakSoundId = 0x0a;
 
-    /// <summary>Represents program.</summary>
     private readonly record struct Program(
         ushort CollisionHead, ushort ReactionHead, bool Respawns, int Dimension)
     {
-        /// <summary>Gets single block.</summary>
         internal bool SingleBlock => Dimension == 0;
-        /// <summary>Gets tail.</summary>
         internal ushort Tail => checked((ushort)(ReactionHead + 3));
-        /// <summary>Gets frame count.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
-        /// <summary>Gets terminal.</summary>
         internal ushort Terminal => checked((ushort)(Tail + 4 * FrameCount));
     }
 
-    /// <summary>Defines program count.</summary>
     private const int ProgramCount = 8;
 
     // BTS low bits select size; bit two selects permanent versus respawning.
     // The collision and projectile heads enter the same shape-specific tail.
-    /// <summary>program at.</summary>
     private static Program ProgramAt(int index) => new(
         RoomPlmInstructionLists.CollisionBombByReactionIndex(index),
         RoomPlmInstructionLists.ReactionBombByReactionIndex(index), index < 4, index & 3);
 
-    /// <summary>try read draw pointer word.</summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -65,7 +57,6 @@ internal static class RoomPlmBombBlockProgramDefinitions
         return false;
     }
 
-    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -120,7 +111,6 @@ internal static class RoomPlmBombBlockProgramDefinitions
         return false;
     }
 
-    /// <summary>try read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

@@ -17,7 +17,6 @@ using static FrontendRomFreeVerification;
 using static GoldenTorizoRoomSetupVerification;
 using static RetailGameFixtureVerification;
 
-/// <summary>Represents frontend rom free golden torizo verification.</summary>
 internal static class FrontendRomFreeGoldenTorizoVerification
 {
     /// <summary>
@@ -66,7 +65,6 @@ internal static class FrontendRomFreeGoldenTorizoVerification
         }
     }
 
-    /// <summary>Golden torizo rom free command.</summary>
     [VerificationCommand("--golden-torizo-rom-free")]
     internal static int GoldenTorizoRomFreeCommand()
     {

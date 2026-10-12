@@ -100,7 +100,6 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
             unchecked((byte)coefficient));
     }
 
-    /// <summary>Writes.</summary>
     private void Write(DspGlobalRegister register, byte value) => dsp.WriteRegister((byte)register, value);
 }
 
@@ -108,9 +107,7 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
 [DspRegisterBoundary("typed controls: one S-DSP voice block")]
 internal readonly struct SnesDspVoiceControls
 {
-    /// <summary>Stores dsp.</summary>
     private readonly ManagedSnesDsp dsp;
-    /// <summary>Stores block.</summary>
     private readonly byte block;
 
     /// <summary>Binds voice <paramref name="index"/> (0-7).</summary>
@@ -146,6 +143,5 @@ internal readonly struct SnesDspVoiceControls
     /// <summary>VxGAIN ($x7): the gain mode and value used when ADSR is disabled.</summary>
     public void WriteGain(byte gain) => Write(DspVoiceRegister.Gain, gain);
 
-    /// <summary>Writes.</summary>
     private void Write(DspVoiceRegister register, byte value) => dsp.WriteRegister(unchecked((byte)(block + (int)register)), value);
 }

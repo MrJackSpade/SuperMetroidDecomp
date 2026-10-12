@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents dma source routing verification.</summary>
 internal static class DmaSourceRoutingVerification
 {
     /// <summary>
@@ -50,58 +49,43 @@ internal static class DmaSourceRoutingVerification
         Console.WriteLine("  PPU DMA sources: runtime rejects ROM, importer resolves ROM/WRAM wrap, and SRAM uses typed routes.");
     }
 
-    /// <summary>Represents dma read routing bus.</summary>
     [CpuBusBoundary("exact bus test: sparse per-region store whose read counters witness PPU DMA source routing")]
     internal sealed class DmaReadRoutingBus : ISnesMemoryBus,
         IImportCartridgeSource
     {
-        /// <summary>Stores cartridge.</summary>
         private readonly Dictionary<int, byte> cartridge = [];
-        /// <summary>Stores work ram.</summary>
         private readonly Dictionary<int, byte> workRam = [];
-        /// <summary>Stores save ram.</summary>
         private readonly Dictionary<int, byte> saveRam = [];
 
-        /// <summary>Gets or sets cartridge reads.</summary>
         internal int CartridgeReads { get; private set; }
-        /// <summary>Gets or sets work ram reads.</summary>
         internal int WorkRamReads { get; private set; }
-        /// <summary>Gets or sets save ram reads.</summary>
         internal int SaveRamReads { get; private set; }
 
-        /// <summary>Sets cartridge.</summary>
         internal void SetCartridge(int address, byte value) => cartridge.Add(address, value);
-        /// <summary>Sets work ram.</summary>
         internal void SetWorkRam(int address, byte value) => workRam.Add(address, value);
-        /// <summary>Sets save ram.</summary>
         internal void SetSaveRam(int address, byte value) => saveRam.Add(address, value);
 
-        /// <summary>Reads byte.</summary>
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"PPU DMA used an untyped CPU read at ${address:X6}.");
 
-        /// <summary>Reads cartridge byte.</summary>
         public byte ReadCartridgeByte(int address)
         {
             CartridgeReads++;
             return cartridge[address];
         }
 
-        /// <summary>Reads work ram byte.</summary>
         public byte ReadWorkRamByte(int address)
         {
             WorkRamReads++;
             return workRam[address];
         }
 
-        /// <summary>Reads save ram byte.</summary>
         public byte ReadSaveRamByte(int address)
         {
             SaveRamReads++;
             return saveRam[address];
         }
 
-        /// <summary>Writes byte.</summary>
         public void WriteByte(int address, byte value) => throw new InvalidOperationException(
             "The PPU DMA routing fixture is read-only.");
     }

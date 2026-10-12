@@ -96,11 +96,8 @@ internal readonly record struct CeresElevatorProjectileDefinition(
 /// <summary>The three operations reachable from the two Ceres arrival programs.</summary>
 internal enum CeresElevatorProjectileOperation
 {
-    /// <summary>Identifies frame.</summary>
     Frame,
-    /// <summary>Identifies delete.</summary>
     Delete,
-    /// <summary>Identifies goto.</summary>
     Goto,
 }
 

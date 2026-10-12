@@ -31,7 +31,6 @@ internal static class DraygonCannonPlmProgramDefinitions
         return true;
     }
 
-    /// <summary>try read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -40,7 +39,6 @@ internal static class DraygonCannonPlmProgramDefinitions
         return true;
     }
 
-    /// <summary>try locate.</summary>
     private static bool TryLocate(ushort address, out int start, out int offset)
     {
         start = address is >= RightStart and <= RightEnd ? RightStart :
@@ -49,7 +47,6 @@ internal static class DraygonCannonPlmProgramDefinitions
         return start != 0;
     }
 
-    /// <summary>byte at.</summary>
     private static byte ByteAt(int start, int offset)
     {
         if (offset == 20) return 3;
@@ -57,7 +54,6 @@ internal static class DraygonCannonPlmProgramDefinitions
         return (byte)(WordAt(start, wordOffset) >> ((offset - wordOffset) * 8));
     }
 
-    /// <summary>word at.</summary>
     private static ushort WordAt(int start, int offset)
     {
         bool right = start == RightStart;

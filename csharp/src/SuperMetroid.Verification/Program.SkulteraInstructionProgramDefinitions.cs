@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents skultera instruction program definitions verification.</summary>
 internal static class SkulteraInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies skultera instruction program definitions.</summary>
     internal static void VerifySkulteraInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkulteraInstructionProgramDefinitions), () => VerifySkulteraInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies skultera instruction program definitions.</summary>
     internal static void VerifySkulteraInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -151,7 +148,6 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes skultera instruction mechanics allocation.</summary>
     private static int ProbeSkulteraInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -163,7 +159,6 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New skultera instruction program read guard.</summary>
     private static CartridgeReadGuard NewSkulteraInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SkulteraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -171,7 +166,6 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
             .ForbidWords(0xa30000, SkulteraInstructionProgramDefinitions.PresentationWordCount, SkulteraInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled Skultera visual selector ${address:X6}.");
 
-    /// <summary>Skultera instruction mechanics command.</summary>
     [VerificationCommand("--skultera-instruction-mechanics")]
     internal static int SkulteraInstructionMechanicsCommand()
     {

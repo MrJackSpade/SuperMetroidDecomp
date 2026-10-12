@@ -27,7 +27,6 @@ internal abstract class AlcoonInstructionProgramDefinitions
     /// <summary><c>InstList_Alcoon_FacingRight_Airborne_LookingForward</c> at $A8:DCC1.</summary>
     internal const ushort AirborneRightLookingForward = 0xdcc1;
 
-    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - WalkingLeft;
@@ -35,12 +34,10 @@ internal abstract class AlcoonInstructionProgramDefinitions
         return (uint)offset < 224 && (offset & 1) == 0 && !TryReadMechanicsWord(address, out _);
     }
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         TryReadMechanicsWord(address, out ushort value) ? value : throw new InvalidDataException(
             $"Alcoon instruction mechanics pointer $A8:{address:X4} is not compiled.");
 
-    /// <summary>Tries to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;

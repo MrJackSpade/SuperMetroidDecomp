@@ -65,11 +65,8 @@ public sealed class EnemyTileArtworkCatalog
             content.AppendIdentity("AuxiliaryColors", AuxiliaryColors?.ContentIdentity);
         });
 
-    /// <summary>Stores sheets.</summary>
     private readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
-    /// <summary>Stores palettes.</summary>
     private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
-    /// <summary>Stores by dma source.</summary>
     private readonly Dictionary<(int Source, int ByteCount), RoomCharacterAtlas> byDmaSource;
 
 
@@ -243,7 +240,6 @@ public sealed class EnemyTileArtworkCatalog
         });
     }
 
-    /// <summary>Initializes a new enemy tile artwork catalog instance.</summary>
     private EnemyTileArtworkCatalog(EnemyTileArtworkParts parts)
     {
         Ensure.NotNull(parts);
@@ -308,7 +304,6 @@ public sealed class EnemyTileArtworkCatalog
         AuxiliaryColors = parts.AuxiliaryColors;
     }
 
-    /// <summary>Validates installed sheets.</summary>
     private static void ValidateInstalledSheets(Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
         Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes)
     {
@@ -325,7 +320,6 @@ public sealed class EnemyTileArtworkCatalog
                     $"Installed enemy ${(int)definition.DefinitionPointer:X4} lacks its complete tile sheet or palette.");
     }
 
-    /// <summary>Installed dma sources.</summary>
     private static Dictionary<EnemyDefinitionId, int> InstalledDmaSources(IReadOnlyDictionary<EnemyDefinitionId, int>? sources)
     {
         var expected = EnemyTileSourceDefinitions.All.ToDictionary(

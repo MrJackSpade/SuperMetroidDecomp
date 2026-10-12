@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents waver instruction program definitions verification.</summary>
 internal static class WaverInstructionProgramDefinitionsVerification
 {
-    /// <summary>verify waver instruction program definitions.</summary>
     internal static void VerifyWaverInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWaverInstructionProgramDefinitions), () => VerifyWaverInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>verify waver instruction program definitions.</summary>
     internal static void VerifyWaverInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -137,7 +134,6 @@ internal static class WaverInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>probe waver instruction mechanics allocation.</summary>
     private static int ProbeWaverInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -149,7 +145,6 @@ internal static class WaverInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>new waver instruction program read guard.</summary>
     private static CartridgeReadGuard NewWaverInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(WaverInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -157,7 +152,6 @@ internal static class WaverInstructionProgramDefinitionsVerification
             .ForbidWords(0xa30000, WaverInstructionProgramDefinitionsTooling.PresentationWordCount, WaverInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read installed Waver selector ${address:X6}.");
 
-    /// <summary>waver instruction mechanics command.</summary>
     [VerificationCommand("--waver-instruction-mechanics")]
     internal static int WaverInstructionMechanicsCommand()
     {

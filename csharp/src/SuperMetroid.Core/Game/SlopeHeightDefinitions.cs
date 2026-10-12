@@ -41,6 +41,5 @@ public static class SlopeHeightDefinitions
         return (byte)height;
     }
 
-    /// <summary>Encode steep height.</summary>
     private static int EncodeSteepHeight(int height) => height > 16 ? 20 : Math.Max(0, height);
 }

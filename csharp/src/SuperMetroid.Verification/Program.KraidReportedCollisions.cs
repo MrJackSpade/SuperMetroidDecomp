@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 
-/// <summary>Represents kraid reported collisions verification.</summary>
 internal static class KraidReportedCollisionsVerification
 {
-    /// <summary>Verifies kraid reported collisions.</summary>
     internal static int VerifyKraidReportedCollisions(ISnesAddressSpace bus, SuperMetroidGame game,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {

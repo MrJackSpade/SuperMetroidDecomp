@@ -1,14 +1,12 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The gunship health species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class GunshipHealthBehavior
 {
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Initializes a new gunship health behavior instance.</summary>
     internal GunshipHealthBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;

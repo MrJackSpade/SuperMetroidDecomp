@@ -14,11 +14,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class BeamPaintDefinitions
 {
-    /// <summary>Defines rgb5 maximum.</summary>
     private const int Rgb5Maximum = (1 << 5) - 1;
     /// <summary>$90:C3E1 and corresponding slot0 aliases copy this blue target despite OBJ transparency.</summary>
     private const int ClearTargetBlue = 14;
-    /// <summary>color.</summary>
     internal static Bgr555 Color(SamusBeamCombination selection, int color)
     {
         if (color == 0) return new Bgr555(0, 0, ClearTargetBlue);
@@ -37,7 +35,6 @@ internal static class BeamPaintDefinitions
         return new Bgr555(red, green, blue);
     }
 
-    /// <summary>power.</summary>
     private static (int Red, int Green, int Blue) Power(int color)
     {
         if (color is >= 2 and <= 4)
@@ -58,7 +55,6 @@ internal static class BeamPaintDefinitions
         };
     }
 
-    /// <summary>ice.</summary>
     private static (int Red, int Green, int Blue) Ice(int color)
     {
         if (color is >= 2 and <= 4)
@@ -89,7 +85,6 @@ internal static class BeamPaintDefinitions
         };
     }
 
-    /// <summary>wave.</summary>
     private static (int Red, int Green, int Blue) Wave(int color)
     {
         if (color is >= 2 and <= 4)
@@ -103,7 +98,6 @@ internal static class BeamPaintDefinitions
         return (level, 0, level);
     }
 
-    /// <summary>plasma.</summary>
     private static (int Red, int Green, int Blue) Plasma(int color)
     {
         if (color is >= 2 and <= 4)
@@ -119,7 +113,6 @@ internal static class BeamPaintDefinitions
         return color switch { 8 => (0, Rgb5Maximum, 0), 15 => (0, 9, 2), _ => throw new ArgumentOutOfRangeException(nameof(color)) };
     }
 
-    /// <summary>spazer.</summary>
     private static (int Red, int Green, int Blue) Spazer(int color)
     {
         if (color is >= 5 and <= 7)

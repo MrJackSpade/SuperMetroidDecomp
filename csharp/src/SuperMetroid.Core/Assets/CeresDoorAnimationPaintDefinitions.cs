@@ -13,26 +13,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorAnimationPaintDefinitions
 {
-    /// <summary>Stores maximum channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
-    /// <summary>Stores fade step.</summary>
     private const int FadeStep = 5;
-    /// <summary>Stores gold brightening.</summary>
     private const int GoldBrightening = 3;
-    /// <summary>Stores gold highlight green brightening.</summary>
     private const int GoldHighlightGreenBrightening = 4;
-    /// <summary>Stores normal.</summary>
     private readonly CeresDoorNormalPaintDefinitions normal;
-    /// <summary>Stores first seed blue.</summary>
     private readonly int firstSeedBlue;
-    /// <summary>Stores dim middle amber red.</summary>
     private readonly int dimMiddleAmberRed;
-    /// <summary>Stores seed edits.</summary>
     private readonly Dictionary<int, Bgr555> seedEdits = [];
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new ceres door animation paint definitions instance.</summary>
     internal CeresDoorAnimationPaintDefinitions(Bgr555[][] rows, CeresDoorNormalPaintDefinitions normal)
     {
         Ensure.NotNull(rows); Ensure.NotNull(normal);
@@ -48,7 +38,6 @@ internal sealed class CeresDoorAnimationPaintDefinitions
                 if (rows[row][color] != Calculate(row, color)) edits.Add(row * 6 + color, rows[row][color]);
     }
 
-    /// <summary>Shared seed.</summary>
     private Bgr555 SharedSeed(int color)
     {
         if (color != 0) return normal.ColorAt(8 + color);
@@ -56,14 +45,12 @@ internal sealed class CeresDoorAnimationPaintDefinitions
         return new(normalSeed.Red, normalSeed.Green, firstSeedBlue);
     }
 
-    /// <summary>Color at.</summary>
     internal Bgr555 ColorAt(int row, int color)
     {
         if ((uint)row >= 8 || (uint)color >= 6) throw new IndexOutOfRangeException();
         return edits.TryGetValue(row * 6 + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
-    /// <summary>Calculates.</summary>
     private Bgr555 Calculate(int row, int color)
     {
         int phase = Math.Min(row, 7 - row);

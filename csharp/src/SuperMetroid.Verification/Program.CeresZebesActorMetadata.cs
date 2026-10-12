@@ -2,10 +2,8 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ceres zebes actor metadata verification.</summary>
 internal static class CeresZebesActorMetadataVerification
 {
-    /// <summary>Verifies ceres zebes actor metadata.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Zebes actor metadata")]
     internal static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
     {

@@ -3,13 +3,9 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named cartridge constants for bank-$84 downward gates.</summary>
 internal static class DownwardGatePlmRomData
 {
-    /// <summary>Stores gate height in blocks.</summary>
     public const byte GateHeightInBlocks = 5;
-    /// <summary>Stores closed gate bts.</summary>
     public const byte ClosedGateBts = 0x10;
-    /// <summary>Stores rejected shot sound.</summary>
     public const byte RejectedShotSound = 0x57;
-    /// <summary>Stores movement sound.</summary>
     public const byte MovementSound = 0x0e;
 }
 

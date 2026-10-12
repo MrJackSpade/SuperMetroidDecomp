@@ -20,7 +20,6 @@ using static LookupFxLegacySheetsVerification;
 using static LookupTreadmillArtworkVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents room fx animated tile mechanics definitions verification.</summary>
 internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
 {
     /// <summary>
@@ -97,7 +96,6 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             "  Room-FX animated tiles: 65 control words and 30 artwork-source identities across 7 objects are compiled.");
     }
 
-    /// <summary>new room fx animated tile mechanics forbidden bus.</summary>
     private static CartridgeReadGuard NewRoomFxAnimatedTileMechanicsForbiddenBus(
         ISnesAddressSpace inner, RoomFxAnimatedTileObjectDefinition definition, Action presentationRead)
     {
@@ -122,7 +120,6 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                 _ => presentationRead());
     }
 
-    /// <summary>lookup animated frames command.</summary>
     [VerificationCommand("--lookup-animated-frames")]
     internal static int LookupAnimatedFramesCommand()
     {
@@ -130,7 +127,6 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         return 0;
     }
 
-    /// <summary>room fx animated tiles command.</summary>
     [VerificationCommand("--room-fx-animated-tiles")]
     internal static int RoomFxAnimatedTilesCommand()
     {

@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using SuperMetroid.Desktop;
 
-/// <summary>Represents graph digest verification.</summary>
 internal static class GraphDigestVerification
 {
     /// <summary>
@@ -24,30 +23,18 @@ internal static class GraphDigestVerification
         return stream.ToArray();
     }
 
-    /// <summary>Represents hashing stream.</summary>
     internal sealed class HashingStream(IncrementalHash hash) : Stream
     {
-        /// <summary>Gets can read.</summary>
         public override bool CanRead => false;
-        /// <summary>Gets can seek.</summary>
         public override bool CanSeek => false;
-        /// <summary>Gets can write.</summary>
         public override bool CanWrite => true;
-        /// <summary>Rejects length queries on the write-only hashing stream.</summary>
         public override long Length => throw new NotSupportedException();
-        /// <summary>Rejects position queries and assignments on the write-only hashing stream.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-        /// <summary>Flush.</summary>
         public override void Flush() { }
-        /// <summary>Rejects reads from the write-only hashing stream.</summary>
         public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-        /// <summary>Seek.</summary>
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-        /// <summary>Sets length.</summary>
         public override void SetLength(long value) => throw new NotSupportedException();
-        /// <summary>Appends a byte array segment to the graph digest hash.</summary>
         public override void Write(byte[] buffer, int offset, int count) => hash.AppendData(buffer, offset, count);
-        /// <summary>Appends a byte span to the graph digest hash.</summary>
         public override void Write(ReadOnlySpan<byte> buffer) => hash.AppendData(buffer);
     }
     /// <summary>
@@ -79,16 +66,13 @@ internal static class GraphDigestVerification
     }
     // Raster for a packet render consumed immediately by one comparison. Never keep the
     // returned array, and never compare two of these renders with each other.
-    /// <summary>Stores comparison raster.</summary>
     private static readonly SuperMetroid.Core.Assets.Rgba32[] comparisonRaster =
         new SuperMetroid.Core.Assets.Rgba32[SuperMetroid.Core.Hardware.SnesPpuLayout.ScreenWidthPixels *
             SuperMetroid.Core.Hardware.SnesPpuLayout.ScreenHeightPixels];
 
-    /// <summary>Render for comparison.</summary>
     internal static SuperMetroid.Core.Assets.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.RenderFrameSnapshot frame) =>
         SuperMetroid.Core.Rendering.SoftwareFrameSnapshotRenderer.Render(frame, comparisonRaster);
 
-    /// <summary>Render for comparison.</summary>
     internal static SuperMetroid.Core.Assets.Rgba32[] RenderForComparison(SuperMetroid.Core.Rendering.LayeredRenderSnapshot frame) =>
         SuperMetroid.Core.Rendering.SoftwareLayeredSnapshotRenderer.Render(frame, comparisonRaster);
     /// <summary>SHA-256 of a render packet's encoding, streamed without a serialized copy.</summary>

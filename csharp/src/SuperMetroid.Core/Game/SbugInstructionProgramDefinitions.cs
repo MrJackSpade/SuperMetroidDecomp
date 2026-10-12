@@ -10,9 +10,7 @@ internal abstract class SbugInstructionProgramDefinitions
     /// <summary><c>$A3:A071</c>, right-facing animation loop.</summary>
     internal const ushort Right = 0xa071;
 
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 48;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 32;
 
     /// <summary>Eight directional programs each display four five-tick frames and branch back to their entry.</summary>
@@ -26,7 +24,6 @@ internal abstract class SbugInstructionProgramDefinitions
             : new((ushort)(start + 16 + 2 * (word - 4)), word == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
     }
 
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)

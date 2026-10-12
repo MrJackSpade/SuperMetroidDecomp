@@ -15,17 +15,14 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents mochtroid instruction program definitions verification.</summary>
 internal static class MochtroidInstructionProgramDefinitionsVerification
 {
-    /// <summary>verify mochtroid instruction program definitions.</summary>
     internal static void VerifyMochtroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>verify mochtroid instruction program definitions.</summary>
     internal static void VerifyMochtroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -103,7 +100,6 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
             "selectors pass with mechanics bytes forbidden.");
     }
 
-    /// <summary>execute mochtroid program.</summary>
     private static void ExecuteMochtroidProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot mochtroid,
@@ -118,7 +114,6 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>probe mochtroid instruction mechanics allocation.</summary>
     private static int ProbeMochtroidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -132,14 +127,12 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>new mochtroid instruction read guard.</summary>
     private static CartridgeReadGuard NewMochtroidInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MochtroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Mochtroid mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, MochtroidInstructionProgramDefinitionsTooling.PresentationWordCount, MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
-    /// <summary>mochtroid instruction program definitions command.</summary>
     [VerificationCommand("--mochtroid-instruction-program-definitions")]
     internal static int MochtroidInstructionProgramDefinitionsCommand()
     {

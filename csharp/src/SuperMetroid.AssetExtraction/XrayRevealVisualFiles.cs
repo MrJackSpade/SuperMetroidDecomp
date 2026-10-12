@@ -22,10 +22,8 @@ public static class XrayRevealVisualFiles
     public const string VisualFileName = "reveals.json";
     /// <summary>Stock manifest filename containing version-two format, caller-supplied cartridge provenance, and the reveal JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
-    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 2;
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -177,7 +175,6 @@ public static class XrayRevealVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    /// <summary>Validates structure.</summary>
     private static void ValidateStructure(XrayRevealVisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null ||
@@ -245,7 +242,6 @@ public static class XrayRevealVisualFiles
         _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {(int)command:X4}."),
     };
 
-    /// <summary>Reads native.</summary>
     private static XrayRevealDefinition? ReadNative(ISnesAddressSpace bus,
         RoomCollisionType type, byte bts)
     {
@@ -282,7 +278,6 @@ public static class XrayRevealVisualFiles
         }
     }
 
-    /// <summary>Reads word.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer)
     {
         if (pointer is < 0x8000 or >= ushort.MaxValue)
@@ -290,7 +285,6 @@ public static class XrayRevealVisualFiles
         return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealCodePointers.Bank | pointer);
     }
 
-    /// <summary>Reads room overlay.</summary>
     private static XrayRoomOverlayEntry ReadRoomOverlay(ISnesAddressSpace bus, ushort pointer)
     {
         var tiles = new List<XrayRoomOverlayTileDocument>();
@@ -313,36 +307,28 @@ public static class XrayRevealVisualFiles
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }
 
-    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(string path) where T : class =>
         ReadJson<T>(File.ReadAllBytes(path), path);
 
-    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(byte[] bytes, string path) where T : class
     {
         using var stream = new MemoryStream(bytes, writable: false);
         return JsonAssetDocument.Read<T>(stream, JsonOptions, $"X-ray {path}");
     }
 
-    /// <summary>Represents xray reveal visual manifest.</summary>
     private sealed record XrayRevealVisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
-    /// <summary>Represents xray reveal visual document.</summary>
     private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
         ushort[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);
-    /// <summary>Represents xray reveal visual entry.</summary>
     private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BtsValues,
         string Shape, ushort TopLeft, ushort TopRight, ushort BottomLeft, ushort BottomRight);
-    /// <summary>Represents xray room overlay entry.</summary>
     private sealed record XrayRoomOverlayEntry(ushort Pointer, XrayRoomOverlayTileDocument[] Tiles);
 
     // Keep file admission separate from the runtime value type. A missing coordinate
     // must not become the struct's legal zero/default value during deserialization.
-    /// <summary>Represents xray room overlay tile document.</summary>
     [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
     private sealed record XrayRoomOverlayTileDocument(byte X, byte Y, ushort Word)
     {
-        /// <summary>Gets block.</summary>
         [JsonIgnore]
         public Position16<RoomBlocks> Block => new(X, Y);
     }

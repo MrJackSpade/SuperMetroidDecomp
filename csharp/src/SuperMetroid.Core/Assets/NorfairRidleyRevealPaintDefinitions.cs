@@ -10,11 +10,8 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class NorfairRidleyRevealPaintDefinitions
 {
-    /// <summary>Stores rows.</summary>
     private const int Rows = 15;
-    /// <summary>Stores colors.</summary>
     private const int Colors = 14;
-    /// <summary>Stores maximum.</summary>
     private const int Maximum = (1 << 5) - 1;
 
     /// <summary>
@@ -38,10 +35,8 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
     /// levels or grouping would invent different categorical artwork content.
     /// </summary>
     private const int CavernHighlightRed = 14, CavernRedStep = 5, CavernHighlightBlue = 2;
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new norfair ridley reveal paint definitions instance.</summary>
     internal NorfairRidleyRevealPaintDefinitions(Bgr555[][] rows)
     {
         for (int row = 0; row < Rows; row++)
@@ -49,7 +44,6 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
                 if (rows[row][color] != Calculate(row, color)) edits.Add(row * Colors + color, rows[row][color]);
     }
 
-    /// <summary>Color at.</summary>
     internal Bgr555 ColorAt(int row, int color)
     {
         ValidateRow(row);
@@ -57,13 +51,11 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
         return edits.TryGetValue(row * Colors + color, out Bgr555 edited) ? edited : Calculate(row, color);
     }
 
-    /// <summary>Validates row.</summary>
     internal static void ValidateRow(int row)
     {
         if ((uint)row >= Rows) throw new IndexOutOfRangeException();
     }
 
-    /// <summary>Calculates.</summary>
     private static Bgr555 Calculate(int row, int color) => CeresRidleyFadeColorDefinitions.Scale(Endpoint(color), row + 1);
 
     /// <summary>
@@ -87,13 +79,10 @@ internal sealed class NorfairRidleyRevealPaintDefinitions
         return Pack(Maximum, Maximum, Maximum);
     }
 
-    /// <summary>Masonry.</summary>
     private static Bgr555 Masonry(int shade) => Pack((3 - shade) * MasonryRedStep, 0,
         TrimBlue + (2 - shade) * MasonryBlueStep);
-    /// <summary>Cavern.</summary>
     private static Bgr555 Cavern(int shade) => Pack(CavernHighlightRed - CavernRedStep * shade, 0,
         CavernHighlightBlue - shade);
-    /// <summary>Pack.</summary>
     private static Bgr555 Pack(int red, int green, int blue) =>
         new(Math.Clamp(red, 0, Maximum), green, Math.Clamp(blue, 0, Maximum));
 }

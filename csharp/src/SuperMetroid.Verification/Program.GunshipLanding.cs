@@ -17,7 +17,6 @@ using static RoomEnemiesVerification;
 using static SyntheticEnemyCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents gunship landing verification.</summary>
 internal static class GunshipLandingVerification
 {
     /// <summary>
@@ -218,7 +217,6 @@ internal static class GunshipLandingVerification
             "Samus lift, event-$0E takeoff, and state-$26 handoff agree.");
     }
 
-    /// <summary>Writes gunship population terminator.</summary>
     [CpuBusBoundary("exact bus test: seeds the constructed cartridge population's $FFFF terminator and its kill-quota byte")]
     private static void WriteGunshipPopulationTerminator(TestAddressSpace bus, int address)
     {
@@ -226,7 +224,6 @@ internal static class GunshipLandingVerification
         bus.WriteByte(address + 2, 0);
     }
 
-    /// <summary>Writes gunship population record.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one gunship enemy population record")]
     private static void WriteGunshipPopulationRecord(
         TestAddressSpace bus,
@@ -298,7 +295,6 @@ internal static class GunshipLandingVerification
         WriteGunshipPopulationTerminator(bus, population + 48);
     }
 
-    /// <summary>Gunship entry sound command.</summary>
     [VerificationCommand("--gunship-entry-sound")]
     internal static int GunshipEntrySoundCommand()
     {

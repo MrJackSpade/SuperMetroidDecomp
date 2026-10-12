@@ -3,10 +3,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents file select navigation lookup verification.</summary>
 internal static class FileSelectNavigationLookupVerification
 {
-    /// <summary>verify file select source navigation.</summary>
     internal static void VerifyFileSelectSourceNavigation(ISnesAddressSpace rom)
     {
         // Complete filtered lists produced by the old source/clear code in
@@ -32,11 +30,9 @@ internal static class FileSelectNavigationLookupVerification
         Console.WriteLine("Source/clear navigation: all eight original choice lists, 20 selectable states, input priority and rejection pass.");
     }
 
-    /// <summary>file select source navigation rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select source navigation")]
     private static byte FileSelectSourceNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>verify file select destination navigation.</summary>
     internal static void VerifyFileSelectDestinationNavigation(ISnesAddressSpace rom)
     {
         // Original destination lists exclude just the source, even if another
@@ -61,11 +57,9 @@ internal static class FileSelectNavigationLookupVerification
         Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states, input priority and rejection pass.");
     }
 
-    /// <summary>file select destination navigation rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select destination navigation")]
     private static byte FileSelectDestinationNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>verify original submenu choices.</summary>
     private static void VerifyOriginalSubmenuChoices(int[] original,
         Func<int, SnesButton, int> actual, string description)
     {
@@ -103,7 +97,6 @@ internal static class FileSelectNavigationLookupVerification
         }
     }
 
-    /// <summary>verify file select main navigation.</summary>
     internal static void VerifyFileSelectMainNavigation()
     {
         // Independent original managed lists from b9e1e0ff, cross-checked against

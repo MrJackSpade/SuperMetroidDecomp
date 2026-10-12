@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class TorizoJumpBackInstructionProgramDefinitions
 {
-    /// <summary>Defines start.</summary>
     internal const ushort Start = 0xc110;
 
     /// <summary><c>InstList_Torizo_FacingRight_Walking_LeftLegMoving</c> at $AA:BDE2.</summary>
@@ -55,7 +54,6 @@ internal abstract class TorizoJumpBackInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
-    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xc110),
         Entry(Start),
@@ -89,8 +87,6 @@ internal abstract class TorizoJumpBackInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacingRightFacelessWalkingRightLegMoving, GTLandedFromBackwardsJumpFacingRightLeftFootFwd),
         Op((ushort)TorizoInstruction.Instruction_Torizo_CallY_OrY2_ForBombTorizoAttack, FacingRightSpewingChozoOrbsLeftFootFwd0, FacingRightSonicBoomsLeftFootForward0),
         Op((ushort)CommonEnemyInstruction.Goto, FacingRightWalkingRightLegMoving));
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

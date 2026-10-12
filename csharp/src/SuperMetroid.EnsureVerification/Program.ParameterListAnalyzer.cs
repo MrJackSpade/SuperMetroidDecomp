@@ -3,7 +3,6 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-/// <summary>Represents parameter list analyzer tests.</summary>
 internal static class ParameterListAnalyzerTests
 {
     /// <summary>#633 parameter-list rules: positive and negative cases for each diagnostic.</summary>

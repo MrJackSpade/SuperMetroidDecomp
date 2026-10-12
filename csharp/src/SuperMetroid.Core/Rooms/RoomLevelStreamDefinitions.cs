@@ -9,13 +9,9 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public static class RoomLevelStreamDefinitions
 {
-    /// <summary>Stores resource name.</summary>
     private const string ResourceName = "SuperMetroid.RoomLevelStreams.bin";
-    /// <summary>Stores format version.</summary>
     private const int FormatVersion = 1;
-    /// <summary>Stores header byte count.</summary>
     private const int HeaderByteCount = 44;
-    /// <summary>Stores installed.</summary>
     private static readonly Lazy<Corpus> Installed = new(Load);
 
     /// <summary>Reads one complete decompressed native level stream by cartridge source identity.</summary>
@@ -25,7 +21,6 @@ public static class RoomLevelStreamDefinitions
             : throw new InvalidDataException(
                 $"Compiled room-level data lacks source ${sourceAddress:X6}.");
 
-    /// <summary>Loads.</summary>
     private static Corpus Load()
     {
         using Stream source = typeof(RoomLevelStreamDefinitions).Assembly
@@ -63,7 +58,6 @@ public static class RoomLevelStreamDefinitions
         return new Corpus(streams);
     }
 
-    /// <summary>Builds expected sources.</summary>
     private static HashSet<int> BuildExpectedSources()
     {
         var expected = new HashSet<int>();
@@ -73,7 +67,6 @@ public static class RoomLevelStreamDefinitions
         return expected;
     }
 
-    /// <summary>Represents corpus.</summary>
     private sealed record Corpus(
         IReadOnlyDictionary<int, ReadOnlyMemory<byte>> Streams);
 }

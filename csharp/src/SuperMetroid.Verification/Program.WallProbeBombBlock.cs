@@ -13,14 +13,12 @@ using SuperMetroid.Core.Rooms;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents wall probe bomb block verification.</summary>
 internal static class WallProbeBombBlockVerification
 {
     // #1269: WallJump_Check's block probe ($94:967F) reaches the same horizontal bomb-block
     // reaction as movement, whose setup ($84:CE83) breaks the block for a screw-attacking
     // Samus and reports no collision. In the 100% movie a screw attack turning left beside
     // a bomb block therefore keeps its X fraction; treating the block as solid wrote $FFFF.
-    /// <summary>verify wall probe bomb block.</summary>
     internal static void VerifyWallProbeBombBlock()
     {
         const int width = 8;
@@ -51,7 +49,6 @@ internal static class WallProbeBombBlockVerification
         Console.WriteLine("Wall-probe bomb block: the wall-jump probe breaks bomb blocks for a screw attack, as movement does.");
     }
 
-    /// <summary>wall probe bomb block command.</summary>
     [VerificationCommand("--wall-probe-bomb-block")]
     internal static int WallProbeBombBlockCommand()
     {

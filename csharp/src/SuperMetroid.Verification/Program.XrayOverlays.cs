@@ -14,10 +14,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
-/// <summary>Represents xray overlays verification.</summary>
 internal static class XrayOverlaysVerification
 {
-    /// <summary>Verifies xray overlays.</summary>
     internal static void VerifyXrayOverlays()
     {
         var bus = new TestAddressSpace();
@@ -67,7 +65,6 @@ internal static class XrayOverlaysVerification
         Console.WriteLine("  X-ray overlays: item graphics slots, collection gates, slot order, room override, vertical flip and viewport bounds agree.");
     }
 
-    /// <summary>Xray overlay fixtures command.</summary>
     [VerificationCommand("--xray-overlay-fixtures")]
     internal static int XrayOverlayFixturesCommand()
     {

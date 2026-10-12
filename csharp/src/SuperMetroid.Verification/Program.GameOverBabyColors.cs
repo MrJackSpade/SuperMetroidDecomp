@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using static ColorWordsVerification;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents game over baby colors verification.</summary>
 internal static class GameOverBabyColorsVerification
 {
-    /// <summary>verify game over baby colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {

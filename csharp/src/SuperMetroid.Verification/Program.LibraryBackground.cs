@@ -18,10 +18,8 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
 using static LibraryBackgroundProgramsVerification;
 
-/// <summary>Represents library background verification.</summary>
 internal static class LibraryBackgroundVerification
 {
-/// <summary>Verifies library background source inventory.</summary>
 [CpuBusBoundary("exact bus test: retail ROM oracle decompressing every library-background tilemap source to validate its page count")]
 internal static void VerifyLibraryBackgroundSourceInventory()
 {
@@ -67,7 +65,6 @@ internal static void VerifyLibraryBackgroundSourceInventory()
             $"VRAM ${transfer.VramDestination:X4} via {transfer.Command}");
 }
 
-/// <summary>Verifies kraid library hud artwork.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid HUD library-background planar characters")]
 static void VerifyKraidLibraryHudArtwork(
@@ -120,7 +117,6 @@ static void VerifyKraidLibraryHudArtwork(
     Console.WriteLine("  Kraid BG list: installed HUD PNG matches stock VRAM, and an edit reaches VRAM.");
 }
 
-/// <summary>Verifies library background loader.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 internal static void VerifyLibraryBackgroundLoader()
 {
@@ -208,45 +204,35 @@ private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
         "bank-end command high byte comes from the WRAM mirror");
 }
 
-/// <summary>Represents library background typed read guard.</summary>
 [CpuBusBoundary("exact bus test: counts cartridge and WRAM reads separately to witness that library backgrounds route each source byte through its typed bus read")]
 internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
     ISnesMemoryBus, IImportCartridgeSource
 {
-    /// <summary>Gets or sets cartridge reads.</summary>
     public int CartridgeReads { get; private set; }
-    /// <summary>Gets or sets work ram reads.</summary>
     public int WorkRamReads { get; private set; }
 
-    /// <summary>Reads byte.</summary>
     public static byte ReadByte(int address) => throw new InvalidOperationException(
         $"Library background used the untyped CPU reader at ${address:X6}.");
-    /// <summary>Reads cartridge byte.</summary>
     public byte ReadCartridgeByte(int address)
     {
         CartridgeReads++;
         return source.ReadCartridgeByte(address);
     }
-    /// <summary>Reads work ram byte.</summary>
     public byte ReadWorkRamByte(int address)
     {
         WorkRamReads++;
         return source.ReadWorkRamByte(address);
     }
-    /// <summary>Reads save ram byte.</summary>
     public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
-    /// <summary>Writes byte.</summary>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }
 
-/// <summary>Writes library word.</summary>
 private static void WriteLibraryWord(byte[] rom, ushort pointer, ushort value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), SnesLittleEndian.HighByte(value));
 }
 
-/// <summary>Writes library long.</summary>
 private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
@@ -254,14 +240,12 @@ private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), SnesLittleEndian.BankByte(value));
 }
 
-/// <summary>Writes library byte.</summary>
 private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x8f0000 | pointer);
     rom[offset] = value;
 }
 
-    /// <summary>Library background loader command.</summary>
     [VerificationCommand("--library-background-loader")]
     internal static int LibraryBackgroundLoaderCommand()
     {
@@ -269,7 +253,6 @@ private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
         return 0;
     }
 
-    /// <summary>Library background inventory command.</summary>
     [VerificationCommand("--library-background-inventory")]
     internal static int LibraryBackgroundInventoryCommand()
     {
@@ -277,7 +260,6 @@ private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
         return 0;
     }
 
-    /// <summary>Library background artwork boundary command.</summary>
     [VerificationCommand("--library-background-artwork-boundary")]
     internal static int LibraryBackgroundArtworkBoundaryCommand()
     {

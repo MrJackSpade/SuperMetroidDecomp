@@ -3,7 +3,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete ordinary sheet/palette admission and owned enemy DMA sources.</summary>
 internal static class EnemyArtworkClosedContractDefinitions
 {
-    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.EnemyTileArtworkCatalog", "installed-enemy-sheets-palettes-and-dma", ["LoadTo", "LoadPaletteTo", "TryResolve"],

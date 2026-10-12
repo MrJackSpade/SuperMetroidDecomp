@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents save ram layout verification.</summary>
 internal static class SaveRamLayoutVerification
 {
     /// <summary>

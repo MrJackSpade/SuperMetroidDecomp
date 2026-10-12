@@ -13,7 +13,6 @@ public static partial class LibraryBackgroundProgramDefinitions
     /// <summary>All pinned program definitions, ordered by native list pointer.</summary>
     public static IReadOnlyList<LibraryBackgroundProgram> All { get; }
 
-    /// <summary>Initializes a new library background program definitions instance.</summary>
     static LibraryBackgroundProgramDefinitions()
     {
         All = Array.AsReadOnly(programs);

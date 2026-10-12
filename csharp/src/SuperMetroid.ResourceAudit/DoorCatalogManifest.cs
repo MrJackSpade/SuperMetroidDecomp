@@ -11,12 +11,9 @@ using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.ResourceAudit;
 
-/// <summary>Represents native door room.</summary>
 internal sealed record NativeDoorRoom(string Name, ushort Room, ushort List, ushort[] Doors,
     NativeDoorState[] States);
-/// <summary>Represents native door state.</summary>
 internal sealed record NativeDoorState(ushort State, int Level, int[] DoorBts);
-/// <summary>Represents native door manifest.</summary>
 internal sealed record NativeDoorManifest(string Revision, string RomSha256,
     NativeDoorRoom[] Rooms, NativeDoorHeader[] Headers);
 
@@ -35,7 +32,6 @@ internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPo
     /// <summary>Bit 15 clear in the destination word marks an elevator pseudo-door ($94:938B).</summary>
     internal bool IsElevatorPseudoDoor => (DestinationRoomPointer & 0x8000) == 0;
 
-    /// <summary>Reads.</summary>
     internal static NativeDoorHeader Read(Func<int, byte> cartridgeByte, ushort pointer)
     {
         int address = 0x830000 | pointer;
@@ -54,20 +50,14 @@ internal sealed record NativeDoorHeader(ushort Pointer, ushort DestinationRoomPo
 /// <summary>Import-only native oracle: label boundaries, never compiled catalog membership.</summary>
 internal static class DoorCatalogManifest
 {
-    /// <summary>Stores revision.</summary>
     internal const string Revision = "362be646929cf8e483f692b73a6561cfc2dc1d0d";
-    /// <summary>Stores rom hash.</summary>
     internal const string RomHash = "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72";
-    /// <summary>Stores relative path.</summary>
     internal const string RelativePath = "csharp/src/SuperMetroid.ResourceAudit/Data/native-door-catalog.json";
     // LF-normalized digest of the independently imported oracle. Catalog edits cannot
     // silently weaken its boundary/operand inventory; regenerations require review.
-    /// <summary>Stores manifest hash.</summary>
     internal const string ManifestHash = "0D5DCF635B31031115C6D75BFB24DF9E8EB911C09B0D6F0E8F75D8843A6D4CE9";
-    /// <summary>Stores json.</summary>
     internal static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 
-    /// <summary>Generate.</summary>
     [CpuBusBoundary("codec: ROM door lists, door headers and room level data → native door-catalog manifest")]
     internal static int Generate(string disassembly, string rom, string output)
     {
@@ -151,7 +141,6 @@ internal static class DoorCatalogManifest
         return 0;
     }
 
-    /// <summary>Reads pinned.</summary>
     private static string ReadPinned(string path, string hash)
     {
         byte[] bytes = File.ReadAllBytes(path);
@@ -160,7 +149,6 @@ internal static class DoorCatalogManifest
         return System.Text.Encoding.UTF8.GetString(bytes);
     }
 
-    /// <summary>Address.</summary>
     private static ushort Address(string body, string bank)
     {
         Match address = Regex.Match(body, ";" + bank + @"([0-9A-F]{4});");
@@ -168,7 +156,6 @@ internal static class DoorCatalogManifest
         return Convert.ToUInt16(address.Groups[1].Value, 16);
     }
 
-    /// <summary>Labels.</summary>
     private static (string Name, string Body)[] Labels(string source) =>
         Regex.Matches(source, @"^(\w+):(?<body>.*?)(?=^\w+:|\z)", RegexOptions.Multiline | RegexOptions.Singleline)
             .Select(match => (match.Groups[1].Value, match.Groups["body"].Value)).ToArray();

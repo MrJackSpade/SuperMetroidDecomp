@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -257,7 +257,6 @@ internal sealed class EnemyTerrain
         return false;
     }
 
-    /// <summary>Enemy horizontal probe is solid.</summary>
     private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -299,7 +298,6 @@ internal sealed class EnemyTerrain
         };
     }
 
-    /// <summary>Enemy vertical probe is solid.</summary>
     private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemySlot slot, int nativeIndex, EnemyVerticalProbe probe)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, nativeIndex);
@@ -384,7 +382,6 @@ internal sealed class EnemyTerrain
             $"Enemy collision BTS chain from native block {nativeIndex} is cyclic.");
     }
 
-    /// <summary>Reads enemy mover allocation tail.</summary>
     private static RoomCollisionBlock ReadEnemyMoverAllocationTail(RoomLevelData level, int blockIndex)
     {
         var block = new RoomCollisionBlock(
@@ -449,7 +446,6 @@ internal sealed class EnemyTerrain
             $"Enemy collision BTS chain from block ({start.X},{start.Y}) is cyclic.");
     }
 
-    /// <summary>Square horizontal slope is solid.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
         RoomEnemySlot slot,
         ushort targetEdge,
@@ -475,7 +471,6 @@ internal sealed class EnemyTerrain
         return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 2) & 0x80) != 0;
     }
 
-    /// <summary>Square vertical slope is solid.</summary>
     private static bool SquareVerticalSlopeIsSolid(
         RoomEnemySlot slot,
         ushort targetEdge,
@@ -501,7 +496,6 @@ internal sealed class EnemyTerrain
         return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
     }
 
-    /// <summary>Non square vertical slope is solid.</summary>
     private static bool NonSquareVerticalSlopeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -565,7 +559,6 @@ internal sealed class EnemyTerrain
         return adjustedFloor || adjustedCeiling;
     }
 
-    /// <summary>Align against slope at pixel.</summary>
     private static bool AlignAgainstSlopeAtPixel(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -599,15 +592,12 @@ internal sealed class EnemyTerrain
         return true;
     }
 
-    /// <summary>Reads non square slope height.</summary>
     internal static int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
         SlopeHeightDefinitions.Read(bts.SlopeShape, xWithinBlock);
     // This is a synchronous call context, not emulated persistent state. Every enemy
     // frame supplies its room's existing PLM owner, including after debugger restoration.
-    /// <summary>Stores collision plms.</summary>
     [NonSerialized] private RoomPlmSystem? _collisionPlms;
 
-    /// <summary>React to enemy spike block.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrainDefinitions.IsEnemyBreakable(block.Behavior)) return true;
@@ -619,18 +609,14 @@ internal sealed class EnemyTerrain
     /// <summary>Supplies the active room PLM owner to <see cref="EnemyTerrain"/> for one enemy frame.</summary>
     internal readonly struct EnemyTerrainScope : IDisposable
     {
-        /// <summary>Stores owner.</summary>
         private readonly EnemyTerrain owner;
-        /// <summary>Stores previous.</summary>
         private readonly RoomPlmSystem? previous;
-        /// <summary>Initializes a new enemy terrain scope instance.</summary>
         public EnemyTerrainScope(EnemyTerrain owner, RoomPlmSystem? current)
         {
             this.owner = owner;
             previous = owner._collisionPlms;
             owner._collisionPlms = current;
         }
-        /// <summary>Disposes.</summary>
         public void Dispose() => owner._collisionPlms = previous;
     }
 }

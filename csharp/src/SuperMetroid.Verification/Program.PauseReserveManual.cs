@@ -16,10 +16,8 @@ using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents pause reserve manual verification.</summary>
 internal static class PauseReserveManualVerification
 {
-    /// <summary>Verifies pause reserve manual.</summary>
     internal static void VerifyPauseReserveManual()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -61,7 +59,6 @@ internal static class PauseReserveManualVerification
         Console.WriteLine("Manual reserves: mode, selection, transfer ordering, suspended/resumed refill and visible supply pass.");
     }
 
-    /// <summary>Verifies manual reserve sound and clamp.</summary>
     private static void VerifyManualReserveSoundAndClamp(SuperMetroidAddressSpace bus)
     {
         foreach (ushort startingHealth in new ushort[] { 20, 98 })
@@ -100,7 +97,6 @@ internal static class PauseReserveManualVerification
         }
     }
 
-    /// <summary>Pause reserve manual command.</summary>
     [VerificationCommand("--pause-reserve-manual")]
     internal static int PauseReserveManualCommand()
     {

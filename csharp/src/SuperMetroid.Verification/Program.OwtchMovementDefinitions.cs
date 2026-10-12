@@ -5,10 +5,8 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents owtch movement definitions verification.</summary>
 internal static class OwtchMovementDefinitionsVerification
 {
-    /// <summary>Verifies owtch movement definitions.</summary>
     internal static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -50,7 +48,6 @@ internal static class OwtchMovementDefinitionsVerification
             "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass with table reads forbidden.");
     }
 
-    /// <summary>Verifies owtch travel distance algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch travel distance algorithm")]
     private static void VerifyOwtchTravelDistanceAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -65,7 +62,6 @@ internal static class OwtchMovementDefinitionsVerification
         }
     }
 
-    /// <summary>Verifies owtch underground timer algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Owtch underground timer algorithm")]
     private static void VerifyOwtchUndergroundTimerAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -80,7 +76,6 @@ internal static class OwtchMovementDefinitionsVerification
         }
     }
 
-    /// <summary>Creates owtch movement read guard.</summary>
     private static CartridgeReadGuard NewOwtchMovementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2a3dd and < 0xa2a3f9,

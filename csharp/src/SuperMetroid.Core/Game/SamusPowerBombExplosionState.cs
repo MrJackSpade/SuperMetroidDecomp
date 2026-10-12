@@ -84,17 +84,14 @@ public sealed class SamusPowerBombExplosionState
 
     // $19D8 is initialized to zero by HDMA allocation. Stage five performs a wrapping
     // decrement, so zero immediately underflows and permits its first fade step.
-    /// <summary>Stores afterglow timer.</summary>
     private ushort _afterglowTimer;
 
     // $19B4's low byte is initialized to 32 by the last white-explosion frame.
-    /// <summary>Stores afterglow steps remaining.</summary>
     private byte _afterglowStepsRemaining;
 
     // Crystal Flash's native completion operand was the largest stock COLDATA
     // component. Persist it separately so rebinding editable colors cannot alter
     // HDMA ownership or the wake/cleanup frame, including after state restoration.
-    /// <summary>Stores crystal flash afterglow steps remaining.</summary>
     private byte _crystalFlashAfterglowStepsRemaining;
 
     /// <summary>
@@ -258,7 +255,6 @@ public sealed class SamusPowerBombExplosionState
             Phase = PowerBombExplosionPhase.Inactive;
     }
 
-    /// <summary>Advances pre explosion white.</summary>
     private void StepPreExplosionWhite()
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
@@ -291,7 +287,6 @@ public sealed class SamusPowerBombExplosionState
         White,
     }
 
-    /// <summary>Starts of.</summary>
     private static ushort StartOf(ShapeSequence sequence) => sequence switch
     {
         ShapeSequence.Yellow => SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape,
@@ -299,7 +294,6 @@ public sealed class SamusPowerBombExplosionState
         _ => throw new InvalidOperationException($"Undefined {nameof(ShapeSequence)} {sequence}."),
     };
 
-    /// <summary>End of.</summary>
     private static ushort EndOf(ShapeSequence sequence) => sequence switch
     {
         ShapeSequence.Yellow => SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd,
@@ -307,7 +301,6 @@ public sealed class SamusPowerBombExplosionState
         _ => throw new InvalidOperationException($"Undefined {nameof(ShapeSequence)} {sequence}."),
     };
 
-    /// <summary>Advances pre explosion yellow.</summary>
     private void StepPreExplosionYellow()
     {
         RenderedPreExplosionRadius = PreExplosionRadius;
@@ -344,7 +337,6 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
 
-    /// <summary>Advances explosion yellow.</summary>
     private void StepExplosionYellow()
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -367,7 +359,6 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
-    /// <summary>Advances explosion white.</summary>
     private void StepExplosionWhite()
     {
         RenderedExplosionRadius = ExplosionRadius;
@@ -399,7 +390,6 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 
-    /// <summary>Advances afterglow.</summary>
     private bool StepAfterglow()
     {
         _afterglowTimer = unchecked((ushort)(_afterglowTimer - 1));
@@ -434,7 +424,6 @@ public sealed class SamusPowerBombExplosionState
         return false;
     }
 
-    /// <summary>Advances crystal flash explosion.</summary>
     private void StepCrystalFlashExplosion()
     {
         // `$88:A552` is a deliberately shorter clone of the yellow Power Bomb expansion.
@@ -460,7 +449,6 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 
-    /// <summary>Advances crystal flash afterglow.</summary>
     private bool StepCrystalFlashAfterglow()
     {
         _afterglowTimer = unchecked((ushort)(_afterglowTimer - 1));
@@ -506,7 +494,6 @@ public sealed class SamusPowerBombExplosionState
         return true;
     }
 
-    /// <summary>Reload afterglow timer low byte.</summary>
     private void ReloadAfterglowTimerLowByte()
     {
         // Both $88:8BD5 and $88:A3A2 execute STA with an eight-bit accumulator.
@@ -515,7 +502,6 @@ public sealed class SamusPowerBombExplosionState
             SamusSpecialSequenceRomData.PowerBomb.AfterglowTimerReload);
     }
 
-    /// <summary>Reads fixed color.</summary>
     private void ReadFixedColor(PowerBombFixedColorSequence sequence, int colorIndex)
     {
         (FixedColorRed, FixedColorGreen, FixedColorBlue) =

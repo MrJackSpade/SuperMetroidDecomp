@@ -16,10 +16,8 @@ using static AssertionsVerification;
 using static CeresExplosionVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents power bomb fixed colors verification.</summary>
 internal static class PowerBombFixedColorsVerification
 {
-    /// <summary>Verifies power bomb fixed colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb fixed colors")]
     internal static void VerifyPowerBombFixedColors()
     {
@@ -61,7 +59,6 @@ internal static class PowerBombFixedColorsVerification
         Console.WriteLine($"  Power Bomb fixed colors: {compared} native RGB5 triplets and guarded Power Bomb/Crystal Flash lifecycles pass.");
     }
 
-    /// <summary>Verifies power bomb color animation.</summary>
     private static void VerifyPowerBombColorAnimation(ISnesAddressSpace rom,
         PowerBombFixedColorCatalog catalog, bool crystalFlash)
     {
@@ -106,7 +103,6 @@ internal static class PowerBombFixedColorsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed explosion never rereads fixed-color ROM tables");
     }
 
-    /// <summary>Verifies power bomb fixed color override.</summary>
     internal static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline)
     {
@@ -145,7 +141,6 @@ internal static class PowerBombFixedColorsVerification
         Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");
     }
 
-    /// <summary>New forbidden power bomb color bus.</summary>
     internal static CartridgeReadGuard NewForbiddenPowerBombColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => Enum.GetValues<PowerBombFixedColorSequence>().Any(sequence =>
@@ -154,7 +149,6 @@ internal static class PowerBombFixedColorsVerification
                         PowerBombFixedColorFormat.Count(sequence) * SamusPaletteRomData.PowerBomb.BytesPerColor),
                 address => $"Installed explosion read color ROM ${address:X6}.");
 
-    /// <summary>Power bomb fixed colors command.</summary>
     [VerificationCommand("--power-bomb-fixed-colors")]
     internal static int PowerBombFixedColorsCommand()
     {

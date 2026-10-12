@@ -21,7 +21,6 @@ internal static class TitleSequenceInstructionDefinitions
     /// <summary><c>TitleSequenceSpritemaps_METROI</c> at $8C:867D; final lists follow the debug copyright.</summary>
     private const ushort MetroidSixLetters = 0x867d;
 
-    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(int address)
     {
         if (address is < StartAddress or >= EndAddress)
@@ -30,7 +29,6 @@ internal static class TitleSequenceInstructionDefinitions
         return (byte)(WordAt(offset & ~1) >> ((offset & 1) * 8));
     }
 
-    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(int address)
     {
         if (address is < StartAddress or >= (EndAddress - 1))
@@ -39,7 +37,6 @@ internal static class TitleSequenceInstructionDefinitions
     }
 
     // Initial/reveal/final/logo holds 60/8/45/120/32 are the title card's authored timing (see residualScalarInputsReview).
-    /// <summary>Word at.</summary>
     private static ushort WordAt(int offset)
     {
         if (offset < 4) return (ushort)(offset == 0 ? 60 : 0);
@@ -54,7 +51,6 @@ internal static class TitleSequenceInstructionDefinitions
         return offset == 136 ? (ushort)32 : TitleSequenceRomData.Sprites.SuperMetroidLogo;
     }
 
-    /// <summary>Card word.</summary>
     private static ushort CardWord(int offset, int frames, ushort finalHold, ushort firstLetter, ushort sceneCommand)
     {
         if (offset == frames * 4) return sceneCommand;
@@ -68,7 +64,6 @@ internal static class TitleSequenceInstructionDefinitions
         return (ushort)(ProgressiveFrame(MetroidSixLetters, frame - 5, firstLetterCount: 6) - (frame == 8 ? 10 : 0));
     }
 
-    /// <summary>Progressive frame.</summary>
     private static ushort ProgressiveFrame(ushort start, int frame, int firstLetterCount) =>
         // Each list has a two-byte count and two five-byte OAM objects per visible letter.
         (ushort)(start + frame * 2 + 10 * (frame * firstLetterCount + frame * (frame - 1) / 2));

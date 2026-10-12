@@ -30,10 +30,8 @@ public static class CeresDestructionSpriteDefinitions
     /// <summary>8C:98EE, SpaceSpritemaps_CeresFinalExplosionFrame1, six consecutive records.</summary>
     private const ushort StationStart = 0x98ee;
 
-    /// <summary>small frame.</summary>
     internal static ushort SmallFrame(int frame) => IntroMotherBrainExplosionSpriteDefinitions.FramePointer(false, frame);
 
-    /// <summary>large frame.</summary>
     internal static ushort LargeFrame(int frame)
     {
         if ((uint)frame >= 4) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -49,7 +47,6 @@ public static class CeresDestructionSpriteDefinitions
         return 4 * (frame < 3 ? 1 : frame == 4 ? 2 : 3);
     }
 
-    /// <summary>station frame.</summary>
     internal static ushort StationFrame(int frame)
     {
         if ((uint)frame >= 6) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -69,7 +66,6 @@ public static class CeresDestructionSpriteDefinitions
         CeresDestructionBackdrop.LowerLeftStars, CeresDestructionBackdrop.LowerRightStars,
     ];
 
-    /// <summary>backdrop frame.</summary>
     private static CeresDestructionSpriteFrameDefinition BackdropFrame(CeresDestructionBackdrop backdrop) => backdrop switch
     {
         CeresDestructionBackdrop.LargeAsteroids => new("station-under-attack-large-asteroid", (ushort)backdrop, 19, backdrop),
@@ -82,12 +78,9 @@ public static class CeresDestructionSpriteDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(CeresDestructionBackdrop)} {(int)backdrop}."),
     };
 
-    /// <summary>Represents frame list.</summary>
     private sealed class FrameList : IReadOnlyList<CeresDestructionSpriteFrameDefinition>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => 23;
-        /// <summary>Accesses a value by index or range.</summary>
         public CeresDestructionSpriteFrameDefinition this[int index]
         {
             get
@@ -111,12 +104,10 @@ public static class CeresDestructionSpriteDefinitions
                 return BackdropFrame(BackdropOrder[index]);
             }
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<CeresDestructionSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

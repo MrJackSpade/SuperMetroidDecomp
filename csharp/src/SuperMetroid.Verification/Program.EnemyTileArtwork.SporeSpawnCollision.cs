@@ -16,10 +16,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
 
-/// <summary>Represents enemy tile artwork spore spawn collision verification.</summary>
 internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 {
-    /// <summary>Verifies compiled spore spawn collision.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Spore Spawn collision")]
     internal static void VerifyCompiledSporeSpawnCollision(
         SuperMetroidAddressSpace rom)
@@ -182,7 +180,6 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         }
     }
 
-    /// <summary>Lookup stream4 spore collision command.</summary>
     [VerificationCommand("--lookup-stream4-spore-collision")]
     internal static int LookupStream4SporeCollisionCommand()
     {

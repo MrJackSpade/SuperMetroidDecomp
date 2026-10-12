@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend;
+﻿using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -13,9 +13,7 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class SamusFrameState
 {
-    /// <summary>Stores samus load appearance frames remaining.</summary>
     internal ushort _samusLoadAppearanceFramesRemaining;
-    /// <summary>Stores samus load appearance palette fx definition.</summary>
     internal ushort _samusLoadAppearancePaletteFxDefinition;
 
     /// <summary>

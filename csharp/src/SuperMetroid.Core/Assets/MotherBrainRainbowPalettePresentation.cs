@@ -8,20 +8,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable rainbow, drain, revival, and normal-restoration colors for Mother Brain.</summary>
 public sealed class MotherBrainRainbowPalettePresentation
 {
-    /// <summary>Stores rainbow.</summary>
     private readonly PaletteFrame[] rainbow;
-    /// <summary>Stores to grey.</summary>
     private readonly PaletteFade toGrey;
-    /// <summary>Stores from grey.</summary>
     private readonly RevivalPaletteFade fromGrey;
-    /// <summary>Stores fake death to grey.</summary>
     private readonly PaletteFade fakeDeathToGrey;
-    /// <summary>Stores normal.</summary>
     private readonly PaletteFrame normal;
-    /// <summary>Stores beam cycle.</summary>
     private readonly BeamColors beamCycle;
 
-    /// <summary>Initializes a new mother brain rainbow palette presentation instance.</summary>
     private MotherBrainRainbowPalettePresentation(PaletteFrame[] rainbow, PaletteFrame[] toGrey,
         PaletteFrame[] fromGrey, PaletteFade fakeDeathToGrey, PaletteFrame normal,
         Bgr555 beamInitial, Bgr555[] beamCycle)
@@ -68,11 +61,8 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// </summary>
     private sealed class BeamColors
     {
-        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
-        /// <summary>Gets length.</summary>
         public int Length { get; }
-        /// <summary>Initializes a new beam colors instance.</summary>
         public BeamColors(Bgr555[] colors)
         {
             Length = colors.Length;
@@ -80,10 +70,8 @@ public sealed class MotherBrainRainbowPalettePresentation
                 if (colors[index] != Calculate(index))
                 { supplied = colors; return; }
         }
-        /// <summary>Gets an indexed value.</summary>
         public Bgr555 this[int index] => supplied is null ? Calculate(index) : supplied[index];
 
-        /// <summary>Calculate.</summary>
         private static Bgr555 Calculate(int index)
         {
             int step = index * MotherBrainBeamRomData.ColorStride / Bgr555.ByteCount;
@@ -113,9 +101,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
             return new Bgr555(red, green, blue);
         }
-        /// <summary>Rising.</summary>
         private static int Rising(int step) => (31 * step + 7) / 15;
-        /// <summary>Falling.</summary>
         private static int Falling(int step) => 31 - 2 * step - (step >= 9 ? 1 : 0);
     }
     /// <summary>Fixed-color backdrop used on the beam's first active HDMA frame.</summary>
@@ -176,7 +162,6 @@ public sealed class MotherBrainRainbowPalettePresentation
             new MotherBrainPalettes(cgram).FakeDeathBrain.Write(color, fromGrey.Body(frame, color));
     }
 
-    /// <summary>Applies full.</summary>
     private static void ApplyFull(SnesCgram cgram, PaletteFrame[] frames, int frame)
     {
         Ensure.NotNull(cgram);
@@ -185,7 +170,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         ApplyColors(cgram, frames[frame]);
     }
 
-    /// <summary>Applies grey.</summary>
     private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
         IPaletteFade frames, int frame)
     {
@@ -206,7 +190,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         spill.GreyTrailingWord = frames.Trailing(frame)!.Value;
     }
 
-    /// <summary>Applies colors.</summary>
     private static void ApplyColors(SnesCgram cgram, PaletteFrame selected)
     {
         for (int color = 0; color < selected.Body.Length; color++)
@@ -251,7 +234,6 @@ public sealed class MotherBrainRainbowPalettePresentation
                 nameof(document.BeamCycle)));
     }
 
-    /// <summary>Compile fake death frames.</summary>
     private static PaletteFade CompileFakeDeathFrames(PaletteRgb5[][]? source)
     {
         if (source is null || source.Length != MotherBrainFakeDeathPaletteRomData.FrameCount)
@@ -263,7 +245,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         return new PaletteFade(frames);
     }
 
-    /// <summary>Compile frames.</summary>
     private static PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
         int count, int bodyCount, int legCount, bool trailing, string name)
     {
@@ -284,7 +265,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         return frames;
     }
 
-    /// <summary>Compile colors.</summary>
     private static Bgr555[] CompileColors(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -295,7 +275,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         return colors;
     }
 
-    /// <summary>Compile color.</summary>
     private static Bgr555 CompileColor(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 || (uint)color.Blue > 31)
@@ -313,21 +292,14 @@ public sealed class MotherBrainRainbowPalettePresentation
         json.Write(bytes);
     }
 
-    /// <summary>Represents palette frame.</summary>
     private sealed class PaletteFrame
     {
-        /// <summary>Stores back legs.</summary>
         private readonly Bgr555[]? backLegs;
-        /// <summary>Stores stock rear.</summary>
         private readonly bool stockRear;
-        /// <summary>Stores drained rear.</summary>
         private readonly bool drainedRear;
-        /// <summary>Stores normal rear subset.</summary>
         private readonly bool normalRearSubset;
-        /// <summary>Stores rear source.</summary>
         private readonly PaletteFrame? rearSource;
 
-        /// <summary>Initializes a new palette frame instance.</summary>
         public PaletteFrame(Bgr555[] body, Bgr555[] legs, Bgr555? trailingColor)
         {
             Body = new BodyColors(body);
@@ -346,22 +318,18 @@ public sealed class MotherBrainRainbowPalettePresentation
                 { backLegs = legs; return; }
         }
 
-        /// <summary>Gets or sets body.</summary>
         public BodyColors Body { get; private set; }
-        /// <summary>Reduce red origin.</summary>
         internal void ReduceRedOrigin()
         {
             RedOriginColors? selected = RedOriginColors.TryCreate(Body);
             if (selected is not null) Body = new BodyColors(selected);
         }
-        /// <summary>Share channels.</summary>
         internal void ShareChannels(PaletteFrame source, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition = 0, int greenAddition = 0)
         {
             if (Body.Length != source.Body.Length) return;
             var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, new RainbowChannelSelection { Red = red, Green = green, Blue = blue, RedAddition = redAddition, GreenAddition = greenAddition });
             if (sharing is not null) Body = new BodyColors(sharing);
         }
-        /// <summary>Share tint.</summary>
         internal void ShareTint(PaletteFrame source, int red, int green, int blue)
         {
             if (Body.Length != source.Body.Length) return;
@@ -369,13 +337,10 @@ public sealed class MotherBrainRainbowPalettePresentation
                 if (Body[color] != BodyColors.Tinted(source.Body[color], red, green, blue)) return;
             Body = new BodyColors(source.Body, red, green, blue);
         }
-        /// <summary>Gets leg count.</summary>
         public int LegCount { get; }
-        /// <summary>Gets trailing color.</summary>
         public Bgr555? TrailingColor => rearSource is not null
             ? rearSource.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
             : drainedRear || normalRearSubset ? Leg(1) : field;
-        /// <summary>Leg.</summary>
         public Bgr555 Leg(int color) => rearSource is not null
             ? rearSource.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)
             : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(true,
@@ -387,7 +352,6 @@ public sealed class MotherBrainRainbowPalettePresentation
 
         // Endpoint views are selected only after every separately supplied rear and
         // trailing value matches; both sequences retain independent edit behavior.
-        /// <summary>Share drain start.</summary>
         internal static PaletteFrame ShareDrainStart(PaletteFrame drain, PaletteFrame rainbow)
         {
             for (int color = 0; color < drain.Body.Length; color++)
@@ -397,7 +361,6 @@ public sealed class MotherBrainRainbowPalettePresentation
             return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
                 ? new PaletteFrame(rainbow, false) : drain;
         }
-        /// <summary>Share drain end.</summary>
         internal static PaletteFrame ShareDrainEnd(PaletteFrame drain)
         {
             for (int color = 0; color < drain.LegCount; color++)
@@ -405,7 +368,6 @@ public sealed class MotherBrainRainbowPalettePresentation
                     color + MotherBrainDrainedPaletteRomData.RearSourceColor))) return drain;
             return drain.TrailingColor == drain.Leg(1) ? new PaletteFrame(drain, true) : drain;
         }
-        /// <summary>Initializes a new palette frame instance.</summary>
         private PaletteFrame(PaletteFrame source, bool drainedRear)
         {
             Body = source.Body;
@@ -414,7 +376,6 @@ public sealed class MotherBrainRainbowPalettePresentation
             rearSource = drainedRear ? null : source;
         }
 
-        /// <summary>Share normal rear endpoint.</summary>
         internal static PaletteFrame ShareNormalRearEndpoint(PaletteFrame frame)
         {
             for (int color = 0; color < frame.LegCount; color++)
@@ -422,7 +383,6 @@ public sealed class MotherBrainRainbowPalettePresentation
                     color + MotherBrainDrainedPaletteRomData.RearSourceColor)) return frame;
             return frame.TrailingColor == frame.Leg(1) ? new PaletteFrame(frame) : frame;
         }
-        /// <summary>Initializes a new palette frame instance.</summary>
         private PaletteFrame(PaletteFrame source)
         {
             Body = source.Body;
@@ -430,22 +390,18 @@ public sealed class MotherBrainRainbowPalettePresentation
             normalRearSubset = true;
         }
 
-        /// <summary>Half intensity.</summary>
         private static Bgr555 HalfIntensity(Bgr555 color) => color.Map((_, channel) => (channel + 1) / 2);
     }
 
     /// <summary>Exact red-origin shading from the narrowly reviewed temporal material paints; calculated shades are not retained rows.</summary>
     private sealed class RedOriginColors
     {
-        /// <summary>Stores head.</summary>
         private readonly Bgr555 head, plateStart, plateEnd, tissueStart, tissueEnd;
         /// <summary>The dark head keeps its own green/blue under the shared head red ramp.</summary>
         private readonly (int Green, int Blue) darkHead;
         /// <summary>The three interior tissue shades keep their own green levels.</summary>
         private readonly int[] tissueGreens;
-        /// <summary>Stores tail.</summary>
         private readonly Bgr555[] tail;
-        /// <summary>Initializes a new red origin colors instance.</summary>
         private RedOriginColors(BodyColors colors)
         {
             head = colors[0];
@@ -458,7 +414,6 @@ public sealed class MotherBrainRainbowPalettePresentation
                 colors[RedOriginLayout.TissueStart + 3].Green];
             tail = [colors[RedOriginLayout.TailStart], colors[RedOriginLayout.TailStart + 1]];
         }
-        /// <summary>Tries to create.</summary>
         internal static RedOriginColors? TryCreate(BodyColors colors)
         {
             if (colors.Length != MotherBrainRainbowPaletteRomData.ColorCount ||
@@ -468,7 +423,6 @@ public sealed class MotherBrainRainbowPalettePresentation
                 if (selected[color] != colors[color]) return null;
             return selected;
         }
-        /// <summary>Gets or sets an indexed value.</summary>
         internal Bgr555 this[int color]
         {
             get
@@ -501,17 +455,11 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <summary>Exact shared channels with all unexplained RGB5 samples retained independently.</summary>
     private sealed class SharedBodyChannels
     {
-        /// <summary>Stores source.</summary>
         private readonly BodyColors source;
-        /// <summary>Stores red.</summary>
         private readonly bool red, green, blue;
-        /// <summary>Stores red addition.</summary>
         private readonly int redAddition, greenAddition, independentCount;
-        /// <summary>Stores independent.</summary>
         private readonly MotherBrainRainbowShadeChannel independent;
-        /// <summary>Gets length.</summary>
         internal int Length => source.Length;
-        /// <summary>Initializes a new shared body channels instance.</summary>
         private SharedBodyChannels(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
         {
             this.source = source; this.red = channels.Red; this.green = channels.Green; this.blue = channels.Blue; this.redAddition = channels.RedAddition; this.greenAddition = channels.GreenAddition;
@@ -528,7 +476,6 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
             independent = new MotherBrainRainbowShadeChannel(samples, profile, color => source[color].Green);
         }
-        /// <summary>Tries to create.</summary>
         internal static SharedBodyChannels? TryCreate(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
         {
             for (int color = 0; color < source.Length; color++)
@@ -540,7 +487,6 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
             return new(source, selected, profile, new RainbowChannelSelection { Red = channels.Red, Green = channels.Green, Blue = channels.Blue, RedAddition = channels.RedAddition, GreenAddition = channels.GreenAddition });
         }
-        /// <summary>Gets or sets an indexed value.</summary>
         internal Bgr555 this[int color]
         {
             get
@@ -557,29 +503,21 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// <summary>Recognizes normal and drained body paint without repeated palette rows.</summary>
     private sealed class BodyColors
     {
-        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
-        /// <summary>Stores red origin.</summary>
         private readonly RedOriginColors? redOrigin;
-        /// <summary>Initializes a new body colors instance.</summary>
         internal BodyColors(RedOriginColors colors)
         {
             redOrigin = colors;
             Length = MotherBrainRainbowPaletteRomData.ColorCount;
         }
-        /// <summary>Stores shared channels.</summary>
         private readonly SharedBodyChannels? sharedChannels;
-        /// <summary>Initializes a new body colors instance.</summary>
         internal BodyColors(SharedBodyChannels channels)
         {
             sharedChannels = channels;
             Length = channels.Length;
         }
-        /// <summary>Stores tint source.</summary>
         private readonly BodyColors? tintSource;
-        /// <summary>Stores red tint.</summary>
         private readonly int redTint, greenTint, blueTint;
-        /// <summary>Initializes a new body colors instance.</summary>
         internal BodyColors(BodyColors source, int red, int green, int blue)
         {
             tintSource = source;
@@ -592,11 +530,8 @@ public sealed class MotherBrainRainbowPalettePresentation
             int r = color.Red + red, g = color.Green + green, b = color.Blue + blue;
             return (uint)r > 31 || (uint)g > 31 || (uint)b > 31 ? null : new Bgr555(r, g, b);
         }
-        /// <summary>Stores drained.</summary>
         private readonly DrainedBodyColors? drained;
-        /// <summary>Gets length.</summary>
         public int Length { get; }
-        /// <summary>Initializes a new body colors instance.</summary>
         public BodyColors(Bgr555[] colors)
         {
             Length = colors.Length;
@@ -607,7 +542,6 @@ public sealed class MotherBrainRainbowPalettePresentation
             drained = new DrainedBodyColors(colors);
             if (!drained.Calculated) { drained = null; supplied = colors; }
         }
-        /// <summary>Gets an indexed value.</summary>
         public Bgr555 this[int color] => redOrigin is not null ? redOrigin[color]
             : sharedChannels is not null ? sharedChannels[color]
             : tintSource is not null ? Tinted(tintSource[color], redTint, greenTint, blueTint)
@@ -626,18 +560,12 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// </summary>
     internal sealed class DrainedBodyColors
     {
-        /// <summary>Stores tissue light.</summary>
         private readonly Rgb8 tissueLight;
-        /// <summary>Stores tissue dark.</summary>
         private readonly Rgb8 tissueDark;
-        /// <summary>Stores outline.</summary>
         private readonly Bgr555 outline;
-        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
-        /// <summary>Gets calculated.</summary>
         internal bool Calculated => supplied is null;
 
-        /// <summary>Initializes a new drained body colors instance.</summary>
         internal DrainedBodyColors(Bgr555[] colors)
         {
             if (colors.Length is not (3 or 13 or 15)) { supplied = colors; return; }
@@ -677,10 +605,8 @@ public sealed class MotherBrainRainbowPalettePresentation
                 return false;
             }
         }
-        /// <summary>Gets an indexed value.</summary>
         internal Bgr555 this[int color] => supplied is null ? Calculate(color) : supplied[color];
 
-        /// <summary>Calculate.</summary>
         private Bgr555 Calculate(int color)
         {
             if (color is >= 4 and <= 7)
@@ -696,10 +622,8 @@ public sealed class MotherBrainRainbowPalettePresentation
                 (tissueLight.Blue * (12 - color) + tissueDark.Blue * (color - 8)) / 32);
         }
 
-        /// <summary>Represents rgb8.</summary>
         private readonly record struct Rgb8(int Red, int Green, int Blue)
         {
-            /// <summary>Gets an indexed value.</summary>
             internal int this[ColorChannel channel] => channel switch
             {
                 ColorChannel.Red => Red,
@@ -709,37 +633,25 @@ public sealed class MotherBrainRainbowPalettePresentation
             };
         }
     }
-    /// <summary>Represents ipalette fade.</summary>
     private interface IPaletteFade
     {
-        /// <summary>Gets or sets length.</summary>
         int Length { get; }
-        /// <summary>Gets or sets body count.</summary>
         int BodyCount { get; }
-        /// <summary>Gets or sets leg count.</summary>
         int LegCount { get; }
-        /// <summary>Body.</summary>
         Bgr555 Body(int frame, int color);
-        /// <summary>Leg.</summary>
         Bgr555 Leg(int frame, int color);
-        /// <summary>Trailing.</summary>
         Bgr555? Trailing(int frame);
     }
 
     // Revival rounds RGB5 endpoint interpolation to the nearest channel value. Stock
     // holds the prior shade at one independently reviewed tissue-ink/phase choice.
     // Sparse differences also preserve every independently edited output and endpoint.
-    /// <summary>Represents revival palette fade.</summary>
     private sealed class RevivalPaletteFade : IPaletteFade
     {
-        /// <summary>Stores first.</summary>
         private readonly PaletteFrame first;
-        /// <summary>Stores last.</summary>
         private readonly PaletteFrame last;
-        /// <summary>Stores supplied overrides.</summary>
         private readonly Dictionary<(int Frame, int Color), Bgr555> suppliedOverrides = new();
 
-        /// <summary>Initializes a new revival palette fade instance.</summary>
         public RevivalPaletteFade(PaletteFrame[] frames)
         {
             first = frames[0];
@@ -754,28 +666,19 @@ public sealed class MotherBrainRainbowPalettePresentation
                 }
         }
 
-        /// <summary>Gets length.</summary>
         public int Length { get; }
-        /// <summary>Gets body count.</summary>
         public int BodyCount => first.Body.Length;
-        /// <summary>Gets leg count.</summary>
         public int LegCount => first.LegCount;
-        /// <summary>Body.</summary>
         public Bgr555 Body(int frame, int color) => Color(frame, color);
-        /// <summary>Leg.</summary>
         public Bgr555 Leg(int frame, int color) => Color(frame, BodyCount + color);
-        /// <summary>Trailing.</summary>
         public Bgr555? Trailing(int frame) => Color(frame, BodyCount + LegCount);
 
-        /// <summary>Color.</summary>
         private Bgr555 Color(int frame, int color) => suppliedOverrides.TryGetValue((frame, color), out Bgr555 supplied)
             ? supplied : Interpolate(frame, color);
 
-        /// <summary>Reads color.</summary>
         private Bgr555 ReadColor(PaletteFrame palette, int color) => color < BodyCount ? palette.Body[color]
             : color < BodyCount + LegCount ? palette.Leg(color - BodyCount) : palette.TrailingColor!.Value;
 
-        /// <summary>Interpolate.</summary>
         private Bgr555 Interpolate(int frame, int color)
         {
             frame = MotherBrainDrainedPaletteRomData.RevivalInterpolationFrame(frame, color);
@@ -786,17 +689,12 @@ public sealed class MotherBrainRainbowPalettePresentation
                     + b * frame + intervals / 2) / intervals));
         }
     }
-    /// <summary>Represents palette fade.</summary>
     private sealed class PaletteFade : IPaletteFade
     {
-        /// <summary>Stores first.</summary>
         private readonly PaletteFrame first;
-        /// <summary>Stores last.</summary>
         private readonly PaletteFrame last;
-        /// <summary>Stores supplied.</summary>
         private readonly PaletteFrame[]? supplied;
 
-        /// <summary>Initializes a new palette fade instance.</summary>
         public PaletteFade(PaletteFrame[] frames)
         {
             first = frames[0];
@@ -817,24 +715,17 @@ public sealed class MotherBrainRainbowPalettePresentation
             }
         }
 
-        /// <summary>Gets length.</summary>
         public int Length { get; }
-        /// <summary>Gets body count.</summary>
         public int BodyCount => first.Body.Length;
-        /// <summary>Gets leg count.</summary>
         public int LegCount => first.LegCount;
-        /// <summary>Body.</summary>
         public Bgr555 Body(int frame, int color) => supplied is null
             ? Interpolate(first.Body[color], last.Body[color], frame) : supplied[frame].Body[color];
-        /// <summary>Leg.</summary>
         public Bgr555 Leg(int frame, int color) => supplied is null
             ? Interpolate(first.Leg(color), last.Leg(color), frame) : supplied[frame].Leg(color);
-        /// <summary>Trailing.</summary>
         public Bgr555? Trailing(int frame) => supplied is not null ? supplied[frame].TrailingColor
             : first.TrailingColor is Bgr555 start && last.TrailingColor is Bgr555 end
                 ? Interpolate(start, end, frame) : null;
 
-        /// <summary>Interpolate.</summary>
         private Bgr555 Interpolate(Bgr555 start, Bgr555 end, int frame)
         {
             int intervals = Length - 1;
@@ -888,18 +779,15 @@ public enum MotherBrainRainbowPaletteVersion
 /// <summary>Installed palette filename and fixed native sequence geometry; color content is editable while attack/fade timing and loop termination remain engine-owned.</summary>
 public static class MotherBrainRainbowPaletteFormat
 {
-    /// <summary>Represents red origin layout.</summary>
     internal static class RedOriginLayout
     {
         /// <summary>$AD:E44E: darker head pair begins at body color index2.</summary>
         internal const int DarkHead = 2;
         /// <summary>$AD:E452-E459: four plate inks at body indices4..7.</summary>
         internal const int PlateStart = 4, PlateEnd = 7;
-        /// <summary>Defines plate intervals.</summary>
         internal const int PlateIntervals = PlateEnd - PlateStart;
         /// <summary>$AD:E45A-E463: five tissue inks at body indices8..12.</summary>
         internal const int TissueStart = 8, TissueEnd = 12;
-        /// <summary>Defines tissue intervals.</summary>
         internal const int TissueIntervals = TissueEnd - TissueStart;
         /// <summary>$AD:E464-E467: two remaining independent body inks at indices13..14.</summary>
         internal const int TailStart = 13;

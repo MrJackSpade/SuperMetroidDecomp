@@ -65,7 +65,6 @@ internal sealed class EncodingMeasurement(IReadOnlyList<EncodedFile> files)
         Files.SelectMany(file => file.Occurrences).GroupBy(occurrence => occurrence.Rule).OrderBy(group => group.Key)
             .Select(group => $"{group.Key}: {group.Count()}"));
 
-    /// <summary>Address interpreting types.</summary>
     private static List<string> AddressInterpretingTypes(
         SyntaxTree tree,
         IReadOnlyList<CartridgeEncodingOccurrence> occurrences)
@@ -80,7 +79,6 @@ internal sealed class EncodingMeasurement(IReadOnlyList<EncodedFile> files)
             .ToList();
     }
 
-    /// <summary>Storage width members.</summary>
     private static int StorageWidthMembers(SyntaxTree tree)
     {
         if (CartridgeEncodingScanner.IsCatalogFile(tree.FilePath))

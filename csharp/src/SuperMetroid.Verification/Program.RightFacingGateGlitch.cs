@@ -14,10 +14,8 @@ using static GraphDigestVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents right facing gate glitch verification.</summary>
 internal static class RightFacingGateGlitchVerification
 {
-    /// <summary>Represents east tunnel gate record.</summary>
     internal readonly record struct EastTunnelGateRecord(
         int EnemyX,
         int ShootFrame,
@@ -28,14 +26,12 @@ internal static class RightFacingGateGlitchVerification
         int Pose,
         Position16<RoomPixels> Shot);
 
-    /// <summary>verify right facing gate glitches.</summary>
     internal static void VerifyRightFacingGateGlitches()
     {
         Suite(nameof(VerifyPinkBrinstarRightFacingGateGlitch), () => VerifyPinkBrinstarRightFacingGateGlitch());
         Suite(nameof(VerifyEastTunnelFrozenEnemyGateGlitch), () => VerifyEastTunnelFrozenEnemyGateGlitch());
     }
 
-    /// <summary>verify pink brinstar right facing gate glitch.</summary>
     private static void VerifyPinkBrinstarRightFacingGateGlitch()
     {
         string[] expected = File.ReadLines(
@@ -123,7 +119,6 @@ internal static class RightFacingGateGlitchVerification
             "right-gate activations and every negative match the original CPU.");
     }
 
-    /// <summary>verify east tunnel frozen enemy gate glitch.</summary>
     private static void VerifyEastTunnelFrozenEnemyGateGlitch()
     {
         EastTunnelGateRecord[] expected = File.ReadLines(
@@ -153,7 +148,6 @@ internal static class RightFacingGateGlitchVerification
             "exactly as on the original CPU.");
     }
 
-    /// <summary>run east tunnel frozen enemy gate glitch.</summary>
     private static EastTunnelGateRecord RunEastTunnelFrozenEnemyGateGlitch(
         int frozenEnemyX,
         int shootFrame)
@@ -240,7 +234,6 @@ internal static class RightFacingGateGlitchVerification
             shotPosition);
     }
 
-    /// <summary>parse east tunnel record.</summary>
     private static EastTunnelGateRecord ParseEastTunnelRecord(string line)
     {
         int[] fields = line.Split(',').Select(int.Parse).ToArray();
@@ -257,7 +250,6 @@ internal static class RightFacingGateGlitchVerification
             new Position16<RoomPixels>(checked((ushort)fields[8]), checked((ushort)fields[9])));
     }
 
-    /// <summary>right facing gate glitch command.</summary>
     [VerificationCommand("--right-facing-gate-glitch")]
     internal static int RightFacingGateGlitchCommand()
     {

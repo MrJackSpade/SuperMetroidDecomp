@@ -16,10 +16,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents credits presentation verification.</summary>
 internal static class CreditsPresentationVerification
 {
-    /// <summary>verify credits presentation.</summary>
     internal static void VerifyCreditsPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -96,7 +94,6 @@ internal static class CreditsPresentationVerification
             "runtime cadence, overrides and strict validation pass.");
     }
 
-    /// <summary>verify bad credit document.</summary>
     private static void VerifyBadCreditDocument(byte[] extracted,
         Action<JsonObject> mutate, string identity)
     {
@@ -108,7 +105,6 @@ internal static class CreditsPresentationVerification
             new MemoryStream(bytes, writable: false)), identity);
     }
 
-    /// <summary>verify staff credits assets.</summary>
     internal static void VerifyStaffCreditsAssets(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original)
     {
@@ -147,7 +143,6 @@ internal static class CreditsPresentationVerification
             "corrupt staff-credit override fails without stock fallback");
     }
 
-    /// <summary>credits presentation command.</summary>
     [VerificationCommand("--credits-presentation")]
     internal static int CreditsPresentationCommand()
     {

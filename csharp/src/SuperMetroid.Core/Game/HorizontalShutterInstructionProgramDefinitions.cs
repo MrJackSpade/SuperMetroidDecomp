@@ -9,13 +9,11 @@ internal abstract class HorizontalShutterInstructionProgramDefinitions
     /// <summary><c>InstList_ShutterHorizontal</c> at $A2:E9D4.</summary>
     internal const ushort Stationary = 0xe9d4;
 
-    /// <summary>Stores presentation word.</summary>
     internal const ushort PresentationWord = 0xe9d6;
 
     /// <summary>True only for the stationary horizontal shutter's visual operand.</summary>
     internal static bool IsPresentationWord(ushort address) => address == PresentationWord;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == Stationary) return 1;

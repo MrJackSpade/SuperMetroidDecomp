@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ridley claw offsets verification.</summary>
 internal static class RidleyClawOffsetsVerification
 {
-    /// <summary>Verifies ridley claw offsets.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley claw offsets")]
     internal static void VerifyRidleyClawOffsets(SuperMetroidAddressSpace rom)
     {

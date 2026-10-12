@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
@@ -6,23 +6,19 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Draygon's wall-turret PLMs: header identification and the cannon state Draygon's grab fight drives.</summary>
 internal sealed class DraygonCannonPlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
 
-    /// <summary>Initializes a new draygon cannon plms instance.</summary>
     internal DraygonCannonPlms(PlmRoomBindings bindings)
     {
         _bindings = bindings;
     }
 
 
-    /// <summary>Checks whether draygon cannon header.</summary>
     internal static bool IsDraygonCannonHeader(PlmHeaderId header) => header is
         PlmHeaderId.DraygonCannonFacingRight or
         PlmHeaderId.DraygonCannonFacingRightDestroyed or
         PlmHeaderId.DraygonCannonFacingLeft;
 
-    /// <summary>Sets up draygon cannon slot.</summary>
     internal static void SetupDraygonCannonSlot(RoomLevelData level, PlmSlot slot)
     {
         DraygonCannonOrientation orientation = slot.HeaderPointer switch
@@ -63,7 +59,6 @@ internal sealed class DraygonCannonPlms
             DraygonCannonRomData.CannonExtensionWord);
     }
 
-    /// <summary>Runs draygon cannon pre instruction.</summary>
     internal static void RunDraygonCannonPreInstruction(PlmSlot slot)
     {
         DraygonCannonPlmState? state = slot.DraygonCannon;
@@ -89,7 +84,6 @@ internal sealed class DraygonCannonPlms
         slot.InstructionTimer = 1;
     }
 
-    /// <summary>Tries to execute draygon cannon instruction.</summary>
     internal bool TryExecuteDraygonCannonInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -153,7 +147,6 @@ internal sealed class DraygonCannonPlms
         }
     }
 
-    /// <summary>Damage draygon cannon.</summary>
     private void DamageDraygonCannon(
         RoomLevelData level,
         PlmSlot slot,
@@ -172,7 +165,6 @@ internal sealed class DraygonCannonPlms
         state.Destroyed = true;
     }
 
-    /// <summary>Writes draygon cannon type and bts.</summary>
     private static void WriteDraygonCannonTypeAndBts(
         RoomLevelData level,
         int blockIndex,
@@ -185,18 +177,13 @@ internal sealed class DraygonCannonPlms
         level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
     }
 
-    /// <summary>Represents draygon cannon plm state.</summary>
     internal sealed class DraygonCannonPlmState(
         ushort variablePointer,
         DraygonCannonOrientation orientation)
     {
-        /// <summary>Gets variable pointer.</summary>
         public ushort VariablePointer { get; } = variablePointer;
-        /// <summary>Gets orientation.</summary>
         public DraygonCannonOrientation Orientation { get; } = orientation;
-        /// <summary>Gets or sets destroyed.</summary>
         public bool Destroyed { get; set; }
-        /// <summary>Gets or sets has pending hit.</summary>
         public bool HasPendingHit { get; set; }
     }
 }

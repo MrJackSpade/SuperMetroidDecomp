@@ -11,26 +11,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyCollision
 {
-    /// <summary>Stores dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
-    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
-    /// <summary>Initializes a new enemy collision instance.</summary>
     internal EnemyCollision(EnemyCollisionDependencies dependencies)
     {
         _dispatch = dependencies.Dispatch;
@@ -429,7 +419,6 @@ internal sealed class EnemyCollision
         return hitCount;
     }
 
-    /// <summary>run shot stage.</summary>
     private static bool RunShotStage(EnemyShotStage? stage, in EnemyShotContext context) =>
         stage is not null && stage(in context);
 
@@ -589,7 +578,6 @@ internal sealed class EnemyCollision
         return hitCount;
     }
 
-    /// <summary>is literal no op enemy ai.</summary>
     internal static bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
         EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, pointer);
 
@@ -911,7 +899,6 @@ internal sealed class EnemyCollision
         enemy.InvincibilityTimer = 10;
     }
 
-    /// <summary>read projectile vulnerability.</summary>
     internal static byte ReadProjectileVulnerability(
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType)
@@ -933,7 +920,6 @@ internal sealed class EnemyCollision
         return EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
     }
 
-    /// <summary>Represents normal shot vulnerability.</summary>
     internal readonly record struct NormalShotVulnerability(
         int Multiplier,
         bool FreezeImmediately,
@@ -1484,14 +1470,10 @@ internal sealed class EnemyCollision
             : PirateHitboxShotAction.Normal;
     }
 
-    /// <summary>Represents pirate hitbox shot action.</summary>
     internal enum PirateHitboxShotAction : byte
     {
-        /// <summary>Identifies normal.</summary>
         Normal,
-        /// <summary>Identifies ignore.</summary>
         Ignore,
-        /// <summary>Identifies reflect.</summary>
         Reflect,
     }
 
@@ -1574,7 +1556,6 @@ internal sealed class EnemyCollision
         _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 1);
     }
 
-    /// <summary>radius boxes overlap.</summary>
     internal static bool RadiusBoxesOverlap(
         Position16<RoomPixels> firstPosition,
         Extent16<RoomPixels> firstRadius,
@@ -1583,7 +1564,6 @@ internal sealed class EnemyCollision
         Math.Abs(unchecked((short)(firstPosition.X - secondPosition.X))) < firstRadius.X + secondRadius.X &&
         Math.Abs(unchecked((short)(firstPosition.Y - secondPosition.Y))) < firstRadius.Y + secondRadius.Y;
 
-    /// <summary>apply normal enemy touch damage.</summary>
     internal static void ApplyNormalEnemyTouchDamage(
         SamusState samus,
         ushort damageBeforeSuit,

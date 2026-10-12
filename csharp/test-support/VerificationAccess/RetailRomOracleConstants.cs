@@ -3,7 +3,6 @@
 
 namespace SuperMetroid.Core.Audio
 {
-    /// <summary>Represents audio rom data music tracks.</summary>
     internal static class AudioRomDataMusicTracks
     {
         /// <summary>Title-screen track command for the music bank uploaded from <see cref="AudioUploadAddresses.TitleSequence"/>.</summary>
@@ -16,7 +15,6 @@ namespace SuperMetroid.Core.Frontend
     /// <summary>Word offsets in a DemoSetDef record at bank $91.</summary>
     internal static class AttractDemoRomDataEquipmentFields
     {
-        /// <summary>Stores items.</summary>
         public const int Items = 0, Missiles = 2, SuperMissiles = 4, PowerBombs = 6,
             Health = 8, CollectedBeams = 10, EquippedBeams = 12, InputObject = 14;
     }
@@ -33,7 +31,6 @@ namespace SuperMetroid.Core.Frontend
     /// <summary>Word offsets in a DemoRoomData record at bank $82.</summary>
     internal static class AttractDemoRomDataRoomFields
     {
-        /// <summary>Stores room.</summary>
         public const int Room = 0, Door = 2, DoorSlot = 4, CameraX = 6, CameraY = 8,
             SamusYFromTop = 10, SamusXFromCenter = 12, Duration = 14, Setup = 16;
     }
@@ -41,21 +38,14 @@ namespace SuperMetroid.Core.Frontend
     /// <summary>Named bank-$8C indirect-data records compared by cinematic draw code.</summary>
     internal static class CinematicCodePointersIndirectData
     {
-        /// <summary>Stores intro text space.</summary>
         public const ushort IntroTextSpace = 0xd67d;
         // The six intro story-page background lists. The port draws pages from the installed
         // narration presentation, so only this pinned-ROM catalog still names them.
-        /// <summary>Stores intro text page1.</summary>
         public const ushort IntroTextPage1 = 0xc383;
-        /// <summary>Stores intro text page2.</summary>
         public const ushort IntroTextPage2 = 0xc797;
-        /// <summary>Stores intro text page3.</summary>
         public const ushort IntroTextPage3 = 0xcb45;
-        /// <summary>Stores intro text page4.</summary>
         public const ushort IntroTextPage4 = 0xce33;
-        /// <summary>Stores intro text page5.</summary>
         public const ushort IntroTextPage5 = 0xd15d;
-        /// <summary>Stores intro text page6.</summary>
         public const ushort IntroTextPage6 = 0xd511;
     }
 }
@@ -218,14 +208,10 @@ namespace SuperMetroid.Core.Game
 
 namespace SuperMetroid.Core.Input
 {
-    /// <summary>Represents demo input rom data intro mother brain.</summary>
     internal static class DemoInputRomDataIntroMotherBrain
     {
-        /// <summary>Stores object.</summary>
         public const ushort Object = 0x8784;
-        /// <summary>Stores input list.</summary>
         public const ushort InputList = 0x8694;
-        /// <summary>Stores next record.</summary>
         public const ushort NextRecord = 0x86b8;
     }
 }

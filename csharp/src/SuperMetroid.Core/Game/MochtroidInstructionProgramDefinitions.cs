@@ -20,7 +20,6 @@ internal abstract class MochtroidInstructionProgramDefinitions
     /// collision radii do not follow these poses. Only this visual tempo is retained.</summary>
     private const ushort AttachedPulseTicks = 5;
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - FreeFlight;

@@ -19,7 +19,6 @@ using static SuiteTimingVerification;
 using static SyntheticSamusAnimationDelaysVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents ceres escape handoff verification.</summary>
 internal static class CeresEscapeHandoffVerification
 {
     /// <summary>
@@ -124,7 +123,6 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(0x13, airborne.Kinematics.Radius.Y, "ejection initialization leaves the live radius for the pose epilogue");
     }
 
-    /// <summary>verify ceres elevator shaft room main.</summary>
     private static void VerifyCeresElevatorShaftRoomMain()
     {
         var bus = new TestAddressSpace();
@@ -190,7 +188,6 @@ internal static class CeresEscapeHandoffVerification
         AssertTrue(!repeated.DepartureRequestedThisFrame, "departure request is a one-frame publication");
     }
 
-    /// <summary>verify ceres departure dispatcher timing.</summary>
     private static void VerifyCeresDepartureDispatcherTiming()
     {
         var departure = new CeresDepartureState();
@@ -244,7 +241,6 @@ internal static class CeresEscapeHandoffVerification
         return bus;
     }
 
-    /// <summary>seed ceres ejection air speed record.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres ejection type-$0A air speed record")]
     private static void SeedCeresEjectionAirSpeedRecord(TestAddressSpace bus)
     {
@@ -256,7 +252,6 @@ internal static class CeresEscapeHandoffVerification
             1, 0, 1, 0, 0, 0);
     }
 
-    /// <summary>ceres escape handoff command.</summary>
     [VerificationCommand("--ceres-escape-handoff")]
     internal static int CeresEscapeHandoffCommand()
     {

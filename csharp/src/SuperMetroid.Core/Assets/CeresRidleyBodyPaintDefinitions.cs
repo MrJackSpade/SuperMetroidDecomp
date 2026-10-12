@@ -12,20 +12,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyBodyPaintDefinitions
 {
-    /// <summary>Stores maximum channel.</summary>
     private const int MaximumChannel = (1 << 5) - 1;
-    /// <summary>Stores highlight green.</summary>
     private readonly int highlightGreen;
-    /// <summary>Stores middle green.</summary>
     private readonly int middleGreen;
-    /// <summary>Stores blue tint.</summary>
     private readonly int blueTint;
-    /// <summary>Stores dark red.</summary>
     private readonly int darkRed;
-    /// <summary>Stores dark blue.</summary>
     private readonly int darkBlue;
 
-    /// <summary>Initializes a new ceres ridley body paint definitions instance.</summary>
     internal CeresRidleyBodyPaintDefinitions(ReadOnlySpan<Bgr555> endpoint)
         : this(EndpointColor(endpoint, 8), EndpointColor(endpoint, 9), EndpointColor(endpoint, 10)) { }
 
@@ -39,13 +32,11 @@ internal sealed class CeresRidleyBodyPaintDefinitions
         darkBlue = dark.Blue;
     }
 
-    /// <summary>Endpoint color.</summary>
     private static Bgr555 EndpointColor(ReadOnlySpan<Bgr555> endpoint, int index)
     {
         if (endpoint.Length != 11) throw new ArgumentException("Ridley body endpoint requires eleven colors.", nameof(endpoint));
         return endpoint[index];
     }
-    /// <summary>Color.</summary>
     internal Bgr555 Color(int color)
     {
         if ((uint)color >= 11) throw new ArgumentOutOfRangeException(nameof(color));

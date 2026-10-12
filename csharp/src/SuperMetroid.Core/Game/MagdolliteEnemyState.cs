@@ -53,10 +53,8 @@ public enum MagdolliteEnemyFunction : ushort
 /// </summary>
 public sealed class MagdolliteEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new magdollite enemy state instance.</summary>
     internal MagdolliteEnemyState(RoomEnemySlot slot, MagdollitePart part)
     {
         _slot = slot;

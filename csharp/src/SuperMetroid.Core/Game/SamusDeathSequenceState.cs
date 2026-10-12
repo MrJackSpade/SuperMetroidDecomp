@@ -246,7 +246,6 @@ public sealed class SamusDeathSequenceState
                 "Samus death spritemap requires installed artwork."));
     }
 
-    /// <summary>Steps suit explosion.</summary>
     private bool StepSuitExplosion(
         SamusState samus,
         SnesCgram cgram,
@@ -282,7 +281,6 @@ public sealed class SamusDeathSequenceState
         return true;
     }
 
-    /// <summary>Applies whiteout.</summary>
     private bool ApplyWhiteout(SnesCgram cgram,
         SamusDeathPaletteArtworkCatalog? artwork)
     {
@@ -302,7 +300,6 @@ public sealed class SamusDeathSequenceState
         return true;
     }
 
-    /// <summary>Writes palette pair.</summary>
     private static void WritePalettePair(
         SamusState samus,
         SnesCgram cgram,
@@ -327,7 +324,6 @@ public sealed class SamusDeathSequenceState
         throw new InvalidOperationException("Samus death requires installed palette artwork.");
     }
 
-    /// <summary>Queues segment.</summary>
     [PpuLayoutBoundary("codec: Samus death tile segment records' native destinations")]
     private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
     {

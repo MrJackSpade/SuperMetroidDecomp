@@ -3,17 +3,13 @@ using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents lookup retail plm headers verification.</summary>
 internal static class LookupRetailPlmHeadersVerification
 {
-    /// <summary>verify retail plm header setups.</summary>
     internal static void VerifyRetailPlmHeaderSetups(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, false));
-    /// <summary>verify retail plm header instructions.</summary>
     internal static void VerifyRetailPlmHeaderInstructions(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, true));
 
-    /// <summary>verify retail plm header field.</summary>
     private static void VerifyRetailPlmHeaderField(SuperMetroidAddressSpace rom, bool instruction)
     {
         ushort[] headers = [0xb63b,0xb63f,0xb643,0xb647,0xb6d3,0xb6df,0xb6eb,0xb703,0xb70b,

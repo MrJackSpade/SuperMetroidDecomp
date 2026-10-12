@@ -3,10 +3,8 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents mother brain generated visual catalogs verification.</summary>
 internal static class MotherBrainGeneratedVisualCatalogsVerification
 {
-    /// <summary>Stores original mother brain frames.</summary>
     private static readonly EnemyExtendedFrameDefinition[] OriginalMotherBrainFrames =
     [
         new(0xa9, 0x9fa0, "mother_brain_body_oam_standing"),
@@ -29,7 +27,6 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
 
     ];
 
-    /// <summary>Verifies mother brain generated oam catalog.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain generated OAM catalog")]
     internal static void VerifyMotherBrainGeneratedOamCatalog(SuperMetroidAddressSpace rom)
     {
@@ -51,7 +48,6 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         AssertThrows<IndexOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(17), "Mother Brain OAM past end");
     }
 
-    /// <summary>Verifies mother brain generated bg2 catalog.</summary>
     internal static void VerifyMotherBrainGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected = OriginalMotherBrainFrames.Where(frame => frame.Pointer != 0xa320)

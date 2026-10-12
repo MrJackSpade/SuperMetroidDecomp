@@ -15,10 +15,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents zebetite definitions verification.</summary>
 internal static class ZebetiteDefinitionsVerification
 {
-    /// <summary>verify zebetite definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Zebetite definitions")]
     internal static void VerifyZebetiteDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -142,7 +140,6 @@ internal static class ZebetiteDefinitionsVerification
             "Zebetite definitions: 24 generation words, ten health selectors, both embedded populations, eight initializers, 80 health handoffs and both real respawns pass with all fixed source ranges forbidden.");
     }
 
-    /// <summary>new zebetite definition system.</summary>
     private static RoomEnemySystem NewZebetiteDefinitionSystem(
         ISnesAddressSpace bus,
         ushort generation)
@@ -159,7 +156,6 @@ internal static class ZebetiteDefinitionsVerification
         return enemies;
     }
 
-    /// <summary>new zebetite definition read guard.</summary>
     private static CartridgeReadGuard NewZebetiteDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6fc03 and < 0xa6fc33 or
                 >= 0xa6fce1 and < 0xa6fcf1 or
@@ -167,7 +163,6 @@ internal static class ZebetiteDefinitionsVerification
                 >= 0xa6fd4a and < 0xa6fd5e,
             address => $"Zebetite attempted migrated definition read ${address:X6}.");
 
-    /// <summary>lookup stream5 zebetite geometry command.</summary>
     [VerificationCommand("--lookup-stream5-zebetite-geometry")]
     internal static int LookupStream5ZebetiteGeometryCommand()
     {

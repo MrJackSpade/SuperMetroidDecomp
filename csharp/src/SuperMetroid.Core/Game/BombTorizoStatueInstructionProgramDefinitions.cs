@@ -23,19 +23,15 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions
     }
 
     // Fragment release delays decrease by eight ticks, with a sixty-four-tick floor.
-    /// <summary>Initial duration.</summary>
     private static ushort InitialDuration(int programIndex) => (ushort)Math.Max(64, 128 - 8 * programIndex);
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => ProgramCount * 2;
 
-    /// <summary>Program.</summary>
     internal static ushort Program(int index)
     {
         if ((uint)index >= ProgramCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         return unchecked((ushort)(FirstProgram + index * ProgramStride));
     }
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -44,10 +40,8 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions
         return unchecked((ushort)(program + ((index & 1) == 0 ? 2 : 13)));
     }
 
-    /// <summary>Checks whether an address identifies a presentation word.</summary>
     internal static bool IsPresentationWord(ushort address) =>
         TryDecodeProgramOffset(address, out _, out int offset) && offset is 2 or 13;
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (!TryDecodeProgramOffset(address, out int programIndex, out int offset))
@@ -69,7 +63,6 @@ internal abstract class BombTorizoStatueInstructionProgramDefinitions
         };
     }
 
-    /// <summary>Attempts to decode program offset.</summary>
     internal static bool TryDecodeProgramOffset(
         ushort address,
         out int programIndex,

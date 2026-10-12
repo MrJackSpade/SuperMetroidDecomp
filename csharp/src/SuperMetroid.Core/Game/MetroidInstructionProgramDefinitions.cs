@@ -15,7 +15,6 @@ internal abstract class MetroidInstructionProgramDefinitions
     private const ushort PulseBeatTicks = 16;
     /// <summary>$A3:E9D7/EA2D: six ticks brighten the pulse; the peak uses the remainder of that beat. Exact chosen split is retained under the same bounded pulse-exposure disposition; damage and other sounds/artwork are excluded.</summary>
     private const ushort PulseBrighteningTicks = 6;
-    /// <summary>Represents pulse stage.</summary>
     private enum PulseStage
     {
         /// <summary>$A3:E9CF/EA25 selects Insides_0 atF10D.</summary>
@@ -30,7 +29,6 @@ internal abstract class MetroidInstructionProgramDefinitions
         ReturnToExpanded,
     }
 
-    /// <summary>Frame duration.</summary>
     private static ushort FrameDuration(int stage) => (PulseStage)stage switch
     {
         PulseStage.Brightening => PulseBrighteningTicks,
@@ -38,7 +36,6 @@ internal abstract class MetroidInstructionProgramDefinitions
         PulseStage.ContractedRest or PulseStage.ExpandedRest or PulseStage.ReturnToExpanded => PulseBeatTicks,
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
-    /// <summary>Checks whether an address identifies a presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - ChasingSamus;
@@ -46,7 +43,6 @@ internal abstract class MetroidInstructionProgramDefinitions
         offset = address - DrainingSamus;
         return (uint)offset < 20 && offset % 4 == 2;
     }
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         bool chasing = address < DrainingSamus;

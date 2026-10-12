@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -11,7 +11,6 @@ internal abstract class KraidFootInstructionProgramDefinitionsTooling : IInstruc
     public static int PresentationWordCount => 2 + 2 * 36 + 32;
     /// <summary>Every other word in the bounded native program region is mechanics.</summary>
     public static int MechanicsWordCount => (KraidFootInstructionProgramDefinitions.AdjacentUnusedFastBackward - KraidFootInstructionProgramDefinitions.Initial) / 2 - PresentationWordCount;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -20,7 +19,6 @@ internal abstract class KraidFootInstructionProgramDefinitionsTooling : IInstruc
         KraidFootInstructionProgramDefinitions.Generate(ref words, ref presentation);
         return words.Selected;
     }
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -29,7 +27,6 @@ internal abstract class KraidFootInstructionProgramDefinitionsTooling : IInstruc
         KraidFootInstructionProgramDefinitions.Generate(ref words, ref presentation);
         return presentation.Selected;
     }
-    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa70000) return false;

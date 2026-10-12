@@ -12,30 +12,18 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class EnemyRoomEffects
 {
-    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
-    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
-    /// <summary>Stores escape timer.</summary>
     private readonly EscapeTimer _escapeTimer;
-    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
-    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
-    /// <summary>Stores room palette fx.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
-    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
-    /// <summary>Initializes a new enemy room effects instance.</summary>
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)
     {
         _cgram = dependencies.Cgram;

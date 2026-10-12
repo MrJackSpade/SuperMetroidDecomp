@@ -17,10 +17,8 @@ using static GraphDigestVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents grapple body placement verification.</summary>
 internal static class GrappleBodyPlacementVerification
 {
-    /// <summary>verify grapple body placement.</summary>
     internal static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
     {
         var position = typeof(SamusGrappleMovement).GetMethod("PositionSamusFromPendulum", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -91,11 +89,9 @@ internal static class GrappleBodyPlacementVerification
         Console.WriteLine("Grapple body placement: 524288 extracted/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");
     }
 
-    /// <summary>grapple body placement rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple body placement")]
     private static byte GrappleBodyPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>grapple swing frames command.</summary>
     [VerificationCommand("--grapple-swing-frames")]
     internal static int GrappleSwingFramesCommand()
     {

@@ -9,10 +9,8 @@ using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
-/// <summary>Represents ceres destruction artwork verification.</summary>
 internal static class CeresDestructionArtworkVerification
 {
-    /// <summary>Verifies ceres destruction artwork.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction tilemaps, characters and actor layout")]
     internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)

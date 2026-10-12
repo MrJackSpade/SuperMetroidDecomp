@@ -6,10 +6,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 using static MapPresentationVerification;
 
-/// <summary>Represents map static palettes verification.</summary>
 internal static class MapStaticPalettesVerification
 {
-    /// <summary>verify map static palette integration.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed static map palettes")]
     internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,

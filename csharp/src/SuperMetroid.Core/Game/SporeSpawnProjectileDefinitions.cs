@@ -36,7 +36,6 @@ internal static class SporeSpawnProjectileDefinitions
     internal static Offset16<RoomPixels> MovementAt(byte offset) =>
         new(Movement[offset], Movement[unchecked((byte)(offset + 1))]);
 
-    /// <summary>Spawn index.</summary>
     private static int SpawnIndex(ushort spawnArgument)
     {
         if (spawnArgument > 3)

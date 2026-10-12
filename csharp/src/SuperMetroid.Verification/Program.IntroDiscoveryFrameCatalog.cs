@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents intro discovery frame catalog verification.</summary>
 internal static class IntroDiscoveryFrameCatalogVerification
 {
-    /// <summary>Verifies intro discovery frame catalog.</summary>
     internal static void VerifyIntroDiscoveryFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["egg-intact", "egg-crack-1", "egg-crack-2", "egg-crack-3",
@@ -43,7 +41,6 @@ internal static class IntroDiscoveryFrameCatalogVerification
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "discovery enumeration agrees with indexing");
     }
 
-    /// <summary>Intro discovery frame catalog rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro discovery frame catalog")]
     private static byte IntroDiscoveryFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -1,14 +1,11 @@
-namespace SuperMetroid.Core.Game;
+﻿namespace SuperMetroid.Core.Game;
 
 /// <summary>The pre-Phantoon room species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PrePhantoonRoomBehavior
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Initializes a new pre phantoon room behavior instance.</summary>
     internal PrePhantoonRoomBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -19,7 +16,6 @@ internal sealed class PrePhantoonRoomBehavior
     [NonSerialized]
     internal BackgroundScrollState? _enemyProjectileBackgroundScroll;
 
-    /// <summary>Requires enemy projectile background scroll.</summary>
     internal BackgroundScrollState RequireEnemyProjectileBackgroundScroll() =>
         _enemyProjectileBackgroundScroll ?? throw new InvalidOperationException(
             "The pre-Phantoon room projectile requires the runtime's background scroll words.");
@@ -38,7 +34,6 @@ internal sealed class PrePhantoonRoomBehavior
         backgroundScroll.Bg2Offset = backgroundScroll.Bg2Offset.WithY(0);
     }
 
-    /// <summary>Registers pre phantoon room projectiles.</summary>
     internal void RegisterPrePhantoonRoomProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>

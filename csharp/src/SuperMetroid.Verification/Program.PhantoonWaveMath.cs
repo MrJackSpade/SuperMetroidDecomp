@@ -4,10 +4,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static WordSamplesVerification;
 
-/// <summary>Represents phantoon wave math verification.</summary>
 internal static class PhantoonWaveMathVerification
 {
-    /// <summary>Verifies phantoon wave math.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon wave math")]
     internal static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {

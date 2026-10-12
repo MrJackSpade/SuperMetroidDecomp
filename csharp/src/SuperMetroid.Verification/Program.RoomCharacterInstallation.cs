@@ -21,7 +21,6 @@ using static RoomBackgroundLibraryParityVerification;
 using static RoomVisualLayoutsVerification;
 using static XrayRevealVisualInstallationVerification;
 
-/// <summary>Represents room character installation verification.</summary>
 internal static class RoomCharacterInstallationVerification
 {
     /// <summary>Full stock import, live edit, repair and invalid-override contract for room art.</summary>
@@ -364,7 +363,6 @@ internal static class RoomCharacterInstallationVerification
         }
     }
 
-    /// <summary>Room character installation command.</summary>
     [VerificationCommand("--room-character-installation")]
     internal static int RoomCharacterInstallationCommand()
     {
@@ -373,7 +371,6 @@ internal static class RoomCharacterInstallationVerification
         return 0;
     }
 
-    /// <summary>Room artwork installation command.</summary>
     [VerificationCommand("--room-artwork-installation")]
     internal static int RoomArtworkInstallationCommand()
     {

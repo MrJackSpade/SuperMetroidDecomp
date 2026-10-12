@@ -14,10 +14,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 
-/// <summary>Represents room background tilemaps verification.</summary>
 internal static class RoomBackgroundTilemapsVerification
 {
-    /// <summary>Verifies room background tilemap extraction.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room background tilemaps")]
     internal static void VerifyRoomBackgroundTilemapExtraction()
@@ -87,7 +85,6 @@ internal static class RoomBackgroundTilemapsVerification
             "roundtrip byte-exactly; a tile-reference edit changes only its BG word.");
     }
 
-    /// <summary>New background tilemap read guard.</summary>
     private static MutableCartridgeReadGuard NewBackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -96,7 +93,6 @@ internal static class RoomBackgroundTilemapsVerification
         return guard;
     }
 
-    /// <summary>Room background tilemaps command.</summary>
     [VerificationCommand("--room-background-tilemaps")]
     internal static int RoomBackgroundTilemapsCommand()
     {

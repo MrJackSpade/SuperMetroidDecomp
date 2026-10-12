@@ -10,10 +10,8 @@ using static EndingRewardIconArtworkVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ending mode7 artwork verification.</summary>
 internal static class EndingMode7ArtworkVerification
 {
-    /// <summary>Verifies ending mode7 artwork.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode-7 scene artwork")]
     internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
@@ -226,7 +224,6 @@ internal static class EndingMode7ArtworkVerification
     }
 
 
-    /// <summary>New ending mode7 source read guard.</summary>
     internal static MutableCartridgeReadGuard NewEndingMode7SourceReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

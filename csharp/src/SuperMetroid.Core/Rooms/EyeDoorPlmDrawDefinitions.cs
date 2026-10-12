@@ -20,8 +20,7 @@ internal static class EyeDoorPlmDrawDefinitions
     /// <summary>Right-facing eye animation begins at $84:9C5B.</summary>
     private const ushort RightEyeFirst = 0x9c5b;
 
-    /// <summary>Represents component.</summary>
-    internal enum Component { /** <summary>Identifies eye.</summary> */ Eye, /** <summary>Identifies middle.</summary> */ Middle, /** <summary>Identifies bottom.</summary> */ Bottom, /** <summary>Identifies clear.</summary> */ Clear }
+    internal enum Component { Eye, Middle, Bottom, Clear }
 
     /// <summary>The two four-block clearing frames that share one visual identity.</summary>
     private enum ClearFrame : ushort
@@ -32,7 +31,6 @@ internal static class EyeDoorPlmDrawDefinitions
         LeftEye = LeftEyeClear,
     }
 
-    /// <summary>Checks whether the left opening has been cleared.</summary>
     private static bool IsLeftOpeningClear(ClearFrame frame) => frame switch
     {
         ClearFrame.MirroredOpening => true,
@@ -40,14 +38,10 @@ internal static class EyeDoorPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(ClearFrame)} {(int)frame}."),
     };
 
-    /// <summary>Represents draw.</summary>
     internal readonly record struct Draw(ushort Pointer, Component Part, int Frame, bool Left)
     {
-        /// <summary>Gets vertical.</summary>
         internal bool Vertical => Part is Component.Eye or Component.Clear;
-        /// <summary>Gets word count.</summary>
         internal int WordCount => Pointer == 0 ? 0 : Part == Component.Clear ? 4 : Part == Component.Eye ? 2 : 1;
-        /// <summary>Word at.</summary>
         internal ushort WordAt(int cell)
         {
             if ((uint)cell >= (uint)WordCount) throw new IndexOutOfRangeException();
@@ -76,7 +70,6 @@ internal static class EyeDoorPlmDrawDefinitions
         }
     }
 
-    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -105,11 +98,9 @@ internal static class EyeDoorPlmDrawDefinitions
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable =>
         All.Where(draw => draw.Pointer != MirroredOpeningClear);
 
-    /// <summary>Visual source.</summary>
     internal static ushort VisualSource(ushort pointer) =>
         pointer == MirroredOpeningClear ? LeftEyeClear : pointer;
 
-    /// <summary>Attempts to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (Enum.IsDefined((ClearFrame)pointer))
@@ -134,7 +125,6 @@ internal static class EyeDoorPlmDrawDefinitions
         return true;
     }
 
-    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         if (!TryDescribe(pointer, out var draw)) { list = default; return false; }
@@ -147,7 +137,6 @@ internal static class EyeDoorPlmDrawDefinitions
         return true;
     }
 
-    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (pointer == LeftEyeClear) return "left-eye-clear";
@@ -167,7 +156,6 @@ internal static class EyeDoorPlmDrawDefinitions
         return $"{(right ? "right" : "left")}-{component}-frame-{offset / stride}";
     }
 
-    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

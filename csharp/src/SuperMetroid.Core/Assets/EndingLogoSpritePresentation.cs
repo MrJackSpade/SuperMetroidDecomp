@@ -7,10 +7,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the eight final assembling-logo frames.</summary>
 public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresentation
 {
-    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
-    /// <summary>Initializes a new ending logo sprite presentation instance.</summary>
     private EndingLogoSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -111,15 +109,12 @@ public static class EndingLogoSpriteDefinitions
     /// <summary>$8C:B97F, ScrewAttackSymbolUpperPart, followed by the lower S,
     /// three right-wrap and three left-wrap compositions.</summary>
     private const ushort FirstFrame = 0xb97f;
-    /// <summary>Stores frame count.</summary>
     private const int FrameCount = 8, SParts = 14;
-    /// <summary>Represents circle stage.</summary>
-    private enum CircleStage { /** <summary>Identifies first.</summary> */ First, /** <summary>Identifies second.</summary> */ Second, /** <summary>Identifies complete.</summary> */ Complete }
+    private enum CircleStage { First, Second, Complete }
 
     /// <summary>Gets the two letter segments followed by three right-wrap and three left-wrap stages.</summary>
     public static IReadOnlyList<EndingLogoSpriteFrameDefinition> Frames { get; } = new FrameView();
 
-    /// <summary>Frame pointer.</summary>
     internal static ushort FramePointer(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -134,7 +129,6 @@ public static class EndingLogoSpriteDefinitions
         return (ushort)(FirstFrame + offset);
     }
 
-    /// <summary>Circle parts.</summary>
     private static int CircleParts(CircleStage stage) => stage switch
     {
         CircleStage.First => 12,
@@ -142,10 +136,8 @@ public static class EndingLogoSpriteDefinitions
         CircleStage.Complete => 25,
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
-    /// <summary>Record bytes.</summary>
     private static int RecordBytes(int parts) => sizeof(ushort) + parts * 5;
 
-    /// <summary>Gets.</summary>
     private static EndingLogoSpriteFrameDefinition Get(int index)
     {
         ushort pointer = FramePointer(index);
@@ -156,19 +148,14 @@ public static class EndingLogoSpriteDefinitions
         return new(name, pointer, CircleParts((CircleStage)stage));
     }
 
-    /// <summary>Represents frame view.</summary>
     private sealed class FrameView : IReadOnlyList<EndingLogoSpriteFrameDefinition>
     {
-        /// <summary>Gets count.</summary>
         public int Count => FrameCount;
-        /// <summary>Gets an indexed value.</summary>
         public EndingLogoSpriteFrameDefinition this[int index] => Get(index);
-        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<EndingLogoSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }
-        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

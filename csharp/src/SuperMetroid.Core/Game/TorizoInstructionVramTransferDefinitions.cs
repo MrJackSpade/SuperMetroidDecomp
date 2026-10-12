@@ -12,7 +12,6 @@ internal readonly record struct TorizoInstructionVramTransferDefinition(
 internal static class TorizoInstructionVramTransferDefinitions
 {
 
-    /// <summary>Stores entries.</summary>
     private static readonly TorizoInstructionVramTransferDefinition[] Entries =
     [
         new(0xb0f1, 0x0040, 0xaab479, 0x7300),
@@ -69,7 +68,6 @@ internal static class TorizoInstructionVramTransferDefinitions
         new(0xd1cc, 0x0040, 0xaab339, 0x7d80),
     ];
 
-    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort instruction,
         out TorizoInstructionVramTransferDefinition transfer)
     {

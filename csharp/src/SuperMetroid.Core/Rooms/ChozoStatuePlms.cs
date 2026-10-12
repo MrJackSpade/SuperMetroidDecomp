@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
@@ -6,12 +6,9 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Chozo statue hand PLMs ($84:D6EA family): the Wrecked Ship and Lower Norfair hand checks and the hardcoded statue spawns.</summary>
 internal sealed class ChozoStatuePlms
 {
-    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
-    /// <summary>Initializes a new chozo statue plms instance.</summary>
     internal ChozoStatuePlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;
@@ -19,9 +16,7 @@ internal sealed class ChozoStatuePlms
     }
     // These are wiring, not emulated state. Runtime binds them before collision and on
     // room initialization, including the first frame after restoring an older state.
-    /// <summary>Stores chozo enemies.</summary>
     [NonSerialized] internal RoomEnemySystem? _chozoEnemies;
-    /// <summary>Stores chozo room fx.</summary>
     [NonSerialized] internal RoomLayer3FxState? _chozoRoomFx;
 
     /// <summary>Connects the bank-$84 hand setup to the existing bank-$AA actor owner.</summary>
@@ -103,7 +98,6 @@ internal sealed class ChozoStatuePlms
         return false;
     }
 
-    /// <summary>write chozo block.</summary>
     private static void WriteChozoBlock(RoomLevelData level, int index,
         RoomCollisionType type, byte bts)
     {
@@ -112,7 +106,6 @@ internal sealed class ChozoStatuePlms
         level.SetBehavior(index, bts);
     }
 
-    /// <summary>try execute chozo statue instruction.</summary>
     internal bool TryExecuteChozoStatueInstruction(ISnesAddressSpace bus, RoomLevelData level, PlmSlot slot, RoomPlmInstruction instruction)
     {
         // GotoIfEventSet belongs to this handler only for the Lower Norfair hand.
@@ -162,7 +155,6 @@ internal sealed class ChozoStatuePlms
         return true;
     }
 
-    /// <summary>run chozo statue pre instruction.</summary>
     internal static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)
     {
         if (slot.PreInstruction != ChozoStatuePlmRomData.WaitForLowerNorfairHand) return;

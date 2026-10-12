@@ -42,7 +42,6 @@ internal readonly record struct AnimationAdvance<TFrame>(bool Held, TFrame Frame
 /// </summary>
 internal sealed class AnimationTimeline<TFrame, TCue>
 {
-    /// <summary>Stores steps.</summary>
     private readonly AnimationStep<TFrame, TCue>[] steps;
 
     /// <summary>Creates a timeline; it must end in a hold or loop and a loop must show at least one frame.</summary>

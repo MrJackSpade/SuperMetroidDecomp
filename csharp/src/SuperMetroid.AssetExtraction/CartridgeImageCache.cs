@@ -10,7 +10,6 @@ namespace SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class CartridgeImageCache
 {
-    /// <summary>Stores images.</summary>
     private static readonly ConcurrentDictionary<string, WeakReference<byte[]>> images = new(StringComparer.Ordinal);
 
     /// <summary>The shared image equal to <paramref name="content"/>, creating it on first use.</summary>

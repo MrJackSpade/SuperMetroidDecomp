@@ -8,7 +8,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified non-resource selector is separate from the actual artwork query.</summary>
 internal static class NativeDisplaySelectorContractChecks
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run()
     {
         var trees = NativeDisplaySelectorClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -57,7 +56,6 @@ internal static class NativeDisplaySelectorContractChecks
             "removing total passthrough behavior must revoke the projection proof");
     }
 
-    /// <summary>Throws when the asserted condition is false.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Native display-selector confirmation failed: " + reason);

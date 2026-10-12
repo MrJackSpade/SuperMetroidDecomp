@@ -15,10 +15,8 @@ using SuperMetroid.Core.Hardware;
 using static KraidMouthMappingsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid mouth hitboxes verification.</summary>
 internal static class KraidMouthHitboxesVerification
 {
-    /// <summary>Verifies kraid mouth hitboxes.</summary>
     internal static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
@@ -139,7 +137,6 @@ internal static class KraidMouthHitboxesVerification
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };
 
-    /// <summary>Creates kraid mouth low half guard.</summary>
     private static MutableCartridgeReadGuard NewKraidMouthLowHalfGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -148,25 +145,18 @@ internal static class KraidMouthHitboxesVerification
         return guard;
     }
 
-    /// <summary>Represents kraid mouth boundary read bus.</summary>
     [CpuBusBoundary("exact bus test: synthetic bank-$A7 low-window WRAM/SRAM/peripheral responder witnessing which bus source each Kraid mouth and head boundary-crossing operand byte selects")]
     internal sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace, IImportCartridgeSource,
         ISnesMutableMemory, ISnesCpuPeripheralSource
     {
-        /// <summary>Reads work ram byte.</summary>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
-        /// <summary>Reads save ram byte.</summary>
         public byte ReadSaveRamByte(int address) => ReadByte(address);
-        /// <summary>Reads peripheral byte.</summary>
         public byte ReadPeripheralByte(int address) => ReadByte(address);
 
-        /// <summary>Value.</summary>
         public static byte Value(ushort pointer) => unchecked((byte)(pointer ^ 0x5a));
 
-        /// <summary>Reads cartridge byte.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        /// <summary>Reads byte.</summary>
         public static byte ReadByte(int address)
         {
             SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
@@ -178,12 +168,10 @@ internal static class KraidMouthHitboxesVerification
             return Value(sourceAddress.Offset);
         }
 
-        /// <summary>Writes byte.</summary>
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException("Kraid mouth geometry is read-only.");
     }
 
-    /// <summary>Kraid mouth hitboxes command.</summary>
     [VerificationCommand("--kraid-mouth-hitboxes")]
     internal static int KraidMouthHitboxesCommand()
     {

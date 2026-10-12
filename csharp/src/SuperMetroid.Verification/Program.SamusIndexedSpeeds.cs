@@ -4,10 +4,8 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents samus indexed speeds verification.</summary>
 internal static class SamusIndexedSpeedsVerification
 {
-    /// <summary>Verifies samus indexed speeds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus indexed speeds")]
     internal static void VerifySamusIndexedSpeeds(SuperMetroidAddressSpace rom)
     {

@@ -13,7 +13,6 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents cpu bus boundary verification.</summary>
 internal static class CpuBusBoundaryVerification
 {
     /// <summary>
@@ -84,7 +83,6 @@ internal static class CpuBusBoundaryVerification
         }
     }
 
-    /// <summary>write cell byte.</summary>
     [CpuBusBoundary("exact bus test: byte access through a cell's own primitive")]
     private static void WriteCellByte(ISnesMemoryBus bus, CpuBusCell cell, int index, byte value)
     {
@@ -94,7 +92,6 @@ internal static class CpuBusBoundaryVerification
             new WramBytes(bus, cell).Write(index, value);
     }
 
-    /// <summary>read cell byte.</summary>
     [CpuBusBoundary("exact bus test: byte access through a cell's own primitive")]
     private static byte ReadCellByte(ISnesMemoryBus bus, CpuBusCell cell, int index) =>
         cell.Region == CpuBusRegion.SaveRam ? new SramBytes(bus, cell).Read(index) : new WramBytes(bus, cell).Read(index);
@@ -253,27 +250,21 @@ internal static class CpuBusBoundaryVerification
     [CpuBusBoundary("exact bus test: write-order recording double")]
     internal sealed class WriteOrderRecordingBus : ISnesMemoryBus
     {
-        /// <summary>Stores inner.</summary>
         private readonly SuperMetroidAddressSpace inner = SuperMetroidAddressSpace.CreateWithoutCartridge();
 
-        /// <summary>Gets writes.</summary>
         public List<(int Address, byte Value)> Writes { get; } = [];
 
-        /// <summary>write byte.</summary>
         public void WriteByte(int address, byte value)
         {
             Writes.Add((address, value));
             inner.WriteByte(address, value);
         }
 
-        /// <summary>read work ram byte.</summary>
         public byte ReadWorkRamByte(int cpuAddress) => inner.ReadWorkRamByte(cpuAddress);
 
-        /// <summary>read save ram byte.</summary>
         public byte ReadSaveRamByte(int cpuAddress) => inner.ReadSaveRamByte(cpuAddress);
     }
 
-    /// <summary>cpu bus boundary command.</summary>
     [VerificationCommand("--cpu-bus-boundary")]
     internal static int CpuBusBoundaryCommand()
     {

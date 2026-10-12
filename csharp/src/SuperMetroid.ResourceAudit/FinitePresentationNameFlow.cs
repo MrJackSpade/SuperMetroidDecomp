@@ -12,12 +12,9 @@ namespace SuperMetroid.ResourceAudit;
 internal sealed class FinitePresentationNameFlow(Compilation compilation,
     Func<IOperation, string[]?> directConstants)
 {
-    /// <summary>Stores active.</summary>
     private readonly HashSet<ISymbol> active = new(SymbolEqualityComparer.Default);
-    /// <summary>Stores known.</summary>
     private readonly Dictionary<ISymbol, string[]?> known = new(SymbolEqualityComparer.Default);
 
-    /// <summary>Resolves.</summary>
     internal string[]? Resolve(IOperation operation)
     {
         if (directConstants(operation) is { } direct) return direct;
@@ -57,7 +54,6 @@ internal sealed class FinitePresentationNameFlow(Compilation compilation,
         return null;
     }
 
-    /// <summary>Symbol values.</summary>
     private string[]? SymbolValues(ISymbol symbol)
     {
         if (known.TryGetValue(symbol, out string[]? cached)) return cached;
@@ -123,21 +119,17 @@ internal sealed class FinitePresentationNameFlow(Compilation compilation,
         string[]? Cache(string[]? values) { known[symbol] = values; return values; }
     }
 
-    /// <summary>References.</summary>
     private IEnumerable<IdentifierNameSyntax> References(ISymbol symbol) => compilation.SyntaxTrees
         .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
             .Where(name => name.Identifier.ValueText == symbol.Name)
             .Where(name => SymbolEqualityComparer.Default.Equals(
                 compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol?.OriginalDefinition, symbol.OriginalDefinition)));
 
-    /// <summary>Operation.</summary>
     private IOperation? Operation(SyntaxNode syntax) => compilation.GetSemanticModel(syntax.SyntaxTree).GetOperation(syntax);
 
-    /// <summary>Throws.</summary>
     private static bool Throws(IOperation operation) => operation is IThrowOperation ||
         operation is IConversionOperation conversion && Throws(conversion.Operand);
 
-    /// <summary>Union.</summary>
     private static string[]? Union(IEnumerable<string[]?> sets)
     {
         var values = new HashSet<string>(StringComparer.Ordinal);

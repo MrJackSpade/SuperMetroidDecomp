@@ -19,7 +19,6 @@ using static SignedSineFixtureVerification;
 using static SyntheticSamusAnimationDelaysVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents baby metroid verification.</summary>
 internal static class BabyMetroidVerification
 {
 
@@ -212,7 +211,6 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "  Baby Metroid: entrance, first latch and Mother Brain regain balance agree.");
 }
 
-    /// <summary>Baby metroid route definitions command.</summary>
     [VerificationCommand("--baby-metroid-route-definitions")]
     internal static int BabyMetroidRouteDefinitionsCommand()
     {

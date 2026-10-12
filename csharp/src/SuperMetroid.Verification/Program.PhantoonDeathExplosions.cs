@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents phantoon death explosions verification.</summary>
 internal static class PhantoonDeathExplosionsVerification
 {
-    /// <summary>Verifies compiled phantoon death explosions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon death explosions")]
     internal static void VerifyCompiledPhantoonDeathExplosions(SuperMetroidAddressSpace rom)
     {
@@ -70,7 +68,6 @@ internal static class PhantoonDeathExplosionsVerification
         Console.WriteLine("Phantoon death: 52 native bytes and six frame-exact 29-request sequences preserve timing, positions, animation and full-pool behavior with schedule reads forbidden.");
     }
 
-    /// <summary>New phantoon death read guard.</summary>
     private static CartridgeReadGuard NewPhantoonDeathReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa7da1d and < 0xa7da51,

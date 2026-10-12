@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Seven shell-remnant poses: a sixteen-pixel left piece and two small right pieces.</summary>
 internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 7; frame++)
@@ -14,9 +13,7 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
                 return supplied.CalculateIfMatching(new IntroEggRemnantParts(frame));
         return supplied;
     }
-    /// <summary>Gets count.</summary>
     public int Count => 3;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -39,16 +36,13 @@ internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSp
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
-    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-/// <summary>Represents intro egg remnant atlas.</summary>
 internal static class IntroEggRemnantAtlas
 {
     /// <summary>Tile$107, first early top-right remnant drawing;left pieces occupy the next atlas row.

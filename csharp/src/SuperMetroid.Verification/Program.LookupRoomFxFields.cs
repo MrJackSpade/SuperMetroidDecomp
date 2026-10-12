@@ -3,11 +3,9 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents lookup room fx fields verification.</summary>
 internal static class LookupRoomFxFieldsVerification
 {
     // Independently captured accepted identities before replacing the original record array.
-    /// <summary>Stores original fx record pointers.</summary>
     private static readonly ushort[] OriginalFxRecordPointers =
     [
         0x8000, 0x8010, 0x8020, 0x8030, 0x8040, 0x8050, 0x8060, 0x8070, 0x8080, 0x8090, 0x80A0, 0x80B0,
@@ -37,7 +35,6 @@ internal static class LookupRoomFxFieldsVerification
         0xA15E, 0xA17E, 0xA180, 0xA182, 0xA184, 0xA186, 0xA188,
     ];
 
-    /// <summary>Verifies room fx fields.</summary>
     internal static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
         SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
@@ -56,7 +53,6 @@ internal static class LookupRoomFxFieldsVerification
         Suite(nameof(VerifyRoomFxPaletteBlend), () => VerifyRoomFxPaletteBlend(rom));
     }
 
-    /// <summary>Verifies room fx identities.</summary>
     private static void VerifyRoomFxIdentities(SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
         AssertTrue(new ushort[] { 0xa0b4, 0xa0c4 }.SequenceEqual(MotherBrainFxRecordPointers.DirectRecords),
@@ -84,31 +80,18 @@ internal static class LookupRoomFxFieldsVerification
         }
     }
 
-    /// <summary>Verifies room fx door pointer.</summary>
     private static void VerifyRoomFxDoorPointer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 0, 2, record => record.DoorPointer);
-    /// <summary>Verifies room fx base yposition.</summary>
     private static void VerifyRoomFxBaseYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 2, 2, record => record.BaseYPosition);
-    /// <summary>Verifies room fx target yposition.</summary>
     private static void VerifyRoomFxTargetYPosition(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 4, 2, record => record.TargetYPosition);
-    /// <summary>Verifies room fx packed yvelocity.</summary>
     private static void VerifyRoomFxPackedYVelocity(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 6, 2, record => record.PackedYVelocity);
-    /// <summary>Verifies room fx timer.</summary>
     private static void VerifyRoomFxTimer(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 8, 1, record => record.Timer);
-    /// <summary>Verifies room fx type.</summary>
     private static void VerifyRoomFxType(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 9, 1, record => record.Type);
-    /// <summary>Verifies room fx default layer blend.</summary>
     private static void VerifyRoomFxDefaultLayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 10, 1, record => record.DefaultLayerBlend);
-    /// <summary>Verifies room fx layer3 layer blend.</summary>
     private static void VerifyRoomFxLayer3LayerBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 11, 1, record => record.Layer3LayerBlend);
-    /// <summary>Verifies room fx liquid options.</summary>
     private static void VerifyRoomFxLiquidOptions(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 12, 1, record => record.LiquidOptions);
-    /// <summary>Verifies room fx palette fx bitset.</summary>
     private static void VerifyRoomFxPaletteFxBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 13, 1, record => record.PaletteFxBitset);
-    /// <summary>Verifies room fx animated tile bitset.</summary>
     private static void VerifyRoomFxAnimatedTileBitset(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 14, 1, record => record.AnimatedTileBitset);
-    /// <summary>Verifies room fx palette blend.</summary>
     private static void VerifyRoomFxPaletteBlend(SuperMetroidAddressSpace rom) => VerifyRoomFxField(rom, 15, 1, record => record.PaletteBlend);
-    /// <summary>Verifies room fx field.</summary>
     private static void VerifyRoomFxField(SuperMetroidAddressSpace rom, int offset, int width,
         Func<RoomFxRecordDefinition, int> field)
     {
@@ -135,11 +118,9 @@ internal static class LookupRoomFxFieldsVerification
         }
     }
 
-    /// <summary>Room fx field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room FX field")]
     private static byte RoomFxFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies room fx list selection.</summary>
     internal static void VerifyRoomFxListSelection(SuperMetroidAddressSpace rom)
     {
         // Native $89:AB99..ABB7: zero loads, FFFF returns, then compare door.

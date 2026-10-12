@@ -15,12 +15,10 @@ public static class ProjectileTrailDefinitions
     public const ushort Missile = 0xb5a1;
 
     /// <summary>The five trail instruction lists, in address order.</summary>
-    private enum TrailList { /** <summary>Identifies empty.</summary> */ Empty, /** <summary>Identifies left ice.</summary> */ LeftIce, /** <summary>Identifies right ice.</summary> */ RightIce, /** <summary>Identifies wave.</summary> */ Wave, /** <summary>Identifies missile.</summary> */ Missile }
+    private enum TrailList { Empty, LeftIce, RightIce, Wave, Missile }
 
-    /// <summary>Stores trail lists.</summary>
     private static readonly TrailList[] TrailLists = Enum.GetValues<TrailList>();
 
-    /// <summary>Starts of.</summary>
     private static ushort StartOf(TrailList list) => list switch
     {
         TrailList.Empty => Empty,
@@ -86,7 +84,6 @@ public static class ProjectileTrailDefinitions
         return Select(index % 39, right: index >= 39);
     }
 
-    /// <summary>Selects.</summary>
     private static ushort Select(int selection, bool right)
     {
         if (selection >= (int)SpecialSelection.Missile)

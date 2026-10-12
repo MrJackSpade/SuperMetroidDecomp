@@ -10,12 +10,10 @@ internal static class HibashiVisualDefinitions
     /// <summary>The fire pillar's twenty-three selected OAM frames at $A6:9082..9469.</summary>
     internal const int FrameCount = 23;
 
-    /// <summary>operands.</summary>
     internal static ushort[] Operands() => Enumerable.Range(0,
         HibashiInstructionProgramDefinitions.PresentationWordCount)
         .Select(HibashiInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
-    /// <summary>frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "hibashi");
 }

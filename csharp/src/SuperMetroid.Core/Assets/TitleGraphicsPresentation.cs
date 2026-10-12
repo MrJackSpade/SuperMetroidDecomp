@@ -10,12 +10,9 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitleGraphicsPresentation
 {
-    /// <summary>Stores mode7 characters.</summary>
     private readonly byte[] mode7Characters, mode7Map, objectCharacters, babyCharacters;
-    /// <summary>Stores sprites.</summary>
     private readonly Dictionary<ushort, SpriteComposition> sprites;
 
-    /// <summary>Initializes a new title graphics presentation instance.</summary>
     private TitleGraphicsPresentation(
         byte[] mode7Characters,
         byte[] mode7Map,
@@ -132,7 +129,6 @@ public sealed class TitleGraphicsPresentation
         json.Write(bytes);
     }
 
-    /// <summary>Compile sprites.</summary>
     private static Dictionary<ushort, SpriteComposition> CompileSprites(TitleSpriteFrame[]? frames)
     {
         if (frames is null || frames.Length != TitleGraphicsFormat.SpriteFrameCount)

@@ -116,12 +116,9 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
     /// Native header words and all program ownership are independently checked for1165.</remarks>
     public static IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition> All { get; } = new ProgramList();
 
-    /// <summary>Represents program list.</summary>
     private sealed class ProgramList : IReadOnlyList<SamusLoadingSuitPaletteFxProgramDefinition>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => 3;
-        /// <summary>Accesses a value by index or range.</summary>
         public SamusLoadingSuitPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => Power,
@@ -129,14 +126,12 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
             2 => Gravity,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<SamusLoadingSuitPaletteFxProgramDefinition> GetEnumerator()
         {
             yield return Power;
             yield return Varia;
             yield return Gravity;
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Returns the bank-local offset of one counted group.</summary>
@@ -176,12 +171,9 @@ public static class SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete Samus-loading palette control program.</summary>
 public sealed class SamusLoadingSuitPaletteFxProgramDefinition
 {
-    /// <summary>Defines final frame offset.</summary>
     private const ushort FinalFrameOffset = 0x0140;
-    /// <summary>Defines delete instruction offset.</summary>
     private const ushort DeleteInstructionOffset = 0x0164;
 
-    /// <summary>Initializes a new samus loading suit palette fx program definition instance.</summary>
     internal SamusLoadingSuitPaletteFxProgramDefinition(
         SamusLoadingSuitPaletteFxProgramOwner owner,
         ushort definitionPointer,

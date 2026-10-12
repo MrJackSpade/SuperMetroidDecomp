@@ -26,7 +26,6 @@ internal static class SamusSpritemapFrameDefinitions
     /// <summary>$92:8399/83AB and90C5/90D7 identify bubbles, diving splash and the two death-OAM sequence domains.</summary>
     private const int Bubbles = 0x186, Diving = 0x18f, DeathRight = 0x81c, DeathLeft = 0x825;
 
-    /// <summary>Tries to pointer.</summary>
     internal static bool TryPointer(int index, IReadOnlyDictionary<ushort, SamusSpritemapDefinition> definitions, out ushort pointer)
     {
         if (IsControlOrOmittedHalf(index)) { pointer = 0; return true; }
@@ -121,7 +120,6 @@ internal static class SamusSpritemapFrameDefinitions
         int leaving = Phase(false, SamusPoseId.UnusedPoseDd);
         return leaving is 0 or 1 || Phase(false, SamusPoseId.UnusedPoseDe) is 0 or 1;
     }
-    /// <summary>Advance.</summary>
     private static bool Advance(ushort start, int ordinal, IReadOnlyDictionary<ushort, SamusSpritemapDefinition> definitions, out ushort pointer)
     {
         pointer = start;
@@ -132,7 +130,6 @@ internal static class SamusSpritemapFrameDefinitions
         }
         return true;
     }
-    /// <summary>Source index.</summary>
     internal static int SourceIndex(int index)
     {
         if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount) throw new ArgumentOutOfRangeException(nameof(index));

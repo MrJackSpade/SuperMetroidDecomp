@@ -2,10 +2,8 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-/// <summary>Represents intro discovery collision verification.</summary>
 internal static class IntroDiscoveryCollisionVerification
 {
-    /// <summary>Verifies intro discovery collision.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the intro discovery-room collision words at $8C:C083")]
     internal static byte[] VerifyIntroDiscoveryCollision(IImportCartridgeSource rom)
     {

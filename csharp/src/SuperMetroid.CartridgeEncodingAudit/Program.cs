@@ -9,7 +9,6 @@ namespace SuperMetroid.CartridgeEncodingAudit;
 /// </summary>
 internal static class Program
 {
-    /// <summary>main.</summary>
     private static async Task<int> Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();

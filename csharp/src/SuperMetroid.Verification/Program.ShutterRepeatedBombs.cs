@@ -12,10 +12,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents shutter repeated bombs verification.</summary>
 internal static class ShutterRepeatedBombsVerification
 {
-    /// <summary>Audit repeated shutter bombs.</summary>
     internal static void AuditRepeatedShutterBombs()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -57,7 +55,6 @@ internal static class ShutterRepeatedBombsVerification
         Console.WriteLine($"{cases} repeated-bomb sequences; minimum gap {worstGap}. Investigation only: this is not a regression assertion of resolved embedding.");
     }
 
-    /// <summary>Shutter repeat command.</summary>
     [VerificationCommand("--shutter-repeat")]
     internal static int ShutterRepeatCommand()
     {

@@ -69,7 +69,6 @@ public static class RenderFrameSnapshotCodec
         }
     }
 
-    /// <summary>read memory.</summary>
     private static PpuMemorySnapshot ReadMemory(BinaryReader reader)
     {
         byte[] vram = ReadExact(reader, SnesPpuLayout.VramByteCount);
@@ -79,7 +78,6 @@ public static class RenderFrameSnapshotCodec
         return new(vram, cgram, oam, reader.ReadInt32());
     }
 
-    /// <summary>read exact.</summary>
     private static byte[] ReadExact(BinaryReader reader, int count)
     {
         byte[] result = reader.ReadBytes(count);
@@ -87,7 +85,6 @@ public static class RenderFrameSnapshotCodec
         return result;
     }
 
-    /// <summary>read count.</summary>
     private static int ReadCount(BinaryReader reader)
     {
         int count = reader.ReadInt32();
@@ -96,7 +93,6 @@ public static class RenderFrameSnapshotCodec
         return count;
     }
 
-    /// <summary>read boolean.</summary>
     private static bool ReadBoolean(BinaryReader reader) => reader.ReadByte() switch
     {
         0 => false,
@@ -104,7 +100,6 @@ public static class RenderFrameSnapshotCodec
         _ => throw new InvalidDataException("Noncanonical display boolean."),
     };
 
-    /// <summary>read mode7 registers.</summary>
     private static Mode7RenderRegisters ReadMode7Registers(BinaryReader reader, ushort version)
     {
         short a = reader.ReadInt16(), b = reader.ReadInt16(), c = reader.ReadInt16(), d = reader.ReadInt16();
@@ -116,19 +111,15 @@ public static class RenderFrameSnapshotCodec
         return new(a, b, c, d, center, scroll, policy == Mode7OverflowMode.CharacterZero, policy == Mode7OverflowMode.Wrap);
     }
 
-    /// <summary>read position.</summary>
     private static Position16<TSpace> ReadPosition<TSpace>(BinaryReader reader) where TSpace : ISpatialSpace =>
         new(reader.ReadUInt16(), reader.ReadUInt16());
 
-    /// <summary>read offset.</summary>
     private static Offset16<TSpace> ReadOffset<TSpace>(BinaryReader reader) where TSpace : ISpatialSpace =>
         new(reader.ReadInt16(), reader.ReadInt16());
 
-    /// <summary>read map size.</summary>
     private static Extent16<TilemapCells> ReadMapSize(BinaryReader reader) =>
         new(checked((ushort)reader.ReadInt32()), checked((ushort)reader.ReadInt32()));
 
-    /// <summary>read gameplay layer.</summary>
     private static OrdinaryGameplayRenderLayer ReadGameplayLayer(BinaryReader reader, ushort version)
     {
         var registers = new OrdinaryGameplayRegisters(ReadPosition<RoomPixels>(reader),
@@ -151,7 +142,6 @@ public static class RenderFrameSnapshotCodec
         return new(registers, new Bg2HdmaScrollTables(horizontal, vertical), mainScreen);
     }
 
-    /// <summary>read scrolls.</summary>
     private static ushort[] ReadScrolls(BinaryReader reader)
     {
         if (!ReadBoolean(reader)) return [];
@@ -160,7 +150,6 @@ public static class RenderFrameSnapshotCodec
         return values;
     }
 
-    /// <summary>read layer.</summary>
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version, bool childScene = false) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
         RenderPacketLayerKind.XrayGameplay when version >= RenderPacketFormat.XrayGameplayVersion => ReadXrayGameplay(reader, version),
@@ -196,7 +185,6 @@ public static class RenderFrameSnapshotCodec
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
 
-    /// <summary>read obj priority layer.</summary>
     private static ObjPriorityRenderLayer ReadObjPriorityLayer(BinaryReader reader, ushort version)
     {
         byte priority = reader.ReadByte();
@@ -206,7 +194,6 @@ public static class RenderFrameSnapshotCodec
         return new(priority, color);
     }
 
-    /// <summary>read obj layer.</summary>
     private static ObjRenderLayer ReadObjLayer(BinaryReader reader, ushort version, bool add)
     {
         FixedColorAddRenderLayer? fixedColor = null;
@@ -215,7 +202,6 @@ public static class RenderFrameSnapshotCodec
         return new(add, fixedColor);
     }
 
-    /// <summary>read xray gameplay.</summary>
     private static GameplayColorMathRenderLayer ReadXrayGameplay(BinaryReader reader, ushort version)
     {
         var gameplay = ReadGameplayLayer(reader, version);
@@ -238,7 +224,6 @@ public static class RenderFrameSnapshotCodec
         return new(gameplay, lines, reveal, new SuperMetroid.Core.Rendering.ColorMathRegisters { ColorMath = control, AddSubscreen = addSubscreen, FixedRed = red, FixedGreen = green, FixedBlue = blue }, sub, bg2);
     }
 
-    /// <summary>read windowed scene.</summary>
     private static WindowedSceneRenderLayer ReadWindowedScene(BinaryReader reader, ushort version)
     {
         int left = reader.ReadInt32(), top = reader.ReadInt32(), right = reader.ReadInt32(), bottom = reader.ReadInt32();
@@ -249,7 +234,6 @@ public static class RenderFrameSnapshotCodec
         return new(new(memory, layers, obsel, brightness), left, top, right, bottom);
     }
 
-    /// <summary>read subscreen.</summary>
     private static BgSubscreenAddRenderLayer ReadSubscreen(BinaryReader reader, ushort version, bool fourBpp = false, bool scrolled = false)
     {
         ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
@@ -276,7 +260,6 @@ public static class RenderFrameSnapshotCodec
         return layer;
     }
 
-    /// <summary>read bg color math.</summary>
     private static Bg2BppColorMathRenderLayer ReadBgColorMath(BinaryReader reader)
     {
         ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
@@ -287,7 +270,6 @@ public static class RenderFrameSnapshotCodec
         return new(map, characters, height, firstLine, operation, lines);
     }
 
-    /// <summary>read message layer.</summary>
     private static MessageBoxRenderLayer ReadMessageLayer(BinaryReader reader)
     {
         int rows = reader.ReadByte();
@@ -299,7 +281,6 @@ public static class RenderFrameSnapshotCodec
         return new(tiles, radius);
     }
 
-    /// <summary>read color windows.</summary>
     private static ScanlineColorAddRenderLayer ReadColorWindows(BinaryReader reader)
     {
         var windows = new ColorAddWindow[Hardware.SnesPpuLayout.ScreenHeightPixels];
@@ -308,7 +289,6 @@ public static class RenderFrameSnapshotCodec
         return new(windows);
     }
 
-    /// <summary>read priority.</summary>
     private static bool? ReadPriority(BinaryReader reader) => (RenderPacketPriority)reader.ReadByte() switch
     {
         RenderPacketPriority.All => null,
@@ -317,7 +297,6 @@ public static class RenderFrameSnapshotCodec
         _ => throw new InvalidDataException("Unknown tile-priority selector in display fixture."),
     };
 
-    /// <summary>read mode7 gameplay.</summary>
     private static Mode7GameplayRenderLayer ReadMode7Gameplay(BinaryReader reader, ushort version)
     {
         var m = ReadMode7Registers(reader, version);

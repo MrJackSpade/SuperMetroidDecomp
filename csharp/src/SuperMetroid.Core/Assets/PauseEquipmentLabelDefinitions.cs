@@ -55,7 +55,6 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>The ordinary label view of the selector anchors, derived once rather than per lookup.</summary>
     public static IReadOnlyList<(PauseEquipmentCategory Category, int Item, string Key)> Labels() => labels.Value;
 
-    /// <summary>Stores labels.</summary>
     private static readonly Lazy<(PauseEquipmentCategory Category, int Item, string Key)[]> labels = new(() =>
         PauseSelectorDefinitions.Anchors()
             .Where(anchor => anchor.Category != PauseEquipmentCategory.Reserves)
@@ -106,7 +105,6 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>$82:C00A-C010: HYPER at atlas $137-139 with its distinct empty endcap at $12F.</summary>
     private const int HyperText = 0x137, HyperEndcap = 0x12f;
 
-    /// <summary>stock word count.</summary>
     internal static int StockWordCount(string key)
     {
         _ = StockDestinationByte(key);
@@ -122,7 +120,6 @@ public static class PauseEquipmentLabelDefinitions
     }
 
     // Every label's destination by the rule above, derived once: lookups run per tilemap cell.
-    /// <summary>Stores destinations.</summary>
     private static readonly Lazy<Dictionary<string, int>> destinations = new(() =>
         Labels().ToDictionary(label => label.Key, label =>
         {
@@ -166,6 +163,5 @@ public static class PauseEquipmentLabelDefinitions
         return (ushort)(LabelPalette << 10 | glyph);
     }
 
-    /// <summary>Returns the indexed label glyph or padding after the label ends.</summary>
     private static int Run(int first, int length, int index) => index < length ? first + index : Padding;
 }

@@ -14,7 +14,6 @@ using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents explored map packing definitions verification.</summary>
 internal static class ExploredMapPackingDefinitionsVerification
 {
     /// <summary>
@@ -26,7 +25,6 @@ internal static class ExploredMapPackingDefinitionsVerification
     private static readonly ushort[] ExploredMapNativeSourcePointers =
         [0x8146, 0x8196, 0x81e6, 0x8236, 0x8256, 0x82a6];
 
-    /// <summary>verify explored map packing definitions.</summary>
     internal static void VerifyExploredMapPackingDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -105,11 +103,9 @@ internal static class ExploredMapPackingDefinitionsVerification
             "  Explored-map packing: six area records and all 327 exported byte indexes match the cartridge; production save/load round-trips with the native codec tables forbidden.");
     }
 
-    /// <summary>explored map packing definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for explored map packing definitions")]
     private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>verify calculated map packing bindings.</summary>
     private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, byte[] explored)
     {
         string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
@@ -189,7 +185,6 @@ internal static class ExploredMapPackingDefinitionsVerification
         }
     }
 
-    /// <summary>is compiled map packing byte.</summary>
     private static bool IsCompiledMapPackingByte(int address)
     {
         if (address is >= 0x818131 and < 0x818146 or
@@ -208,7 +203,6 @@ internal static class ExploredMapPackingDefinitionsVerification
         return false;
     }
 
-    /// <summary>explored map packing definitions command.</summary>
     [VerificationCommand("--explored-map-packing-definitions")]
     internal static int ExploredMapPackingDefinitionsCommand()
     {

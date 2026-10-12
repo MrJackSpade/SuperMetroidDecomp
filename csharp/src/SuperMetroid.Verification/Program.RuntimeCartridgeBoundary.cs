@@ -1,7 +1,6 @@
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents runtime cartridge boundary verification.</summary>
 internal static class RuntimeCartridgeBoundaryVerification
 {
     /// <summary>

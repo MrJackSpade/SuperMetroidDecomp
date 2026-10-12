@@ -6,7 +6,6 @@ using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 using static LookupGlassProgramVerification;
 
-/// <summary>Represents mother brain glass plm program verification.</summary>
 internal static class MotherBrainGlassPlmProgramVerification
 {
     /// <summary>
@@ -86,7 +85,6 @@ internal static class MotherBrainGlassPlmProgramVerification
         Console.WriteLine("  Mother Brain glass PLM: all program bytes match ROM; full shatter runs without ROM instruction reads.");
     }
 
-    /// <summary>New mother brain glass program read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x84d202 and <= 0x84d2f8,

@@ -16,10 +16,8 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents spore spawn ceiling plms verification.</summary>
 internal static class SporeSpawnCeilingPlmsVerification
 {
-    /// <summary>Verifies compiled spore spawn ceiling plms.</summary>
     internal static void VerifyCompiledSporeSpawnCeilingPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -38,11 +36,9 @@ internal static class SporeSpawnCeilingPlmsVerification
             "Spore Spawn ceiling: two native lists and four 2x2 physical draws match ROM; crumble/clear, sound and deletion run with source bytes forbidden.");
     }
 
-    /// <summary>Verifies spore spawn ceiling program controls.</summary>
     private static void VerifySporeSpawnCeilingProgramControls(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySporeSpawnCeilingProgramField), () => VerifySporeSpawnCeilingProgramField(rom, false));
 
-    /// <summary>Verifies spore spawn ceiling program draws.</summary>
     private static void VerifySporeSpawnCeilingProgramDraws(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySporeSpawnCeilingProgramField), () => VerifySporeSpawnCeilingProgramField(rom, true));
@@ -55,7 +51,6 @@ internal static class SporeSpawnCeilingPlmsVerification
                 "Spore ceiling frame selector bounds");
     }
 
-    /// <summary>Verifies spore spawn ceiling program field.</summary>
     private static void VerifySporeSpawnCeilingProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xab12,0xab15,0xab19,0xab1d,0xab21,0xab25];
@@ -79,7 +74,6 @@ internal static class SporeSpawnCeilingPlmsVerification
         }
     }
 
-    /// <summary>Verifies spore spawn ceiling program sound.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn ceiling program sound")]
     private static void VerifySporeSpawnCeilingProgramSound(SuperMetroidAddressSpace rom)
     {
@@ -93,7 +87,6 @@ internal static class SporeSpawnCeilingPlmsVerification
         }
     }
 
-    /// <summary>Verifies spore spawn ceiling draw mapping.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn ceiling draw mapping")]
     private static void VerifySporeSpawnCeilingDrawMapping(SuperMetroidAddressSpace rom)
     {
@@ -152,7 +145,6 @@ internal static class SporeSpawnCeilingPlmsVerification
 
     }
 
-    /// <summary>Verifies spore spawn ceiling.</summary>
     private static void VerifySporeSpawnCeiling(bool clear)
     {
         const int width = 16;
@@ -206,7 +198,6 @@ internal static class SporeSpawnCeilingPlmsVerification
             "Spore Spawn ceiling reads no migrated program or draw bytes");
     }
 
-    /// <summary>New spore spawn ceiling source guard.</summary>
     internal static CartridgeReadGuard NewSporeSpawnCeilingSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
@@ -219,7 +210,6 @@ internal static class SporeSpawnCeilingPlmsVerification
             },
             address => $"Spore Spawn ceiling reread migrated source ${address:X6}.");
 
-    /// <summary>Spore spawn ceiling plms command.</summary>
     [VerificationCommand("--spore-spawn-ceiling-plms")]
     internal static int SporeSpawnCeilingPlmsCommand()
     {

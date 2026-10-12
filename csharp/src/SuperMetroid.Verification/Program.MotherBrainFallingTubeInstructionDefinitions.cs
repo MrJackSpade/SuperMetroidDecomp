@@ -3,10 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-/// <summary>Represents mother brain falling tube instruction definitions verification.</summary>
 internal static class MotherBrainFallingTubeInstructionDefinitionsVerification
 {
-    /// <summary>Verifies mother brain falling tube instruction definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain falling-tube instruction words")]
     internal static void VerifyMotherBrainFallingTubeInstructionDefinitions()
     {
@@ -69,7 +67,6 @@ internal static class MotherBrainFallingTubeInstructionDefinitionsVerification
             "and guarded ordinary-enemy execution pass.");
     }
 
-    /// <summary>New mother brain falling tube read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainFallingTubeReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa98c69 and <= 0xa98c86,

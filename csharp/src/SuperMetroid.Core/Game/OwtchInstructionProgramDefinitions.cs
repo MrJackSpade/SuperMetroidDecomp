@@ -23,9 +23,7 @@ internal abstract class OwtchInstructionProgramDefinitions
     /// only hold8, not instruction-reset1, motion, radii, sprite selection or pixel art.</remarks>
     internal const ushort CyclicVisualHold = 8;
 
-    /// <summary>Defines program bytes.</summary>
     internal const int ProgramBytes = 18;
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - MovingLeft;

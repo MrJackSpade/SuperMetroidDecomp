@@ -1,9 +1,8 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 /// <summary>Verifier-side check of the process error policy; tools only install it.</summary>
 internal static partial class NativeConsoleErrorPolicyCheck
 {
-    /// <summary>Get error mode.</summary>
     [LibraryImport("kernel32.dll")]
     private static partial uint GetErrorMode();
 

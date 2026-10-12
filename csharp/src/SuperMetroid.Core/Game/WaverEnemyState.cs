@@ -10,10 +10,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class WaverEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new waver enemy state instance.</summary>
     internal WaverEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Low 16 bits of the signed horizontal 16.16 displacement.</summary>

@@ -6,10 +6,8 @@ public static class PhantoonTimerDefinitions
     /// <summary>$A7:CE2B, InitAI_PhantoonBody: Japan/USA initial flame countdown is 120 frames. PAL uses 96.</summary>
     public const ushort InitialFlameDelayFrames = 120;
 
-    /// <summary>Represents duration choice.</summary>
-    private enum DurationChoice { /** <summary>Identifies short.</summary> */ Short, /** <summary>Identifies medium.</summary> */ Medium, /** <summary>Identifies long.</summary> */ Long }
-    /// <summary>Represents timer kind.</summary>
-    internal enum TimerKind { /** <summary>Identifies vulnerable.</summary> */ Vulnerable, /** <summary>Identifies eye closed.</summary> */ EyeClosed, /** <summary>Identifies rain hiding.</summary> */ RainHiding }
+    private enum DurationChoice { Short, Medium, Long }
+    internal enum TimerKind { Vulnerable, EyeClosed, RainHiding }
 
     // Narrow approved nonsense retention: RNG/frame buckets have no temporal or
     // physical ordering. These exact permutations specify the random choice policy;
@@ -49,11 +47,8 @@ public static class PhantoonTimerDefinitions
     /// <summary>Allocation-free calculated view of one native eight-bucket Phantoon phase-timer table.</summary>
     public readonly struct Schedule : IReadOnlyList<ushort>
     {
-        /// <summary>Stores kind.</summary>
         private readonly TimerKind kind;
-        /// <summary>Initializes a new schedule instance.</summary>
         internal Schedule(TimerKind kind) => this.kind = kind;
-        /// <summary>Gets choices.</summary>
         private DurationChoice[] Choices => kind switch
         {
             TimerKind.Vulnerable => VulnerableChoices,
@@ -89,7 +84,6 @@ public static class PhantoonTimerDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

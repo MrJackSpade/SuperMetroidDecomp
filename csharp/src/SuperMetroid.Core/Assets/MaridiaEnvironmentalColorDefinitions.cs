@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native $8D:F4EF..F61A sand/waterfall color rotations. Sixteen first-row colors remain required source inputs.</summary>
 internal static class MaridiaEnvironmentalColorDefinitions
 {
-    /// <summary>Attempts to source pointer.</summary>
     internal static bool TrySourcePointer(ushort pointer, out ushort source)
     {
         foreach (var program in MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)

@@ -16,12 +16,9 @@ public enum PowerBombFixedColorSequence
 /// <summary>Editable RGB5 colors for Power Bomb, Crystal Flash and Ceres explosions.</summary>
 public sealed class PowerBombFixedColorCatalog
 {
-    /// <summary>Stores pre explosion.</summary>
     private readonly Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion;
-    /// <summary>Stores explosion.</summary>
     private readonly Dictionary<int, (byte Red, byte Green, byte Blue)> explosion;
 
-    /// <summary>Initializes a new power bomb fixed color catalog instance.</summary>
     private PowerBombFixedColorCatalog(
         Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion,
         Dictionary<int, (byte Red, byte Green, byte Blue)> explosion)
@@ -30,7 +27,6 @@ public sealed class PowerBombFixedColorCatalog
         this.explosion = explosion;
     }
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -93,7 +89,6 @@ public sealed class PowerBombFixedColorCatalog
         throw new InvalidDataException("Power Bomb color has neither supplied content nor a calculated definition.");
     }
 
-    /// <summary>compile.</summary>
     private static Dictionary<int, (byte Red, byte Green, byte Blue)> Compile(
         PaletteRgb5[]? source, int count, PowerBombFixedColorSequence sequence, string name)
     {
@@ -113,7 +108,6 @@ public sealed class PowerBombFixedColorCatalog
         return colors;
     }
 
-    /// <summary>reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Power Bomb fixed-color property {name}."));

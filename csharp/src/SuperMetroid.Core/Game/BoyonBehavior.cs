@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -31,10 +31,8 @@ internal sealed class BoyonBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines boyon bounce sound.</summary>
     private const ushort BoyonBounceSound = 0x000e;
 
-    /// <summary>Stores boyon states.</summary>
     internal readonly BoyonEnemyState?[] _boyonStates =
         new BoyonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -207,7 +205,6 @@ internal sealed class BoyonBehavior : IEnemySpecies
         return EnemyMath.IsNegative16(distance - slot.Parameter2);
     }
 
-    /// <summary>set boyon instruction list.</summary>
     private static void SetBoyonInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -215,7 +212,6 @@ internal sealed class BoyonBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>require boyon state.</summary>
     private BoyonEnemyState RequireBoyonState(RoomEnemySlot slot) =>
         _boyonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boyon state.");
@@ -227,7 +223,6 @@ internal sealed class BoyonBehavior : IEnemySpecies
         LastBoyonSoundEffect = BoyonBounceSound;
     }
 
-    /// <summary>register boyon initialization ai.</summary>
     internal void RegisterBoyonInitializationAi(EnemyAiTable table)
     {
 
@@ -237,7 +232,6 @@ internal sealed class BoyonBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register boyon main ai.</summary>
     internal void RegisterBoyonMainAi(EnemyAiTable table)
     {
 
@@ -247,7 +241,6 @@ internal sealed class BoyonBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register boyon owned instructions.</summary>
     internal void RegisterBoyonOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

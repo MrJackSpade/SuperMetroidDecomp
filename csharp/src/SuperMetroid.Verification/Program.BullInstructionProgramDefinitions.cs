@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents bull instruction program definitions verification.</summary>
 internal static class BullInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies bull instruction program definitions.</summary>
     internal static void VerifyBullInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBullInstructionProgramDefinitions), () => VerifyBullInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies bull instruction program definitions.</summary>
     internal static void VerifyBullInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic |
@@ -97,7 +94,6 @@ internal static class BullInstructionProgramDefinitionsVerification
             "pass with mechanics bytes forbidden.");
     }
 
-    /// <summary>Probe bull instruction mechanics allocation.</summary>
     private static int ProbeBullInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -107,13 +103,11 @@ internal static class BullInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Reads bull instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bull instruction words")]
     internal static ushort ReadBullInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>New bull instruction program read guard.</summary>
     internal static CartridgeReadGuard NewBullInstructionProgramReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -129,7 +123,6 @@ internal static class BullInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa80000, BullInstructionProgramDefinitionsTooling.PresentationWordCount, BullInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
-    /// <summary>Bull instruction mechanics command.</summary>
     [VerificationCommand("--bull-instruction-mechanics")]
     internal static int BullInstructionMechanicsCommand()
     {

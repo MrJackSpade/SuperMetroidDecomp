@@ -2,10 +2,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents golden torizo right orb definitions verification.</summary>
 internal static class GoldenTorizoRightOrbDefinitionsVerification
 {
-    /// <summary>verify golden torizo right orb definitions.</summary>
     internal static void VerifyGoldenTorizoRightOrbDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -122,7 +120,6 @@ internal static class GoldenTorizoRightOrbDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
-    /// <summary>golden torizo right orb definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo right orb definitions")]
     private static byte GoldenTorizoRightOrbDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

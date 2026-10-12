@@ -15,7 +15,6 @@ using static FrontendRomFreeVerification;
 using static RepositoryInputsVerification;
 using static RetailGameFixtureVerification;
 
-/// <summary>Represents frontend rom free direct room verification.</summary>
 internal static class FrontendRomFreeDirectRoomVerification
 {
     /// <summary>
@@ -32,7 +31,6 @@ internal static class FrontendRomFreeDirectRoomVerification
         VerifyFrontendRomFreeDirectRoom(RoomHeaderPointers.Kraid, 1500, (ushort)(SnesButton.Right | SnesButton.X));
     }
 
-    /// <summary>Verifies frontend rom free direct room.</summary>
     private static void VerifyFrontendRomFreeDirectRoom(ushort roomPointer, int frameCount, ushort heldInput)
     {
         GameInstallation installation = RepositoryInstallation.Installation;
@@ -52,7 +50,6 @@ internal static class FrontendRomFreeDirectRoomVerification
         VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = roomPointer, RoomName = $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X4}" }, frameCount, heldInput: heldInput);
     }
 
-    /// <summary>Rom free direct room command.</summary>
     [VerificationCommand("--rom-free-direct-room")]
     internal static int RomFreeDirectRoomCommand()
     {

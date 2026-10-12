@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents skree metaree instruction program definitions verification.</summary>
 internal static class SkreeMetareeInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies skree metaree instruction program definitions.</summary>
     internal static void VerifySkreeMetareeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeInstructionProgramDefinitions), () => VerifySkreeMetareeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies skree metaree instruction program definitions.</summary>
     internal static void VerifySkreeMetareeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -174,10 +171,8 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Species name.</summary>
     private static string SpeciesName(bool metaree) => metaree ? "Metaree" : "Skree";
 
-    /// <summary>Probes skree metaree instruction mechanics allocation.</summary>
     private static int ProbeSkreeMetareeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -191,7 +186,6 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>Creates skree metaree instruction program read guard.</summary>
     private static CartridgeReadGuard NewSkreeMetareeInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SkreeMetareeInstructionProgramDefinitions.IsCompiledMechanicsByte,
@@ -203,7 +197,6 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
                 index => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(false, index),
                 address => $"Production read installed Skree/Metaree selector ${address:X6}.");
 
-    /// <summary>Skree metaree instruction mechanics command.</summary>
     [VerificationCommand("--skree-metaree-instruction-mechanics")]
     internal static int SkreeMetareeInstructionMechanicsCommand()
     {

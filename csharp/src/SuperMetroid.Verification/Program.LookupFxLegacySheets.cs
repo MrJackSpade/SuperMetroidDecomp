@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Assets;
 
-/// <summary>Represents lookup fx legacy sheets verification.</summary>
 internal static class LookupFxLegacySheetsVerification
 {
-    /// <summary>Verifies room fx legacy sheet selection.</summary>
     internal static void VerifyRoomFxLegacySheetSelection()
     {
         // Pre-conversion widths at1fefba07, independently fixed compatibility contract.
@@ -50,14 +48,10 @@ internal static class LookupFxLegacySheetsVerification
         }
     }
 
-    /// <summary>Represents fx atlas forward only stream.</summary>
     internal sealed class FxAtlasForwardOnlyStream(byte[] bytes) : MemoryStream(bytes)
     {
-        /// <summary>Gets can seek.</summary>
         public override bool CanSeek => false;
-        /// <summary>Rejects position queries and assignments on this nonseekable stream.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-        /// <summary>Seek.</summary>
         public override long Seek(long offset, SeekOrigin loc) => throw new NotSupportedException();
     }
 }

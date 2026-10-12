@@ -617,7 +617,6 @@ public static class DoorDefinitions
             "Pointer is not a physical retail door header or the shared elevator pseudo-door."),
     };
 
-    /// <summary>Door.</summary>
     private static CartridgeDoorHeader Door(ushort pointer, ushort destination, byte orientation,
         Position16<RoomBlocks> plmBlock, Position16<RoomScreens> destinationScreen, ushort samusDistance, ushort setupCode) =>
         new(pointer, destination, CartridgeDoorOrientation.Decode(orientation),
@@ -634,7 +633,6 @@ public static class DoorDefinitions
             : DoorListEntry.Physical(Get(pointer));
     }
 
-    /// <summary>Pointer at.</summary>
     internal static ushort PointerAt(ushort listPointer, DoorListLayout layout, int index)
     {
         if ((uint)index >= (uint)layout.Count)
@@ -646,7 +644,6 @@ public static class DoorDefinitions
         return checked((ushort)(layout.First + layout.Stride * physicalIndex));
     }
 
-    /// <summary>Represents door list layout.</summary>
     internal readonly record struct DoorListLayout(ushort First, int Count, int Stride = 12, int ElevatorIndex = -1);
 
     /// <summary>Each room selects its first physical header, bounded list length and optional elevator slot.</summary>

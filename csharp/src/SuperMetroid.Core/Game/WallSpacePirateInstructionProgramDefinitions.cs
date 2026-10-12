@@ -69,7 +69,6 @@ internal abstract class WallSpacePirateInstructionProgramDefinitions
     /// <summary>Native program bank $B2.</summary>
     internal const byte Bank = 0xb2;
 
-    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecc0),
         Entry(FireAndJumpLeft),
@@ -182,12 +181,9 @@ internal abstract class WallSpacePirateInstructionProgramDefinitions
         Frame(8),
         Op((ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate, PirateWallMovingUpRightWall1),
         Op(PirateWallRandomlyChooseADirectionRightWall));
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
-    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

@@ -14,16 +14,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class NorfairRidleyInitialPaintDefinitions
 {
-    /// <summary>Stores armor.</summary>
     private readonly CeresDoorEscapePaintDefinitions armor;
-    /// <summary>Stores organ.</summary>
     private readonly CeresBabyPaintDefinitions organ;
-    /// <summary>Stores clear blue.</summary>
     private readonly int clearBlue;
-    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
-    /// <summary>Initializes a new norfair ridley initial paint definitions instance.</summary>
     internal NorfairRidleyInitialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 32);
@@ -34,10 +29,8 @@ internal sealed class NorfairRidleyInitialPaintDefinitions
         organ = new(colors.Slice(17, 15));
     }
 
-    /// <summary>Gets clear slot.</summary>
     private Bgr555 ClearSlot => new(0, 0, clearBlue);
 
-    /// <summary>Color at.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 32) throw new IndexOutOfRangeException();

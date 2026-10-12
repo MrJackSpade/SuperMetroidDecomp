@@ -18,7 +18,6 @@ public static class SnesCpuOperandRead
         return (ushort)(SnesLittleEndian.Word(low, high));
     }
 
-    /// <summary>Reads data.</summary>
     private static byte ReadData(ISnesAddressSpace bus, int address, byte memoryDataRegister)
     {
         int bank = SnesAddressMath.BankNumber(address), offset = SnesAddressMath.OffsetInBank(address);

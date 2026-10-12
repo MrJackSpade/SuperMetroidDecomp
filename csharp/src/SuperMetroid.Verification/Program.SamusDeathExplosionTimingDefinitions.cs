@@ -15,10 +15,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-/// <summary>Represents samus death explosion timing definitions verification.</summary>
 internal static class SamusDeathExplosionTimingDefinitionsVerification
 {
-    /// <summary>Verifies samus death explosion timing definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus death explosion timing definitions")]
     internal static void VerifySamusDeathExplosionTimingDefinitions(
         SuperMetroidAddressSpace rom)
@@ -45,7 +43,6 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
             "compiled sequence and invalid restored indexes fail loudly.");
     }
 
-    /// <summary>Creates samus death explosion timing read guard.</summary>
     internal static CartridgeReadGuard NewSamusDeathExplosionTimingReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
@@ -58,7 +55,6 @@ internal static class SamusDeathExplosionTimingDefinitionsVerification
             },
             address => $"Samus death sequence attempted timer read ${address:X6}.");
 
-    /// <summary>Samus death explosion timing definitions command.</summary>
     [VerificationCommand("--samus-death-explosion-timing-definitions")]
     internal static int SamusDeathExplosionTimingDefinitionsCommand()
     {

@@ -17,10 +17,8 @@ using SuperMetroid.Core.Hardware;
 using static KraidContourCaseMappingsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid body contour verification.</summary>
 internal static class KraidBodyContourVerification
 {
-    /// <summary>Creates kraid body contour probe.</summary>
     internal static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe()
     {
         Type scratchType = typeof(KraidBehavior).GetNestedType(
@@ -48,7 +46,6 @@ internal static class KraidBodyContourVerification
                 Expression.Call(scratch, scratchType.GetMethod("OverlapsBody")!, body, nativeShot)),
             body, shot).Compile();
     }
-    /// <summary>Verifies kraid body contour.</summary>
     internal static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
@@ -77,7 +74,6 @@ internal static class KraidBodyContourVerification
         Console.WriteLine("Kraid body contour: every signed Y and 1769472 actual collision boundary probes pass with ROM reads forbidden.");
     }
 
-    /// <summary>Kraid contour head fixtures command.</summary>
     [VerificationCommand("--kraid-contour-head-fixtures")]
     internal static int KraidContourHeadFixturesCommand()
     {

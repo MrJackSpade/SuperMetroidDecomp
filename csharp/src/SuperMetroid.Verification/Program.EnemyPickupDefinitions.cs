@@ -3,10 +3,8 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents enemy pickup definitions verification.</summary>
 internal static class EnemyPickupDefinitionsVerification
 {
-    /// <summary>Verifies enemy pickup definitions.</summary>
     internal static void VerifyEnemyPickupDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)

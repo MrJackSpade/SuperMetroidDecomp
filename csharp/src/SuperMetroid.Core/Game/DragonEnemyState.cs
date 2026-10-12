@@ -32,16 +32,11 @@ public enum DragonEnemyFunction : ushort
 /// </summary>
 public sealed class DragonEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Stores requested instruction lists.</summary>
     private readonly ushort[] _requestedInstructionLists;
-    /// <summary>Stores installed instruction lists.</summary>
     private readonly ushort[] _installedInstructionLists;
-    /// <summary>Stores animation finished flags.</summary>
     private readonly ushort[] _animationFinishedFlags;
 
-    /// <summary>Initializes a new dragon enemy state instance.</summary>
     internal DragonEnemyState(
         RoomEnemySlot slot,
         ushort[] requestedInstructionLists,

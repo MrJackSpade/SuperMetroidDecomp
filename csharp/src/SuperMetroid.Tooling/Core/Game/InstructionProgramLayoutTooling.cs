@@ -1,10 +1,9 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Development-tool instance members of <see cref="InstructionProgramLayout"/>.</summary>
 internal static class InstructionProgramLayoutToolingExtensions
 {
-    /// <summary>Provides tooling access to instruction-program layout data.</summary>
     extension(InstructionProgramLayout self)
     {
         /// <summary>The <paramref name="index"/>th mechanics word in address order.</summary>

@@ -1,4 +1,4 @@
-using SuperMetroid.Tooling;
+﻿using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -10,13 +10,9 @@ internal abstract class MotherBrainBabyInstructionProgramDefinitionsTooling : II
     internal const int LoopWords = MotherBrainBabyInstructionProgramDefinitions.LoopFrames + 1;
     /// <summary>Native Mother Brain cutscene-baby instruction and OAM bank $A9.</summary>
     internal const byte Bank = 0xa9;
-    /// <summary>Gets bank.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
-    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 2 * LoopWords + 2;
-    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 2 * MotherBrainBabyInstructionProgramDefinitions.LoopFrames + 1;
-    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -25,7 +21,6 @@ internal abstract class MotherBrainBabyInstructionProgramDefinitionsTooling : II
             (ushort)(MotherBrainBabyInstructionProgramDefinitions.TakingFatalBlow + (index - 2 * LoopWords) * MotherBrainBabyInstructionProgramDefinitions.FrameBytes);
         return new(address, MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
-    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();

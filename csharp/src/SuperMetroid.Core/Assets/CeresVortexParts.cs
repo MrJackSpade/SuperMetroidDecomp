@@ -18,7 +18,6 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
         Odd = CeresFlightSpriteDefinitions.VortexOdd,
     }
 
-    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied, SpriteComposition? reflectionSource = null)
     {
         if (!Enum.IsDefined((VortexFrame)pointer)) return supplied;
@@ -41,9 +40,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
         IReadOnlyList<CompiledSpritePart> selectedStars = odd ? CeresStarPointParts.CalculateIfMatching(stars, false) : CeresReflectedStarParts.CalculateIfMatching(reflectionSource, stars);
         return supplied.CalculateIfMatching(new CeresVortexParts(odd, anchor, selectedStars));
     }
-    /// <summary>Gets count.</summary>
     public int Count => odd ? 33 : 36;
-    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -72,15 +69,12 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
                 SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Returns an enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
-/// <summary>Represents ceres vortex atlas.</summary>
 internal static class CeresVortexAtlas
 {
     /// <summary>Tile1C0, first large vortex tile; eleven large pieces are packed

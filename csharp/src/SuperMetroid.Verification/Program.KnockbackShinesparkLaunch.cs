@@ -12,7 +12,6 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents knockback shinespark launch verification.</summary>
 internal static class KnockbackShinesparkLaunchVerification
 {
     /// <summary>
@@ -39,7 +38,6 @@ internal static class KnockbackShinesparkLaunchVerification
         Console.WriteLine("  Knockback shinespark launch: a direction launches from a windup pose without its handler.");
     }
 
-    /// <summary>knockback shinespark launch command.</summary>
     [VerificationCommand("--knockback-shinespark-launch")]
     internal static int KnockbackShinesparkLaunchCommand()
     {

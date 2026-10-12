@@ -41,10 +41,8 @@ public enum DachoraAiFunction : ushort
 /// </summary>
 public sealed class DachoraEnemyState
 {
-    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
-    /// <summary>Initializes a new dachora enemy state instance.</summary>
     internal DachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A: whole speed, countdown, or echo-position interval.</summary>

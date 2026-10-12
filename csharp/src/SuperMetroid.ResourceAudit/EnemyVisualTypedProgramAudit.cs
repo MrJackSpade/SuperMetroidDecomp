@@ -9,7 +9,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Typed custom programs whose frame fields bypass the common operand interpreter.</summary>
 internal static class EnemyVisualTypedProgramAudit
 {
-    /// <summary>Inspect.</summary>
     internal static void Inspect(CSharpCompilation compilation, ResourceIndex exports,
         AuditReport report, List<EnemyVisualProgramAudit.ProgramRow> rows)
     {

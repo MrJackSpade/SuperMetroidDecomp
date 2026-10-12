@@ -3,14 +3,11 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupFxPairColorsVerification;
 
-/// <summary>Represents lookup fx blend selectors verification.</summary>
 internal static class LookupFxBlendSelectorsVerification
 {
     // Original public selector domain/order before conversion at11df17c7.
-    /// <summary>Original fx blend ids.</summary>
     internal static byte[] OriginalFxBlendIds() => [0x02, 0x22, 0x42, 0x48, 0x62, 0xe2, 0xe8, 0xee];
 
-    /// <summary>Verifies fx blend selector identities.</summary>
     internal static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
@@ -24,7 +21,6 @@ internal static class LookupFxBlendSelectorsVerification
         }
     }
 
-    /// <summary>Verifies fx blend source addresses.</summary>
     internal static void VerifyFxBlendSourceAddresses(ISnesAddressSpace rom)
     {
         // Original LDA.l operand at89:AB5F supplies the color-one base.
@@ -39,11 +35,9 @@ internal static class LookupFxBlendSelectorsVerification
         }
     }
 
-    /// <summary>Fx blend source addresses rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for FX blend source addresses")]
     private static byte FxBlendSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies fx blend page dispatch.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {

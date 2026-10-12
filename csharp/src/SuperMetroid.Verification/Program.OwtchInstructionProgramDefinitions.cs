@@ -15,17 +15,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents owtch instruction program definitions verification.</summary>
 internal static class OwtchInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies owtch instruction program definitions.</summary>
     internal static void VerifyOwtchInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyOwtchInstructionProgramDefinitions), () => VerifyOwtchInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies owtch instruction program definitions.</summary>
     internal static void VerifyOwtchInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -140,7 +137,6 @@ internal static class OwtchInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes owtch instruction mechanics allocation.</summary>
     private static int ProbeOwtchInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -152,7 +148,6 @@ internal static class OwtchInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New owtch instruction program read guard.</summary>
     private static CartridgeReadGuard NewOwtchInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(OwtchInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -161,7 +156,6 @@ internal static class OwtchInstructionProgramDefinitionsVerification
                 OwtchInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Owtch instruction byte ${address:X6}.");
 
-    /// <summary>Lookup stream1 owtch cadence command.</summary>
     [VerificationCommand("--lookup-stream-1-owtch-cadence")]
     internal static int LookupStream1OwtchCadenceCommand()
     {
@@ -169,7 +163,6 @@ internal static class OwtchInstructionProgramDefinitionsVerification
         return 0;
     }
 
-    /// <summary>Owtch instruction mechanics command.</summary>
     [VerificationCommand("--owtch-instruction-mechanics")]
     internal static int OwtchInstructionMechanicsCommand()
     {

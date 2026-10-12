@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents spc note percentage algorithms verification.</summary>
 internal static class SpcNotePercentageAlgorithmsVerification
 {
-    /// <summary>Verifies spc effect operand selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC effect operand selection")]
     internal static void VerifySpcEffectOperandSelection(SuperMetroidAddressSpace rom)
     {
@@ -19,7 +17,6 @@ internal static class SpcNotePercentageAlgorithmsVerification
         AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.EffectByteLength(int.MaxValue), "Effect invalid maximum");
     }
 
-    /// <summary>Verifies spc note volume algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC note volume algorithm")]
     internal static void VerifySpcNoteVolumeAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -34,7 +31,6 @@ internal static class SpcNotePercentageAlgorithmsVerification
         AssertThrows<IndexOutOfRangeException>(() => SpcMusicTables.NoteVolume(16), "Volume upper bound");
     }
 
-    /// <summary>Verifies spc note gate algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC note gate algorithm")]
     internal static void VerifySpcNoteGateAlgorithm(SuperMetroidAddressSpace rom)
     {

@@ -6,7 +6,6 @@ internal static class VramDmaSourceContracts
     // These reviewed sources connect descriptor geometry to required PNG/JSON
     // admission, importer manifests and the runtime's native/typed dispatch.
     // A changed contract is an explicit gap until its new behavior is reviewed.
-    /// <summary>Stores additional.</summary>
     internal static readonly ReviewedSource[] Additional =
     [
         new("csharp/src/SuperMetroid.Core/Game/SamusSpecialSequenceRomData.cs"),
@@ -79,7 +78,6 @@ internal static class VramDmaSourceContracts
         // Format 85 requires both bounded invalid-selection beam sheets.
         new("csharp/src/SuperMetroid.AssetExtraction/GameInstallation.cs"),
     ];
-    /// <summary>Verify.</summary>
     internal static void Verify(string root, VramDmaReport report)
     {
         foreach (ReviewedSource source in PlmVramArtworkSourceContract.Sources

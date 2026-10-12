@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,12 +6,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Crawlers species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CrawlersBehavior : IEnemySpecies
 {
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
 
-    /// <summary>Initializes a new crawlers behavior instance.</summary>
     internal CrawlersBehavior(EnemyTerrain terrain, RoomEarthquake earthquake)
     {
         _terrain = terrain;
@@ -57,7 +54,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Stores crawler states.</summary>
     internal readonly CrawlerEnemyState?[] _crawlerStates =
         new CrawlerEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -121,7 +117,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>is shared crawler definition.</summary>
     private static bool IsSharedCrawlerDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is
             EnemyDefinitionId.Sciser or
@@ -197,7 +192,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>run hzoomer vertical.</summary>
     private void RunHZoomerVertical(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -235,7 +229,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         SetHZoomerVerticalInstruction(slot, state);
     }
 
-    /// <summary>run hzoomer horizontal.</summary>
     private void RunHZoomerHorizontal(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -273,7 +266,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         SetHZoomerHorizontalInstruction(slot, state);
     }
 
-    /// <summary>trigger crawler earthquake fall.</summary>
     private void TriggerCrawlerEarthquakeFall(CrawlerEnemyState state)
     {
         if (_earthquake.EarthquakeTimer == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration &&
@@ -281,7 +273,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
             BeginCrawlerFall(state);
     }
 
-    /// <summary>set hzoomer vertical instruction.</summary>
     private static void SetHZoomerVerticalInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state) =>
@@ -293,7 +284,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
                 : CrawlerAnimationDefinitions.InitialInstruction(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideUp));
 
-    /// <summary>set hzoomer horizontal instruction.</summary>
     private static void SetHZoomerHorizontalInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state) =>
@@ -305,7 +295,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
                 : CrawlerAnimationDefinitions.InitialInstruction(
                     CrawlerAnimationFamily.HZoomer, CrawlerSurfaceOrientation.UpsideLeft));
 
-    /// <summary>set hzoomer instruction list.</summary>
     private static void SetHZoomerInstructionList(
         RoomEnemySlot slot,
         ushort instructionList)
@@ -449,14 +438,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies
             state.Function = CrawlerEnemyFunction.CrawlingVertically;
     }
 
-    /// <summary>begin crawler fall.</summary>
     private static void BeginCrawlerFall(CrawlerEnemyState state)
     {
         state.NonFallingFunction = state.Function;
         state.Function = CrawlerEnemyFunction.Falling;
     }
 
-    /// <summary>set crawler vertical surface instruction.</summary>
     internal static void SetCrawlerVerticalSurfaceInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state)
@@ -467,7 +454,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         SetCrawlerInstructionFromTable(slot, orientation);
     }
 
-    /// <summary>set crawler horizontal surface instruction.</summary>
     internal static void SetCrawlerHorizontalSurfaceInstruction(
         RoomEnemySlot slot,
         CrawlerEnemyState state)
@@ -478,7 +464,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         SetCrawlerInstructionFromTable(slot, orientation);
     }
 
-    /// <summary>set crawler instruction from table.</summary>
     private static void SetCrawlerInstructionFromTable(
         RoomEnemySlot slot,
         CrawlerSurfaceOrientation orientation)
@@ -496,7 +481,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>get crawler slope adjusted horizontal displacement.</summary>
     private static int GetCrawlerSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
@@ -530,12 +514,10 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         return SnesSixteenSixteen.FromEightEight(velocity.X.SignedRawValue);
     }
 
-    /// <summary>require crawler state.</summary>
     private CrawlerEnemyState RequireCrawlerState(RoomEnemySlot slot) =>
         _crawlerStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized crawler state.");
 
-    /// <summary>shift8 add magnitude.</summary>
     internal static int Shift8AddMagnitude(ushort velocity, int wholePixels)
     {
         int signedVelocity = unchecked((short)velocity);
@@ -543,10 +525,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         return unchecked((SnesSixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
     }
 
-    /// <summary>negate16.</summary>
     internal static ushort Negate16(ushort value) => unchecked((ushort)-value);
 
-    /// <summary>register crawlers initialization ai.</summary>
     internal void RegisterCrawlersInitializationAi(EnemyAiTable table)
     {
 
@@ -582,7 +562,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register crawlers main ai.</summary>
     internal void RegisterCrawlersMainAi(EnemyAiTable table)
     {
 
@@ -597,7 +576,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>register crawlers owned instructions.</summary>
     internal void RegisterCrawlersOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

@@ -5,7 +5,6 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Exact native draw shapes for the individually source-reviewed PLM providers.</summary>
 internal static class PlmVisualDomainDefinitions
 {
-    /// <summary>Gets.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList[]? Get(string qualifiedType) => qualifiedType switch
     {
         "SuperMetroid.Core.Rooms.RoomPlmShotBlockVisualCatalog" => RoomPlmShotBlockDrawDefinitions.All.ToArray(),
@@ -41,7 +40,6 @@ internal static class PlmVisualDomainDefinitions
         _ => null,
     };
 
-    /// <summary>Single word.</summary>
     private static RoomPlmShotBlockDrawDefinitions.DrawList SingleWord(ushort pointer, ushort levelWord) =>
         new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { levelWord }, new(0, 0)) });
 }

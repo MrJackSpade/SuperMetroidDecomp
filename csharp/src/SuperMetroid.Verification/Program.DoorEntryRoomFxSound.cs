@@ -15,14 +15,12 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents door entry room fx sound verification.</summary>
 internal static class DoorEntryRoomFxSoundVerification
 {
     // #1269: MainGameLoop runs the HDMA pass ($88:84B9) before game state $09's handler, so a
     // rising-lava rumble ($88:B21D) on the door-entry frame is queued before the handler's
     // library-two cancel ($71) and DisableSounds. In the 100% movie's Rising Tide exit that
     // extra rumble lengthens the door's sound-queue wait by one drained sound.
-    /// <summary>Verifies door entry room fx sound.</summary>
     internal static void VerifyDoorEntryRoomFxSound()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -87,7 +85,6 @@ internal static class DoorEntryRoomFxSoundVerification
         Console.WriteLine("Door entry room-FX sound: the entry frame's rumble precedes the door's cancel and DisableSounds.");
     }
 
-    /// <summary>Door entry room fx sound command.</summary>
     [VerificationCommand("--door-entry-room-fx-sound")]
     internal static int DoorEntryRoomFxSoundCommand()
     {

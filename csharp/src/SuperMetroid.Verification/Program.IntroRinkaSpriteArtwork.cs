@@ -10,10 +10,8 @@ using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
-/// <summary>Represents intro rinka sprite artwork verification.</summary>
 internal static class IntroRinkaSpriteArtworkVerification
 {
-    /// <summary>Draws imported cinematic actor.</summary>
     internal static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
     {
         if (!actor.IsActive || actor.SpriteMapPointer == 0) return;
@@ -24,7 +22,6 @@ internal static class IntroRinkaSpriteArtworkVerification
             new(actor.WholePosition.X, y), actor.PaletteBits,
             originIsOnScreen: ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0);
     }
-    /// <summary>Verifies intro rinka sprite artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)

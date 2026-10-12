@@ -6,10 +6,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 
-/// <summary>Represents map landmarks verification.</summary>
 internal static class MapLandmarksVerification
 {
-    /// <summary>Verifies map landmarks.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapLandmarks(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -107,7 +105,6 @@ internal static class MapLandmarksVerification
         }
     }
 
-    /// <summary>New landmark guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle walking the native boss, elevator and gunship landmark lists to forbid them")]
     private static MutableCartridgeReadGuard NewLandmarkGuard(ISnesAddressSpace source, bool blockGunship = false)
     {

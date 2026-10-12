@@ -5,10 +5,8 @@ using SuperMetroid.Rendering.Direct3D11;
 
 using static DesktopVerificationSupport;
 
-/// <summary>Represents renderer startup tests.</summary>
 internal static class RendererStartupTests
 {
-    /// <summary>Verifies renderer startup failure.</summary>
     internal static async Task VerifyRendererStartupFailure(RendererSelection selection)
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");

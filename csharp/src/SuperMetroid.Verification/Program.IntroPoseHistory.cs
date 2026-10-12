@@ -18,10 +18,8 @@ using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents intro pose history verification.</summary>
 internal static class IntroPoseHistoryVerification
 {
-    /// <summary>Verifies intro pose history.</summary>
     internal static void VerifyIntroPoseHistory()
     {
         Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
@@ -59,7 +57,6 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(0x0104, history.PreviousDirectionAndMovement, "intro same-pose fallback commits current metadata");
     }
 
-    /// <summary>Verifies intro scene pose history.</summary>
     private static void VerifyIntroScenePoseHistory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -132,7 +129,6 @@ internal static class IntroPoseHistoryVerification
         AssertEqual(0, failures.Count, "intro scene history: " + string.Join("; ", failures));
     }
 
-    /// <summary>Frontend fixtures command.</summary>
     [VerificationCommand("--frontend-fixtures")]
     internal static int FrontendFixturesCommand()
     {

@@ -6,14 +6,10 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidSessionCommands
 {
-    /// <summary>Stores gate.</summary>
     private readonly Lock gate = new();
-    /// <summary>Stores pending.</summary>
     private readonly Queue<(Func<AndroidSessionData, string> Action, TaskCompletionSource<string> Result)> pending = new();
-    /// <summary>Stores stopped.</summary>
     private Exception? stopped;
 
-    /// <summary>enqueue.</summary>
     public Task<string> Enqueue(Func<AndroidSessionData, string> action)
     {
         lock (gate)
@@ -25,13 +21,11 @@ internal sealed class AndroidSessionCommands
         }
     }
 
-    /// <summary>try dequeue.</summary>
     public bool TryDequeue(out (Func<AndroidSessionData, string> Action, TaskCompletionSource<string> Result) request)
     {
         lock (gate) return pending.TryDequeue(out request);
     }
 
-    /// <summary>complete.</summary>
     public void Complete(Exception error)
     {
         lock (gate)

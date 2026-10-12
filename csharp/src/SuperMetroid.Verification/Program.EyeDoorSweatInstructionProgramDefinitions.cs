@@ -15,17 +15,14 @@ using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents eye door sweat instruction program definitions verification.</summary>
 internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
 {
-    /// <summary>verify eye door sweat instruction program definitions.</summary>
     internal static void VerifyEyeDoorSweatInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>verify eye door sweat instruction program definitions.</summary>
     internal static void VerifyEyeDoorSweatInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -168,7 +165,6 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>probe eye door sweat instruction mechanics allocation.</summary>
     private static int ProbeEyeDoorSweatInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -182,7 +178,6 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>eye door sweat instruction mechanics command.</summary>
     [VerificationCommand("--eye-door-sweat-instruction-mechanics")]
     internal static int EyeDoorSweatInstructionMechanicsCommand()
     {

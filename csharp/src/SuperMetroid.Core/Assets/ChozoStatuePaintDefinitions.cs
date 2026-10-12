@@ -5,9 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Which Chozo statue palette at $AA:E31D (Wrecked Ship) or $AA:E35D (Lower Norfair).</summary>
 internal enum ChozoStatuePalette
 {
-    /// <summary>Identifies wrecked ship.</summary>
     WreckedShip,
-    /// <summary>Identifies lower norfair.</summary>
     LowerNorfair,
 }
 
@@ -21,10 +19,8 @@ internal enum ChozoStatuePalette
 /// </summary>
 internal static class ChozoStatuePaintDefinitions
 {
-    /// <summary>Stores half colors.</summary>
     private const int HalfColors = 16;
 
-    /// <summary>Color.</summary>
     internal static Bgr555 Color(ChozoStatuePalette palette, int color)
     {
         if ((uint)color >= HalfColors * 2) throw new ArgumentOutOfRangeException(nameof(color));
@@ -39,7 +35,6 @@ internal static class ChozoStatuePaintDefinitions
         };
     }
 
-    /// <summary>Shared.</summary>
     private static Bgr555? Shared(int local) => local switch
     {
         0 => Pack(0, 0, 14),
@@ -52,7 +47,6 @@ internal static class ChozoStatuePaintDefinitions
         _ => null,
     };
 
-    /// <summary>Wrecked ship.</summary>
     private static Bgr555 WreckedShip(int local, bool second) => local switch
     {
         >= 4 and <= 7 => second
@@ -63,7 +57,6 @@ internal static class ChozoStatuePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(local)),
     };
 
-    /// <summary>Lower norfair.</summary>
     private static Bgr555 LowerNorfair(int local, bool second)
     {
         if (second && local is >= 4 and <= 6) return LowerNorfair(local + 1, false);
@@ -82,18 +75,15 @@ internal static class ChozoStatuePaintDefinitions
         };
     }
 
-    /// <summary>Ramp.</summary>
     private static Bgr555 Ramp((int Red, int Green, int Blue) start, (int Red, int Green, int Blue) end, int step, int steps) =>
         Pack(Nearest(start.Red, end.Red, step, steps), Nearest(start.Green, end.Green, step, steps),
             Nearest(start.Blue, end.Blue, step, steps));
 
-    /// <summary>Nearest.</summary>
     private static int Nearest(int start, int end, int step, int steps)
     {
         int delta = end - start;
         return start + Math.Sign(delta) * ((Math.Abs(delta) * step + steps / 2) / steps);
     }
 
-    /// <summary>Pack.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

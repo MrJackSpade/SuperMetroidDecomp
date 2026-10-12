@@ -8,11 +8,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Indexed artwork and ordered compositions for map sprites; palette inheritance retains live animation.</summary>
 public sealed class MapSpriteCatalog
 {
-    /// <summary>Stores frames.</summary>
     private readonly FrameSet frames;
-    /// <summary>Stores characters.</summary>
     private readonly MapObjectTileArtwork characters;
-    /// <summary>Initializes a new map sprite catalog instance.</summary>
     private MapSpriteCatalog(FrameSet frames, MapObjectTileArtwork characters) { this.frames = frames; this.characters = characters; }
     /// <summary>Draws a named map marker, elevator, label, or indicator at a screen-pixel anchor.</summary>
     public void Draw(MapSpriteId id, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
@@ -56,7 +53,6 @@ public sealed class MapSpriteCatalog
         _ => throw new KeyNotFoundException($"The given key '{id}' was not present in the dictionary."),
     };
 
-    /// <summary>Gets world label.</summary>
     private WorldMapLabelComposition? GetWorldLabel(MapSpriteId id) => id switch
     {
         MapSpriteId.WorldCrateria => frames.WorldCrateria,
@@ -75,7 +71,6 @@ public sealed class MapSpriteCatalog
         _ => throw new InvalidOperationException($"Undefined MapSpriteId {id}."),
     };
 
-    /// <summary>Represents frame set.</summary>
     private sealed record FrameSet(
         SpriteComposition? ArrowRight,
         SpriteComposition? ArrowLeft,

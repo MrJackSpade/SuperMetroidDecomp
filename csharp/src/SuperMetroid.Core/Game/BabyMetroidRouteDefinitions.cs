@@ -50,10 +50,8 @@ internal static class BabyMetroidRouteDefinitions
         new(0x00a0, 0x0078), new(0x0130, 0x007a), new(0x00c0, 0x0040), new(0x00c0, 0x0070),
         new(0x00e0, 0x0080), new(0x00cd, 0x0090), new(0x00cc, 0x00a0), new(0x00cb, 0x00b0),
     ];
-    /// <summary>Stores first extra eight leg.</summary>
     private const int FirstExtraEightLeg = 5;
 
-    /// <summary>Record.</summary>
     private static BabyMetroidRouteRecord Record(int index) => new(
         Waypoints[index],
         0x0000,
@@ -85,7 +83,6 @@ internal static class BabyMetroidRouteDefinitions
                 $"Baby route names unknown movement function ${(int)movementFunction:X4}."),
         };
 
-    /// <summary>Invalid pointer.</summary>
     private static InvalidDataException InvalidPointer(ushort pointer) => new(
         $"Baby route pointer ${pointer:X4} is not an authored $A9:CA24-$A9:CA63 record.");
 }

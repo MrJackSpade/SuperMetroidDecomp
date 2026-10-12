@@ -15,7 +15,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
 
-/// <summary>Represents plm population input boundary verification.</summary>
 internal static class PlmPopulationInputBoundaryVerification
 {
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
@@ -73,7 +72,6 @@ internal static class PlmPopulationInputBoundaryVerification
         Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
     }
 
-    /// <summary>PLM population input boundary command.</summary>
     [VerificationCommand("--plm-population-input-boundary")]
     internal static int PlmPopulationInputBoundaryCommand()
     {

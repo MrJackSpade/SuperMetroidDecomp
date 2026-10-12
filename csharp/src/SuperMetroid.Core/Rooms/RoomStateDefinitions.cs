@@ -26,7 +26,6 @@ public static class RoomStateDefinitions
         throw new ArgumentOutOfRangeException(nameof(statePointer), statePointer,
             "Pointer is not one of the 323 selected retail room states.");
 
-    /// <summary>Selects.</summary>
     private static CartridgeRoomState? Select(ushort statePointer) => statePointer switch
     {
         0x9213 =>

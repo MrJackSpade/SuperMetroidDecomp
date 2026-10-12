@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents synthetic enemy cartridge fixtures verification.</summary>
 internal static class SyntheticEnemyCartridgeFixturesVerification
 {
     /// <summary>

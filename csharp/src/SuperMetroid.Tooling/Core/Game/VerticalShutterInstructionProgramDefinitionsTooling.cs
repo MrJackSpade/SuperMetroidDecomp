@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,11 +7,8 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(VerticalShutterInstructionProgramDefinitions))]
 internal abstract class VerticalShutterInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
-    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 8;
-    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 5;
-    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -20,13 +17,11 @@ internal abstract class VerticalShutterInstructionProgramDefinitionsTooling : II
             : VerticalShutterInstructionProgramDefinitions.KamerPlatform + (frame < 4 ? 4 * frame : 16 + 2 * (frame - 4)));
         return new(address, VerticalShutterInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
-    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index == 0 ? VerticalShutterInstructionProgramDefinitions.Plain + 2 : VerticalShutterInstructionProgramDefinitions.KamerPlatform + 2 + 4 * (index - 1));
     }
-    /// <summary>Checks whether the address belongs to compiled mechanics data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;

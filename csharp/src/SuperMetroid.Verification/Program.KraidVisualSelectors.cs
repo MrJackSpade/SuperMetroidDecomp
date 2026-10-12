@@ -3,10 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents kraid visual selectors verification.</summary>
 internal static class KraidVisualSelectorsVerification
 {
-    /// <summary>Verifies kraid nail visual selectors.</summary>
     internal static void VerifyKraidNailVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x8b0c, 0x8b10, 0x8b14, 0x8b18, 0x8b1c, 0x8b20, 0x8b24, 0x8b28];
@@ -14,7 +12,6 @@ internal static class KraidVisualSelectorsVerification
             VerifyKraidVisualSelectorDomain(rom, 0xa70000, enemy, operands);
     }
 
-    /// <summary>Verifies fake kraid visual selectors.</summary>
     internal static void VerifyFakeKraidVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands =
@@ -26,7 +23,6 @@ internal static class KraidVisualSelectorsVerification
         Suite(nameof(VerifyKraidVisualSelectorDomain), () => VerifyKraidVisualSelectorDomain(rom, 0xa60000, EnemyDefinitionId.MiniKraid, operands));
     }
 
-    /// <summary>Verifies kraid visual selector domain.</summary>
     private static void VerifyKraidVisualSelectorDomain(SuperMetroidAddressSpace rom, int bank,
         EnemyDefinitionId enemy, ushort[] operands)
     {
@@ -60,7 +56,6 @@ internal static class KraidVisualSelectorsVerification
         AssertThrows<InvalidDataException>(() => KraidVisualDefinitions.FrameAt(0, operands[0]), "Unknown visual family");
     }
 
-    /// <summary>Kraid visual selector domain rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid visual selector domain")]
     private static byte KraidVisualSelectorDomainRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

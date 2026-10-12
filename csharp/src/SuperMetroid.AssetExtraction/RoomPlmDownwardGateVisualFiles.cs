@@ -18,10 +18,8 @@ public static class RoomPlmDownwardGateVisualFiles
     public const string VisualFileName = "downward-gates.json";
     /// <summary>Stock provenance manifest filename; records format version one, cartridge SHA-256, and the visual JSON's byte hash.</summary>
     public const string ManifestFileName = "manifest.json";
-    /// <summary>Stores format version.</summary>
     private const int FormatVersion = 1;
 
-    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -97,7 +95,6 @@ public static class RoomPlmDownwardGateVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    /// <summary>Reads and verify native.</summary>
     private static RoomPlmDownwardGateVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmDownwardGateVisualEntry>();
@@ -139,7 +136,6 @@ public static class RoomPlmDownwardGateVisualFiles
         return entries.ToArray();
     }
 
-    /// <summary>Verifies stock matches compiled.</summary>
     private static void VerifyStockMatchesCompiled(RoomPlmDownwardGateVisualCatalog catalog,
         string path)
     {
@@ -157,7 +153,6 @@ public static class RoomPlmDownwardGateVisualFiles
         }
     }
 
-    /// <summary>Creates catalog.</summary>
     private static RoomPlmDownwardGateVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -171,9 +166,7 @@ public static class RoomPlmDownwardGateVisualFiles
         }
     }
 
-    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
-    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -187,9 +180,7 @@ public static class RoomPlmDownwardGateVisualFiles
         }
     }
 
-    /// <summary>Represents visual manifest.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
-    /// <summary>Represents visual document.</summary>
     private sealed record VisualDocument(int Version, RoomPlmDownwardGateVisualEntry[] Entries);
 }

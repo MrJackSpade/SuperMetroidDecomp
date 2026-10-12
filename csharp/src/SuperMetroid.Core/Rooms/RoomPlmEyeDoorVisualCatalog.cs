@@ -27,7 +27,6 @@ public sealed class RoomPlmEyeDoorVisualCatalog
         }
     });
 
-    /// <summary>Stores custom blocks.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all twenty-three editable eye-door frames and copies visual differences without changing collision, attacks, hit counters, timing, or persistence.</summary>

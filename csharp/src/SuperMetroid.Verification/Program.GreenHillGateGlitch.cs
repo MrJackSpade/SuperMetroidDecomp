@@ -14,10 +14,8 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
-/// <summary>Represents green hill gate glitch verification.</summary>
 internal static class GreenHillGateGlitchVerification
 {
-    /// <summary>Represents green hill gate record.</summary>
     internal readonly record struct GreenHillGateRecord(
         int StartX,
         int BaseSpeed,
@@ -29,7 +27,6 @@ internal static class GreenHillGateGlitchVerification
         Position16<RoomPixels> Grapple,
         ushort GrappleFunction);
 
-    /// <summary>verify green hill grapple speed gate glitch.</summary>
     internal static void VerifyGreenHillGrappleSpeedGateGlitch()
     {
         GreenHillGateRecord[] expected = File.ReadLines(
@@ -60,7 +57,6 @@ internal static class GreenHillGateGlitchVerification
             "original CPU, including the opening gate actor.");
     }
 
-    /// <summary>run green hill grapple speed gate glitch.</summary>
     private static GreenHillGateRecord RunGreenHillGrappleSpeedGateGlitch(
         int startX,
         int baseSpeed)
@@ -152,7 +148,6 @@ internal static class GreenHillGateGlitchVerification
         return actual;
     }
 
-    /// <summary>parse green hill gate record.</summary>
     private static GreenHillGateRecord ParseGreenHillGateRecord(string line)
     {
         string[] fields = line.Split(',');
@@ -174,7 +169,6 @@ internal static class GreenHillGateGlitchVerification
             ushort.Parse(fields[10], NumberStyles.HexNumber, CultureInfo.InvariantCulture));
     }
 
-    /// <summary>green hill gate glitch command.</summary>
     [VerificationCommand("--green-hill-gate-glitch")]
     internal static int GreenHillGateGlitchCommand()
     {

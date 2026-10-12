@@ -1,10 +1,8 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents kraid camera mappings verification.</summary>
 internal static class KraidCameraMappingsVerification
 {
-    /// <summary>Verifies kraid initial scroll mapping.</summary>
     internal static void VerifyKraidInitialScrollMapping(SuperMetroidAddressSpace rom)
     {
         // Read the two LDA immediate operands stored to Scrolls and Scrolls+2.
@@ -18,11 +16,9 @@ internal static class KraidCameraMappingsVerification
                 "Initial scroll preserves span index bounds");
     }
 
-    /// <summary>Kraid initial scroll mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid initial scroll mapping")]
     private static byte KraidInitialScrollMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies kraid grown scroll mapping.</summary>
     internal static void VerifyKraidGrownScrollMapping(SuperMetroidAddressSpace rom)
     {
         int[] operandAddresses = [0xa7c0a8, 0xa7c0a9, 0xa7c0af, 0xa7c0b0];
@@ -35,7 +31,6 @@ internal static class KraidCameraMappingsVerification
                 "Grown scroll preserves span index bounds");
     }
 
-    /// <summary>Kraid grown scroll mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid grown scroll mapping")]
     private static byte KraidGrownScrollMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

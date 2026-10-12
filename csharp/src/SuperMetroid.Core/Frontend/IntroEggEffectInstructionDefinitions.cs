@@ -18,7 +18,6 @@ internal static class IntroEggEffectInstructionDefinitions
     /// <summary>$8B:CE53, shared cinematic sprite delete list used by shell fragments.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
 
-    /// <summary>Program word.</summary>
     private static ushort ProgramWord(int word)
     {
         if (word < 28)
@@ -36,7 +35,6 @@ internal static class IntroEggEffectInstructionDefinitions
         if (impactWord == 8) return (ushort)CinematicSpriteInstruction.Delete;
         return (impactWord & 1) == 0 ? (ushort)10 : IntroEggEffectSpriteDefinitions.FramePointer(7 + impactWord / 2);
     }
-    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer == DeletePointer)
@@ -49,7 +47,6 @@ internal static class IntroEggEffectInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
-    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer)

@@ -60,7 +60,6 @@ public static class EscapeTimerPresentationDefinitions
 
     /// <summary>Exact ordered native digit/label geometry. Font ink pixels remain owned by EscapeTimerTileAtlas.</summary>
     internal static SpriteComposition DefaultFrame(string name) => SpriteComposition.FromCalculated(DefaultParts(name));
-    /// <summary>default parts.</summary>
     internal static PartSequence DefaultParts(string name)
     {
         if (name == LabelFrame) return new(-1);
@@ -68,12 +67,9 @@ public static class EscapeTimerPresentationDefinitions
             && (uint)digit < DecimalDigitCount) return new(digit);
         throw new ArgumentOutOfRangeException(nameof(name));
     }
-    /// <summary>Represents part sequence.</summary>
     internal readonly struct PartSequence(int digit) : IReadOnlyList<CompiledSpritePart>
     {
-        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => digit < 0 ? LabelTileCount + 2 : 2;
-        /// <summary>Accesses a value by index or range.</summary>
         public CompiledSpritePart this[int index]
         {
             get
@@ -103,12 +99,10 @@ public static class EscapeTimerPresentationDefinitions
                     SnesObjAttributeWord.Create(tile, 0, TimerPriority), true);
             }
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<CompiledSpritePart> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
-        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -15,10 +15,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents samus atmospheric animation definitions verification.</summary>
 internal static class SamusAtmosphericAnimationDefinitionsVerification
 {
-    /// <summary>verify samus atmospheric animation definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric animation definitions")]
     internal static void VerifySamusAtmosphericAnimationDefinitions(
         SuperMetroidAddressSpace rom)
@@ -75,7 +73,6 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             "Samus atmospheric animation: 37 timers, seven frame counts, four liquid-damage words, and all real cadence/damage consumers pass with mechanics ranges forbidden.");
     }
 
-    /// <summary>verify production atmospheric cadence.</summary>
     internal static void VerifyProductionAtmosphericCadence(ISnesAddressSpace guarded)
     {
         var atmosphericArt = new SamusAtmosphericArtworkCatalog(
@@ -119,7 +116,6 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         }
     }
 
-    /// <summary>verify null atmospheric pointer reads mirrored work ram.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: a null bank-$90 atmospheric pointer reads low WRAM through the $90:0000 system-bank mirror")]
     private static void VerifyNullAtmosphericPointerReadsMirroredWorkRam(
@@ -150,7 +146,6 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         }
     }
 
-    /// <summary>verify production liquid damage.</summary>
     private static void VerifyProductionLiquidDamage(
         ISnesAddressSpace guarded,
         RoomFxType fxType,
@@ -173,7 +168,6 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             $"production {fxType} whole damage accumulation");
     }
 
-    /// <summary>new samus atmospheric animation read guard.</summary>
     internal static MutableCartridgeReadGuard NewSamusAtmosphericAnimationReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -182,7 +176,6 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         return guard;
     }
 
-    /// <summary>samus atmospheric cadence command.</summary>
     [VerificationCommand("--samus-atmospheric-cadence")]
     internal static int SamusAtmosphericCadenceCommand()
     {

@@ -21,10 +21,8 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents charge flare placement verification.</summary>
 internal static class ChargeFlarePlacementVerification
 {
-    /// <summary>verify charge flare placement.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for charge flare placement")]
     internal static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
@@ -123,19 +121,15 @@ internal static class ChargeFlarePlacementVerification
         Console.WriteLine($"Flare placement: {cases} native OAM cases with position ROM forbidden, visible edited displacement, whole-state isolation and invalid-resource rejection pass.");
         static ChargeFlarePlacementCatalog Load(JsonNode node) => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
-    /// <summary>Represents the flare metadata draw callback.</summary>
     internal delegate void FlareMetadataDraw(OamBuffer oam, SamusState samus,
         Position16<RoomPixels> layer1, int component, SamusMode7Transform? transform,
         ChargeFlareArtwork artwork, ChargeFlarePose pose);
 
-    /// <summary>Represents flare placement guard.</summary>
     [CpuBusBoundary("exact bus test: pose-table overlay that substitutes one synthetic pose row and direction byte while forbidding the flare-origin table")]
     internal sealed class FlarePlacementGuard(ISnesAddressSpace source, SamusPoseId pose, byte direction, bool forbid) : ISnesAddressSpace, IImportCartridgeSource
     {
-        /// <summary>read cartridge byte.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
-        /// <summary>read byte.</summary>
         public byte ReadByte(int address)
         {
             int syntheticOffset = address - (SamusMovementRomData.Poses.Definitions + 0xfd * 8);
@@ -146,11 +140,9 @@ internal static class ChargeFlarePlacementVerification
                 throw new InvalidDataException("Flare placement still reads origin ROM.");
             return CpuBusRegionRead.Read(source, address);
         }
-        /// <summary>write byte.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    /// <summary>verify runtime flare placement.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyRuntimeFlarePlacement(SuperMetroidAddressSpace bus, ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
@@ -211,7 +203,6 @@ internal static class ChargeFlarePlacementVerification
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored runtime emits current flare content at the saved animation state");
     }
 
-    /// <summary>charge flare placement fixture command.</summary>
     [VerificationCommand("--charge-flare-placement-fixture")]
     internal static int ChargeFlarePlacementFixtureCommand()
     {

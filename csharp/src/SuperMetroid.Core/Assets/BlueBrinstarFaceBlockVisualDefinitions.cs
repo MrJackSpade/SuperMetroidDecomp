@@ -12,7 +12,6 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
     /// <summary>Native bank of the face-block enemy and its OAM maps.</summary>
     internal const byte Bank = 0xa8;
 
-    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, MapPointer(0), "face_block_neutral"),
@@ -36,6 +35,5 @@ internal static class BlueBrinstarFaceBlockVisualDefinitions
             $"Face-block visual operand $A8:{operandAddress:X4} is not compiled.");
     }
     // Two-byte count plus four five-byte OAM records per map.
-    /// <summary>Map pointer.</summary>
     private static ushort MapPointer(int pose) => (ushort)(0xe92c + 22 * pose);
 }

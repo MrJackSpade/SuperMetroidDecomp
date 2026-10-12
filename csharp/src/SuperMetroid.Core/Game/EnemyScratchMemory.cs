@@ -93,12 +93,9 @@ public readonly struct CorpseRotTable
     /// <summary>Bytes in one (signed Y, delay) entry.</summary>
     public const int EntryByteCount = 4;
 
-    /// <summary>Stores bytes.</summary>
     private readonly WorkRamByteTable bytes;
-    /// <summary>Stores first byte.</summary>
     private readonly int firstByte;
 
-    /// <summary>Initializes a new corpse rot table instance.</summary>
     internal CorpseRotTable(WorkRamByteTable bytes, int firstByte, ushort entryCount)
     {
         if (entryCount == 0)
@@ -123,7 +120,6 @@ public readonly struct CorpseRotTable
     /// <summary>Stores entry <paramref name="entry"/>'s delay word, low byte first.</summary>
     public void SetDelay(int entry, ushort value) => bytes.WriteWord(EntryOffset(entry) + 2, value);
 
-    /// <summary>Entry offset.</summary>
     private int EntryOffset(int entry)
     {
         if ((uint)entry >= EntryCount)

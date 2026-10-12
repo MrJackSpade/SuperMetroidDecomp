@@ -6,7 +6,6 @@ using SuperMetroid.EnsureAnalyzer;
 
 namespace SuperMetroid.EnsureVerification;
 
-/// <summary>Represents partial type analyzer tests.</summary>
 internal static class PartialTypeAnalyzerTests
 {
     /// <summary>#621 partial-type rules: positive and negative cases for each diagnostic.</summary>
@@ -46,7 +45,6 @@ internal static class PartialTypeAnalyzerTests
         Expect([("Only.Generated.cs", "partial class C { }"), ("Other.Generated.cs", "partial class C { }")]);
     }
 
-    /// <summary>expect.</summary>
     private static void Expect((string Path, string Source)[] files, string? id = null, int count = 0, string? message = null)
     {
         var trees = files.Select(file => CSharpSyntaxTree.ParseText(file.Source,

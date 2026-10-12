@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class RoomEnemyProjectileSlot
 {
-    /// <summary>Initializes a new room enemy projectile slot instance.</summary>
     internal RoomEnemyProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
     /// <summary>Gets the physical pool index from zero through seventeen; twice this value is the native byte index $00..$22.</summary>
@@ -134,7 +133,6 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     internal void ReleaseIdentityOnly() => Kind = RoomEnemyProjectileKind.None;
 
-    /// <summary>Clears.</summary>
     internal void Clear()
     {
         Kind = RoomEnemyProjectileKind.None;

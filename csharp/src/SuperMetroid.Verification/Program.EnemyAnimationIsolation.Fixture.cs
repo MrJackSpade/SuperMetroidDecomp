@@ -7,7 +7,6 @@ using SuperMetroid.Core.Spatial;
 using static GoldenTorizoRightOrbFramesVerification;
 using static VerificationHelpersVerification;
 
-/// <summary>Represents enemy animation isolation fixture verification.</summary>
 internal static class EnemyAnimationIsolationFixtureVerification
 {
     /// <summary>
@@ -17,34 +16,20 @@ internal static class EnemyAnimationIsolationFixtureVerification
     /// </summary>
     internal sealed class EnemyAnimationFixture
     {
-        /// <summary>Defines private instance.</summary>
         private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
-        /// <summary>Defines floor y.</summary>
         internal const int FloorY = 224;
-        /// <summary>Gets memory.</summary>
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        /// <summary>Gets enemies.</summary>
         internal RoomEnemySystem Enemies { get; }
-        /// <summary>Gets actor.</summary>
         internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
-        /// <summary>Gets samus.</summary>
         internal SamusState Samus { get; } = new() { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
-        /// <summary>Gets level.</summary>
         internal RoomLevelData Level { get; }
-        /// <summary>Gets vram.</summary>
         internal SnesVram Vram { get; } = new();
-        /// <summary>Gets colors.</summary>
         internal SnesCgram Colors { get; } = new();
-        /// <summary>Gets or sets random word.</summary>
         internal ushort RandomWord { get; private set; } = 1;
-        /// <summary>Gets or sets random calls.</summary>
         internal int RandomCalls { get; private set; }
-        /// <summary>Gets or sets boss bit calls.</summary>
         internal int BossBitCalls { get; private set; }
-        /// <summary>Gets torizo.</summary>
         internal TorizoEnemyState? Torizo => Enemies.BombTorizoBehavior.GoldenTorizo;
 
-        /// <summary>Initializes a new enemy animation fixture instance.</summary>
         internal EnemyAnimationFixture(EnemyTileArtworkCatalog artwork, bool golden)
         {
             const int roomBlocks = 32;
@@ -95,14 +80,12 @@ internal static class EnemyAnimationIsolationFixtureVerification
             }
         }
 
-        /// <summary>step.</summary>
         internal void Step(int frame)
         {
             Enemies.StepEnemyProjectiles(Level, Samus, nmiFrameCounter8: unchecked((byte)frame));
             Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, Level = Level, NmiFrameCounter8 = unchecked((byte)frame) });
         }
 
-        /// <summary>draw.</summary>
         internal OamBuffer Draw()
         {
             var oam = new OamBuffer();
@@ -112,18 +95,14 @@ internal static class EnemyAnimationIsolationFixtureVerification
             return oam;
         }
 
-        /// <summary>begin death.</summary>
         internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(BombTorizoBehavior.BeginBombTorizoDeath)(Actor, Torizo!);
 
-        /// <summary>bind.</summary>
         private void Bind(string field, object value) => typeof(RoomEnemySystem)
             .GetField(field, PrivateInstance)!.SetValue(Enemies, value);
 
-        /// <summary>code.</summary>
         private static ushort Code(string name) => (ushort)typeof(RoomEnemySystem).GetField(name,
             BindingFlags.Static | BindingFlags.NonPublic)!.GetRawConstantValue()!;
 
-        /// <summary>next random.</summary>
         private ushort NextRandom()
         {
             RandomCalls++;
@@ -132,7 +111,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
         }
     }
 
-    /// <summary>assert enemy animation mechanics.</summary>
     internal static void AssertEnemyAnimationMechanics(EnemyAnimationFixture baseline,
         EnemyAnimationFixture edited, int frame)
     {
@@ -164,17 +142,14 @@ internal static class EnemyAnimationIsolationFixtureVerification
     // health and typed extra state. Do not compare reference owners or editable catalogs:
     // they intentionally belong to different instances. Non-value collections above are
     // compared explicitly, so a matching endpoint cannot hide a changed intermediate frame.
-    /// <summary>assert animation values.</summary>
     internal static void AssertAnimationValues<T>(T baseline, T edited, string context) where T : class
     {
         foreach (PropertyInfo property in AnimationValueProperties<T>.All)
             AssertEqual(property.GetValue(baseline), property.GetValue(edited), context + " " + typeof(T).Name + "." + property.Name);
     }
 
-    /// <summary>Represents animation value properties.</summary>
     internal static class AnimationValueProperties<T> where T : class
     {
-        /// <summary>Stores all.</summary>
         internal static readonly PropertyInfo[] All = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Where(property => property.GetIndexParameters().Length == 0 &&
                 (property.PropertyType.IsValueType && !property.PropertyType.IsByRefLike || property.PropertyType == typeof(string))).ToArray();

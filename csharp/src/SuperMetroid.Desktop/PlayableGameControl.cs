@@ -22,80 +22,45 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 public sealed class PlayableGameControl : UserControl
 {
-    /// <summary>Stores map presentation.</summary>
     private SuperMetroid.Core.Assets.AreaMapPresentationCatalog? mapPresentation;
-    /// <summary>Stores projectile presentation.</summary>
     private SuperMetroid.AssetExtraction.InstalledProjectilePresentation? projectilePresentation;
-    /// <summary>Stores artwork.</summary>
     private GameArtwork? artwork;
-    /// <summary>Stores save file path.</summary>
     private readonly string saveFilePath;
-    /// <summary>Stores legacy save ram path.</summary>
     private readonly string legacySaveRamPath;
-    /// <summary>Stores game options.</summary>
     private readonly SuperMetroidGameOptions gameOptions;
-    /// <summary>Stores replay.</summary>
     private readonly ControllerInputRecording? replay;
-    /// <summary>Stores error reporter.</summary>
     private readonly GitHubErrorReporter? errorReporter;
-    /// <summary>Stores audio frame recovery.</summary>
     private readonly AudioFrameRecovery audioFrameRecovery = new();
-    /// <summary>Stores canvas.</summary>
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
-    /// <summary>Stores status label.</summary>
     private readonly ToolStripLabel statusLabel = HostToolbarLayout.CreateStatusLabel();
-    /// <summary>Stores playback timer.</summary>
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
-    /// <summary>Stores playback clock.</summary>
     private readonly Stopwatch playbackClock = new();
-    /// <summary>Stores frame timings.</summary>
     private readonly FrameTimingCounter frameTimings = new();
-    /// <summary>Stores keyboard.</summary>
     private readonly HostKeyboardInputState keyboard = new();
-    /// <summary>Stores input activation.</summary>
     private readonly HostInputActivationGate inputActivation = new();
-    /// <summary>Stores gamepad.</summary>
     private readonly WindowsGamepadInput gamepad = new();
-    /// <summary>Stores pending playback frames.</summary>
     private double pendingPlaybackFrames;
-    /// <summary>Stores address space.</summary>
     private SuperMetroidAddressSpace addressSpace = null!;
-    /// <summary>Stores game.</summary>
     private SuperMetroidGame game = null!;
-    /// <summary>Stores audio engine.</summary>
     private SpcAudioEngine? audioEngine;
-    /// <summary>Stores installed audio directory.</summary>
     private readonly string? installedAudioDirectory;
-    /// <summary>Stores player data directory.</summary>
     private readonly string playerDataDirectory;
-    /// <summary>Stores installed content identity.</summary>
     private GameContentIdentity? installedContentIdentity;
-    /// <summary>Stores audio device.</summary>
     private RecoveringAudioOutput? audioDevice;
-    /// <summary>Stores input recorder.</summary>
     private ControllerInputRecorder? inputRecorder;
-    /// <summary>Stores state store.</summary>
     private DebuggerSaveStateStore stateStore = null!;
-    /// <summary>Stores replay frame index.</summary>
     private int replayFrameIndex;
-    /// <summary>Stores displayed room pointer.</summary>
     private ushort? displayedRoomPointer;
-    /// <summary>Stores latest frame timing.</summary>
     private FrameTimingSnapshot? latestFrameTiming;
-    /// <summary>Stores last recoverable error.</summary>
     private string? lastRecoverableError;
-    /// <summary>Stores input lifecycle form.</summary>
     private Form? inputLifecycleForm;
-    /// <summary>Stores session switch attached.</summary>
     private bool sessionSwitchAttached;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
     // A WinForms timer has millisecond granularity and does not promise an exact callback
     // cadence; accumulating elapsed time avoids the old integer `1000 / 60 = 16ms` loop,
     // which actually advanced the game at 62.5 frames per second.
-    /// <summary>Stores target frames per second.</summary>
     private const double TargetFramesPerSecond = 60.0;
-    /// <summary>Stores maximum catch up frames.</summary>
     private const int MaximumCatchUpFrames = 4;
 
     /// <summary>Starts from validated installed assets without naming or opening a ROM file.</summary>
@@ -216,7 +181,6 @@ public sealed class PlayableGameControl : UserControl
         SetPlaying(playing: true);
     }
 
-    /// <summary>Loads audio assets.</summary>
     private ExtractedAudioAssetCatalog LoadAudioAssets()
     {
         var installation = new GameInstallation(playerDataDirectory);
@@ -228,7 +192,6 @@ public sealed class PlayableGameControl : UserControl
         return ExtractedAudioAssetCatalog.Load(installedAudioDirectory);
     }
 
-    /// <summary>Restart.</summary>
     private void Restart()
     {
         if (gpuWorker is not null) throw new InvalidOperationException("Live restart must use the asynchronous generation boundary.");
@@ -236,7 +199,6 @@ public sealed class PlayableGameControl : UserControl
         RestartCore();
     }
 
-    /// <summary>Restart core.</summary>
     private void RestartCore()
     {
         keyboard.Clear();
@@ -312,7 +274,6 @@ public sealed class PlayableGameControl : UserControl
         canvas.Focus();
     }
 
-    /// <summary>Saves debugger state.</summary>
     private void SaveDebuggerState(int slot)
     {
         if (replay is not null)
@@ -325,7 +286,6 @@ public sealed class PlayableGameControl : UserControl
         Console.WriteLine($"Saved debugger state slot {slot}: {metadata.Path}");
     }
 
-    /// <summary>Loads debugger state.</summary>
     private async Task LoadDebuggerState(int slot)
     {
         if (replay is not null)
@@ -413,7 +373,6 @@ public sealed class PlayableGameControl : UserControl
         SetPlaying(resumePlayback);
     }
 
-    /// <summary>Format state room.</summary>
     private static string FormatStateRoom(ushort? room, ushort? state) =>
         room is ushort roomPointer && state is ushort statePointer
             ? $"room $8F:{roomPointer:X4}/state $8F:{statePointer:X4}"
@@ -437,7 +396,6 @@ public sealed class PlayableGameControl : UserControl
         SaveRamImage.Load(addressSpace, replay.InitialSaveRam);
     }
 
-    /// <summary>Creates state store.</summary>
     private DebuggerSaveStateStore CreateStateStore()
     {
         return DebuggerSaveStateStore.ForInstalledGame(
@@ -447,7 +405,6 @@ public sealed class PlayableGameControl : UserControl
                 "Installed desktop session has no content identity."));
     }
 
-    /// <summary>Start input recorder.</summary>
     private ControllerInputRecorder StartInputRecorder()
     {
         return ControllerInputRecorder.StartInstalled(
@@ -458,7 +415,6 @@ public sealed class PlayableGameControl : UserControl
                 "Installed desktop session has no content identity."));
     }
 
-    /// <summary>Report replay content compatibility.</summary>
     private void ReportReplayContentCompatibility()
     {
         if (replay is null)
@@ -502,10 +458,8 @@ public sealed class PlayableGameControl : UserControl
         GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath,
             mapPresentation ?? throw new InvalidOperationException("Save persistence requires installed maps."));
 
-    /// <summary>Can advance audio frame.</summary>
     private bool CanAdvanceAudioFrame() => audioEngine is null || audioDevice is null || audioDevice.CanAcceptFrame;
 
-    /// <summary>Steps frame.</summary>
     private void StepFrame(ushort? forcedInput = null)
     {
         FrontendFrame? frame = AdvanceOneFrame(forcedInput);
@@ -685,7 +639,6 @@ public sealed class PlayableGameControl : UserControl
             audioDevice.Reset();
     }
 
-    /// <summary>Refresh frame.</summary>
     private void RefreshFrame(FrontendFrame frame)
     {
         RefreshDisplay(frame);
@@ -789,11 +742,9 @@ public sealed class PlayableGameControl : UserControl
         [RoomHeaderPointers.CeresRidleyRoom] = "Ceres Ridley Room",
     }.ToFrozenDictionary();
 
-    /// <summary>Gets known room name.</summary>
     private static string GetKnownRoomName(ushort roomPointer) =>
         KnownRoomNames.TryGetValue(roomPointer, out string? name) ? name : "Room";
 
-    /// <summary>Builds controller word.</summary>
     private ushort BuildControllerWord()
     {
         // Keyboard and gamepad are two host producers for the same physical SNES port.
@@ -810,7 +761,6 @@ public sealed class PlayableGameControl : UserControl
         AttachInputLifecycleForm(FindForm());
     }
 
-    /// <summary>Attach input lifecycle form.</summary>
     private void AttachInputLifecycleForm(Form? form)
     {
         if (ReferenceEquals(inputLifecycleForm, form))
@@ -822,7 +772,6 @@ public sealed class PlayableGameControl : UserControl
             inputLifecycleForm.Deactivate += OnInputHostDeactivated;
     }
 
-    /// <summary>On input host deactivated.</summary>
     private void OnInputHostDeactivated(object? sender, EventArgs e)
     {
         // A deactivated WinForms/RDP window is not guaranteed to receive the matching
@@ -831,7 +780,6 @@ public sealed class PlayableGameControl : UserControl
         HostInputDiscontinuity.Release(keyboard, inputActivation);
     }
 
-    /// <summary>On windows session switch.</summary>
     private void OnWindowsSessionSwitch(object sender, SessionSwitchEventArgs e)
     {
         // Remote disconnect/lock can leave the WinForms window technically active, so its
@@ -843,7 +791,6 @@ public sealed class PlayableGameControl : UserControl
         BeginInvoke(ReleaseInputAfterSessionSwitch);
     }
 
-    /// <summary>Release input after session switch.</summary>
     private void ReleaseInputAfterSessionSwitch() =>
         HostInputDiscontinuity.Release(keyboard, inputActivation);
 
@@ -903,30 +850,18 @@ public sealed class PlayableGameControl : UserControl
     }
 
     // Host identities deliberately live outside the debugger-state graph.
-    /// <summary>Stores display sequence.</summary>
     private long displaySequence;
-    /// <summary>Stores display generation.</summary>
     private long displayGeneration;
-    /// <summary>Stores pending display.</summary>
     private RenderFrameSnapshot? pendingDisplay;
-    /// <summary>Stores gpu worker.</summary>
     private D3D11RenderWorker? gpuWorker;
-    /// <summary>Stores renderer started.</summary>
     private bool rendererStarted;
-    /// <summary>Stores renderer stopping.</summary>
     private bool rendererStopping;
-    /// <summary>Stores renderer host.</summary>
     private Form? rendererHost;
-    /// <summary>Stores previous present count.</summary>
     private long previousPresentCount;
-    /// <summary>Stores previous present timestamp.</summary>
     private long previousPresentTimestamp;
-    /// <summary>Stores gpu frames per second.</summary>
     private double gpuFramesPerSecond;
-    /// <summary>Stores renderer timing detail.</summary>
     private string rendererTimingDetail = string.Empty;
 
-    /// <summary>Refresh renderer timing detail.</summary>
     private void RefreshRendererTimingDetail()
     {
         if (gpuWorker is not { } worker) { rendererTimingDetail = string.Empty; return; }
@@ -943,15 +878,12 @@ public sealed class PlayableGameControl : UserControl
             Format("GPU composition + display (excludes CPU Present wait)", timings.GpuCompositionAndDisplay),
             $"GPU samples skipped {worker.SkippedGpuTimingSamples}, invalid {worker.InvalidGpuTimingSamples}; recoveries {worker.DeviceRecoveries}");
     }
-    /// <summary>Stores renderer health timer.</summary>
     private readonly System.Windows.Forms.Timer rendererHealthTimer = new() { Interval = 250 };
 
-    /// <summary>Gets gpu timing text.</summary>
     private string GpuTimingText => gpuWorker is { } worker
         ? $" | GPU {gpuFramesPerSecond:F1} fps / replaced {worker.MailboxMetrics.Replaced}"
         : string.Empty;
 
-    /// <summary>Begins display generation.</summary>
     private void BeginDisplayGeneration()
     {
         displayGeneration = checked(displayGeneration + 1);
@@ -959,7 +891,6 @@ public sealed class PlayableGameControl : UserControl
         pendingDisplay = null;
     }
 
-    /// <summary>Begins display generation async.</summary>
     private async Task<bool> BeginDisplayGenerationAsync()
     {
         long next = checked(displayGeneration + 1);
@@ -970,7 +901,6 @@ public sealed class PlayableGameControl : UserControl
         return true;
     }
 
-    /// <summary>Restart async.</summary>
     private async Task RestartAsync()
     {
         bool resume = playbackTimer.Enabled;
@@ -1040,7 +970,6 @@ public sealed class PlayableGameControl : UserControl
         Console.WriteLine($"Renderer: Direct3D11 on {adapter}");
     }
 
-    /// <summary>Resize gpu.</summary>
     private void ResizeGpu(object? sender, EventArgs e)
     {
         if (rendererStopping) return;
@@ -1051,7 +980,6 @@ public sealed class PlayableGameControl : UserControl
             : DisplayViewport.ClientSize(canvas.ClientSize.Width, canvas.ClientSize.Height));
     }
 
-    /// <summary>Checks renderer health.</summary>
     private void CheckRendererHealth(object? sender, EventArgs e)
     {
         if (gpuWorker?.Completion.IsFaulted == true)
@@ -1071,7 +999,6 @@ public sealed class PlayableGameControl : UserControl
         }
     }
 
-    /// <summary>Publishes gpu display.</summary>
     private void PublishGpuDisplay()
     {
         if (gpuWorker is not { } worker || rendererStopping) return;
@@ -1080,7 +1007,6 @@ public sealed class PlayableGameControl : UserControl
         worker.Publish(packet);
     }
 
-    /// <summary>Refresh display.</summary>
     private void RefreshDisplay(FrontendFrame frame)
     {
         if (gpuWorker is not null) return;
@@ -1102,7 +1028,6 @@ public sealed class PlayableGameControl : UserControl
         if (gpuWorker is { } worker) await worker.StopAsync();
     }
 
-    /// <summary>Disposes renderer host.</summary>
     private void DisposeRendererHost()
     {
         if (gpuWorker is { Completion.IsCompleted: false })

@@ -14,7 +14,6 @@ internal static class DragonVisualDefinitions
 
     /// <summary>$A2:E80C / Spritemap_Dragon_0: four eight-object body maps precede two one-object wing maps.</summary>
     private const ushort FirstBody = 0xe80c;
-    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var result = new EnemySpritemapDefinition[12];

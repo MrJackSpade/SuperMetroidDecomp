@@ -15,10 +15,8 @@ using SuperMetroid.Core.Hardware;
 using static EnemyProjectileProgramOracleVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents bomb torizo drool instruction program definitions verification.</summary>
 internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies bomb torizo drool visual mapping.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool visual mapping")]
     private static void VerifyBombTorizoDroolVisualMapping(SuperMetroidAddressSpace rom)
     {
@@ -47,7 +45,6 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(address), "drool distant invalid visual operand");
     }
-    /// <summary>Verifies bomb torizo drool mechanics mapping.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool mechanics mapping")]
     private static void VerifyBombTorizoDroolMechanicsMapping(SuperMetroidAddressSpace rom)
     {
@@ -80,7 +77,6 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
         foreach (int index in new[] {int.MinValue,-1,19,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitionsTooling.MechanicsWord(index), "drool mechanics ordinal bounds");
     }
-    /// <summary>Verifies bomb torizo drool presentation mapping.</summary>
     private static void VerifyBombTorizoDroolPresentationMapping()
     {
         ushort[] expected = [0xa46c,0xa470,0xa47c,0xa484,0xa492,0xa496,0xa49a];
@@ -93,7 +89,6 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
         foreach (int index in new[] {int.MinValue,-1,7,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress(index), "drool operand ordinal bounds");
     }
-    /// <summary>Verifies bomb torizo drool initial selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo drool initial selection")]
     private static void VerifyBombTorizoDroolInitialSelection(SuperMetroidAddressSpace rom)
     {
@@ -106,12 +101,10 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
                 "Bomb Torizo drool native delay selection for all RNG words");
         }
     }
-    /// <summary>Verifies bomb torizo drool instruction program definitions.</summary>
     internal static void VerifyBombTorizoDroolInstructionProgramDefinitions() =>
         Suite(nameof(VerifyBombTorizoDroolInstructionProgramDefinitions), () => VerifyBombTorizoDroolInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    /// <summary>Verifies bomb torizo drool instruction program definitions.</summary>
     internal static void VerifyBombTorizoDroolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -277,7 +270,6 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probe bomb torizo drool instruction mechanics allocation.</summary>
     private static int ProbeBombTorizoDroolInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -291,7 +283,6 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New bomb torizo drool instruction read guard.</summary>
     private static CartridgeReadGuard NewBombTorizoDroolInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(BombTorizoDroolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -300,7 +291,6 @@ internal static class BombTorizoDroolInstructionProgramDefinitionsVerification
                 BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount,
                 BombTorizoDroolInstructionProgramDefinitions.PresentationWordAddress);
 
-    /// <summary>Bomb torizo drool instruction mechanics command.</summary>
     [VerificationCommand("--bomb-torizo-drool-instruction-mechanics")]
     internal static int BombTorizoDroolInstructionMechanicsCommand()
     {

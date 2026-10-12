@@ -13,10 +13,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BabyMetroidFixtureHeadVerification;
 
-/// <summary>Represents baby metroid death cry verification.</summary>
 internal static class BabyMetroidDeathCryVerification
 {
-    /// <summary>Verifies baby metroid death cry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Baby Metroid death-cry palette frames")]
     internal static int VerifyBabyMetroidDeathCry()
@@ -93,7 +91,6 @@ internal static class BabyMetroidDeathCryVerification
         static bool IsBlackoutColor(int index) => index is >= 49 and <= 62 or >= 81 and <= 94;
     }
 
-    /// <summary>Baby metroid death cry command.</summary>
     [VerificationCommand("--baby-metroid-death-cry")]
     internal static int BabyMetroidDeathCryCommand()
     {

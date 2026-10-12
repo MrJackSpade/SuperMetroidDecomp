@@ -28,7 +28,6 @@ internal static class SamusArmCannonPlacementDefinitions
     /// <summary>$90:CAD7/CAD8: later unused retracted descriptor tail, repeated at CC01..CC04 and CC0F..CC14.</summary>
     private static (int X, int Y) UnusedLaterTail => (-19, -2);
 
-    /// <summary>Tries to coordinate.</summary>
     internal static bool TryCoordinate(SamusBodyArtworkCatalog body, ushort address, out byte value)
     {
         value = 0;
@@ -184,7 +183,6 @@ internal static class SamusArmCannonPlacementDefinitions
         return true;
     }
 
-    /// <summary>Tries to owner.</summary>
     private static bool TryOwner(ushort address, out SamusPoseId pose, out int phase, out bool yComponent)
     {
         pose = 0; phase = 0; yComponent = false;

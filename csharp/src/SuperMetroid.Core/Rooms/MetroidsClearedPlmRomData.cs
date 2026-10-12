@@ -61,7 +61,6 @@ internal static class MetroidsClearedPlmRomData
         EventNumber.SecondMetroidShaftCleared,
     ];
 
-    /// <summary>Validates and get word index.</summary>
     private static int ValidateAndGetWordIndex(ushort roomArgument)
     {
         if ((roomArgument & 1) != 0 || roomArgument / 2 >= 13)

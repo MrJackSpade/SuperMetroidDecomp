@@ -41,7 +41,6 @@ public static class EnemyQuadraticSpeedDefinitions
         return (SnesSixteenSixteen.FromWhole(whole)) | fraction;
     }
 
-    /// <summary>Reads byte.</summary>
     private static byte ReadByte(int offset)
     {
         int record = offset / RecordSize;

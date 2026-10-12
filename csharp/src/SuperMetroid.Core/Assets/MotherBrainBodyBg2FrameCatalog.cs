@@ -9,13 +9,10 @@ public sealed class MotherBrainBodyBg2FrameCatalog
 {
     /// <summary>Canonical selected BG2 content identity in native pose-pointer order, retaining each write's destination, command order, and tile-run boundaries independently of JSON formatting.</summary>
     public string ContentIdentity => frames.ContentIdentity;
-    /// <summary>Stores frames.</summary>
     private readonly EnemyBg2FrameCatalog frames;
 
-    /// <summary>Initializes a new mother brain body bg2 frame catalog instance.</summary>
     private MotherBrainBodyBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
-    /// <summary>try get.</summary>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
         frames.TryGet(pointer, out writes);
 

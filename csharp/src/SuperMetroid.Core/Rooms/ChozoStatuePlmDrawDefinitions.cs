@@ -28,34 +28,27 @@ internal static class ChozoStatuePlmDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(ushort Pointer)
     {
-        /// <summary>Gets hand.</summary>
         private bool Hand => Pointer == (ushort)ChozoStatueDraw.LowerNorfairClearedHand;
-        /// <summary>Gets run count.</summary>
         internal int RunCount => Hand ? 1 : 5;
-        /// <summary>Checks run.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
-        /// <summary>Word count.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
             return Hand ? 1 : run switch { 0 => 14, 1 => 9, 2 => 2, _ => 1 };
         }
-        /// <summary>Next x.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             return !Hand && run is > 0 and < 4 ? (sbyte)5 : (sbyte)0;
         }
-        /// <summary>Next y.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return !Hand && run < 4 ? (sbyte)(run + 5) : (sbyte)0;
         }
-        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int cell)
         {
             int count = WordCount(run);
@@ -77,21 +70,18 @@ internal static class ChozoStatuePlmDrawDefinitions
         }
     }
 
-    /// <summary>Attempts to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         bool owned = Enum.IsDefined((ChozoStatueDraw)pointer);
         draw = owned ? new(pointer) : default;
         return owned;
     }
-    /// <summary>Pointers.</summary>
     private static IEnumerable<ushort> Pointers()
     {
         yield return (ushort)ChozoStatueDraw.LowerNorfairClearedHand;
         yield return (ushort)ChozoStatueDraw.ClearSlopeAccess;
         yield return (ushort)ChozoStatueDraw.BlockSlopeAccess;
     }
-    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -104,7 +94,6 @@ internal static class ChozoStatuePlmDrawDefinitions
         }
     }
     // Temporary artwork DTOs; runtime cells are calculated directly.
-    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -119,7 +108,6 @@ internal static class ChozoStatuePlmDrawDefinitions
         list = new(pointer, runs);
         return true;
     }
-    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (ushort pointer in Pointers())
@@ -128,7 +116,6 @@ internal static class ChozoStatuePlmDrawDefinitions
         return false;
     }
 
-    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<ChozoStatueDraw>(pointer, "Chozo statue draw with a visual ID") switch
         {

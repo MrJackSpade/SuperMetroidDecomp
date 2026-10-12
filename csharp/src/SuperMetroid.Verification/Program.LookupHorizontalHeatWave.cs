@@ -3,10 +3,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static DoorDefinitionsVerification;
 
-/// <summary>Represents lookup horizontal heat wave verification.</summary>
 internal static class LookupHorizontalHeatWaveVerification
 {
-    /// <summary>verify horizontal heat wave.</summary>
     internal static void VerifyHorizontalHeatWave(SuperMetroidAddressSpace rom)
     {
         short Original(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b589 + 2 * index));

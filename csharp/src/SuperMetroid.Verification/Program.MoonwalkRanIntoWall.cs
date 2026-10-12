@@ -12,7 +12,6 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 
-/// <summary>Represents moonwalk ran into wall verification.</summary>
 internal static class MoonwalkRanIntoWallVerification
 {
     /// <summary>
@@ -34,7 +33,6 @@ internal static class MoonwalkRanIntoWallVerification
         Console.WriteLine("  Moonwalk ran into wall: a right-facing moonwalk can stop in the left-facing wall pose.");
     }
 
-    /// <summary>moonwalk ran into wall command.</summary>
     [VerificationCommand("--moonwalk-ran-into-wall")]
     internal static int MoonwalkRanIntoWallCommand()
     {

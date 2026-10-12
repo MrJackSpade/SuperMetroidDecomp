@@ -15,17 +15,14 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
-/// <summary>Represents wall space pirate instruction program definitions verification.</summary>
 internal static class WallSpacePirateInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies wall space pirate instruction program definitions.</summary>
     internal static void VerifyWallSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWallSpacePirateInstructionProgramDefinitions), () => VerifyWallSpacePirateInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies wall space pirate instruction program definitions.</summary>
     internal static void VerifyWallSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -212,7 +209,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Creates open wall pirate room.</summary>
     private static RoomLevelData CreateOpenWallPirateRoom()
     {
         const int width = 32;
@@ -221,7 +217,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]), new byte[8]);
     }
 
-    /// <summary>Creates wall pirate floor room.</summary>
     private static RoomLevelData CreateWallPirateFloorRoom()
     {
         const int width = 32;
@@ -232,7 +227,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]), new byte[8]);
     }
 
-    /// <summary>Probes wall space pirate instruction mechanics allocation.</summary>
     private static int ProbeWallSpacePirateInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -244,7 +238,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New wall space pirate instruction read guard.</summary>
     private static CartridgeReadGuard NewWallSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(WallSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -252,7 +245,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             .ForbidWords(0xb20000, WallSpacePirateInstructionProgramDefinitions.PresentationWordCount, WallSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled wall Pirate frame selector ${address:X6}.");
 
-    /// <summary>Wall space pirate instruction mechanics command.</summary>
     [VerificationCommand("--wall-space-pirate-instruction-mechanics")]
     internal static int WallSpacePirateInstructionMechanicsCommand()
     {

@@ -5,10 +5,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents botwoon health palette definitions verification.</summary>
 internal static class BotwoonHealthPaletteDefinitionsVerification
 {
-    /// <summary>Verifies botwoon health palette definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palette definitions")]
     internal static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -94,7 +92,6 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
             "terminal, and malformed paths run with the threshold table forbidden.");
     }
 
-    /// <summary>New botwoon health threshold read guard.</summary>
     private static CartridgeReadGuard NewBotwoonHealthThresholdReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(BotwoonHealthPaletteDefinitions.NativeThresholdAddress, 16,
             address => $"Botwoon palette progression attempted threshold read ${address:X6}.");

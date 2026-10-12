@@ -11,7 +11,6 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
-/// <summary>Represents cpu bus code fix tests.</summary>
 internal static class CpuBusCodeFixTests
 {
     /// <summary>The SME6290 code fix rewrites only unambiguous raw reads, to the declared raw-equivalent view member (#629).</summary>

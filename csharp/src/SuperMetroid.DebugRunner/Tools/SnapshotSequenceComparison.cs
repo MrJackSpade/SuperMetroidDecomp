@@ -36,7 +36,6 @@ internal static class SnapshotSequenceComparison
         }
     }
 
-    /// <summary>Run.</summary>
     public static void Run(string directory)
     {
         // Lexically ordered, zero-padded capture names preserve the original frame

@@ -11,7 +11,6 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PlmProgramContractChecks
 {
-    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run()
     {
         var absentDraw = Audit(new Dictionary<ushort, ushort>
@@ -103,7 +102,6 @@ internal static class PlmProgramContractChecks
             "unknown opcode, cycles, reported CBBC omission, missing DMA artwork and corrected native records.");
     }
 
-    /// <summary>confirm restored records.</summary>
     private static void ConfirmRestoredRecords()
     {
         // Representative native operands from each corrected family, including
@@ -141,12 +139,10 @@ internal static class PlmProgramContractChecks
             "Rescue-wall blank frame must mutate all three vertical terrain words, not just render one block.");
     }
 
-    /// <summary>word.</summary>
     private static void Word(int address, int expected) => Require(
         RoomPlmProgramDefinitions.TryReadWord(checked((ushort)address), out ushort actual) && actual == expected,
         $"Native record $84:{address:X4} must contain ${expected:X4}.");
 
-    /// <summary>audit.</summary>
     private static PlmProgramAuditReport Audit(Dictionary<ushort, ushort> words, bool ownsDraw = true)
     {
         var report = new PlmProgramAuditReport();
@@ -156,20 +152,15 @@ internal static class PlmProgramContractChecks
         return report;
     }
 
-    /// <summary>Throws when the asserted condition is false.</summary>
     private static void Require(bool condition, string description)
     {
         if (!condition) throw new InvalidDataException("PLM audit contract failed: " + description);
     }
 }
 
-/// <summary>Represents plm audit fixture ids.</summary>
 internal static class PlmAuditFixtureIds
 {
-    /// <summary>Defines start.</summary>
     internal const ushort Start = 0xf000;
-    /// <summary>Defines absent target.</summary>
     internal const ushort AbsentTarget = 0xf100;
-    /// <summary>Defines unknown opcode.</summary>
     internal const ushort UnknownOpcode = 0xffff;
 }

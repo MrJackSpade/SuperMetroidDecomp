@@ -14,17 +14,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
-/// <summary>Represents ripper instruction program definitions verification.</summary>
 internal static class RipperInstructionProgramDefinitionsVerification
 {
-    /// <summary>Verifies ripper instruction program definitions.</summary>
     internal static void VerifyRipperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyRipperInstructionProgramDefinitions), () => VerifyRipperInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    /// <summary>Verifies ripper instruction program definitions.</summary>
     internal static void VerifyRipperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -218,7 +215,6 @@ internal static class RipperInstructionProgramDefinitionsVerification
         }
     }
 
-    /// <summary>Probes ripper instruction mechanics allocation.</summary>
     private static int ProbeRipperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -230,7 +226,6 @@ internal static class RipperInstructionProgramDefinitionsVerification
         return checksum;
     }
 
-    /// <summary>New ripper instruction program read guard.</summary>
     private static CartridgeReadGuard NewRipperInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(RipperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -239,7 +234,6 @@ internal static class RipperInstructionProgramDefinitionsVerification
                 RipperInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Ripper-family instruction byte ${address:X6}.");
 
-    /// <summary>Ripper instruction mechanics command.</summary>
     [VerificationCommand("--ripper-instruction-mechanics")]
     internal static int RipperInstructionMechanicsCommand()
     {

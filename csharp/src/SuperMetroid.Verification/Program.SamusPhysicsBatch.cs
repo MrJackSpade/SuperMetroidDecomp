@@ -19,7 +19,6 @@ using static SamusMorphBallVerification;
 using static SamusMotionCoreVerification;
 using static SamusTerrainMovementVerification;
 using static SamusTurnsAndKnockbackVerification;
-/// <summary>Represents samus physics batch verification.</summary>
 internal static class SamusPhysicsBatchVerification
 {
     /// <summary>Runs independent physics fixtures together while retaining every failure and a nonzero exit.</summary>
@@ -49,7 +48,6 @@ internal static class SamusPhysicsBatchVerification
         Console.WriteLine($"Samus physics: all {checks.Length} fixtures passed.");
     }
 
-    /// <summary>Samus physics command.</summary>
     [VerificationCommand("--samus-physics")]
     internal static int SamusPhysicsCommand()
     {

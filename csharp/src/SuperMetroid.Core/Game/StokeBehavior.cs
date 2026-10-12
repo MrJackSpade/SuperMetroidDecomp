@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,14 +6,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Stoke species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class StokeBehavior : IEnemySpecies
 {
-    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Initializes a new stoke behavior instance.</summary>
     internal StokeBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -49,10 +45,8 @@ internal sealed class StokeBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Defines stoke floor probe displacement.</summary>
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
-    /// <summary>Stores stoke states.</summary>
     internal readonly StokeEnemyState?[] _stokeStates =
         new StokeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -187,7 +181,6 @@ internal sealed class StokeBehavior : IEnemySpecies
             SetStokeInstructionList(slot, StokeInstructionProgramDefinitions.MovingRight);
     }
 
-    /// <summary>Sets stoke instruction list.</summary>
     private static void SetStokeInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -195,7 +188,6 @@ internal sealed class StokeBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
-    /// <summary>Requires stoke state.</summary>
     private StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
         _stokeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Stoke state.");
@@ -214,7 +206,6 @@ internal sealed class StokeBehavior : IEnemySpecies
         state.Direction = StokeDirection.Right;
     }
 
-    /// <summary>Register stoke projectiles.</summary>
     internal static void RegisterStokeProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -224,7 +215,6 @@ internal sealed class StokeBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.StokeFireball);
     }
 
-    /// <summary>Register stoke initialization ai.</summary>
     internal void RegisterStokeInitializationAi(EnemyAiTable table)
     {
 
@@ -234,7 +224,6 @@ internal sealed class StokeBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register stoke main ai.</summary>
     internal void RegisterStokeMainAi(EnemyAiTable table)
     {
 
@@ -244,7 +233,6 @@ internal sealed class StokeBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Register stoke owned instructions.</summary>
     internal void RegisterStokeOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

@@ -3,10 +3,8 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidBodyContourVerification;
 
-/// <summary>Represents kraid contour case mappings verification.</summary>
 internal static class KraidContourCaseMappingsVerification
 {
-    /// <summary>Native kraid body left edge.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid body contour left-edge records")]
     internal static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
     {
@@ -21,7 +19,6 @@ internal static class KraidContourCaseMappingsVerification
         throw new InvalidOperationException("Native Kraid body contour did not terminate within its records.");
     }
 
-    /// <summary>Verifies kraid body contour cases.</summary>
     internal static void VerifyKraidBodyContourCases(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -48,7 +45,6 @@ internal static class KraidContourCaseMappingsVerification
         }
     }
 
-    /// <summary>Native kraid growth resume.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth head-resume immediates")]
     internal static KraidHeadResumeDefinition NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
@@ -64,7 +60,6 @@ internal static class KraidContourCaseMappingsVerification
         return new((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
     }
 
-    /// <summary>Verifies kraid growth resume cases.</summary>
     internal static void VerifyKraidGrowthResumeCases(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

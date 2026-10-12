@@ -17,10 +17,8 @@ using static BabyMetroidRouteDefinitionsVerification;
 using static ShotBlockPlmProgramsVerification;
 using static SuiteTimingVerification;
 
-/// <summary>Represents grapple block programs verification.</summary>
 internal static class GrappleBlockProgramsVerification
 {
-    /// <summary>Verifies grapple block control mapping.</summary>
     private static void VerifyGrappleBlockControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd6a,0xcd6e,0xcd71,0xcd75,0xcd79,0xcd7d,0xcd81,0xcd85,0xcd89,0xcd8d,0xcd8f,0xcd91,
@@ -35,7 +33,6 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
-    /// <summary>Verifies grapple block draw operand mapping.</summary>
     private static void VerifyGrappleBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd6c,0xcd73,0xcd77,0xcd7b,0xcd7f,0xcd83,0xcd87,0xcd8b,
@@ -49,7 +46,6 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
-    /// <summary>Verifies grapple block sound mapping.</summary>
     private static void VerifyGrappleBlockSoundMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xcd70,0xcdaf];
@@ -62,11 +58,9 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
-    /// <summary>Grapple block sound mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple block sound mapping")]
     private static byte GrappleBlockSoundMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies grapple block physical draw mapping.</summary>
     private static void VerifyGrappleBlockPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
@@ -90,11 +84,9 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
-    /// <summary>Grapple block physical draw mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple block physical draw mapping")]
     private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Verifies grapple block stock visual mapping.</summary>
     private static void VerifyGrappleBlockStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
@@ -131,7 +123,6 @@ internal static class GrappleBlockProgramsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmGrappleBlockVisualCatalog(entries),"Grapple rejects artwork collision bits");
     }
 
-    /// <summary>Verifies grapple block programs.</summary>
     internal static void VerifyGrappleBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -186,7 +177,6 @@ internal static class GrappleBlockProgramsVerification
         Console.WriteLine($"Grapple-block PLMs: 19 control words, 2 sound bytes, and 5 draw lists match ROM; both programs run with source reads forbidden.");
     }
 
-    /// <summary>Verifies grapple block visual separation.</summary>
     private static void VerifyGrappleBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
@@ -247,7 +237,6 @@ internal static class GrappleBlockProgramsVerification
             "Grapple catalog rejects collision bits in editable data");
     }
 
-    /// <summary>Verifies grapple block visual installation.</summary>
     private static void VerifyGrappleBlockVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("grapple-block-visual");
@@ -309,11 +298,9 @@ internal static class GrappleBlockProgramsVerification
         }
     }
 
-    /// <summary>Represents grapple block fixture.</summary>
     internal sealed record GrappleBlockFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
-    /// <summary>New grapple block fixture.</summary>
     private static GrappleBlockFixture NewGrappleBlockFixture(byte bts)
     {
         const int width = 8;
@@ -327,7 +314,6 @@ internal static class GrappleBlockProgramsVerification
         return new GrappleBlockFixture(level, level.CreateBackgroundStreamer(), plms);
     }
 
-    /// <summary>Grapple block programs command.</summary>
     [VerificationCommand("--grapple-block-programs")]
     internal static int GrappleBlockProgramsCommand()
     {

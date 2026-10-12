@@ -6,10 +6,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Represents ninja space pirate palette artwork verification.</summary>
 internal static class NinjaSpacePiratePaletteArtworkVerification
 {
-    /// <summary>Verifies installed ninja space pirate palette.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ninja Space Pirate palette")]
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
@@ -98,7 +96,6 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         }
     }
 
-    /// <summary>Creates ninja palette read guard.</summary>
     private static CartridgeReadGuard NewNinjaPaletteReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .ForbidRange(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,

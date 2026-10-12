@@ -27,8 +27,8 @@ internal static class SpeedBoosterEchoStopVerification
         var libraries = (ManagedSpcSoundLibrary[])typeof(ManagedSpcPlayer)
             .GetField("soundLibraries", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(renderer.Player)!;
         var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = 0x0301;

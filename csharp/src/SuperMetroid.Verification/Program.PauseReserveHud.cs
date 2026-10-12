@@ -24,15 +24,15 @@ internal static class PauseReserveHudVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        var samus = runtime.Samus!;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        var samus = runtime.Player.Samus!;
         samus.Health = 20; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
         samus.CollectedBeams = (ushort)SamusBeamFlags.Charge;
-        runtime.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = 1 });
-        runtime.RunNmi(0, true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = 1 });
+        runtime.NmiHandler.RunNmi(0, true);
         var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
         pause.Step(0, (ushort)SnesButton.Up);

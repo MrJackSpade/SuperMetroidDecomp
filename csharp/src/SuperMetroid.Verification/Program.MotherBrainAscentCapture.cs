@@ -8,11 +8,10 @@ internal static class MotherBrainAscentCaptureVerification
     internal static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var state = runtime.Enemies.MotherBrain!;
+        var state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "No ascent mask before the native state starts it");
         state.FunctionTimer = 0;
-        typeof(RoomEnemySystem).GetMethod("PrepareMotherBrainForRising", flags)!
-            .Invoke(runtime.Enemies, [state]);
+        runtime.Enemies.MotherBrainBehavior.PrepareMotherBrainForRising(state);
         AssertTrue(state.RisingHdmaActive, "Production rising setup activates HDMA");
         var captured = Layer();
         AssertEqual(192, captured.MainScreenLayersByLine.Length, "Capture owns each gameplay scanline");
@@ -20,8 +19,7 @@ internal static class MotherBrainAscentCaptureVerification
             AssertEqual((ushort)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05),
                 captured.MainScreenLayersByLine[y - 32], $"Native $88:E73D main-screen value at line {y}");
         state.Body.Position = state.Body.Position.WithWholeY(0xbd);
-        typeof(RoomEnemySystem).GetMethod("RaiseMotherBrain", flags)!
-            .Invoke(runtime.Enemies, [state, (byte)0]);
+        runtime.Enemies.MotherBrainBehavior.RaiseMotherBrain(state);
         AssertTrue(!state.RisingHdmaActive, "Production ascent completion removes HDMA");
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "Completed ascent restores uniform main-screen selection");
         AssertEqual((ushort)5, captured.MainScreenLayersByLine[191], "Captured frame retains its own mask after the state changes");

@@ -157,13 +157,10 @@ internal static class DeadTorizoArtworkVerification
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
         var nativeTransfers = new List<VramWriteEntry>();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            installed, NewFrontendCartridgeReadGuard(installedBus));
-        MethodInfo build = typeof(RoomEnemySystem)
-            .GetMethod("BuildDeadTorizoVramTransfers", flags)!;
+        installed.BindFixtureBus(NewFrontendCartridgeReadGuard(installedBus));
 
         Action<DeadTorizoEnemyState> buildInstalled =
-            build.CreateDelegate<Action<DeadTorizoEnemyState>>(installed);
+            new Action<DeadTorizoEnemyState>(installed.DeadTorizoBehavior.BuildDeadTorizoVramTransfers);
         for (int phase = 0; phase < 2; phase++)
         {
             // $A9:D4CF increments the phase before selecting the raw descriptor table.
@@ -229,17 +226,15 @@ internal static class DeadTorizoArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTorizoArtworkReadGuard(bus);
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
-        typeof(RoomEnemySystem).GetMethod("InitializeDeadTorizo", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies)(enemies.Slots[0]);
+        enemies.BindFixtureBus(source);
+        new Action<RoomEnemySlot>(enemies.DeadTorizoBehavior.InitializeDeadTorizo)(enemies.SlotTable.Slots[0]);
         return enemies;
     }
 
     private static void CopyDeadTorizoSandLine(RoomEnemySystem enemies, ushort line)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetMethod("CopyDeadTorizoSandLine", flags)!
-            .CreateDelegate<Action<ushort>>(enemies)(line);
+        new Action<ushort>(enemies.DeadTorizoBehavior.CopyDeadTorizoSandLine)(line);
     }
 
     internal static OamBuffer DrawDeadTorizoCorpseFrame(
@@ -248,11 +243,9 @@ internal static class DeadTorizoArtworkVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
-        typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(enemies, NewDeadTorizoOamReadGuard(bus));
+        enemies.BindFixtureBus(NewDeadTorizoOamReadGuard(bus));
         var oam = new OamBuffer();
-        typeof(RoomEnemySystem).GetMethod("DrawDeadTorizoHook", flags)!
-            .CreateDelegate<Action<OamBuffer, Position16<RoomPixels>>>(enemies)(
+        new Action<OamBuffer, Position16<RoomPixels>>(enemies.DeadTorizoBehavior.DrawDeadTorizoHook)(
                 oam, camera);
         return oam;
     }

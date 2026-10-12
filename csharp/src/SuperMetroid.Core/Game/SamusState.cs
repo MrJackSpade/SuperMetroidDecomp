@@ -14,8 +14,26 @@ namespace SuperMetroid.Core.Game;
 /// or the Landing Site cinematic actor. Keeping those boundaries blunt is preferable to
 /// filling unported bank-$90 behavior with plausible-looking host code.
 /// </remarks>
-public sealed partial class SamusState
+public sealed class SamusState
 {
+    /// <summary>The <see cref="SamusHudSelection"/> owner of this SamusState.</summary>
+    internal SamusHudSelection HudSelection { get; }
+
+    /// <summary>The <see cref="SamusScriptLocks"/> owner of this SamusState.</summary>
+    internal SamusScriptLocks ScriptLocks { get; }
+
+    /// <summary>The <see cref="SamusInputSnapshot"/> owner of this SamusState.</summary>
+    internal SamusInputSnapshot InputSnapshot { get; }
+
+    /// <summary>The <see cref="SamusPresentation"/> owner of this SamusState.</summary>
+    internal SamusPresentation Presentation { get; }
+
+    /// <summary>The <see cref="SamusPoseMetadata"/> owner of this SamusState.</summary>
+    internal SamusPoseMetadata PoseMetadata { get; }
+
+    /// <summary>The <see cref="SamusPoseTransitions"/> owner of this SamusState.</summary>
+    internal SamusPoseTransitions PoseTransitions { get; }
+
 
     /// <summary>Current one-byte pose index, corresponding to WRAM <c>$0A1C</c>.</summary>
     /// <remarks>
@@ -82,7 +100,7 @@ public sealed partial class SamusState
     /// Countdown at WRAM <c>$0A94</c>. Zero and negative-after-decrement both advance,
     /// matching the original routine's BEQ/BPL pair.
     /// </summary>
-    public ushort AnimationFrameTimer { get; private set; }
+    public ushort AnimationFrameTimer { get; internal set; }
 
     /// <summary>
     /// Delay added for speed/liquid physics at WRAM <c>$0A9A</c>. The translated standing
@@ -234,8 +252,8 @@ public sealed partial class SamusState
             field = value;
             if (!value)
             {
-                StationaryScriptControlLocked = false;
-                RefillStationLocked = false;
+                ScriptLocks.StationaryScriptControlLocked = false;
+                ScriptLocks.RefillStationLocked = false;
             }
         }
     }
@@ -280,7 +298,7 @@ public sealed partial class SamusState
     /// fresh-shot normal-jump transition and `$0100` marks a moonwalk turn. Keeping the raw
     /// word visible makes both native producers and the single consumer debugger-auditable.
     /// </remarks>
-    public ushort PoseTransitionShotDirection { get; private set; }
+    public ushort PoseTransitionShotDirection { get; internal set; }
 
     /// <summary>WRAM `$0A76`; `$8000` marks Mother Brain's hyper beam as enabled.</summary>
     public ushort HyperBeam { get; set; }
@@ -424,13 +442,13 @@ public sealed partial class SamusState
     public bool KnockbackActive { get; set; }
 
     /// <summary>Bank-$91 address of the active pose's byte-oriented delay program.</summary>
-    public int AnimationDelayListAddress { get; private set; }
+    public int AnimationDelayListAddress { get; internal set; }
 
     /// <summary>
     /// Most recent high-bit delay command, or null when the last advance selected a plain
     /// delay. This is a host-only debugger watch rather than original WRAM.
     /// </summary>
-    public byte? LastAnimationDelayCommand { get; private set; }
+    public byte? LastAnimationDelayCommand { get; internal set; }
 
     /// <summary>
     /// Operand published by animation command $F8 through the native “super-special
@@ -441,7 +459,7 @@ public sealed partial class SamusState
     /// consumes it after animation, at the same pose-transition point used by the cartridge.
     /// Keeping it explicit makes the turn's final facing change visible to a debugger.
     /// </remarks>
-    public SamusPoseId? PendingTransitionalPose { get; private set; }
+    public SamusPoseId? PendingTransitionalPose { get; internal set; }
 
     /// <summary>Exact fixed-point position/radius words consumed by bank-$94 collision.</summary>
     public SamusKinematicsState Kinematics { get; }
@@ -456,6 +474,12 @@ public sealed partial class SamusState
     /// <remarks>Construction performs no cartridge reads and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
     public SamusState()
     {
+        HudSelection = new SamusHudSelection(this);
+        ScriptLocks = new SamusScriptLocks(this);
+        InputSnapshot = new SamusInputSnapshot(this);
+        Presentation = new SamusPresentation(this);
+        PoseMetadata = new SamusPoseMetadata(this);
+        PoseTransitions = new SamusPoseTransitions(this);
         Kinematics = new SamusKinematicsState(this);
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
@@ -484,12 +508,6 @@ public sealed partial class SamusState
     }
 
 
-    private enum LargerPoseCollisionOutcome
-    {
-        Allowed,
-        RetainSource,
-        CrouchFallback,
-    }
 
     /// <summary>
     /// Resolves the block-only portion of `HandlePoseChangeCollision` at `$91:FDAE` for
@@ -502,7 +520,7 @@ public sealed partial class SamusState
     /// probe restores the source pose; simultaneous initial hits select stable crouch. Solid-
     /// enemy collision is deliberately outside the current room slice, with no substitute.
     /// </remarks>
-    private LargerPoseCollisionOutcome ResolveLargerPoseCollision(
+    internal LargerPoseCollisionOutcome ResolveLargerPoseCollision(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusPoseId targetPose,
@@ -510,7 +528,7 @@ public sealed partial class SamusState
         RoomPlmSystem? plms,
         out int centerAdjustment)
     {
-        ushort targetRadius = ReadPoseYRadius(targetPose);
+        ushort targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
         if (targetRadius <= Kinematics.Radius.Y)
         {
             centerAdjustment = 0;
@@ -651,7 +669,7 @@ public sealed partial class SamusState
     /// The probe carries the pose being installed: `$91:F404` writes it to samus_pose
     /// before calling `$91:FDAE`, so the elevator pseudo-door's below-$09 gate tests it.
     /// </remarks>
-    private BlockMoveResult ProbeChangedPoseVertical(
+    internal BlockMoveResult ProbeChangedPoseVertical(
         ISnesAddressSpace bus,
         RoomLevelData level,
         int displacement,
@@ -698,17 +716,17 @@ public sealed partial class SamusState
     /// Applies `$91:FFA7`'s non-morph fallback after simultaneous above/below collision.
     /// Direction metadata selects `$27/$28`; an aimed crouch consequently loses its aim.
     /// </summary>
-    private void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, SamusPoseId sourcePose)
+    internal void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, SamusPoseId sourcePose)
     {
         ushort oldRadius = Kinematics.Radius.Y;
-        SamusPoseId fallbackPose = IsFacingLeft(bus)
+        SamusPoseId fallbackPose = PoseMetadata.IsFacingLeft(bus)
             ? SamusPoseId.CrouchingLeftPose
             : SamusPoseId.CrouchingRightPose;
         if (sourcePose == fallbackPose)
             return;
 
         Pose = fallbackPose;
-        ushort fallbackRadius = ReadPoseYRadius(fallbackPose);
+        ushort fallbackRadius = SamusPoseMetadata.ReadPoseYRadius(fallbackPose);
         // The collision fallback reads the prospective radius for center correction,
         // but leaves the live radius untouched until the next ordinary alpha phase.
         if (oldRadius < fallbackRadius)
@@ -720,7 +738,177 @@ public sealed partial class SamusState
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius))));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
-        InitializeAnimation(bus, initialFrame: 0);
+        Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
+    private ushort? _poseCollisionPreviousYPosition;
+    private int _poseAlignmentPreviousYDelta;
+    private ushort? _previousXPositionWrite;
+    // Pending writes to the previous fractions ($0B12/$0B16): bits set in a mask are replaced
+    // by the matching value bits when the checkpoint is applied. A zero mask means no write.
+    private PreviousFractionWrites _previousFractionWrites;
+
+    /// <summary>
+    /// Records a direct write of SamusPreviousXPosition ($0B10) by an owner that runs
+    /// before MainScrollingRoutine, such as the landed gunship placing Samus at $A2:A925.
+    /// Only the whole word changes; the previous X fraction ($0B12) is untouched.
+    /// </summary>
+    internal void WritePreviousXPosition(ushort xPosition) =>
+        _previousXPositionWrite = xPosition;
+
+    /// <summary>
+    /// Records a write to bits of SamusPreviousXSubPosition ($0B12): a byte store sets mask
+    /// $FF00, a word store $FFFF. Later writes this frame replace the bits they cover.
+    /// </summary>
+    internal void WritePreviousXSubposition(ushort mask, ushort value) =>
+        _previousFractionWrites = _previousFractionWrites with { X = _previousFractionWrites.X.Write(mask, value) };
+
+    /// <summary>Records a write to bits of SamusPreviousYSubPosition ($0B16), as for X.</summary>
+    internal void WritePreviousYSubposition(ushort mask, ushort value) =>
+        _previousFractionWrites = _previousFractionWrites with { Y = _previousFractionWrites.Y.Write(mask, value) };
+
+    /// <summary>
+    /// Applies $90:EC7E Samus_AlignBottomWithPrevPose after installing a new pose:
+    /// preserve the feet and shift the previous whole-Y checkpoint by the same delta.
+    /// Neither fractional word changes.
+    /// </summary>
+    internal void AlignBottomAfterPoseChange(ushort previousRadius, ushort targetRadius)
+    {
+        int delta = previousRadius - targetRadius;
+        Position += new Offset16<RoomPixels>(0, unchecked((short)delta));
+        _poseAlignmentPreviousYDelta += delta;
+    }
+
+    /// <summary>
+    /// Records a direct write of SamusPreviousYPosition ($0B14), such as bank-$91
+    /// changed-pose collision correction or MakeSamusFaceForward's lift. The previous
+    /// fraction is deliberately not changed: native writes only $0B14, not $0B16.
+    /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
+    /// </summary>
+    internal void WritePreviousYPosition(ushort correctedY)
+    {
+        _poseCollisionPreviousYPosition = correctedY;
+        _poseAlignmentPreviousYDelta = 0;
+    }
+
+    /// <summary>
+    /// The live SamusPreviousXPosition/SamusPreviousYPosition words ($0B10/$0B14): the
+    /// frame-start checkpoint with this frame's writes so far, without consuming them.
+    /// </summary>
+    internal (ushort X, ushort Y) PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => (
+        _previousXPositionWrite ?? previous.X.Whole,
+        unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
+
+    /// <summary>
+    /// Applies this frame's previous-position word writes before $90:94EC calculates
+    /// distance. Its normal tail subsequently replaces the complete checkpoint.
+    /// </summary>
+    internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
+    {
+        ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
+            + _poseAlignmentPreviousYDelta));
+        ushort xPosition = _previousXPositionWrite ?? previous.X.Whole;
+        ushort xSubposition = _previousFractionWrites.X.ApplyTo(previous.X.Fraction);
+        ushort ySubposition = _previousFractionWrites.Y.ApplyTo(previous.Y.Fraction);
+        _poseCollisionPreviousYPosition = null;
+        _poseAlignmentPreviousYDelta = 0;
+        _previousXPositionWrite = null;
+        _previousFractionWrites = default;
+        return new FixedPosition<RoomPixels>(
+            new SnesFixedPosition(xPosition, xSubposition),
+            new SnesFixedPosition(correctedY, ySubposition));
+    }
+
+    /// <summary>
+    /// Bit-masked pending writes to one previous-fraction word: bits set in
+    /// <see cref="Mask"/> are replaced by the matching <see cref="Value"/> bits on apply.
+    /// </summary>
+    private readonly record struct MaskedWordWrite(ushort Mask, ushort Value)
+    {
+        /// <summary>Records a byte ($FF00) or word ($FFFF) store; later stores replace the bits they cover.</summary>
+        public MaskedWordWrite Write(ushort mask, ushort value) =>
+            new((ushort)(Mask | mask), (ushort)((Value & ~mask) | (value & mask)));
+
+        public ushort ApplyTo(ushort word) => (ushort)((word & ~Mask) | Value);
+    }
+
+    /// <summary>The pending masked writes to both previous-fraction words as one value.</summary>
+    [SpatialComponents("Spatial value type: the pending masked writes to the previous X/Y fraction words $0B12/$0B16, one per axis.")]
+    private readonly record struct PreviousFractionWrites(MaskedWordWrite X, MaskedWordWrite Y);
+
+    /// <summary>Persistent $0A6A warning state, shared by native beta and reserve recovery.</summary>
+    public SamusHealthWarningState HealthWarning => field ??= new();
+
+    /// <summary>
+    /// Copies the inventory and energy words at WRAM $09A2-$09D8, which lie below the Samus
+    /// RAM block ($0A02 onward) that <c>InitializeSamus</c> ($91:E00D) clears. A Samus created
+    /// fresh and given these words is that routine's result for the same player.
+    /// </summary>
+    internal void CopyInventoryFrom(SamusState source)
+    {
+        Ensure.NotNull(source);
+        EquippedItems = source.EquippedItems;
+        CollectedItems = source.CollectedItems;
+        EquippedBeams = source.EquippedBeams;
+        CollectedBeams = source.CollectedBeams;
+        ReserveTankMode = source.ReserveTankMode;
+        Health = source.Health;
+        MaxHealth = source.MaxHealth;
+        Missiles = source.Missiles;
+        MaxMissiles = source.MaxMissiles;
+        SuperMissiles = source.SuperMissiles;
+        MaxSuperMissiles = source.MaxSuperMissiles;
+        PowerBombs = source.PowerBombs;
+        MaxPowerBombs = source.MaxPowerBombs;
+        MaxReserveEnergy = source.MaxReserveEnergy;
+        ReserveEnergy = source.ReserveEnergy;
+        ReserveMissiles = source.ReserveMissiles;
+    }
+
+    /// <summary>
+    /// $91:E83A/E867, called by unpause command $0C: reconcile Morph/Spring Ball
+    /// equipment without changing position, velocity, or vertical direction.
+    /// </summary>
+    public void ReconcilePauseBallEquipment(ISnesAddressSpace bus)
+    {
+        Ensure.NotNull(bus);
+        bool springEquipped = EquippedItems.HasAny(SamusEquipmentFlags.SpringBall);
+        SamusMovementType movement = PoseMetadata.ReadMovementType(bus);
+        bool enable = springEquipped && movement is
+            SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling;
+        bool disable = !springEquipped && movement is
+            SamusMovementType.SpringBallGround or SamusMovementType.SpringBallInAir or SamusMovementType.SpringBallFalling;
+        if (!enable && !disable)
+            return;
+
+        // The native handlers select the stationary pose even while airborne. Keeping
+        // ascent intact here permits the equipment-toggle mid-air Spring Ball jump.
+        bool left = PoseMetadata.IsFacingLeft(bus);
+        Pose = enable
+            ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
+            : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
+        PoseMetadata.RefreshCollisionRadii(bus);
+        // $91:F9F4/FA56 preserve animation only within the same ball family. Crossing
+        // families through the equipment menu therefore runs the normal frame-zero setup.
+        Presentation.InitializeAnimation(bus);
+    }
+
+    /// <summary>
+    /// Transition-owned WRAM $0A20-$0A27. Lazy construction also covers legacy
+    /// debugger graphs whose constructors are bypassed and which lack these words.
+    /// A legacy graph has no recoverable historical value; zero is not a claim
+    /// that its actual cartridge history was zero.
+    /// </summary>
+    public SamusPoseHistoryState PoseHistory => field ??= new();
+
+    /// <summary>
+    /// Commits current pose metadata through the native four-word history shift.
+    /// Transition owners must call this after their final pose/metadata selection,
+    /// not for intermediate assignments, rollbacks, or ordinary frame sampling.
+    /// </summary>
+    internal void CommitPoseHistory(ISnesAddressSpace bus)
+    {
+        ushort metadata = (ushort)(SnesLittleEndian.Word(PoseMetadata.ReadPoseXDirection(bus), (byte)PoseMetadata.ReadMovementType(bus)));
+        PoseHistory.CommitTransition(Pose, metadata);
+    }
 }

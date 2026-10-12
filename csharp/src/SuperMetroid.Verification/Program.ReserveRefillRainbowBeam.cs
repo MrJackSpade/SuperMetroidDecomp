@@ -29,19 +29,19 @@ internal static class ReserveRefillRainbowBeamVerification
             Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x007d)),
             Health = 0, MaxHealth = 99, ReserveEnergy = 3, MaxReserveEnergy = 100, ReserveTankMode = 1,
         };
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         typeof(SamusDrainedState).GetMethod("SetupForRainbowBeam", BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(samus.Drained, [bus, samus]);
-        AssertTrue(samus.RainbowBeamHandlersInstalled, "the rainbow beam holds Samus");
+        AssertTrue(samus.ScriptLocks.RainbowBeamHandlersInstalled, "the rainbow beam holds Samus");
 
         var recovery = new SamusReserveAutoRecoveryState();
         recovery.Begin(samus);
-        AssertTrue(!samus.StationaryScriptControlLocked, "command $1B leaves the rainbow-beam pair in place");
+        AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked, "command $1B leaves the rainbow-beam pair in place");
         ushort frame = 0;
         while (!recovery.StepAfterNmi(samus, frame++).Completed) { }
 
-        AssertTrue(samus.RainbowBeamHandlersInstalled, "command $10 leaves the rainbow beam holding Samus");
+        AssertTrue(samus.ScriptLocks.RainbowBeamHandlersInstalled, "command $10 leaves the rainbow beam holding Samus");
         Console.WriteLine("  Reserve refill under the rainbow beam: the beam's lock survives the refill.");
     }
 

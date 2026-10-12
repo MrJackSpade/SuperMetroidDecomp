@@ -24,11 +24,11 @@ internal static class AirSpikeAlphaRadiusVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        RoomLevelData level = runtime.LevelData!;
+        RoomLevelData level = runtime.Room.LevelData!;
         const int SpikeColumn = 32, SpikeRow = 29;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
@@ -42,17 +42,17 @@ internal static class AirSpikeAlphaRadiusVerification
                 ? SamusTerrainHazardRomData.DamagingSpikeAirBehavior : (byte)0);
         }
 
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(SpikeColumn * 16 + 8);
         // Radius 21 puts the top at Y 474, inside the spike row (464-479). The live radius
         // still holds the previous pose's 12, whose top (483) is in the air row below.
         samus.Position = samus.Position.WithWholeY(495);
-        samus.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.Kinematics.Radius = new(5, 12);
         samus.InvincibilityTimer = 0;
-        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         ushort health = samus.Health;
 
         runtime.StepFrame(0);

@@ -80,18 +80,15 @@ internal static class CrocomireRumbleDefinitionsVerification
             RumbleCooldown = 10,
             RumbleDelta = 1,
         };
-        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new CrocomireEnemyState(body)
         {
             DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
             StepCounter = 4,
         };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
-        MethodInfo runRumble = typeof(RoomEnemySystem).GetMethod(
-            "RunCrocomireWallRumble",
-            flags)!;
+        enemies.BindFixtureBus(guarded);
+        enemies.Presentation._cgram = cgram;
+        enemies.CrocomireBehavior.CrocomireDeath = death;
 
         ushort referenceIndex = state.StepCounter;
         ushort referenceY = death.RumbleYOffset;
@@ -108,7 +105,7 @@ internal static class CrocomireRumbleDefinitionsVerification
                 ref referenceCooldown,
                 ref referenceDelta,
                 ref referenceDeathIndex);
-            runRumble.Invoke(enemies, [state]);
+            enemies.CrocomireBehavior.RunCrocomireWallRumble(state);
             frames++;
 
             AssertEqual(referenceIndex, state.StepCounter,

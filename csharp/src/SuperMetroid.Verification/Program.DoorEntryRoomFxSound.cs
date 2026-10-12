@@ -38,20 +38,20 @@ internal static class DoorEntryRoomFxSoundVerification
                 return candidate.RoomLayer3Fx.EarthquakeRequest.HasValue;
             });
         var runtime = LoadRisingTide(entry);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door)
         {
             var loaded = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-            loaded.InitializeHud(HudSnapshot.CeresDebug);
-            loaded.InitializeStartingCeresRoom();
-            loaded.InitializeCeresStartSamus();
+            loaded.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            loaded.RoomLoader.InitializeStartingCeresRoom();
+            loaded.RoomLoader.InitializeCeresStartSamus();
             loaded.LoadCartridgeRoomThroughDoorForVerification(door);
-            loaded.Samus!.InputLocked = true;
+            loaded.Player.Samus!.InputLocked = true;
             return loaded;
         }
 
@@ -60,7 +60,7 @@ internal static class DoorEntryRoomFxSoundVerification
                 (ushort)timer.GetValue(runtime.RoomLayer3Fx)! == 0,
             _ => game.Step(0), maximumFrames: 600, context: "Rising Tide rumble timer reaches zero");
 
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
         for (int x = 0; x < level.Size.X && !selected; x++)

@@ -25,18 +25,18 @@ internal static class ItemCancelClearsChargeVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
         AssertEqual((ushort)0, samus.SelectedHudItem, "nothing is selected");
@@ -44,11 +44,11 @@ internal static class ItemCancelClearsChargeVerification
         const ushort shoot = (ushort)SnesButton.X;
         for (int frame = 0; frame < 10; frame++)
             runtime.StepFrame(shoot);
-        AssertEqual((ushort)10, runtime.Projectiles!.FlareCounter, "ten held frames charge to ten");
+        AssertEqual((ushort)10, runtime.Projectiles!.Charge.FlareCounter, "ten held frames charge to ten");
 
         runtime.StepFrame(unchecked((ushort)(shoot | (ushort)SnesButton.Y)));
         AssertEqual((ushort)0, samus.SelectedHudItem, "the cancel leaves nothing selected");
-        AssertEqual((ushort)1, runtime.Projectiles.FlareCounter,
+        AssertEqual((ushort)1, runtime.Projectiles.Charge.FlareCounter,
             "the cancel clears the charge before held Shoot counts it again");
         Console.WriteLine("  Item cancel: a Y press with nothing selected still clears the charge.");
     }

@@ -9,24 +9,24 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
-internal static partial class RepositoryInstallation
+internal static class InstalledFixtures
 {
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
-        Installation.LoadRoomCharacters(), Installation.LoadRoomPalettes(),
-        Installation.LoadRoomMetatiles(), Installation.LoadRoomVisualLayouts()));
+        RepositoryInstallation.Installation.LoadRoomCharacters(), RepositoryInstallation.Installation.LoadRoomPalettes(),
+        RepositoryInstallation.Installation.LoadRoomMetatiles(), RepositoryInstallation.Installation.LoadRoomVisualLayouts()));
 
-    private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => Installation.LoadMaps());
+    private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
 
-    private static readonly Lazy<EnemyTileArtworkCatalog> enemyTiles = new(() => Installation.LoadEnemyTiles());
+    private static readonly Lazy<EnemyTileArtworkCatalog> enemyTiles = new(() => RepositoryInstallation.Installation.LoadEnemyTiles());
 
-    private static readonly Lazy<InstalledProjectilePresentation> projectiles = new(() => Installation.LoadProjectiles());
+    private static readonly Lazy<InstalledProjectilePresentation> projectiles = new(() => RepositoryInstallation.Installation.LoadProjectiles());
 
-    private static readonly Lazy<SamusBodyArtworkCatalog> samusBody = new(() => Installation.LoadSamusBodyArt());
+    private static readonly Lazy<SamusBodyArtworkCatalog> samusBody = new(() => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
-    private static readonly Lazy<IntroCinematicArtworkCatalog> introArtwork = new(() => Installation.LoadIntroCinematicArt());
+    private static readonly Lazy<IntroCinematicArtworkCatalog> introArtwork = new(() => RepositoryInstallation.Installation.LoadIntroCinematicArt());
 
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
-        new(() => InstalledGameBindings.Create(Installation));
+        new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));
 
     /// <summary>The installation's stock room catalogs, the cartridge reference extracted from the ROM.</summary>
     internal static RoomAssetCatalogs RoomAssets => roomAssets.Value;
@@ -53,7 +53,7 @@ internal static partial class RepositoryInstallation
     internal static IntroCinematicArtworkCatalog IntroArtwork => introArtwork.Value;
 
     internal static SamusProjectileSystem CreateProjectileSystem() =>
-        new() { FrameBindings = Projectiles.FrameBindings };
+        new() { Animation = { FrameBindings = Projectiles.FrameBindings } };
 
     internal static SamusBombProjectileSystem CreateBombSystem() =>
         new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { PresentationColors = Maps.PowerBombFixedColors } };
@@ -61,13 +61,13 @@ internal static partial class RepositoryInstallation
     /// <summary>Binds the installation's suit, visor, body and grapple presentation to a standalone Samus.</summary>
     internal static SamusState BindSamus(SamusState samus)
     {
-        samus.SuitColors = Maps.SamusSuitColors;
-        samus.FullBodyCycleColors = Maps.SamusFullBodyCycleColors;
-        samus.ChargeColors = Maps.SamusChargeColors;
+        samus.Presentation.SuitColors = Maps.SamusSuitColors;
+        samus.Presentation.FullBodyCycleColors = Maps.SamusFullBodyCycleColors;
+        samus.Presentation.ChargeColors = Maps.SamusChargeColors;
         samus.VisorPalette.PresentationColors = Maps.SamusVisorColors;
         samus.Xray.PresentationColors = Maps.SamusVisorColors;
         samus.Drained.PresentationColors = Maps.SamusHyperBeamColors;
-        samus.TileTransfers.BindArtwork(SamusBody);
+        samus.Presentation.TileTransfers.BindArtwork(SamusBody);
         samus.ArmCannon.Artwork = SamusBody.ArmCannon;
         samus.Grapple.FlarePlacement = Projectiles.GrappleTiles.FlarePlacement;
         samus.Grapple.SwingFrames = Projectiles.GrappleTiles.SwingFrames;
@@ -101,9 +101,9 @@ internal static partial class RepositoryInstallation
     {
         var ending = new EndingCreditsState(bus, audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
         ending.BindFlightArtwork(IntroArtwork.CeresFlight);
-        ending.BindMode7Artwork(Installation.LoadEndingMode7Art());
-        ending.BindObjectArtwork(Installation.LoadEndingObjectArt());
-        ending.BindPaletteArtwork(Installation.LoadEndingPalettes());
+        ending.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
+        ending.BindObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
+        ending.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
         ending.BindPaletteFxColors(Maps.RoomPaletteFx);
         ending.BindEndingFont(Maps.EndingFont);
         ending.BindStaffCredits(Maps.StaffCredits);
@@ -127,10 +127,7 @@ internal static partial class RepositoryInstallation
     /// A private copy of the installation for a check that corrupts and restores stock files, so
     /// a failure part-way can never leave the shared installation edited. Disposal deletes it.
     /// </summary>
-    internal static PrivateInstallationCopy CreatePrivateCopy() => new(Installation.Root);
-
-    /// <summary>Rebinds the host catalogs to a runtime restored from a debugger state, which omits them.</summary>
-    internal static void BindRuntime(SuperMetroidRuntime runtime) => runtimeBindings.Value(runtime);
+    internal static PrivateInstallationCopy CreatePrivateCopy() => new(RepositoryInstallation.Installation.Root);
 
     /// <summary>Binds the host catalogs to a game restored from a save or debugger state.</summary>
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);

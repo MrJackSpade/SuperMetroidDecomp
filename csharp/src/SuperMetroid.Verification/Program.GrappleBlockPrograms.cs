@@ -153,9 +153,9 @@ internal static class GrappleBlockProgramsVerification
             {
                 native.Plms.Step(rom, native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                AssertEqual(native.Plms.ActiveCount, compiled.Plms.ActiveCount,
+                AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"Grapple BTS {bts} active count, frame {frame}");
-                AssertEqual(native.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
+                AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"Grapple BTS {bts} sound count, frame {frame}");
                 AssertEqual(native.Level.GetCollisionBlockByIndex(27).LevelWord,
                     compiled.Level.GetCollisionBlockByIndex(27).LevelWord,
@@ -167,7 +167,7 @@ internal static class GrappleBlockProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"Grapple BTS {bts} never rereads compiled control bytes");
-            AssertEqual(0, compiled.Plms.ActiveCount,
+            AssertEqual(0, compiled.Plms.SlotTable.ActiveCount,
                 $"Grapple BTS {bts} finishes its cartridge timeline");
         }
 
@@ -204,7 +204,7 @@ internal static class GrappleBlockProgramsVerification
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
-            var plms = new RoomPlmSystem { GrappleBlockVisuals = visuals };
+            var plms = new RoomPlmSystem { Drawing = { GrappleBlockVisuals = visuals } };
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, 1),
                 "visual test starts the real respawning Grapple PLM");
             plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });

@@ -58,13 +58,9 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         var system = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay }),
-            EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng),
+            Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
         };
-        typeof(RoomEnemySystem).GetField("_bus",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(system,
-            NewCeresEscapeTransferReadGuard(rom));
-        MethodInfo next = typeof(RoomEnemySystem).GetMethod("QueueNextCeresEscapeTransfer",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        system.BindFixtureBus(NewCeresEscapeTransferReadGuard(rom));
         foreach (ushort start in new[]
                  {
                      CeresEscapeVramTransferDefinitions.TimerSprites,
@@ -81,7 +77,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             AssertTrue(list.Length is 7 or 8, "Ceres installed transfer list length");
             for (int index = 0; index < list.Length; index++)
             {
-                bool finished = (bool)next.Invoke(system, [state, queue])!;
+                bool finished = (bool)system.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(state, queue);
                 CeresEscapeVramTransferDefinition expected = list[index];
                 AssertEqual(index == list.Length - 1, finished,
                     $"Ceres transfer ${expected.Pointer:X4} list completion");
@@ -107,9 +103,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         }
 
         var japaneseQueue = new VramWriteQueue();
-        typeof(RoomEnemySystem).GetMethod("QueueCeresTransferList",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(system,
-            [CeresEscapeVramTransferDefinitions.JapaneseOverlay, japaneseQueue]);
+        system.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay, japaneseQueue);
         AssertEqual(4, japaneseQueue.Entries.Count,
             "Ceres Japanese overlay queues four compiled transfers");
         for (int index = 0; index < 4; index++)
@@ -123,19 +117,18 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             AssertEqual(expected.DestinationWord, actual.EncodedVramDestination,
                 $"Ceres Japanese transfer {index} destination");
         }
-        system.EscapeTimerArtwork = null;
+        system.Presentation.EscapeTimerArtwork = null;
         try
         {
-            next.Invoke(system,
-                [new RidleyEnemyState
+            system.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState
                     {
                         CeresEscapeTransferListPointer =
                             CeresEscapeVramTransferDefinitions.TimerSprites,
-                    }, new VramWriteQueue()]);
+                    }, new VramWriteQueue());
             throw new InvalidOperationException(
                 "Installed Ceres escape accepted missing timer PNG artwork.");
         }
-        catch (TargetInvocationException error) when (error.InnerException is InvalidDataException)
+        catch (InvalidDataException)
         {
             // Installed presentation loss is explicit, never a ROM-art fallback.
         }

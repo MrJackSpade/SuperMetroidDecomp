@@ -18,14 +18,10 @@ internal static class TorizoInstructionVramArtworkVerification
             "installed Torizo instruction tile pages exist");
         var installedEnemies = new RoomEnemySystem { TileArtwork = stock };
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-            .SetValue(installedEnemies, NewForbiddenTorizoRomBus());
+        installedEnemies.BindFixtureBus(NewForbiddenTorizoRomBus());
         var installedVram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_vram", instanceFlags)!
-            .SetValue(installedEnemies, installedVram);
-        MethodInfo applyTransfer = typeof(RoomEnemySystem).GetMethod(
-            "ApplyEnemyInstructionVramTransfer", instanceFlags)!;
-        RoomEnemySlot installedSlot = installedEnemies.Slots[0];
+        installedEnemies.Presentation._vram = installedVram;
+        RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
         installedSlot.EnemyDefinitionPointer = EnemyDefinitionId.GoldenTorizo;
         installedSlot.Definition = default(RoomEnemyDefinition) with
         {
@@ -64,8 +60,7 @@ internal static class TorizoInstructionVramArtworkVerification
                 AssertEqual(rom.ReadCartridgeByte(transfer.SourceAddress + offset),
                     installed.Span[offset],
                     $"Torizo transfer $AA:{transfer.Instruction:X4} byte {offset:X4}");
-            applyTransfer.Invoke(installedEnemies,
-                [installedSlot, transfer.Instruction]);
+            installedEnemies.Instructions.ApplyEnemyInstructionVramTransfer(installedSlot, transfer.Instruction);
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(installed.Span[offset],
                     installedVram.ReadByte(transfer.DestinationWord * 2 + offset),
@@ -125,16 +120,13 @@ internal static class TorizoInstructionVramArtworkVerification
         AssertTrue(stockBytes.Span[1..].SequenceEqual(editedBytes.Span[1..]),
             "Golden Torizo PNG edit leaves every other tile byte intact");
         var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-            .SetValue(editedEnemies, NewForbiddenTorizoRomBus());
+        editedEnemies.BindFixtureBus(NewForbiddenTorizoRomBus());
         var editedVram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_vram", instanceFlags)!
-            .SetValue(editedEnemies, editedVram);
-        RoomEnemySlot editedSlot = editedEnemies.Slots[0];
+        editedEnemies.Presentation._vram = editedVram;
+        RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
         editedSlot.EnemyDefinitionPointer = EnemyDefinitionId.GoldenTorizo;
         editedSlot.Definition = installedSlot.Definition;
-        applyTransfer.Invoke(editedEnemies,
-            [editedSlot, GoldenTorizoInitialInstructionProgramDefinitions.Initial]);
+        editedEnemies.Instructions.ApplyEnemyInstructionVramTransfer(editedSlot, GoldenTorizoInitialInstructionProgramDefinitions.Initial);
         AssertEqual(editedBytes.Span[0], editedVram.ReadByte(0x6d00 * 2),
             "edited Golden Torizo PNG changes production VRAM upload");
         AssertTrue(EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)

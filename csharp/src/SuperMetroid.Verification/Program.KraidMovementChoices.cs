@@ -67,20 +67,18 @@ internal static class KraidMovementChoicesVerification
         }
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
-        var body = enemies.Slots[0];
+        var body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
-        var foot = enemies.Slots[5];
+        var foot = enemies.SlotTable.Slots[5];
         var part = new KraidPartState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!.SetValue(enemies, state);
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
+        enemies.KraidBehavior.Kraid = state;
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
         ushort rng = 0;
         int reads = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return rng; });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException("Movement choice must not advance RNG."));
-        var think = typeof(RoomEnemySystem).GetMethod("RunKraidSecondPhaseThinking", flags, null,
-            [typeof(RoomEnemySlot), typeof(RoomEnemySlot), typeof(KraidPartState)], null)!
-            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, KraidPartState>>(enemies);
+        Action<RoomEnemySlot, RoomEnemySlot, KraidPartState> think = enemies.KraidBehavior.RunKraidSecondPhaseThinking;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             body.Position = body.Position.WithWholeX((ushort)raw);

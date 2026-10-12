@@ -21,9 +21,8 @@ internal static class BombTorizoDroolSineVerification
     internal static void VerifyBombTorizoDroolSine(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnBombTorizoLowHealthDrool",
-            flags)!;
+        Action<RoomEnemySystem, RoomEnemySlot> spawn =
+            (enemies, torizo) => enemies.BombTorizoBehavior.SpawnBombTorizoLowHealthDrool(torizo);
 
         for (int random = byte.MinValue; random <= byte.MaxValue; random++)
         {
@@ -67,7 +66,7 @@ internal static class BombTorizoDroolSineVerification
 
     private static void VerifyBombTorizoDroolSpawn(
         SuperMetroidAddressSpace rom,
-        MethodInfo spawn,
+        Action<RoomEnemySystem, RoomEnemySlot> spawn,
         int random,
         ushort parameter1,
         int expectedIndex,
@@ -75,18 +74,16 @@ internal static class BombTorizoDroolSineVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewBombTorizoDroolSineReadGuard(rom));
+        enemies.BindFixtureBus(NewBombTorizoDroolSineReadGuard(rom));
         enemies.VerificationServices().NextRandom = (Func<ushort>)(new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue);
 
-        RoomEnemySlot torizo = enemies.Slots[0];
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));
         torizo.Parameter1 = parameter1;
 
-        spawn.Invoke(enemies, [torizo]);
+        spawn(enemies, torizo);
 
-        RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
+        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
         AssertTrue(projectile.IsActive,
             $"Bomb Torizo {scenario} random {random:X2} allocation");
         // $86:A621/$A628 index the sign-extended sine and negative-cosine tables with the

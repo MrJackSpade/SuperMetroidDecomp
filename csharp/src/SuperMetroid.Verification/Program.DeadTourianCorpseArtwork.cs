@@ -212,11 +212,10 @@ internal static class DeadTourianCorpseArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(source);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Parameter1 = parameter;
-        typeof(RoomEnemySystem).GetMethod("InitializeDeadSidehopper", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
+        new Action<RoomEnemySlot>(enemies.DeadSidehopperBehavior.InitializeDeadSidehopper)(slot);
     }
 
     private static void InitializeDeadTourianCorpseArtwork(
@@ -226,12 +225,11 @@ internal static class DeadTourianCorpseArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(source);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = definition;
         slot.Parameter1 = checked((ushort)(variant * 2));
-        typeof(RoomEnemySystem).GetMethod("InitializeDeadTourianCorpse", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
+        new Action<RoomEnemySlot>(enemies.DeadTourianBehavior.InitializeDeadTourianCorpse)(slot);
     }
 
     private static CartridgeReadGuard NewDeadTourianCorpseArtworkReadGuard(ISnesAddressSpace source) =>

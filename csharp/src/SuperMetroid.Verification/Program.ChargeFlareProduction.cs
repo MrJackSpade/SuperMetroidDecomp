@@ -29,9 +29,9 @@ internal static class ChargeFlareProductionVerification
         foreach (ushort hyper in new ushort[] { 0, 1 })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeam = hyper };
-            samus.TileTransfers.BindArtwork(body);
+            samus.Presentation.TileTransfers.BindArtwork(body);
             SamusProjectileSystem native = Create(), compiled = Create(), changed = Create();
-            for (int tick = 0; tick < 160 && native.FlareCounter != 0; tick++)
+            for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)
             {
                 var a = new OamBuffer(); var b = new OamBuffer(); var c = new OamBuffer();
                 native.HandleChargeFlareAndDraw(bus, a, samus, new(0, 0),
@@ -56,10 +56,9 @@ internal static class ChargeFlareProductionVerification
         foreach (ushort outOfTableFrame in new ushort[] { 54, 0xffff })
         {
             var invalidSelector = Create();
-            Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!
-                .GetValue(invalidSelector)!, outOfTableFrame);
+            Array.Fill(invalidSelector.Charge._flareFrames, outOfTableFrame);
             var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            subject.TileTransfers.BindArtwork(body);
+            subject.Presentation.TileTransfers.BindArtwork(body);
             var outOfTableOam = new OamBuffer();
             invalidSelector.HandleChargeFlareAndDraw(
                 guarded, outOfTableOam, subject, new(0, 0), placement: placement, compositions: stock);
@@ -67,56 +66,74 @@ internal static class ChargeFlareProductionVerification
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
         }
 
-        var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
+        var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
         roomAssets.Bind(runtime);
-        runtime.ChargeFlarePlacement = placement;
-        runtime.ChargeFlareCompositions = stock;
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Samus.Position = runtime.Samus.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 100), (ushort)(runtime.Camera.PixelPosition.Y + 100)));
-        runtime.Samus.InitializeAnimation(bus); runtime.Samus.PrimeGraphics(bus);
-        typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles, (ushort)30);
-        Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareTimers", flags)!.GetValue(runtime.Projectiles)!, (ushort)100);
+        runtime.Artwork.ChargeFlarePlacement = placement;
+        runtime.Artwork.ChargeFlareCompositions = stock;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.Player.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+        runtime.Player.Samus.Presentation.InitializeAnimation(bus); runtime.Player.Samus.Presentation.PrimeGraphics(bus);
+        typeof(BeamChargeState).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles.Charge, (ushort)30);
+        Array.Fill(runtime.Projectiles.Charge._flareTimers, (ushort)100);
         var game = new SuperMetroidGame(bus);
         var runtimeField = typeof(SuperMetroidGame).GetField("runtime", flags)!;
         runtimeField.SetValue(game, runtime);
         byte[] baseline = Draw(runtime);
-        game.BindChargeFlareCompositions(stock);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlareCompositions = stock,
+        });
         AssertTrue(baseline.SequenceEqual(Draw(runtime)), "Runtime actor pass preserves stock flare composition");
-        game.BindChargeFlareCompositions(edited);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlareCompositions = edited,
+        });
         AssertTrue(!baseline.SequenceEqual(Draw(runtime)), "Runtime actor pass emits edited flare composition");
-        game.BindChargeFlareCompositions(null);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlareCompositions = null,
+        });
         byte[] unbound = GraphDigest(game);
-        game.BindChargeFlareCompositions(stock);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlareCompositions = stock,
+        });
         byte[] bound = SerializeGraph(game);
         AssertTrue(unbound.SequenceEqual(System.Security.Cryptography.SHA256.HashData(bound)), "Charge-flare compositions are excluded from saved frontend/runtime graphs");
         using var stream = new MemoryStream(bound);
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = (SuperMetroidRuntime)runtimeField.GetValue(restored)!;
-        AssertTrue(restoredRuntime.ChargeFlareCompositions is null, "Saved state does not retain old composition content");
+        AssertTrue(restoredRuntime.Artwork.ChargeFlareCompositions is null, "Saved state does not retain old composition content");
         roomAssets.Bind(restoredRuntime);
-        restoredRuntime.MapPresentation = maps;
-        restoredRuntime.ChargeFlarePlacement = placement;
-        restoredRuntime.Samus!.TileTransfers.BindArtwork(body);
-        restoredRuntime.Samus.ArmCannon.Artwork = body.ArmCannon;
-        game.BindChargeFlareCompositions(edited); restored.BindChargeFlareCompositions(edited);
+        restoredRuntime.Artwork.MapPresentation = maps;
+        restoredRuntime.Artwork.ChargeFlarePlacement = placement;
+        restoredRuntime.Player.Samus!.Presentation.TileTransfers.BindArtwork(body);
+        restoredRuntime.Player.Samus.ArmCannon.Artwork = body.ArmCannon;
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlareCompositions = edited,
+        }); restored.BindArtwork(restored.Artwork with
+{
+    ChargeFlareCompositions = edited,
+});
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored actor pass uses current composition at saved animation state");
         Console.WriteLine($"Charge-flare production: {ticks} native/compiled/edited normal and Hyper ticks, ROM guard, state isolation and real actor restore/rebind pass.");
 
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, false });
+            target.ActorDrawing.DrawGameplayActors(false, false);
             return target.Oam.LowTable.ToArray().Concat(target.Oam.HighTable.ToArray()).Concat(BitConverter.GetBytes(target.Oam.NextByteOffset)).ToArray();
         }
         static SamusProjectileSystem Create()
         {
             var system = new SamusProjectileSystem();
-            typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(system, (ushort)30);
-            var frames = (ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!.GetValue(system)!;
+            typeof(BeamChargeState).GetProperty("FlareCounter")!.SetValue(system.Charge, (ushort)30);
+            var frames = system.Charge._flareFrames;
             Array.Fill(frames, (ushort)3);
-            Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareTimers", flags)!.GetValue(system)!, (ushort)3);
+            Array.Fill(system.Charge._flareTimers, (ushort)3);
             return system;
         }
     }

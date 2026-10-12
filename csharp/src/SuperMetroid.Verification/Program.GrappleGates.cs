@@ -30,9 +30,9 @@ internal static class GrappleGatesVerification
             // Use the cartridge's actual gate sprite maps for the observable OAM check.
             SeedRetailGateSpriteMaps(bus, retail);
             SeedEmptyRoomEnemyPopulation(bus, 0x9600);
-            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
+            var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
-            enemies.ApplyDownwardGateProjectileRequest(plms.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
+            enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(plms.Gates.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
             enemies.StepEnemyProjectiles(level, null);
             enemies.StepEnemyProjectiles(level, null);
             var oam = new OamBuffer();
@@ -56,13 +56,13 @@ internal static class GrappleGatesVerification
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
                 StepDownwardGatePlm(plms, bus, level, streamer);
-                AssertEqual(0, plms.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
+                AssertEqual(0, plms.Gates.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
                 enemies.StepEnemyProjectiles(level, null);
                 enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
                 AssertTrue(oam.LowTable[..oam.NextByteOffset].SequenceEqual(expected),
                     $"green gate OAM remains visible and identical on {trigger} frame {frame}");
                 if (frame == 2)
-                    AssertTrue(plms.SoundRequests.Any(r => r.SoundEffect == SoundEffectId.FromCartridge(
+                    AssertTrue(plms.Sounds.SoundRequests.Any(r => r.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2, DownwardGatePlmRomData.RejectedShotSound)), "rejected grapple emits gate dud sound");
             }
         }

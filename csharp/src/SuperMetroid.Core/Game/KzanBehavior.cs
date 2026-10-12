@@ -1,0 +1,309 @@
+﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>The Kzan species owner: its per-room state, AI routines and the interactions it registers.</summary>
+internal sealed class KzanBehavior : IEnemySpecies
+{
+    private readonly EnemySlotTable _slotTable;
+
+    internal KzanBehavior(EnemySlotTable slotTable)
+    {
+        _slotTable = slotTable;
+    }
+
+    private const ushort KzanLandingSoundEffect = 0x001b;
+    private const ushort KzanNtscRiseWaitFrames = 0x0040;
+    private const ushort KzanNtscRisingSubspeed = 0x8000;
+    private const ushort KzanMaximumFallingSpeedTableOffset = 0x0200;
+
+    internal readonly KzanEnemyState?[] _kzanStates =
+        new KzanEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    internal readonly ushort[] _kzanFallWaitTimerResetValues = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    internal readonly ushort[] _kzanPreviousYPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    internal readonly ushort[] _kzanFallingYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    internal readonly ushort[] _kzanRiseWaitTimers = new ushort[RoomEnemySystem.MaximumEnemyCount];
+
+    /// <summary>Ports <c>InitAI_KzanTop</c> at <c>$A6:8B2F</c>.</summary>
+    internal void InitializeKzanTop(RoomEnemySlot slot)
+    {
+        var state = new KzanEnemyState(
+            slot,
+            _kzanFallWaitTimerResetValues,
+            _kzanPreviousYPositions,
+            _kzanFallingYSpeedTableIndexes,
+            _kzanRiseWaitTimers);
+        _kzanStates[slot.SlotIndex] = state;
+
+        slot.CurrentInstruction = KzanInstructionProgramDefinitions.Idle;
+        slot.InstructionTimer = 1;
+        slot.Timer = 0;
+        state.Function = KzanEnemyFunction.WaitingToFall;
+
+        // init0's low byte is a logical speed-table index. The 65C816 multiplies it by
+        // eight with three ASLs and permits word wrapping; do the same before reading the
+        // cartridge table. Retail values include $40, selecting its final NTSC entry.
+        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter1)) << 3));
+        state.FallingYSpeedTableIndex = speedTableOffset;
+        (short initialWhole, ushort initialFraction) = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
+        state.InitialFallingYSubspeed = initialFraction;
+        state.InitialFallingYSpeed = unchecked((ushort)initialWhole);
+
+        // init1 packs two unrelated bytes: the high byte is fall distance in pixels and the
+        // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
+        // on its first DEC rather than triggering immediately.
+        state.FallingTargetYPosition = unchecked((ushort)(
+            slot.Position.Y.Whole + (SnesLittleEndian.HighByte(slot.Parameter2))));
+        state.RisingTargetYPosition = slot.Position.Y.Whole;
+        state.FallWaitTimerResetValue = unchecked((byte)slot.Parameter2);
+        state.FallWaitTimer = state.FallWaitTimerResetValue;
+    }
+
+    /// <summary>Ports <c>InitAI_KzanBottom</c> at <c>$A6:8B85</c>.</summary>
+    private void InitializeKzanBottom(RoomEnemySlot slot) => FollowKzanTop(slot);
+
+    /// <summary>Ports <c>MainAI_KzanBottom</c> at <c>$A6:8B99</c>.</summary>
+    private void RunKzanBottomMain(RoomEnemySlot slot) => FollowKzanTop(slot);
+
+    /// <summary>
+    /// Reproduces the literal <c>Enemy[-1]</c> reads. Retail populations always place the
+    /// bottom immediately after its top; only slot zero is rejected because there is no
+    /// managed representation of the unrelated WRAM that malformed data would under-read.
+    /// </summary>
+    private void FollowKzanTop(RoomEnemySlot bottom)
+    {
+        if (bottom.SlotIndex == 0)
+            throw new InvalidDataException("Kzan bottom cannot occupy enemy slot zero.");
+
+        RoomEnemySlot precedingSlot = _slotTable._slots[bottom.SlotIndex - 1];
+        bottom.Position = bottom.Position.WithWhole(new(precedingSlot.Position.X.Whole, unchecked((ushort)(precedingSlot.Position.Y.Whole + 12))));
+    }
+
+    /// <summary>Ports the indirect <c>MainAI_KzanTop</c> dispatcher at <c>$A6:8BAD</c>.</summary>
+    private void RunKzanTopMain(
+        RoomEnemySlot slot,
+        KzanEnemyState state,
+        SamusState? samus)
+    {
+        switch (state.Function)
+        {
+            case KzanEnemyFunction.WaitingToFall:
+                RunKzanWaitingToFall(slot, state);
+                return;
+
+            case KzanEnemyFunction.Falling:
+                RunKzanFalling(slot, state, samus);
+                return;
+
+            case KzanEnemyFunction.WaitingToRise:
+                RunKzanWaitingToRise(state);
+                return;
+
+            case KzanEnemyFunction.Rising:
+                RunKzanRising(slot, state, samus);
+                return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Kzan function $A6:{(ushort)state.Function:X4} is not translated.");
+        }
+    }
+
+    /// <summary>Ports <c>Function_Kzan_WaitingToFall</c> at <c>$A6:8BB4</c>.</summary>
+    private static void RunKzanWaitingToFall(RoomEnemySlot slot, KzanEnemyState state)
+    {
+        state.FallWaitTimer = unchecked((ushort)(state.FallWaitTimer - 1));
+        if (state.FallWaitTimer != 0)
+            return;
+
+        state.FallWaitTimer = state.FallWaitTimerResetValue;
+        state.FallingYSpeedTableIndex = unchecked((ushort)(
+            (SnesLittleEndian.LowByte(slot.Parameter1)) << 3));
+        state.Function = KzanEnemyFunction.Falling;
+    }
+
+    /// <summary>Ports <c>Function_Kzan_Falling</c> at <c>$A6:8BDC</c>.</summary>
+    private void RunKzanFalling(
+        RoomEnemySlot slot,
+        KzanEnemyState state,
+        SamusState? samus)
+    {
+        state.PreviousYPosition = slot.Position.Y.Whole;
+        (short wholeSpeed, ushort fractionalSpeed) =
+            EnemyMath.ReadLinearEnemySpeed(state.FallingYSpeedTableIndex);
+        AddKzanY(slot, wholeSpeed, fractionalSpeed);
+
+        // CMP/BMI tests only the sign bit of the wrapped subtraction. That is intentionally
+        // not a host integer >= comparison; coordinates near the word boundary retain the
+        // same cartridge behavior.
+        if (!EnemyMath.IsNegative16(slot.Position.Y.Whole - state.FallingTargetYPosition))
+        {
+            state.RiseWaitTimer = KzanNtscRiseWaitFrames;
+            state.Function = KzanEnemyFunction.WaitingToRise;
+            slot.Position = slot.Position.WithWholeY(state.FallingTargetYPosition);
+            LastKzanSoundEffect = KzanLandingSoundEffect;
+        }
+
+        CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
+
+        state.FallingYSpeedTableIndex = unchecked((ushort)(
+            state.FallingYSpeedTableIndex + 8));
+        if (!EnemyMath.IsNegative16(
+                state.FallingYSpeedTableIndex - KzanMaximumFallingSpeedTableOffset))
+        {
+            state.FallingYSpeedTableIndex = KzanMaximumFallingSpeedTableOffset;
+        }
+    }
+
+    /// <summary>Ports <c>Function_Kzan_WaitingToRise</c> at <c>$A6:8C4A</c>.</summary>
+    private static void RunKzanWaitingToRise(KzanEnemyState state)
+    {
+        state.RiseWaitTimer = unchecked((ushort)(state.RiseWaitTimer - 1));
+        if (state.RiseWaitTimer == 0)
+            state.Function = KzanEnemyFunction.Rising;
+    }
+
+    /// <summary>Ports <c>Function_Kzan_Rising</c> at <c>$A6:8C5D</c>.</summary>
+    private static void RunKzanRising(
+        RoomEnemySlot slot,
+        KzanEnemyState state,
+        SamusState? samus)
+    {
+        state.PreviousYPosition = slot.Position.Y.Whole;
+
+        // The NTSC build rises by exactly 0.8000h pixels per actor frame. Perform the same
+        // split SEC/SBC so a fractional borrow decrements the whole position word.
+        SubtractKzanY(slot, wholeSpeed: 0, KzanNtscRisingSubspeed);
+        if (EnemyMath.IsNegative16(slot.Position.Y.Whole - state.RisingTargetYPosition))
+        {
+            state.Function = KzanEnemyFunction.WaitingToFall;
+            slot.Position = slot.Position.WithWholeY(state.RisingTargetYPosition);
+        }
+
+        CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
+    }
+
+    /// <summary>Adds the native <c>[$14].[$12]</c> split pair to enemy Y.</summary>
+    private static void AddKzanY(
+        RoomEnemySlot slot,
+        short wholeSpeed,
+        ushort fractionalSpeed)
+    {
+        uint fractionalSum = (uint)slot.Position.Y.Fraction + fractionalSpeed;
+        slot.Position = slot.Position.WithFractionY(unchecked((ushort)fractionalSum));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
+            slot.Position.Y.Whole + wholeSpeed + (fractionalSum > ushort.MaxValue ? 1 : 0))));
+    }
+
+    /// <summary>Subtracts the native <c>[$14].[$12]</c> split pair from enemy Y.</summary>
+    private static void SubtractKzanY(
+        RoomEnemySlot slot,
+        ushort wholeSpeed,
+        ushort fractionalSpeed)
+    {
+        bool borrowed = slot.Position.Y.Fraction < fractionalSpeed;
+        slot.Position = slot.Position.WithFractionY(unchecked((ushort)(slot.Position.Y.Fraction - fractionalSpeed)));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
+            slot.Position.Y.Whole - wholeSpeed - (borrowed ? 1 : 0))));
+    }
+
+    /// <summary>
+    /// Ports Kzan's private copy of <c>CheckIfEnemyIsTouchingSamusFromBelow</c>. Its only
+    /// difference from the common helper is the five-pixel shifted Y sample. Horizontal
+    /// overlap is strict; vertical tangency is accepted after the shifted center test.
+    /// </summary>
+    private static bool IsKzanTouchingSamusFromBelow(
+        RoomEnemySlot slot,
+        SamusState samus)
+    {
+        int xDistance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
+        if (xDistance >= samus.Kinematics.Radius.X + slot.Radius.X)
+            return false;
+
+        short shiftedYDelta = unchecked((short)(
+            unchecked((ushort)(samus.Position.Y.Whole + 5 - slot.Position.Y.Whole))));
+        if (shiftedYDelta >= 0)
+            return false;
+
+        int yDistance = Math.Abs((int)shiftedYDelta);
+        if (yDistance < samus.Kinematics.Radius.Y)
+            return true;
+
+        return yDistance - samus.Kinematics.Radius.Y <= slot.Radius.Y;
+    }
+
+    /// <summary>
+    /// Adds only the accepted whole-pixel Kzan delta to WRAM-equivalent <c>$0B5C</c>.
+    /// Native code deliberately leaves extra Y subdisplacement untouched.
+    /// </summary>
+    private static void CarrySamusWithKzanIfTouchingFromBelow(
+        RoomEnemySlot slot,
+        KzanEnemyState state,
+        SamusState? samus)
+    {
+        if (samus is null || !IsKzanTouchingSamusFromBelow(slot, samus))
+            return;
+
+        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - state.PreviousYPosition));
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
+    }
+
+    private KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
+        _kzanStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} has no initialized Kzan-top state.");
+
+    internal void RegisterKzanInitializationAi(EnemyAiTable table)
+    {
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_KzanTop, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeKzanTop(slot);
+        });
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_KzanBottom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanBottom, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeKzanBottom(slot);
+        });
+    }
+
+    internal void RegisterKzanMainAi(EnemyAiTable table)
+    {
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_KzanTop, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop, (slot, frame, nmiFrameCounter8) =>
+        {
+            RunKzanTopMain(slot, RequireKzanState(slot), frame.Samus);
+        });
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_KzanBottom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanBottom, (slot, frame, nmiFrameCounter8) =>
+        {
+            RunKzanBottomMain(slot);
+        });
+    }
+
+    /// <summary>Last library-two Kzan landing sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>
+    public ushort? LastKzanSoundEffect { get; private set; }
+
+    /// <inheritdoc/>
+    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    {
+        LastKzanSoundEffect = null;
+        Array.Clear(_kzanStates);
+        Array.Clear(_kzanFallWaitTimerResetValues);
+        Array.Clear(_kzanPreviousYPositions);
+        Array.Clear(_kzanFallingYSpeedTableIndexes);
+        Array.Clear(_kzanRiseWaitTimers);
+    }
+
+    /// <inheritdoc/>
+    public void BeginEnemyFrame(RoomEnemyFrame frame)
+    {
+        LastKzanSoundEffect = null;
+    }
+
+    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
+    internal void QueueLegacySounds(EnemyAudioQueue audio)
+    {
+        audio.QueueLegacySound(LastKzanSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+    }
+}

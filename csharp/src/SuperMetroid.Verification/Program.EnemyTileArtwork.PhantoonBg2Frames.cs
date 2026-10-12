@@ -213,8 +213,8 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
         slot.Definition = default(RoomEnemyDefinition) with
         {
@@ -224,9 +224,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
             [slot, target, new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
-        bool found = (bool)typeof(RoomEnemySystem)
-            .GetMethod("TryFindExtendedHitboxCallback", flags)!
-            .Invoke(enemies, arguments)!;
+        bool found = ExtendedHitboxWalker.Find(enemies, arguments);
         return found ? (ushort)arguments[4]! : (ushort)0;
     }
 
@@ -237,12 +235,10 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        var queues = (List<ushort>[])typeof(RoomEnemySystem)
-            .GetField("_drawQueues", flags)!.GetValue(enemies)!;
-        queues[0].Add(0);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        enemies.Presentation._vram = vram;
+        enemies.Drawing.Enqueue(0, 0);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
         slot.Definition = default(RoomEnemyDefinition) with
         {
@@ -255,7 +251,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 EnemyExtraProperties.NewInstructionFrame);
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
-        enemies.DrawLayers(new OamBuffer(), new(0, 0), 0, 0);
+        enemies.Drawing.DrawLayers(new OamBuffer(), new(0, 0), 0, 0);
         return vram.Bytes.ToArray();
     }
 }

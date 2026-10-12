@@ -41,16 +41,14 @@ internal static class CeresDoorQuakeDefinitionsVerification
         var guarded = NewCeresDoorQuakeReadGuard(rom);
         var enemies = new RoomEnemySystem
         {
-            CeresStatus = 1,
-            TileArtwork = RepositoryInstallation.EnemyTiles,
+            RidleyEncounter = { CeresStatus = 1 },
+            TileArtwork = InstalledFixtures.EnemyTiles,
         };
-        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
+        enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
-        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(
-            enemies,
-            new RidleyEnemyState { MovementAnimationEnabled = 0 });
-        RoomEnemySlot door = enemies.Slots[1];
+        enemies.BindFixtureBus(guarded);
+        enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
+        RoomEnemySlot door = enemies.SlotTable.Slots[1];
         door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
         door.VariableB = 1;
         door.Position = door.Position.WithWhole(new(100, 80));
@@ -62,26 +60,25 @@ internal static class CeresDoorQuakeDefinitionsVerification
         int? baseX = null;
         for (ushort phase = 0; phase < expectedOffsets.Length; phase++)
         {
-            enemies.EarthquakeTimer = phase;
+            enemies.Earthquake.EarthquakeTimer = phase;
             var oam = new OamBuffer();
             oam.BeginFrame();
-            enemies.DrawCeresRidleyImmediateBabyAndDoor(oam, new(0, 0));
+            enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(oam, new(0, 0));
             oam.FinalizeFrame();
             baseX ??= oam.GetEntry(0).X;
             AssertEqual(baseX.Value + expectedOffsets[phase], oam.GetEntry(0).X,
                 $"Ceres private door production OAM phase {phase}");
         }
 
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            NewCeresDoorQuakeReadGuard(rom, blockOverlay: true));
-        enemies.EarthquakeTimer = 0;
+        enemies.BindFixtureBus(NewCeresDoorQuakeReadGuard(rom, blockOverlay: true));
+        enemies.Earthquake.EarthquakeTimer = 0;
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();
         DrawImportedEnemySpritemap(rom, nativeOverlay, new EnemySpritemapDraw { Bank = 0xa6, Pointer = 0xa329, Origin = new(100, 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
         nativeOverlay.FinalizeFrame();
         var installedOverlay = new OamBuffer();
         installedOverlay.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(installedOverlay, new(0, 0));
+        enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(installedOverlay, new(0, 0));
         installedOverlay.FinalizeFrame();
         AssertTrue(nativeOverlay.ImageEquals(installedOverlay),
             "Ceres private overlay matches native OAM with ROM frame reads forbidden");
@@ -99,7 +96,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
                 new MemoryStream(editedJson, writable: false)) });
         var editedOverlay = new OamBuffer();
         editedOverlay.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(editedOverlay, new(0, 0));
+        enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(editedOverlay, new(0, 0));
         editedOverlay.FinalizeFrame();
         AssertEqual(nativeOverlay.GetEntry(0).X, editedOverlay.GetEntry(0).X,
             "private-overlay visual edit preserves the native quake/X coordinate");

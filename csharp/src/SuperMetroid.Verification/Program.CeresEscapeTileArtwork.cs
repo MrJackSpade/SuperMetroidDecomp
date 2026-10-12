@@ -33,12 +33,10 @@ internal static class CeresEscapeTileArtworkVerification
         var installed = new RoomEnemySystem
         {
             TileArtwork = stock,
-            EscapeTimerArtwork = timer,
+            Presentation = { EscapeTimerArtwork = timer },
         };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed, guarded);
-        MethodInfo next = typeof(RoomEnemySystem).GetMethod(
-            "QueueNextCeresEscapeTransfer", flags)!;
+        installed.BindFixtureBus(guarded);
         var installedQueue = new VramWriteQueue();
         foreach (ushort start in new[]
                  {
@@ -50,8 +48,7 @@ internal static class CeresEscapeTileArtworkVerification
             bool finished;
             do
             {
-                finished = (bool)next.Invoke(installed,
-                    [state, installedQueue])!;
+                finished = (bool)installed.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(state, installedQueue);
             } while (!finished);
         }
         AssertEqual(15, installedQueue.Entries.Count,
@@ -114,16 +111,16 @@ internal static class CeresEscapeTileArtworkVerification
         var editedEnemies = new RoomEnemySystem
         {
             TileArtwork = edited,
-            EscapeTimerArtwork = timer,
+            Presentation = { EscapeTimerArtwork = timer },
         };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(editedEnemies, guarded);
+        editedEnemies.BindFixtureBus(guarded);
         var editedState = new RidleyEnemyState
         {
             CeresEscapeTransferListPointer =
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
         };
         var editedQueue = new VramWriteQueue();
-        _ = next.Invoke(editedEnemies, [editedState, editedQueue]);
+        _ = editedEnemies.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(editedState, editedQueue);
         var editedVram = new SnesVram();
         editedQueue.DrainTo(editedVram, ReferenceMutableMemory.From(guarded),
             new CeresEscapeArtworkProvider(edited, timer));
@@ -149,21 +146,20 @@ internal static class CeresEscapeTileArtworkVerification
         var missing = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
-            EscapeTimerArtwork = timer,
+            Presentation = { EscapeTimerArtwork = timer },
         };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(missing, guarded);
+        missing.BindFixtureBus(guarded);
         try
         {
-            next.Invoke(missing,
-                [new RidleyEnemyState
+            missing.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState
                     {
                         CeresEscapeTransferListPointer =
                             CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
-                    }, new VramWriteQueue()]);
+                    }, new VramWriteQueue());
             throw new InvalidOperationException(
                 "Installed Ceres transfer accepted missing character artwork.");
         }
-        catch (TargetInvocationException error) when (error.InnerException is InvalidDataException)
+        catch (InvalidDataException)
         {
             // Missing installed art must not silently fall back to cartridge bytes.
         }

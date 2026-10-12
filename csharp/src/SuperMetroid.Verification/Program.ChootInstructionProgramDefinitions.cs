@@ -41,16 +41,12 @@ internal static class ChootInstructionProgramDefinitionsVerification
         var guard = NewChootInstructionProgramReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         Type enemySystemType = typeof(RoomEnemySystem);
-        enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = enemySystemType.GetMethod("InitializeChoot", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var prepareJump = enemySystemType.GetMethod("PrepareChootJump", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ChootEnemyState>>();
-        var runJump = enemySystemType.GetMethod("RunChootJump", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ChootEnemyState>>();
-        MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.ChootBehavior.InitializeChoot);
+        var prepareJump = new Action<RoomEnemySlot, ChootEnemyState>(ChootBehavior.PrepareChootJump);
+        var runJump = new Action<RoomEnemySlot, ChootEnemyState>(ChootBehavior.RunChootJump);
 
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Choot;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.Parameter1 = 0x0001;
@@ -63,7 +59,6 @@ internal static class ChootInstructionProgramDefinitionsVerification
 
         RunChootInstructionProgram(
             enemies,
-            process,
             processArguments,
             slot,
             ChootInstructionProgramDefinitions.Idle,
@@ -77,7 +72,6 @@ internal static class ChootInstructionProgramDefinitionsVerification
             "Choot real preparation handoff installs jumping program");
         RunChootInstructionProgram(
             enemies,
-            process,
             processArguments,
             slot,
             ChootInstructionProgramDefinitions.Jumping,
@@ -91,7 +85,6 @@ internal static class ChootInstructionProgramDefinitionsVerification
             "Choot real apex handoff installs falling program");
         RunChootInstructionProgram(
             enemies,
-            process,
             processArguments,
             slot,
             ChootInstructionProgramDefinitions.Falling,
@@ -124,7 +117,6 @@ internal static class ChootInstructionProgramDefinitionsVerification
 
     private static void RunChootInstructionProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         object?[] processArguments,
         RoomEnemySlot slot,
         ushort entry,
@@ -134,10 +126,10 @@ internal static class ChootInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < timedFrameCount; frame++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         }
         slot.InstructionTimer = 1;
-        process.Invoke(enemies, processArguments);
+        EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(entry + timedFrameCount * 4 + 2)),
             slot.CurrentInstruction,
             "Choot program reaches terminal sleep");

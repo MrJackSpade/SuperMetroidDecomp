@@ -29,7 +29,7 @@ internal static class BombChargeRejectionVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
                 ProjectileFlareCounter = charge,
             };
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             var bombs = CreateBombFixture();
             // Down postpones a valid full-charge spread. The no-edge rejection below
             // therefore belongs only to the ordinary-bomb/Power-Bomb helper, not to

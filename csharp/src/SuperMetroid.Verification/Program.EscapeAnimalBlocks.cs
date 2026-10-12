@@ -28,9 +28,9 @@ internal static class EscapeAnimalBlocksVerification
         var system = new Bank80SystemState();
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
-        plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         int origin = level.GetBlockIndex(new(15, 10));
-        plms.SetupCrittersEscapeBlock(level, origin);
+        plms.EscapeAnimals.SetupCrittersEscapeBlock(level, origin);
         AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "rescue origin is shootable BTS 4F");
         for (int y = 11; y <= 12; y++)
             AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(15, checked((ushort)y))).LevelWord, "rescue extensions preserve visual tile");
@@ -38,12 +38,12 @@ internal static class EscapeAnimalBlocksVerification
         {
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(248, (ushort)(y * 16 + 8))) };
             SeedStationaryGrappleCollisionProbe(bus, samus);
-            int before = plms.ActiveCount;
+            int before = plms.SlotTable.ActiveCount;
             SamusGrappleMovement.StepFiring(bus, level, samus,
                 (ushort)SuperMetroid.Core.Input.SnesButton.X, plms);
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");
-            AssertEqual(before, plms.ActiveCount, "zero grapple word cannot allocate the rescue animation");
+            AssertEqual(before, plms.SlotTable.ActiveCount, "zero grapple word cannot allocate the rescue animation");
             AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "grapple leaves rescue wall intact");
             AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "grapple alone cannot rescue animals");
         }

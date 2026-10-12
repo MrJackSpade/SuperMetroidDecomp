@@ -9,9 +9,7 @@ internal static class EnemyLinearSpeedsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled linear enemy speeds")]
     internal static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        var shared = typeof(RoomEnemySystem).GetMethod("ReadLinearEnemySpeed",
-            BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<ushort, (short Whole, ushort Fraction)>>();
+        Func<ushort, (short Whole, ushort Fraction)> shared = EnemyMath.ReadLinearEnemySpeed;
         // Every possible four-byte window, including odd offsets and windows
         // crossing record boundaries, matches independent cartridge bytes.
         for (int offset = 0; offset <= 516; offset++)
@@ -31,17 +29,12 @@ internal static class EnemyLinearSpeedsVerification
         var enemies = new RoomEnemySystem();
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Stoke and Ripper do not need any bus for their speed setup.
-        typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(enemies, new TestAddressSpace());
-        Action<RoomEnemySlot> Initializer(string name) => typeof(RoomEnemySystem)
-            .GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var cacatac = Initializer("InitializeCacatac");
-        var owtch = Initializer("InitializeOwtch");
-        var stoke = Initializer("InitializeStoke");
-        var ripper = typeof(RoomEnemySystem).GetMethod("LoadRipperVelocity",
-            BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<Action<RoomEnemySlot, bool>>();
-        var slot = enemies.Slots[0];
+        enemies.BindFixtureBus(new TestAddressSpace());
+        var cacatac = new Action<RoomEnemySlot>(enemies.CacatacBehavior.InitializeCacatac);
+        var owtch = new Action<RoomEnemySlot>(enemies.OwtchBehavior.InitializeOwtch);
+        var stoke = new Action<RoomEnemySlot>(enemies.StokeBehavior.InitializeStoke);
+        Action<RoomEnemySlot, bool> ripper = RipperBehavior.LoadRipperVelocity;
+        var slot = enemies.SlotTable.Slots[0];
         for (int index = 0; index < 65; index++)
         {
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + index * 8)), rightFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + index * 8));

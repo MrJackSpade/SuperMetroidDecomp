@@ -161,12 +161,12 @@ internal static class RoomFxAnimatedTileArtworkVerification
             "stock room-FX atlas resolves the Wrecked Ship treadmill frame");
         AssertTrue(!editedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
             "edited treadmill pixels compile to a distinct installed NMI frame");
-        var runtime = new SuperMetroidRuntime(guarded, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = changed };
+        var runtime = new SuperMetroidRuntime(guarded, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = changed } };
         runtime.WreckedShipTreadmill.Start(guarded,
             WreckedShipTreadmillDirection.Rightwards);
         runtime.WreckedShipTreadmill.Step(guarded, areaBossDefeated: true,
             runtime.VramWrites);
-        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime);
+        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime.Artwork);
         AssertEqual(editedTreadmill.Span[0], runtime.Vram.ReadByte(
                 WreckedShipTreadmillRomData.EncodedVramDestination * 2),
             "edited treadmill pixel reaches the production runtime NMI destination");

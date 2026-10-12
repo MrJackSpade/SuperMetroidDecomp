@@ -50,20 +50,19 @@ internal static class KraidNailSiblingVerification
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!.SetValue(enemies, state);
-        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.KraidBehavior.Kraid = state;
+        enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException("Nail initialization must not advance RNG."));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeKraidNailFlight", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, KraidPartState>>(enemies);
+        Action<RoomEnemySlot, KraidPartState> initialize = enemies.KraidBehavior.InitializeKraidNailFlight;
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         foreach (ushort siblingFlag in new ushort[] { 0, 1, 2, 65535 })
         {
-            var nail = enemies.Slots[slot];
-            var sibling = enemies.Slots[13 - slot];
+            var nail = enemies.SlotTable.Slots[slot];
+            var sibling = enemies.SlotTable.Slots[13 - slot];
             var part = state.Parts[slot];
             random = (ushort)raw;
             sibling.VariableE = (ushort)raw;

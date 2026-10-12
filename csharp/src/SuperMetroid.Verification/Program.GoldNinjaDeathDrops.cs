@@ -22,12 +22,12 @@ internal static class GoldNinjaDeathDropsVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MetalPirates);
-        var samus = runtime.Samus!;
-        RoomEnemySlot pirate = runtime.Enemies.Slots.First(slot =>
+        var samus = runtime.Player.Samus!;
+        RoomEnemySlot pirate = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja);
         samus.InputLocked = true;
         // The Gold Ninja is invincible in almost every frame. Install
@@ -38,7 +38,7 @@ internal static class GoldNinjaDeathDropsVerification
         pirate.SpritemapPointer = normalShotFrame;
         pirate.InstructionTimer = 0x7fff;
         pirate.Health = 1;
-        runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
         (ushort X, ushort Y) target = (pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Slots[0];
@@ -46,11 +46,11 @@ internal static class GoldNinjaDeathDropsVerification
         shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
         shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
-        runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: pirate.NativeIndex);
         AssertEqual((ushort)0, pirate.Health, "the shot kills the Gold Ninja Pirate");
 
-        var projectiles = runtime.Enemies.EnemyProjectiles;
+        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         int explosion = projectiles.Count - 1;
         while (explosion >= 0 && projectiles[explosion].Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
             explosion--;

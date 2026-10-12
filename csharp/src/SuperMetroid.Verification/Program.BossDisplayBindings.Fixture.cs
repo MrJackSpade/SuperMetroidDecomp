@@ -13,7 +13,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         internal SnesVram Vram { get; } = new();
         internal RoomEnemySystem Enemies { get; }
-        internal RoomEnemySlot Actor => Enemies.Slots[0];
+        internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort> instructions;
         private readonly HitboxQuery hitbox;
         private delegate bool HitboxQuery(RoomEnemySlot actor, Position16<RoomPixels> position,
@@ -22,7 +22,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork)
         {
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
-            Bind("_bus", Memory); Bind("_vram", Vram); Bind("_cgram", new SnesCgram());
+            Enemies.BindFixtureBus(Memory); Enemies.Presentation._vram = Vram; Enemies.Presentation._cgram = new SnesCgram();
             Actor.EnemyDefinitionPointer = definition;
             Actor.Definition = RoomEnemyDefinitionCatalog.Get(definition);
             Actor.AiBank = Actor.Definition.Bank;
@@ -30,12 +30,9 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Properties = (ushort)EnemyProperties.ProcessInstructions;
-            var queues = (List<ushort>[])typeof(RoomEnemySystem).GetField("_drawQueues", Private)!.GetValue(Enemies)!;
-            queues[0].Add(Actor.NativeIndex);
-            instructions = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", Private)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort>>(Enemies);
-            hitbox = typeof(RoomEnemySystem).GetMethod("TryFindExtendedHitboxCallback", Private)!
-                .CreateDelegate<HitboxQuery>(Enemies);
+            Enemies.Drawing.Enqueue(0, Actor.NativeIndex);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort>(Enemies.Instructions.ProcessInstructions);
+            hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }
 
         internal void SetFrame(ushort frame, bool fresh)
@@ -48,7 +45,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal OamBuffer Draw()
         {
             var result = new OamBuffer(); result.BeginFrame();
-            Enemies.DrawLayers(result, new(0, 0), 0, 0);
+            Enemies.Drawing.DrawLayers(result, new(0, 0), 0, 0);
             return result;
         }
 

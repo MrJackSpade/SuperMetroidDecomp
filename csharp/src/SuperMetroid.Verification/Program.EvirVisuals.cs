@@ -52,7 +52,6 @@ internal static class EvirVisualsVerification
                 EvirInstructionProgramDefinitions.AdjacentCallbackCode),
             "Evir visual catalog rejects adjacent AI callback code");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         var guard = NewEvirInstructionGuard(rom, forbidPresentation: true);
         for (int index = 0;
              index < EvirInstructionProgramDefinitions.PresentationWordCount;
@@ -64,14 +63,14 @@ internal static class EvirVisualsVerification
                 unchecked((ushort)(EvirInstructionProgramDefinitions.ProjectileNormal + 2))
                     ? EnemyDefinitionId.EvirProjectile
                     : EnemyDefinitionId.Evir;
-            RoomEnemySystem enemies = NewEvirInstructionSystem(guard, flags);
+            RoomEnemySystem enemies = NewEvirInstructionSystem(guard);
             enemies.TileArtwork = stock;
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, definition,
                 unchecked((ushort)(operand - 2)));
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             AssertEqual(EvirVisualDefinitions.FrameAt(operand), slot.SpritemapPointer,
                 $"installed Evir program {index} selects its native visual frame");
         }

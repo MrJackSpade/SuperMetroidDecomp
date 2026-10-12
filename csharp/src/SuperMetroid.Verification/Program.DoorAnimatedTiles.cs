@@ -24,17 +24,17 @@ internal static class DoorAnimatedTilesVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(0xa5ed);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = true;
 
         // Select the source room's door into the statue room.
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         CartridgeDoorHeader? entry = null;
         for (int y = 0; y < level.Size.Y && entry is null; y++)
         for (int x = 0; x < level.Size.X && entry is null; x++)
@@ -50,7 +50,7 @@ internal static class DoorAnimatedTilesVerification
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
         int handlerFrames = 0;
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)
@@ -61,18 +61,18 @@ internal static class DoorAnimatedTilesVerification
             game.Step(0);
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door completes");
-        AssertEqual((ushort)0xa66a, runtime.ActiveRoom!.Pointer, "the door enters the statue room");
+        AssertEqual((ushort)0xa66a, runtime.Room.ActiveRoom!.Pointer, "the door enters the statue room");
 
         // A directly loaded statue room stepped by the same number of handler calls.
         var reference = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        reference.InitializeHud(HudSnapshot.CeresDebug);
-        reference.InitializeStartingCeresRoom();
-        reference.InitializeCeresStartSamus();
+        reference.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        reference.RoomLoader.InitializeStartingCeresRoom();
+        reference.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             reference.System.SetBossBits(area, BossBits.AreaBoss);
         reference.LoadCartridgeRoomThroughDoorForVerification(entry!);
         for (int call = 0; call < handlerFrames; call++)
-            reference.TourianStatues.StepTiles(reference);
+            reference.TourianStatues.StepTiles();
 
         AssertTrue(handlerFrames > 1, "the door runs the handler at $E659 and on its fade steps");
         AssertEqual(StatueSnapshot(reference), StatueSnapshot(runtime),

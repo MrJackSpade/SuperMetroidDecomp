@@ -24,32 +24,34 @@ internal static class TorizoPaletteShakeVerification
         var enemies = new RoomEnemySystem();
         var cgram = new SnesCgram();
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        var actor = enemies.Slots[0];
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.Presentation._cgram = cgram;
+        var actor = enemies.SlotTable.Slots[0];
         actor.EnemyDefinitionPointer = EnemyDefinitionId.BombTorizo;
         actor.Definition = RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer);
         var state = new TorizoEnemyState(actor, false);
-        typeof(RoomEnemySystem).GetField("_torizoState", flags)!.SetValue(enemies, state);
-        var instruction = typeof(RoomEnemySystem).GetMethod("TryProcessBombTorizoInstruction", flags)!;
+        enemies.BombTorizoBehavior._torizoState = state;
         void Execute(ushort opcode)
         {
-            object?[] args = [actor, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 }, opcode, (ushort)0xb939, false];
-            AssertTrue((bool)instruction.Invoke(enemies, args)!, "Torizo instruction handled");
-            AssertEqual((ushort)0xb93b, (ushort)args[3]!, "Torizo operand-free cursor");
+            ushort cursor = 0xb939;
+            AssertTrue(enemies.BombTorizoBehavior.TryProcessBombTorizoInstruction(
+                    actor, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
+                    opcode, ref cursor, out _),
+                "Torizo instruction handled");
+            AssertEqual((ushort)0xb93b, cursor, "Torizo operand-free cursor");
         }
-        typeof(RoomEnemySystem).GetProperty(nameof(RoomEnemySystem.EarthquakeType))!.SetValue(enemies, (ushort)4);
-        typeof(RoomEnemySystem).GetProperty(nameof(RoomEnemySystem.EarthquakeTimer))!.SetValue(enemies, (ushort)32);
+        enemies.Earthquake.EarthquakeType = 4;
+        enemies.Earthquake.EarthquakeTimer = 32;
         // The native awakening loop invokes B271 every four frames. It must not
         // extend a pending landing quake, regardless of the palette target.
         for (int frame = 0; frame < 96; frame++)
         {
             if (frame < 64 && frame % 4 == 0)
                 Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
-            ushort timerBeforeShake = enemies.EarthquakeTimer;
+            ushort timerBeforeShake = enemies.Earthquake.EarthquakeTimer;
             var shake = enemies.HandleRoomShaking(false);
             // An accepted shake frame is exactly one that consumes an earthquake-timer tick.
-            AssertEqual(frame < 32, enemies.EarthquakeTimer != timerBeforeShake, $"Palette instruction cannot extend landing shake at frame {frame}");
+            AssertEqual(frame < 32, enemies.Earthquake.EarthquakeTimer != timerBeforeShake, $"Palette instruction cannot extend landing shake at frame {frame}");
             if (frame < 32)
             {
                 AssertEqual((short)0, shake.Bg1.X, "Landing BG1 X");
@@ -62,7 +64,7 @@ internal static class TorizoPaletteShakeVerification
             Execute((ushort)TorizoInstruction.Instruction_Torizo_AdvanceGradualColorChange);
         for (int i = 0; i < 256; i++)
             AssertEqual((ushort)(i is >= 144 and < 176 ? 0 : 0x7fff), cgram.Colors[i], $"Masked fade color {i}");
-        AssertEqual((ushort)0, enemies.EarthquakeTimer, "Completed fade does not create an earthquake");
+        AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer, "Completed fade does not create an earthquake");
         state.PaletteTransition = null;
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
         Execute((ushort)TorizoInstruction.Instruction_Torizo_SetupPaletteTransitionToNormalTorizo);

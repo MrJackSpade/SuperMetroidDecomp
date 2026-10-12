@@ -22,8 +22,6 @@ internal static class HopperAnimationDefinitionsVerification
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         int[] tables = [0xa3aac2, 0xa3aaca, 0xa3aad2, 0xa3aada];
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
-            BindingFlags.NonPublic;
 
         for (int index = 0;
              index < HopperInstructionProgramDefinitions.MechanicsWordCount;
@@ -49,7 +47,6 @@ internal static class HopperAnimationDefinitionsVerification
         }
 
         var guard = NewHopperAnimationGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         EnemyDefinitionId[] definitions =
         [
             EnemyDefinitionId.Sidehopper,
@@ -63,19 +60,15 @@ internal static class HopperAnimationDefinitionsVerification
         {
             bool upsideDown = orientation != 0;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, guard);
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeHopper", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            var startJump = typeof(RoomEnemySystem).GetMethod("StartHopperJump", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, HopperEnemyState, bool, bool>>();
-            var land = typeof(RoomEnemySystem).GetMethod("LandHopper", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, HopperEnemyState>>();
+            Action<RoomEnemySlot> initialize = enemies.HoppersBehavior.InitializeHopper;
+            Action<RoomEnemySlot, HopperEnemyState, bool, bool> startJump = HoppersBehavior.StartHopperJump;
+            Action<RoomEnemySlot, HopperEnemyState> land = HoppersBehavior.LandHopper;
 
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = definitions[variant];
             slot.Definition = default(RoomEnemyDefinition) with
             {
@@ -97,14 +90,14 @@ internal static class HopperAnimationDefinitionsVerification
                 slot.CurrentInstruction,
                 $"hopper production jumping list {variant}/{orientation}");
 
-            ExecuteHopperInstructionProgram(enemies, process, slot, callCount: 1);
+            ExecuteHopperInstructionProgram(enemies, slot, callCount: 1);
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"hopper jumping program {variant}/{orientation} enables off-screen processing");
             AssertEqual(
                 variant is 0 or 1 ? (ushort?)0x005d : null,
-                enemies.LastHopperSoundEffect,
+                enemies.HoppersBehavior.LastHopperSoundEffect,
                 $"hopper jumping sound {variant}/{orientation}");
-            ExecuteHopperInstructionProgram(enemies, process, slot, callCount: 1);
+            ExecuteHopperInstructionProgram(enemies, slot, callCount: 1);
 
             land(slot, state);
             AssertEqual(
@@ -112,18 +105,18 @@ internal static class HopperAnimationDefinitionsVerification
                 slot.CurrentInstruction,
                 $"hopper production landed handoff {variant}/{orientation}");
 
-            ExecuteHopperInstructionProgram(enemies, process, slot, callCount: 5);
+            ExecuteHopperInstructionProgram(enemies, slot, callCount: 5);
             AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"hopper landed program {variant}/{orientation} disables off-screen processing");
             AssertTrue(state.ReadyToHop,
                 $"hopper landed program {variant}/{orientation} publishes ready-to-hop");
             AssertEqual(
                 variant is 0 or 1 ? (ushort?)0x005e : null,
-                enemies.LastHopperSoundEffect,
+                enemies.HoppersBehavior.LastHopperSoundEffect,
                 $"hopper landed sound {variant}/{orientation}");
         }
 
-        Suite(nameof(VerifyTourianSidehopperInstructionAlias), () => VerifyTourianSidehopperInstructionAlias(rom, flags, process, artwork));
+        Suite(nameof(VerifyTourianSidehopperInstructionAlias), () => VerifyTourianSidehopperInstructionAlias(rom, artwork));
 
         AssertEqual(0,
             guard.ObservedWords.Count,
@@ -163,29 +156,24 @@ internal static class HopperAnimationDefinitionsVerification
 
     private static void VerifyTourianSidehopperInstructionAlias(
         SuperMetroidAddressSpace rom,
-        BindingFlags flags,
-        MethodInfo process,
         EnemyTileArtworkCatalog? artwork)
     {
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, NewHopperAnimationGuard(rom));
+        enemies.BindFixtureBus(NewHopperAnimationGuard(rom));
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeHopper", flags)!;
 
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.SidehopperTourian;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3, VariantIndex = 1 };
-        initialize.Invoke(enemies, [slot]);
-        ExecuteHopperInstructionProgram(enemies, process, slot, callCount: 1);
-        AssertEqual((ushort?)0x005e, enemies.LastHopperSoundEffect,
+        enemies.HoppersBehavior.InitializeHopper(slot);
+        ExecuteHopperInstructionProgram(enemies, slot, callCount: 1);
+        AssertEqual((ushort?)0x005e, enemies.HoppersBehavior.LastHopperSoundEffect,
             "Tourian Sidehopper shares compiled large-Sidehopper landed program");
     }
 
     private static void ExecuteHopperInstructionProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot slot,
         int callCount)
     {
@@ -194,7 +182,7 @@ internal static class HopperAnimationDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

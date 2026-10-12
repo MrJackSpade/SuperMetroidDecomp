@@ -23,13 +23,13 @@ internal static class AcidStatueFirstEntryVerification
 
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.LowerNorfairChozoLoweredAcid);
         runtime.LoadCartridgeRoomForDebug(sourceRoom);
 
-        RoomLevelData level = runtime.LevelData!;
+        RoomLevelData level = runtime.Room.LevelData!;
         int doorX = -1;
         int doorY = -1;
         byte behavior = 0;
@@ -52,14 +52,14 @@ internal static class AcidStatueFirstEntryVerification
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
             camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        runtime.RunNmi(0, true);
-        runtime.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.Room.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
 
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
@@ -74,8 +74,8 @@ internal static class AcidStatueFirstEntryVerification
         {
             DoorTransitionPhase phase = transition.Phase;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
-            ushort activeRoom = runtime.ActiveRoom!.Pointer;
-            RoomLayer3FxRenderSnapshot? displayed = runtime.DisplayedRoomLayer3Fx;
+            ushort activeRoom = runtime.Room.ActiveRoom!.Pointer;
+            RoomLayer3FxRenderSnapshot? displayed = runtime.Display.DisplayedRoomLayer3Fx;
             if (activeRoom != destinationRoom)
                 continue;
             LayeredRenderSnapshot? snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime);
@@ -97,7 +97,7 @@ internal static class AcidStatueFirstEntryVerification
         }
 
         AssertTrue(!transition.IsActive, "Acid Statue room transition completes");
-        AssertEqual(destinationRoom, runtime.ActiveRoom!.Pointer, "transition reaches the reported room");
+        AssertEqual(destinationRoom, runtime.Room.ActiveRoom!.Pointer, "transition reaches the reported room");
         AssertTrue(sawDestinationFade, "transition captures the presented destination fade");
         // High acid ($00C8) would cover this whole screen. Just above the drained surface
         // the room's dark background must show; just below it the drained acid is drawn.

@@ -107,9 +107,8 @@ internal static class ZoaInstructionProgramDefinitionsVerification
             out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetMethod("InitializeZoa", flags)!
-                .Invoke(enemies, [slot = enemies.Slots[0]]);
+            enemies.BindFixtureBus(guard);
+            enemies.ZoaBehavior.InitializeZoa(slot = enemies.SlotTable.Slots[0]);
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Zoa;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             ZoaEnemyState state = enemies.ZoaStates[0]!;
@@ -118,18 +117,16 @@ internal static class ZoaInstructionProgramDefinitionsVerification
                 : ZoaAnimationSelector.None;
             state.InstructionListTableIndex = selector;
             state.XSpeedTableIndex = 0;
-            typeof(RoomEnemySystem).GetMethod("SetZoaInstructionList", flags)!
-                .Invoke(null, [slot, state]);
+            ZoaBehavior.SetZoaInstructionList(slot, state);
             return enemies;
         }
 
         static void RunZoaProgram(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

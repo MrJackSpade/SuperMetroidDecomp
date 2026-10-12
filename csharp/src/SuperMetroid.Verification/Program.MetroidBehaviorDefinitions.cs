@@ -33,15 +33,10 @@ internal static class MetroidBehaviorDefinitionsVerification
 
     private static void VerifyMetroidEscapeConsumer(SuperMetroidAddressSpace rom)
     {
-        MethodInfo runEscape = typeof(RoomEnemySystem).GetMethod(
-            "RunMetroidPowerBombEscape",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = NewMetroidBehaviorReadGuard(rom);
         // One system serves every timer: the escape step is static and keeps no per-call state.
         var enemies = new RoomEnemySystem();
-        busField.SetValue(enemies, guarded);
+        enemies.BindFixtureBus(guarded);
 
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {
@@ -61,7 +56,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
             Offset16<RoomPixels> expected =
                 MetroidBehaviorDefinitions.EscapeDisplacement((ushort)timer);
-            runEscape.Invoke(enemies, [slot, state]);
+            MetroidBehavior.RunMetroidPowerBombEscape(slot, state);
             AssertEqual(unchecked((ushort)(1 + expected.X)), slot.Position.X.Whole,
                 $"production Metroid escape X timer {timer}");
             AssertEqual(unchecked((ushort)(0xffff + expected.Y)), slot.Position.Y.Whole,
@@ -82,30 +77,25 @@ internal static class MetroidBehaviorDefinitionsVerification
 
     private static void VerifyMetroidCryConsumer(SuperMetroidAddressSpace rom)
     {
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = NewMetroidBehaviorReadGuard(rom);
 
         for (ushort random = 0; random < 8; random++)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => selectedRandom));
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.InstructionTimer = 1;
             slot.CurrentInstruction =
                 MetroidInstructionProgramDefinitions.ChasingSoundCallback;
 
-            process.Invoke(enemies, [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+            enemies.Instructions.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
 
             AssertEqual(MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
-                enemies.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,
+                enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,
                 $"production Metroid random cry {random}");
             AssertEqual(16, slot.InstructionTimer,
                 $"production Metroid script timer {random}");

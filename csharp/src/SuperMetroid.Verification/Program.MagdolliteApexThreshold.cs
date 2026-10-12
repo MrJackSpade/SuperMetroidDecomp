@@ -44,15 +44,12 @@ internal static class MagdolliteApexThresholdVerification
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, NewMagdolliteApexGuard(new TestAddressSpace()));
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeMagdollite", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
-            var rise = typeof(RoomEnemySystem).GetMethod("RunMagdolliteBodyRising", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?>>(enemies);
+            enemies.BindFixtureBus(NewMagdolliteApexGuard(new TestAddressSpace()));
+            Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+            Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)
             {
-                RoomEnemySlot member = enemies.Slots[headSlot + part];
+                RoomEnemySlot member = enemies.SlotTable.Slots[headSlot + part];
                 member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
                 member.Parameter1 = (ushort)part;
                 member.Parameter2 = 0;
@@ -61,7 +58,7 @@ internal static class MagdolliteApexThresholdVerification
             }
             MagdolliteEnemyState head = enemies.MagdolliteStates[headSlot]!;
             head.NegativeSpeedWhole = head.NegativeSpeedFraction = 0;
-            RoomEnemySlot body = enemies.Slots[headSlot + 1];
+            RoomEnemySlot body = enemies.SlotTable.Slots[headSlot + 1];
             MagdolliteEnemyState state = enemies.MagdolliteStates[headSlot + 1]!;
             state.Function = MagdolliteEnemyFunction.BodyRising;
             state.BodyPhaseOffset = 14;

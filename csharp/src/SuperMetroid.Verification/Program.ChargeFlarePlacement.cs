@@ -37,10 +37,10 @@ internal static class ChargeFlarePlacementVerification
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(bus, stock, edited));
         var system = new SamusProjectileSystem();
         var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
-        var drawMetadata = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponentWithMetadata", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<FlareMetadataDraw>(system);
-        var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>>(system);
+        var drawMetadata = typeof(ProjectileAnimation).GetMethod("DrawFlareComponentWithMetadata", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<FlareMetadataDraw>(system.Animation);
+        var draw = typeof(ProjectileAnimation).GetMethod("DrawFlareComponent", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>>(system.Animation);
         int cases = 0;
         foreach (SamusPoseId pose in new[]
         {
@@ -95,8 +95,8 @@ internal static class ChargeFlarePlacementVerification
             var originalSystem = new SamusProjectileSystem(); var editedSystem = new SamusProjectileSystem();
             foreach (var target in new[] { originalSystem, editedSystem })
             {
-                typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(target, (ushort)30);
-                var frames = (ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(target)!;
+                typeof(BeamChargeState).GetProperty("FlareCounter")!.SetValue(target.Charge, (ushort)30);
+                var frames = target.Charge._flareFrames;
                 Array.Fill(frames, (ushort)2);
             }
             subject.HyperBeam = hyper;
@@ -147,41 +147,59 @@ internal static class ChargeFlarePlacementVerification
     private static void VerifyRuntimeFlarePlacement(SuperMetroidAddressSpace bus, ChargeFlarePlacementCatalog stock, ChargeFlarePlacementCatalog edited)
     {
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Samus.Position = runtime.Samus.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 100), (ushort)(runtime.Camera.PixelPosition.Y + 100)));
-        runtime.Samus.InitializeAnimation(bus); runtime.Samus.PrimeGraphics(bus);
-        typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles, (ushort)30);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.Player.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+        runtime.Player.Samus.Presentation.InitializeAnimation(bus); runtime.Player.Samus.Presentation.PrimeGraphics(bus);
+        typeof(BeamChargeState).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles.Charge, (ushort)30);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareTimers", flags)!.GetValue(runtime.Projectiles)!, (ushort)100);
+        Array.Fill(runtime.Projectiles.Charge._flareTimers, (ushort)100);
         var game = CreateRetailGameFixture(bus);
         var field = game.GetType().GetField("runtime", flags)!;
         field.SetValue(game, runtime);
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            target.GetType().GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, false });
+            target.ActorDrawing.DrawGameplayActors(false, false);
             return target.Oam.LowTable.ToArray();
         }
         byte[] native = Draw(runtime);
-        game.BindChargeFlarePlacement(stock);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlarePlacement = stock,
+        });
         AssertTrue(native.SequenceEqual(Draw(runtime)), "Runtime stock flare placement preserves complete actor OAM");
-        game.BindChargeFlarePlacement(edited);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlarePlacement = edited,
+        });
         AssertTrue(!native.SequenceEqual(Draw(runtime)), "Runtime actor pass consumes edited flare placement");
-        game.BindChargeFlarePlacement(null);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlarePlacement = null,
+        });
         using var without = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(without, game);
-        game.BindChargeFlarePlacement(stock);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlarePlacement = stock,
+        });
         using var with = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Flare catalog does not enter frontend/runtime saved graphs");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)field.GetValue(restored)!;
-        AssertTrue(restoredRuntime.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
+        AssertTrue(restoredRuntime.Artwork.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
-        game.BindChargeFlarePlacement(edited); restored.BindChargeFlarePlacement(edited);
+        game.BindArtwork(game.Artwork with
+        {
+            ChargeFlarePlacement = edited,
+        }); restored.BindArtwork(restored.Artwork with
+{
+    ChargeFlarePlacement = edited,
+});
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored runtime emits current flare content at the saved animation state");
     }
 

@@ -25,7 +25,6 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     internal static void VerifyLowerNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertEqual(51, LowerNorfairRioInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Lower Norfair Rio compiled mechanics word count");
         AssertEqual(32, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount,
@@ -42,7 +41,6 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         }
 
         var guard = NewLowerNorfairRioInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         (ushort Entry, int Calls, ushort Final, bool Visible, bool Signal, string Name)[]
             programs =
         [
@@ -85,11 +83,10 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
                   string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, LowerNorfairRioEnemyState state) =
-                NewLowerNorfairRioInstructionSystem(guard, flags, entry);
+                NewLowerNorfairRioInstructionSystem(guard, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunLowerNorfairRioInstructionFrames(
-                process,
                 enemies,
                 arguments,
                 slot,
@@ -102,7 +99,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
                 $"Lower Norfair Rio {name} animation signal");
         }
 
-        Suite(nameof(VerifyLowerNorfairRioInitializerSelections), () => VerifyLowerNorfairRioInitializerSelections(guard, flags));
+        Suite(nameof(VerifyLowerNorfairRioInitializerSelections), () => VerifyLowerNorfairRioInitializerSelections(guard));
 
         AssertEqual(0, guard.ObservedWords.Count,
             "Lower Norfair Rio presentation selectors are compiled, not ROM reads");
@@ -142,28 +139,24 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     }
 
     private static void VerifyLowerNorfairRioInitializerSelections(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+        ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeLowerNorfairRio",
-            flags)!;
+        enemies.BindFixtureBus(bus);
 
-        RoomEnemySlot parent = enemies.Slots[0];
+        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.EnemyDefinitionPointer = EnemyDefinitionId.Holtz;
         parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
-        initialize.Invoke(enemies, [parent]);
+        enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
         AssertEqual((ushort)LowerNorfairRioProgram.Idle,
             parent.CurrentInstruction,
             "Lower Norfair Rio parent initializer selects idle");
 
-        RoomEnemySlot follower = enemies.Slots[1];
+        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.EnemyDefinitionPointer = EnemyDefinitionId.Holtz;
         follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         follower.Parameter1 = 0x8000;
-        initialize.Invoke(enemies, [follower]);
+        enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
         AssertEqual((ushort)LowerNorfairRioProgram.Flames,
             follower.CurrentInstruction,
             "Lower Norfair Rio follower initializer selects flames");
@@ -174,27 +167,23 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot Slot,
         LowerNorfairRioEnemyState State) NewLowerNorfairRioInstructionSystem(
             ISnesAddressSpace bus,
-            BindingFlags flags,
             ushort entry,
             EnemyTileArtworkCatalog? art = null)
     {
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Holtz;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = entry;
         slot.InstructionTimer = 1;
         var state = new LowerNorfairRioEnemyState(slot);
-        var states = (LowerNorfairRioEnemyState?[])typeof(RoomEnemySystem)
-            .GetField("_lowerNorfairRioStates", flags)!
-            .GetValue(enemies)!;
+        var states = (LowerNorfairRioEnemyState?[])enemies.LowerNorfairRioBehavior._lowerNorfairRioStates;
         states[0] = state;
         return (enemies, slot, state);
     }
 
     internal static void RunLowerNorfairRioInstructionFrames(
-        MethodInfo process,
         RoomEnemySystem enemies,
         object?[] arguments,
         RoomEnemySlot slot,
@@ -203,7 +192,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         for (int call = 0; call < count; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

@@ -30,27 +30,27 @@ internal static class LowerNorfairHandVerification
                         new RoomLevelWord(word).VisualWord)).ToArray())).ToArray();
         handEntries.Single(entry => entry.Id == "lower-norfair-cleared-hand")
             .Blocks[0] = 0x0053;
-        runtime.RoomPlmChozoStatueVisuals =
+        runtime.ShotBlockVisuals.RoomPlmChozoStatueVisuals =
             new RoomPlmChozoStatueVisualCatalog(handEntries);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xb1e5);
         runtime.StepFrame(0);
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         var hand = level.GetCollisionBlock(new(4, 8));
-        AssertTrue(runtime.Plms.TrySpawnProjectileShotBlock(level, hand.Index,
+        AssertTrue(runtime.Plms.BlockReactions.TrySpawnProjectileShotBlock(level, hand.Index,
             hand.Bts, new SamusProjectileTypeWord(0x0300), true), "power bomb breaks the retail hand cover");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
         AssertEqual((byte)0x83, hand.Behavior, "Norfair hand activation BTS");
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
             samus.CollectedItems = hasSpaceJump ? (ushort)SamusEquipmentFlags.SpaceJump : (ushort)0;
             samus.PoseId = hasSpaceJump ? SamusPoseId.FacingRightNormalPose : SamusPoseId.MorphBallGroundRightPose;
-            samus.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation(bus);
             samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
             var rejected = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
             AssertTrue(rejected.Collided, "hand remains solid for ineligible contact");
@@ -59,7 +59,7 @@ internal static class LowerNorfairHandVerification
         }
         samus.CollectedItems |= (ushort)SamusEquipmentFlags.SpaceJump;
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
-        samus.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
         var collision = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
         // Samus's whole width lies in the hand's block column, so the downward probe's
@@ -70,17 +70,17 @@ internal static class LowerNorfairHandVerification
             rightColumn == hand.Index % level.Size.X,
             "downward morph contact lands on the actual hand tile");
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
-        AssertEqual((ushort)1, runtime.Enemies.Slots[0].Parameter1, "hand wakes statue");
-        AssertTrue(!runtime.GroundedSamusMovementEnabled, "statue takes control on hand contact");
+        AssertEqual((ushort)1, runtime.Enemies.SlotTable.Slots[0].Parameter1, "hand wakes statue");
+        AssertTrue(!runtime.Player.GroundedSamusMovementEnabled, "statue takes control on hand contact");
         ushort startingAcidY = runtime.RoomLayer3Fx.BaseYPosition;
         bool sawAcidDrain = false;
         var displayedHeights = new HashSet<ushort>();
         bool sawStartCommand = false;
         ushort previousBaseY = startingAcidY;
-        for (int frame = 0; frame < 3000 && !runtime.GroundedSamusMovementEnabled; frame++)
+        for (int frame = 0; frame < 3000 && !runtime.Player.GroundedSamusMovementEnabled; frame++)
         {
             runtime.StepFrame(0);
-            if (!sawStartCommand && runtime.Enemies.ChozoStatueFxTimer != 0)
+            if (!sawStartCommand && runtime.Enemies.ChozoStatueBehavior.ChozoStatueFxTimer != 0)
             {
                 sawStartCommand = true;
                 AssertEqual((ushort)32, runtime.RoomLayer3Fx.Timer, "start instruction writes live delay once");
@@ -88,17 +88,17 @@ internal static class LowerNorfairHandVerification
             }
             sawAcidDrain |= runtime.RoomLayer3Fx.BaseYPosition > startingAcidY &&
                 runtime.RoomLayer3Fx.BaseYPosition < 0x2d2;
-            if (!runtime.GroundedSamusMovementEnabled)
+            if (!runtime.Player.GroundedSamusMovementEnabled)
             {
                 AssertTrue(runtime.RoomLayer3Fx.BaseYPosition - previousBaseY is 0 or 1,
                     "live acid moves gradually rather than teleporting before release");
-                if (runtime.DisplayedRoomLayer3Fx is { } displayed &&
+                if (runtime.Display.DisplayedRoomLayer3Fx is { } displayed &&
                     displayed.CurrentYPosition > startingAcidY && displayed.CurrentYPosition < 0x2d2)
                     displayedHeights.Add(displayed.CurrentYPosition);
             }
             previousBaseY = runtime.RoomLayer3Fx.BaseYPosition;
         }
-        AssertTrue(runtime.GroundedSamusMovementEnabled, "statue finishes and releases Samus");
+        AssertTrue(runtime.Player.GroundedSamusMovementEnabled, "statue finishes and releases Samus");
         AssertTrue(sawAcidDrain, "acid surface must visibly descend during the live statue sequence");
         AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseYPosition,
             "statue completes acid lowering before leaving the room");
@@ -106,17 +106,17 @@ internal static class LowerNorfairHandVerification
         // Enemy AI publishes the final base after this frame's FX handler. The next
         // handler updates the surface registers, then the following NMI displays them.
         runtime.StepFrame(0);
-        runtime.RunNmi(0, mainLoopRequestedNmi: true);
-        AssertEqual((ushort)0x2d2, runtime.DisplayedRoomLayer3Fx!.Value.CurrentYPosition,
+        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        AssertEqual((ushort)0x2d2, runtime.Display.DisplayedRoomLayer3Fx!.Value.CurrentYPosition,
             "final drained height reaches display without a room transition");
         runtime.LoadCartridgeRoomForDebug(0xb1e5);
         runtime.StepFrame(0);
         AssertEqual((ushort)0x2d2, runtime.RoomLayer3Fx.BaseYPosition, "re-entry restores drained acid");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
-        AssertTrue(level != runtime.LevelData, "re-entry uses newly loaded room terrain");
-        AssertTrue(runtime.LevelData!.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,
+        AssertTrue(level != runtime.Room.LevelData, "re-entry uses newly loaded room terrain");
+        AssertTrue(runtime.Room.LevelData!.GetCollisionBlock(new(4, 8)).CollisionType != RoomCollisionType.SpecialBlock,
             "completed statue does not install another hand trigger");
-        RoomLevelData reentered = runtime.LevelData!;
+        RoomLevelData reentered = runtime.Room.LevelData!;
         reentered.SetBlockDefinitionWord(0x53 * 4, 0x0053);
         AssertEqual((ushort)0x0053,
             reentered.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(

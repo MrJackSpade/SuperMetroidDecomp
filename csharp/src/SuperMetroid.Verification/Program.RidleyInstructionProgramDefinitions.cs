@@ -121,31 +121,29 @@ internal static class RidleyInstructionProgramDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = RepositoryInstallation.EnemyTiles,
-            CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors,
+            TileArtwork = InstalledFixtures.EnemyTiles,
+            Presentation = { CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors },
         };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = new SnesCgram();
 
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
-        typeof(RoomEnemySystem).GetMethod("InitializeCeresRidley", flags)!
-            .Invoke(enemies, [slot]);
+        enemies.CeresRidleyBehavior.InitializeCeresRidley(slot);
 
         slot.EnemyDefinitionPointer = enemyDefinition;
         slot.CurrentInstruction = program;
         slot.InstructionTimer = 1;
-        enemies.Ridley!.FacingDirection = facingDirection;
+        enemies.RidleyEncounter.Ridley!.FacingDirection = facingDirection;
         var samus = new SamusState { Health = 99 };
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
             [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];
 
         for (int frame = 0; frame < 1000; frame++)
         {
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             if (slot.InstructionTimer != 0)
             {
                 ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));

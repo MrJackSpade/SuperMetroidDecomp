@@ -32,7 +32,7 @@ public static class SamusPostDrawAudio
             samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary3Sounds.StopSpeedBoosterEcho, maximumQueued: 15);
         }
         if (previousMovement is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) ||
-            samus.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+            samus.PoseMetadata.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             return;
 
         samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.StopSpinJump, maximumQueued: 15);

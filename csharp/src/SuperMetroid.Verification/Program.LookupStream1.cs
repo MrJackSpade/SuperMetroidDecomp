@@ -162,7 +162,6 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EscapeDachoraCadenceRomByte(rom, address), LookupStream1EscapeDachoraCadenceRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         for (int index = 0; index < EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount; index++)
         {
             var word = EscapeDachoraInstructionProgramDefinitions.MechanicsWord(index);
@@ -171,8 +170,8 @@ internal static class LookupStream1Verification
         foreach (int program in new[] { 0, 1, 2 })
         {
             var guard = NewEscapeDachoraInstructionReadGuard(rom);
-            var enemies = CreateEscapeDachoraProgramSystem(guard, flags);
-            var slot = enemies.Slots[0];
+            var enemies = CreateEscapeDachoraProgramSystem(guard);
+            var slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = program == 0 ? (ushort)0xe964 : program == 1 ? (ushort)0xe9d0 : (ushort)0xea34;
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             int records = program == 2 ? 19 : 60, expectedX = slot.Position.X.Whole, calls = 0;
@@ -195,7 +194,7 @@ internal static class LookupStream1Verification
                 AssertEqual(duration, EscapeDachoraInstructionProgramDefinitions.ReadMechanicsWord((ushort)address), "Native escape Dachora timing");
                 for (int held = 0; held < duration; held++)
                 {
-                    process.Invoke(enemies, arguments); calls++;
+                    EnemyInstructionRunner.Process(enemies, arguments); calls++;
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every uninterrupted escape Dachora exposure tick");
                     AssertEqual(visual, slot.SpritemapPointer, "Native escape Dachora pose order");
                     AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Escape Dachora exact timed cursor");
@@ -203,7 +202,7 @@ internal static class LookupStream1Verification
                 }
             }
             AssertEqual(program == 0 ? 180 : program == 1 ? 120 : 163, calls, "Exact full native pacing/departure duration");
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             expectedX += Word(0xb3eadf);
             AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Final movement callback is preserved");
             ushort next = program == 0 ? (ushort)0xe968 : program == 1 ? (ushort)0xe9d4 : (ushort)0xea80;
@@ -220,21 +219,19 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1PowampCadenceRomByte(rom, address), LookupStream1PowampCadenceRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        var align = typeof(RoomEnemySystem).GetMethod("AlignPowampBalloonY", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
         foreach (ushort root in new ushort[] { 0xc163, 0xc173, 0xc183, 0xc191 })
         {
             bool isBody = root < 0xc183;
             var guard = NewPowampInstructionReadGuard(rom);
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializePowamp", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            var balloon = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.PowampBehavior.InitializePowamp;
+            var balloon = enemies.SlotTable.Slots[0];
             balloon.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
             balloon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             balloon.Parameter1 = 1;
             initialize(balloon);
-            var body = enemies.Slots[1];
+            var body = enemies.SlotTable.Slots[1];
             body.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
             body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             initialize(body);
@@ -251,20 +248,20 @@ internal static class LookupStream1Verification
                 AssertEqual(duration, PowampInstructionProgramDefinitions.ReadMechanicsWord(address), "Native Powamp duration");
                 for (int held = 0; held < duration; held++)
                 {
-                    process.Invoke(enemies, arguments); calls++;
+                    EnemyInstructionRunner.Process(enemies, arguments); calls++;
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every uninterrupted Powamp hold tick");
                     AssertEqual(sprite, slot.SpritemapPointer, "Native Powamp held visual");
                     AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Powamp held cursor");
                     if (!isBody)
                     {
-                        align.Invoke(null, [body, balloon]);
+                        PowampBehavior.AlignPowampBalloonY(body, balloon);
                         int nativeOffset = unchecked((short)Word(0xa80000 | ((root == 0xc183 ? 0xc277 : 0xc27d) + pose * 2)));
                         AssertEqual((ushort)(100 + nativeOffset), balloon.Position.Y.Whole, "Native pose-driven balloon collision center");
                     }
                 }
             }
             AssertEqual(root == 0xc163 ? 15 : root == 0xc173 ? 27 : 167, calls, "Native Powamp sequence duration");
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             if (isBody)
             {
                 AssertEqual((ushort)(root + 4), slot.CurrentInstruction, "Actual Powamp Goto repeats first pose");
@@ -275,9 +272,9 @@ internal static class LookupStream1Verification
                 AssertEqual((ushort)(root + 12), slot.CurrentInstruction, "Powamp Sleep parks at existing terminal cursor");
                 AssertEqual((ushort)0, slot.InstructionTimer, "Powamp Sleep follows full terminal hold");
                 ushort terminalY = balloon.Position.Y.Whole;
-                align.Invoke(null, [body, balloon]);
+                PowampBehavior.AlignPowampBalloonY(body, balloon);
                 AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
                 AssertEqual(ushort.MaxValue, slot.InstructionTimer, "Sleeping Powamp retains native timer underflow");
             }
             AssertEqual(0, guard.ForbiddenReadAttempts, "Powamp timing uses no cartridge mechanics reads");
@@ -291,37 +288,36 @@ internal static class LookupStream1Verification
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1MetroidPulseRomByte(rom, address), LookupStream1MetroidPulseRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (bool chasing in new[] { true, false })
         {
             ushort root = chasing ? (ushort)0xe9cf : (ushort)0xea25;
             int records = chasing ? 20 : 5, randomCalls = 0, calls = 0;
             var guard = NewMetroidInstructionReadGuard(rom);
-            var (enemies, slot) = NewMetroidInstructionSystem(guard, flags, root, () => { randomCalls++; return 5; });
+            var (enemies, slot) = NewMetroidInstructionSystem(guard, root, () => { randomCalls++; return 5; });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int record = 0; record < records; record++)
             {
                 ushort address = (ushort)(root + record * 4);
                 ushort duration = Word(0xa30000 | address), visual = Word(0xa30000 | (address + 2));
                 AssertEqual(duration, MetroidInstructionProgramDefinitions.ReadMechanicsWord(address), "Native Metroid pulse duration");
-                process.Invoke(enemies, arguments); calls++;
+                EnemyInstructionRunner.Process(enemies, arguments); calls++;
                 AssertEqual(duration, slot.InstructionTimer, "Actual Metroid duration reload");
                 AssertEqual(visual, slot.SpritemapPointer, "Actual native inside-pose identity");
                 AssertEqual((ushort)(address + 4), slot.CurrentInstruction, "Metroid selected record ordering");
                 for (int held = 1; held < duration; held++)
                 {
-                    process.Invoke(enemies, arguments); calls++;
+                    EnemyInstructionRunner.Process(enemies, arguments); calls++;
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer, "Every actual Metroid exposure tick");
                     AssertEqual(visual, slot.SpritemapPointer, "Held Metroid inside pose stays selected");
                 }
                 AssertEqual(0, randomCalls, "No Metroid RNG call before complete pulse loop");
-                AssertTrue(enemies.LastMetroidSoundEffectLibrary2 is null, "No Metroid callback before loop boundary");
+                AssertTrue(enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 is null, "No Metroid callback before loop boundary");
             }
             AssertEqual(chasing ? 256 : 64, calls, "Exact native pulse-loop length");
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
-            AssertEqual((ushort?)expectedSound, enemies.LastMetroidSoundEffectLibrary2, "Native loop callback sound");
+            AssertEqual((ushort?)expectedSound, enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2, "Native loop callback sound");
             AssertEqual((ushort)(root + 4), slot.CurrentInstruction, "Callback loops to first timed record");
             AssertEqual(Word(0xa30000 | root), slot.InstructionTimer, "Loop reload preserves first native hold");
             AssertEqual(0, guard.ForbiddenReadAttempts, "Metroid pulse mechanics use no cartridge reads");
@@ -1005,9 +1001,9 @@ internal static class LookupStream1Verification
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-            samus.TileTransfers.BindArtwork(stock);
-            samus.Draw(rom, new OamBuffer(), new(0, 0));
-            AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapPosition.Y,
+            samus.Presentation.TileTransfers.BindArtwork(stock);
+            samus.Presentation.Draw(rom, new OamBuffer(), new(0, 0));
+            AssertEqual(unchecked((ushort)(128 + native[frame])), samus.Presentation.SpritemapPosition.Y,
                 "Actual drained drawing uses exact signed native correction");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
             draws++;
@@ -1076,9 +1072,9 @@ internal static class LookupStream1Verification
             for (ushort frame = 0; frame < count; frame++)
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-                samus.TileTransfers.BindArtwork(stock);
-                samus.Draw(rom, new OamBuffer(), new(0, 0));
-                AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.SpritemapPosition.Y,
+                samus.Presentation.TileTransfers.BindArtwork(stock);
+                samus.Presentation.Draw(rom, new OamBuffer(), new(0, 0));
+                AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
             }
@@ -1156,10 +1152,10 @@ internal static class LookupStream1Verification
                 Pose = (SamusPoseId)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
-            samus.TileTransfers.BindArtwork(stock);
-            samus.Draw(rom, new OamBuffer(), layer1: new(0, 0));
+            samus.Presentation.TileTransfers.BindArtwork(stock);
+            samus.Presentation.Draw(rom, new OamBuffer(), layer1: new(0, 0));
             ushort nativeWord = SnesLittleEndian.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
-            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
+            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.Presentation.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
         }
         string identity = stock.ContentIdentity;
@@ -1930,8 +1926,8 @@ internal static class LookupStream1Verification
         var compositions = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem();
-        var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>>(system);
+        var draw = typeof(ProjectileAnimation).GetMethod("DrawFlareComponent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>>(system.Animation);
         var shiftedDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
             shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
@@ -1943,7 +1939,7 @@ internal static class LookupStream1Verification
         })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            samus.TileTransfers.BindArtwork(body);
+            samus.Presentation.TileTransfers.BindArtwork(body);
             int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
@@ -2139,7 +2135,7 @@ internal static class LookupStream1Verification
             AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address), "stream1 all native projectile motion words");
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusProjectileMotionDefinitions.ReadWord(invalid), "stream1 exact projectile motion address domain");
-        var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePowerBeamVelocity",
+        var initialize = typeof(BeamFiring).GetMethod("InitializePowerBeamVelocity",
             System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
         var guarded = new BeamSpeedRowAddressSpace(rom);
         for (ushort combination = 0; combination < 16; combination++)
@@ -3281,14 +3277,14 @@ internal static class LookupStream1Verification
             if (edited)
                 foreach (ushort pointer in expected) document.Frames[ProjectileFrameBindingFormat.FrameName(pointer)] = "sprite_A117";
             var bindings = ProjectileFrameBindingCatalog.Load(new MemoryStream(ProjectileFrameBindingCatalog.Write(document)));
-            var shots = new SamusProjectileSystem { FrameBindings = bindings };
+            var shots = new SamusProjectileSystem { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             foreach (ushort pointer in expected)
             {
                 ushort duration = Word(0x930000 | pointer);
                 ushort sprite = edited ? (ushort)0xa117 : Word(0x930000 | (pointer + 2));
                 var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer };
-                AssertTrue(!shots.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
+                AssertTrue(!shots.Animation.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
                 AssertEqual(duration, slot.InstructionTimer, "Actual timer unchanged");
                 AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
                 AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius independent of art edit");
@@ -3375,12 +3371,12 @@ internal static class LookupStream1Verification
         var guard = NewLookupFlareForbiddenBus();
         var runBomb = typeof(SamusBombProjectileSystem).GetMethod("RunProjectileInstructionHandler",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
-        var readTrail = typeof(SamusProjectileSystem).GetMethod("GetTrailAnimationFrame",
+        var readTrail = typeof(ProjectileTrails).GetMethod("GetTrailAnimationFrame",
             System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
         int actualTicks = 0, loops = 0, deletions = 0;
         foreach (var program in programs)
         {
-            var shots = new SamusProjectileSystem { FrameBindings = bindings };
+            var shots = new SamusProjectileSystem { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = program.Start, Damage = 30 };
             var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = program.Start, Type = 0x0500 };
@@ -3409,7 +3405,7 @@ internal static class LookupStream1Verification
                         trail = Word(0x930000 | (pointer + 6)); pointer += 8;
                     }
                 }
-                AssertEqual(deleted, shots.RunProjectileInstructionHandler(slot), "Exact native projectile deletion tick");
+                AssertEqual(deleted, shots.Animation.RunProjectileInstructionHandler(slot), "Exact native projectile deletion tick");
                 AssertEqual(deleted, (bool)runBomb.Invoke(bombs, [bomb])!, "Exact native bomb deletion tick");
                 actualTicks++;
                 if (deleted)
@@ -3516,7 +3512,7 @@ internal static class LookupStream1Verification
             for (ushort frame = 0; frame < count; frame++)
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1 };
-                samus.TileTransfers.BindArtwork(body);
+                samus.Presentation.TileTransfers.BindArtwork(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(rom, samus); cannon.Update(rom, samus);
                 int pointer = SnesLittleEndian.Word(LookupStream1CannonPlacementRomByte(rom, 0x90c7df + (int)pose * 2), LookupStream1CannonPlacementRomByte(rom, 0x90c7e0 + (int)pose * 2));

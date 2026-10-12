@@ -26,7 +26,6 @@ internal static class EvirInstructionProgramDefinitionsVerification
     internal static void VerifyEvirInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         (ushort Entry, int Frames, EnemyDefinitionId Definition, string Name)[] loops =
         [
             (EvirInstructionProgramDefinitions.BodyFacingLeft,
@@ -63,34 +62,33 @@ internal static class EvirInstructionProgramDefinitionsVerification
         }
 
         var guard = NewEvirInstructionGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach ((ushort entry, int frameCount, EnemyDefinitionId definition, string name) in loops)
         {
-            var enemies = NewEvirInstructionSystem(guard, flags);
-            RoomEnemySlot slot = enemies.Slots[0];
+            var enemies = NewEvirInstructionSystem(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, definition, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int call = 0; call < frameCount + 1; call++)
             {
                 slot.InstructionTimer = 1;
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
             }
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
                 $"Evir {name} completes its loop and loads the first frame");
         }
 
         {
-            var enemies = NewEvirInstructionSystem(guard, flags);
-            RoomEnemySlot slot = enemies.Slots[0];
+            var enemies = NewEvirInstructionSystem(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(
                 slot,
                 EnemyDefinitionId.EvirProjectile,
                 EvirInstructionProgramDefinitions.ProjectileNormal);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            process.Invoke(enemies, arguments);
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             AssertEqual(unchecked((ushort)(
                     EvirInstructionProgramDefinitions.ProjectileNormal + 4)),
                 slot.CurrentInstruction,
@@ -98,10 +96,10 @@ internal static class EvirInstructionProgramDefinitionsVerification
         }
 
         {
-            var enemies = NewEvirInstructionSystem(guard, flags);
+            var enemies = NewEvirInstructionSystem(guard);
             // The regeneration instructions read Evir.instList-$80,X: the body record two
             // slots before the projectile, as the retail population lays them out.
-            RoomEnemySlot slot = enemies.Slots[2];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[2];
             PrepareEvirInstructionSlot(
                 slot,
                 EnemyDefinitionId.EvirProjectile,
@@ -115,11 +113,9 @@ internal static class EvirInstructionProgramDefinitionsVerification
                 RegenerationFlag = 1,
                 Function = EvirAiFunction.ProjectileRegenerating,
             };
-            var states = (EvirEnemyState?[])typeof(RoomEnemySystem)
-                .GetField("_evirStates", flags)!
-                .GetValue(enemies)!;
+            var states = (EvirEnemyState?[])enemies.EvirBehavior._evirStates;
             states[2] = state;
-            states[0] = new EvirEnemyState(enemies.Slots[0])
+            states[0] = new EvirEnemyState(enemies.SlotTable.Slots[0])
             {
                 InstalledInstructionList = EvirInstructionProgramDefinitions.BodyFacingLeft,
             };
@@ -128,7 +124,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             for (int call = 0; call < 10; call++)
             {
                 slot.InstructionTimer = 1;
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
                 if (call == 0)
                     AssertEqual((ushort)8, state.RegenerationXOffset,
                         "a left-facing body sets the +8 offset whatever the projectile's facing word");
@@ -145,7 +141,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
                 "regeneration finish callback leaves the projectile stationary");
             AssertEqual(EvirAiFunction.ProjectileIdle, state.Function,
                 "regeneration finish callback restores idle AI");
-            AssertEqual((ushort)0x005e, enemies.LastEvirSoundEffect,
+            AssertEqual((ushort)0x005e, enemies.EvirBehavior.LastEvirSoundEffect,
                 "regeneration script publishes the native spit sound");
         }
 
@@ -184,11 +180,10 @@ internal static class EvirInstructionProgramDefinitionsVerification
     }
 
     internal static RoomEnemySystem NewEvirInstructionSystem(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+        ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         return enemies;
     }
 

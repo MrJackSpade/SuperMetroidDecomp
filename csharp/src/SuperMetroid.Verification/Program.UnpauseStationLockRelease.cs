@@ -27,13 +27,13 @@ internal static class UnpauseStationLockReleaseVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        SamusState samus = runtime.Samus!;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
-        samus.LockIntoRefillStation();
-        runtime.RunNmi(0, true);
+        samus.ScriptLocks.LockIntoRefillStation();
+        runtime.NmiHandler.RunNmi(0, true);
         var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
         var game = new SuperMetroidGame(bus);
@@ -46,12 +46,12 @@ internal static class UnpauseStationLockReleaseVerification
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)
             game.StepCaptured((ushort)SnesButton.Start, ++sequence, 1);
         AssertEqual(SuperMetroidGameState.UnpausingA, game.GameState, "Start closes the menu");
-        AssertTrue(samus.InputLocked && samus.RefillStationLocked, "the station lock holds through the fade");
+        AssertTrue(samus.InputLocked && samus.ScriptLocks.RefillStationLocked, "the station lock holds through the fade");
         while (game.GameState != SuperMetroidGameState.Unpausing)
             game.StepCaptured(0, ++sequence, 1);
 
         AssertTrue(!samus.InputLocked, "gameplay resume restores Samus's normal handlers");
-        AssertTrue(!samus.RefillStationLocked, "and clears the station lock");
+        AssertTrue(!samus.ScriptLocks.RefillStationLocked, "and clears the station lock");
         Console.WriteLine("  Unpause station lock: command $0C frees a station-locked Samus.");
     }
 

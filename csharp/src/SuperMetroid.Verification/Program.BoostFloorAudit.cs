@@ -18,24 +18,24 @@ internal static class BoostFloorAuditVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.NorfairRoom1E);
-        var level = runtime.LevelData!;
-        var samus = runtime.Samus!;
+        var level = runtime.Room.LevelData!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.VariaSuit);
         samus.Position = samus.Position.WithWhole(new(80, 420));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         int flatFloorFrames = 0;
         bool accelerated = false;
         for (int frame = 0; frame < 240; frame++)
         {
-            runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.ControllerBindings.Dash));
+            runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.Options.ControllerBindings.Dash));
             accelerated |= samus.HorizontalSpeed.ExtraRunSpeed >= 4;
             if (samus.Position.X.Whole is >= 352 and < 416)
             {

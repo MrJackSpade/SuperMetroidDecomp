@@ -35,33 +35,30 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         var guard = NewKraidArmInstructionGuard(rom);
         var executedOperands = new HashSet<ushort>();
         RoomEnemySystem enemies = CreateKraidArmInstructionSystem(guard);
-        RoomEnemySlot body = enemies.Slots[0];
-        RoomEnemySlot arm = enemies.Slots[1];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemySlot arm = enemies.SlotTable.Slots[1];
 
         body.Health = 100;
-        RunKraidArmProgram(rom, executedOperands, process, enemies, arm,
+        RunKraidArmProgram(rom, executedOperands, enemies, arm,
             KraidArmInstructionProgramDefinitions.Normal, calls: 19);
         AssertEqual(unchecked((ushort)(KraidArmInstructionProgramDefinitions.Normal + 4)),
             arm.CurrentInstruction,
             "healthy Kraid arm completes its normal loop");
 
-        RunKraidArmProgram(rom, executedOperands, process, enemies, arm,
+        RunKraidArmProgram(rom, executedOperands, enemies, arm,
             KraidArmInstructionProgramDefinitions.Slow, calls: 19);
         AssertEqual(unchecked((ushort)(KraidArmInstructionProgramDefinitions.Slow + 4)),
             arm.CurrentInstruction,
             "low-health Kraid arm completes its slow loop");
 
-        RunKraidArmProgram(rom, executedOperands, process, enemies, arm,
+        RunKraidArmProgram(rom, executedOperands, enemies, arm,
             KraidArmInstructionProgramDefinitions.RisingOrSinking, calls: 19);
         AssertEqual(unchecked((ushort)(
                 KraidArmInstructionProgramDefinitions.RisingOrSinking + 4)),
             arm.CurrentInstruction,
             "Kraid arm completes its rising/sinking loop");
 
-        RunKraidArmProgram(rom, executedOperands, process, enemies, arm,
+        RunKraidArmProgram(rom, executedOperands, enemies, arm,
             KraidArmInstructionProgramDefinitions.DyingOrPreparingToLunge, calls: 4);
         AssertEqual((ushort)0x8afc,
             arm.CurrentInstruction,
@@ -70,7 +67,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         body.Health = 51;
         arm.CurrentInstruction = 0x8a3b;
         arm.InstructionTimer = 1;
-        InvokeKraidArmInstructionProcessor(rom, executedOperands, process, enemies, arm);
+        InvokeKraidArmInstructionProcessor(rom, executedOperands, enemies, arm);
         AssertEqual(unchecked((ushort)(KraidArmInstructionProgramDefinitions.Slow + 4)),
             arm.CurrentInstruction,
             "below-half-health callback enters slow arm program");
@@ -114,18 +111,14 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField(
-            "_bus",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         var state = new KraidEnemyState();
         state.InitialHealth = 104;
-        typeof(RoomEnemySystem).GetField(
-            "<Kraid>k__BackingField",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, state);
+        enemies.KraidBehavior.Kraid = state;
 
-        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
-        RoomEnemySlot arm = enemies.Slots[1];
+        RoomEnemySlot arm = enemies.SlotTable.Slots[1];
         arm.EnemyDefinitionPointer = EnemyDefinitionId.KraidArm;
         arm.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
         return enemies;
@@ -133,7 +126,6 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
 
     private static void RunKraidArmProgram(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
-        MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot arm,
         ushort entry,
@@ -144,19 +136,16 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         for (int call = 0; call < calls; call++)
         {
             arm.InstructionTimer = 1;
-            InvokeKraidArmInstructionProcessor(rom, executedOperands, process, enemies, arm);
+            InvokeKraidArmInstructionProcessor(rom, executedOperands, enemies, arm);
         }
     }
 
     private static void InvokeKraidArmInstructionProcessor(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
-        MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot arm)
     {
-        process.Invoke(
-            enemies,
-            [arm, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+        EnemyInstructionRunner.Process(enemies, [arm, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
         Suite(nameof(VerifyExecutedEnemySelector), () => VerifyExecutedEnemySelector(rom, arm, executedOperands));
     }
 

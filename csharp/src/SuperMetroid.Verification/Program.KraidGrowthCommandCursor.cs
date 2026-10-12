@@ -31,15 +31,13 @@ internal static class KraidGrowthCommandCursorVerification
         };
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
-        typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!.SetValue(enemies, state);
-        var execute = typeof(RoomEnemySystem).GetMethod("ExecuteKraidHeadInstruction", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, KraidEnemyState, ushort>>(enemies);
-        var footMain = typeof(RoomEnemySystem).GetMethod("RunKraidFootMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
-        var body = enemies.Slots[0];
-        var foot = enemies.Slots[5];
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._vram = new SnesVram();
+        enemies.KraidBehavior.Kraid = state;
+        Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.ExecuteKraidHeadInstruction;
+        Action<RoomEnemySlot, ushort> footMain = enemies.KraidBehavior.RunKraidFootMain;
+        var body = enemies.SlotTable.Slots[0];
+        var foot = enemies.SlotTable.Slots[5];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
         state.InitialHealth = 1000;
         body.Health = 874;

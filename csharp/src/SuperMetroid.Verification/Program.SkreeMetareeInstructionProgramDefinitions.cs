@@ -130,37 +130,33 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
             const BindingFlags flags =
                 BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            slot = enemies.SlotTable.Slots[0];
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
 
             if (metaree)
             {
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Metaree;
-                typeof(RoomEnemySystem).GetMethod("InitializeMetaree", flags)!
-                    .Invoke(enemies, [slot]);
+                enemies.MetareeBehavior.InitializeMetaree(slot);
                 MetareeEnemyState state = enemies.MetareeStates[0]!;
                 state.InstalledInstructionListIndex = phase == SkreeMetareeAnimationPhase.Idling
                     ? SkreeMetareeAnimationPhase.PreparingAttack
                     : SkreeMetareeAnimationPhase.Idling;
                 state.RequestedInstructionListIndex = phase;
                 state.AttackReady = false;
-                typeof(RoomEnemySystem).GetMethod("InstallRequestedMetareeInstruction", flags)!
-                    .Invoke(null, [slot, state]);
+                MetareeBehavior.InstallRequestedMetareeInstruction(slot, state);
             }
             else
             {
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Skree;
-                typeof(RoomEnemySystem).GetMethod("InitializeSkree", flags)!
-                    .Invoke(enemies, [slot]);
+                enemies.SkreeBehavior.InitializeSkree(slot);
                 SkreeEnemyState state = enemies.SkreeStates[0]!;
                 state.InstalledInstructionIndex = phase == SkreeMetareeAnimationPhase.Idling
                     ? SkreeMetareeAnimationPhase.PreparingAttack
                     : SkreeMetareeAnimationPhase.Idling;
                 state.RequestedInstructionIndex = phase;
                 state.AttackReady = false;
-                typeof(RoomEnemySystem).GetMethod("InstallRequestedSkreeInstruction", flags)!
-                    .Invoke(null, [slot, state]);
+                SkreeBehavior.InstallRequestedSkreeInstruction(slot, state);
             }
             return enemies;
         }
@@ -168,11 +164,10 @@ internal static class SkreeMetareeInstructionProgramDefinitionsVerification
         static void RunProgram(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

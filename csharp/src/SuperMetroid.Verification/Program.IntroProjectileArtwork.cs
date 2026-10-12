@@ -31,11 +31,20 @@ internal static class IntroProjectileArtworkVerification
             var shot = projectiles.Slots[0];
             shot.Type = family; shot.InstructionPointer = 1; shot.SpritemapPointer = sprite;
             shot.Position = shot.Position.WithWhole(new(100, 100));
-            game.BindProjectileCompositions(RepositoryInstallation.Projectiles.Catalog);
+            game.BindArtwork(game.Artwork with
+            {
+                ProjectileCompositions = InstalledFixtures.Projectiles.Catalog,
+            });
             byte[] native = Draw(intro);
-            game.BindProjectileCompositions(stock);
+            game.BindArtwork(game.Artwork with
+            {
+                ProjectileCompositions = stock,
+            });
             AssertTrue(native.SequenceEqual(Draw(intro)), "Intro installed projectile binding matches cartridge-extracted stock OAM");
-            game.BindProjectileCompositions(edited);
+            game.BindArtwork(game.Artwork with
+            {
+                ProjectileCompositions = edited,
+            });
             AssertTrue(!native.SequenceEqual(Draw(intro)), "Intro projectile/explosion passes consume edited composition");
         }
         projectiles.Reset();
@@ -50,16 +59,28 @@ internal static class IntroProjectileArtworkVerification
         side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = 100;
         side.Position = side.Position.WithX(100).WithY(100); side.TileNumberAttributes = trails.Resolve(frame);
         byte[] nativeTrail = Draw(intro);
-        game.BindTrailArtwork(trails);
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = trails,
+        });
         AssertTrue(nativeTrail.SequenceEqual(Draw(intro)), "Intro stock trail binding preserves native OAM");
-        game.BindTrailArtwork(editedTrails);
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = editedTrails,
+        });
         AssertTrue(!nativeTrail.SequenceEqual(Draw(intro)), "Intro trail pass consumes selected appearance");
         AssertEqual(97, side.InstructionTimer, "Intro preparation advances trail exactly once per call");
-        game.BindTrailArtwork(null); game.BindProjectileCompositions(null);
-        using var without = new MemoryStream();
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = null,
+            ProjectileCompositions = null,
+        });         using var without = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(without, game);
-        game.BindTrailArtwork(trails); game.BindProjectileCompositions(stock);
-        using var with = new MemoryStream();
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = trails,
+            ProjectileCompositions = stock,
+        });         using var with = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Intro snapshot excludes host appearance catalogs");
         with.Position = 0;
@@ -67,9 +88,15 @@ internal static class IntroProjectileArtworkVerification
         var restoredIntro = (IntroCinematicState)introField.GetValue(restored)!;
         AssertTrue(restoredIntro.TrailArtwork is null && restoredIntro.ProjectileCompositions is null, "Restored intro requires host content rebind");
         BindRestoredIntroDrawFixture(restoredIntro);
-        restored.BindTrailArtwork(editedTrails); restored.BindProjectileCompositions(edited);
-        game.BindTrailArtwork(editedTrails); game.BindProjectileCompositions(edited);
-        AssertTrue(Draw(intro).SequenceEqual(Draw(restoredIntro)), "Restored cinematic draws current artwork at saved animation position");
+        restored.BindArtwork(restored.Artwork with
+        {
+            TrailArtwork = editedTrails,
+            ProjectileCompositions = edited,
+        });         game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = editedTrails,
+            ProjectileCompositions = edited,
+        });         AssertTrue(Draw(intro).SequenceEqual(Draw(restoredIntro)), "Restored cinematic draws current artwork at saved animation position");
         Console.WriteLine("Intro projectile artwork: live/explosion/trail stock parity, visible edits, native timing and nonserialized state rebind pass.");
     }
 
@@ -79,10 +106,10 @@ internal static class IntroProjectileArtworkVerification
         // dependencies without invoking the separate cinematic-sheet reupload path,
         // which deliberately replaces VRAM and is covered by the cinematic art fixture.
         typeof(IntroCinematicState).GetField("characterArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(intro, RepositoryInstallation.IntroArtwork);
-        intro.BindSamusBodyArtwork(RepositoryInstallation.SamusBody);
-        intro.ProjectileCompositions = RepositoryInstallation.Projectiles.Catalog;
-        intro.ProjectileFrameBindings = RepositoryInstallation.Projectiles.FrameBindings;
+            .SetValue(intro, InstalledFixtures.IntroArtwork);
+        intro.BindSamusBodyArtwork(InstalledFixtures.SamusBody);
+        intro.ProjectileCompositions = InstalledFixtures.Projectiles.Catalog;
+        intro.ProjectileFrameBindings = InstalledFixtures.Projectiles.FrameBindings;
     }
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
@@ -94,7 +121,10 @@ internal static class IntroProjectileArtworkVerification
         byte[] native = vram.Bytes.ToArray();
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var stock = ProjectileTrailCatalog.Load(new MemoryStream(json), ProjectileTrailAtlas.Load(new MemoryStream(png)));
-        game.BindTrailArtwork(stock);
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = stock,
+        });
         draw(intro);
         AssertTrue(native.AsSpan().SequenceEqual(vram.Bytes), "Intro stock trail PNG preserves every VRAM byte, including compressed cinematic sprites");
         var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
@@ -112,7 +142,10 @@ internal static class IntroProjectileArtworkVerification
         BindRestoredIntroDrawFixture(restoredIntro);
         foreach (var pair in new[] { (game, intro), (restored, restoredIntro) })
         {
-            pair.Item1.BindTrailArtwork(edited);
+            pair.Item1.BindArtwork(pair.Item1.Artwork with
+            {
+                TrailArtwork = edited,
+            });
             var actual = (SnesVram)vramField.GetValue(pair.Item2)!;
             AssertTrue(native.AsSpan().SequenceEqual(actual.Bytes), "Intro PNG rebind does not mutate the retained display before preparation");
             draw(pair.Item2);
@@ -124,9 +157,15 @@ internal static class IntroProjectileArtworkVerification
             }
             // Binding no replacement retains native/debug behavior without inventing
             // a ROM-backed restore on every draw. Explicitly restore stock for callers.
-            pair.Item1.BindTrailArtwork(stock);
+            pair.Item1.BindArtwork(pair.Item1.Artwork with
+            {
+                TrailArtwork = stock,
+            });
             draw(pair.Item2);
         }
-        game.BindTrailArtwork(RepositoryInstallation.Projectiles.Trails);
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = InstalledFixtures.Projectiles.Trails,
+        });
     }
 }

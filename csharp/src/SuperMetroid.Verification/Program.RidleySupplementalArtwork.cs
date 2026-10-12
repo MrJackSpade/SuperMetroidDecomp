@@ -62,9 +62,8 @@ internal static class RidleySupplementalArtworkVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(enemies, NewRidleySupplementReadGuard(rom));
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewRidleySupplementReadGuard(rom));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         slot.Position = slot.Position.WithWhole(new(200, 100));
         var state = new RidleyEnemyState
@@ -82,10 +81,9 @@ internal static class RidleySupplementalArtworkVerification
                     Angle = index == 6 ? unchecked((ushort)(tailDirection.Value << 4)) : (ushort)0,
                 })],
         };
-        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, state);
+        enemies.RidleyEncounter.Ridley = state;
         var oam = new OamBuffer();
-        typeof(RoomEnemySystem).GetMethod("DrawRidleySupplementalSprites", flags)!
-            .CreateDelegate<Action<OamBuffer, RoomEnemySlot, Position16<RoomPixels>>>(enemies)(
+        new Action<OamBuffer, RoomEnemySlot, Position16<RoomPixels>>(enemies.CeresRidleyBehavior.DrawRidleySupplementalSprites)(
                 oam, slot, Position16<RoomPixels>.Zero);
         return oam;
     }

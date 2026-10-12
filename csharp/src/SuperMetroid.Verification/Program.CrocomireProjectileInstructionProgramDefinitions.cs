@@ -30,20 +30,16 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         Suite(nameof(VerifyCrocomireProjectileMechanicsDispatch), () => VerifyCrocomireProjectileMechanicsDispatch(rom));
         Suite(nameof(VerifyCrocomireProjectilePresentationPositions), () => VerifyCrocomireProjectilePresentationPositions(rom));
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewCrocomireProjectileInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
 
         RoomEnemySystem mouthSystem = NewSystem();
-        MethodInfo spawnMouth = typeof(RoomEnemySystem).GetMethod(
-            "SpawnCrocomireProjectile", flags)!;
-        RoomEnemySlot mouthOwner = mouthSystem.Slots[0];
+        RoomEnemySlot mouthOwner = mouthSystem.SlotTable.Slots[0];
         mouthOwner.Position = mouthOwner.Position.WithWhole(new(224, 128));
-        spawnMouth.Invoke(mouthSystem, [mouthOwner, (ushort)2]);
-        RoomEnemyProjectileSlot mouth = mouthSystem.EnemyProjectiles.Single(
+        mouthSystem.CrocomireBehavior.SpawnCrocomireProjectile(mouthOwner, (ushort)2);
+        RoomEnemyProjectileSlot mouth = mouthSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
         AssertEqual(CrocomireProjectileInstructionProgramDefinitions.MouthProjectile,
             mouth.InstructionPointer,
@@ -62,20 +58,16 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         RunForcedTicks(mouthSystem, mouth, 1);
         AssertTrue(!mouth.IsActive,
             "Crocomire mouth shot reaches shared deletion after requesting its drop");
-        AssertTrue(mouthSystem.EnemyProjectiles.Any(projectile =>
+        AssertTrue(mouthSystem.Projectiles.EnemyProjectiles.Any(projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
             "Crocomire mouth shot invokes the production drop allocator before deletion");
 
         RoomEnemySystem bridgeSystem = NewSystem();
-        var bridgeState = new CrocomireEnemyState(bridgeSystem.Slots[0]);
-        typeof(RoomEnemySystem).GetField("<Crocomire>k__BackingField", flags)!
-            .SetValue(bridgeSystem, bridgeState);
-        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!
-            .SetValue(bridgeSystem, new CrocomireDeathState());
-        MethodInfo spawnBridge = typeof(RoomEnemySystem).GetMethod(
-            "SpawnNextCrocomireBridgeFragment", flags)!;
-        spawnBridge.Invoke(bridgeSystem, []);
-        RoomEnemyProjectileSlot bridge = bridgeSystem.EnemyProjectiles.Single(
+        var bridgeState = new CrocomireEnemyState(bridgeSystem.SlotTable.Slots[0]);
+        bridgeSystem.CrocomireBehavior.Crocomire = bridgeState;
+        bridgeSystem.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
+        bridgeSystem.CrocomireBehavior.SpawnNextCrocomireBridgeFragment();
+        RoomEnemyProjectileSlot bridge = bridgeSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.CrocomireBridgeCrumbling);
         AssertEqual(CrocomireProjectileInstructionProgramDefinitions.BridgeFragment,
@@ -88,15 +80,12 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
             "Crocomire bridge fragment loops its persistent pose");
 
         RoomEnemySystem spikeSystem = NewSystem();
-        RoomEnemySlot spikeOwner = spikeSystem.Slots[0];
+        RoomEnemySlot spikeOwner = spikeSystem.SlotTable.Slots[0];
         spikeOwner.VramTilesIndex = 0x0200;
         spikeOwner.PaletteIndex = 0x0c00;
-        typeof(RoomEnemySystem).GetField("<Crocomire>k__BackingField", flags)!
-            .SetValue(spikeSystem, new CrocomireEnemyState(spikeOwner));
-        MethodInfo spawnSpikes = typeof(RoomEnemySystem).GetMethod(
-            "SpawnCrocomireSpikeWallPieces", flags)!;
-        spawnSpikes.Invoke(spikeSystem, null);
-        RoomEnemyProjectileSlot[] spikes = spikeSystem.EnemyProjectiles.Where(projectile =>
+        spikeSystem.CrocomireBehavior.Crocomire = new CrocomireEnemyState(spikeOwner);
+        spikeSystem.CrocomireBehavior.SpawnCrocomireSpikeWallPieces();
+        RoomEnemyProjectileSlot[] spikes = spikeSystem.Projectiles.EnemyProjectiles.Where(projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.CrocomireSpikeWallPieces)
             .ToArray();
         AssertEqual(8, spikes.Length,
@@ -156,12 +145,10 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x0080);
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x0080);
-            typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
-                enemies,
-                new SamusState { Health = 99, MaxHealth = 99 });
+            enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
             return enemies;
         }
 
@@ -173,7 +160,7 @@ internal static class CrocomireProjectileInstructionProgramDefinitionsVerificati
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }

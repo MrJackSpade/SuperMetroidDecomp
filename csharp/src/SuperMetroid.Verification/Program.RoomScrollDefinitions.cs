@@ -107,7 +107,7 @@ internal static class RoomScrollDefinitionsVerification
         var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];
         for (int index = 0; index < ceresResidue.Length; index++)
             ceresResidue[index] = scrolls.Zones[index];
-        guardedCeres.InitializeStartingCeresRoom();
+        guardedCeres.RoomLoader.InitializeStartingCeresRoom();
         var expectedCeres = new byte[RoomScrollGrid.StorageByteCount];
         int ceresLogicalCount = ceres.Size.X * ceres.Size.Y;
         RoomScrollState ceresLastRow = RoomScrollStates.FromCartridge(
@@ -121,7 +121,7 @@ internal static class RoomScrollDefinitionsVerification
                     : RoomScrollState.Green)
                 : ceresResidue[index];
         }
-        AssertTrue(expectedCeres.AsSpan().SequenceEqual(guardedCeres.Camera!.Scrolls.Storage),
+        AssertTrue(expectedCeres.AsSpan().SequenceEqual(guardedCeres.Room.Camera!.Scrolls.Storage),
             "production Ceres entry installs compiled scroll storage");
 
         Console.WriteLine(

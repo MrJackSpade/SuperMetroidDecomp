@@ -23,7 +23,7 @@ internal static class CeilingWrapVerification
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Invoke the real producer collision path with the native probe's stationary
         // projectile registers. This isolates collision/PLM allocation from launch AI.
-        var collide = typeof(SamusProjectileSystem).GetMethod("RunInitialBeamCollision",
+        var collide = typeof(ProjectileTerrainCollision).GetMethod("RunInitialBeamCollision",
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         var system = new SamusProjectileSystem();
         var powerBomb = new SamusPowerBombExplosionState();
@@ -37,9 +37,9 @@ internal static class CeilingWrapVerification
                 Direction = (ushort)SamusProjectileDirection.Right };
             for (int call = 0; call < 45; call++)
             {
-                collide.Invoke(system, [level, shot, plms, true, powerBomb]);
-                int owner = plms.ActiveCount == 0 ? 0 : plms.PopulationSlots[0].BlockIndex * 2;
-                string actual = $"{tileX},{call},{plms.ActiveCount},{owner:X4},{level.GetCollisionBlockByIndex(tileX).LevelWord:X4},{level.GetCollisionBlockByIndex(tileX + 1).LevelWord:X4}";
+                collide.Invoke(system.TerrainCollision, [level, shot, plms, true, powerBomb]);
+                int owner = plms.SlotTable.ActiveCount == 0 ? 0 : plms.PopulationSlots[0].BlockIndex * 2;
+                string actual = $"{tileX},{call},{plms.SlotTable.ActiveCount},{owner:X4},{level.GetCollisionBlockByIndex(tileX).LevelWord:X4},{level.GetCollisionBlockByIndex(tileX + 1).LevelWord:X4}";
                 string expected = native[cursor++];
                 if (actual != expected && mismatches++ < 8)
                     Console.WriteLine($"Ceiling PLM mismatch:\n{actual}\n{expected}");

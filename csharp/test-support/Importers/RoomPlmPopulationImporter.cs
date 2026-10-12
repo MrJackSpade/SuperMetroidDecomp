@@ -29,7 +29,7 @@ internal static class RoomPlmPopulationImporter
             ushort argument = Word(0x8f, unchecked((ushort)(cursor + 4)));
             byte[] scroll = header == PlmHeaderId.ScrollTrigger ? Scroll(argument) : [];
             RoomPlmDynamicCollectibleGraphic? graphic = null;
-            if (RoomPlmSystem.TryIdentifyPermanentCollectible(header, out var kind, out _) &&
+            if (CollectiblePlms.TryIdentifyPermanentCollectible(header, out var kind, out _) &&
                 kind >= InWorldCollectibleKind.Bombs)
             {
                 ushort instruction = metadata.InitialInstruction;

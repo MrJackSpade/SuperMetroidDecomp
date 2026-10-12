@@ -25,21 +25,21 @@ internal static class FrozenTimeEnemyProjectilesVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xd0b9);
-        runtime.Samus!.InputLocked = true;
+        runtime.Player.Samus!.InputLocked = true;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        RoomEnemySlot victim = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
-        typeof(RoomEnemySystem).GetMethod("StartGenericEnemyDeath", flags)!.Invoke(runtime.Enemies, [victim, (ushort)2]);
-        RoomEnemyProjectileSlot explosion = runtime.Enemies.EnemyProjectiles
+        RoomEnemySlot victim = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
+        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(victim, (ushort)2);
+        RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         runtime.StepFrame(0);
         ushort pointer = explosion.InstructionPointer;
         ushort timer = explosion.InstructionTimer;
 
-        runtime.GameplayTimeFrozen = true;
+        runtime.Freeze.GameplayTimeFrozen = true;
         runtime.StepFrame(0);
 
         AssertTrue(explosion.InstructionPointer != pointer || explosion.InstructionTimer != timer,

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// damage, door, extension, or square-slope behavior and throw instead of being flattened
 /// to “air” or “solid.”
 /// </remarks>
-public static partial class SamusBlockCollision
+public static class SamusBlockCollision
 {
     /// <summary>
     /// Ports the block-only observation made by <c>WallJumpBlockCollisionDetection</c> at
@@ -218,11 +218,11 @@ public static partial class SamusBlockCollision
                             ref acceptedDisplacement, out _, move.BlockReactionDirection, terrain.Plms);
                         if (collided) collisionBlock = block;
                         if (block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
-                            (terrain.Plms is null || !terrain.Plms.TryNotifyScrollTouch(block.Index)))
+                            (terrain.Plms is null || !terrain.Plms.Scrolls.TryNotifyScrollTouch(block.Index)))
                         {
                             throw new InvalidOperationException(
                                 $"Scroll trigger block {block.Index} has no active $B703 PLM owner; " +
-                                $"live=[{string.Join(',', terrain.Plms?.ScrollPlms.Select(scroll => scroll.BlockIndex) ?? [])}].");
+                                $"live=[{string.Join(',', terrain.Plms?.Scrolls.Snapshots.Select(scroll => scroll.BlockIndex) ?? [])}].");
                         }
                         break;
 
@@ -248,7 +248,7 @@ public static partial class SamusBlockCollision
                         // shared $EED3 detector, whose setup triggers the item at this
                         // origin and returns carry clear; Samus therefore passes through
                         // rather than clipping against the item's visual block.
-                        if (terrain.Plms is null || !terrain.Plms.TryNotifyCollectibleTouch(block.Index))
+                        if (terrain.Plms is null || !terrain.Plms.CollectiblePlms.TryNotifyCollectibleTouch(block.Index))
                         {
                             throw new InvalidOperationException(
                                 $"Collectible block {block.Index} has no active item PLM owner.");
@@ -259,7 +259,7 @@ public static partial class SamusBlockCollision
                         // Both special-solid dispatchers enter Spawn_PLM with clear carry.
                         // A full pool returns without running setup, so even a block whose
                         // setup would normally reject contact falls through as air.
-                        if (terrain.Plms?.IsAllocationFull == true)
+                        if (terrain.Plms?.Quicksand.IsAllocationFull == true)
                             break;
                         // `$94:90CB` dispatches the speed-block entries through setup
                         // `$84:CDEA`. A stage-four boost or directional shinespark clears
@@ -267,7 +267,7 @@ public static partial class SamusBlockCollision
                         // through the newly non-solid cell.
                         if (state.SamusOwner is { } speedBoostingSamus &&
                             terrain.Plms is not null &&
-                            terrain.Plms.TrySpawnSamusSpeedBoosterBlock(
+                            terrain.Plms.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                                 terrain.Level,
                                 block.Index,
                                 block.Bts,
@@ -281,7 +281,7 @@ public static partial class SamusBlockCollision
                         if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
                             block.Bts.TryGetStationAccess(out _) &&
                             (terrain.Plms is null ||
-                             !terrain.Plms.TryNotifyStationCollision(
+                             !terrain.Plms.Stations.TryNotifyStationCollision(
                                  block.Index,
                                  block.Bts,
                                  state.CollisionPose,
@@ -307,7 +307,7 @@ public static partial class SamusBlockCollision
                         // is speed boosting, screw attacking, or in pose `$C9-$CE`. On an
                         // accepted break it installs the air-type bomb-parent visual and
                         // returns carry clear, so this scan continues through the new air.
-                        if (terrain.Plms?.IsAllocationFull == true)
+                        if (terrain.Plms?.Quicksand.IsAllocationFull == true)
                             break;
                         if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, move.CanBreakBombBlocks))
                         {
@@ -331,7 +331,7 @@ public static partial class SamusBlockCollision
                         // explicitly omitting the later independent animation lifecycle.
                         bool spawned = terrain.Plms is null
                             ? ClearCollisionTypeWithoutLifecycle(terrain.Level, block.Index)
-                            : terrain.Plms.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Bts);
+                            : terrain.Plms.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Bts);
                         if (spawned)
                             brokenBombBlock ??= block;
                         break;
@@ -576,11 +576,11 @@ public static partial class SamusBlockCollision
                     }
                     if (block.CollisionType == RoomCollisionType.SpecialAir &&
                         block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
-                        (terrain.Plms is null || !terrain.Plms.TryNotifyScrollTouch(block.Index)))
+                        (terrain.Plms is null || !terrain.Plms.Scrolls.TryNotifyScrollTouch(block.Index)))
                     {
                         throw new InvalidOperationException(
                             $"Scroll trigger block {block.Index} has no active $B703 PLM owner; " +
-                            $"live=[{string.Join(',', terrain.Plms?.ScrollPlms.Select(scroll => scroll.BlockIndex) ?? [])}].");
+                            $"live=[{string.Join(',', terrain.Plms?.Scrolls.Snapshots.Select(scroll => scroll.BlockIndex) ?? [])}].");
                     }
                     // Scroll wake-up itself remains carry-clear; sand has a separate
                     // carry/contact contract handled above.
@@ -610,7 +610,7 @@ public static partial class SamusBlockCollision
 
                 case RoomCollisionType.SpecialBlock when
                     block.Bts == RoomBlockBehaviorValues.CollectibleTrigger:
-                    if (terrain.Plms is null || !terrain.Plms.TryNotifyCollectibleTouch(block.Index))
+                    if (terrain.Plms is null || !terrain.Plms.CollectiblePlms.TryNotifyCollectibleTouch(block.Index))
                     {
                         throw new InvalidOperationException(
                             $"Collectible block {block.Index} has no active item PLM owner.");
@@ -621,12 +621,12 @@ public static partial class SamusBlockCollision
                     // Spawn_PLM preserves bank $94's clear carry when all forty slots
                     // are occupied. No setup runs, so the unchanged special block is
                     // treated as air for this collision probe.
-                    if (terrain.Plms?.IsAllocationFull == true)
+                    if (terrain.Plms?.Quicksand.IsAllocationFull == true)
                         break;
                     // Hand reactions change state but return unconditional collision:
                     // even an admitted morph contact is clipped by this same scan.
                     if (state.SamusOwner is { } chozoSamus)
-                        terrain.Plms?.NotifyChozoStatueHandCollision(terrain.Level, block, chozoSamus,
+                        terrain.Plms?.ChozoStatue.NotifyChozoStatueHandCollision(terrain.Level, block, chozoSamus,
                             state.CollisionPose, movingDown: acceptedDisplacement > 0 &&
                                 (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
                     // The vertical special-solid dispatcher shares setup `$84:CDEA`
@@ -634,7 +634,7 @@ public static partial class SamusBlockCollision
                     // before clipping; rejected/non-speed special blocks remain solid.
                     if (state.SamusOwner is { } speedBoostingSamus &&
                         terrain.Plms is not null &&
-                        terrain.Plms.TrySpawnSamusSpeedBoosterBlock(
+                        terrain.Plms.BlockReactions.TrySpawnSamusSpeedBoosterBlock(
                             terrain.Level,
                             block.Index,
                             block.Bts,
@@ -659,7 +659,7 @@ public static partial class SamusBlockCollision
                         // `$94:9102` always returns carry set for CE37. Setup removes
                         // the special collision nibble immediately (leaving the block
                         // type-eight solid), and this downward scan remains clipped.
-                        if (!terrain.Plms.TrySpawnSamusContactCrumbleBlock(
+                        if (!terrain.Plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(
                                 terrain.Level,
                                 block.Index,
                                 block.Bts))
@@ -670,7 +670,7 @@ public static partial class SamusBlockCollision
                     if (move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
                         block.Bts.TryGetStationAccess(out _) &&
                         (terrain.Plms is null ||
-                         !terrain.Plms.TryNotifyStationCollision(
+                         !terrain.Plms.Stations.TryNotifyStationCollision(
                              block.Index,
                              block.Bts,
                              state.CollisionPose,
@@ -692,7 +692,7 @@ public static partial class SamusBlockCollision
                 case RoomCollisionType.BombableBlock:
                     // Vertical dispatch is `$94:934C` and shares the exact bank-$84
                     // setup/carry contract documented in the horizontal branch above.
-                    if (terrain.Plms?.IsAllocationFull == true)
+                    if (terrain.Plms?.Quicksand.IsAllocationFull == true)
                     {
                         // The full native pool prevents rejection setup from setting
                         // carry. Bank $94 therefore keeps its pre-call clear carry and
@@ -716,7 +716,7 @@ public static partial class SamusBlockCollision
                     if (terrain.Plms is null)
                         ClearCollisionTypeWithoutLifecycle(terrain.Level, block.Index);
                     else
-                        terrain.Plms.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Bts);
+                        terrain.Plms.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Bts);
                     break;
 
                 default:
@@ -785,7 +785,7 @@ public static partial class SamusBlockCollision
         if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, explicitAdmission))
             return;
         if (plms is not null)
-            plms.TrySpawnCollisionBombBlock(level, block.Index, block.Bts);
+            plms.BlockReactions.TrySpawnCollisionBombBlock(level, block.Index, block.Bts);
         else
             ClearCollisionTypeWithoutLifecycle(level, block.Index);
     }
@@ -796,7 +796,7 @@ public static partial class SamusBlockCollision
     /// probe. Explicit admissions remain for ownerless probes.
     /// </summary>
     private static bool CanBreakCollisionBombBlock(SamusKinematicsState state, bool explicitAdmission) =>
-        explicitAdmission || state.SamusOwner?.BreaksCollisionBombBlocks == true;
+        explicitAdmission || state.SamusOwner?.PoseMetadata.BreaksCollisionBombBlocks == true;
 
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
         ISnesAddressSpace bus,
@@ -1140,6 +1140,69 @@ public static partial class SamusBlockCollision
             $"Collision extension chain beginning at block {block.Index} contains a cycle.");
     }
 
+    /// <summary>
+    /// Native PostGrappleCollisionDetection ($90:EF22), using the vertical dispatcher
+    /// at $94:84CD. Call before replacing the connected pose and its collision radius.
+    /// </summary>
+    public static void EjectAfterGrapple(ISnesAddressSpace bus, RoomLevelData level, SamusKinematicsState state)
+    {
+        // Native horizontal scans only populate scratch distances: this routine never
+        // applies them. These probes do not trigger PLMs, doors, damage, or enemies.
+        int up = GrappleVerticalOverlap(bus, level, state, down: true);
+        int down = GrappleVerticalOverlap(bus, level, state, down: false);
+        if (up == 0 || down != 0) return;
+        state.Position -= new Offset16<RoomPixels>(0, unchecked((short)up));
+        // Tall bodies may overlap two rows. Retail repeats once, not until clear.
+        if (state.Radius.Y >= 16)
+            state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(bus, level, state, down: true))));
+    }
+
+    private static int GrappleVerticalOverlap(ISnesAddressSpace bus, RoomLevelData level, SamusKinematicsState state, bool down)
+    {
+        int boundary = unchecked((ushort)(state.Position.Y.Whole + (down ? state.Radius.Y - 1 : -state.Radius.Y)));
+        int left = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
+        int right = unchecked((ushort)(state.Position.X.Whole + state.Radius.X - 1));
+        int firstColumn = left >> 4;
+        int lastColumn = right >> 4;
+        int maximum = 0;
+        for (int column = firstColumn; column <= lastColumn; column++)
+        {
+            RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)column), unchecked((ushort)(boundary >> 4))));
+            int depth;
+            // The post-grapple table treats even vertical extensions as solid, without
+            // following BTS. Ordinary movement's dispatcher is not interchangeable.
+            if (block.CollisionType >= RoomCollisionType.SolidBlock)
+                depth = boundary & 15;
+            else if (block.CollisionType != RoomCollisionType.Slope)
+                continue;
+            else if (block.Bts.IsNonSquareSlope)
+            {
+                if (column != state.Position.X.Whole >> 4) continue;
+                if (block.Bts.SlopeFlipsVertically == down)
+                    depth = boundary & 15;
+                else
+                {
+                    int difference = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.Position.X.Whole) - (boundary & 15) - 1;
+                    depth = down ? (difference <= 0 ? ~difference : -1) : (difference >= 0 ? difference : -1);
+                }
+            }
+            else
+            {
+                int quadrant = 4 * block.Bts.SlopeShape + (block.Bts.SlopeOrientation ^ ((boundary & 8) >> 2));
+                bool selected = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant) != 0;
+                bool collides;
+                if (column == lastColumn)
+                    collides = (right & 8) == 0 ? selected : selected || SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                else if (column != firstColumn || (left & 8) == 0)
+                    collides = selected || SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                else
+                    collides = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
+                depth = collides ? (down ? boundary & 7 : (boundary & 7) ^ 7) : -1;
+            }
+            maximum = Math.Max(maximum, depth + 1);
+        }
+        return maximum;
+    }
 }
 
 /// <summary>Observable result of one bank-$94 room-block movement scan.</summary>

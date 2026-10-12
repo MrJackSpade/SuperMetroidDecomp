@@ -23,11 +23,6 @@ internal static class CeresDoorInitializationDefinitionsVerification
         const int functionTable = 0xa6f72b;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeCeresDoor", flags)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
-        FieldInfo vramField = typeof(RoomEnemySystem).GetField("_vram", flags)!;
-        FieldInfo cgramField = typeof(RoomEnemySystem).GetField("_cgram", flags)!;
         var guarded = NewCeresDoorInitializationReadGuard(rom);
 
         for (ushort variant = 0; variant < 7; variant++)
@@ -41,14 +36,14 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 definition.InstructionList,
                 $"Ceres door instruction selector {variant}");
 
-            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-            busField.SetValue(enemies, guarded);
-            vramField.SetValue(enemies, new SnesVram());
-            cgramField.SetValue(enemies, new SnesCgram());
-            RoomEnemySlot slot = enemies.Slots[0];
+            var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            enemies.BindFixtureBus(guarded);
+            enemies.Presentation._vram = new SnesVram();
+            enemies.Presentation._cgram = new SnesCgram();
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = variant;
 
-            initialize.Invoke(enemies, [slot]);
+            enemies.CeresDoorBehavior.InitializeCeresDoor(slot);
 
             AssertEqual((ushort)definition.MainFunction, slot.VariableA,
                 $"production Ceres door function selector {variant}");

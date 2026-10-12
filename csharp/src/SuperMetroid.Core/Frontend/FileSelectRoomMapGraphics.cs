@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Room-select BG1 map and BG2 frame installed by $81:A725 and $82:9517.</summary>
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
-public sealed partial class FileSelectRoomMapGraphics
+public sealed class FileSelectRoomMapGraphics
 {
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
@@ -150,5 +150,31 @@ public sealed partial class FileSelectRoomMapGraphics
             SnesBgTilemapRenderer.Composite4BppViewport(pixels, Vram, Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = FileSelectMapRomData.RoomCharacters }, new BgViewport { Scroll = scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize }, priority: priority);
         }
         return pixels;
+    }
+
+    /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>
+    [PpuLayoutBoundary("codec: file-select room-map render packet layers")]
+    public LayeredRenderSnapshot CaptureRenderSnapshot(Position16<MapPixels> scroll = default,
+        FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, bool frameOnly = false)
+    {
+        var layers = new List<RenderLayer>();
+        if (frameOnly)
+            layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), null));
+        else
+            foreach (bool priority in new[] { false, true })
+            {
+                layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), priority));
+                layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
+                    scroll.AsBgPlaneScroll(), new Extent16<TilemapCells>(64, 32), priority));
+            }
+        OamBuffer oam;
+        if (marker is not null && !frameOnly)
+        {
+            oam = PrepareIcons(scroll, marker, animations);
+            layers.Add(new ObjRenderLayer());
+        }
+        else { oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame(); }
+        return new(PpuMemorySnapshot.Capture(Vram, Cgram, oam), layers.ToArray(), FileSelectMapRomData.ObjectSelection,
+            SnesPpuLayout.MaximumMasterBrightness);
     }
 }

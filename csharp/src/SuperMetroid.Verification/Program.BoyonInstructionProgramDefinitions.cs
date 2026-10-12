@@ -118,8 +118,7 @@ internal static class BoyonInstructionProgramDefinitionsVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(bouncing.Position.Whole),
         };
-        var runMain = typeof(RoomEnemySystem).GetMethod("RunBoyonMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, BoyonEnemyState, SamusState?>>();
+        Action<RoomEnemySlot, BoyonEnemyState, SamusState?> runMain = BoyonBehavior.RunBoyonMain;
         runMain(bouncing, bouncingState, samus);
         runMain(bouncing, bouncingState, samus);
         AssertEqual(BoyonInstructionProgramDefinitions.Bouncing, bouncing.CurrentInstruction,
@@ -127,7 +126,7 @@ internal static class BoyonInstructionProgramDefinitionsVerification
         RunBoyonProgram(bouncingSystem, bouncing, frames: 40);
         AssertTrue(bouncing.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "Boyon bouncing program enables off-screen processing");
-        AssertEqual((ushort)0x000e, bouncingSystem.LastBoyonSoundEffect!.Value,
+        AssertEqual((ushort)0x000e, bouncingSystem.BoyonBehavior.LastBoyonSoundEffect!.Value,
             "Boyon bouncing callback publishes native sound");
         AssertTrue(!bouncingState.BounceDisabled,
             "Boyon bouncing callback permits the movement arc");
@@ -153,10 +152,9 @@ internal static class BoyonInstructionProgramDefinitionsVerification
             out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBoyon", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.BoyonBehavior.InitializeBoyon;
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Boyon;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = 0;
@@ -171,11 +169,10 @@ internal static class BoyonInstructionProgramDefinitionsVerification
             RoomEnemySlot slot,
             int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

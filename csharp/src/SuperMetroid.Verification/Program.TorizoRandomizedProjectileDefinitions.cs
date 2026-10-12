@@ -23,9 +23,6 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var guarded = NewTorizoRandomizedProjectileReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeTorizoRandomizedProjectile",
-            instanceFlags)!;
         foreach ((int address, TorizoRandomizedProjectileDefinition definition, string name)
             in definitions)
         {
@@ -41,14 +38,13 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
                 $"{name} base Y velocity");
 
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-                .SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             int randomCall = 0;
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff);
-            RoomEnemySlot torizo = enemies.Slots[0];
+            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
-            RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
-            initialize.Invoke(enemies, [projectile, torizo, definition]);
+            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
+            enemies.BombTorizoBehavior.InitializeTorizoRandomizedProjectile(projectile, torizo, definition);
 
             AssertEqual(definition.InstructionList, projectile.InstructionPointer,
                 $"{name} production instruction");
@@ -67,25 +63,29 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         {
             VerifyTorizoRandomizedSpawn(
                 guarded,
-                "SpawnBombTorizoChozoOrb",
+                nameof(BombTorizoBehavior.SpawnBombTorizoChozoOrb),
+                (enemies, torizo) => enemies.BombTorizoBehavior.SpawnBombTorizoChozoOrb(torizo),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.BombChozoOrb(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 guarded,
-                "SpawnGoldenTorizoChozoOrb",
+                nameof(BombTorizoBehavior.SpawnGoldenTorizoChozoOrb),
+                (enemies, torizo) => enemies.BombTorizoBehavior.SpawnGoldenTorizoChozoOrb(torizo),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenChozoOrb(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 guarded,
-                "SpawnGoldenTorizoEgg",
+                nameof(BombTorizoBehavior.SpawnGoldenTorizoEgg),
+                (enemies, torizo) => enemies.BombTorizoBehavior.SpawnGoldenTorizoEgg(torizo),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenEgg(facingRight),
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 guarded,
-                "SpawnGoldenTorizoEyeBeam",
+                nameof(BombTorizoBehavior.SpawnGoldenTorizoEyeBeam),
+                (enemies, torizo) => enemies.BombTorizoBehavior.SpawnGoldenTorizoEyeBeam(torizo, 0),
                 facingRight,
                 TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(facingRight),
                 velocityIsReplaced: true);
@@ -98,26 +98,21 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
     private static void VerifyTorizoRandomizedSpawn(
         ISnesAddressSpace guarded,
         string methodName,
+        Action<RoomEnemySystem, RoomEnemySlot> spawn,
         bool facingRight,
         TorizoRandomizedProjectileDefinition expected,
         bool velocityIsReplaced)
     {
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-            .SetValue(enemies, guarded);
+        enemies.BindFixtureBus(guarded);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-        RoomEnemySlot torizo = enemies.Slots[0];
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
 
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(methodName, instanceFlags)!;
-        if (methodName == "SpawnGoldenTorizoEyeBeam")
-            spawn.Invoke(enemies, [torizo, (ushort)0]);
-        else
-            spawn.Invoke(enemies, [torizo]);
+        spawn(enemies, torizo);
 
-        RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
+        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
         AssertTrue(projectile.IsActive, $"{methodName} facing {facingRight} allocation");
         AssertEqual(expected.InstructionList, projectile.InstructionPointer,
             $"{methodName} facing {facingRight} instruction");

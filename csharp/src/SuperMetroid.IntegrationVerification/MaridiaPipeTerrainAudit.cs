@@ -10,11 +10,11 @@ internal static class MaridiaPipeTerrainAudit
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame, bool requireAuthoredTerrain = false)
     {
-        if (runtime.ActiveRoom?.Pointer != MaridiaPipeFixtureDefinitions.TubeRoom || snapshot.Layers is not { } layers) return;
+        if (runtime.Room.ActiveRoom?.Pointer != MaridiaPipeFixtureDefinitions.TubeRoom || snapshot.Layers is not { } layers) return;
         var gameplay = layers.Layers.ToArray().OfType<OrdinaryGameplayRenderLayer>().Single();
         var r = gameplay.Registers;
         var scroll = runtime.BackgroundScroll;
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         foreach (bool background in new[] { false, true })
         {
             if (background && ((scroll.Layer2Scroll.Horizontal | scroll.Layer2Scroll.Vertical) & 1) != 0) continue;

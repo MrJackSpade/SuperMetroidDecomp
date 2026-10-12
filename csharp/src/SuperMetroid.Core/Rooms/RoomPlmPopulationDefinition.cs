@@ -98,7 +98,7 @@ public sealed class RoomPlmPopulationDefinition
         RoomPlmDynamicCollectibleGraphic? graphic = placement.DynamicGraphic;
         if (graphic is not null)
         {
-            if (!RoomPlmSystem.TryIdentifyPermanentCollectible(placement.Header.Header, out var kind, out _) ||
+            if (!CollectiblePlms.TryIdentifyPermanentCollectible(placement.Header.Header, out var kind, out _) ||
                 kind != graphic.Kind || kind < InWorldCollectibleKind.Bombs ||
                 graphic.Tiles.Length != 0x100 || graphic.PaletteOffsets.Length != 8 ||
                 graphic.PaletteOffsets.Span.ContainsAnyExceptInRange((byte)0, (byte)7))

@@ -28,7 +28,7 @@ internal static class CinematicSnapshotTestsVerification
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
         Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var flight = new IntroCeresFlightState(bus, new CartridgeAudioState(), RepositoryInstallation.IntroArtwork.CeresFlight);
+        var flight = new IntroCeresFlightState(bus, new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
         bool coloredRearView = false;

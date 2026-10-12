@@ -41,20 +41,12 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
         var guard = NewDragonFireballInstructionReadGuard(rom);
         var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDragon", instanceFlags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnDragonFireball", instanceFlags)!
-            .CreateDelegate<Action<RoomEnemySlot, DragonEnemyState>>(enemies);
-        var runPreInstruction = typeof(RoomEnemySystem).GetMethod(
-                "RunDragonFireballPreInstruction",
-                BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot, ushort>>();
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemySlot> initialize = enemies.DragonBehavior.InitializeDragon;
+        Action<RoomEnemySlot, DragonEnemyState> spawn = enemies.DragonBehavior.SpawnDragonFireball;
+        Action<RoomEnemyProjectileSlot, ushort> runPreInstruction = DragonBehavior.RunDragonFireballPreInstruction;
 
-        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         body.Position = body.Position.WithWhole(new(0x0180, 0x00a0));
@@ -67,11 +59,11 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
         spawn(body, state);
         state.DirectionWord = 0;
         spawn(body, state);
-        RoomEnemyProjectileSlot left = enemies.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot left = enemies.Projectiles.EnemyProjectiles.Single(
             projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.DragonFireball &&
                 unchecked((short)projectile.Velocity.X.RawValue) < 0);
-        RoomEnemyProjectileSlot right = enemies.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot right = enemies.Projectiles.EnemyProjectiles.Single(
             projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.DragonFireball &&
                 unchecked((short)projectile.Velocity.X.RawValue) >= 0);
@@ -109,7 +101,7 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
 
         left.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         left.InstructionTimer = 1;
-        process.Invoke(enemies, [left, null, Position16<RoomPixels>.Zero]);
+        enemies.Projectiles.ProcessEnemyProjectileInstructions(left, null, Position16<RoomPixels>.Zero);
         AssertTrue(!left.IsActive,
             "Dragon's shared shot list deletes through the common projectile owner");
 
@@ -159,7 +151,7 @@ internal static class DragonFireballInstructionProgramDefinitionsVerification
             for (int step = 0; step < 3; step++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
                 AssertEqual((ushort)(program + 2 + (step % 2) * 4), projectile.PresentationOperandAddress,
                     $"Dragon-fireball {name} selects the exact native frame operand");
                 selectedPresentation.Add(projectile.PresentationOperandAddress);

@@ -25,17 +25,16 @@ internal static class MotherBrainHeadHitboxVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException("Mother Brain has no head enemy.");
         AssertEqual((ushort)0x9c21, state.BrainInstructionPointer, "the brain list starts at InstList_MotherBrainHead_Initial");
 
-        typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!
-            .Invoke(runtime.Enemies, [head, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+        runtime.Enemies.Instructions.ProcessInstructions(head, null, null, Position16<RoomPixels>.Zero, (ushort)0);
         AssertEqual((ushort)0xa320, head.SpritemapPointer, "the head enemy carries the dummy list's hitbox frame");
 
         // The movie's frame: second form, head at ($7C,$58) when the beam at ($9E,$81) reaches
@@ -44,12 +43,12 @@ internal static class MotherBrainHeadHitboxVerification
         head.Health = 18000;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
         head.InvincibilityTimer = 0;
-        runtime.Enemies.PrepareEnemyProcessingList(new(0x0000, 0x0000));
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x901b; shot.Damage = 900; shot.Direction = 8;
         shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
-        runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus!);
         AssertEqual((ushort)17100, head.Health, "the charged beam lands on the head's native hitbox");
         Console.WriteLine("Mother Brain head hitbox: the head enemy keeps $A320; the brain list runs separately.");
     }

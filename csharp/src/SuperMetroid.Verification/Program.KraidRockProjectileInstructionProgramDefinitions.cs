@@ -33,25 +33,10 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
         var guard = NewKraidRockProjectileInstructionGuard(rom);
         var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         ushort selectedRandom = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => selectedRandom);
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
-        MethodInfo spawnSpit = typeof(RoomEnemySystem).GetMethod(
-            "SpawnKraidSpitRock",
-            instanceFlags)!;
-        MethodInfo spawnCeiling = typeof(RoomEnemySystem).GetMethod(
-            "SpawnKraidCeilingRock",
-            instanceFlags)!;
-        MethodInfo requestRising = typeof(RoomEnemySystem).GetMethod(
-            "RequestKraidRisingRock",
-            instanceFlags)!;
-        MethodInfo spawnKago = typeof(RoomEnemySystem).GetMethod(
-            "SpawnKagoBug",
-            instanceFlags)!;
 
         var source = new RoomEnemySlot(0)
         {
@@ -61,20 +46,20 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
         };
 
         selectedRandom = 0x0020;
-        AssertTrue((bool)spawnSpit.Invoke(enemies, [source])!,
+        AssertTrue((bool)enemies.KraidBehavior.SpawnKraidSpitRock(source),
             "real Kraid spit producer allocates its rock");
         selectedRandom = 0x0020;
-        AssertTrue((bool)spawnCeiling.Invoke(enemies, [(ushort)96])!,
+        AssertTrue((bool)enemies.KraidBehavior.SpawnKraidCeilingRock((ushort)96),
             "real Kraid ceiling producer allocates its rock");
 
         var kraidState = new KraidEnemyState();
         selectedRandom = 0x0000;
-        requestRising.Invoke(enemies, [source, kraidState]);
+        enemies.KraidBehavior.RequestKraidRisingRock(source, kraidState);
         selectedRandom = 0x0010;
-        requestRising.Invoke(enemies, [source, kraidState]);
+        enemies.KraidBehavior.RequestKraidRisingRock(source, kraidState);
 
         selectedRandom = 0x0002;
-        AssertTrue((bool)spawnKago.Invoke(enemies, [source])!,
+        AssertTrue((bool)enemies.KagoBehavior.SpawnKagoBug(source),
             "real Kago producer allocates its bug");
 
         RoomEnemyProjectileSlot spit = Find(RoomEnemyProjectileKind.KraidSpitRock);
@@ -192,7 +177,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
             "without instruction ROM reads.");
 
         RoomEnemyProjectileSlot Find(RoomEnemyProjectileKind kind) =>
-            enemies.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
+            enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
 
         void RunForcedTicks(RoomEnemyProjectileSlot projectile, int count)
         {
@@ -203,7 +188,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             if (projectile.IsActive && projectile.InstructionTimer != 0)
             {
                 ushort operand = (ushort)(projectile.InstructionPointer - 2);

@@ -80,13 +80,10 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         DeadSidehopperCorpseDefinition expected)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewDeadSidehopperCorpseDefinitionReadGuard(rom));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadSidehopper", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        enemies.BindFixtureBus(NewDeadSidehopperCorpseDefinitionReadGuard(rom));
+        Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Parameter1 = parameter1;
 
         initialize(slot);

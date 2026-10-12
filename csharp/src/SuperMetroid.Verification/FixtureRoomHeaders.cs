@@ -19,6 +19,9 @@ internal static class FixtureRoomHeaders
     /// <summary>RoomHeader_MetalPirates at $8F:B62B, Lower Norfair's Gold Ninja Pirate room.</summary>
     public const ushort MetalPirates = 0xb62b;
 
+    /// <summary>RoomHeader_Shaktool at $8F:D8C5, Maridia's Shaktool room (enemy population $A1:D281).</summary>
+    public const ushort Shaktool = 0xd8c5;
+
     /// <summary>RoomHeader_ThreeMusketeers at $8F:B656, Lower Norfair's shootable-shutter corridor.</summary>
     public const ushort ThreeMusketeers = 0xb656;
 

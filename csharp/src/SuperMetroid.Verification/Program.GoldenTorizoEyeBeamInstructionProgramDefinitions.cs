@@ -39,7 +39,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
                 $"Golden Torizo eye-beam mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = new CartridgeReadGuard(rom)
@@ -48,22 +48,18 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnGoldenTorizoEyeBeam", flags)!;
-        MethodInfo runMovement = typeof(RoomEnemySystem).GetMethod(
-            "RunGoldenTorizoEyeBeamPreInstruction", BindingFlags.NonPublic | BindingFlags.Static)!;
+        Action<RoomEnemySystem, RoomEnemySlot, ushort> spawn =
+            (enemies, torizo, parameter) => enemies.BombTorizoBehavior.SpawnGoldenTorizoEyeBeam(torizo, parameter);
 
         foreach (bool facingRight in new[] { false, true })
         {
             var random = new Queue<ushort>([0x0080, 0x0080, 0x0010]);
             RoomEnemySystem enemies = CreateSystem(guard, random, eyeBeamExplosions: false);
-            RoomEnemySlot torizo = enemies.Slots[0];
+            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
-            spawn.Invoke(enemies, [torizo, (ushort)0]);
-            RoomEnemyProjectileSlot beam = enemies.EnemyProjectiles[^1];
+            spawn(enemies, torizo, 0);
+            RoomEnemyProjectileSlot beam = enemies.Projectiles.EnemyProjectiles[^1];
             AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal,
                 beam.InstructionPointer,
                 $"Golden Torizo {facingRight} eye beam normal program");
@@ -111,7 +107,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
         RoomEnemyProjectileSlot wallBeam = SpawnBeam(wallEnemies, spawn);
         wallBeam.Position = wallBeam.Position.WithWholeX(157).WithWholeY(128).WithFractionX(0);
         wallBeam.Velocity = new(new SnesSignedEightEight(256), new SnesSignedEightEight(0));
-        runMovement.Invoke(wallEnemies, [wallBeam, wallRoom]);
+        BombTorizoBehavior.RunGoldenTorizoEyeBeamPreInstruction(wallBeam, wallRoom);
         AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.WallImpact,
             wallBeam.InstructionPointer,
             "Golden Torizo eye beam wall collision selects wall impact");
@@ -228,13 +224,13 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             "both real producers, wall impact, and both floor branches pass with " +
             "mechanics bytes forbidden.");
 
-        RoomEnemyProjectileSlot SpawnBeam(RoomEnemySystem enemies, MethodInfo spawnMethod)
+        RoomEnemyProjectileSlot SpawnBeam(RoomEnemySystem enemies, Action<RoomEnemySystem, RoomEnemySlot, ushort> spawnMethod)
         {
-            RoomEnemySlot torizo = enemies.Slots[0];
+            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = 0x8000;
-            spawnMethod.Invoke(enemies, [torizo, (ushort)0]);
-            return enemies.EnemyProjectiles[^1];
+            spawnMethod(enemies, torizo, 0);
+            return enemies.Projectiles.EnemyProjectiles[^1];
         }
 
         void CollideWithFloor(RoomEnemySystem enemies, RoomEnemyProjectileSlot beam)
@@ -243,7 +239,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(0));
             beam.Position = beam.Position.WithFractionY(0);
             beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(256));
-            runMovement.Invoke(enemies, [beam, floorRoom]);
+            BombTorizoBehavior.RunGoldenTorizoEyeBeamPreInstruction(beam, floorRoom);
             AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.FloorImpact,
                 beam.InstructionPointer,
                 "Golden Torizo eye beam floor collision selects floor impact");
@@ -255,7 +251,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, SamusState? samus)
         {
-            process.Invoke(system, [projectile, samus, Position16<RoomPixels>.Zero]);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
         RoomEnemySystem CreateSystem(
@@ -264,14 +260,14 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
             bool eyeBeamExplosions)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+            enemies.BindFixtureBus(bus);
             enemies.VerificationServices().NextRandom = (Func<ushort>)random.Dequeue;
-            RoomEnemySlot torizo = enemies.Slots[0];
+            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             var state = new TorizoEnemyState(torizo, isGolden: true)
             {
                 AttackFlags = eyeBeamExplosions ? (ushort)0x8000 : (ushort)0,
             };
-            typeof(RoomEnemySystem).GetField("_torizoState", flags)!.SetValue(enemies, state);
+            enemies.BombTorizoBehavior._torizoState = state;
             return enemies;
         }
     }

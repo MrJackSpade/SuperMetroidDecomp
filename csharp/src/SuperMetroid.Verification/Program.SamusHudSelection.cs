@@ -7,7 +7,7 @@ internal static class SamusHudSelectionVerification
     internal static bool SelectionChanged(SamusState samus, ushort controllerInput, ushort controllerNewInput)
     {
         ushort before = samus.SelectedHudItem;
-        samus.HandleHudSelection(controllerInput, controllerNewInput);
+        samus.HudSelection.HandleHudSelection(controllerInput, controllerNewInput);
         return samus.SelectedHudItem != before;
     }
 
@@ -25,7 +25,7 @@ internal static class SamusHudSelectionVerification
             "Select with no available HUD item wraps to Nothing");
         AssertEqual(0, samus.SelectedHudItem,
             "unavailable six-entry cycle retains Nothing");
-        AssertEqual(1, samus.HudItemChangedThisFrame,
+        AssertEqual(1, samus.HudSelection.HudItemChangedThisFrame,
             "unchanged first selector frame advances stabilization counter");
 
         samus.Missiles = 5;
@@ -33,11 +33,11 @@ internal static class SamusHudSelectionVerification
             "Select chooses available Missiles");
         AssertEqual(1, samus.SelectedHudItem,
             "Missiles occupy cartridge HUD index one");
-        AssertEqual(1, samus.HudItemChangedThisFrame,
+        AssertEqual(1, samus.HudSelection.HudItemChangedThisFrame,
             "selection change resets native cover-animation counter");
         AssertTrue(!SelectionChanged(samus, 0, 0),
             "stable HUD selection reports no change");
-        AssertEqual(2, samus.HudItemChangedThisFrame,
+        AssertEqual(2, samus.HudSelection.HudItemChangedThisFrame,
             "stable selection saturates cover-animation counter at two");
 
         samus.SuperMissiles = 5;
@@ -84,10 +84,10 @@ internal static class SamusHudSelectionVerification
         // $90:C4C7 runs the Nothing handler for any new Y edge, so a cancel with nothing
         // selected changes no index but still clears the charge.
         ushort beforeIdleCancel = samus.SelectedHudItem;
-        HudSelectionOutcome idleCancel = samus.HandleHudSelection(cancel, cancel);
+        HudSelectionOutcome idleCancel = samus.HudSelection.HandleHudSelection(cancel, cancel);
         AssertTrue(samus.SelectedHudItem == beforeIdleCancel && idleCancel.ItemHandlerAccepted,
             "item-cancel with nothing selected runs the Nothing handler");
-        AssertTrue(!samus.HandleHudSelection(cancel, 0).ItemHandlerAccepted,
+        AssertTrue(!samus.HudSelection.HandleHudSelection(cancel, 0).ItemHandlerAccepted,
             "held item-cancel without a new edge runs no handler");
 
         Console.WriteLine(

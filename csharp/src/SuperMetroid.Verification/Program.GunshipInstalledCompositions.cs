@@ -89,8 +89,11 @@ internal static class GunshipInstalledCompositionsVerification
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var game = new SuperMetroidGame(bus);
         PrepareRomFreeBindings(installation, enemyArtwork)(game, true);
-        game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
-        game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
+        game.BindArtwork(game.Artwork with
+        {
+            RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
+            RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
+        });
         long sequence = 0;
         SetState(game, SuperMetroidGameState.SetUpNewGame);
         game.StepCaptured(0, ++sequence, 1);
@@ -104,7 +107,7 @@ internal static class GunshipInstalledCompositionsVerification
             .SetValue(scene, CeresDestructionPhase.Finished);
         game.StepCaptured(0, ++sequence, 1);
         game.StepCaptured(0, ++sequence, 1);
-        AssertEqual(AreaId.Crateria, game.RuntimeForVerification!.ActiveRoom!.AreaIndex,
+        AssertEqual(AreaId.Crateria, game.RuntimeForVerification!.Room.ActiveRoom!.AreaIndex,
             "#1154 fixture reaches the reported Landing Site through the existing loader");
         // The fifteen native loading waits publish black; only the subsequent
         // gameplay fade owns the gunship OAM draw that failed in the player report.

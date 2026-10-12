@@ -62,7 +62,7 @@ internal static class KraidRoomPlmsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnKraidRoomMutation(level, new(5, 5), header),
+        AssertTrue(plms.BossRoomMutations.TrySpawnKraidRoomMutation(level, new(5, 5), header),
             $"Kraid mutation ${(int)header:X4} allocates");
         AssertEqual((ushort)0x8123,
             level.GetCollisionBlockByIndex(5 * width + 5).LevelWord,
@@ -71,7 +71,7 @@ internal static class KraidRoomPlmsVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
-             plms.ActiveCount != 0; frame++)
+             plms.SlotTable.ActiveCount != 0; frame++)
         {
             plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0 && header is
@@ -82,7 +82,7 @@ internal static class KraidRoomPlmsVerification
                 AssertEqual((ushort)0x8180,
                     level.GetCollisionBlockByIndex(5 * width + 5).LevelWord,
                     $"Kraid mutation ${(int)header:X4} first crumble frame");
-            if (plms.ActiveCount == 0)
+            if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(expectedDeletionFrame, deletionFrame,

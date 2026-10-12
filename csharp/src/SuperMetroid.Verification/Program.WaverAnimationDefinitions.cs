@@ -15,9 +15,6 @@ internal static class WaverAnimationDefinitionsVerification
                 $"Waver animation selector {selector}");
         }
 
-        MethodInfo setInstruction = typeof(RoomEnemySystem).GetMethod(
-            "SetWaverInstructionList",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
         for (int index = 0; index < 4; index++)
         {
             var selector = (WaverAnimationSelector)index;
@@ -34,7 +31,7 @@ internal static class WaverAnimationDefinitionsVerification
                     : WaverAnimationSelector.None,
                 RequestedInstructionListIndex = selector,
             };
-            setInstruction.Invoke(null, [slot, state]);
+            WaverBehavior.SetWaverInstructionList(slot, state);
             AssertEqual(selector, state.CurrentInstructionListIndex,
                 $"production Waver current selector {selector}");
             AssertEqual(WaverAnimationDefinitions.InstructionList(selector),
@@ -46,18 +43,14 @@ internal static class WaverAnimationDefinitionsVerification
                 $"production Waver loop timer {selector}");
         }
 
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeWaver", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = NewWaverAnimationReadGuard(rom);
         for (ushort parameter = 0; parameter < 2; parameter++)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guarded);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
-            initialize.Invoke(enemies, [slot]);
+            enemies.WaverBehavior.InitializeWaver(slot);
             var expected = (WaverAnimationSelector)parameter;
             AssertEqual(expected, enemies.WaverStates[0]!.RequestedInstructionListIndex,
                 $"production Waver initial requested selector {parameter}");

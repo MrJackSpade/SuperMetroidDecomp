@@ -55,7 +55,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         }
         var installedVram = new SnesVram();
         var nativeVram = new SnesVram();
-        stockQueue.DrainTo(installedVram, ReferenceMutableMemory.From(bus), runtime);
+        stockQueue.DrainTo(installedVram, ReferenceMutableMemory.From(bus), runtime.Artwork);
         ImportedVramOracle.Drain(nativeQueue, nativeVram, bus);
         AssertTrue(installedVram.ImageEquals(nativeVram),
             "all five installed takeoff uploads match the native VRAM image");
@@ -78,7 +78,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         runtime.Enemies.TileArtwork = edited;
         VramWriteQueue pending = QueueAllTakeoffFrames(stock);
         var editedVram = new SnesVram();
-        pending.DrainTo(editedVram, ReferenceMutableMemory.From(bus), runtime);
+        pending.DrainTo(editedVram, ReferenceMutableMemory.From(bus), runtime.Artwork);
         int firstDestinationByte = transfers[0].DestinationWord * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestinationByte) ^ 0x80),
             editedVram.ReadByte(firstDestinationByte),
@@ -92,7 +92,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         legacyQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
             transfers[0].SourceAddress, VramDmaDestination.FromNative(transfers[0].DestinationWord));
         var legacyVram = new SnesVram();
-        legacyQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(bus), runtime);
+        legacyQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(bus), runtime.Artwork);
         AssertEqual(editedVram.ReadByte(firstDestinationByte),
             legacyVram.ReadByte(firstDestinationByte),
             "older pending cartridge-source takeoff upload rebinds to current art");
@@ -115,14 +115,14 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = art };
-            RoomEnemySlot top = enemies.Slots[0];
+            RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var queue = new VramWriteQueue();
-            MethodInfo method = typeof(RoomEnemySystem).GetMethod(
+            MethodInfo method = typeof(GunshipBehavior).GetMethod(
                 "QueueGunshipTakeoffTiles", flags) ??
-                throw new MissingMethodException(nameof(RoomEnemySystem),
+                throw new MissingMethodException(nameof(GunshipBehavior),
                     "QueueGunshipTakeoffTiles");
             for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
-                method.Invoke(enemies, [top, queue]);
+                method.Invoke(enemies.GunshipBehavior, [top, queue]);
             AssertEqual(GunshipLiftoffTransferDefinitions.Frames.Length,
                 queue.Entries.Count, "five native takeoff calls append five uploads");
             return queue;

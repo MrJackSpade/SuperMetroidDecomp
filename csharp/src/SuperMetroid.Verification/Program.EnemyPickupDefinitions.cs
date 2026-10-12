@@ -18,8 +18,6 @@ internal static class EnemyPickupDefinitionsVerification
                 $"enemy pickup instruction {kind}");
         }
 
-        MethodInfo begin = typeof(RoomEnemySystem).GetMethod(
-            "BeginEnemyPickup", BindingFlags.Static | BindingFlags.NonPublic)!;
         for (int index = 1; index <= 5; index++)
         {
             var kind = (EnemyPickupKind)index;
@@ -32,7 +30,7 @@ internal static class EnemyPickupDefinitionsVerification
                 PreInstruction = 0xffff,
                 PersistsOnSamusContact = true,
             };
-            begin.Invoke(null, [projectile, kind]);
+            EnemyDeathsAndDrops.BeginEnemyPickup(projectile, kind);
             EnemyPickupAnimationDefinition expected = EnemyPickupDefinitions.Animation(kind);
             AssertEqual(expected.TableOffset, projectile.Variable0,
                 $"production pickup table offset {kind}");

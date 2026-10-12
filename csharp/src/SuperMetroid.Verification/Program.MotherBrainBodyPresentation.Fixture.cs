@@ -26,13 +26,11 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Body.AiBank = Body.Definition.Bank;
             Body.Position = Body.Position.WithWhole(new(128, 128));
             Body.PaletteIndex = Body.VramTilesIndex = 0;
-            State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.Slots[1], Form = 3 };
-            typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", Private)!.SetValue(Inner.Enemies, State);
+            State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = 3 };
+            Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
             Inner.Enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)ScrollCalls.Add;
-            var queues = (List<ushort>[])typeof(RoomEnemySystem).GetField("_drawQueues", Private)!.GetValue(Inner.Enemies)!;
-            queues[0].Add(Body.NativeIndex);
-            instructions = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", Private)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort>>(Inner.Enemies);
+            Inner.Enemies.Drawing.Enqueue(0, Body.NativeIndex);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort>(Inner.Enemies.Instructions.ProcessInstructions);
         }
 
         internal void SetFrame(ushort frame, bool fresh)

@@ -41,14 +41,10 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
                 $"n00b-tube mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewNoobTubeProjectileInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        FieldInfo projectileFrame = typeof(RoomEnemySystem).GetField(
-            "_currentEnemyProjectileFrame8", flags)!;
 
         RoomEnemySystem crackSystem = NewSystem();
         RoomEnemyProjectileSlot crack = Spawn(
@@ -146,7 +142,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
+            system.BindFixtureBus(guard);
             system.VerificationServices().NextRandom = (Func<ushort>)(() => 0x4040);
             return system;
         }
@@ -164,10 +160,10 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
                     NoobTubeProjectileDefinition.ReleasedAirBubble,
                 _ => throw new ArgumentOutOfRangeException(nameof(kind)),
             };
-            system.SpawnNoobTubeProjectile(
+            system.NoobTubeBehavior.SpawnNoobTubeProjectile(
                 new NoobTubeProjectileRequest(definition, parameter, PlmBlockIndex: 42),
                 roomWidthInBlocks: 16);
-            return system.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
+            return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }
 
         int RunThroughDeletion(
@@ -177,7 +173,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
         {
             for (int tick = 1; tick <= maximumTicks; tick++)
             {
-                projectileFrame.SetValue(system, unchecked((byte)tick));
+                system.Projectiles.CurrentFrame8 = unchecked((byte)tick);
                 projectile.InstructionTimer = 1;
                 Process(system, projectile);
                 if (!projectile.IsActive)
@@ -189,7 +185,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             ushort? expectedOperand = null;
             if (projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard)
             {
@@ -199,7 +195,7 @@ internal static class NoobTubeProjectileInstructionProgramDefinitionsVerificatio
                 ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x860000 | commandAddress);
                 if (command == (ushort)EnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
-                    bool oddFrame = ((byte)projectileFrame.GetValue(system)! & 1) != 0;
+                    bool oddFrame = (system.Projectiles.CurrentFrame8 & 1) != 0;
                     expectedOperand = unchecked((ushort)(projectile.InstructionPointer - (oddFrame ? 4 : 2)));
                 }
             }

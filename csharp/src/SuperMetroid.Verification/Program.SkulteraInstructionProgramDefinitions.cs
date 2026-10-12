@@ -58,8 +58,7 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
         AssertEqual((ushort)6, right.Layer,
             "right-swimming Skultera program selects native layer six");
 
-        var beginTurn = typeof(RoomEnemySystem).GetMethod("BeginSkulteraTurn", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SkulteraEnemyState, bool>>();
+        Action<RoomEnemySlot, SkulteraEnemyState, bool> beginTurn = SkulteraBehavior.BeginSkulteraTurn;
         SkulteraEnemyState leftState = leftSystem.SkulteraStates[0]!;
         SkulteraEnemyState rightState = rightSystem.SkulteraStates[0]!;
         beginTurn(left, leftState, true);
@@ -80,8 +79,6 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
         AssertEqual((ushort)0x9094, right.CurrentInstruction,
             "turning-left program sleeps at its native terminal command");
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
         for (int index = 0;
              index < SkulteraInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -92,8 +89,7 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
                 startsLeft: true, out RoomEnemySlot slot);
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
             slot.InstructionTimer = 1;
-            process.Invoke(enemies,
-                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+            EnemyInstructionRunner.Process(enemies, [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa30000 | address)),
                 slot.SpritemapPointer,
                 $"production execution selects Skultera frame $A3:{address:X4}");
@@ -127,10 +123,9 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
             out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeSkultera", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.SkulteraBehavior.InitializeSkultera;
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Skultera;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.Parameter1 = startsLeft ? (ushort)0x0100 : (ushort)0x0000;
@@ -146,11 +141,10 @@ internal static class SkulteraInstructionProgramDefinitionsVerification
             RoomEnemySlot slot,
             int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

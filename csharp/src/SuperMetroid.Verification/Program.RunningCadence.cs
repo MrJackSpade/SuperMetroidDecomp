@@ -20,7 +20,7 @@ internal static class RunningCadenceVerification
         Suite(nameof(VerifyBoostRunningStream3), () => VerifyBoostRunningStream3(rom));
         Suite(nameof(VerifyBoostRunningStream4), () => VerifyBoostRunningStream4(rom));
         Suite(nameof(VerifyBoostRunningResets), () => VerifyBoostRunningResets(rom));
-        var ordinary = typeof(SamusState).GetMethod("ReadDefaultRunningAnimationByte", BindingFlags.Static | BindingFlags.NonPublic)!
+        var ordinary = typeof(SamusPresentation).GetMethod("ReadDefaultRunningAnimationByte", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Func<ISnesAddressSpace, ushort, byte>>();
         var speed = new SamusHorizontalSpeedState();
 

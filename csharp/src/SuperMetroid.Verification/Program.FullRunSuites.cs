@@ -170,6 +170,7 @@ using static KiHunterSpitAudioVerification;
 using static KnockbackHorizontalStopVerification;
 using static KnockbackShinesparkLaunchVerification;
 using static KraidArmSamusContactVerification;
+using static ShaktoolSamusContactVerification;
 using static KraidRoomPlmsVerification;
 using static KraidRoomVisualsVerification;
 using static LibraryBackgroundVerification;
@@ -443,7 +444,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBackgroundSampler), () => VerifyBackgroundSampler()),
         .. RenderContractSuites(),
         new(nameof(VerifyRandomNumberGeneratorExhaustively), () => VerifyRandomNumberGeneratorExhaustively()),
-        new(nameof(SaveLoadRandomAudit), () => SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), RepositoryInstallation.BindGame)),
+        new(nameof(SaveLoadRandomAudit), () => SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), InstalledFixtures.BindGame)),
         new(nameof(VerifySandAnimatedTiles), () => VerifySandAnimatedTiles()),
         new(nameof(VerifyQuicksand), () => VerifyQuicksand()),
         new(nameof(VerifyTreadmillPhysics), () => VerifyTreadmillPhysics()),
@@ -776,6 +777,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision()),
         new(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius()),
         new(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact()),
+        new(nameof(VerifyShaktoolSamusContact), () => VerifyShaktoolSamusContact()),
         new(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots()),
         new(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact()),
         new(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue()),

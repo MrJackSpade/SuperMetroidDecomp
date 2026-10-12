@@ -53,12 +53,12 @@ internal static class ChainsawFiringVerification
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
         AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
             "native Chainsaw admits and allocates the shot");
-        AssertEqual(0, projectiles.ProjectileCounter, "inactive Power Bomb deletes Chainsaw on first update");
+        AssertEqual(0, projectiles.SlotTable.ProjectileCounter, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Slots[0].InstructionPointer, "deleted Chainsaw has no animation list");
         AssertEqual(0, projectiles.Slots[0].Damage, "deleted Chainsaw releases its damage sentinel");
-        AssertEqual((byte)0x34, projectiles.ChainsawWindowRegisters.ReadByte(
+        AssertEqual((byte)0x34, projectiles.Chainsaw.ChainsawWindowRegisters.ReadByte(
             GameplayWindowRegisterAddresses.Window12Selection), "first callback stores inherited Y low byte");
-        AssertEqual((byte)0x00, projectiles.ChainsawWindowRegisters.ReadByte(
+        AssertEqual((byte)0x00, projectiles.Chainsaw.ChainsawWindowRegisters.ReadByte(
             GameplayWindowRegisterAddresses.Window34Selection), "first callback stores inherited Y high byte");
 
         // PowerBomb_Func3 clears the inactive shot, but the native callback still falls
@@ -101,14 +101,14 @@ internal static class ChainsawFiringVerification
         var doorPlms = new RoomPlmSystem();
         var doorProjectiles = CreateProjectileFixture();
         doorProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = doorLevel, Plms = doorPlms }, doorSamus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), CreateBombFixture());
-        AssertEqual(1, doorPlms.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
+        AssertEqual(1, doorPlms.SlotTable.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
         AssertEqual(RoomCollisionType.SolidBlock,
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
             "Chainsaw blue-door setup mutates cap synchronously");
         AssertTrue(doorProjectiles.Slots.All(slot =>
                 !slot.PackedType.IsFamily(SamusProjectileFamily.BeamExplosion)),
             "Wave scan opens door without synthesizing a visible beam impact");
-        AssertEqual(0, doorProjectiles.ProjectileCounter,
+        AssertEqual(0, doorProjectiles.SlotTable.ProjectileCounter,
             "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");
 
         var activeShared = CreateBombFixture();
@@ -129,9 +129,9 @@ internal static class ChainsawFiringVerification
             AssertEqual(spritemaps[update], slot.SpritemapPointer, $"active Chainsaw spritemap {update}");
             AssertEqual((ushort)8, slot.Radius.X, $"active Chainsaw X radius {update}");
             AssertEqual(yRadii[update], slot.Radius.Y, $"active Chainsaw Y radius {update}");
-            AssertEqual((byte)inheritedY[update], activeProjectiles.ChainsawWindowRegisters.ReadByte(
+            AssertEqual((byte)inheritedY[update], activeProjectiles.Chainsaw.ChainsawWindowRegisters.ReadByte(
                 GameplayWindowRegisterAddresses.Window12Selection), $"active Chainsaw inherited Y low {update}");
-            AssertEqual(SnesLittleEndian.HighByte(inheritedY[update]), activeProjectiles.ChainsawWindowRegisters.ReadByte(
+            AssertEqual(SnesLittleEndian.HighByte(inheritedY[update]), activeProjectiles.Chainsaw.ChainsawWindowRegisters.ReadByte(
                 GameplayWindowRegisterAddresses.Window34Selection), $"active Chainsaw inherited Y high {update}");
         }
 
@@ -145,7 +145,7 @@ internal static class ChainsawFiringVerification
         var combatProjectiles = CreateProjectileFixture();
         combatProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), combatShared);
         var combat = CreateEnemyDropFixture(samus, [1]);
-        RoomEnemySlot target = combat.System.Slots[0];
+        RoomEnemySlot target = combat.System.SlotTable.Slots[0];
         target.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
         target.Definition = default(RoomEnemyDefinition) with
         {
@@ -158,7 +158,7 @@ internal static class ChainsawFiringVerification
         target.Health = 1000;
         target.SpritemapPointer = 0x8000;
         combat.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = combat.Level });
-        AssertEqual(1, combat.System.ResolveOrdinaryProjectileHits(
+        AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combat.Bus, combatProjectiles, combatShared, samus),
             "active Chainsaw overlaps one ordinary enemy");
         AssertEqual((ushort)850, target.Health,
@@ -184,7 +184,7 @@ internal static class ChainsawFiringVerification
         var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new ushort[25]), new byte[8]);
         var interferencePlms = new RoomPlmSystem();
         var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
-        AssertEqual(1, interferencePlms.LoadRoomPopulation(new PlmRoom(interferenceBus, interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, interferencePlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(interferenceBus, interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
         interferencePlms.Step(interferenceBus, interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
 
@@ -237,7 +237,7 @@ internal static class ChainsawFiringVerification
         AssertEqual(RoomCollisionType.SolidBlock,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Chainsaw callback preserves the Power Bomb's synchronous break setup");
-        AssertEqual(1, breakingPlms.ActiveCount,
+        AssertEqual(1, breakingPlms.SlotTable.ActiveCount,
             "Power Bomb terrain reaction remains owned after Chainsaw callback");
         breakingPlms.Step(bus, breakingLevel, breakingLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(RoomCollisionType.Air,

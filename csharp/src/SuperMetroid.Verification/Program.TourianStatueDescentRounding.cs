@@ -23,16 +23,16 @@ internal static class TourianStatueDescentRoundingVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
         foreach (EventNumber grey in new[] { EventNumber.PhantoonStatueGrey, EventNumber.RidleyStatueGrey,
                      EventNumber.DraygonStatueGrey, EventNumber.KraidStatueGrey })
             runtime.System.SetEvent(grey);
         runtime.LoadCartridgeRoomForDebug(0xa66a);
-        runtime.Samus!.InputLocked = true;
+        runtime.Player.Samus!.InputLocked = true;
 
         StepUntil(() => runtime.TourianStatues.VerticalOffset != 0, _ => runtime.StepFrame(0),
             maximumFrames: 400, context: "the statue descent begins");

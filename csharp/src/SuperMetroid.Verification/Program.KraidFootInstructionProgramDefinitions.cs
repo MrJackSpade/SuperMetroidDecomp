@@ -35,24 +35,21 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         var guard = NewKraidFootInstructionGuard(rom);
         var executedOperands = new HashSet<ushort>();
         RoomEnemySystem enemies = CreateKraidFootInstructionSystem(guard);
-        RoomEnemySlot body = enemies.Slots[0];
-        RoomEnemySlot foot = enemies.Slots[5];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemySlot foot = enemies.SlotTable.Slots[5];
 
-        RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
+        RunKraidFootProgram(rom, executedOperands, enemies, foot,
             KraidFootInstructionProgramDefinitions.Initial, calls: 2);
         AssertEqual((ushort)0x86eb, foot.CurrentInstruction,
             "initial Kraid foot program reaches terminal sleep");
 
-        RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
+        RunKraidFootProgram(rom, executedOperands, enemies, foot,
             KraidFootInstructionProgramDefinitions.Neutral, calls: 2);
         AssertEqual((ushort)0x86f1, foot.CurrentInstruction,
             "neutral Kraid foot program reaches terminal sleep");
 
         body.Position = body.Position.WithWhole(new(500, 500));
-        RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
+        RunKraidFootProgram(rom, executedOperands, enemies, foot,
             KraidFootInstructionProgramDefinitions.WalkingForward, calls: 36);
         AssertEqual(KraidFootInstructionProgramDefinitions.WalkingForwardFinished,
             foot.CurrentInstruction,
@@ -62,14 +59,14 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         AssertEqual((ushort)500, body.Position.Y.Whole,
             "walking-forward callbacks balance vertical movement");
         AssertKraidFootSoundAndQuake(enemies, "walking-forward");
-        RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
+        RunKraidFootProgram(rom, executedOperands, enemies, foot,
             KraidFootInstructionProgramDefinitions.WalkingForwardFinished, calls: 1);
         AssertEqual(KraidFootInstructionProgramDefinitions.WalkingForwardFinished,
             foot.CurrentInstruction,
             "walking-forward terminal sleep retains its cursor");
 
         body.Position = body.Position.WithWhole(new(500, 500));
-        RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
+        RunKraidFootProgram(rom, executedOperands, enemies, foot,
             KraidFootInstructionProgramDefinitions.LungeForward, calls: 36);
         AssertEqual(KraidFootInstructionProgramDefinitions.LungeForwardFinished,
             foot.CurrentInstruction,
@@ -79,14 +76,14 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         AssertEqual((ushort)500, body.Position.Y.Whole,
             "lunge callbacks balance vertical movement");
         AssertKraidFootSoundAndQuake(enemies, "lunge");
-        RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
+        RunKraidFootProgram(rom, executedOperands, enemies, foot,
             KraidFootInstructionProgramDefinitions.LungeForwardFinished, calls: 1);
         AssertEqual(KraidFootInstructionProgramDefinitions.LungeForwardFinished,
             foot.CurrentInstruction,
             "lunge terminal sleep retains its cursor");
 
         body.Position = body.Position.WithWhole(new(500, 500));
-        RunKraidFootProgram(rom, executedOperands, process, enemies, foot,
+        RunKraidFootProgram(rom, executedOperands, enemies, foot,
             KraidFootInstructionProgramDefinitions.WalkingBackward, calls: 32);
         AssertEqual(KraidFootInstructionProgramDefinitions.WalkingBackwardLoop,
             foot.CurrentInstruction,
@@ -97,7 +94,7 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
             "walking-backward callbacks balance vertical movement");
         AssertKraidFootSoundAndQuake(enemies, "walking-backward");
         foot.InstructionTimer = 1;
-        InvokeKraidFootInstructionProcessor(rom, executedOperands, process, enemies, foot);
+        InvokeKraidFootInstructionProcessor(rom, executedOperands, enemies, foot);
         AssertEqual((ushort)0x888f, foot.CurrentInstruction,
             "walking-backward goto begins the next real frame");
         AssertEqual((ushort)545, body.Position.X.Whole,
@@ -142,17 +139,11 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField(
-            "_bus",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField(
-            "<Kraid>k__BackingField",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(
-                enemies,
-                new KraidEnemyState());
+        enemies.BindFixtureBus(bus);
+        enemies.KraidBehavior.Kraid = new KraidEnemyState();
 
-        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
-        RoomEnemySlot foot = enemies.Slots[5];
+        enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        RoomEnemySlot foot = enemies.SlotTable.Slots[5];
         foot.EnemyDefinitionPointer = EnemyDefinitionId.KraidFoot;
         foot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
         return enemies;
@@ -161,7 +152,6 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
     private static void RunKraidFootProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
-        MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot foot,
         ushort entry,
@@ -172,19 +162,18 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         for (int call = 0; call < calls; call++)
         {
             foot.InstructionTimer = 1;
-            InvokeKraidFootInstructionProcessor(rom, executedOperands, process, enemies, foot);
+            InvokeKraidFootInstructionProcessor(rom, executedOperands, enemies, foot);
         }
     }
 
     private static void InvokeKraidFootInstructionProcessor(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
-        MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot foot)
     {
         ushort previousSprite = foot.SpritemapPointer;
-        process.Invoke(enemies, [foot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+        EnemyInstructionRunner.Process(enemies, [foot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
         ushort record = unchecked((ushort)(foot.CurrentInstruction - 4));
         if ((ReadKraidFootInstructionWord(rom, record) & 0x8000) == 0)
             VerifyExecutedEnemySelector(rom, foot, executedOperands);
@@ -198,11 +187,11 @@ internal static class KraidFootInstructionProgramDefinitionsVerification
         string program)
     {
         AssertEqual((byte)0x76,
-            enemies.LastKraidSoundEffect!.Value.SoundEffect.Value,
+            enemies.KraidBehavior.LastKraidSoundEffect!.Value.SoundEffect.Value,
             $"{program} Kraid foot queues native step sound");
-        AssertEqual((ushort)1, enemies.EarthquakeType,
+        AssertEqual((ushort)1, enemies.Earthquake.EarthquakeType,
             $"{program} Kraid foot selects native quake type");
-        AssertEqual((ushort)10, enemies.EarthquakeTimer,
+        AssertEqual((ushort)10, enemies.Earthquake.EarthquakeTimer,
             $"{program} Kraid foot selects native quake duration");
     }
 

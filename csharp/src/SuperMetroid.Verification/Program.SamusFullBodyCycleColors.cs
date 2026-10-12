@@ -472,7 +472,7 @@ internal static class SamusFullBodyCycleColorsVerification
             {
                 EquippedItems = items,
                 SpecialSuperPaletteFlags = 1,
-                FullBodyCycleColors = edited.SamusFullBodyCycleColors,
+                Presentation = { FullBodyCycleColors = edited.SamusFullBodyCycleColors },
             };
             var attachmentColors = new SnesCgram();
             AssertTrue(SamusSpecialSuperPalette.Update(attachmentColors, attached),
@@ -482,17 +482,17 @@ internal static class SamusFullBodyCycleColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed full-body cycles do not reread any of the 768 source color words");
 
-        var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
         fixtureAssets.Bind(runtime);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        SamusState liveSamus = runtime.Samus ??
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        SamusState liveSamus = runtime.Player.Samus ??
             throw new InvalidOperationException("Ceres entry did not initialize Samus.");
-        AssertTrue(ReferenceEquals(edited.SamusFullBodyCycleColors, liveSamus.FullBodyCycleColors),
+        AssertTrue(ReferenceEquals(edited.SamusFullBodyCycleColors, liveSamus.Presentation.FullBodyCycleColors),
             "runtime binds edited full-body colors to live Samus");
-        runtime.MapPresentation = original;
-        AssertTrue(ReferenceEquals(original.SamusFullBodyCycleColors, liveSamus.FullBodyCycleColors),
+        runtime.Artwork.MapPresentation = original;
+        AssertTrue(ReferenceEquals(original.SamusFullBodyCycleColors, liveSamus.Presentation.FullBodyCycleColors),
             "runtime rebind replaces edited colors without changing game state");
 
         PaletteRgb5 originalColor = document.SpeedBooster[0][0][1];

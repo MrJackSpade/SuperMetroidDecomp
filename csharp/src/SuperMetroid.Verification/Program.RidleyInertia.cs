@@ -20,11 +20,9 @@ internal static class RidleyInertiaVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley inertia")]
     internal static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
     {
-        var ceres = typeof(RoomEnemySystem).GetMethod("AccelerateRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int>>();
-        var norfair = typeof(RoomEnemySystem).GetMethod("MoveNorfairRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int, ushort>>();
-        var slot = new RoomEnemySystem().Slots[0];
+        Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int> ceres = CeresRidleyBehavior.AccelerateRidleyToward;
+        Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int, ushort> norfair = RidleyBehavior.MoveNorfairRidleyToward;
+        var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         for (int index = 0; index < 16; index++)
         {

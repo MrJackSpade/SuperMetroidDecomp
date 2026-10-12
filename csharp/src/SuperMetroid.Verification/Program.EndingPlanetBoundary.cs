@@ -98,18 +98,18 @@ internal static class EndingPlanetBoundaryVerification
         AssertEqual(EndingCreditsPhase.FadeInZebesExplosion, ending.Phase, "planet crossfade reached");
         // Rebuild the upper VRAM image from D8C1/D8E1/D901/D921/D941/D961.
         // In particular D961 transfers only $1000 font bytes at byte $A000.
-        byte[] nativeVram = ending.CaptureRenderSnapshot().Memory.Vram.ToArray();
+        byte[] nativeVram = ending.Presentation.CaptureRenderSnapshot().Memory.Vram.ToArray();
         RomDataReader.Decompress(bus, 0x988304, 0x8000).AsSpan(0, 0x6000).CopyTo(nativeVram.AsSpan(0x8000));
         int[] fragments = [0x98b5c1, 0x98b857, 0x98baed, 0x98bccd];
         for (int index = 0; index < fragments.Length; index++)
             RomDataReader.Decompress(bus, fragments[index], 0x8000).AsSpan(0, 0x800).CopyTo(nativeVram.AsSpan(0xe000 + index * 0x800));
         RomDataReader.Decompress(bus, 0x97e7de, 0x8000).AsSpan(0, 0x1000).CopyTo(nativeVram.AsSpan(0xa000));
-        int memoryDifferences = nativeVram.Zip(ending.CaptureRenderSnapshot().Memory.Vram.ToArray()).Count(pair => pair.First != pair.Second);
+        int memoryDifferences = nativeVram.Zip(ending.Presentation.CaptureRenderSnapshot().Memory.Vram.ToArray()).Count(pair => pair.First != pair.Second);
         Console.WriteLine($"Explosion setup: {memoryDifferences} VRAM bytes differ from literal DMA reconstruction.");
         int differences = 0, checkedFrames = 0;
         while (ending.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
         {
-            var snapshot = ending.CaptureRenderSnapshot();
+            var snapshot = ending.Presentation.CaptureRenderSnapshot();
             var projection = snapshot.Layers.ToArray().OfType<Mode7RenderLayer>().Single();
             // D837 retains M7SEL=0 from atmospheric setup. Its main is BG1,
             // subscreen is OBJ, and CGADSUB=$21 adds OBJ to BG1/backdrop.
@@ -118,7 +118,7 @@ internal static class EndingPlanetBoundaryVerification
             var nativeMemory = new PpuMemorySnapshot(nativeVram, snapshot.Memory.Cgram, snapshot.Memory.Oam, snapshot.Memory.ModeledSpriteCount);
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, nativeLayers,
                 snapshot.ObjectSelection, snapshot.Brightness));
-            var actual = ending.Render();
+            var actual = ending.Presentation.Render();
             int changed = actual.Zip(expected).Count(pair => pair.First != pair.Second);
             differences += changed;
             checkedFrames++;
@@ -128,17 +128,17 @@ internal static class EndingPlanetBoundaryVerification
         AssertEqual(0, differences, "planet crossfade preserves native map wrap and main/subscreen composition");
         for (int frame = 0; frame < 2048 && ending.Phase != EndingCreditsPhase.PlanetEscapeFast; frame++)
         {
-            var live = ending.CaptureRenderSnapshot();
+            var live = ending.Presentation.CaptureRenderSnapshot();
             byte[] reconstructed = live.Memory.Vram.ToArray();
             nativeVram.AsSpan(0x8000).CopyTo(reconstructed.AsSpan(0x8000));
             var nativeMemory = new PpuMemorySnapshot(reconstructed, live.Memory.Cgram, live.Memory.Oam, live.Memory.ModeledSpriteCount);
             var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, live.Layers, live.ObjectSelection, live.Brightness));
-            differences += ending.Render().Zip(nativePixels).Count(pair => pair.First != pair.Second);
+            differences += ending.Presentation.Render().Zip(nativePixels).Count(pair => pair.First != pair.Second);
             if (capture is not null && capture.Frames.Contains(frame))
             {
                 // The native comparison replays exactly this sample's graphics, registers and layers.
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Phase}.smframe"),
-                    RenderFrameSnapshotWriter.Serialize(new(new(frame + 1, 1, 0), ending.CaptureRenderSnapshot())));
+                    RenderFrameSnapshotWriter.Serialize(new(new(frame + 1, 1, 0), ending.Presentation.CaptureRenderSnapshot())));
             }
             ending.Step();
             audio.AdvanceFrame(bus, default);

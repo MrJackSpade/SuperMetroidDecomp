@@ -30,12 +30,12 @@ internal static class BombJumpRunMomentumVerification
         var floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new byte[floorBlocks.Length], new ushort[floorBlocks.Length]), new byte[8]);
 
         var samus = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)) };
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0xc000;
-        samus.PublishBombJumpDirection(1);
-        AssertTrue(samus.TrySetupPublishedBombJump(bus, floor, timeIsFrozen: false, nmiFrameCounter: 0, controllerNewInput: 0),
+        samus.PoseMetadata.PublishBombJumpDirection(1);
+        AssertTrue(samus.PoseMetadata.TrySetupPublishedBombJump(bus, floor, timeIsFrozen: false, nmiFrameCounter: 0, controllerNewInput: 0),
             "a running Samus accepts the bomb jump");
         AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, samus.Pose, "the bomb jump installs pose $52");
         AssertEqual(SamusHorizontalAccelerationModes.Decelerating, samus.HorizontalSpeed.AccelerationMode,

@@ -40,18 +40,12 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         }
 
         var guard = NewMotherBrainTurretInstructionReadGuard(rom);
-        MethodInfo spawnTurret = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainTurret", flags)!;
-        MethodInfo spawnBullet = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainTurretBullet", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
 
         for (ushort parameter = 0; parameter < 12; parameter++)
         {
             RoomEnemySystem system = NewSystem();
-            spawnTurret.Invoke(system, [parameter]);
-            RoomEnemyProjectileSlot turret = system.EnemyProjectiles.Single(
+            system.MotherBrainBehavior.SpawnMotherBrainTurret(parameter);
+            RoomEnemyProjectileSlot turret = system.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurret);
             MotherBrainTurretDirection direction = MotherBrainTurretDefinitions
                 .ForTurret(parameter).InitialDirection;
@@ -69,7 +63,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
             ushort turretProgram = MotherBrainTurretInstructionProgramDefinitions
                 .TurretProgram(direction);
             RoomEnemySystem turretSystem = NewSystem();
-            RoomEnemyProjectileSlot turretPose = turretSystem.EnemyProjectiles[0];
+            RoomEnemyProjectileSlot turretPose = turretSystem.Projectiles.EnemyProjectiles[0];
             turretPose.Kind = RoomEnemyProjectileKind.MotherBrainRoomTurret;
             turretPose.InstructionPointer = turretProgram;
             turretPose.InstructionTimer = 1;
@@ -88,8 +82,8 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
             {
                 Position = new(new(0x0400, 0), new(0x0200, directionValue)),
             };
-            spawnBullet.Invoke(bulletSystem, [source]);
-            RoomEnemyProjectileSlot bullet = bulletSystem.EnemyProjectiles.Single(
+            bulletSystem.MotherBrainBehavior.SpawnMotherBrainTurretBullet(source);
+            RoomEnemyProjectileSlot bullet = bulletSystem.Projectiles.EnemyProjectiles.Single(
                 projectile =>
                     projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet);
             AssertEqual(MotherBrainTurretInstructionProgramDefinitions.BulletSelector,
@@ -113,8 +107,8 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         {
             Position = new(new(0x0400, 0), new(0x0200, (ushort)MotherBrainTurretDirection.Left)),
         };
-        spawnBullet.Invoke(contactSystem, [contactSource]);
-        RoomEnemyProjectileSlot contact = contactSystem.EnemyProjectiles.Single(
+        contactSystem.MotherBrainBehavior.SpawnMotherBrainTurretBullet(contactSource);
+        RoomEnemyProjectileSlot contact = contactSystem.Projectiles.EnemyProjectiles.Single(
             projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.MotherBrainRoomTurretBullet);
         contact.InstructionPointer =
@@ -141,7 +135,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
             "Mother Brain turret bullet contact reaches private compiled deletion");
 
         RoomEnemySystem shotSystem = NewSystem();
-        RoomEnemyProjectileSlot shotTurret = shotSystem.EnemyProjectiles[0];
+        RoomEnemyProjectileSlot shotTurret = shotSystem.Projectiles.EnemyProjectiles[0];
         shotTurret.Kind = RoomEnemyProjectileKind.MotherBrainRoomTurret;
         shotTurret.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         shotTurret.InstructionTimer = 1;
@@ -187,7 +181,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
+            system.BindFixtureBus(guard);
             system.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             return system;
         }
@@ -195,7 +189,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         void RunForcedTick(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }
 

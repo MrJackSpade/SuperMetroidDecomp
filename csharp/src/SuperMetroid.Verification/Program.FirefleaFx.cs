@@ -105,16 +105,16 @@ internal static class FirefleaFxVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0x9C5E); // Green Brinstar Firefleas, retail room/FX population.
         AssertEqual(RoomFxType.Fireflea, runtime.RoomLayer3Fx.Type, "retail fixture selects Fireflea FX");
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         // Seed a late darkness shade through the production FX owner. X-ray freezes
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
@@ -133,8 +133,8 @@ internal static class FirefleaFxVerification
             "ordinary Fireflea keeps both room maps and subtracts fixed color");
         AssertTrue(SoftwareLayeredSnapshotRenderer.Render(ordinaryDarkness).SequenceEqual(
             SuperMetroidRuntimeFrameRenderer.Render(runtime)), "immediate and packet Fireflea paths agree");
-        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus), new XrayBeginConditions()), "Fireflea display fixture activates X-ray");
-        for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.ControllerBindings.Dash);
+        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions()), "Fireflea display fixture activates X-ray");
+        for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         var packet = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         AssertTrue(packet.Layers[0] is GameplayColorMathRenderLayer, "Fireflea capture uses source-aware X-ray compositor");
         var layer = (GameplayColorMathRenderLayer)packet.Layers[0];
@@ -144,7 +144,7 @@ internal static class FirefleaFxVerification
         AssertEqual(shade, layer.FixedGreen, "Fireflea fixed green survives 90 frozen runtime frames");
         AssertEqual(shade, layer.FixedBlue, "Fireflea fixed blue survives 90 frozen runtime frames");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
-        AssertTrue(!samus.Xray.IsActive && !runtime.TimeIsFrozen, "Fireflea X-ray teardown releases gameplay");
+        AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "Fireflea X-ray teardown releases gameplay");
         var restored = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         AssertEqual((byte)0xA2, (byte)((GameplayColorMathRenderLayer)restored.Layers[0]).ColorMath,
             "Fireflea teardown restores room subtraction rather than unblended rendering");

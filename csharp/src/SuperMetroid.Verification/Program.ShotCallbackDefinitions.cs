@@ -64,8 +64,7 @@ internal static class ShotCallbackDefinitionsVerification
             .ToHashSet();
         AssertEqual(12, expectedShotNoOps.Count, "native literal shot no-op count");
         AssertEqual(15, expectedTouchNoOps.Count, "native literal touch no-op count");
-        var classifyShot = typeof(RoomEnemySystem).GetMethod("IsLiteralNoOpEnemyAi", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<byte, ushort, bool>>();
+        var classifyShot = new Func<byte, ushort, bool>(EnemyCollision.IsLiteralNoOpEnemyAi);
         foreach (int address in shotCallbacks)
             AssertEqual(expectedShotNoOps.Contains(address), classifyShot(SnesLittleEndian.BankByte(address), (ushort)address), "real shot classifier native parity");
         for (int bank = 0; bank <= 255; bank++)
@@ -79,8 +78,7 @@ internal static class ShotCallbackDefinitionsVerification
                 EnemyTouchCallbackDefinitions.IsLiteralNoOp((byte)bank, (ushort)pointer),
                 "bank-qualified touch identity");
         }
-        var shortcut = typeof(RoomEnemySystem).GetMethod("IsCanonicalMultiboxNoOpAi", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<ushort, bool>>();
+        var shortcut = new Func<ushort, bool>(EnemyCollision.IsCanonicalMultiboxNoOpAi);
         AssertTrue(!shortcut(0x94b5) && shortcut(0x804b) && shortcut(0x804c), "Kraid private RTL is not a canonical multibox shortcut");
         Suite(nameof(VerifyLiteralNoOpCombatAdmission), () => VerifyLiteralNoOpCombatAdmission(rom, expectedTouchNoOps, expectedShotNoOps));
         Console.WriteLine(
@@ -114,7 +112,7 @@ internal static class ShotCallbackDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(enemy.Position.Whole),
             };
 
-            AssertTrue(enemies.ResolveOrdinarySamusContact(samus, 0),
+            AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0),
                 $"literal touch no-op ${callback:X6} is admitted by production collision");
             AssertEqual((ushort)99, samus.Health,
                 $"literal touch no-op ${callback:X6} does not damage Samus");
@@ -142,7 +140,7 @@ internal static class ShotCallbackDefinitionsVerification
             projectile.InstructionPointer = 0x9000;
             projectile.InstructionTimer = 1;
 
-            AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
                     guard,
                     projectiles,
                     new SamusBombProjectileSystem()),
@@ -155,11 +153,9 @@ internal static class ShotCallbackDefinitionsVerification
             ISnesAddressSpace bus)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-            var interactive = (List<ushort>)typeof(RoomEnemySystem).GetField(
-                "_interactiveEnemyIndexes",
-                flags)!.GetValue(enemies)!;
-            RoomEnemySlot enemy = enemies.Slots[0];
+            enemies.BindFixtureBus(bus);
+            var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
+            RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy.NativeIndex);
             enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x1234;
             enemy.SpritemapPointer = 1;

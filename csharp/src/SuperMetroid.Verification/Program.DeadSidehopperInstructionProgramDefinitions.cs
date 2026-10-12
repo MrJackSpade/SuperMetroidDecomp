@@ -39,14 +39,12 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = NewDeadSidehopperInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = type.GetMethod("InitializeDeadSidehopper", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.DeadSidehopperBehavior.InitializeDeadSidehopper);
 
-        RoomEnemySlot corpse = enemies.Slots[0];
+        RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.EnemyDefinitionPointer = EnemyDefinitionId.CorpseSidehopper;
         corpse.Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 };
         corpse.Parameter1 = 0;
@@ -59,28 +57,24 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
             [corpse, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         ExecuteDeadSidehopperProgram(
             enemies,
-            process,
             processArguments,
             corpse,
             DeadSidehopperInstructionProgramDefinitions.AliveIdle,
             frameCount: 1);
         ExecuteDeadSidehopperProgram(
             enemies,
-            process,
             processArguments,
             corpse,
             DeadSidehopperInstructionProgramDefinitions.AliveCorpse,
             frameCount: 1);
         ExecuteDeadSidehopperProgram(
             enemies,
-            process,
             processArguments,
             corpse,
             DeadSidehopperInstructionProgramDefinitions.InitiallyDead,
             frameCount: 1);
         ExecuteDeadSidehopperProgram(
             enemies,
-            process,
             processArguments,
             corpse,
             DeadSidehopperInstructionProgramDefinitions.AliveHopping,
@@ -130,7 +124,6 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
 
     private static void ExecuteDeadSidehopperProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         object?[] processArguments,
         RoomEnemySlot corpse,
         ushort program,
@@ -140,7 +133,7 @@ internal static class DeadSidehopperInstructionProgramDefinitionsVerification
         for (int frame = 0; frame <= frameCount; frame++)
         {
             corpse.InstructionTimer = 1;
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         }
     }
 

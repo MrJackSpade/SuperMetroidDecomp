@@ -149,12 +149,10 @@ internal static class BoulderInstructionProgramDefinitionsVerification
             string description)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBoulder", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.BoulderBehavior.InitializeBoulder;
 
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Boulder;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.CurrentInstruction = 0x0008;
@@ -172,7 +170,7 @@ internal static class BoulderInstructionProgramDefinitionsVerification
             // Eight eight-frame entries consume 64 actor frames. The margin crosses the
             // terminal goto and proves the production stream restarted its first frame.
             for (int frame = 0; frame < 70; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
             AssertEqual(unchecked((ushort)(expectedProgram + 4)), slot.CurrentInstruction,
                 $"Boulder {description} program loops to its first frame");
         }

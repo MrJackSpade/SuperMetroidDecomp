@@ -42,14 +42,14 @@ internal static class PowerBombRuntimeIntegrationVerification
             "Power Bomb renderer integration retail room");
 
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
             PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader,
             camera: new Position16<RoomPixels>(0, 0));
-        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
         Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
@@ -61,7 +61,7 @@ internal static class PowerBombRuntimeIntegrationVerification
             "HDMA allocation setup does not draw the first flash prematurely");
         explosion.StepFrame(bus);
 
-        GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
+        GameplayPpuRenderSnapshot ppu = runtime.Display.DisplayedGameplayPpu;
         Rgba32[] expected = baseline.ToArray();
         SnesGameplayFrameRenderer.ApplyPowerBombColorMath(
             expected,

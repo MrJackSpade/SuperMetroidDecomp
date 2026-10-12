@@ -64,7 +64,7 @@ internal static class SamusHudDefinitionsVerification
             var bombs = new SamusBombProjectileSystem();
             for (int frame = 0; frame < 10; frame++)
                 shots.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
-            AssertEqual(10, shots.FlareCounter, "Fixture charge earned through real producer");
+            AssertEqual(10, shots.Charge.FlareCounter, "Fixture charge earned through real producer");
             metadataPose = samus.Pose = pose;
             setTurn(samus, turn);
             ushort handler = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90dd05 + movement * 2));
@@ -74,7 +74,7 @@ internal static class SamusHudDefinitionsVerification
             shots.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
-            AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)pose:X2} turn={turn}");
+            AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.Charge.FlareCounter, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)pose:X2} turn={turn}");
             AssertTrue(shots.Slots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
         AssertThrows<ArgumentOutOfRangeException>(

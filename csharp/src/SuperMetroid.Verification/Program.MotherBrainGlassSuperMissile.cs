@@ -25,24 +25,24 @@ internal static class MotherBrainGlassSuperMissileVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         int glassHits = 0;
         enemies.VerificationServices().IncrementMotherBrainGlassRoomArgument = (Action)(() => glassHits++);
-        var head = enemies.Slots[1];
+        var head = enemies.SlotTable.Slots[1];
         head.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
         head.Definition = RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer);
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
         head.SpritemapPointer = 1;
         head.Health = 3000;
-        var state = new MotherBrainEnemyState(enemies.Slots[0]) { Head = head, Form = 0 };
-        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
-        ((List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!).Add(head.NativeIndex);
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = 0 };
+        enemies.MotherBrainEncounter.MotherBrain = state;
+        ((List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes).Add(head.NativeIndex);
         var samus = new SamusState();
         string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
         var installation = GameAssetInstaller.EnsureInstalled(root) ??
             GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
-        var shots = new SamusProjectileSystem { FrameBindings = installation.LoadProjectiles().FrameBindings };
+        var shots = new SamusProjectileSystem { Animation = { FrameBindings = installation.LoadProjectiles().FrameBindings } };
         var bombs = new SamusBombProjectileSystem();
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
         // the missile and its zero-radius link, with the instruction lists the port fires.
@@ -57,10 +57,10 @@ internal static class MotherBrainGlassSuperMissileVerification
             shot.PreInstruction = pair[slot].Pre;
         }
 
-        AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "the glass accepts one projectile per pass");
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "the glass accepts one projectile per pass");
         AssertEqual((ushort)2700, head.Health, "one Super Missile deals 300 to the glass");
         AssertEqual(1, glassHits, "the hit advances the glass PLM argument once");
-        AssertTrue(enemies.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.MotherBrainGlassHit),
+        AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.MotherBrainGlassHit),
             "the hit queues library-two $6E");
         AssertTrue(shots.Slots[0].PackedDirection.HasLowByteLifecycleState, "the walker marks the first slot");
         AssertTrue(!shots.Slots[1].PackedDirection.HasLowByteLifecycleState, "the pair's second slot is not marked");
@@ -68,7 +68,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         shots.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         head.InvincibilityTimer = head.FlashTimer = head.AiHandlerBits = 0;
-        AssertEqual(0, enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "nothing of the pair is left to hit the glass");
+        AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "nothing of the pair is left to hit the glass");
         AssertEqual((ushort)2700, head.Health, "the glass takes no second hit");
         Console.WriteLine("Mother Brain glass Super Missile: one marked hit, $6E, and the pair removed on the next pass.");
     }

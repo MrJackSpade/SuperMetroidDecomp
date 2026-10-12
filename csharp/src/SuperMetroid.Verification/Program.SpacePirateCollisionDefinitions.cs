@@ -167,8 +167,6 @@ internal static class SpacePirateCollisionDefinitionsVerification
         }
         var guard = NewSpacePirateCollisionReadGuard(rom, nativeRanges);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
         int probes = 0;
         foreach (SpacePirateCollisionFrame frame in
                  Enumerable.Range(0, SpacePirateCollisionDefinitions.FrameCount)
@@ -246,8 +244,8 @@ internal static class SpacePirateCollisionDefinitionsVerification
             bool compiledPirate)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(bus);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             bool wallFrame = pointer != EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap &&
                 !ninjaFramePointers.Contains(pointer) &&
                 !walkingFramePointers.Contains(pointer);
@@ -273,7 +271,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, (ushort)0];
             bool hit = slot.EnemyDefinitionPointer == (EnemyDefinitionId)0xffff
                 ? ReferenceExtendedCollision(rom, arguments)
-                : (bool)walker.Invoke(enemies, arguments)!;
+                : ExtendedHitboxWalker.Find(enemies, arguments);
             return (hit, (ushort)arguments[4]!);
         }
     }

@@ -670,17 +670,15 @@ internal static class EnemyTrigonometryVerification
             words[i] = rom.ReadCartridgeWord(address);
         }
 
-        T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
-            .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();
-        var pixel = Method<Func<ushort, ushort, int>>("ReadEightBitSineProduct");
-        var fixedProduct = Method<Func<ushort, ushort, (short Whole, ushort Fraction)>>("ReadEightBitSineFixedProduct");
-        var cosine = Method<Func<ushort, ushort, int>>("ReadEightBitCosineProduct");
-        var negative = Method<Func<ushort, ushort, int>>("ReadEightBitNegativeSineProduct");
-        var fixedCosine = Method<Func<ushort, ushort, (short Whole, ushort Fraction)>>("ReadEightBitCosineFixedProduct");
-        var fixedNegative = Method<Func<ushort, ushort, (short Whole, ushort Fraction)>>("ReadEightBitNegativeSineFixedProduct");
-        var sbugSigned = Method<Func<byte, byte, int, SbugVelocityWords>>("CalculateSignedSbugComponent");
-        var sbugUnsigned = Method<Func<byte, byte, int, SbugVelocityWords>>("CalculateUnsignedSbugMagnitude");
-        var unsigned = Method<Func<ushort, ushort, ushort, int>>("ReadUnsignedSineMagnitudeProduct");
+        var pixel = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitSineProduct);
+        var fixedProduct = new Func<ushort, ushort, (short Whole, ushort Fraction)>(EnemyMath.ReadEightBitSineFixedProduct);
+        var cosine = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitCosineProduct);
+        var negative = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitNegativeSineProduct);
+        var fixedCosine = new Func<ushort, ushort, (short Whole, ushort Fraction)>(EnemyMath.ReadEightBitCosineFixedProduct);
+        var fixedNegative = new Func<ushort, ushort, (short Whole, ushort Fraction)>(EnemyMath.ReadEightBitNegativeSineFixedProduct);
+        var sbugSigned = new Func<byte, byte, int, SbugVelocityWords>(SbugBehavior.CalculateSignedSbugComponent);
+        var sbugUnsigned = new Func<byte, byte, int, SbugVelocityWords>(SbugBehavior.CalculateUnsignedSbugMagnitude);
+        var unsigned = new Func<ushort, ushort, ushort, int>(EnemyMath.ReadUnsignedSineMagnitudeProduct);
 
         int ExpectedPixel(int angle, int radius)
         {
@@ -734,7 +732,7 @@ internal static class EnemyTrigonometryVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        var cinematicReaders = new[] { typeof(CeresDestructionCinematicState), typeof(EndingCreditsState), typeof(IntroCeresFlightState) }
+        var cinematicReaders = new[] { typeof(CeresDestructionCinematicState), typeof(EndingCreditsPresentation), typeof(IntroCeresFlightState) }
             .Select(type => type.GetMethod("ReadSine", BindingFlags.NonPublic | BindingFlags.Static)!
                 .CreateDelegate<Func<byte, short>>()).ToArray();
         for (int index = 0; index < 320; index++)

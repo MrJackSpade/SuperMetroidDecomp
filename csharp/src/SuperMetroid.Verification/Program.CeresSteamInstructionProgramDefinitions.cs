@@ -137,12 +137,10 @@ internal static class CeresSteamInstructionProgramDefinitionsVerification
         RoomEnemySystem CreateSystem(CeresSteamVariant variant, out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-            var initialize = typeof(RoomEnemySystem).GetMethod(
-                "InitializeCeresSteam", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            slot = enemies.Slots[0];
+            Action<RoomEnemySlot> initialize = enemies.CeresSteamBehavior.InitializeCeresSteam;
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.Parameter1 = (ushort)variant;
@@ -152,13 +150,11 @@ internal static class CeresSteamInstructionProgramDefinitionsVerification
 
         void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
             {
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
                 VerifyExecutedEnemySelector(rom, slot, executedOperands);
             }
         }

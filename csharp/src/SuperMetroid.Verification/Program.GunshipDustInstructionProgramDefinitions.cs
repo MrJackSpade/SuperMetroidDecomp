@@ -38,10 +38,6 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
         }
 
         var guard = NewGunshipDustInstructionGuard(rom);
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnGunshipLiftoffDustCloud", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
 
         for (int programIndex = 0;
              programIndex < GunshipDustInstructionProgramDefinitions.ProgramCount;
@@ -52,8 +48,8 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
                 GunshipDustInstructionProgramDefinitions.Program(programIndex);
             RoomEnemySystem enemies = NewSystem();
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)) };
-            spawn.Invoke(enemies, [parameter, samus]);
-            RoomEnemyProjectileSlot dust = enemies.EnemyProjectiles.Single(
+            enemies.Projectiles.SpawnGunshipLiftoffDustCloud(parameter, samus);
+            RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind ==
                     RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
             AssertEqual(
@@ -116,7 +112,7 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             return enemies;
         }
 
@@ -125,7 +121,7 @@ internal static class GunshipDustInstructionProgramDefinitionsVerification
             RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }
 

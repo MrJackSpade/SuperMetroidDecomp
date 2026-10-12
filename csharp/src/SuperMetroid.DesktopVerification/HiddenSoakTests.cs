@@ -20,7 +20,7 @@ internal static class HiddenSoakTests
         var results = new List<object>();
         foreach (bool paused in new[] { false, true })
         {
-            var game = RepositoryInstallation.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
+            var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
             using var audio = DesktopAccess.CreateAudioEngine();
             long sequence = 0;
@@ -39,7 +39,7 @@ internal static class HiddenSoakTests
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
             ushort room = paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            runtime.RunNmi(0, true);
+            runtime.NmiHandler.RunNmi(0, true);
             Step(0);
             if (paused) Step((ushort)SnesButton.Start);
             for (int warmup = 0; warmup < 120; warmup++) Step(0);

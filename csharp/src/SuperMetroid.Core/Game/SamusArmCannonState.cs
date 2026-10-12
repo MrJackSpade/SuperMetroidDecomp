@@ -116,7 +116,7 @@ public sealed class SamusArmCannonState
         ushort offsetAddress = unchecked((ushort)(offsetsBase + samus.AnimationFrame * 2));
         sbyte xOffset = unchecked((sbyte)ReadDrawingByte(offsetAddress));
         sbyte yOffset = unchecked((sbyte)ReadDrawingByte(unchecked((ushort)(offsetAddress + 1))));
-        sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
+        sbyte graphicsYOffset = samus.PoseMetadata.ReadGraphicsYOffset(bus);
 
         short screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1.X));
         short screenY = unchecked((short)(

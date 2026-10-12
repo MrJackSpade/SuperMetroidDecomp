@@ -18,9 +18,8 @@ internal static class RidleyPlayerOpeningVerification
 {
     internal static void VerifyRidleyPlayerOpening()
     {
-        var overlaps = typeof(RoomEnemySystem).GetMethod("IsWithinRidleyRectangle", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool>>();
-        var bounds = new RoomEnemySystem().Slots[0];
+        Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool> overlaps = CeresRidleyBehavior.IsWithinRidleyRectangle;
+        var bounds = new RoomEnemySystem().SlotTable.Slots[0];
         bounds.Radius = new(8, 8);
         // Native $A9:EF06 adds both radii plus one before its unsigned comparison.
         foreach (ushort targetRadius in new ushort[] { 2, 4, 8 })
@@ -45,11 +44,11 @@ internal static class RidleyPlayerOpeningVerification
         ushort W(ushort[] words, int address) => words[Array.IndexOf(addresses, address)];
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xb32e, camera: new Position16<RoomPixels>(0, 0));
         var enemies = runtime.Enemies;
-        var body = enemies.Slots[0]; var state = enemies.Ridley!; var samus = runtime.Samus!;
+        var body = enemies.SlotTable.Slots[0]; var state = enemies.RidleyEncounter.Ridley!; var samus = runtime.Player.Samus!;
         var seed = Read(375);
         body.CurrentInstruction = W(seed, 0xf92); body.InstructionTimer = W(seed, 0xf94);
         body.Timer = W(seed, 0xf90); body.FrameCounter = W(seed, 0xfa4);
@@ -63,9 +62,9 @@ internal static class RidleyPlayerOpeningVerification
         {
             var expected = Read(frame);
             samus.Position = samus.Position.WithWhole(new(W(expected, 0xaf6), W(expected, 0xafa)));
-            samus.Pose = (SamusPoseId)W(expected, 0xa1c); samus.RefreshCollisionRadii(bus);
+            samus.Pose = (SamusPoseId)W(expected, 0xa1c); samus.PoseMetadata.RefreshCollisionRadii(bus);
             random = W(expected, 0x5e5);
-            enemies.StepFrame(new RoomEnemyFrame { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.LevelData, ControllerInput = W(expected, 0x8b) });
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.Room.LevelData, ControllerInput = W(expected, 0x8b) });
             string actual = $"{(ushort)state.Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
             string native = string.Join(",", new[] {0xfa8,0xf7a,0xf7c,0xf7e,0xf80,0xfaa,0xfac}.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)

@@ -48,26 +48,23 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
         ];
         var guard = NewSharedCrawlerInstructionReadGuard(
             rom, forbidPresentation: true);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (EnemyDefinitionId enemyDefinition in enemyDefinitions)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = enemyDefinition;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.CurrentInstruction = (ushort)orientation;
             slot.Parameter1 = 0;
-            initialize.Invoke(enemies,
-                [slot, CrawlerAnimationFamily.Shared, null]);
+            enemies.CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Shared, null);
 
             ushort entry = CrawlerAnimationDefinitions.InitialInstruction(
                 CrawlerAnimationFamily.Shared, orientation);
             AssertEqual(entry, slot.CurrentInstruction,
                 $"shared crawler ${(int)enemyDefinition:X4} selects {orientation}");
-            ExecuteSharedCrawlerProgram(enemies, process, slot, callCount: 6);
+            ExecuteSharedCrawlerProgram(enemies, slot, callCount: 6);
             CrawlerEnemyFunction expected = orientation is
                 CrawlerSurfaceOrientation.UpsideRight or
                 CrawlerSurfaceOrientation.UpsideLeft
@@ -109,7 +106,6 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
 
     private static void ExecuteSharedCrawlerProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot slot,
         int callCount)
     {
@@ -118,7 +114,7 @@ internal static class SharedCrawlerInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

@@ -29,19 +29,19 @@ internal static class SpringBallEquipmentJumpVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean);
             // A bounded underwater fixture retains the retail FX but removes terrain/enemies,
             // isolating the reported pause/equipment/launch contract from room obstacles.
-            foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
-            var level = runtime.LevelData!;
+            foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
+            var level = runtime.Room.LevelData!;
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             { level.SetForegroundEntry(block, 0); level.SetBehavior(block, 0); }
-            var samus = runtime.Samus!;
+            var samus = runtime.Player.Samus!;
             samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
             samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.CurrentYPosition + 96)));
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
-            samus.RefreshCollisionRadii(memory);
+            samus.PoseMetadata.RefreshCollisionRadii(memory);
             runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
             AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
-            samus.InitializeAnimation(memory, 3);
+            samus.Presentation.InitializeAnimation(memory, 3);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = 1;
             samus.Kinematics.YSubspeed = 0x8000;

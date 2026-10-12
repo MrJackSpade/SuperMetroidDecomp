@@ -1,0 +1,464 @@
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>The Chozo statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
+internal sealed class ChozoStatueBehavior : IEnemySpecies
+{
+    private readonly EnemyRoomBinding _room;
+    private readonly EnemyTerrain _terrain;
+    private readonly EnemyProjectileEngine _projectiles;
+    private readonly EnemyAudioQueue _audio;
+    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPresentation _presentation;
+    private readonly EnemyRoomFx _roomFx;
+
+    internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyRoomFx roomFx)
+    {
+        _room = room;
+        _terrain = terrain;
+        _projectiles = projectiles;
+        _audio = audio;
+        _slotTable = slotTable;
+        _presentation = presentation;
+        _roomFx = roomFx;
+    }
+
+    private const ushort EmptyBankAaSpritemap = 0x804d;
+
+    internal readonly ChozoStatueState?[] _chozoStatueStates =
+        new ChozoStatueState?[RoomEnemySystem.MaximumEnemyCount];
+    internal readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
+
+    /// <summary>Consumes each published request once through the shared bank-$84 slot allocator.</summary>
+    internal void ApplyPendingChozoStatuePlms(RoomLevelData level, ChozoStatuePlms chozoStatuePlms)
+    {
+        while (_chozoStatuePlmRequests.Count != 0)
+        {
+            chozoStatuePlms.TrySpawnChozoStatuePlm(level, _chozoStatuePlmRequests[0]);
+            _chozoStatuePlmRequests.RemoveAt(0);
+        }
+    }
+
+    /// <summary>Last library-two sound requested by either walking sequence.</summary>
+    public ushort? LastChozoStatueSoundEffect { get; private set; }
+
+    /// <summary>Last value sent through native <c>CallSomeSamusCode(0/1)</c>.</summary>
+    public bool ChozoStatueSamusControlsEnabled { get; private set; } = true;
+
+    /// <summary>FX timer written by instruction $AA:E429.</summary>
+    public ushort ChozoStatueFxTimer { get; private set; }
+
+    /// <summary>FX Y velocity written by instruction $AA:E429.</summary>
+    public ushort ChozoStatueFxYVelocity { get; private set; }
+
+    /// <summary>FX base Y written by instruction $AA:E436.</summary>
+    public ushort ChozoStatueFxBaseYPosition { get; private set; }
+
+    internal void ResetChozoStatueRoomState(IChozoStatueRoomServices services)
+    {
+        Ensure.NotNull(services);
+        Array.Clear(_chozoStatueStates);
+        _chozoStatuePlmRequests.Clear();
+        LastChozoStatueSoundEffect = null;
+        ChozoStatueSamusControlsEnabled = true;
+        ChozoStatueFxTimer = 0;
+        ChozoStatueFxYVelocity = 0;
+        ChozoStatueFxBaseYPosition = 0;
+    }
+
+    /// <summary>
+    /// Ports the complete palette-only initializer at $AA:E716. The retail record begins
+    /// with property $0200, so it exists solely long enough to replace target palette rows
+    /// nine and ten; the scheduler removes it before any main-AI frame.
+    /// </summary>
+    internal void InitializeN00bTubeCracks()
+    {
+        (_room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
+            "Tube crack colors require installed artwork.")).ApplyTubeCracks(_presentation._cgram!);
+    }
+
+    /// <summary>Ports $AA:E725-$E7A1 for both shipped parameter-two variants.</summary>
+    internal void InitializeChozoStatue(RoomEnemySlot statue)
+    {
+        if ((statue.Parameter2 & 1) != 0 || statue.Parameter2 > 2)
+        {
+            throw new InvalidDataException(
+                $"Chozo statue parameter two ${statue.Parameter2:X4} is outside its two-entry ROM table.");
+        }
+
+        // The original ORs $2000, $0800, and the otherwise unnamed high bit. Keep $8000 raw:
+        // no translated caller has proved a stable semantic name for that property yet.
+        statue.Properties = statue.Properties.With(
+            EnemyProperties.SolidToSamus |
+            EnemyProperties.ProcessInstructions |
+            EnemyProperties.ProcessOffScreen);
+        statue.SpritemapPointer = EmptyBankAaSpritemap;
+        statue.InstructionTimer = 1;
+        statue.Timer = 0;
+        statue.Parameter1 = 0;
+        statue.PaletteIndex = 0;
+
+        var state = new ChozoStatueState(statue)
+        {
+            PreInstruction = ChozoStatuePreInstruction.Idle,
+        };
+        _chozoStatueStates[statue.SlotIndex] = state;
+
+        // The native initializer writes enemy_data[0].layer regardless of cur_enemy_index.
+        // Every retail population places this singleton in slot zero, but preserve the alias
+        // explicitly so malformed/debug populations expose the same cross-slot behavior.
+        _slotTable._slots[0].Layer = 0;
+
+        if (statue.Parameter2 == 0)
+        {
+            statue.CurrentInstruction =
+                ChozoStatueInstructionProgramDefinitions.WreckedShipInitial;
+            LoadChozoStatuePalette(wreckedShip: true);
+            PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, new Position16<RoomBlocks>(0x4a, 0x17));
+            PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, new Position16<RoomBlocks>(0x17, 0x1d));
+        }
+        else
+        {
+            statue.CurrentInstruction =
+                ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial;
+            LoadChozoStatuePalette(wreckedShip: false);
+            PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, new Position16<RoomBlocks>(0x0c, 0x1d));
+        }
+    }
+
+    private void LoadChozoStatuePalette(bool wreckedShip)
+    {
+        var colors = _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
+            "Chozo statue colors require installed artwork.");
+        if (wreckedShip) colors.ApplyWreckedShip(_presentation._cgram!);
+        else colors.ApplyLowerNorfair(_presentation._cgram!);
+    }
+
+    /// <summary>
+    /// Represents the exact enemy-slot side effect produced by the bank-$84 Chozo hand
+    /// trigger. Collision/pose/item admission remains the PLM owner's responsibility; once
+    /// admitted, both native trigger setups write parameter one and disable Samus controls.
+    /// </summary>
+    public void ActivateChozoStatueHandTrigger(RoomLevelData level, int? collisionBlockIndex = null)
+    {
+        Ensure.NotNull(level);
+        _room.EnsureLoaded();
+        RoomEnemySlot statue = _slotTable._slots[0];
+        if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo)
+            throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
+
+        int triggerBlockX = statue.Parameter2 == 0 ? 0x4a : ChozoStatuePlmRomData.LowerNorfairTriggerX;
+        int triggerBlockY = statue.Parameter2 == 0 ? 0x17 : ChozoStatuePlmRomData.LowerNorfairTriggerY;
+        int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(unchecked((ushort)triggerBlockX), unchecked((ushort)triggerBlockY)));
+        RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
+
+        // Both setup routines clear only the block-type nibble. The parallel BTS byte and
+        // visual block number survive until their subsequently spawned hardcoded PLM runs.
+        level.SetForegroundEntry(
+            triggerBlockIndex,
+            unchecked((ushort)(triggerBlock.LevelWord & 0x0fff)));
+        statue.Parameter1 = 1;
+        SetChozoStatueSamusControls(enabled: false);
+        if (statue.Parameter2 != 0)
+        {
+            // Lower Norfair's $84:D18F trigger records event $0C before waking the actor.
+            _room.Services.Events.Set(EventNumber.LowerNorfairChozoLoweredAcid);
+            PublishHardcodedChozoPlm(
+                PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
+                new Position16<RoomBlocks>(0x0c, 0x1d));
+        }
+        else
+        {
+            // $84:D620 performs two little-endian word stores before handing the statue to
+            // $E7AE: scroll bytes 7/8 become green and 13/14 become blue. PLM $D6F8 then
+            // queues the authored slope-access terrain transition in bank $84.
+            _room.Services.RoomScroll.Write(7, RoomScrollState.Green);
+            _room.Services.RoomScroll.Write(8, RoomScrollState.Green);
+            _room.Services.RoomScroll.Write(13, RoomScrollState.Blue);
+            _room.Services.RoomScroll.Write(14, RoomScrollState.Blue);
+            PublishHardcodedChozoPlm(
+                PlmHeaderId.ClearSlopeAccessForWreckedShipChozo,
+                new Position16<RoomBlocks>(0x17, 0x1d));
+        }
+    }
+
+    private void RunChozoStatueMain(RoomEnemySlot statue, ChozoStatueState state)
+    {
+        switch (state.PreInstruction)
+        {
+            case ChozoStatuePreInstruction.Idle:
+            case ChozoStatuePreInstruction.Cleared:
+            case ChozoStatuePreInstruction.Walking:
+                return;
+
+            case ChozoStatuePreInstruction.WaitForLowerNorfairHandTrigger:
+                if (statue.Parameter1 != 0)
+                {
+                    statue.CurrentInstruction =
+                        ChozoStatueInstructionProgramDefinitions.LowerNorfairActivated;
+                    statue.InstructionTimer = 1;
+                }
+                return;
+
+            case ChozoStatuePreInstruction.WaitForWreckedShipHandTrigger:
+                if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && statue.Parameter1 != 0)
+                {
+                    statue.CurrentInstruction =
+                        ChozoStatueInstructionProgramDefinitions.WreckedShipActivated;
+                    statue.InstructionTimer = 1;
+                    state.VariableA = unchecked((ushort)-256);
+                    state.VariableB = 256;
+                }
+                return;
+
+            default:
+                throw new InvalidDataException(
+                    $"Chozo statue pre-instruction $AA:{(ushort)state.PreInstruction:X4} is not translated.");
+        }
+    }
+
+    /// <summary>Dispatches every callback reachable from lists $E39D/$E3A7/$E457/$E461.</summary>
+    private bool TryProcessChozoStatueInstruction(
+        RoomEnemySlot statue,
+        SamusState? samus,
+        RoomLevelData? level,
+        ushort opcode,
+        ref ushort cursor)
+    {
+        // The shared interpreter hands every remaining negative word here; only the
+        // statue's opcodes belong to this handler.
+        if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo ||
+            !Enum.IsDefined((ChozoStatueInstruction)opcode))
+            return false;
+
+        ChozoStatueState state = RequireChozoStatueState(statue);
+        switch ((ChozoStatueInstruction)opcode)
+        {
+            case ChozoStatueInstruction.CommonAA_Enemy0FB2_InY:
+                state.PreInstruction = (ChozoStatuePreInstruction)ReadChozoInstructionOperand(cursor);
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
+            case ChozoStatueInstruction.CommonAA3_SetEnemy0FB2ToRTS:
+                state.PreInstruction = ChozoStatuePreInstruction.Cleared;
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case ChozoStatueInstruction.Chozo_StartLoweringAcid:
+                ChozoStatueFxTimer = ChozoStatueFxData.LoweringDelay;
+                ChozoStatueFxYVelocity = ChozoStatueFxData.LoweringVelocity;
+                // Native AI writes the same FX words consumed by the liquid handler.
+                // Apply once at instruction execution, not every frame from the retained
+                // diagnostic values, which would repeatedly reset the delay.
+                _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(
+                    timer: ChozoStatueFxTimer, packedYVelocity: ChozoStatueFxYVelocity);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case ChozoStatueInstruction.Chozo_SetLoweredAcidPosition:
+                ChozoStatueFxBaseYPosition = ChozoStatuePlmRomData.LoweredAcidY;
+                _roomFx.Layer3Fx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueFxBaseYPosition);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case ChozoStatueInstruction.Chozo_UnlockSamus:
+                SetChozoStatueSamusControls(enabled: true);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case ChozoStatueInstruction.Chozo_PlayChozoGrabsSamusSFX:
+                LastChozoStatueSoundEffect = 0x001c;
+                _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
+                    LastChozoStatueSoundEffect.Value), maximumQueued: 6);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case ChozoStatueInstruction.Chozo_PlayChozoFootstepsSFX:
+                LastChozoStatueSoundEffect = 0x004b;
+                _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
+                    LastChozoStatueSoundEffect.Value), maximumQueued: 6);
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            case ChozoStatueInstruction.Chozo_SpawnChozoSpikeClearingFootstepProjectile:
+                ProcessChozoStatueFootstep(
+                    statue,
+                    RequireChozoLevel(level),
+                    ReadChozoInstructionOperand(cursor));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
+            case ChozoStatueInstruction.Chozo_Movement_IndexInY:
+                ProcessChozoStatueMovement(
+                    statue,
+                    state,
+                    RequireChozoSamus(samus),
+                    RequireChozoLevel(level),
+                    ReadChozoInstructionOperand(cursor));
+                cursor = unchecked((ushort)(cursor + 4));
+                return true;
+
+            case ChozoStatueInstruction.Chozo_ReleaseSamus_BlockSlopeAccess:
+                FinishWreckedShipChozoSequence();
+                cursor = unchecked((ushort)(cursor + 2));
+                return true;
+
+            default:
+                throw new InvalidOperationException($"Undefined Chozo statue instruction ${opcode:X4}.");
+        }
+    }
+
+    private static ushort ReadChozoInstructionOperand(ushort cursor) =>
+        ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(
+            unchecked((ushort)(cursor + 2)));
+
+    internal void ProcessChozoStatueMovement(
+        RoomEnemySlot statue,
+        ChozoStatueState state,
+        SamusState samus,
+        RoomLevelData level,
+        ushort tableOffset)
+    {
+        var motion = ChozoCarryMotionDefinitions.Read(tableOffset);
+        state.MovementTableOffset = tableOffset;
+        short signedVelocity = motion.Velocity;
+
+        // Enemy_MoveRight_IgnoreSlopes receives a signed 8.8 word promoted to 16.16 by
+        // INT16_SHL8. Enemy_MoveDown receives its absolute magnitude in the same format.
+        _ = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
+            level,
+            statue,
+            SnesSixteenSixteen.FromEightEight(signedVelocity));
+        _ = _terrain.MoveEnemyVertically(
+            level,
+            statue,
+            SnesSixteenSixteen.FromEightEight(Math.Abs((int)signedVelocity)));
+        EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
+
+        // The two 32-word tables are joint offsets indexed by the exact byte offset above.
+        // Writing Samus after collision reproduces the native cutscene's absolute ownership.
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + motion.SamusX)), unchecked((ushort)(statue.Position.Y.Whole + motion.SamusY))));
+    }
+
+    private void ProcessChozoStatueFootstep(
+        RoomEnemySlot statue,
+        RoomLevelData level,
+        ushort rawXOffset)
+    {
+        short xOffset = unchecked((short)rawXOffset);
+        ushort probeX = unchecked((ushort)(statue.Position.X.Whole + xOffset));
+        ushort probeY = unchecked((ushort)(statue.Position.Y.Whole + 28));
+        RoomCollisionBlock current = level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(probeX, probeY));
+        int belowIndex = current.Index + level.Size.X;
+        if ((uint)belowIndex >= (uint)level.ForegroundEntries.Length ||
+            (level.GetCollisionBlockByIndex(belowIndex).LevelWord & 0xf000) != 0xa000)
+        {
+            return;
+        }
+
+        _chozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
+            PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
+            new Position16<RoomPixels>(probeX, probeY).ToRoomBlock(),
+            IsHardcoded: false));
+        SpawnWreckedShipChozoFootstep(statue, rawXOffset);
+    }
+
+    internal void SpawnWreckedShipChozoFootstep(RoomEnemySlot statue, ushort xOffset)
+    {
+        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            projectile,
+            RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
+            graphicsIndex: 0);
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + unchecked((short)xOffset))), unchecked((ushort)(statue.Position.Y.Whole + 28))));
+    }
+
+    private void FinishWreckedShipChozoSequence()
+    {
+        SetChozoStatueSamusControls(enabled: true);
+
+        // The assembly performs overlapping 16-bit stores at raw scroll indexes 6, 8, 9,
+        // and 13. Publish the resulting bytes (6..10 = 0, 13 = 1, 14 = 0) exactly.
+        for (int index = 6; index <= 10; index++)
+            _room.Services.RoomScroll.Write(index, RoomScrollState.RedBoundary);
+        _room.Services.RoomScroll.Write(13, RoomScrollState.Blue);
+        _room.Services.RoomScroll.Write(14, RoomScrollState.RedBoundary);
+
+        PublishHardcodedChozoPlm(
+            PlmHeaderId.BlockSlopeAccessForWreckedShipChozo,
+            new Position16<RoomBlocks>(0x17, 0x1d));
+    }
+
+    private void SetChozoStatueSamusControls(bool enabled)
+    {
+        ChozoStatueSamusControlsEnabled = enabled;
+        _room.Services.SamusControls.SetControlsEnabled(enabled);
+    }
+
+    private void PublishHardcodedChozoPlm(PlmHeaderId header, Position16<RoomBlocks> block) =>
+        _chozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
+            header,
+            block,
+            IsHardcoded: true));
+
+    private ChozoStatueState RequireChozoStatueState(RoomEnemySlot statue) =>
+        _chozoStatueStates[statue.SlotIndex] ?? throw new InvalidOperationException(
+            $"Chozo statue slot {statue.SlotIndex} has no initialized bank-$AA state.");
+
+    private static SamusState RequireChozoSamus(SamusState? samus) =>
+        samus ?? throw new InvalidOperationException(
+            "Chozo statue movement requires the active Samus actor.");
+
+    private static RoomLevelData RequireChozoLevel(RoomLevelData? level) =>
+        level ?? throw new InvalidOperationException(
+            "Chozo statue movement requires the active room level.");
+
+    internal void RegisterChozoStatueInitializationAi(EnemyAiTable table)
+    {
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_NoobTubeCrack, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.NoobTubeCrack, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeN00bTubeCracks();
+        });
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Chozo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeChozoStatue(slot);
+        });
+    }
+
+    internal void RegisterChozoStatueMainAi(EnemyAiTable table)
+    {
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_Chozo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, frame, nmiFrameCounter8) =>
+        {
+            RunChozoStatueMain(slot, RequireChozoStatueState(slot));
+        });
+    }
+
+    internal void RegisterChozoStatueOwnedInstructions(EnemyAiTable table)
+    {
+        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+        {
+            yieldInterpreter = false;
+            return TryProcessChozoStatueInstruction(slot, context.Samus, context.Level, word, ref cursor);
+        });
+    }
+
+    /// <inheritdoc/>
+    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    {
+        ResetChozoStatueRoomState(request.Services);
+    }
+
+    /// <inheritdoc/>
+    public void BeginEnemyFrame(RoomEnemyFrame frame)
+    {
+    }
+}

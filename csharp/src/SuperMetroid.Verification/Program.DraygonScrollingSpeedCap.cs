@@ -47,14 +47,14 @@ internal static class DraygonScrollingSpeedCapVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_samusPreviousPositionCheckpoint", flags)!.SetValue(enemies, checkpoint);
+        enemies.BindFixtureBus(bus);
+        enemies.ScrollCap._samusPreviousPositionCheckpoint = checkpoint;
         var samus = new SamusState { Position = new(new(checkpoint.X.Whole, 0), new(checkpoint.Y.Whole, 0))};
         samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
-        var state = new DraygonEnemyState(enemies.Slots[0]);
+        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
         state.Body.Position = state.Body.Position.WithWhole(body);
         state.FacingRight = true;
-        typeof(RoomEnemySystem).GetMethod("MoveSamusWithDraygon", flags)!.Invoke(enemies, [state, samus]);
+        enemies.DraygonBehavior.MoveSamusWithDraygon(state, samus);
         return samus.PeekPreviousPositionWords(checkpoint);
     }
 

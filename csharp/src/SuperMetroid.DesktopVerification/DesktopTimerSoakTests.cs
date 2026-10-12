@@ -22,7 +22,7 @@ internal static class DesktopTimerSoakTests
         {
             // The installed host path writes player data and debugger slots into its root, so
             // each scene runs on a private copy of the repository installation.
-            using var copy = RepositoryInstallation.CreatePrivateCopy();
+            using var copy = InstalledFixtures.CreatePrivateCopy();
             var options = new SuperMetroidGameOptions { Renderer = RendererSelection.Direct3D11,
                 SkipOpeningCinematic = true, Invincibility = true, MasterVolumePercent = 0 };
             CreateDesktopSoakSeed(copy.Installation, options, paused);
@@ -123,7 +123,7 @@ internal static class DesktopTimerSoakTests
         SuperMetroidGameOptions options, bool paused)
     {
         var bus = installation.OpenRuntimeAddressSpace();
-        var game = RepositoryInstallation.CreateGame(bus, options);
+        var game = InstalledFixtures.CreateGame(bus, options);
         using var audio = DesktopAccess.CreateAudioEngine();
         long sequence = 0;
         void Step(ushort input)
@@ -136,7 +136,7 @@ internal static class DesktopTimerSoakTests
             Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
         Check(game.GameState == SuperMetroidGameState.MainGameplay, "desktop soak seed startup failed");
         game.RuntimeForVerification!.LoadCartridgeRoomForDebug(paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
-        game.RuntimeForVerification!.RunNmi(0, true);
+        game.RuntimeForVerification!.NmiHandler.RunNmi(0, true);
         Step(0);
         if (paused) Step((ushort)SnesButton.Start);
         for (int warmup = 0; warmup < 120; warmup++) Step(0);

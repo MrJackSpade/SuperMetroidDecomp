@@ -29,12 +29,12 @@ internal static class ShutterScrewContactVerification
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.ThreeMusketeers);
-            var samus = runtime.Samus!;
-            RoomEnemySlot shutter = runtime.Enemies.Slots[10];
+            var samus = runtime.Player.Samus!;
+            RoomEnemySlot shutter = runtime.Enemies.SlotTable.Slots[10];
             VerticalShutterEnemyState state = runtime.Enemies.VerticalShutterStates[10]!;
             AssertEqual((ushort)6, state.InitialFunctionTableOffset, "the movie's shutter waits only for a shot");
 
@@ -45,8 +45,7 @@ internal static class ShutterScrewContactVerification
             foreach (var direction in new[] { SamusCollisionDirection.Right, SamusCollisionDirection.Up, SamusCollisionDirection.Down })
                 record.Invoke(samus.Kinematics, [direction, (ushort?)null]);
 
-            typeof(RoomEnemySystem).GetMethod("RunVerticalShutterMain", flags)!
-                .Invoke(runtime.Enemies, [shutter, state, samus, Position16<RoomPixels>.Zero]);
+            runtime.Enemies.ShuttersBehavior.RunVerticalShutterMain(shutter, state, samus, Position16<RoomPixels>.Zero);
             string context = $"contact damage {contactDamage}";
             AssertEqual(reacts, state.Function is VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown,
                 $"{context}: the idle shutter starts moving");

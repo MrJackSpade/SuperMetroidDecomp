@@ -25,23 +25,23 @@ internal static class MotherBrainRinkaDoorSpawnVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RinkaShaft);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
         samus.InputLocked = true;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
         game.DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c);
 
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
         for (int x = 0; x < level.Size.X && !selected; x++)
@@ -59,9 +59,9 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         for (int guard = 0; game.GameState != SuperMetroidGameState.MainGameplay && guard < 600; guard++)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");
-        AssertEqual(FixtureRoomHeaders.MotherBrain, runtime.ActiveRoom!.Pointer, "Samus is in Mother Brain's room");
+        AssertEqual(FixtureRoomHeaders.MotherBrain, runtime.Room.ActiveRoom!.Pointer, "Samus is in Mother Brain's room");
 
-        RoomEnemySlot[] rinkas = runtime.Enemies.Slots
+        RoomEnemySlot[] rinkas = runtime.Enemies.SlotTable.Slots
             .Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka && slot.Parameter1 != 0)
             .OrderBy(slot => slot.SlotIndex)
             .ToArray();
@@ -78,7 +78,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
     /// <summary>Reports every enemy initialized once the door scroll has reached a layer-1 X.</summary>
     internal sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IDoorLoaderProgressSource
     {
-        public bool HasInitializedEnemySlot(int slot) => runtime.Camera!.PixelPosition.X <= cameraX;
+        public bool HasInitializedEnemySlot(int slot) => runtime.Room.Camera!.PixelPosition.X <= cameraX;
     }
 
     [VerificationCommand("--mother-brain-rinka-door-spawn")]

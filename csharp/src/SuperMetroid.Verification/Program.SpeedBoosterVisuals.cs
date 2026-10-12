@@ -94,9 +94,9 @@ internal static class SpeedBoosterVisualsVerification
                 int blockIndex) = CreateSpeedBoosterBlockFixture(
                     new RoomBlockBehavior(0x82), AreaId.Brinstar);
             level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
-            plms.SpeedBoosterVisuals = edited;
+            plms.Drawing.SpeedBoosterVisuals = edited;
             var guard = NewSpeedBoosterPlmReadGuard(bus);
-            AssertTrue(plms.TrySpawnBombedSpecialBlock(level, blockIndex,
+            AssertTrue(plms.BlockReactions.TrySpawnBombedSpecialBlock(level, blockIndex,
                     new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
                 "bomb triggers the production Speed Booster reveal PLM");
             plms.Step(guard, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -114,7 +114,7 @@ internal static class SpeedBoosterVisualsVerification
                     blockIndex, 0).TopRow[0],
                 "edited reveal survives later camera streaming");
             plms.Step(guard, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(0, plms.ActiveCount,
+            AssertEqual(0, plms.SlotTable.ActiveCount,
                 "edited reveal retains native one-frame deletion");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 "edited Speed Booster reveal reads no compiled ROM source bytes");

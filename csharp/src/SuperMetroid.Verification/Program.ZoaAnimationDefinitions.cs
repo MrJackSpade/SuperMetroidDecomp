@@ -38,8 +38,6 @@ internal static class ZoaAnimationDefinitionsVerification
 
     private static void VerifyAllZoaAnimationHandoffs()
     {
-        MethodInfo setInstruction = typeof(RoomEnemySystem).GetMethod(
-            "SetZoaInstructionList", BindingFlags.Static | BindingFlags.NonPublic)!;
         for (int index = 0; index < 4; index++)
         {
             var selector = (ZoaAnimationSelector)index;
@@ -51,7 +49,7 @@ internal static class ZoaAnimationDefinitionsVerification
                     ? ZoaAnimationSelector.Rising
                     : ZoaAnimationSelector.None,
             };
-            setInstruction.Invoke(null, [slot, state]);
+            ZoaBehavior.SetZoaInstructionList(slot, state);
             AssertZoaAnimationHandoff(slot, state, selector, $"Zoa {selector}");
         }
     }
@@ -61,25 +59,18 @@ internal static class ZoaAnimationDefinitionsVerification
         bool facingRight)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(enemies, NewZoaAnimationReadGuard(rom));
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewZoaAnimationReadGuard(rom));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeZoa", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        MethodInfo wait = typeof(RoomEnemySystem).GetMethod(
-            "RunZoaWait", BindingFlags.Static | BindingFlags.NonPublic)!;
-        MethodInfo rise = typeof(RoomEnemySystem).GetMethod(
-            "RunZoaRising", BindingFlags.Static | BindingFlags.NonPublic)!;
-        initialize.Invoke(enemies, [slot]);
+        enemies.ZoaBehavior.InitializeZoa(slot);
         ZoaEnemyState state = enemies.ZoaStates[0]!;
 
         var samus = new SamusState
         {
             Position = new(new(unchecked((ushort)(slot.Position.X.Whole + (facingRight ? 0x10 : -0x10))), 0), new(slot.Position.Y.Whole, 0)),
         };
-        wait.Invoke(null, [slot, state, samus]);
+        ZoaBehavior.RunZoaWait(slot, state, samus);
         ZoaAnimationSelector direction = facingRight
             ? ZoaAnimationSelector.FacingRight
             : ZoaAnimationSelector.None;
@@ -90,7 +81,7 @@ internal static class ZoaAnimationDefinitionsVerification
             rising,
             facingRight ? "live right-facing Zoa rise" : "live left-facing Zoa rise");
 
-        rise.Invoke(null, [slot, state, samus]);
+        ZoaBehavior.RunZoaRising(slot, state, samus);
         AssertZoaAnimationHandoff(
             slot,
             state,

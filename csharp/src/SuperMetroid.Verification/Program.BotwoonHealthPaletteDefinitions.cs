@@ -39,12 +39,10 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), BotwoonColors = BotwoonColorCatalog.Load(colors) }),
         };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        var update = typeof(RoomEnemySystem).GetMethod(
-            "UpdateBotwoonHealthPalette",
-            flags)!.CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>(enemies);
-        RoomEnemySlot head = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = new SnesCgram();
+        Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
+        RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState(head)
         {
             // Sprite palette seven starts at CGRAM color 240 / byte offset $01E0.

@@ -157,12 +157,12 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
             AssertEqual((ushort)24, state.WaitTimer,
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
-            AssertEqual((ushort)0x004c, enemies.LastKiHunterSoundEffect!.Value,
+            AssertEqual((ushort)0x004c, enemies.KiHunterBehavior.LastKiHunterSoundEffect!.Value,
                 $"KiHunter {(movingRight ? "right" : "left")} spit sound");
             RoomEnemyProjectileKind kind = movingRight
                 ? RoomEnemyProjectileKind.KiHunterAcidSpitRight
                 : RoomEnemyProjectileKind.KiHunterAcidSpitLeft;
-            AssertEqual(1, enemies.EnemyProjectiles.Count(projectile => projectile.Kind == kind),
+            AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == kind),
                 $"KiHunter {(movingRight ? "right" : "left")} acid spawn");
             AssertEqual(unchecked((ushort)(program + 0x1c)), body.CurrentInstruction,
                 $"KiHunter {(movingRight ? "right" : "left")} spit reaches terminal sleep");
@@ -172,18 +172,15 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             KiHunterEnemyState BodyState, KiHunterEnemyState WingState) CreatePair()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initializeBody = typeof(RoomEnemySystem).GetMethod("InitializeKiHunter", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            var initializeWings = typeof(RoomEnemySystem).GetMethod(
-                "InitializeKiHunterWings", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initializeBody = enemies.KiHunterBehavior.InitializeKiHunter;
+            Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 
-            RoomEnemySlot body = enemies.Slots[0];
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreen;
             body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             body.Position = body.Position.WithWhole(new(0x0080, 0x0080));
-            RoomEnemySlot wings = enemies.Slots[1];
+            RoomEnemySlot wings = enemies.SlotTable.Slots[1];
             wings.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreenWings;
             wings.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             initializeBody(body);
@@ -201,11 +198,9 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

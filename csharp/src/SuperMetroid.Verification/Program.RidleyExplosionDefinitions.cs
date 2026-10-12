@@ -138,14 +138,10 @@ internal static class RidleyExplosionDefinitionsVerification
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies,
-                NewRidleyExplosionDefinitionReadGuard(rom));
-            var spawn = typeof(RoomEnemySystem)
-                .GetMethod("SpawnSmallExplosionNearNorfairRidley", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+            enemies.BindFixtureBus(NewRidleyExplosionDefinitionReadGuard(rom));
+            Action<RoomEnemySlot, RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnSmallExplosionNearNorfairRidley;
 
-            RoomEnemySlot body = enemies.Slots[0];
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
             var state = new RidleyEnemyState
             {
@@ -155,7 +151,7 @@ internal static class RidleyExplosionDefinitionsVerification
 
             spawn(body, state);
 
-            RoomEnemyProjectileSlot effect = enemies.EnemyProjectiles.Single(p => p.IsActive);
+            RoomEnemyProjectileSlot effect = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c66e + selectedIndex * 4)));
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c670 + selectedIndex * 4)));
             AssertEqual((ushort)selectedIndex, state.DeathExplosionCount,
@@ -178,16 +174,12 @@ internal static class RidleyExplosionDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewRidleyExplosionDefinitionReadGuard(rom));
+        enemies.BindFixtureBus(NewRidleyExplosionDefinitionReadGuard(rom));
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x8130);
-        var initialize = typeof(RoomEnemySystem)
-            .GetMethod("InitializeNorfairRidleyExplosion", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, RidleyEnemyState>>(enemies);
+        Action<RoomEnemySlot, RoomEnemySlot, RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyExplosion;
 
-        RoomEnemySlot fragment = enemies.Slots[1];
-        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot fragment = enemies.SlotTable.Slots[1];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
         var state = new RidleyEnemyState
         {

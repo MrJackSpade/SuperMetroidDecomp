@@ -40,11 +40,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
 
         var guard = NewPolypRockInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", instanceFlags)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnPolypRock", instanceFlags)!;
+        enemies.BindFixtureBus(guard);
 
         var source = new RoomEnemySlot(0)
         {
@@ -52,8 +48,8 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
-        spawn.Invoke(enemies, [source, (ushort)0x0010, (ushort)0xff00]);
-        RoomEnemyProjectileSlot rock = enemies.EnemyProjectiles.Single(
+        enemies.PolypBehavior.SpawnPolypRock(source, (ushort)0x0010, (ushort)0xff00);
+        RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PolypRock);
         AssertEqual(PolypRockInstructionProgramDefinitions.Initial,
             rock.InstructionPointer,
@@ -63,7 +59,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
         AssertEqual(PolypRockInstructionProgramDefinitions.PresentationWord,
             rock.PresentationOperandAddress,
             "Polyp rock selects its installed presentation binding without cartridge reads");
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidOperationException("Polyp rock fixture requires installed projectile artwork.");
         Suite(nameof(VerifyExecutedProjectileFrame), () => VerifyExecutedProjectileFrame(rom, rock, spriteArtwork, new HashSet<ushort>()));
         AssertEqual(PolypRockInstructionProgramDefinitions.Sleep,
@@ -114,7 +110,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }
 

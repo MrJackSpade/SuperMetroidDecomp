@@ -173,17 +173,17 @@ internal static void VerifySamusHorizontalSpeed()
     // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
     // those immutable definitions from SamusRunningCadenceDefinitions.
     var dashAnimation = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
-    dashAnimation.InitializeAnimation(bus);
+    dashAnimation.Presentation.InitializeAnimation(bus);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        dashAnimation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)SnesButton.B });
+        dashAnimation.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)SnesButton.B });
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        dashAnimation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)SnesButton.B });
+        dashAnimation.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)SnesButton.B });
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash restart uses shared frame-zero delay");
 

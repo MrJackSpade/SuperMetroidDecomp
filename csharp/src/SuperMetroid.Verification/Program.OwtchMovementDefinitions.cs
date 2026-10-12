@@ -15,12 +15,9 @@ internal static class OwtchMovementDefinitionsVerification
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewOwtchMovementReadGuard(new TestAddressSpace()));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeOwtch", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewOwtchMovementReadGuard(new TestAddressSpace()));
+        Action<RoomEnemySlot> initialize = enemies.OwtchBehavior.InitializeOwtch;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
         foreach (ushort spawnX in new ushort[] { 0, 0x0100, ushort.MaxValue })
         {

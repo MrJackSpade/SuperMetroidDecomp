@@ -9,9 +9,8 @@ internal static class BoyonSpeedDefinitionsVerification
     internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBoyon", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot actor = enemies.Slots[0];
+        Action<RoomEnemySlot> initialize = enemies.BoyonBehavior.InitializeBoyon;
+        RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         for (int height = 0; height < 9; height++)
         {
             for (int multiplier = 0; multiplier < 8; multiplier++)
@@ -27,9 +26,8 @@ internal static class BoyonSpeedDefinitionsVerification
         AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected multiplier unchanged");
         actor.Parameter1 = 0x900;
         AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected height unchanged");
-        var multiply = typeof(RoomEnemySystem).GetMethod("MultiplyBoyonCurveEntry", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<BoyonEnemyState, ushort>>();
-        var state = new BoyonEnemyState(new RoomEnemySystem().Slots[0]);
+        Func<BoyonEnemyState, ushort> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
+        var state = new BoyonEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
         for (int index = 0; index <= ushort.MaxValue; index++)
         {
             byte sample = index < 23 ? rom.ReadCartridgeByte(0xa28701 + index) : (byte)255;

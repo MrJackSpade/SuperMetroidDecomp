@@ -31,11 +31,11 @@ internal static class GroundedSpreadTransitionVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         // A local flat clearing isolates the input/pose/charge path from slopes,
         // gunship interaction and scenery. The actual runtime still drives each tick.
         for (int y = 24; y < 36; y++)
@@ -46,7 +46,7 @@ internal static class GroundedSpreadTransitionVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
@@ -54,23 +54,23 @@ internal static class GroundedSpreadTransitionVerification
         samus.Position = samus.Position.WithWhole(new(512, 490));
         AssertEqual((ushort)0, samus.Kinematics.Position.X.Fraction, "fixture initial X fraction matches native cleared RAM");
         AssertEqual((ushort)0, samus.Kinematics.Position.Y.Fraction, "fixture initial Y fraction matches native cleared RAM");
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         for (int frame = 0; frame < 120; frame++)
         {
-            ushort input = runtime.ControllerBindings.Shoot;
+            ushort input = runtime.Options.ControllerBindings.Shoot;
             if (frame is >= 70 and < 110 and not 75) input |= (ushort)SnesButton.Down;
             if (frame == 100)
             {
-                if (scenario != 3) input |= runtime.ControllerBindings.Jump;
+                if (scenario != 3) input |= runtime.Options.ControllerBindings.Jump;
                 if (scenario == 1) input &= unchecked((ushort)~SnesButton.Down);
-                if (scenario == 2) input &= unchecked((ushort)~runtime.ControllerBindings.Shoot);
+                if (scenario == 2) input &= unchecked((ushort)~runtime.Options.ControllerBindings.Shoot);
             }
             runtime.StepFrame(input);
             if (trace is not null)
                 AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{input:X4},{(int)samus.Pose:X4},{samus.Position.Y.Whole:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
                     $"native/runtime charge-preserving unmorph frame {frame}");
-            AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.FlareCounter, "runtime charge mirror stays synchronized");
+            AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.Charge.FlareCounter, "runtime charge mirror stays synchronized");
             if (frame == 99)
             {
                 AssertEqual((ushort)77, samus.ProjectileFlareCounter, "beam charge earned before morph stays intact while holding Down");

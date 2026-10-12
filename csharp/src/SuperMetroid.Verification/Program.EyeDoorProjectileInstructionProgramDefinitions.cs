@@ -47,14 +47,8 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
                 EyeDoorProjectileInstructionProgramDefinitions.PresentationWordAddress);
         var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
-        var runPreInstruction = typeof(RoomEnemySystem).GetMethod(
-                "RunEyeDoorProjectilePreInstruction",
-                instanceFlags)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot, RoomLevelData>>(enemies);
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemyProjectileSlot, RoomLevelData> runPreInstruction = enemies.EyeDoorBehavior.RunEyeDoorProjectilePreInstruction;
         RoomLevelData level = CreateRoom(new(16, 16),
             new ushort[16 * 16],
             new byte[16 * 16],
@@ -70,8 +64,8 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
             PlmBlockIndex: 4 * 16 + 7,
             DoorBit: 5);
 
-        enemies.SpawnEyeDoorProjectile(request, roomWidthInBlocks: 16, system);
-        RoomEnemyProjectileSlot impact = enemies.EnemyProjectiles.Single(
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, roomWidthInBlocks: 16, system);
+        RoomEnemyProjectileSlot impact = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         AssertEqual(
             EyeDoorProjectileInstructionProgramDefinitions.Initial,
@@ -87,7 +81,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
             impact.PreInstruction,
             "Eye Door setup installs the native flight pre-instruction operand");
         impact.InstructionTimer = 1;
-        process.Invoke(enemies, [impact, samus, Position16<RoomPixels>.Zero]);
+        enemies.Projectiles.ProcessEnemyProjectileInstructions(impact, samus, Position16<RoomPixels>.Zero);
         CheckPresentation(impact, EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 2);
         AssertEqual(
             EyeDoorProjectileInstructionProgramDefinitions.FlyingLoop + 4,
@@ -106,8 +100,8 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
         AssertTrue(!impact.IsActive,
             "Eye Door impact program deletes after all three presentation frames");
 
-        enemies.SpawnEyeDoorProjectile(request, roomWidthInBlocks: 16, system);
-        RoomEnemyProjectileSlot shot = enemies.EnemyProjectiles.Single(
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, roomWidthInBlocks: 16, system);
+        RoomEnemyProjectileSlot shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         shot.InstructionPointer = EyeDoorProjectileInstructionProgramDefinitions.Shot;
         RunForcedTicks(shot, 5);
@@ -168,7 +162,7 @@ internal static class EyeDoorProjectileInstructionProgramDefinitionsVerification
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
                 if (projectile.IsActive)
                 {
                     ushort expected = start == EyeDoorProjectileInstructionProgramDefinitions.Initial

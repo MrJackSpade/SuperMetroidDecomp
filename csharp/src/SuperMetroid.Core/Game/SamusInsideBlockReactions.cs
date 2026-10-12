@@ -28,7 +28,7 @@ public static class SamusInsideBlockReactions
                 // this center wake-up lets a lower trigger win after the torso clears
                 // an upper trigger, without changing native PLM slot priority.
                 if (centerPoint && block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
-                    (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
+                    (plms is null || !plms.Scrolls.TryNotifyScrollTouch(block.Index)))
                     throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active PLM owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
@@ -48,7 +48,7 @@ public static class SamusInsideBlockReactions
                 ? reaction.SetupPointer
                 : areaReaction.SetupPointer;
             if (hasCompiledReaction && plms is not null &&
-                !plms.TrySpawnQuicksandReaction(block.Index, header))
+                !plms.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
             {
                 return;
             }
@@ -61,7 +61,7 @@ public static class SamusInsideBlockReactions
                 case SpecialAirReactionSetup.BrinstarFloorPlant:
                 case SpecialAirReactionSetup.BrinstarCeilingPlant:
                     (plms ?? throw new InvalidOperationException("Samus Eater reaction requires the room PLM owner."))
-                        .TrySpawnSamusEater(level, block, header, samus);
+                        .SamusEater.TrySpawnSamusEater(level, block, header, samus);
                     break;
                 case SpecialAirReactionSetup.QuicksandSurface:
                     // Native setup cancels running momentum even for center/top samples,
@@ -178,7 +178,7 @@ public static class SamusInsideBlockReactions
             ? reaction.SetupPointer
             : areaReaction.SetupPointer;
         if (hasCompiledReaction && plms is not null &&
-            !plms.TrySpawnQuicksandReaction(block.Index, header))
+            !plms.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
         {
             return false;
         }

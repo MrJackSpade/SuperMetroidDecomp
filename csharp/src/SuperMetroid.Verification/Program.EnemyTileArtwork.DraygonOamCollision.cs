@@ -26,11 +26,8 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
 
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            NewFrontendCartridgeReadGuard(rom));
-        var walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
         slot.Definition = default(RoomEnemyDefinition) with
         {
@@ -88,10 +85,10 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
             slot.SpritemapPointer = frame.Pointer;
             object?[] arguments =
                 [slot, new Position16<RoomPixels>(0x100, 0x100), Extent16<RoomPixels>.Zero, true, (ushort)0];
-            AssertTrue(!(bool)walker.Invoke(enemies, arguments)!,
+            AssertTrue(!ExtendedHitboxWalker.Find(enemies, arguments),
                 $"Draygon OAM frame {frame.Name} has no shot callback without ROM reads");
             arguments[3] = false;
-            AssertTrue(!(bool)walker.Invoke(enemies, arguments)!,
+            AssertTrue(!ExtendedHitboxWalker.Find(enemies, arguments),
                 $"Draygon OAM frame {frame.Name} has no touch callback without ROM reads");
             draygonFrames++;
         }

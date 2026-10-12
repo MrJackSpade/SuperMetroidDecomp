@@ -55,9 +55,9 @@ internal static class BeamCallbackTablesVerification
             var shared = CreateBombFixture();
             if (initializeOnly)
             {
-                typeof(SamusProjectileSystem).GetMethod("TryFireBeam",
+                typeof(BeamFiring).GetMethod("TryFireBeam",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-                    .Invoke(projectiles, new object?[] { bus, room, samus, (ushort)SnesButton.X, shared, null, charged });
+                    .Invoke(projectiles.Firing, new object?[] { bus, room, samus, (ushort)SnesButton.X, shared, null, charged });
                 AssertTrue(projectiles.Slots[0].Type != 0 || projectiles.Slots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
                 AssertEqual(SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated!.Value,

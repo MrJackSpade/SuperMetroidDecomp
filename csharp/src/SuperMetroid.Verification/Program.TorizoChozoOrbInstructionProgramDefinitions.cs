@@ -38,20 +38,18 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         }
 
         var guard = NewTorizoChozoOrbInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawnBomb = typeof(RoomEnemySystem).GetMethod(
-            "SpawnBombTorizoChozoOrb", flags)!;
-        MethodInfo spawnGolden = typeof(RoomEnemySystem).GetMethod(
-            "SpawnGoldenTorizoChozoOrb", flags)!;
+        Action<RoomEnemySystem, RoomEnemySlot> spawnBomb =
+            (enemies, torizo) => enemies.BombTorizoBehavior.SpawnBombTorizoChozoOrb(torizo);
+        Action<RoomEnemySystem, RoomEnemySlot> spawnGolden =
+            (enemies, torizo) => enemies.BombTorizoBehavior.SpawnGoldenTorizoChozoOrb(torizo);
 
         foreach (bool golden in new[] { false, true })
         foreach (bool facingRight in new[] { false, true })
         {
             RoomEnemySystem enemies = CreateSystem(guard);
             RoomEnemySlot torizo = CreateTorizo(enemies, facingRight);
-            (golden ? spawnGolden : spawnBomb).Invoke(enemies, [torizo]);
-            RoomEnemyProjectileSlot orb = enemies.EnemyProjectiles[^1];
+            (golden ? spawnGolden : spawnBomb)(enemies, torizo);
+            RoomEnemyProjectileSlot orb = enemies.Projectiles.EnemyProjectiles[^1];
             ushort expectedProgram = facingRight
                 ? TorizoChozoOrbInstructionProgramDefinitions.MovingRight
                 : TorizoChozoOrbInstructionProgramDefinitions.MovingLeft;
@@ -60,7 +58,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
 
             for (int frame = 1; frame <= 86; frame++)
             {
-                process.Invoke(enemies, [orb, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(orb, null, Position16<RoomPixels>.Zero);
                 AssertTrue(orb.IsActive,
                     $"{(golden ? "Golden" : "Bomb")} Torizo {facingRight} orb loop frame {frame}");
             }
@@ -72,34 +70,34 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
 
         RoomEnemySystem wallEnemies = CreateSystem(guard);
         RoomEnemySlot wallTorizo = CreateTorizo(wallEnemies, facingRight: false);
-        spawnBomb.Invoke(wallEnemies, [wallTorizo]);
-        RoomEnemyProjectileSlot wall = wallEnemies.EnemyProjectiles[^1];
+        spawnBomb(wallEnemies, wallTorizo);
+        RoomEnemyProjectileSlot wall = wallEnemies.Projectiles.EnemyProjectiles[^1];
         wall.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.WallImpact;
         wall.InstructionTimer = 1;
         for (int frame = 1; frame <= 20; frame++)
         {
-            process.Invoke(wallEnemies, [wall, null, Position16<RoomPixels>.Zero]);
+            wallEnemies.Projectiles.ProcessEnemyProjectileInstructions(wall, null, Position16<RoomPixels>.Zero);
             AssertTrue(wall.IsActive, $"Torizo orb wall impact frame {frame}");
             AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, wall.PreInstruction,
                 $"Torizo orb wall impact clears callback on frame {frame}");
             AssertTrue(wall.PersistsOnSamusContact,
                 $"Torizo orb wall impact persists on Samus contact on frame {frame}");
         }
-        process.Invoke(wallEnemies, [wall, null, Position16<RoomPixels>.Zero]);
+        wallEnemies.Projectiles.ProcessEnemyProjectileInstructions(wall, null, Position16<RoomPixels>.Zero);
         AssertTrue(!wall.IsActive,
             "Torizo orb wall impact deletes after five four-frame poses");
 
         RoomEnemySystem floorEnemies = CreateSystem(guard);
         RoomEnemySlot floorTorizo = CreateTorizo(floorEnemies, facingRight: true);
-        spawnGolden.Invoke(floorEnemies, [floorTorizo]);
-        RoomEnemyProjectileSlot floor = floorEnemies.EnemyProjectiles[^1];
+        spawnGolden(floorEnemies, floorTorizo);
+        RoomEnemyProjectileSlot floor = floorEnemies.Projectiles.EnemyProjectiles[^1];
         AssertTrue(!floor.CanDamageSamus,
             "Golden Torizo airborne orb starts unable to damage Samus");
         floor.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.FloorImpact;
         floor.InstructionTimer = 1;
         for (int frame = 1; frame <= 39; frame++)
         {
-            process.Invoke(floorEnemies, [floor, null, Position16<RoomPixels>.Zero]);
+            floorEnemies.Projectiles.ProcessEnemyProjectileInstructions(floor, null, Position16<RoomPixels>.Zero);
             AssertTrue(floor.IsActive, $"Torizo orb floor impact frame {frame}");
             AssertTrue(floor.CanDamageSamus,
                 $"Torizo orb floor impact clears no-contact bit on frame {frame}");
@@ -108,7 +106,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
             AssertEqual(EnemyProjectileDrawPriority.High, floor.DrawPriority,
                 $"Torizo orb floor impact remains high priority on frame {frame}");
         }
-        process.Invoke(floorEnemies, [floor, null, Position16<RoomPixels>.Zero]);
+        floorEnemies.Projectiles.ProcessEnemyProjectileInstructions(floor, null, Position16<RoomPixels>.Zero);
         AssertTrue(!floor.IsActive,
             "Torizo orb floor impact deletes after exact 4/5/6/7/8/9-frame poses");
 
@@ -153,25 +151,23 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         {
             RoomEnemySystem enemies = CreateSystem(guard);
             RoomEnemySlot torizo = CreateTorizo(enemies, facingRight: false);
-            (golden ? spawnGolden : spawnBomb).Invoke(enemies, [torizo]);
+            (golden ? spawnGolden : spawnBomb)(enemies, torizo);
             if (golden)
             {
-                typeof(RoomEnemySystem).GetField("_torizoState", flags)!.SetValue(
-                    enemies,
-                    new TorizoEnemyState(torizo, isGolden: true));
+                enemies.BombTorizoBehavior._torizoState = new TorizoEnemyState(torizo, isGolden: true);
             }
 
-            RoomEnemyProjectileSlot orb = enemies.EnemyProjectiles[^1];
+            RoomEnemyProjectileSlot orb = enemies.Projectiles.EnemyProjectiles[^1];
             orb.Position = orb.Position.WithWhole(new(0x0350, 0x0260));
             orb.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.Shot;
             orb.InstructionTimer = 1;
             for (int frame = 1; frame <= 20; frame++)
             {
-                process.Invoke(enemies, [orb, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(orb, null, Position16<RoomPixels>.Zero);
                 AssertTrue(orb.IsActive,
                     $"{(golden ? "Golden" : "Bomb")} Torizo orb shot frame {frame}");
             }
-            process.Invoke(enemies, [orb, null, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(orb, null, Position16<RoomPixels>.Zero);
             AssertTrue(!orb.IsActive,
                 $"{(golden ? "Golden" : "Bomb")} Torizo orb shot deletes after drop callback");
             AssertEqual(1, enemies.TorizoOrbDropRequests.Count,
@@ -185,7 +181,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
                 RoomEnemyAuxiliaryDefinitionCatalog.TryGet(expectedHeader, out RoomEnemyDefinition auxiliary)
                     ? auxiliary
                     : RoomEnemyDefinitionCatalog.Get(expectedHeader);
-            RoomEnemyProjectileSlot pickup = enemies.EnemyProjectiles.Single(slot =>
+            RoomEnemyProjectileSlot pickup = enemies.Projectiles.EnemyProjectiles.Single(slot =>
                 slot.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
             AssertEqual(expectedDefinition.ItemDropChancesPointer,
                 pickup.ItemDropChancesPointerOverride,
@@ -199,17 +195,15 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         RoomEnemySystem CreateSystem(ISnesAddressSpace bus)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+            enemies.BindFixtureBus(bus);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x0080);
-            typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
-                enemies,
-                new SamusState());
+            enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState();
             return enemies;
         }
 
         static RoomEnemySlot CreateTorizo(RoomEnemySystem enemies, bool facingRight)
         {
-            RoomEnemySlot torizo = enemies.Slots[0];
+            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
             return torizo;

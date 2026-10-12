@@ -34,21 +34,21 @@ internal static class XraySetupVerification
                 type == RoomCollisionType.Air ? (ushort)0x00fe : definition.TopLeft,
                 definition.TopRight, definition.BottomLeft, definition.BottomRight)));
         }
-        runtime.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries, runtime.XrayRevealVisuals!.Overlays);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.Xray.XrayRevealVisuals = new XrayRevealVisualCatalog(visualEntries, runtime.Xray.XrayRevealVisuals!.Overlays);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
-        var samus = runtime.Samus!;
-        var support = runtime.Enemies.Slots[1];
+        var samus = runtime.Player.Samus!;
+        var support = runtime.Enemies.SlotTable.Slots[1];
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.Position = samus.Position.WithWhole(new(support.Position.X.Whole, (ushort)(support.Position.Y.Whole - support.Radius.Y - samus.Kinematics.Radius.Y)));
         runtime.StepFrame(0);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus), new XrayBeginConditions()), "setup fixture activates X-ray");
-        ushort held = runtime.ControllerBindings.Dash;
+        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions()), "setup fixture activates X-ray");
+        ushort held = runtime.Options.ControllerBindings.Dash;
         runtime.StepFrame(held); // Stage one, before either BG1 page is captured.
         var first = Enumerable.Repeat((ushort)0x0123, XrayTilemapLayout.ScreenWords).ToArray();
         var second = Enumerable.Repeat((ushort)0x0456, XrayTilemapLayout.ScreenWords).ToArray();
@@ -76,18 +76,18 @@ internal static class XraySetupVerification
         var captured = new SnesVram();
         captured.ExecuteWordTransfer(first.Concat(second).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
         var scroll = runtime.BackgroundScroll;
-        var room = runtime.ActiveRoom!;
-        var original = XrayRevealTilemap.Build(runtime.LevelData!, captured,
+        var room = runtime.Room.ActiveRoom!;
+        var original = XrayRevealTilemap.Build(runtime.Room.LevelData!, captured,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex);
-        var expected = XrayRevealTilemap.Build(runtime.LevelData!, captured,
+        var expected = XrayRevealTilemap.Build(runtime.Room.LevelData!, captured,
             scroll.Layer1Position + scroll.Bg1Offset,
             scroll.Layer1Position, (byte)room.AreaIndex,
-            runtime.XrayRevealVisuals);
+            runtime.Xray.XrayRevealVisuals);
         AssertTrue(!original.SequenceEqual(expected),
             "installed X-ray visual selection changes the actual room reveal map");
-        XrayRevealOverlays.Apply(runtime.LevelData!, expected, runtime.Plms.Collectibles, runtime.System,
-            room.State.XrayPointer, scroll.Layer1Position, runtime.XrayRevealVisuals);
+        XrayRevealOverlays.Apply(runtime.Room.LevelData!, expected, runtime.Plms.CollectiblePlms.Collectibles, runtime.System,
+            room.State.XrayPointer, scroll.Layer1Position, runtime.Xray.XrayRevealVisuals);
         runtime.StepFrame(held);
         Suite(nameof(VerifySaved), () => VerifySaved(0, first, "stage-three read completes before stage-four build"));
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(bus)), "stage four builds from the separately captured pages and overlays");

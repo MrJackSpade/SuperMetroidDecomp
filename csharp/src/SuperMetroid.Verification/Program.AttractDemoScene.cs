@@ -71,7 +71,10 @@ internal static class AttractDemoSceneVerification
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
         var frontend = new SuperMetroidGame(bus);
-        frontend.BindMapPresentation(RetailPresentationFixture());
+        frontend.BindArtwork(frontend.Artwork with
+        {
+            MapPresentation = RetailPresentationFixture(),
+        });
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
         var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());

@@ -102,7 +102,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Kinematics = { Radius = new(5, 12) },
             };
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Maridia, 0);
-            samus.InitializeAnimation(guarded, frame);
+            samus.Presentation.InitializeAnimation(guarded, frame);
             AdvanceToFootContactTick(samus, guarded);
             samus.LiquidPhysics.PrepareAnimationFrame(guarded, samus, nmiFrameCounter: 1);
 
@@ -134,7 +134,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             runner.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Crateria, room);
             if ((policy & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
-            runner.InitializeAnimation(guarded, initialFrame: 2);
+            runner.Presentation.InitializeAnimation(guarded, initialFrame: 2);
             AdvanceToFootContactTick(runner, guarded);
             runner.LiquidPhysics.PrepareAnimationFrame(guarded, runner, nmiFrameCounter: 1);
             AssertEqual(wet ? 1 : 0,
@@ -174,7 +174,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         AssertTrue(samus.AnimationFrameTimer is > 0 and <= 32,
             "running fixture starts with a bounded native animation delay");
         while (samus.AnimationFrameTimer > 1)
-            samus.AnimateNoFx(bus, new SamusAnimationStep());
+            samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     }
 
     private static CartridgeReadGuard NewSamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) =>

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Tile and palette owners for the saved-game world map, from $81:A37C-$81:A58A.
 /// Labels and transition windows are separate owners; this renders the unmasked BGs.
 /// </summary>
-public sealed partial class FileSelectAreaMapGraphics
+public sealed class FileSelectAreaMapGraphics
 {
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
@@ -196,5 +196,18 @@ public sealed partial class FileSelectAreaMapGraphics
         {
             sprites.Draw(id, oam, origin, palette);
         }
+    }
+
+    /// <summary>Captures BG1/subscreen math followed by labels, preserving OBJ exclusion from color addition.</summary>
+    [PpuLayoutBoundary("codec: file-select area-map render packet layers")]
+    public LayeredRenderSnapshot CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true)
+    {
+        OamBuffer oam = PrepareLabels(usedStationMasks);
+        var foreground = new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null);
+        return new(PpuMemorySnapshot.Capture(Vram, Cgram, oam), new RenderLayer[] {
+            foreground,
+            new BgSubscreenAddRenderLayer(FileSelectMapRomData.AreaBackgroundVram,
+                FileSelectMapRomData.AreaBackgroundCharacters, includeBackdropInColorMath ? null : foreground),
+            new ObjRenderLayer() }, FileSelectMapRomData.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
     }
 }

@@ -23,19 +23,19 @@ internal static class MotherBrainSmallPurpleBreathVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException("Mother Brain has no head enemy.");
         state.DrawBrain = true;
         state.SmallPurpleBreathGenerationEnabled = true;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
-        int Breaths() => runtime.Enemies.EnemyProjectiles.Count(projectile =>
+        int Breaths() => runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall);
-        void Draw() => runtime.Enemies.DrawLayers(new OamBuffer(), new(0, 0), 5, 5);
+        void Draw() => runtime.Enemies.Drawing.DrawLayers(new OamBuffer(), new(0, 0), 5, 5);
 
         runtime.System.SetRandomNumber(0x8000);
         Draw();
@@ -45,7 +45,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
         Draw();
         AssertEqual(1, Breaths(), "an RNG with bit 15 clear spawns the small breath");
         AssertTrue(state.SmallPurpleBreathActive, "the initializer marks the small breath active");
-        RoomEnemyProjectileSlot breath = runtime.Enemies.EnemyProjectiles.First(projectile =>
+        RoomEnemyProjectileSlot breath = runtime.Enemies.Projectiles.EnemyProjectiles.First(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall);
         AssertEqual((ushort)0x0082, breath.Position.X.Whole, "the breath starts six pixels right of the head");
         AssertEqual((ushort)0x0068, breath.Position.Y.Whole, "the breath starts sixteen pixels below the head");
@@ -56,17 +56,15 @@ internal static class MotherBrainSmallPurpleBreathVerification
 
         // 8+8+10+10+11+11+12+12 frames, then $86:CAEE clears the flag and Delete removes it.
         for (int frame = 0; frame < 120 && Breaths() != 0; frame++)
-            runtime.Enemies.StepEnemyProjectileInstructions(runtime.LevelData!, runtime.Samus,
-                new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y));
+            runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LevelData!, runtime.Player.Samus,
+                new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y));
         AssertEqual(0, Breaths(), "the small breath deletes itself after its eight poses");
         AssertTrue(!state.SmallPurpleBreathActive, "its last instruction clears the active flag");
 
         // The brain-list opcode $A9:9F8E also clears generation. Publishing the rainbow body's
         // state must not restore the flag unless the body itself wrote it (#1269).
         state.SmallPurpleBreathGenerationEnabled = false;
-        typeof(RoomEnemySystem).GetMethod("StartLiveMotherBrainRainbowBeam",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [state, runtime.Samus!, null]);
+        runtime.Enemies.MotherBrainBehavior.StartLiveMotherBrainRainbowBeam(state, runtime.Player.Samus!, null);
         AssertTrue(!state.SmallPurpleBreathGenerationEnabled,
             "an unwritten rainbow-body flag leaves the brain-list clear in place");
         Console.WriteLine("Mother Brain small purple breath: RNG-gated spawn, one at a time, flag cleared on its last instruction.");

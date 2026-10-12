@@ -57,32 +57,16 @@ internal static class YardDirectionDefinitionsVerification
             "Yard invalid airborne facing definition");
 
         var guarded = NewYardDirectionReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeYard",
-            instanceFlags)!;
-        MethodInfo turn = typeof(RoomEnemySystem).GetMethod(
-            "TurnYardAround",
-            staticFlags)!;
-        MethodInfo drop = typeof(RoomEnemySystem).GetMethod(
-            "DropYard",
-            staticFlags)!;
-        MethodInfo kick = typeof(RoomEnemySystem).GetMethod(
-            "KickYardIntoAir",
-            instanceFlags)!;
-        MethodInfo shoot = typeof(RoomEnemySystem).GetMethod(
-            "ShootYardIntoAir",
-            instanceFlags)!;
 
         for (ushort direction = 0; direction < 8; direction++)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-                .SetValue(enemies, guarded);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guarded);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.Parameter1 = 0;
             slot.Properties = 0x4000;
-            initialize.Invoke(enemies, [slot]);
+            enemies.YardBehavior.InitializeYard(slot);
 
             YardEnemyState state = enemies.YardStates[0] ??
                 throw new InvalidDataException("Yard initializer produced no typed state.");
@@ -99,7 +83,7 @@ internal static class YardDirectionDefinitionsVerification
             // eight legal bytecode values to exercise the production turn dispatcher.
             state.Direction = direction;
             state.MovementFunction = initial.MovementFunction;
-            bool turned = (bool)(turn.Invoke(null, [slot, state]) ?? false);
+            bool turned = YardEnemyBehavior.TurnYardAround(slot, state);
             AssertTrue(turned, $"Yard direction {direction} production turn");
             YardDirectionDefinition opposite =
                 YardDirectionDefinitions.ForDirection(initial.OppositeDirection);
@@ -113,18 +97,17 @@ internal static class YardDirectionDefinitionsVerification
         foreach (ushort direction in new ushort[] { 0, 1 })
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-                .SetValue(enemies, guarded);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guarded);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.Parameter1 = 0;
-            initialize.Invoke(enemies, [slot]);
+            enemies.YardBehavior.InitializeYard(slot);
             YardEnemyState state = enemies.YardStates[0]!;
             ushort facing = state.AirborneFacingDirection;
             YardAirborneInstructionDefinition expected =
                 YardDirectionDefinitions.ForAirborneFacing(facing);
 
-            drop.Invoke(null, [slot, state]);
+            YardEnemyBehavior.DropYard(slot, state);
             AssertYardAirborneLists(slot, state, expected,
                 $"Yard detach facing {facing}");
 
@@ -137,11 +120,11 @@ internal static class YardDirectionDefinitionsVerification
                     : SamusPoseId.FacingRightNormalPose,
                 AbsoluteMovedLastFrameXFixed = 0x00018000,
             };
-            kick.Invoke(enemies, [slot, state, samus]);
+            enemies.YardBehavior.KickYardIntoAir(slot, state, samus);
             AssertYardAirborneLists(slot, state, expected,
                 $"Yard contact kick facing {facing}");
 
-            shoot.Invoke(enemies, [slot, state, samus]);
+            enemies.YardBehavior.ShootYardIntoAir(slot, state, samus);
             AssertYardAirborneLists(slot, state, expected,
                 $"Yard shot launch facing {facing}");
         }

@@ -137,24 +137,16 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         SuperMetroidAddressSpace nativeReference)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo processMethod = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
-        MethodInfo spawnDustMethod = typeof(RoomEnemySystem).GetMethod(
-            "SpawnRoomGraphicsDustExplosion",
-            instanceFlags)!;
-        var initialize = typeof(RoomEnemySystem).GetMethod(
-                "InitializeEnemyProjectileFromDefinition",
-                BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, ushort>>();
+        Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, ushort> initialize =
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition;
 
         for (ushort animation = 0;
              animation < EnemyProjectileInstructionMechanicsDefinitions.MiscDustProgramCount;
              animation++)
         {
             RoomEnemySystem enemies = CreateRoomEnemySystem();
-            spawnDustMethod.Invoke(enemies, [new Position16<RoomPixels>((ushort)128, (ushort)96), animation]);
-            RoomEnemyProjectileSlot dust = enemies.EnemyProjectiles.Single(
+            enemies.Projectiles.SpawnRoomGraphicsDustExplosion(new Position16<RoomPixels>((ushort)128, (ushort)96), animation);
+            RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MiscDustExplosion);
 
             if (animation == 28)
@@ -178,7 +170,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         }
 
         RoomEnemySystem smokeEnemies = CreateRoomEnemySystem();
-        smokeEnemies.SpawnEyeDoorProjectile(
+        smokeEnemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Smoke,
                 Parameter: 3,
@@ -186,14 +178,14 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
                 DoorBit: 0),
             roomWidthInBlocks: 16,
             new Bank80SystemState());
-        RoomEnemyProjectileSlot smoke = smokeEnemies.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot smoke = smokeEnemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
         RunForcedTicks(smokeEnemies, smoke, 7);
         AssertTrue(!smoke.IsActive,
             "Eye Door smoke reaches delete through the shared compiled mechanics owner");
 
         RoomEnemySystem bombEnemies = CreateRoomEnemySystem();
-        RoomEnemyProjectileSlot bomb = bombEnemies.EnemyProjectiles[^1];
+        RoomEnemyProjectileSlot bomb = bombEnemies.Projectiles.EnemyProjectiles[^1];
         initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, 0x0400);
         RunForcedTicks(bombEnemies, bomb, 10);
         AssertTrue(bomb.IsActive,
@@ -202,7 +194,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             "room-system Mother Brain bomb remains inside its compiled loop");
 
         RoomEnemySystem breathEnemies = CreateRoomEnemySystem();
-        RoomEnemyProjectileSlot breath = breathEnemies.EnemyProjectiles[^1];
+        RoomEnemyProjectileSlot breath = breathEnemies.Projectiles.EnemyProjectiles[^1];
         initialize(breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, 0);
         RunForcedTicks(breathEnemies, breath, 9);
         AssertTrue(!breath.IsActive,
@@ -218,13 +210,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         {
             Head = motherBrainHead,
         };
-        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
-            .SetValue(rainbowEnemies, motherBrainState);
-        MethodInfo spawnRainbowMethod = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainRainbowChargingProjectile",
-            instanceFlags)!;
-        spawnRainbowMethod.Invoke(rainbowEnemies, []);
-        RoomEnemyProjectileSlot rainbow = rainbowEnemies.EnemyProjectiles.Single(
+        rainbowEnemies.MotherBrainEncounter.MotherBrain = motherBrainState;
+        rainbowEnemies.MotherBrainBehavior.SpawnMotherBrainRainbowChargingProjectile();
+        RoomEnemyProjectileSlot rainbow = rainbowEnemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging);
         AssertEqual(0x0137, rainbow.Position.X.Whole,
@@ -240,16 +228,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             "rainbow charge deletes on the frame after its exact 30-frame lifetime");
 
         RoomEnemySystem explosionEnemies = CreateRoomEnemySystem();
-        MethodInfo spawnRainbowExplosionMethod = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainRainbowExplosion",
-            instanceFlags)!;
-        spawnRainbowExplosionMethod.Invoke(
-            explosionEnemies,
-            [
-                new Position16<RoomPixels>(0x0100, 0x0080),
-                new MotherBrainRainbowExplosionRequest(Offset: new(-9, 7)),
-            ]);
-        RoomEnemyProjectileSlot explosion = explosionEnemies.EnemyProjectiles.Single(
+        explosionEnemies.MotherBrainBehavior.SpawnMotherBrainRainbowExplosion(new Position16<RoomPixels>(0x0100, 0x0080),
+                new MotherBrainRainbowExplosionRequest(Offset: new(-9, 7)));
+        RoomEnemyProjectileSlot explosion = explosionEnemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion);
         AssertEqual(0x00f7, explosion.Position.X.Whole,
@@ -264,9 +245,6 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         AssertTrue(!explosion.IsActive,
             "rainbow impact deletes on the frame after its exact lifetime");
 
-        MethodInfo spawnDeathExplosionMethod = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainDeathExplosion",
-            instanceFlags)!;
         int[] deathExplosionLifetimes = [31, 32, 30];
         for (ushort parameter = 0; parameter < deathExplosionLifetimes.Length; parameter++)
         {
@@ -275,18 +253,13 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0070)),
             };
-            typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
-                .SetValue(deathExplosionEnemies, new MotherBrainEnemyState(deathBody));
-            spawnDeathExplosionMethod.Invoke(
-                deathExplosionEnemies,
-                [
-                    new MotherBrainDeathExplosionRequest(
+            deathExplosionEnemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(deathBody);
+            deathExplosionEnemies.MotherBrainBehavior.SpawnMotherBrainDeathExplosion(new MotherBrainDeathExplosionRequest(
                         Offset: new(-5, 9),
                         ProjectileParameter: parameter,
-                        SoundEffect: 0),
-                ]);
+                        SoundEffect: 0));
             RoomEnemyProjectileSlot deathExplosion =
-                deathExplosionEnemies.EnemyProjectiles.Single(
+                deathExplosionEnemies.Projectiles.EnemyProjectiles.Single(
                     projectile => projectile.Kind ==
                         RoomEnemyProjectileKind.MotherBrainDeathExplosion);
             for (int frame = 0; frame < deathExplosionLifetimes[parameter]; frame++)
@@ -306,17 +279,13 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0070, 0x0090)),
         };
         var handBeamState = new MotherBrainEnemyState(handBeamBody);
-        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
-            .SetValue(handBeamEnemies, handBeamState);
+        handBeamEnemies.MotherBrainEncounter.MotherBrain = handBeamState;
         var handBeamTarget = new SamusState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x00c0, 0x0060)),
         };
-        MethodInfo spawnHandBeamMethod = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainHandBeamCharging",
-            instanceFlags)!;
-        spawnHandBeamMethod.Invoke(handBeamEnemies, [handBeamState, handBeamTarget]);
-        RoomEnemyProjectileSlot handBeam = handBeamEnemies.EnemyProjectiles.Single(
+        handBeamEnemies.MotherBrainBehavior.SpawnMotherBrainHandBeamCharging(handBeamState, handBeamTarget);
+        RoomEnemyProjectileSlot handBeam = handBeamEnemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging);
         ushort referenceCursor = MotherBrainHandBeamInstructionProgramDefinitions.Initial;
@@ -339,9 +308,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
                 referenceOperand = (ushort)(referenceCursor + 2);
                 referenceCursor += 4;
             }
-            processMethod.Invoke(
-                handBeamEnemies,
-                [handBeam, handBeamTarget, Position16<RoomPixels>.Zero]);
+            handBeamEnemies.Projectiles.ProcessEnemyProjectileInstructions(handBeam, handBeamTarget, Position16<RoomPixels>.Zero);
             AssertEqual(referenceOperand, handBeam.PresentationOperandAddress,
                 $"hand-beam frame {frame} selects the native visual operand");
             AssertEqual((ushort)referenceTimer, handBeam.InstructionTimer,
@@ -352,7 +319,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             observedHandBeamOperands.Count, "hand-beam selects all 21 installed visual operands");
         AssertTrue(handBeam.IsActive,
             "hand-beam charge survives all three exact 13-frame stages");
-        AssertEqual(3, handBeamEnemies.EnemyProjectiles.Count(
+        AssertEqual(3, handBeamEnemies.Projectiles.EnemyProjectiles.Count(
                 projectile => projectile.Kind ==
                     RoomEnemyProjectileKind.MotherBrainHandBeamFired),
             "three compiled external callbacks spawn three fired hand-beam children");
@@ -370,13 +337,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         {
             Head = ringHead,
         };
-        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
-            .SetValue(ringEnemies, ringState);
-        MethodInfo spawnRingMethod = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainOnionRing",
-            instanceFlags)!;
-        spawnRingMethod.Invoke(ringEnemies, [ringState, (byte)0]);
-        RoomEnemyProjectileSlot ring = ringEnemies.EnemyProjectiles.Single(
+        ringEnemies.MotherBrainEncounter.MotherBrain = ringState;
+        ringEnemies.MotherBrainBehavior.SpawnMotherBrainOnionRing(ringState, (byte)0);
+        RoomEnemyProjectileSlot ring = ringEnemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainOnionRing);
         for (int frame = 0; frame < 52; frame++)
             Process(ringEnemies, ring, samus);
@@ -410,7 +373,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         Suite(nameof(VerifyDroolVariant), () => VerifyDroolVariant(RoomEnemyProjectileKind.MotherBrainDyingDrool, 0x0080));
 
         RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
-        RoomEnemyProjectileSlot fragment = fragmentEnemies.EnemyProjectiles[^1];
+        RoomEnemyProjectileSlot fragment = fragmentEnemies.Projectiles.EnemyProjectiles[^1];
         initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, 0);
         RunForcedTicks(fragmentEnemies, fragment, 9);
         AssertTrue(fragment.IsActive,
@@ -419,7 +382,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
             "room-system Mother Brain escape fragment remains inside its compiled loop");
 
         RoomEnemySystem subtitleEnemies = CreateRoomEnemySystem();
-        RoomEnemyProjectileSlot subtitle = subtitleEnemies.EnemyProjectiles[^1];
+        RoomEnemyProjectileSlot subtitle = subtitleEnemies.Projectiles.EnemyProjectiles[^1];
         initialize(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, 0);
         RunForcedTicks(subtitleEnemies, subtitle, 2);
         AssertTrue(subtitle.IsActive,
@@ -430,7 +393,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         void Process(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile, SamusState target)
         {
             bool selectsFrame = projectile.InstructionTimer == 1;
-            processMethod.Invoke(enemies, [projectile, target, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, target, Position16<RoomPixels>.Zero);
             if (!projectile.IsActive || !selectsFrame || projectile.InstructionTimer == 0 || projectile.PresentationOperandAddress == 0)
                 return;
             ushort operand = projectile.PresentationOperandAddress;
@@ -449,7 +412,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
         RoomEnemySystem CreateRoomEnemySystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
+            enemies.BindFixtureBus(bus);
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             return enemies;
@@ -481,13 +444,9 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
                 DroolGenerationEnabled = true,
                 NeckAngleDelta = neckAngleDelta,
             };
-            typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
-                .SetValue(droolEnemies, state);
-            MethodInfo spawnDroolMethod = typeof(RoomEnemySystem).GetMethod(
-                "SpawnMotherBrainDrool",
-                instanceFlags)!;
-            spawnDroolMethod.Invoke(droolEnemies, [state]);
-            RoomEnemyProjectileSlot drool = droolEnemies.EnemyProjectiles.Single(
+            droolEnemies.MotherBrainEncounter.MotherBrain = state;
+            droolEnemies.MotherBrainBehavior.SpawnMotherBrainDrool(state);
+            RoomEnemyProjectileSlot drool = droolEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == expectedKind);
             ushort attachedY = drool.Position.Y.Whole;
 
@@ -508,10 +467,7 @@ internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
                 $"{expectedKind} release frame reaches its terminal sleep");
 
             drool.Position = drool.Position.WithWholeY(0x00d7);
-            typeof(RoomEnemySystem).GetMethod(
-                "RunMotherBrainFallingDroolPreInstruction",
-                BindingFlags.Static | BindingFlags.NonPublic)!
-                .Invoke(null, [drool]);
+            MotherBrainBehavior.RunMotherBrainFallingDroolPreInstruction(drool);
             AssertEqual(EnemyProjectileInstructionMechanicsDefinitions.MotherBrainDroolFalling,
                 drool.InstructionPointer,
                 $"{expectedKind} floor impact enters the compiled splash program");

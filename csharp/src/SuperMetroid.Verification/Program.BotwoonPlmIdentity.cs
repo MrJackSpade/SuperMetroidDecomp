@@ -26,7 +26,7 @@ internal static class BotwoonPlmIdentityVerification
         for (int i = 0; i < 40; i++)
         {
             PlmHeaderId header = (i & 1) == 0 ? PlmHeaderId.ClearBotwoonWall : PlmHeaderId.CrumbleBotwoonWall;
-            AssertTrue(plms.TrySpawnBotwoonWall(assets.LevelData, header), "Botwoon native slot allocation succeeds until full");
+            AssertTrue(plms.BossRoomMutations.TrySpawnBotwoonWall(assets.LevelData, header), "Botwoon native slot allocation succeeds until full");
             var slot = plms.PopulationSlots.Single(slot => slot.NativeSlotIndex == 39 - i);
             AssertEqual(header, slot.HeaderPointer, "hardcoded Botwoon header identity survives allocation");
             AssertEqual(assets.LevelData.GetBlockIndex(new(15, 4)), slot.BlockIndex, "hardcoded Botwoon placement");
@@ -35,10 +35,10 @@ internal static class BotwoonPlmIdentityVerification
                 slot.InstructionPointer, "header-specific Botwoon program");
         }
         var before = plms.PopulationSlots.ToArray();
-        AssertTrue(!plms.TrySpawnBotwoonWall(assets.LevelData, PlmHeaderId.ClearBotwoonWall), "full native PLM pool declines spawn");
+        AssertTrue(!plms.BossRoomMutations.TrySpawnBotwoonWall(assets.LevelData, PlmHeaderId.ClearBotwoonWall), "full native PLM pool declines spawn");
         AssertTrue(before.SequenceEqual(plms.PopulationSlots), "failed spawn preserves every owner and timer");
         plms.Reset();
-        AssertTrue(!plms.HasActiveHeader(PlmHeaderId.ClearBotwoonWall) && !plms.HasActiveHeader(PlmHeaderId.CrumbleBotwoonWall),
+        AssertTrue(!plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.ClearBotwoonWall) && !plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.CrumbleBotwoonWall),
             "room reset retires both Botwoon header identities");
         Console.WriteLine("Botwoon hardcoded PLMs: both header identities, slot order, placement, programs, timers and full-pool/reset behavior pass.");
     }

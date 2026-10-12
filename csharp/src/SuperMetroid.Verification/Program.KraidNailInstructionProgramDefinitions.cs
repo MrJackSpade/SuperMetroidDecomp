@@ -61,24 +61,17 @@ internal static class KraidNailInstructionProgramDefinitionsVerification
                  })
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField(
-                "_bus",
-                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = definitionPointer;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
             slot.CurrentInstruction = KraidNailInstructionProgramDefinitions.Loop;
             slot.InstructionTimer = 1;
 
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions",
-                BindingFlags.Instance | BindingFlags.NonPublic)!;
             for (int frame = 0; frame < 9; frame++)
             {
                 slot.InstructionTimer = 1;
-                process.Invoke(
-                    enemies,
-                    [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+                enemies.Instructions.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             }
             AssertEqual(unchecked((ushort)(KraidNailInstructionProgramDefinitions.Loop + 4)),
                 slot.CurrentInstruction,
@@ -118,15 +111,13 @@ internal static class KraidNailInstructionProgramDefinitionsVerification
         {
             var enemies = new RoomEnemySystem();
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!
-                .SetValue(enemies, new KraidEnemyState());
+            enemies.BindFixtureBus(guard);
+            enemies.KraidBehavior.Kraid = new KraidEnemyState();
             enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
-            enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
-            RoomEnemySlot slot = enemies.Slots[slotIndex];
+            enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[slotIndex];
             slot.EnemyDefinitionPointer = definition;
-            typeof(RoomEnemySystem).GetMethod("InitializeKraidNail", flags)!
-                .Invoke(enemies, [slot, slotIndex]);
+            enemies.KraidBehavior.InitializeKraidNail(slot, slotIndex);
             AssertEqual(KraidVisualDefinitions.InitialNailFrame,
                 slot.SpritemapPointer,
                 $"Kraid fingernail slot {slotIndex} installs the compiled initial frame");

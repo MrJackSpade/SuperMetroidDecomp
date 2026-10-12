@@ -96,18 +96,13 @@ internal static class YardInstructionProgramDefinitionsVerification
 
         var guard = NewYardInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateYardInstructionSystem(guard, out RoomEnemySlot yard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort entry in YardInstructionEntries)
         {
             yard.CurrentInstruction = entry;
             for (int call = 0; call < 80; call++)
             {
                 yard.InstructionTimer = 1;
-                process.Invoke(
-                    enemies,
-                    [yard, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+                enemies.Instructions.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             }
         }
 
@@ -146,15 +141,14 @@ internal static class YardInstructionProgramDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
-        yard = enemies.Slots[0];
+        yard = enemies.SlotTable.Slots[0];
         yard.EnemyDefinitionPointer = EnemyDefinitionId.Yard;
         yard.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         var state = new YardEnemyState(yard);
-        var states = (YardEnemyState?[])typeof(RoomEnemySystem)
-            .GetField("_yardStates", flags)!.GetValue(enemies)!;
+        var states = (YardEnemyState?[])enemies.YardBehavior._yardStates;
         states[0] = state;
         return enemies;
     }

@@ -54,12 +54,10 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsVerification
             {
                 var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
                 Type type = typeof(RoomEnemySystem);
-                type.GetField("_bus", flags)!.SetValue(enemies, guard);
-                var initialize = type.GetMethod("InitializeDeadTourianCorpse", flags)!
-                    .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-                MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+                enemies.BindFixtureBus(guard);
+                var initialize = new Action<RoomEnemySlot>(enemies.DeadTourianBehavior.InitializeDeadTourianCorpse);
 
-                RoomEnemySlot corpse = enemies.Slots[0];
+                RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
                 corpse.EnemyDefinitionPointer = family.EnemyDefinition;
                 corpse.Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 };
                 corpse.Parameter1 = checked((ushort)(variantIndex * 2));
@@ -75,7 +73,7 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsVerification
                 for (int call = 0; call < 2; call++)
                 {
                     corpse.InstructionTimer = 1;
-                    process.Invoke(enemies, processArguments);
+                    EnemyInstructionRunner.Process(enemies, processArguments);
                 }
                 AssertEqual(
                     DeadTourianCorpseInstructionProgramDefinitions.SleepWordAddress(programIndex),

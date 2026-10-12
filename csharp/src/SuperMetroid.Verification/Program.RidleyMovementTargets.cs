@@ -45,18 +45,13 @@ internal static class RidleyMovementTargetsVerification
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
         var enemies = new RoomEnemySystem();
         const BindingFlags instance = BindingFlags.NonPublic | BindingFlags.Instance;
-        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        var beginCarry = typeof(RoomEnemySystem).GetMethod("BeginNorfairRidleyCarry", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>();
-        var readDivisor = typeof(RoomEnemySystem).GetMethod("ReadRidleyHealthMovementDivisorIndex", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RidleyEnemyState, int>>();
-        var pogo = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyPogo", instance)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, bool>>(enemies);
-        var moveSide = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttackMoveToSide", instance)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
-        var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", instance)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
-        var slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        Action<RoomEnemySlot, RidleyEnemyState> beginCarry = RidleyBehavior.BeginNorfairRidleyCarry;
+        Func<RidleyEnemyState, int> readDivisor = RidleyBehavior.ReadRidleyHealthMovementDivisorIndex;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, bool> pogo = enemies.RidleyBehavior.TickNorfairRidleyPogo;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.TickNorfairRidleyGroundAttackMoveToSide;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
+        var slot = enemies.SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         // Independent closed form of native inertia from zero velocity: target selection
         // must change actual output velocity, not just expose a matching catalog value.
@@ -120,9 +115,8 @@ internal static class RidleyMovementTargetsVerification
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
-        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, NewRidleyGrabDivisorReadGuard(rom));
-        var approach = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGrabApproach", instance)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
+        enemies.BindFixtureBus(NewRidleyGrabDivisorReadGuard(rom));
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> approach = enemies.RidleyBehavior.TickNorfairRidleyGrabApproach;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
         for (int health = 0; health <= ushort.MaxValue; health++)
         {

@@ -15,7 +15,7 @@ internal static class VramDmaArtworkChecks
             "gameplay-palettes", GameplayBasePaletteFormat.ArtworkFileName));
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var runtime = new SuperMetroidRuntime(memory, HostGameplayOverrides.None, initialPaletteArt: GameplayBasePaletteCatalog.Load(paletteStream))
-            { MapPresentation = maps, GrappleArtwork = Grapple(1) };
+            { Artwork = { MapPresentation = maps, GrappleArtwork = Grapple(1) } };
         var pairs = new List<(int Source, int Count, VramAssetId Asset)>
         {
             (HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount, VramAssetId.StandardHudTiles),
@@ -28,15 +28,15 @@ internal static class VramDmaArtworkChecks
         {
             var queue = new VramWriteQueue();
             queue.Enqueue((ushort)pair.Count, pair.Source, VramDmaDestination.FromNative(0));
-            queue.DrainTo(runtime.Vram, memory, runtime);
-            ReadOnlySpan<byte> expected = ((IVramAssetProvider)runtime).Resolve(pair.Asset).Span;
+            queue.DrainTo(runtime.Vram, memory, runtime.Artwork);
+            ReadOnlySpan<byte> expected = ((IVramAssetProvider)runtime.Artwork).Resolve(pair.Asset).Span;
             VramDmaContractChecks.Require(expected.Length == pair.Count, "native alias uses the typed length");
             for (int offset = 0; offset < pair.Count; offset++)
                 VramDmaContractChecks.Require(runtime.Vram.ReadByte(offset) == expected[offset], "native alias preserves each compiled byte");
             var invalid = new VramWriteQueue();
             invalid.Enqueue((ushort)(pair.Count + 1), pair.Source, VramDmaDestination.FromNative(0));
             bool rejected = false;
-            try { invalid.DrainTo(runtime.Vram, memory, runtime); }
+            try { invalid.DrainTo(runtime.Vram, memory, runtime.Artwork); }
             catch (InvalidOperationException) { rejected = true; }
             VramDmaContractChecks.Require(rejected, "wrong alias length still fails loudly");
         }
@@ -45,8 +45,8 @@ internal static class VramDmaArtworkChecks
         var pending = new VramWriteQueue();
         var first = GrappleTileDefinitions.Transfers[0];
         pending.Enqueue(first.ByteCount, first.SourceAddress, VramDmaDestination.FromNative(0));
-        runtime.GrappleArtwork = Grapple(2);
-        pending.DrainTo(runtime.Vram, memory, runtime);
+        runtime.Artwork.GrappleArtwork = Grapple(2);
+        pending.DrainTo(runtime.Vram, memory, runtime.Artwork);
         VramDmaContractChecks.Require(runtime.Vram.ReadByte(0) == 0 && runtime.Vram.ReadByte(1) == 255,
             "already-pending native record resolves newly rebound PNG pixels");
         Console.WriteLine("Native DMA artwork: ten HUD/timer/Grapple aliases match typed bytes through the actual runtime/RAM-only queue; invalid lengths rejected; pending PNG rebinding passed.");

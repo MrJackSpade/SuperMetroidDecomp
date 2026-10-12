@@ -14,7 +14,7 @@ internal static class DraygonTerrainPriorityTests
     private static int VerifyDraygonBodyTilemap(SuperMetroidRuntime runtime)
     {
         int total = 0;
-        foreach (var part in runtime.Enemies.Slots)
+        foreach (var part in runtime.Enemies.SlotTable.Slots)
             total += VerifyDraygonPartTilemap(runtime, part);
         return total;
     }

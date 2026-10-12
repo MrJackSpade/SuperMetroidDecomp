@@ -37,7 +37,7 @@ internal static class Program
         // Child fixture for --console-startup-boundary: it must fail at the console boundary.
         if (args is [ConsoleStartupBoundaryTests.FailingChildFlag])
         {
-            NativeConsoleErrors.VerifyDialogsDisabled();
+            NativeConsoleErrorPolicyCheck.VerifyDialogsDisabled();
             throw new InvalidOperationException(ConsoleStartupBoundaryTests.ExpectedFailure);
         }
         if (args is ["--console-startup-boundary"])

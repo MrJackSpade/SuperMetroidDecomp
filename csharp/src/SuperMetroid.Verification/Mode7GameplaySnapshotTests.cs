@@ -50,11 +50,11 @@ internal static class Mode7GameplaySnapshotTestsVerification
         // Retail room assets with explicitly constructed getaway registers exercise
         // the runtime producer, without pretending this is a controller-driven battle.
         var runtime = CreateRetailRuntimeFixture(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
-        runtime.RunNmi(0, true);
-        var getaway = runtime.Enemies.CeresRidley!;
+        runtime.NmiHandler.RunNmi(0, true);
+        var getaway = runtime.Enemies.RidleyEncounter.CeresRidley!;
         getaway.Mode7Active = true;
         getaway.Mode7MatrixA = 240; getaway.Mode7MatrixB = 33;
         getaway.Mode7MatrixC = unchecked((ushort)-33); getaway.Mode7MatrixD = 240;

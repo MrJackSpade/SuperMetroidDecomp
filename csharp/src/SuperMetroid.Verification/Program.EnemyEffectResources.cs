@@ -36,11 +36,11 @@ internal static class EnemyEffectResourcesVerification
 
         CheckCrocomireResourceFailure(null, fixture => fixture.InitializeMap((int)CrocomireMeltingTilemapAddress.FirstTilemap),
             "missing melt tilemap");
-        CheckCrocomireResourceFailure(null, fixture => fixture.Call("InitializeCrocomireMeltingGraphics"),
+        CheckCrocomireResourceFailure(null, fixture => fixture.Call(c => c.InitializeCrocomireMeltingGraphics),
             "missing melt graphics");
         CrocomireMeltingArtwork art = MeltEffectArtwork();
         CheckCrocomireResourceFailure(art, fixture => fixture.InitializeMap(0), "unknown melt tilemap");
-        CheckCrocomireResourceFailure(art, fixture => fixture.Call("InitializeCrocomireMeltingGraphics"),
+        CheckCrocomireResourceFailure(art, fixture => fixture.Call(c => c.InitializeCrocomireMeltingGraphics),
             "unknown melt header", invalidHeader: true);
         Suite(nameof(VerifyDeadTourianMissingArtwork), () => VerifyDeadTourianMissingArtwork());
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
@@ -56,17 +56,16 @@ internal static class EnemyEffectResourcesVerification
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var expected = new RoomEnemySystem(); var actual = new RoomEnemySystem();
-            expected.Slots[0].EnemyDefinitionPointer = actual.Slots[0].EnemyDefinitionPointer = definition;
-            expected.Slots[0].Parameter1 = actual.Slots[0].Parameter1 = (ushort)(variant * 2);
+            expected.SlotTable.Slots[0].EnemyDefinitionPointer = actual.SlotTable.Slots[0].EnemyDefinitionPointer = definition;
+            expected.SlotTable.Slots[0].Parameter1 = actual.SlotTable.Slots[0].Parameter1 = (ushort)(variant * 2);
             if (emptyCatalog) actual.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(actual, memory);
-            Action<RoomEnemySlot> initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadTourianCorpse", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(actual);
+            actual.BindFixtureBus(memory);
+            Action<RoomEnemySlot> initialize = new Action<RoomEnemySlot>(actual.DeadTourianBehavior.InitializeDeadTourianCorpse);
             byte[] before = memory.WorkRam.ToArray();
-            AssertThrows<InvalidDataException>(() => initialize(actual.Slots[0]), "missing Tourian corpse art fails loudly");
+            AssertThrows<InvalidDataException>(() => initialize(actual.SlotTable.Slots[0]), "missing Tourian corpse art fails loudly");
             AssertTrue(before.AsSpan().SequenceEqual(memory.WorkRam), "missing Tourian corpse art leaves its rot table/graphics unchanged");
             AssertTrue(actual.DeadTourianCorpses.All(state => state is null), "failed corpse setup must not publish an owner");
-            AssertAnimationValues(expected.Slots[0], actual.Slots[0], "failed Tourian corpse setup must not mutate the slot");
+            AssertAnimationValues(expected.SlotTable.Slots[0], actual.SlotTable.Slots[0], "failed Tourian corpse setup must not mutate the slot");
         }
     }
 

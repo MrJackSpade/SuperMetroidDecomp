@@ -11,11 +11,11 @@ internal static class GameplayAudioPublicationVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        var samus = runtime.Samus!;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        var samus = runtime.Player.Samus!;
         samus.LiquidPhysics.CinematicFunctionActive = false;
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var audio = new CartridgeAudioState();

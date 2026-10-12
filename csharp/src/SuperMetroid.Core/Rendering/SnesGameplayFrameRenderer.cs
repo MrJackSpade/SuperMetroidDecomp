@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Composes the currently modeled gameplay PPU layers into one desktop frame.</summary>
 [PpuLayoutBoundary("backend: software PPU gameplay frame compositor")]
-public static partial class SnesGameplayFrameRenderer
+public static class SnesGameplayFrameRenderer
 {
     /// <summary>Visible SNES viewport width in pixels.</summary>
     public const int Width = SnesPpuLayout.ScreenWidthPixels;
@@ -932,5 +932,204 @@ public static partial class SnesGameplayFrameRenderer
             ArrayPool<Rgba32>.Shared.Return(rentedObjectPixels, clearArray: false);
             ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
         }
+    }
+
+    /// <summary>Resolves the published eye cone and ROM tangent table into inclusive color windows.</summary>
+    public static ScanlineColorAddRenderLayer? CaptureMorphBallEyeBeam(ISnesAddressSpace bus,
+        MorphBallEyeBeamRenderSnapshot beam, Position16<RoomPixels> layer1)
+    {
+        Ensure.NotNull(bus);
+        if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
+            return null;
+        Offset16<ScreenPixels> origin = beam.WorldPosition.RelativeToCamera(layer1);
+        int angle = beam.Angle.TableIndex;
+        int angularWidth = unchecked((byte)beam.AngularWidth);
+        ushort[] nativeWindows = EyeBeamWindowBuilder.Build(origin, angle, angularWidth);
+        var windows = new ColorAddWindow[Height];
+        Array.Fill(windows, ColorAddWindow.Empty);
+        byte red = ExpandFiveBit(beam.Red), green = ExpandFiveBit(beam.Green), blue = ExpandFiveBit(beam.Blue);
+        for (int y = HudHeight; y < Height; y++)
+        {
+            int left = SnesLittleEndian.LowByte(nativeWindows[y]), right = SnesLittleEndian.HighByte(nativeWindows[y]);
+            if (left <= right) windows[y] = new((byte)left, (byte)right, red, green, blue);
+        }
+        return new(windows);
+    }
+
+    /// <summary>
+    /// Captures bank-$88 layer configuration $24's fixed-color addition through window 1.
+    /// This shared layer is consumed by both the software and Windows Direct3D backends.
+    /// </summary>
+    public static ScanlineColorAddRenderLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamHdmaState beam)
+    {
+        Ensure.NotNull(beam);
+        if (!beam.Active) return null;
+        var windows = new ColorAddWindow[Height];
+        Array.Fill(windows, ColorAddWindow.Empty);
+        byte red = ExpandFiveBit((byte)beam.Color.Red);
+        byte green = ExpandFiveBit((byte)beam.Color.Green);
+        byte blue = ExpandFiveBit((byte)beam.Color.Blue);
+        for (int y = HudHeight; y < Height; y++)
+        {
+            ushort word = beam.Windows[y];
+            byte left = (byte)word, right = SnesLittleEndian.HighByte(word);
+            if (left <= right) windows[y] = new(left, right, red, green, blue);
+        }
+        return new(windows);
+    }
+
+    /// <summary>Composes native configuration $16 with both BG2 and BG3 on the subscreen.</summary>
+    public static GameplayColorMathRenderLayer CaptureWaterfall(OrdinaryGameplayRenderLayer gameplay,
+        RoomLayer3FxRenderSnapshot fx)
+    {
+        if (fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
+            throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
+        var windows = new XrayWindowLine[Height];
+        Array.Fill(windows, new XrayWindowLine(255, 0));
+        return new(gameplay, windows, false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx), subscreenUsesBg2: true);
+    }
+
+    /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
+    public static Bg2BppColorMathRenderLayer? CaptureRoomLayer3Fx(RoomLayer3FxRenderSnapshot fx)
+    {
+        LayerBlendingConfiguration required = fx.Type switch
+        {
+            RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.LavaAcidAdditive,
+            RoomFxType.Water or RoomFxType.TourianEntranceStatue => fx.LayerBlendConfiguration,
+            RoomFxType.Rain => LayerBlendingConfiguration.Rain,
+            RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
+            RoomFxType.Spores => LayerBlendingConfiguration.Spores,
+            _ => throw new NotSupportedException($"Room FX type {fx.Type} has no captured BG3 compositor."),
+        };
+        if (RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is not
+            (LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive or
+            LayerBlendingConfiguration.LiquidOrFogAdditive))
+            throw new InvalidDataException("Water has an incompatible layer-blending configuration.");
+        if (fx.LayerBlendConfiguration != required) throw new InvalidDataException("Room FX has an incompatible layer-blending configuration.");
+        bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
+        if (liquid && unchecked((short)fx.CurrentYPosition) < 0) return null;
+        bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
+        var scrolls = new Position16<BgPlanePixels>[Height];
+        int firstSurfaceLine = fx.WaterSurfaceScreenY - (SnesPpuLayout.BackgroundTileSizePixels - 1);
+        for (int y = HudHeight; y < Height; y++)
+        {
+            ushort vertical = liquid && y < firstSurfaceLine ? (ushort)0 : fx.Scroll.Y;
+            int wave = RoomFxTypes.UsesWater(fx.Type) && y > fx.WaterSurfaceScreenY
+                ? RoomFxRomData.Water.WaveDisplacement((y - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
+                    RoomFxRomData.Water.WaveDisplacementCount) % RoomFxRomData.Water.WaveDisplacementCount) : 0;
+            scrolls[y] = new(unchecked((ushort)(fx.Scroll.X + wave)), vertical);
+        }
+        bool subtract = RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is
+            LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
+        return new(atmosphere ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord : RoomFxRomData.Layer3.LiquidTilemapBaseWord,
+            GameplayVramLayout.HudCharacterWord,
+            (atmosphere ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapSize : RoomFxRomData.Layer3.LiquidTilemapSize).Y,
+            HudHeight, subtract ? ExpandedColorMathOperation.Subtract : ExpandedColorMathOperation.Add, scrolls);
+    }
+
+    /// <summary>
+    /// FX $08 retains the winning main-screen source until color math. A post-frame
+    /// overlay would incorrectly brighten foreground terrain (and OBJ palettes 0-3).
+    /// Use the same literal Mode-1 composition as the other source-aware effects.
+    /// </summary>
+    public static GameplayColorMathRenderLayer CaptureSpores(OrdinaryGameplayRenderLayer gameplay,
+        RoomLayer3FxRenderSnapshot fx)
+    {
+        if (fx.Type != RoomFxType.Spores)
+            throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
+        var emptyWindows = new XrayWindowLine[Height];
+        Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
+        return new(gameplay, emptyWindows, false, new ColorMathRegisters { ColorMath = (SnesColorMathControl)RoomFxRomData.Spores.ColorMathSources, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx));
+    }
+
+    /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>
+    public static ScanlineColorAddRenderLayer CaptureCeresHaze(bool ridleyIsDead,
+        int intensity = CeresHazeRenderDefinitions.MaximumComponent,
+        RoomFxPaletteBlendCatalog? colors = null)
+    {
+        var windows = new ColorAddWindow[Height];
+        Array.Fill(windows, ColorAddWindow.Empty);
+        for (int y = HudHeight; y < Height; y++)
+        {
+            (byte red, byte green, byte blue) = CeresHazeRenderDefinitions.ResolveComponents(
+                y, intensity, ridleyIsDead, colors);
+            windows[y] = new(0, Width - 1, ExpandFiveBit(red),
+                ExpandFiveBit(green), ExpandFiveBit(blue));
+        }
+        return new(windows);
+    }
+
+    /// <summary>
+    /// Resolves ROM curve data and the rendered explosion phase on the producer side.
+    /// The renderer receives only clipped endpoints/colors, not a bus or projectile owner.
+    /// </summary>
+    public static ScanlineColorAddRenderLayer? CapturePowerBombColorMath(ISnesAddressSpace bus,
+        SamusPowerBombExplosionState explosion, Position16<RoomPixels> layer1,
+        int firstVisibleScanline = HudHeight)
+    {
+        Ensure.NotNull(bus);
+        Ensure.NotNull(explosion);
+        if ((uint)firstVisibleScanline > Height)
+            throw new ArgumentOutOfRangeException(nameof(firstVisibleScanline));
+        if (!explosion.IsActive) return null;
+        var windows = new ColorAddWindow[Height];
+        Array.Fill(windows, ColorAddWindow.Empty);
+        Offset16<ScreenPixels> center = explosion.Position
+            .RelativeToCamera(layer1);
+        int centerX = center.X;
+        int centerY = center.Y;
+        byte red = ExpandFiveBit(explosion.FixedColorRed);
+        byte green = ExpandFiveBit(explosion.FixedColorGreen);
+        byte blue = ExpandFiveBit(explosion.FixedColorBlue);
+        // Gameplay protects its HUD; full-screen cinematics use the same native
+        // window profile starting at scanline zero instead.
+        for (int y = firstVisibleScanline; y < Height; y++)
+        {
+            int halfWidth = ReadPowerBombHalfWidth(explosion, y - centerY);
+            if (halfWidth < 0) continue;
+            int left = Math.Max(0, centerX - halfWidth);
+            int right = Math.Min(Width - 1, centerX + halfWidth);
+            if (left <= right) windows[y] = new((byte)left, (byte)right, red, green, blue);
+        }
+        return new(windows);
+    }
+
+    /// <summary>Resolves the same tangent inequalities as the reference X-ray raster into immutable line intervals.</summary>
+    public static XrayWindowLine[] CaptureXrayWindowLines(ISnesAddressSpace bus, SamusState samus,
+        Position16<RoomPixels> layer1)
+    {
+        bool leftFacing = samus.PoseMetadata.IsFacingLeft(bus);
+        Offset16<ScreenPixels> samusOnScreen = samus.Position.Whole.RelativeToCamera(layer1);
+        int originX = samusOnScreen.X +
+            (leftFacing ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
+        int originY = samusOnScreen.Y -
+            (samus.PoseMetadata.ReadMovementType(bus) == SamusMovementType.Crouching
+                ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
+        int angle = samus.Xray.Angle.TableIndex;
+        int width = SnesLittleEndian.LowByte(samus.Xray.AngularWidth);
+        Offset16<ScreenPixels> a = ReadXrayDirection(angle - width), b = ReadXrayDirection(angle + width);
+        bool horizontal = width == 0 && (angle == SnesAngle.QuarterTurn.TableIndex || angle == SnesAngle.ThreeQuarterTurn.TableIndex);
+        var lines = new XrayWindowLine[Height];
+        Array.Fill(lines, new XrayWindowLine(1, 0));
+        for (int y = HudHeight; y < Height; y++)
+        {
+            long left = 0, right = Width - 1;
+            if (horizontal)
+            {
+                if (y != originY) continue;
+                if (angle == SnesAngle.QuarterTurn.TableIndex) left = Math.Max(left, originX);
+                else right = Math.Min(right, originX);
+            }
+            else
+            {
+                long dy = y - originY;
+                if (!IntegerWindowIntersection.IntersectGreaterEqual(-a.Y, (long)a.X * dy + (long)a.Y * originX,
+                        -XrayWindowRenderDefinitions.SubpixelTolerance, ref left, ref right)) continue;
+                if (!IntegerWindowIntersection.IntersectGreaterEqual(b.Y, -(long)b.X * dy - (long)b.Y * originX,
+                        -XrayWindowRenderDefinitions.SubpixelTolerance, ref left, ref right)) continue;
+            }
+            if (left <= right) lines[y] = new((byte)left, (byte)right);
+        }
+        return lines;
     }
 }

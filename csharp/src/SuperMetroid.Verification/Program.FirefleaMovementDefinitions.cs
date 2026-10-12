@@ -11,14 +11,11 @@ internal static class FirefleaMovementDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            new CartridgeReadGuard(new TestAddressSpace()).Forbid(
+        enemies.BindFixtureBus(new CartridgeReadGuard(new TestAddressSpace()).Forbid(
                 address => address is >= 0xa38d1d and < 0xa38d2d,
                 address => $"Fireflea initializer attempted migrated radius read ${address:X6}."));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeFireflea", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        Action<RoomEnemySlot> initialize = enemies.FirefleaBehavior.InitializeFireflea;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
         for (byte radiusIndex = 0; radiusIndex < 8; radiusIndex++)
         {

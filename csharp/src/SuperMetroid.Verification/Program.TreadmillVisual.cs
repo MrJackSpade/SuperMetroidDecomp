@@ -27,12 +27,12 @@ internal static class TreadmillVisualVerification
             if (placement.GetProperty("Area").GetString() != "WreckedShip") continue;
             ushort pointer = Convert.ToUInt16(placement.GetProperty("RoomHeader").GetString()![2..], 16);
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(pointer);
-            var room = runtime.ActiveRoom!;
+            var room = runtime.Room.ActiveRoom!;
             ushort record = RoomFxRecordDefinitions.Select(room.State.FxPointer, 0);
             byte bits = record == 0 ? (byte)0 : RoomFxRecordDefinitions.Get(record).AnimatedTileBitset;
             Console.WriteLine($"Room {room.Identity} header={pointer:X4} FX={room.State.FxPointer:X4} animation bits={bits:X2} door treadmill={runtime.WreckedShipTreadmill.IsActive}");

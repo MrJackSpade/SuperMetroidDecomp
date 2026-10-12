@@ -9,7 +9,7 @@ internal static class LibraryBackgroundClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomBackgroundTilemapSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramGeneratedDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundProgramDefinitions.Generated.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundCommand.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomBackgroundTilemapAtlas.cs")]),
     ];

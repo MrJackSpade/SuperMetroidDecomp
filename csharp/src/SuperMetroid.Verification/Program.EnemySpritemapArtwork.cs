@@ -133,8 +133,7 @@ internal static class EnemySpritemapArtworkVerification
     }
 
     private static void VerifyInstalledBullInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
-        BindingFlags flags)
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         for (int index = 0;
              index < BullInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -154,27 +153,24 @@ internal static class EnemySpritemapArtworkVerification
         var guard = NewBullInstructionProgramReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        RoomEnemySlot bull = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.EnemyDefinitionPointer = EnemyDefinitionId.Bull;
         bull.Definition = default(RoomEnemyDefinition) with
             { Bank = EnemySpritemapDefinitions.BullBank };
-        type.GetMethod("InitializeBull", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies)(bull);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
             [bull, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int frame = 0; frame < 41; frame++)
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
             bull.CurrentInstruction,
             "installed Bull normal animation retains its cursor and timing");
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
-        type.GetMethod("ResolveBullImmuneShot", flags | BindingFlags.Static)!
-            .Invoke(null, [bull, state, (ushort)2]);
+        BullBehavior.ResolveBullImmuneShot(bull, state, (ushort)2);
         for (int frame = 0; frame < 61; frame++)
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
             bull.CurrentInstruction,
             "installed Bull immune-shot program returns to the normal loop");
@@ -187,8 +183,7 @@ internal static class EnemySpritemapArtworkVerification
     }
 
     private static void VerifyInstalledPuyoInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock,
-        BindingFlags flags)
+        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         for (int index = 0;
              index < PuyoInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -208,26 +203,23 @@ internal static class EnemySpritemapArtworkVerification
 
         var guard = NewPuyoInstructionReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem { TileArtwork = stock };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        RoomEnemySlot puyo = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        RoomEnemySlot puyo = enemies.SlotTable.Slots[0];
         puyo.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
         puyo.Definition = default(RoomEnemyDefinition) with
             { Bank = EnemySpritemapDefinitions.PuyoBank };
-        typeof(RoomEnemySystem).GetMethod("InitializePuyo", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies)(puyo);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
+        new Action<RoomEnemySlot>(enemies.PuyoBehavior.InitializePuyo)(puyo);
         object?[] arguments =
             [puyo, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         foreach (ushort program in PuyoGroundedInstructionPrograms)
         {
             puyo.CurrentInstruction = program;
-            ExecutePuyoInstructionCalls(enemies, process, arguments, puyo, 5);
+            ExecutePuyoInstructionCalls(enemies, arguments, puyo, 5);
         }
         foreach (ushort program in PuyoAirborneInstructionPrograms)
         {
             puyo.CurrentInstruction = program;
-            ExecutePuyoInstructionCalls(enemies, process, arguments, puyo, 2);
+            ExecutePuyoInstructionCalls(enemies, arguments, puyo, 2);
         }
         AssertEqual(0, guard.ObservedWords.Count,
             "installed Puyo programs read no cartridge visual selectors");
@@ -575,24 +567,21 @@ internal static class EnemySpritemapArtworkVerification
             "Rio rejects adjacent data as a presentation operand");
         var rioGuard = NewRioInstructionReadGuard(rom, forbidPresentation: true);
         var installedRio = new RoomEnemySystem { TileArtwork = stock };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installedRio, rioGuard);
-        RoomEnemySlot rioSlot = installedRio.Slots[0];
+        installedRio.BindFixtureBus(rioGuard);
+        RoomEnemySlot rioSlot = installedRio.SlotTable.Slots[0];
         rioSlot.EnemyDefinitionPointer = EnemyDefinitionId.Rio;
         rioSlot.Definition = default(RoomEnemyDefinition) with
             { Bank = EnemySpritemapDefinitions.RioBank };
-        typeof(RoomEnemySystem).GetMethod("InitializeRio", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(installedRio)(rioSlot);
-        MethodInfo rioProcess = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
+        new Action<RoomEnemySlot>(installedRio.RioBehavior.InitializeRio)(rioSlot);
         object?[] rioArguments =
             [rioSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
+        ExecuteRioProgram(installedRio, rioArguments, rioSlot,
             RioInstructionProgramDefinitions.Idle, callCount: 13);
-        ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
+        ExecuteRioProgram(installedRio, rioArguments, rioSlot,
             RioInstructionProgramDefinitions.SwoopingPart1, callCount: 6);
-        ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
+        ExecuteRioProgram(installedRio, rioArguments, rioSlot,
             RioInstructionProgramDefinitions.SwoopingPart2, callCount: 3);
-        ExecuteRioProgram(installedRio, rioProcess, rioArguments, rioSlot,
+        ExecuteRioProgram(installedRio, rioArguments, rioSlot,
             RioInstructionProgramDefinitions.SwoopCooldown, callCount: 6);
         AssertEqual(0, rioGuard.ObservedWords.Count,
             "installed Rio programs never read ROM visual selectors");
@@ -614,8 +603,6 @@ internal static class EnemySpritemapArtworkVerification
             "Lower Norfair Rio rejects adjacent movement data as presentation");
         var lowerRioGuard = NewLowerNorfairRioInstructionReadGuard(
             rom, forbidPresentation: true);
-        MethodInfo lowerRioProcess = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
         foreach ((ushort entry, int calls) in new (ushort, int)[]
                  {
                      ((ushort)LowerNorfairRioProgram.Idle, 5),
@@ -628,11 +615,11 @@ internal static class EnemySpritemapArtworkVerification
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
-                NewLowerNorfairRioInstructionSystem(lowerRioGuard, flags, entry, stock);
+                NewLowerNorfairRioInstructionSystem(lowerRioGuard, entry, stock);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunLowerNorfairRioInstructionFrames(
-                lowerRioProcess, enemies, arguments, slot, calls);
+                enemies, arguments, slot, calls);
         }
         AssertEqual(0, lowerRioGuard.ObservedWords.Count,
             "installed Lower Norfair Rio programs never read ROM visual selectors");
@@ -654,8 +641,6 @@ internal static class EnemySpritemapArtworkVerification
             "Norfair Rio rejects adjacent movement data as presentation");
         var norfairRioGuard = NewNorfairRioInstructionReadGuard(
             rom, forbidPresentation: true);
-        MethodInfo norfairRioProcess = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
         foreach ((ushort entry, int calls) in new (ushort, int)[]
                  {
                      (NorfairRioInstructionProgramDefinitions.Idle, 5),
@@ -668,16 +653,16 @@ internal static class EnemySpritemapArtworkVerification
                  })
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
-                NewNorfairRioInstructionSystem(norfairRioGuard, flags, entry, stock);
+                NewNorfairRioInstructionSystem(norfairRioGuard, entry, stock);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunNorfairRioInstructionFrames(
-                norfairRioProcess, enemies, arguments, slot, calls);
+                enemies, arguments, slot, calls);
         }
         AssertEqual(0, norfairRioGuard.ObservedWords.Count,
             "installed Norfair Rio programs never read ROM visual selectors");
-        Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(rom, stock, flags));
-        Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(rom, stock, flags));
+        Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(rom, stock));
+        Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledAlcoonInstructionFrames), () => VerifyInstalledAlcoonInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledMochtroidVisuals), () => VerifyInstalledMochtroidVisuals(rom, stock));
         Suite(nameof(VerifyInstalledEvirVisuals), () => VerifyInstalledEvirVisuals(rom, stock));
@@ -3568,11 +3553,9 @@ internal static class EnemySpritemapArtworkVerification
             Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var queues = (List<ushort>[])typeof(RoomEnemySystem)
-                .GetField("_drawQueues", flags)!.GetValue(enemies)!;
-            queues[0].Add(0);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            enemies.Drawing.Enqueue(0, 0);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = definition;
             slot.Definition = default(RoomEnemyDefinition) with
                 { Bank = definition == EnemyDefinitionId.YappingMaw
@@ -3686,7 +3669,7 @@ internal static class EnemySpritemapArtworkVerification
             slot.Timer = 9;
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
-            enemies.DrawLayers(oam, new(0, 0), 0, 0);
+            enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 0);
             inspect?.Invoke(slot);
             return oam;
         }
@@ -3719,12 +3702,9 @@ internal static class EnemySpritemapArtworkVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(enemies, NewMotherBrainFrameReadGuard(rom));
+        enemies.BindFixtureBus(NewMotherBrainFrameReadGuard(rom));
         var oam = new OamBuffer();
-        typeof(RoomEnemySystem).GetMethod("DrawMotherBrainWorldSpritemap", flags)!
-            .Invoke(enemies,
-                [oam, pointer, world, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010)]);
+        enemies.MotherBrainBehavior.DrawMotherBrainWorldSpritemap(oam, pointer, world, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010));
         return oam;
     }
 
@@ -3734,12 +3714,11 @@ internal static class EnemySpritemapArtworkVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", flags)!
-            .CreateDelegate<Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind,
-                ushort, RoomSpriteObjectSlot?>>();
-        var draw = typeof(RoomEnemySystem).GetMethod("DrawRoomSpriteObjects", flags)!
-            .CreateDelegate<Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>>>();
+        enemies.BindFixtureBus(bus);
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
+            (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
+        Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =
+            (owner, oam, camera) => owner.SpriteObjects.DrawRoomSpriteObjects(oam, camera);
         AssertTrue(spawn(enemies, new(0x0040, 0x0080), kind, 0x0e00) is not null,
             "installed room sprite object allocated");
         var oam = new OamBuffer();

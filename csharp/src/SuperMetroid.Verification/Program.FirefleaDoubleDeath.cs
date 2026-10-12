@@ -24,23 +24,22 @@ internal static class FirefleaDoubleDeathVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.LowerNorfairFireflea);
-        var samus = runtime.Samus!;
-        RoomEnemySlot fireflea = runtime.Enemies.Slots.First(slot =>
+        var samus = runtime.Player.Samus!;
+        RoomEnemySlot fireflea = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea);
         ushort x = fireflea.Position.X.Whole, y = fireflea.Position.Y.Whole;
         // Screw attack contact ($0A6E = 3) kills through CommonA3_NormalEnemyTouchAI.
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.ScrewAttack;
-        ushort killsBefore = runtime.Enemies.EnemiesKilled;
+        ushort killsBefore = runtime.Enemies.RoomStatus.EnemiesKilled;
 
-        typeof(RoomEnemySystem).GetMethod("ResolveFirefleaTouch", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [fireflea, samus]);
+        runtime.Enemies.FirefleaBehavior.ResolveFirefleaTouch(fireflea, samus);
 
-        var explosions = runtime.Enemies.EnemyProjectiles
+        var explosions = runtime.Enemies.Projectiles.EnemyProjectiles
             .Where(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion).ToArray();
         AssertEqual(2, explosions.Length, "the touch death and the unconditional EnemyDeath each spawn an explosion");
         var real = explosions.Single(p => p.Position.X.Whole == x && p.Position.Y.Whole == y);
@@ -50,7 +49,7 @@ internal static class FirefleaDoubleDeathVerification
         AssertEqual(EnemyDefinitionId.None, cleared.EnemyHeaderPointer, "the second explosion carries header zero");
         AssertEqual(EnemyDeathInstructionProgramDefinitions.SmallExplosion, cleared.InstructionPointer,
             "EnemyDeath's returned A selects the small explosion");
-        AssertEqual((ushort)(killsBefore + 2), runtime.Enemies.EnemiesKilled, "both deaths count a kill");
+        AssertEqual((ushort)(killsBefore + 2), runtime.Enemies.RoomStatus.EnemiesKilled, "both deaths count a kill");
         Console.WriteLine("Fireflea double death: a killing touch also spawns the cleared-slot small explosion.");
     }
 

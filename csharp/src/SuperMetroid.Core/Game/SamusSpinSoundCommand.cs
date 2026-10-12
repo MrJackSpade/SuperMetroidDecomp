@@ -8,7 +8,7 @@ internal static class SamusSpinSoundCommand
 {
     public static SoundEffectId? Select(ISnesAddressSpace bus, SamusState samus)
     {
-        var movement = samus.ReadMovementType(bus);
+        var movement = samus.PoseMetadata.ReadMovementType(bus);
         if (movement == SamusMovementType.WallJumping)
             return samus.AnimationFrame >= SamusSpinSoundFrames.ScrewAttack
                 ? SoundEffectLibrary1Sounds.ScrewAttack
@@ -18,7 +18,7 @@ internal static class SamusSpinSoundCommand
             return null;
         return samus.Pose is SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose
             ? SoundEffectLibrary1Sounds.ScrewAttack
-            : SamusState.IsSpaceJumpPose(samus.Pose)
+            : SamusPoseMetadata.IsSpaceJumpPose(samus.Pose)
                 ? SoundEffectLibrary1Sounds.SpaceJump : SoundEffectLibrary1Sounds.SpinJump;
     }
 }

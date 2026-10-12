@@ -22,11 +22,9 @@ internal static class PhantoonMotionDefinitionsVerification
             native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native[i], definitions[i], "Phantoon compiled motion native word");
         }
-        var forward = typeof(RoomEnemySystem).GetMethod("AdjustPhantoonForwardFigureEightSpeed", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot>>();
-        var reverse = typeof(RoomEnemySystem).GetMethod("AdjustPhantoonReverseFigureEightSpeed", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot>>();
-        var slot = new RoomEnemySystem().Slots[0];
+        Action<RoomEnemySlot> forward = PhantoonBehavior.AdjustPhantoonForwardFigureEightSpeed;
+        Action<RoomEnemySlot> reverse = PhantoonBehavior.AdjustPhantoonReverseFigureEightSpeed;
+        var slot = new RoomEnemySystem().SlotTable.Slots[0];
         ushort[] phases = [0, 1, 2, 3, 0xffff];
         ushort[] fractions = [0, 1, 0x5ff, 0x600, 0xefff, 0xf000, 0xf9ff, 0xfa00, 0xffff];
         foreach (bool backwards in new[] { false, true })

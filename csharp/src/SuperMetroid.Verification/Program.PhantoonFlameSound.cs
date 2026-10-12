@@ -21,29 +21,28 @@ internal static class PhantoonFlameSoundVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());
-        var callback = typeof(RoomEnemySystem).GetMethod("ProcessPhantoonInstructionFunction", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, ushort, bool>>(enemies);
+        Func<RoomEnemySlot, ushort, bool> callback = enemies.PhantoonBehavior.ProcessPhantoonInstructionFunction;
         var begin = typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!
             .CreateDelegate<Action>(enemies);
         var collect = typeof(RoomEnemySystem).GetMethod("CollectLegacyEnemyAudioRequests", flags)!
             .CreateDelegate<Action>(enemies);
         begin();
-        callback(enemies.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
+        callback(enemies.SlotTable.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
         collect();
-        AssertEqual(1, enemies.SoundRequests.Count, "casual flame emits one sound request");
+        AssertEqual(1, enemies.Audio.SoundRequests.Count, "casual flame emits one sound request");
         var flameSound = new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x1d), 6);
-        AssertEqual(flameSound, enemies.SoundRequests[0], "native A7:CF68/CF6B queues library three sound 1D with Max6");
-        AssertEqual(1, enemies.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame),
+        AssertEqual(flameSound, enemies.Audio.SoundRequests[0], "native A7:CF68/CF6B queues library three sound 1D with Max6");
+        AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame),
             "sound accompanies the actual casual-flame spawn");
 
         begin();
-        callback(enemies.Slots[0], (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX);
-        callback(enemies.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
-        callback(enemies.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
+        callback(enemies.SlotTable.Slots[0], (ushort)PhantoonInstruction.PlayPhantoonMaterializationSFX);
+        callback(enemies.SlotTable.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
+        callback(enemies.SlotTable.Slots[3], (ushort)PhantoonInstruction.SpawnCasualFlame);
         collect();
-        AssertEqual(2, enemies.SoundRequests.Count(request => request == flameSound),
+        AssertEqual(2, enemies.Audio.SoundRequests.Count(request => request == flameSound),
             "distinct flame callbacks retain their separate native queue calls");
-        AssertTrue(enemies.SoundRequests.Contains(new EnemySoundRequest(
+        AssertTrue(enemies.Audio.SoundRequests.Contains(new EnemySoundRequest(
             SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x79), 6)),
             "flame audio does not overwrite the independent materialization sound");
         Console.WriteLine("Phantoon casual flame: actual spawn emits library 3 / 1D / Max6; materialization audio remains independent.");

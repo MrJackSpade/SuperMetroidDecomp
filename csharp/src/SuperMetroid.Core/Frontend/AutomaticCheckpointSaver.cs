@@ -29,10 +29,10 @@ internal static class AutomaticCheckpointSaver
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(runtime);
-        SamusState samus = runtime.Samus
+        SamusState samus = runtime.Player.Samus
             ?? throw new InvalidOperationException("Ceres checkpoint requires a live Samus actor.");
         runtime.System.LoadSavedLoadingGameState(loadingGameState);
-        new SuperMetroidSaveRam(bus, runtime.MapPresentation).SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = (ushort)AreaId.Ceres, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.ControllerBindings, MoonwalkEnabled = runtime.MoonwalkEnabled, IconCancelEnabled = runtime.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
+        new SuperMetroidSaveRam(bus, runtime.Artwork.MapPresentation).SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = (ushort)AreaId.Ceres, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
     }
 
     /// <summary>
@@ -46,10 +46,10 @@ internal static class AutomaticCheckpointSaver
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(runtime);
-        if (runtime.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted)
+        if (runtime.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted)
             return false;
 
-        SamusState samus = runtime.Samus
+        SamusState samus = runtime.Player.Samus
             ?? throw new InvalidOperationException(
                 "Gunship landing completed without a live Samus actor.");
 
@@ -58,9 +58,9 @@ internal static class AutomaticCheckpointSaver
         // after reload and therefore belongs inside the atomic checkpoint operation.
         runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStates.MainGame);
         runtime.System.MarkSaveStationUsed(areaIndex: AreaId.Crateria, stationBitIndex: 0);
-        new SuperMetroidSaveRam(bus, runtime.MapPresentation).SaveSlot(
+        new SuperMetroidSaveRam(bus, runtime.Artwork.MapPresentation).SaveSlot(
             selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = 0, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.ControllerBindings, MoonwalkEnabled = runtime.MoonwalkEnabled, IconCancelEnabled = runtime.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
+            SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = 0, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
         return true;
     }
 }

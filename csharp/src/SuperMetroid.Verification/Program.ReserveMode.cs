@@ -51,7 +51,7 @@ internal static class ReserveModeVerification
             "command $1B replaces X-Ray Samus handlers but retains shared freeze");
         for (ushort frame = 0; recovery.IsActive; frame++)
             recovery.StepAfterNmi(reserve, frame);
-        AssertTrue(reserve.Xray.IsReserveMode && !reserve.StationaryScriptControlLocked,
+        AssertTrue(reserve.Xray.IsReserveMode && !reserve.ScriptLocks.StationaryScriptControlLocked,
             "reserve exhaustion restores normal control under the live X-Ray object");
 
         AdvanceXrayToFinish(bus, reserve);
@@ -90,12 +90,12 @@ internal static class ReserveModeVerification
         while (secondRecovery.IsActive)
             secondRecovery.StepAfterNmi(knockbackVariant, 0);
         knockbackVariant.Pose = SamusPoseId.FacingRightNormalPose;
-        knockbackVariant.RefreshCollisionRadii(bus);
-        knockbackVariant.InitializeAnimation(bus);
+        knockbackVariant.PoseMetadata.RefreshCollisionRadii(bus);
+        knockbackVariant.Presentation.InitializeAnimation(bus);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter =
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
-        AssertTrue(knockbackVariant.TryApplyPostureTransition(
+        AssertTrue(knockbackVariant.PoseTransitions.TryApplyPostureTransition(
                 bus,
                 level,
                 SamusPoseId.CrouchingTransitionRightPose,
@@ -129,8 +129,8 @@ internal static class ReserveModeVerification
             ReserveTankMode = reserveEnergy == 0 ? (ushort)0 : (ushort)1,
             EquippedItems = (ushort)SamusEquipmentFlags.XrayScope,
         };
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions()),
             "X-Ray fixture activation");
         return samus;

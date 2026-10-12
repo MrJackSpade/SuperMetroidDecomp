@@ -37,14 +37,10 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
                 $"Mother Brain ceiling-tube mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewMotherBrainTopTubeInstructionReadGuard(rom);
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainTopTube", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
 
         foreach ((RoomEnemyProjectileKind Kind, ushort Program, ushort X, ushort Y) item in
                  new[]
@@ -64,8 +60,8 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            spawn.Invoke(enemies, [item.Kind, new Position16<RoomPixels>(item.X, item.Y)]);
-            RoomEnemyProjectileSlot tube = enemies.EnemyProjectiles.Single(
+            enemies.MotherBrainBehavior.SpawnMotherBrainTopTube(item.Kind, new Position16<RoomPixels>(item.X, item.Y));
+            RoomEnemyProjectileSlot tube = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == item.Kind);
             AssertEqual(item.Program, tube.InstructionPointer,
                 $"real {item.Kind} producer selects its named pose");
@@ -80,9 +76,8 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         }
 
         RoomEnemySystem shotSystem = NewSystem();
-        spawn.Invoke(shotSystem,
-            [RoomEnemyProjectileKind.MotherBrainTopRightTube, new Position16<RoomPixels>(152, 47)]);
-        RoomEnemyProjectileSlot shot = shotSystem.EnemyProjectiles.Single(
+        shotSystem.MotherBrainBehavior.SpawnMotherBrainTopTube(RoomEnemyProjectileKind.MotherBrainTopRightTube, new Position16<RoomPixels>(152, 47));
+        RoomEnemyProjectileSlot shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainTopRightTube);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         RunForcedTick(shotSystem, shot);
@@ -117,14 +112,14 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             return enemies;
         }
 
         void RunForcedTick(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }

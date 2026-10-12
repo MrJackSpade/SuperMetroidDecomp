@@ -40,13 +40,11 @@ internal static class WreckedShipGhostInstructionProgramDefinitionsVerification
         var guard = NewWreckedShipGhostInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        var initialize = type.GetMethod("InitializeWreckedShipGhost", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = new SnesCgram();
+        var initialize = new Action<RoomEnemySlot>(enemies.WreckedShipGhostBehavior.InitializeWreckedShipGhost);
 
-        RoomEnemySlot ghost = enemies.Slots[0];
+        RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.EnemyDefinitionPointer = EnemyDefinitionId.Coven;
         ghost.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         initialize(ghost);
@@ -59,7 +57,7 @@ internal static class WreckedShipGhostInstructionProgramDefinitionsVerification
         for (int call = 0; call < 4; call++)
         {
             ghost.InstructionTimer = 1;
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         }
 
         AssertEqual(unchecked((ushort)(

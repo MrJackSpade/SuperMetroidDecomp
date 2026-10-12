@@ -12,10 +12,9 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     {
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        var dispatch = typeof(RoomEnemySystem).GetMethod("DispatchDeadSidehopperState", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, ushort>>(enemies);
-        var slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, ushort> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
+        var slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, 0, 0, new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         for (ushort phase = 0; phase < 4; phase++)
         {

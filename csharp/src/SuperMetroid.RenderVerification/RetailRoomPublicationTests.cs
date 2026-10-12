@@ -26,23 +26,23 @@ internal static class RetailRoomPublicationTests
         foreach ((ushort room, PublishedFx fx) in rooms)
         {
             var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.RunNmi(0, true);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.NmiHandler.RunNmi(0, true);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             // Room-local setup, explicitly not an incoming door/elevator transition.
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            runtime.RunNmi(0, true);
+            runtime.NmiHandler.RunNmi(0, true);
             switch (fx)
             {
                 case PublishedFx.Unchecked:
                     break;
                 case PublishedFx.Water:
-                    if (runtime.DisplayedRoomLayer3Fx?.Type != RoomFxType.Water)
+                    if (runtime.Display.DisplayedRoomLayer3Fx?.Type != RoomFxType.Water)
                         throw new InvalidOperationException("Retail water fixture did not publish water FX.");
                     break;
                 case PublishedFx.Heat:
-                    if (runtime.DisplayedRoomLayer3Fx is not { Type: RoomFxType.Lava } lava ||
+                    if (runtime.Display.DisplayedRoomLayer3Fx is not { Type: RoomFxType.Lava } lava ||
                         lava.CurrentYPosition != RoomPublicationFixtureDefinitions.BusinessCenterSurface)
                         throw new InvalidOperationException("Retail heat fixture did not publish its authored lava surface.");
                     break;

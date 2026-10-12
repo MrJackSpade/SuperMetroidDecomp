@@ -26,17 +26,16 @@ internal static class KraidCeilingRockPositionsVerification
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidCeilingGuard(rom));
+        enemies.BindFixtureBus(NewKraidCeilingGuard(rom));
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 63);
-        var step = typeof(RoomEnemySystem).GetMethod("RunKraidGrowthFunction", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
-        var requests = (List<KraidPlmRequest>)typeof(RoomEnemySystem).GetField("_kraidPlmRequests", flags)!.GetValue(enemies)!;
-        var body = enemies.Slots[0];
+        Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.RunKraidGrowthFunction;
+        var requests = (List<KraidPlmRequest>)enemies.KraidBehavior._kraidPlmRequests;
+        var body = enemies.SlotTable.Slots[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         for (int index = 0; index < 9; index++)
         {
-            foreach (var occupied in enemies.EnemyProjectiles) occupied.Clear();
+            foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Clear();
             requests.Clear();
             state.CeilingRockSpawnCount = 0;
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
@@ -49,7 +48,7 @@ internal static class KraidCeilingRockPositionsVerification
             AssertEqual(spawn ? 1 : 0, requests.Count, "Ceiling PLM cadence");
             AssertEqual((ushort)(index * 2 + (spawn ? 2 : 0)), body.VariableF, "Ceiling byte selector advances only on emission");
             if (!spawn) continue;
-            var rock = enemies.EnemyProjectiles[^1];
+            var rock = enemies.Projectiles.EnemyProjectiles[^1];
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");
             AssertEqual((ushort)312, rock.Position.Y.Whole, "Ceiling projectile origin Y");
             AssertEqual((ushort)127, rock.Velocity.Y.RawValue, "Ceiling projectile retains current RNG velocity");

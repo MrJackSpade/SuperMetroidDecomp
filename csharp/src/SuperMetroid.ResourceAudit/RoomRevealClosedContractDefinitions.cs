@@ -22,7 +22,7 @@ internal static class RoomRevealClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleArtCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmDynamicCollectibleGraphicsDefinitions.Generated.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs"),
+             new("csharp/src/SuperMetroid.Core/Rooms/CollectiblePlms.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmHeaders.cs")]),
     ];
 }

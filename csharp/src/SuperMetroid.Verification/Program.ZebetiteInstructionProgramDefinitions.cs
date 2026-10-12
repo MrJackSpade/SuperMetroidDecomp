@@ -49,10 +49,6 @@ internal static class ZebetiteInstructionProgramDefinitionsVerification
 
         var guard = NewZebetiteInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
-        MethodInfo select = typeof(RoomEnemySystem).GetMethod(
-            "SelectZebetiteHealthAnimation",
-            flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         for (int programIndex = 0;
              programIndex < ZebetiteInstructionProgramDefinitions.ProgramCount;
              programIndex++)
@@ -63,8 +59,8 @@ internal static class ZebetiteInstructionProgramDefinitionsVerification
                 ZebetiteInstructionProgramDefinitions.ProgramAt(programIndex);
 
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Zebetite;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.Health = healthByTier[tier];
@@ -73,13 +69,13 @@ internal static class ZebetiteInstructionProgramDefinitionsVerification
                 GenerationFlags = pairedSmall ? (ushort)0x8000 : (ushort)0,
             };
 
-            select.Invoke(null, [slot, state]);
+            ZebetiteBehavior.SelectZebetiteHealthAnimation(slot, state);
             AssertEqual(expected.Entry, slot.CurrentInstruction,
                 $"Zebetite program {programIndex} production health selection");
 
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             AssertEqual(expected.Presentation, unchecked((ushort)(slot.CurrentInstruction - 2)),
                 $"Zebetite program {programIndex} executed visual operand");
             executedOperands.Add(expected.Presentation);
@@ -89,7 +85,7 @@ internal static class ZebetiteInstructionProgramDefinitionsVerification
             ushort sleep = unchecked((ushort)(expected.Entry + 4));
             AssertEqual(sleep, slot.CurrentInstruction,
                 $"Zebetite program {programIndex} frame handoff");
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             AssertEqual(sleep, slot.CurrentInstruction,
                 $"Zebetite program {programIndex} terminal sleep");
         }

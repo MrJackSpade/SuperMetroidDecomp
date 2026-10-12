@@ -88,11 +88,11 @@ internal static class BossMapMarkersVerification
                     savedGraphics.Render(new(scrollX, scrollY), marker)),
                     "existing-save menu restores exact boss-marker pixels with its slot-owned progression");
                 var runtime = CreateRetailRuntimeFixture(restored);
-                runtime.InitializeHud(HudSnapshot.CeresDebug);
-                runtime.RunNmi(0, true);
-                runtime.InitializeStartingCeresRoom();
-                runtime.InitializeCeresStartSamus();
-                slot.ApplyTo(runtime.Samus!, runtime.System);
+                runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+                runtime.NmiHandler.RunNmi(0, true);
+                runtime.RoomLoader.InitializeStartingCeresRoom();
+                runtime.RoomLoader.InitializeCeresStartSamus();
+                slot.ApplyTo(runtime.Player.Samus!, runtime.System);
                 ushort room = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(restored, (AreaId)area, 0).RoomPointer;
                 for (int entry = 0; entry < 2; entry++)
                 {

@@ -197,17 +197,17 @@ internal static class MapPresentationVerification
 
         public void Bind(SuperMetroidRuntime runtime)
         {
-            runtime.StandardObjectArt = standardObjects;
-            runtime.RoomCharacterArt = roomCharacters;
-            runtime.RoomPaletteArt = roomPalettes;
-            runtime.RoomMetatileArt = roomMetatiles;
-            runtime.RoomVisualLayouts = visualLayouts;
-            runtime.RoomBackgroundTilemapArt = backgrounds;
-            runtime.RoomSkyTilemapArt = skies;
+            runtime.Artwork.StandardObjectArt = standardObjects;
+            runtime.Artwork.RoomCharacterArt = roomCharacters;
+            runtime.Artwork.RoomPaletteArt = roomPalettes;
+            runtime.Artwork.RoomMetatileArt = roomMetatiles;
+            runtime.Artwork.RoomVisualLayouts = visualLayouts;
+            runtime.Artwork.RoomBackgroundTilemapArt = backgrounds;
+            runtime.Artwork.RoomSkyTilemapArt = skies;
             runtime.Enemies.TileArtwork = EnemyTiles;
-            runtime.BeamArtwork = beamTiles;
-            runtime.SamusBodyArt = SamusBody;
-            runtime.RoomPlmElevatorPlatformVisuals = elevatorPlatform;
+            runtime.Artwork.BeamArtwork = beamTiles;
+            runtime.Artwork.SamusBodyArt = SamusBody;
+            runtime.ShotBlockVisuals.RoomPlmElevatorPlatformVisuals = elevatorPlatform;
         }
     }
 
@@ -505,12 +505,12 @@ internal static class MapPresentationVerification
             "Mother Brain rainbow edit changes installed-content identity");
         var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
         {
-            MapPresentation = edited,
+            Artwork = { MapPresentation = edited },
         };
         var stockOutput = new SnesCgram();
         var editedOutput = new SnesCgram();
         original.MotherBrainRainbowPalette.ApplyRainbow(stockOutput, 0);
-        runtime.Enemies.MotherBrainRainbowColors!.ApplyRainbow(editedOutput, 0);
+        runtime.Enemies.Presentation.MotherBrainRainbowColors!.ApplyRainbow(editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "installed rainbow override reaches the room-enemy binding");
@@ -519,7 +519,7 @@ internal static class MapPresentationVerification
         var stockTailBus = NewPaletteReadForbiddenBus();
         var editedTailBus = NewPaletteReadForbiddenBus();
         original.MotherBrainRainbowPalette.ApplyToGrey(stockTailBus, stockOutput, 0);
-        runtime.Enemies.MotherBrainRainbowColors.ApplyToGrey(editedTailBus, editedOutput, 0);
+        runtime.Enemies.Presentation.MotherBrainRainbowColors.ApplyToGrey(editedTailBus, editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "drain override reaches the native body destination");
@@ -531,14 +531,14 @@ internal static class MapPresentationVerification
         stockOutput.Clear();
         editedOutput.Clear();
         original.MotherBrainRainbowPalette.ApplyFromGrey(NewPaletteReadForbiddenBus(), stockOutput, 0);
-        runtime.Enemies.MotherBrainRainbowColors.ApplyFromGrey(NewPaletteReadForbiddenBus(), editedOutput, 0);
+        runtime.Enemies.Presentation.MotherBrainRainbowColors.ApplyFromGrey(NewPaletteReadForbiddenBus(), editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor] !=
             editedOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor],
             "revival override reaches the native rear-leg destination");
         foreach (bool toGrey in new[] { true, false })
         {
             var stockFade = CaptureFakeDeathPaletteFrame(original.MotherBrainRainbowPalette, toGrey);
-            var editedFade = CaptureFakeDeathPaletteFrame(runtime.Enemies.MotherBrainRainbowColors, toGrey);
+            var editedFade = CaptureFakeDeathPaletteFrame(runtime.Enemies.Presentation.MotherBrainRainbowColors, toGrey);
             AssertTrue(stockFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor] !=
                 editedFade.Colors[MotherBrainFakeDeathPaletteRomData.BrainColor],
                 "fake-death edited color reaches the production fade path");
@@ -553,7 +553,7 @@ internal static class MapPresentationVerification
         stockOutput.Clear();
         editedOutput.Clear();
         original.MotherBrainRainbowPalette.ApplyNormal(stockOutput);
-        runtime.Enemies.MotherBrainRainbowColors.ApplyNormal(editedOutput);
+        runtime.Enemies.Presentation.MotherBrainRainbowColors.ApplyNormal(editedOutput);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "normal-restoration override reaches the native body destination");
@@ -563,7 +563,7 @@ internal static class MapPresentationVerification
         };
         var editedBeam = new MotherBrainRainbowBeamHdmaState
         {
-            PresentationColors = runtime.Enemies.MotherBrainRainbowColors,
+            PresentationColors = runtime.Enemies.Presentation.MotherBrainRainbowColors,
         };
         var beamReadGuard = NewPaletteReadForbiddenBus();
         stockBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
@@ -676,14 +676,14 @@ internal static class MapPresentationVerification
             "Mother Brain health palette override changes installed-content identity");
         var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
         {
-            MapPresentation = edited,
+            Artwork = { MapPresentation = edited },
         };
         var output = new SnesCgram();
         var stockOutput = new SnesCgram();
         MotherBrainHealthPalette.Apply(stockOutput, 5399,
             original.MotherBrainHealthPalette);
         MotherBrainHealthPalette.Apply(output, 5399,
-            runtime.Enemies.MotherBrainHealthColors);
+            runtime.Enemies.Presentation.MotherBrainHealthColors);
         AssertTrue(output.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "installed Mother Brain body edit reaches the live enemy binding");
@@ -1088,11 +1088,11 @@ internal static class MapPresentationVerification
         {
             var stockRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
             {
-                MapPresentation = original,
+                Artwork = { MapPresentation = original },
             };
             var editedRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
             {
-                MapPresentation = edited,
+                Artwork = { MapPresentation = edited },
             };
             stockRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
             editedRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
@@ -1340,26 +1340,32 @@ internal static class MapPresentationVerification
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
         using var withoutContent = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(withoutContent, game);
-        game.BindMapPresentation(original);
+        game.BindArtwork(game.Artwork with
+        {
+            MapPresentation = original,
+        });
         using var withContent = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(withContent, game);
         AssertTrue(withoutContent.ToArray().AsSpan().SequenceEqual(withContent.ToArray()), "map resources do not enter debugger graph");
         withContent.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(withContent);
         AssertTrue(restored.MapPresentationIdentity is null, "restored graph requires host content rebind");
-        restored.BindMapPresentation(edited);
+        restored.BindArtwork(restored.Artwork with
+        {
+            MapPresentation = edited,
+        });
         AssertEqual(edited.ContentIdentity, restored.MapPresentationIdentity, "state rebind uses current override identity");
 
         var guard = NewMapDataGuard(bus, rules);
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
         fixtureAssets.Bind(runtime);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         AssertEqual(edited.Get(AreaId.Ceres).GetTile(runtime.Hud.MinimapCenter).CharacterIndex,
             (ushort)(runtime.Hud.Tiles[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
-        var room = runtime.ActiveRoom!;
-        var pause = new SuperMetroid.Core.Frontend.PauseMenuState(guard, new PauseMenuEntry { Samus = runtime.Samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited });
+        var room = runtime.Room.ActiveRoom!;
+        var pause = new SuperMetroid.Core.Frontend.PauseMenuState(guard, new PauseMenuEntry { Samus = runtime.Player.Samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, MapPresentation = edited });
         Position16<MapPixels> scroll = pause.MapScroll;
         pause.BindMapPresentation(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");

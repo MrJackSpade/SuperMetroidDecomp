@@ -122,7 +122,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        RoomEnemySlot rinka = enemies.Slots[0];
+        RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
         rinka.EnemyDefinitionPointer = EnemyDefinitionId.Rinka;
         rinka.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         rinka.Parameter1 = special ? (ushort)1 : (ushort)0;
@@ -133,19 +133,16 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         {
             Function = RinkaEnemyFunction.WatchForLeavingViewport,
         };
-        var states = (RinkaEnemyState?[])typeof(RoomEnemySystem)
-            .GetField("_rinkaStates", flags)!
-            .GetValue(enemies)!;
+        var states = (RinkaEnemyState?[])enemies.RinkaBehavior._rinkaStates;
         states[0] = state;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.
         for (int frame = 0; frame < 180; frame++)
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
 
         return (enemies, rinka);
     }

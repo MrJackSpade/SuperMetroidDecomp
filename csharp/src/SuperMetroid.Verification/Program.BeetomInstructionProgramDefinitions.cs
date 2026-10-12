@@ -36,18 +36,13 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         var guard = NewBeetomInstructionReadGuard(rom, forbidPresentation: artwork is not null);
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
-        var initialize = type.GetMethod("InitializeBeetom", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
-        var startCrawling = type.GetMethod("StartBeetomCrawling", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, BeetomEnemyState, bool>>();
-        var startDraining = type.GetMethod("StartBeetomDrain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, BeetomEnemyState, bool>>();
-        MethodInfo startHop = type.GetMethod("StartBeetomHop", flags)!;
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        var initialize = new Action<RoomEnemySlot, SamusState, ushort>(enemies.BeetomBehavior.InitializeBeetom);
+        var startCrawling = new Action<RoomEnemySlot, BeetomEnemyState, bool>(BeetomBehavior.StartBeetomCrawling);
+        var startDraining = new Action<RoomEnemySlot, BeetomEnemyState, bool>(BeetomBehavior.StartBeetomDrain);
 
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.Position = slot.Position.WithWholeX(0x0200);
@@ -62,7 +57,6 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             "real Beetom initializer installs left-crawl program");
         RunBeetomLoop(
             enemies,
-            process,
             processArguments,
             slot,
             BeetomInstructionProgramDefinitions.CrawlingLeft,
@@ -74,7 +68,6 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         startCrawling(slot, state, false);
         RunBeetomLoop(
             enemies,
-            process,
             processArguments,
             slot,
             BeetomInstructionProgramDefinitions.CrawlingRight,
@@ -83,10 +76,9 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "right-crawl program disables off-screen processing");
 
-        StartBeetomHop(startHop, slot, state, left: true);
+        StartBeetomHop(slot, state, left: true);
         RunBeetomSleepProgram(
             enemies,
-            process,
             processArguments,
             slot,
             BeetomInstructionProgramDefinitions.HopLeft,
@@ -95,10 +87,9 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
             "left-hop program enables off-screen processing");
 
-        StartBeetomHop(startHop, slot, state, left: false);
+        StartBeetomHop(slot, state, left: false);
         RunBeetomSleepProgram(
             enemies,
-            process,
             processArguments,
             slot,
             BeetomInstructionProgramDefinitions.HopRight,
@@ -110,7 +101,6 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         startDraining(slot, state, true);
         RunBeetomLoop(
             enemies,
-            process,
             processArguments,
             slot,
             BeetomInstructionProgramDefinitions.DrainingLeft,
@@ -120,7 +110,6 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         startDraining(slot, state, false);
         RunBeetomLoop(
             enemies,
-            process,
             processArguments,
             slot,
             BeetomInstructionProgramDefinitions.DrainingRight,
@@ -195,13 +184,11 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         enemies.VerificationServices().NextRandom = nextRandom;
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBeetom", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        Action<RoomEnemySlot, SamusState, ushort> initialize = enemies.BeetomBehavior.InitializeBeetom;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
         initialize(slot, new SamusState(), 0);
-        var choose = typeof(RoomEnemySystem).GetMethod("ChooseDistantBeetomAction", flags)!
-            .CreateDelegate<Action<BeetomEnemyState>>(enemies);
+        Action<BeetomEnemyState> choose = enemies.BeetomBehavior.ChooseDistantBeetomAction;
         return (enemies, enemies.BeetomStates[0]!, choose);
     }
 
@@ -217,12 +204,12 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             random = (ushort)value;
             fixture.State.Function = BeetomEnemyFunction.DecideActionSamusNotInProximity;
             fixture.State.FunctionTimer = 0x1234;
-            ushort instruction = fixture.Enemies.Slots[0].CurrentInstruction;
+            ushort instruction = fixture.Enemies.SlotTable.Slots[0].CurrentInstruction;
             fixture.Choose(fixture.State);
             ushort expected = ReadBeetomInstructionWord(rom, (ushort)(0xb74e + 2 * (value & 7)));
             AssertEqual(expected, (ushort)fixture.State.Function, "Beetom distant action matches native pointer for every RNG word");
             AssertEqual((ushort)0x1234, fixture.State.FunctionTimer, "Beetom choice preserves timer until setup runs");
-            AssertEqual(instruction, fixture.Enemies.Slots[0].CurrentInstruction, "Beetom choice preserves program until setup runs");
+            AssertEqual(instruction, fixture.Enemies.SlotTable.Slots[0].CurrentInstruction, "Beetom choice preserves program until setup runs");
             AssertEqual(value + 1, randomCalls, "Beetom consumes exactly one random value per choice");
         }
     }
@@ -286,15 +273,13 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Beetom operand ordinal bounds");
     }
     private static void StartBeetomHop(
-        MethodInfo startHop,
         RoomEnemySlot slot,
         BeetomEnemyState state,
         bool left) =>
-        startHop.Invoke(null, [slot, state, (ushort)0, left, false]);
+        BeetomBehavior.StartBeetomHop(slot, state, 0, left, longHop: false);
 
     private static void RunBeetomLoop(
         RoomEnemySystem enemies,
-        MethodInfo process,
         object?[] arguments,
         RoomEnemySlot slot,
         ushort entry,
@@ -305,7 +290,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         for (int call = 0; call < callsThroughGoto; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
         AssertEqual(unchecked((ushort)(loop + 4)), slot.CurrentInstruction,
             "Beetom program completes its native goto and first repeated frame");
@@ -313,7 +298,6 @@ internal static class BeetomInstructionProgramDefinitionsVerification
 
     private static void RunBeetomSleepProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         object?[] arguments,
         RoomEnemySlot slot,
         ushort entry,
@@ -324,10 +308,10 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < timedFrames; frame++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
         slot.InstructionTimer = 1;
-        process.Invoke(enemies, arguments);
+        EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(sleep, slot.CurrentInstruction,
             "Beetom hop program reaches terminal sleep");
     }

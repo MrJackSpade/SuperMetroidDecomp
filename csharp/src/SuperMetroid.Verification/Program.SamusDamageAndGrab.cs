@@ -102,8 +102,8 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    right.RefreshCollisionRadii(bus);
-    right.InitializeAnimation(bus);
+    right.PoseMetadata.RefreshCollisionRadii(bus);
+    right.Presentation.InitializeAnimation(bus);
     right.HorizontalSpeed.BaseSpeed = 3;
     right.HorizontalSpeed.BaseSubspeed = 0x4444;
     right.Kinematics.YSpeed = 2;
@@ -125,7 +125,7 @@ internal static void VerifySamusDrainedController()
     // Index two lasts two ticks; index three lasts sixteen. Expiration reaches `$F7` at
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
-        right.AnimateNoFx(bus, new SamusAnimationStep());
+        right.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xf7, right.LastAnimationDelayCommand!.Value,
         "drained animation reaches F7");
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
@@ -169,10 +169,10 @@ internal static void VerifySamusDrainedController()
     AssertEqual(4, right.AnimationFrame, "standing release writes byte index four");
     AssertEqual(1, right.AnimationFrameTimer, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
-        right.AnimateNoFx(bus, new SamusAnimationStep());
+        right.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.PendingTransitionalPose,
         "standing drained release reaches ROM FD operand");
-    AssertTrue(right.ApplyPendingVerifiedAnimationTransition(bus),
+    AssertTrue(right.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus),
         "right drained release applies standing transition");
     AssertEqual(DrainedSamusPhase.Inactive, right.Drained.Phase,
         "right drained release clears host handler marker");
@@ -182,8 +182,8 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    left.RefreshCollisionRadii(bus);
-    left.InitializeAnimation(bus);
+    left.PoseMetadata.RefreshCollisionRadii(bus);
+    left.Presentation.InitializeAnimation(bus);
     left.Drained.PutCrouchingOrFalling(bus, left);
     AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, left.Pose,
         "controller four selects left crouching/falling pose");
@@ -193,10 +193,10 @@ internal static void VerifySamusDrainedController()
     AssertEqual(13, left.AnimationFrame,
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
-        left.AnimateNoFx(bus, new SamusAnimationStep());
+        left.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.PendingTransitionalPose,
         "left crouched release reaches asymmetric FD operand");
-    AssertTrue(left.ApplyPendingVerifiedAnimationTransition(bus),
+    AssertTrue(left.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus),
         "left drained release applies standing transition");
 
     left.Drained.EnableHyperBeam(left);
@@ -251,8 +251,8 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    able.RefreshCollisionRadii(bus);
-    able.InitializeAnimation(bus);
+    able.PoseMetadata.RefreshCollisionRadii(bus);
+    able.Presentation.InitializeAnimation(bus);
     able.Drained.SetupForRainbowBeamAbleToStand(bus, able);
     AssertEqual(SamusPoseId.KnockbackLeftPose, able.Pose,
         "rainbow command five unconditionally selects left knockback pose $54");
@@ -278,8 +278,8 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    unable.RefreshCollisionRadii(bus);
-    unable.InitializeAnimation(bus);
+    unable.PoseMetadata.RefreshCollisionRadii(bus);
+    unable.Presentation.InitializeAnimation(bus);
     unable.Drained.SetupForRainbowBeamUnableToStand(bus, unable);
     unable.Drained.PutCrouchingOrFalling(bus, unable);
     AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
@@ -732,14 +732,14 @@ internal static void VerifySamusGrabbedByDraygon()
         bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNewInput: 0)!.Value;
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
-    samus.ApplyDraygonGrabbedPoseChange(bus, rightUpShoot.ProspectivePose);
+    samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, rightUpShoot.ProspectivePose);
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose, samus.Pose,
         "right grabbed aim transition applies");
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose,
-        samus.ReadNoInputFallbackPose(bus), "right grabbed aim fallback is $EC");
-    samus.ApplyDraygonGrabbedPoseChange(bus, samus.ReadNoInputFallbackPose(bus));
+        samus.PoseMetadata.ReadNoInputFallbackPose(bus), "right grabbed aim fallback is $EC");
+    samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, samus.PoseMetadata.ReadNoInputFallbackPose(bus));
     AssertThrows<InvalidOperationException>(
-        () => samus.ApplyDraygonGrabbedPoseChange(
+        () => samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(
             bus,
             SamusPoseId.DraygonGrabbedNeutralLeftPose),
         "Draygon input table cannot cross owner-controlled facing families");

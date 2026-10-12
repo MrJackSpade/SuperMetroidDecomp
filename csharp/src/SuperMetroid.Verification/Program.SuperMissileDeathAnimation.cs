@@ -34,13 +34,13 @@ internal static class SuperMissileDeathAnimationVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xafa3);
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = true;
-        RoomEnemySlot enemy = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == enemyDefinition);
+        RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == enemyDefinition);
         enemy.Health = 1;
         enemy.InvincibilityTimer = 0;
         // A surfaced Dragon shows $E80C, as at native update 40203; the room loads it
@@ -48,17 +48,17 @@ internal static class SuperMissileDeathAnimationVerification
         if (enemy.SpritemapPointer == 0x804d)
             enemy.SpritemapPointer = 0xe80c;
         enemy.InstructionTimer = 0x7fff;
-        runtime.Enemies.PrepareEnemyProcessingList(enemy.Position.Whole);
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
         shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
         shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
-        runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: enemy.NativeIndex);
 
-        RoomEnemyProjectileSlot explosion = runtime.Enemies.EnemyProjectiles
+        RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         return explosion.InstructionPointer;
     }

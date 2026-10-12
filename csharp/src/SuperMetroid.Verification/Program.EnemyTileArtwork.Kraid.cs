@@ -190,15 +190,15 @@ internal static class EnemyTileArtworkKraidVerification
         GameplayBasePaletteCatalog initial = GameplayBasePaletteCatalog.Load(new EnemyIdentityFixture().Json(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version, Colors(SnesCgram.ColorCount),
                 Colors(GameplayBasePaletteFormat.SpriteColorCount))));
-        var runtime = new SuperMetroidRuntime(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), HostGameplayOverrides.None, initialPaletteArt: initial) { MapPresentation = stock };
+        var runtime = new SuperMetroidRuntime(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), HostGameplayOverrides.None, initialPaletteArt: initial) { Artwork = { MapPresentation = stock } };
         runtime.Enemies.TileArtwork = enemyArtwork;
-        AssertTrue(ReferenceEquals(stock.HudTiles, runtime.Enemies.HudTileArtwork),
+        AssertTrue(ReferenceEquals(stock.HudTiles, runtime.Enemies.Presentation.HudTileArtwork),
             "runtime presentation binding supplies shared HUD art to Kraid");
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
         {
             VramAssetId asset = KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter);
-            AssertTrue(((IVramAssetProvider)runtime).Resolve(asset).Span
+            AssertTrue(((IVramAssetProvider)runtime.Artwork).Resolve(asset).Span
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }
@@ -211,14 +211,14 @@ internal static class EnemyTileArtworkKraidVerification
                     quarter * KraidBackgroundRomData.StandardBg3TransferBytes,
                 checked(VramDmaDestination.FromNative((ushort)(KraidBackgroundRomData.StandardBg3VramWord +
                     quarter * (KraidBackgroundRomData.StandardBg3TransferBytes / 2)))));
-        restored.MapPresentation = stock;
+        restored.Artwork.MapPresentation = stock;
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
             AssertEqual(KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter),
                 restored.VramWrites.Entries[quarter].AssetId,
                 $"legacy pending Kraid BG3 quarter {quarter} rebinds to current art");
         restored.VramWrites.DrainTo(restored.Vram,
-            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), restored);
+            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), restored.Artwork);
         AssertTrue(restored.Vram.ImageEquals(baselineQueued),
             "restored legacy Kraid BG3 queue uses installed pixels, not ROM");
 
@@ -260,16 +260,14 @@ internal static class EnemyTileArtworkKraidVerification
         var enemies = new RoomEnemySystem
         {
             TileArtwork = enemyArtwork,
-            HudTileArtwork = hud,
+            Presentation = { HudTileArtwork = hud },
         };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        var transfer = typeof(RoomEnemySystem)
-            .GetMethod("AdvanceKraidDeathBg3Transfer", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState, int,
-                KraidAiFunction, VramWriteQueue?>>(enemies);
-        RoomEnemySlot body = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        enemies.Presentation._vram = vram;
+        Action<RoomEnemySlot, KraidEnemyState, int,
+                KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.AdvanceKraidDeathBg3Transfer;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         var state = new KraidEnemyState();
         var queue = new VramWriteQueue();
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
@@ -347,11 +345,9 @@ internal static class EnemyTileArtworkKraidVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        var upload = typeof(RoomEnemySystem).GetMethod("UploadKraidRoomBackgroundTiles", flags)!
-            .CreateDelegate<Action>(enemies);
+        enemies.BindFixtureBus(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
+        enemies.Presentation._vram = vram;
+        Action upload = enemies.KraidBehavior.UploadKraidRoomBackgroundTiles;
         upload();
         return vram;
     }
@@ -362,11 +358,9 @@ internal static class EnemyTileArtworkKraidVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        var transfer = typeof(RoomEnemySystem).GetMethod("TransferKraidHeadTilemap", flags)!
-            .CreateDelegate<Action<KraidEnemyState, ushort>>(enemies);
+        enemies.BindFixtureBus(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
+        enemies.Presentation._vram = vram;
+        Action<KraidEnemyState, ushort> transfer = enemies.KraidBehavior.TransferKraidHeadTilemap;
         var state = new KraidEnemyState();
         transfer(state, pointer);
         return (state, vram);
@@ -376,11 +370,8 @@ internal static class EnemyTileArtworkKraidVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
-        var initialize = typeof(RoomEnemySystem)
-            .GetMethod("InitializeKraidBackground", flags)!
-            .CreateDelegate<Action<KraidEnemyState>>(enemies);
+        enemies.BindFixtureBus(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
+        Action<KraidEnemyState> initialize = enemies.KraidBehavior.InitializeKraidBackground;
         var state = new KraidEnemyState();
         initialize(state);
         return state;
@@ -391,13 +382,9 @@ internal static class EnemyTileArtworkKraidVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        foreach (string method in new[] { "TransferKraidTopTilemap", "TransferKraidBottomTilemap" })
-        {
-            var transfer = typeof(RoomEnemySystem).GetMethod(method, flags)!
-                .CreateDelegate<Action<KraidEnemyState>>(enemies);
-            transfer(state);
-        }
+        enemies.Presentation._vram = vram;
+        enemies.KraidBehavior.TransferKraidTopTilemap(state);
+        enemies.KraidBehavior.TransferKraidBottomTilemap(state);
         AssertEqual(1, state.TopTilemapUploadCount, "Kraid upper page transfer count");
         AssertEqual(1, state.BottomTilemapUploadCount, "Kraid lower page transfer count");
         return vram;

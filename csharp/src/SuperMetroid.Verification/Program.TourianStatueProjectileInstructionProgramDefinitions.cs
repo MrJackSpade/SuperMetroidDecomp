@@ -38,33 +38,27 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
                 $"Tourian statue projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = new SnesCgram();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawnChild = typeof(RoomEnemySystem).GetMethod(
-            "SpawnTourianParticleChild", flags)!;
-        MethodInfo spawnStatue = typeof(RoomEnemySystem).GetMethod(
-            "SpawnTourianEntranceStatueProjectile", flags)!;
 
-        enemies.SpawnTourianUnlockEffect(0, soul: false);
+        enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(0, soul: false);
         RoomEnemyProjectileSlot eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
         Run(eye, 10);
         AssertEqual((ushort)0xb7db, eye.InstructionPointer,
             "eye glow reaches its sound and release tail after ten display frames");
         Run(eye, 1);
         AssertTrue(!eye.IsActive, "eye glow deletes after releasing four particles");
-        AssertEqual(4, enemies.EnemyProjectiles.Count(
+        AssertEqual(4, enemies.Projectiles.EnemyProjectiles.Count(
             projectile => projectile.Kind == RoomEnemyProjectileKind.TourianStatueParticle),
             "eye glow releases four real unlocking particles");
-        AssertEqual((ushort)1, enemies.EarthquakeType, "eye glow starts the native earthquake");
-        AssertEqual((ushort)0x20, enemies.EarthquakeTimer,
+        AssertEqual((ushort)1, enemies.Earthquake.EarthquakeType, "eye glow starts the native earthquake");
+        AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer,
             "eye glow publishes the native earthquake duration bit");
 
         RoomEnemyProjectileSlot particle = Single(RoomEnemyProjectileKind.TourianStatueParticle);
@@ -90,7 +84,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(tail, 1);
         AssertTrue(!tail.IsActive, "particle tail deletes after four authored poses");
 
-        spawnChild.Invoke(enemies, [particle, RoomEnemyProjectileKind.TourianStatueSplash]);
+        enemies.TourianUnlockBehavior.SpawnTourianParticleChild(particle, RoomEnemyProjectileKind.TourianStatueSplash);
         RoomEnemyProjectileSlot splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
         AssertEqual((ushort)0xb7b1, splash.InstructionPointer,
@@ -98,7 +92,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(splash, 1);
         AssertTrue(!splash.IsActive, "water splash deletes on its fifth instruction tick");
 
-        enemies.SpawnTourianUnlockEffect(2, soul: true);
+        enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(2, soul: true);
         RoomEnemyProjectileSlot soul = Single(RoomEnemyProjectileKind.TourianStatueSoul);
         Run(soul, 3);
         AssertEqual((ushort)0xb852, soul.InstructionPointer,
@@ -166,12 +160,12 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             "with mechanics bytes forbidden.");
 
         RoomEnemyProjectileSlot Single(RoomEnemyProjectileKind kind) =>
-            enemies.EnemyProjectiles.First(projectile => projectile.Kind == kind);
+            enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
 
         RoomEnemyProjectileSlot SpawnStatue(RoomEnemyProjectileKind kind)
         {
-            spawnStatue.Invoke(enemies, [kind, new Position16<RoomPixels>(128, 128)]);
-            return enemies.EnemyProjectiles.First(projectile => projectile.Kind == kind);
+            enemies.TourianEntranceStatueBehavior.SpawnTourianEntranceStatueProjectile(kind, new Position16<RoomPixels>(128, 128));
+            return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
         }
 
         void Run(RoomEnemyProjectileSlot projectile, int frames)
@@ -179,7 +173,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }

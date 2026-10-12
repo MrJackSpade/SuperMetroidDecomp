@@ -21,14 +21,13 @@ internal static class CrocomireCutsceneVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewCrocomireTongueNoReadBus());
-        var slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewCrocomireTongueNoReadBus());
+        var slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa4 };
         slot.SpritemapPointer = 0xe6bc;
-        var walker = typeof(RoomEnemySystem).GetMethod("TryFindExtendedHitboxCallback", flags)!;
         object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>((ushort)8, (ushort)8), false, (ushort)0];
-        AssertTrue(!(bool)walker.Invoke(enemies, arguments)!, "river corpse has native empty collision");
+        AssertTrue(!ExtendedHitboxWalker.Find(enemies, arguments), "river corpse has native empty collision");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
         {
@@ -62,7 +61,7 @@ internal static class CrocomireCutsceneVerification
                     foreach (bool shot in new[] { false, true })
                     {
                         object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot, (ushort)0];
-                        AssertTrue((bool)walker.Invoke(enemies, hit)!, "corpse physical component is visited");
+                        AssertTrue(ExtendedHitboxWalker.Find(enemies, hit), "corpse physical component is visited");
                         AssertEqual(shot ? box.ShotAi : box.TouchAi, (ushort)hit[^1]!, "corpse selects native callback");
                     }
                 }
@@ -71,7 +70,7 @@ internal static class CrocomireCutsceneVerification
             if (!anyHitbox)
             {
                 object?[] empty = [slot, slot.Position.Whole, new Extent16<RoomPixels>((ushort)100, (ushort)100), true, (ushort)0];
-                AssertTrue(!(bool)walker.Invoke(enemies, empty)!, "native empty corpse geometry remains non-colliding");
+                AssertTrue(!ExtendedHitboxWalker.Find(enemies, empty), "native empty corpse geometry remains non-colliding");
             }
         }
         Console.WriteLine("Crocomire reported E6BC corpse frame resolves empty collision without cartridge reads.");
@@ -94,17 +93,16 @@ internal static class CrocomireCutsceneVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CrocomireColors = CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorExtractor.Extract(rom))) }),
         };
-        var body = enemies.Slots[0];
+        var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(1480, 144));
         var state = new CrocomireEnemyState(body);
-        typeof(RoomEnemySystem).GetField("<Crocomire>k__BackingField", flags)!.SetValue(enemies, state);
-        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, new CrocomireDeathState());
+        enemies.CrocomireBehavior.Crocomire = state;
+        enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)scrolls.SetStorage;
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewCrocomireTongueNoReadBus());
+        enemies.Presentation._cgram = new SnesCgram();
+        enemies.BindFixtureBus(NewCrocomireTongueNoReadBus());
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
-        var run = typeof(RoomEnemySystem).GetMethod("RunCrocomireMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
+        Action<RoomEnemySlot, SamusState?, ushort> run = enemies.CrocomireBehavior.RunCrocomireMain;
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
         run(body, samus, 1280);
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));

@@ -21,20 +21,18 @@ internal static class DraygonEyeEffectsVerification
         foreach (bool facingRight in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Draygon);
-            var eye = runtime.Enemies.Draygon!.Eye!;
+            var eye = runtime.Enemies.DraygonBehavior.Draygon!.Eye!;
             eye.Position = eye.Position.WithWhole(new(128, 128));
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };
-            var track = typeof(RoomEnemySystem).GetMethod("TrackSamusWithDraygonEye",
-                BindingFlags.Instance | BindingFlags.NonPublic)!;
             foreach (ushort frame in new ushort[] { 127, 128, 129 })
             {
                 typeof(RoomEnemySlot).GetProperty(nameof(eye.FrameCounter))!.SetValue(eye, frame);
-                track.Invoke(runtime.Enemies, [eye, samus, facingRight]);
-                var particles = runtime.Enemies.EnemyProjectiles.Where(p =>
+                runtime.Enemies.DraygonBehavior.TrackSamusWithDraygonEye(eye, samus, facingRight);
+                var particles = runtime.Enemies.Projectiles.EnemyProjectiles.Where(p =>
                     p.Kind == RoomEnemyProjectileKind.MiscDustExplosion).ToArray();
                 AssertEqual(frame == 127 ? 0 : 1, particles.Length, "Eye particle cadence with unchanged target angle");
                 if (particles.Length == 1)

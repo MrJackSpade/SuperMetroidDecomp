@@ -1,0 +1,432 @@
+﻿using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>The Wrecked Ship ghost species owner: its per-room state, AI routines and the interactions it registers.</summary>
+internal sealed class WreckedShipGhostBehavior : IEnemySpecies
+{
+    private readonly EnemyPresentation _presentation;
+
+    internal WreckedShipGhostBehavior(EnemyPresentation presentation)
+    {
+        _presentation = presentation;
+    }
+
+    private const ushort WreckedShipGhostInitialDelay = 0x0118; // $78 + $A0 at $A8:9B17.
+    private const ushort WreckedShipGhostVisibleDuration = 0x0078;
+    private const ushort WreckedShipGhostStablePositionDuration = 0x0040;
+    private const ushort WreckedShipGhostStableDirectionDuration = 0x0010;
+    private const ushort WreckedShipGhostInitialVerticalVelocityWhole = 1;
+    private const int WreckedShipGhostVerticalAccelerationFraction = 0x1800;
+
+    internal readonly WreckedShipGhostEnemyState?[] _wreckedShipGhostStates =
+        new WreckedShipGhostEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+
+    /// <summary>Ports <c>WreckedShipGhost_Init</c> at <c>$A8:9AEE</c>.</summary>
+    internal void InitializeWreckedShipGhost(RoomEnemySlot slot)
+    {
+        // Every named retail ghost population places this actor in physical slot zero.
+        // Its tracking routine contains several absolute-Samus reads indexed by the native
+        // enemy offset; a nonzero slot would deliberately alias unrelated WRAM. Enforce the
+        // authored layout rather than silently pretending that retail bug has generic rules.
+        if (slot.SlotIndex != 0)
+        {
+            throw new InvalidDataException(
+                "Wrecked Ship ghost requires retail physical slot zero for indexed Samus reads.");
+        }
+
+        // Native ORs property bits $2000, $0400, and $0100. In this host those mean
+        // instruction processing, exclusion from Samus interaction, and invisibility.
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.ProcessInstructions |
+            EnemyProperties.IgnoreSamusCollision |
+            EnemyProperties.Invisible);
+        slot.InstructionTimer = 1;
+        slot.Timer = 0;
+        slot.CurrentInstruction = WreckedShipGhostInstructionProgramDefinitions.Floating;
+
+        var state = new WreckedShipGhostEnemyState(slot)
+        {
+            Function = WreckedShipGhostAiFunction.InitialInvisibleDelay,
+            PhaseTimer = WreckedShipGhostInitialDelay,
+        };
+
+        // Retail clears the actor palette's target-buffer entries here. Its room fade then
+        // settles the independently stored current palette to that black target long before
+        // the 280-frame appearance delay expires. SnesCgram is this runtime's already-settled
+        // visible buffer, so clear it alongside the retained target buffer; otherwise the
+        // first white ramp would begin from the graphics-set palette and overflow BGR fields.
+        state.MutableTargetPalette.Clear();
+        WreckedShipGhostPalette(slot).Fill(Bgr555.Black);
+        _wreckedShipGhostStates[slot.SlotIndex] = state;
+    }
+
+    /// <summary>Ports the indirect dispatch in <c>WreckedShipGhost_Main</c>.</summary>
+    private void RunWreckedShipGhostMain(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state,
+        SamusState? samus)
+    {
+        SamusState activeSamus = samus ?? throw new InvalidOperationException(
+            "Wrecked Ship ghost AI requires the active Samus actor.");
+
+        switch (state.Function)
+        {
+            case WreckedShipGhostAiFunction.BrighteningAndFlickering:
+                RunWreckedShipGhostBrightening(slot, state);
+                break;
+            case WreckedShipGhostAiFunction.FadingToGhostPalette:
+                RunWreckedShipGhostPaletteFade(slot, state, activeSamus);
+                break;
+            case WreckedShipGhostAiFunction.WaitingForWhiteFade:
+                RunWreckedShipGhostWhiteFade(slot, state);
+                break;
+            case WreckedShipGhostAiFunction.BobbingWhileVisible:
+                RunWreckedShipGhostBobbing(slot, state);
+                break;
+            case WreckedShipGhostAiFunction.InitialInvisibleDelay:
+                RunWreckedShipGhostInitialDelay(state);
+                break;
+            case WreckedShipGhostAiFunction.TrackingSamusForSpawn:
+                RunWreckedShipGhostTracking(slot, state, activeSamus);
+                break;
+            default:
+                throw new InvalidDataException(
+                    $"Wrecked Ship ghost function $A8:{(ushort)state.Function:X4} is not translated.");
+        }
+    }
+
+    /// <summary>
+    /// Ports $A8:9D13. A zero timer also advances immediately, matching the native ORA/DEC
+    /// branch rather than wrapping zero to $FFFF.
+    /// </summary>
+    private static void RunWreckedShipGhostInitialDelay(WreckedShipGhostEnemyState state)
+    {
+        if (state.PhaseTimer != 0)
+            state.PhaseTimer = unchecked((ushort)(state.PhaseTimer - 1));
+        if (state.PhaseTimer != 0)
+            return;
+
+        state.PhaseTimer = 1;
+        state.FlickerTableOffset = 2;
+        state.Function = WreckedShipGhostAiFunction.TrackingSamusForSpawn;
+    }
+
+    /// <summary>The one-pixel margin of the nearly-still box on each axis.</summary>
+    private static readonly Offset16<RoomPixels> WreckedShipGhostStillMargin = new(1, 1);
+
+    /// <summary>
+    /// Ports $A8:9D36. The one-pixel upper bound is exclusive in retail; this asymmetric
+    /// comparison is deliberately not replaced by an absolute-distance convenience test.
+    /// </summary>
+    private static void RunWreckedShipGhostTracking(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state,
+        SamusState samus)
+    {
+        Position16<RoomPixels> samusPosition = samus.Position.Whole;
+        Offset16<RoomPixels> fromLower = samusPosition - state.SamusLowerBound;
+        Offset16<RoomPixels> fromUpper = samusPosition - state.SamusUpperBound;
+
+        bool withinPreviousBox =
+            fromLower.X >= 0 &&
+            fromUpper.X < 0 &&
+            fromLower.Y >= 0 &&
+            fromUpper.Y < 0;
+
+        if (withinPreviousBox)
+        {
+            state.StablePositionTimer = unchecked((ushort)(state.StablePositionTimer - 1));
+            if (state.StablePositionTimer == 0)
+            {
+                // Remaining inside the tiny box for 64 frames means "stationary" on both
+                // axes and therefore selects the central spawn offset.
+                state.SpawnColumnOffset = 4;
+                state.SpawnRowOffset = 12;
+                SpawnWreckedShipGhost(slot, state, samusPosition);
+                return;
+            }
+        }
+        else
+        {
+            state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
+            Offset16<RoomPixels> motion = samusPosition - state.PreviousSamusPosition;
+            ushort horizontalClass = motion.X switch
+            {
+                < 0 => 0,
+                0 => 4,
+                _ => 8,
+            };
+
+            if (horizontalClass != state.SpawnColumnOffset)
+            {
+                state.SpawnColumnOffset = horizontalClass;
+                state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
+            }
+            else
+            {
+                ushort verticalClass = motion.Y switch
+                {
+                    < 0 => 0,
+                    0 => 12,
+                    _ => 24,
+                };
+
+                if (verticalClass != state.SpawnRowOffset)
+                {
+                    state.SpawnRowOffset = verticalClass;
+                    state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
+                }
+                else
+                {
+                    state.StableDirectionTimer = unchecked((ushort)(state.StableDirectionTimer - 1));
+                    if (state.StableDirectionTimer == 0)
+                    {
+                        SpawnWreckedShipGhost(slot, state, samusPosition);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // The native tracker publishes a fresh asymmetric [position-1, position+1) box at
+        // the end of every non-spawning frame.
+        state.PreviousSamusPosition = samusPosition;
+        state.SamusLowerBound = samusPosition - WreckedShipGhostStillMargin;
+        state.SamusUpperBound = samusPosition + WreckedShipGhostStillMargin;
+    }
+
+    /// <summary>Installs the direction-selected relative position and begins $A8:9B42.</summary>
+    internal static void SpawnWreckedShipGhost(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state,
+        Position16<RoomPixels> samusPosition)
+    {
+        int byteOffset = state.SpawnColumnOffset + state.SpawnRowOffset;
+        if ((byteOffset & 3) != 0 || (uint)(byteOffset / 4) >= WreckedShipGhostAppearanceDefinitions.SpawnCount)
+        {
+            throw new InvalidDataException(
+                $"Wrecked Ship ghost movement classes ${state.SpawnColumnOffset:X4}/" +
+                $"${state.SpawnRowOffset:X4} do not select a retail spawn offset.");
+        }
+
+        (short xOffset, short yOffset) = WreckedShipGhostAppearanceDefinitions.SpawnOffset(byteOffset / 4);
+        slot.Position = slot.Position.WithWhole(samusPosition + new Offset16<RoomPixels>(xOffset, yOffset));
+        state.Function = WreckedShipGhostAiFunction.BrighteningAndFlickering;
+        state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
+        state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
+    }
+
+    /// <summary>Ports the white-flash ramp at $A8:9B42 and its flicker helper.</summary>
+    internal void RunWreckedShipGhostBrightening(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state)
+    {
+        AdvanceWreckedShipGhostFlicker(slot, state);
+        CgramPalette palette = WreckedShipGhostPalette(slot);
+        int colorsChanged = 0;
+        for (int color = 0; color < palette.Count; color++)
+        {
+            Bgr555 current = palette[color];
+            if (current.Red >= 31)
+                continue;
+
+            // Native adds $0421 as a word, raising red, green, and blue together. It gates
+            // only on red and does not saturate the others: a full green or blue carries
+            // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
+            palette.Write(color,
+                Bgr555.FromCgramPortWord(unchecked((ushort)(current.ToWord() + 0x0421))));
+            colorsChanged++;
+        }
+
+        if (colorsChanged != 0)
+            return;
+
+        state.Function = WreckedShipGhostAiFunction.FadingToGhostPalette;
+        for (int color = 0; color < state.MutableTargetPalette.Length; color++)
+            state.MutableTargetPalette[color] = WreckedShipGhostAppearanceDefinitions.PaletteColor(color);
+    }
+
+    /// <summary>Ports $A8:9BAD, including the simultaneous flicker and per-component fade.</summary>
+    private void RunWreckedShipGhostPaletteFade(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state,
+        SamusState samus)
+    {
+        int componentsChanged = StepWreckedShipGhostPaletteTowardTarget(slot, state);
+        AdvanceWreckedShipGhostFlicker(slot, state);
+        if (state.PhaseTimer != 0 || componentsChanged != 0)
+            return;
+
+        // Clearing $0500 makes the fully materialized ghost visible and eligible for the
+        // ordinary touch/shot collision handlers authored by its enemy definition.
+        slot.Properties = slot.Properties.Without(
+            EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
+        state.Function = WreckedShipGhostAiFunction.BobbingWhileVisible;
+        state.BobbingOriginY = slot.Position.Y.Whole;
+        state.PhaseTimer = WreckedShipGhostVisibleDuration;
+        state.FlickerTableOffset = 2;
+        state.VerticalVelocityFraction = 0;
+        state.VerticalVelocityWhole = WreckedShipGhostInitialVerticalVelocityWhole;
+        state.SpawnColumnOffset = 4;
+        state.SpawnRowOffset = 12;
+        state.PreviousSamusPosition = samus.Position.Whole;
+        state.SamusLowerBound = samus.Position.Whole;
+        state.SamusUpperBound = samus.Position.Whole;
+        state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
+        state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
+    }
+
+    /// <summary>Ports the signed 16.16 oscillation and 120-frame visible lifetime at $A8:9C8A.</summary>
+    private static void RunWreckedShipGhostBobbing(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state)
+    {
+        uint position = slot.Position.Y.RawValue;
+        uint velocity = new SnesFixedPosition(state.VerticalVelocityWhole, state.VerticalVelocityFraction).RawValue;
+        position = unchecked(position + velocity);
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+
+        int acceleration = unchecked((short)(slot.Position.Y.Whole - state.BobbingOriginY)) < 0
+            ? WreckedShipGhostVerticalAccelerationFraction
+            : -WreckedShipGhostVerticalAccelerationFraction;
+        velocity = unchecked((uint)(velocity + acceleration));
+        state.VerticalVelocityWhole = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
+        state.VerticalVelocityFraction = unchecked((ushort)velocity);
+
+        state.PhaseTimer = unchecked((ushort)(state.PhaseTimer - 1));
+        if (state.PhaseTimer != 0)
+            return;
+
+        state.Function = WreckedShipGhostAiFunction.WaitingForWhiteFade;
+        slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+        state.MutableTargetPalette.Fill(Bgr555.White);
+    }
+
+    /// <summary>Ports $A8:9C69: finish whitening, hide, and restart the 120-frame delay.</summary>
+    private void RunWreckedShipGhostWhiteFade(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state)
+    {
+        if (StepWreckedShipGhostPaletteTowardTarget(slot, state) != 0)
+            return;
+
+        state.Function = WreckedShipGhostAiFunction.InitialInvisibleDelay;
+        slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
+        state.PhaseTimer = WreckedShipGhostVisibleDuration;
+    }
+
+    /// <summary>
+    /// Ports $A8:9C31. The table alternates hidden and visible intervals whose lengths
+    /// converge; its $FFFF terminator leaves the ghost permanently visible for this cycle.
+    /// </summary>
+    internal static void AdvanceWreckedShipGhostFlicker(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state)
+    {
+        if (state.PhaseTimer != 0)
+        {
+            state.PhaseTimer = unchecked((ushort)(state.PhaseTimer - 1));
+            if (state.PhaseTimer != 0)
+                return;
+
+            int tableIndex = state.FlickerTableOffset / 2;
+            if ((uint)tableIndex >= WreckedShipGhostAppearanceDefinitions.FlickerCount)
+            {
+                throw new InvalidDataException(
+                    $"Wrecked Ship ghost flicker offset ${state.FlickerTableOffset:X4} exceeds $A8:9ACC.");
+            }
+
+            short duration = WreckedShipGhostAppearanceDefinitions.FlickerDuration(tableIndex);
+            if (duration < 0)
+            {
+                state.PhaseTimer = 0;
+                state.FlickerTableOffset = 0;
+                return;
+            }
+
+            state.PhaseTimer = unchecked((ushort)duration);
+            ushort oldOffset = state.FlickerTableOffset;
+            state.FlickerTableOffset = unchecked((ushort)(oldOffset + 2));
+            if ((oldOffset & 2) != 0)
+                return;
+        }
+
+        slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
+    }
+
+    /// <summary>
+    /// Ports $A8:9E88. Every BGR555 component moves exactly one hardware level toward its
+    /// target per frame; the return value counts component changes, not changed colors.
+    /// </summary>
+    internal int StepWreckedShipGhostPaletteTowardTarget(
+        RoomEnemySlot slot,
+        WreckedShipGhostEnemyState state)
+    {
+        CgramPalette palette = WreckedShipGhostPalette(slot);
+        int componentsChanged = 0;
+        ReadOnlySpan<Bgr555> target = state.TargetPalette.Span;
+        for (int color = 0; color < palette.Count; color++)
+        {
+            Bgr555 current = palette[color];
+            Bgr555 next = current;
+            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Red, ref componentsChanged);
+            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Green, ref componentsChanged);
+            next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Blue, ref componentsChanged);
+            if (next != current)
+                palette.Write(color, next);
+        }
+        return componentsChanged;
+    }
+
+    private static Bgr555 StepWreckedShipGhostPaletteComponent(
+        Bgr555 current,
+        Bgr555 target,
+        ColorChannel channel,
+        ref int componentsChanged)
+    {
+        int currentComponent = current[channel];
+        int targetComponent = target[channel];
+        if (currentComponent == targetComponent)
+            return current;
+
+        currentComponent += currentComponent > targetComponent ? -1 : 1;
+        componentsChanged++;
+        return current.With(channel, currentComponent);
+    }
+
+    private CgramPalette WreckedShipGhostPalette(RoomEnemySlot slot) =>
+        _presentation.CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
+
+    private WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
+        _wreckedShipGhostStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+            $"Wrecked Ship ghost slot {slot.SlotIndex} has no initialized native state.");
+
+    internal void RegisterWreckedShipGhostInitializationAi(EnemyAiTable table)
+    {
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Coven, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeWreckedShipGhost(slot);
+        });
+    }
+
+    internal void RegisterWreckedShipGhostMainAi(EnemyAiTable table)
+    {
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_Coven, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven, (slot, frame, nmiFrameCounter8) =>
+        {
+            RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), frame.Samus);
+        });
+    }
+
+    /// <inheritdoc/>
+    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    {
+        Array.Clear(_wreckedShipGhostStates);
+    }
+
+    /// <inheritdoc/>
+    public void BeginEnemyFrame(RoomEnemyFrame frame)
+    {
+    }
+}

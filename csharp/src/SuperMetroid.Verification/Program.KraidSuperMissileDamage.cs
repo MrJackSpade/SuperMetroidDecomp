@@ -22,76 +22,27 @@ internal static class KraidSuperMissileDamageVerification
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
-        game.BindMapPresentation(RepositoryInstallation.Maps);
-        game.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
-        game.BindStandardObjectArt(installation.LoadStandardObjects());
-        game.BindIntroCinematicArt(RepositoryInstallation.IntroArtwork);
-        game.BindSamusBodyArt(RepositoryInstallation.SamusBody);
-        game.BindEndingMode7Art(installation.LoadEndingMode7Art());
-        game.BindEndingObjectArt(installation.LoadEndingObjectArt());
-        game.BindEndingPaletteArt(installation.LoadEndingPalettes());
-        game.BindRoomCharacterArt(installation.LoadRoomCharacters());
-        game.BindRoomPaletteArt(installation.LoadRoomPalettes());
-        game.BindRoomMetatileArt(installation.LoadRoomMetatiles());
-        game.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
-        game.BindRoomPlmShotBlockVisuals(installation.LoadRoomPlmShotBlockVisuals());
-        game.BindRoomPlmGrappleBlockVisuals(installation.LoadRoomPlmGrappleBlockVisuals());
-        game.BindRoomPlmStationVisuals(installation.LoadRoomPlmStationVisuals());
-        game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
-        game.BindRoomPlmColoredDoorVisuals(installation.LoadRoomPlmColoredDoorVisuals());
-        game.BindRoomPlmGreyDoorVisuals(installation.LoadRoomPlmGreyDoorVisuals());
-        game.BindRoomPlmEyeDoorVisuals(installation.LoadRoomPlmEyeDoorVisuals());
-        game.BindRoomPlmMotherBrainGlassVisuals(installation.LoadRoomPlmMotherBrainGlassVisuals());
-        game.BindRoomPlmNoobTubeVisuals(installation.LoadRoomPlmNoobTubeVisuals());
-        game.BindRoomPlmDownwardGateVisuals(installation.LoadRoomPlmDownwardGateVisuals());
-        game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
-        game.BindRoomPlmEscapeGateVisuals(installation.LoadRoomPlmEscapeGateVisuals());
-        game.BindRoomPlmBombTorizoHandVisuals(installation.LoadRoomPlmBombTorizoHandVisuals());
-        game.BindRoomPlmDraygonCannonVisuals(installation.LoadRoomPlmDraygonCannonVisuals());
-        game.BindRoomPlmChozoStatueVisuals(installation.LoadRoomPlmChozoStatueVisuals());
-        game.BindRoomPlmLinkedRestoreVisuals(installation.LoadRoomPlmLinkedRestoreVisuals());
-        game.BindRoomPlmTourianAccessVisuals(installation.LoadRoomPlmTourianAccessVisuals());
-        game.BindRoomPlmSpeedBoosterVisuals(installation.LoadRoomPlmSpeedBoosterVisuals());
-        game.BindRoomPlmMaridiaElevatubeVisuals(installation.LoadRoomPlmMaridiaElevatubeVisuals());
-        game.BindRoomPlmSporeSpawnCeilingVisuals(installation.LoadRoomPlmSporeSpawnCeilingVisuals());
-        game.BindRoomPlmSamusEaterVisuals(installation.LoadRoomPlmSamusEaterVisuals());
-        game.BindRoomPlmBotwoonWallVisuals(installation.LoadRoomPlmBotwoonWallVisuals());
-        game.BindRoomPlmKraidVisuals(installation.LoadRoomPlmKraidVisuals());
-        game.BindRoomPlmCrocomireVisuals(installation.LoadRoomPlmCrocomireVisuals());
-        game.BindRoomPlmMotherBrainFakeDeathVisuals(installation.LoadRoomPlmMotherBrainFakeDeathVisuals());
-        game.BindRoomPlmCollectibleVisuals(installation.LoadRoomPlmCollectibleVisuals());
-        game.BindRoomPlmDynamicCollectibleArt(installation.LoadRoomPlmDynamicCollectibleArt());
-        game.BindXrayRevealVisuals(installation.LoadXrayRevealVisuals());
-        game.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
-        game.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
-        var projectiles=RepositoryInstallation.Projectiles;
-        game.BindProjectileCompositions(projectiles.Catalog);
-        game.BindProjectileFrameBindings(projectiles.FrameBindings);
-        game.BindBeamArtwork(projectiles.BeamTiles);
-        game.BindEnemyTileArtwork(RepositoryInstallation.EnemyTiles);
-        game.BindTrailArtwork(projectiles.Trails);
-        game.BindChargeFlarePlacement(projectiles.FlarePlacement);
-        game.BindChargeFlareCompositions(projectiles.FlareCompositions);
-        game.BindGrappleArtwork(projectiles.GrappleTiles);
+        var projectiles=InstalledFixtures.Projectiles;
+        InstalledFixtures.BindGame(game);
         typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
         var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(0xa59f);
-        var body=runtime.Enemies.Slots[0];
-        var state=(KraidEnemyState)typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField",flags)!.GetValue(runtime.Enemies)!;
+        var body=runtime.Enemies.SlotTable.Slots[0];
+        var state=(KraidEnemyState)runtime.Enemies.KraidBehavior.Kraid;
         body.VariableA=(ushort)KraidAiFunction.MainAttackWithMouthOpen;
         body.VariableB=0x96f4;body.VariableC=64;
         state.CurrentHeadTilemap=0xa0c8;state.VulnerableMouthHitbox=0x97a0;state.InvulnerableMouthHitbox=0x97c0;
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(words, new byte[2048], new ushort[2048]), new byte[8]);
-        typeof(SuperMetroidRuntime).GetProperty("LevelData")!.SetValue(runtime,level);
-        var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
+        runtime.Room.LevelData = level;
+        var samus=runtime.Player.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
-        samus.RefreshCollisionRadii(bus);samus.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
-        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 384));
+        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 384));
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
         var renderer=new CartridgeAudioRenderer(installation.LoadAudio());
@@ -109,7 +60,7 @@ internal static class KraidSuperMissileDamageVerification
             {
                 AssertEqual(frame == 8 ? (ushort)700 : (ushort)400, body.Health,
                     "Each actual close-range Super Missile deals exactly 300 damage");
-                AssertEqual((ushort)2, runtime.Projectiles.ProjectileCounter,
+                AssertEqual((ushort)2, runtime.Projectiles.SlotTable.ProjectileCounter,
                     "Mouth collision defers owner/link removal to projectile pre-instructions");
                 AssertEqual(SamusProjectilePreInstruction.SuperMissile,
                     runtime.Projectiles.Slots[0].PreInstruction, "Owner retains native pre-instruction");
@@ -120,7 +71,7 @@ internal static class KraidSuperMissileDamageVerification
             }
             if (frame is 9 or 33)
             {
-                AssertEqual((ushort)0, runtime.Projectiles.ProjectileCounter,
+                AssertEqual((ushort)0, runtime.Projectiles.SlotTable.ProjectileCounter,
                     "Marked link clears itself and its owner on the next projectile update");
                 AssertEqual(false, runtime.Projectiles.Slots.Any(shot => shot.IsActive),
                     "No stranded Super Missile or link survives the hit");
@@ -147,8 +98,8 @@ internal static class KraidSuperMissileDamageVerification
         void Prepare(ushort count)
         {
             projectiles.Reset();
-            typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ProjectileCounter))!
-                .SetValue(projectiles, count);
+            typeof(ProjectileSlotTable).GetProperty(nameof(ProjectileSlotTable.ProjectileCounter))!
+                .SetValue(projectiles.SlotTable, count);
             body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
             body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;

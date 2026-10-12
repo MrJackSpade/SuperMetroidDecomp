@@ -9,11 +9,11 @@ internal static class RetailGameFixtureVerification
 {
     internal static SuperMetroidGame CreateRetailGameFixture(ISnesAddressSpace bus,
         SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true) =>
-        RepositoryInstallation.CreateGame(bus, gameOptions, renderGameplayFrames);
+        InstalledFixtures.CreateGame(bus, gameOptions, renderGameplayFrames);
 
     internal static CeresDestructionCinematicState CreateRetailDestructionFixture(ISnesAddressSpace bus,
         CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
-        RepositoryInstallation.CreateDestruction(bus, audio, artwork);
+        InstalledFixtures.CreateDestruction(bus, audio, artwork);
 
     /// <summary>
     /// Independent reference for ending-actor instruction streams: reads each word from the
@@ -26,9 +26,9 @@ internal static class RetailGameFixtureVerification
     internal static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
         CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,
         EndingInventorySnapshot inventory = default, bool japaneseText = false) =>
-        RepositoryInstallation.CreateEnding(bus, audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
+        InstalledFixtures.CreateEnding(bus, audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
     internal static IntroCinematicState CreateRetailIntroFixture(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null) =>
-        RepositoryInstallation.CreateIntro(bus, audio, introFont, characterArtwork, beamArtwork, samusBodyArtwork);
+        InstalledFixtures.CreateIntro(bus, audio, introFont, characterArtwork, beamArtwork, samusBodyArtwork);
 }

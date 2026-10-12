@@ -1323,226 +1323,225 @@ internal static class RoomEnemySystemAccess
             Ensure.NotNull(bus);
             Ensure.NotNull(projectiles);
             Ensure.NotNull(sharedProjectiles);
-            var kraid = PrivateState.Field<KraidEnemyState?>(self, "<Kraid>k__BackingField");
-            RoomEnemySlot body = self.Slots[0];
+            var kraid = self.KraidBehavior.Kraid;
+            RoomEnemySlot body = self.SlotTable.Slots[0];
             if (kraid is null || body.EnemyDefinitionPointer != EnemyDefinitionId.Kraid ||
                 body.Properties.HasAny(EnemyProperties.Deleted))
                 return 0;
-            object shots = PrivateState.Construct(PrivateState.Nested(typeof(RoomEnemySystem), "KraidShotSlots"),
-                projectiles, sharedProjectiles);
-            return (int)PrivateState.Invoke(self, "ResolveKraidMouthProjectileHits", body, kraid, shots)! +
-                (int)PrivateState.Invoke(self, "ResolveKraidBodyProjectileHits", body, kraid, shots)!;
+            var shots = new KraidBehavior.KraidShotSlots(projectiles, sharedProjectiles);
+            return self.KraidBehavior.ResolveKraidMouthProjectileHits(body, kraid, shots) +
+                self.KraidBehavior.ResolveKraidBodyProjectileHits(body, kraid, shots);
         }
 
         /// <summary>Botwoon's live state while its room is loaded.</summary>
-        internal BotwoonEnemyState? Botwoon => PrivateState.Field<BotwoonEnemyState?>(self, "_botwoonState");
+        internal BotwoonEnemyState? Botwoon => self.BotwoonBehavior._botwoonState;
 
         /// <summary>Per-slot Evir states, indexed by enemy slot.</summary>
-        internal IReadOnlyList<EvirEnemyState?> EvirStates => PrivateState.Field<EvirEnemyState?[]>(self, "_evirStates");
+        internal IReadOnlyList<EvirEnemyState?> EvirStates => self.EvirBehavior._evirStates;
 
         /// <summary>Special drops a dying Metroid has requested this frame.</summary>
         internal IReadOnlyList<MetroidDropRequest> MetroidDropRequests =>
-            PrivateState.Field<List<MetroidDropRequest>>(self, "_metroidDropRequests");
+            self.MetroidBehavior._metroidDropRequests;
 
 
         /// <summary>Companion/corpse state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadSidehopperEnemyState?> DeadSidehoppers =>
-            PrivateState.Field<DeadSidehopperEnemyState?[]>(self, "_deadSidehopperStates");
+            self.DeadSidehopperBehavior._deadSidehopperStates;
 
         /// <summary>The loaded Dead Torizo's typed extended-WRAM state.</summary>
-        internal DeadTorizoEnemyState? DeadTorizo => PrivateState.Field<DeadTorizoEnemyState?>(self, "_deadTorizo");
+        internal DeadTorizoEnemyState? DeadTorizo => self.DeadTorizoBehavior._deadTorizo;
 
         /// <summary>Alternating VRAM records authored by the most recent actor frame.</summary>
         internal IReadOnlyList<VramWriteEntry> LastDeadTorizoVramTransfers =>
-            PrivateState.Field<List<VramWriteEntry>>(self, "_deadTorizoFrameVramTransfers");
+            self.DeadTorizoBehavior._deadTorizoFrameVramTransfers;
 
         /// <summary>Typed state for every physical slot currently owned by a Skree.</summary>
-        internal IReadOnlyList<SkreeEnemyState?> SkreeStates => PrivateState.Field<SkreeEnemyState?[]>(self, "_skreeStates");
+        internal IReadOnlyList<SkreeEnemyState?> SkreeStates => self.SkreeBehavior._skreeStates;
 
         /// <summary>Typed Spark state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<SparkEnemyState?> SparkStates => PrivateState.Field<SparkEnemyState?[]>(self, "_sparkStates");
+        internal IReadOnlyList<SparkEnemyState?> SparkStates => self.SparkBehavior._sparkStates;
 
         /// <summary>Typed state for every physical slot currently owned by a Zoa.</summary>
-        internal IReadOnlyList<ZoaEnemyState?> ZoaStates => PrivateState.Field<ZoaEnemyState?[]>(self, "_zoaStates");
+        internal IReadOnlyList<ZoaEnemyState?> ZoaStates => self.ZoaBehavior._zoaStates;
 
         /// <summary>Typed state for both graphics and hitbox records in all physical slots.</summary>
-        internal IReadOnlyList<HibashiEnemyState?> HibashiStates => PrivateState.Field<HibashiEnemyState?[]>(self, "_hibashiStates");
+        internal IReadOnlyList<HibashiEnemyState?> HibashiStates => self.HibashiBehavior._hibashiStates;
 
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
-        internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates => PrivateState.Field<ElevatorEnemyState?[]>(self, "_elevatorStates");
+        internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates => self.ElevatorBehavior._elevatorStates;
 
-        internal IReadOnlyList<KagoEnemyState?> KagoStates => PrivateState.Field<KagoEnemyState?[]>(self, "_kagoStates");
+        internal IReadOnlyList<KagoEnemyState?> KagoStates => self.KagoBehavior._kagoStates;
 
         /// <summary>Typed Waver state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<WaverEnemyState?> WaverStates => PrivateState.Field<WaverEnemyState?[]>(self, "_waverStates");
+        internal IReadOnlyList<WaverEnemyState?> WaverStates => self.WaverBehavior._waverStates;
 
         /// <summary>Typed state for every physical slot currently owned by a crawler family.</summary>
-        internal IReadOnlyList<CrawlerEnemyState?> CrawlerStates => PrivateState.Field<CrawlerEnemyState?[]>(self, "_crawlerStates");
+        internal IReadOnlyList<CrawlerEnemyState?> CrawlerStates => self.CrawlersBehavior._crawlerStates;
 
         /// <summary>Typed state for powered and deactivated Work Robots in all physical slots.</summary>
-        internal IReadOnlyList<WorkRobotEnemyState?> WorkRobotStates => PrivateState.Field<WorkRobotEnemyState?[]>(self, "_workRobotStates");
+        internal IReadOnlyList<WorkRobotEnemyState?> WorkRobotStates => self.WorkRobotBehavior._workRobotStates;
 
         /// <summary>Typed state for every physical enemy slot currently owned by a Rio.</summary>
-        internal IReadOnlyList<RioEnemyState?> RioStates => PrivateState.Field<RioEnemyState?[]>(self, "_rioStates");
+        internal IReadOnlyList<RioEnemyState?> RioStates => self.RioBehavior._rioStates;
 
         /// <summary>Typed state for each live or previously allocated physical enemy slot.</summary>
-        internal IReadOnlyList<ZebetiteEnemyState?> ZebetiteStates => PrivateState.Field<ZebetiteEnemyState?[]>(self, "_zebetiteStates");
+        internal IReadOnlyList<ZebetiteEnemyState?> ZebetiteStates => self.ZebetiteBehavior._zebetiteStates;
 
         /// <summary>
         /// Per-physical-slot Shaktool state. A live retail group occupies seven consecutive
         /// non-null entries; every other room slot remains null.
         /// </summary>
-        internal IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments => PrivateState.Field<ShaktoolSegmentState?[]>(self, "_shaktoolSegments");
+        internal IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments => self.ShaktoolBehavior._shaktoolSegments;
 
         /// <summary>Typed state for every physical slot currently owned by a Mochtroid.</summary>
-        internal IReadOnlyList<MochtroidEnemyState?> MochtroidStates => PrivateState.Field<MochtroidEnemyState?[]>(self, "_mochtroidStates");
+        internal IReadOnlyList<MochtroidEnemyState?> MochtroidStates => self.MochtroidBehavior._mochtroidStates;
 
         /// <summary>Typed state for each physical slot currently occupied by a Yard.</summary>
-        internal IReadOnlyList<YardEnemyState?> YardStates => PrivateState.Field<YardEnemyState?[]>(self, "_yardStates");
+        internal IReadOnlyList<YardEnemyState?> YardStates => self.YardBehavior._yardStates;
 
         /// <summary>Typed Metaree state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<MetareeEnemyState?> MetareeStates => PrivateState.Field<MetareeEnemyState?[]>(self, "_metareeStates");
+        internal IReadOnlyList<MetareeEnemyState?> MetareeStates => self.MetareeBehavior._metareeStates;
 
         /// <summary>Typed state for every physical Owtch-capable enemy slot.</summary>
-        internal IReadOnlyList<OwtchEnemyState?> OwtchStates => PrivateState.Field<OwtchEnemyState?[]>(self, "_owtchStates");
+        internal IReadOnlyList<OwtchEnemyState?> OwtchStates => self.OwtchBehavior._owtchStates;
 
         /// <summary>Typed state for all physical slots occupied by Fune or Namihe.</summary>
-        internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates => PrivateState.Field<FuneNamiheEnemyState?[]>(self, "_funeNamiheStates");
+        internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates => self.FuneNamiheBehavior._funeNamiheStates;
 
         /// <summary>Typed Stoke state for each of the 32 physical enemy slots.</summary>
-        internal IReadOnlyList<StokeEnemyState?> StokeStates => PrivateState.Field<StokeEnemyState?[]>(self, "_stokeStates");
+        internal IReadOnlyList<StokeEnemyState?> StokeStates => self.StokeBehavior._stokeStates;
 
-        internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates => PrivateState.Field<FakeKraidEnemyState?[]>(self, "_fakeKraidStates");
+        internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates => self.FakeKraidBehavior._fakeKraidStates;
 
         /// <summary>Typed state for every physical slot currently owned by this family.</summary>
         internal IReadOnlyList<NorfairLavaJumpingEnemyState?> NorfairLavaJumpingEnemyStates =>
-            PrivateState.Field<NorfairLavaJumpingEnemyState?[]>(self, "_norfairLavaJumpingEnemyStates");
+            self.NorfairLavaJumpingEnemyBehavior._norfairLavaJumpingEnemyStates;
 
         /// <summary>Typed Fireflea state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates => PrivateState.Field<FirefleaEnemyState?[]>(self, "_firefleaStates");
+        internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates => self.FirefleaBehavior._firefleaStates;
 
         /// <summary>All 32 physical bank-$B4 slots, including inactive ones.</summary>
-        internal IReadOnlyList<RoomSpriteObjectSlot> RoomSpriteObjects => PrivateState.Field<RoomSpriteObjectSlot[]>(self, "_roomSpriteObjects");
+        internal IReadOnlyList<RoomSpriteObjectSlot> RoomSpriteObjects => self.SpriteObjects.Slots;
 
         /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
-        internal SporeSpawnEnemyState? SporeSpawn => PrivateState.Field<SporeSpawnEnemyState?>(self, "_sporeSpawn");
+        internal SporeSpawnEnemyState? SporeSpawn => self.SporeSpawnBehavior._sporeSpawn;
 
         /// <summary>Typed state for all 32 physical Boyon-capable enemy slots.</summary>
-        internal IReadOnlyList<BoyonEnemyState?> BoyonStates => PrivateState.Field<BoyonEnemyState?[]>(self, "_boyonStates");
+        internal IReadOnlyList<BoyonEnemyState?> BoyonStates => self.BoyonBehavior._boyonStates;
 
         /// <summary>Typed state for each physical escape-Etecoon slot.</summary>
         internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
-            PrivateState.Field<EscapeEtecoonEnemyState?[]>(self, "_escapeEtecoonStates");
+            self.EscapeAnimalsBehavior._escapeEtecoonStates;
 
         internal IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>
-            PrivateState.Field<NuclearWaffleEnemyState?[]>(self, "_nuclearWaffleStates");
+            self.NuclearWaffleBehavior._nuclearWaffleStates;
 
         /// <summary>Typed state for every physical slot currently owned by the hopper family.</summary>
-        internal IReadOnlyList<HopperEnemyState?> HopperStates => PrivateState.Field<HopperEnemyState?[]>(self, "_hopperStates");
+        internal IReadOnlyList<HopperEnemyState?> HopperStates => self.HoppersBehavior._hopperStates;
 
         /// <summary>Typed face-block state in fixed physical enemy-slot order.</summary>
         internal IReadOnlyList<BlueBrinstarFaceBlockEnemyState?> BlueBrinstarFaceBlockStates =>
-            PrivateState.Field<BlueBrinstarFaceBlockEnemyState?[]>(self, "_blueBrinstarFaceBlockStates");
+            self.BlueBrinstarFaceBlockBehavior._blueBrinstarFaceBlockStates;
 
         /// <summary>Frame-local drops requested by destroyed free-floating spores.</summary>
         internal IReadOnlyList<SporeSpawnDropRequest> SporeSpawnDropRequests =>
-            PrivateState.Field<List<SporeSpawnDropRequest>>(self, "_sporeSpawnDropRequests");
+            self.SporeSpawnBehavior._sporeSpawnDropRequests;
 
         /// <summary>Dead Zoomer/Ripper/Skree state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadTourianCorpseEnemyState?> DeadTourianCorpses =>
-            PrivateState.Field<DeadTourianCorpseEnemyState?[]>(self, "_deadTourianCorpseStates");
+            self.DeadTourianBehavior._deadTourianCorpseStates;
 
         /// <summary>Typed Atomic state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<AtomicEnemyState?> AtomicStates => PrivateState.Field<AtomicEnemyState?[]>(self, "_atomicStates");
+        internal IReadOnlyList<AtomicEnemyState?> AtomicStates => self.AtomicBehavior._atomicStates;
 
         /// <summary>Typed state for every physical Cacatac-capable enemy slot.</summary>
-        internal IReadOnlyList<CacatacEnemyState?> CacatacStates => PrivateState.Field<CacatacEnemyState?[]>(self, "_cacatacStates");
+        internal IReadOnlyList<CacatacEnemyState?> CacatacStates => self.CacatacBehavior._cacatacStates;
 
         /// <summary>Typed state for every physical enemy slot currently owned by a Rinka.</summary>
-        internal IReadOnlyList<RinkaEnemyState?> RinkaStates => PrivateState.Field<RinkaEnemyState?[]>(self, "_rinkaStates");
+        internal IReadOnlyList<RinkaEnemyState?> RinkaStates => self.RinkaBehavior._rinkaStates;
 
         internal IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
-            PrivateState.Field<WalkingSpacePirateEnemyState?[]>(self, "_walkingSpacePirateStates");
+            self.WalkingSpacePirateBehavior._walkingSpacePirateStates;
 
         internal IReadOnlyList<WallSpacePirateEnemyState?> WallSpacePirateStates =>
-            PrivateState.Field<WallSpacePirateEnemyState?[]>(self, "_wallSpacePirateStates");
+            self.WallSpacePirateBehavior._wallSpacePirateStates;
 
-        internal IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates => PrivateState.Field<MagdolliteEnemyState?[]>(self, "_magdolliteStates");
+        internal IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates => self.MagdolliteBehavior._magdolliteStates;
 
         /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
-        internal IReadOnlyList<MetroidEnemyState?> MetroidStates => PrivateState.Field<MetroidEnemyState?[]>(self, "_metroidStates");
+        internal IReadOnlyList<MetroidEnemyState?> MetroidStates => self.MetroidBehavior._metroidStates;
 
-        internal ShitroidEnemyState? Shitroid => PrivateState.Field<ShitroidEnemyState?>(self, "_shitroid");
+        internal ShitroidEnemyState? Shitroid => self.ShitroidBehavior._shitroid;
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
-        internal IReadOnlyList<ushort> ActiveEnemyIndexes => PrivateState.Field<List<ushort>>(self, "_activeEnemyIndexes");
+        internal IReadOnlyList<ushort> ActiveEnemyIndexes => self.ProcessingWindow._activeEnemyIndexes;
 
         /// <summary>Typed native state for every physical Etecoon slot.</summary>
-        internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates => PrivateState.Field<EtecoonEnemyState?[]>(self, "_etecoonStates");
+        internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates => self.EtecoonBehavior._etecoonStates;
 
         /// <summary>Native slot offsets admitted to solid-enemy interaction.</summary>
-        internal IReadOnlyList<ushort> InteractiveEnemyIndexes => PrivateState.Field<List<ushort>>(self, "_interactiveEnemyIndexes");
+        internal IReadOnlyList<ushort> InteractiveEnemyIndexes => self.ProcessingWindow._interactiveEnemyIndexes;
 
         /// <summary>Typed Alcoon state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates => PrivateState.Field<AlcoonEnemyState?[]>(self, "_alcoonStates");
+        internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates => self.AlcoonBehavior._alcoonStates;
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
-        internal IReadOnlyList<DragonEnemyState?> DragonStates => PrivateState.Field<DragonEnemyState?[]>(self, "_dragonStates");
+        internal IReadOnlyList<DragonEnemyState?> DragonStates => self.DragonBehavior._dragonStates;
 
         /// <summary>The room's terminated bank-$B4 graphics-set records.</summary>
-        internal IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => PrivateState.Field<List<RoomEnemyGraphicsSetEntry>>(self, "_graphicsSet");
+        internal IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => self.PopulationLoader._graphicsSet;
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
-        internal IReadOnlyList<PuyoEnemyState?> PuyoStates => PrivateState.Field<PuyoEnemyState?[]>(self, "_puyoStates");
+        internal IReadOnlyList<PuyoEnemyState?> PuyoStates => self.PuyoBehavior._puyoStates;
 
         /// <summary>Typed Bull state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<BullEnemyState?> BullStates => PrivateState.Field<BullEnemyState?[]>(self, "_bullStates");
+        internal IReadOnlyList<BullEnemyState?> BullStates => self.BullBehavior._bullStates;
 
         /// <summary>Typed Skultera state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<SkulteraEnemyState?> SkulteraStates => PrivateState.Field<SkulteraEnemyState?[]>(self, "_skulteraStates");
+        internal IReadOnlyList<SkulteraEnemyState?> SkulteraStates => self.SkulteraBehavior._skulteraStates;
 
         /// <summary>Typed state for every physical slot currently owned by Sbug/Sbug2.</summary>
-        internal IReadOnlyList<SbugEnemyState?> SbugStates => PrivateState.Field<SbugEnemyState?[]>(self, "_sbugStates");
+        internal IReadOnlyList<SbugEnemyState?> SbugStates => self.SbugBehavior._sbugStates;
 
         /// <summary>Typed state for every physical Pipe Bug enemy slot.</summary>
-        internal IReadOnlyList<PipeBugEnemyState?> PipeBugStates => PrivateState.Field<PipeBugEnemyState?[]>(self, "_pipeBugStates");
+        internal IReadOnlyList<PipeBugEnemyState?> PipeBugStates => self.PipeBugsBehavior._pipeBugStates;
 
         /// <summary>Typed Ki-Hunter state for every body and wing physical enemy slot.</summary>
-        internal IReadOnlyList<KiHunterEnemyState?> KiHunterStates => PrivateState.Field<KiHunterEnemyState?[]>(self, "_kiHunterStates");
+        internal IReadOnlyList<KiHunterEnemyState?> KiHunterStates => self.KiHunterBehavior._kiHunterStates;
 
         /// <summary>Typed Choot state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<ChootEnemyState?> ChootStates => PrivateState.Field<ChootEnemyState?[]>(self, "_chootStates");
+        internal IReadOnlyList<ChootEnemyState?> ChootStates => self.ChootBehavior._chootStates;
 
         /// <summary>Pickup requests emitted by shot destroyable flames in this room load.</summary>
         internal IReadOnlyList<PhantoonFlameDropRequest> PhantoonFlameDropRequests =>
-            PrivateState.Field<List<PhantoonFlameDropRequest>>(self, "_phantoonFlameDropRequests");
+            self.PhantoonBehavior._phantoonFlameDropRequests;
 
         /// <summary>Typed native state for every loaded Yapping Maw slot.</summary>
-        internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates => PrivateState.Field<YappingMawEnemyState?[]>(self, "_yappingMawStates");
+        internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates => self.YappingMawBehavior._yappingMawStates;
 
         /// <summary>Typed Oum state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<MaridiaLargeSnailEnemyState?> MaridiaLargeSnailStates =>
-            PrivateState.Field<MaridiaLargeSnailEnemyState?[]>(self, "_maridiaLargeSnailStates");
+            self.MaridiaLargeSnailBehavior._maridiaLargeSnailStates;
 
         /// <summary>Typed Beetom state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<BeetomEnemyState?> BeetomStates => PrivateState.Field<BeetomEnemyState?[]>(self, "_beetomStates");
+        internal IReadOnlyList<BeetomEnemyState?> BeetomStates => self.BeetomBehavior._beetomStates;
 
         /// <summary>Typed Tripper/Kamer state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<PlatformEnemyState?> PlatformStates => PrivateState.Field<PlatformEnemyState?[]>(self, "_platformStates");
+        internal IReadOnlyList<PlatformEnemyState?> PlatformStates => self.PlatformsBehavior._platformStates;
 
         /// <summary>Bomb Torizo's state while definition $EEFF owns slot zero.</summary>
         internal TorizoEnemyState? BombTorizo =>
-            PrivateState.Field<TorizoEnemyState?>(self, "_torizoState") is { IsGolden: false } ? PrivateState.Field<TorizoEnemyState?>(self, "_torizoState") : null;
+            self.BombTorizoBehavior._torizoState is { IsGolden: false } ? self.BombTorizoBehavior._torizoState : null;
 
-        internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates => PrivateState.Field<GrowingShutterEnemyState?[]>(self, "_growingShutterStates");
+        internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates => self.ShuttersBehavior._growingShutterStates;
 
         /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
         internal IReadOnlyList<TorizoOrbDropRequest> TorizoOrbDropRequests =>
-            PrivateState.Field<List<TorizoOrbDropRequest>>(self, "_torizoOrbDropRequests");
+            self.BombTorizoBehavior._torizoOrbDropRequests;
 
         /// <summary>Number of live actors in the shared bank-$86 enemy-projectile pool.</summary>
         internal int ActiveEnemyProjectileCount =>
-            PrivateState.Field<RoomEnemyProjectileSlot[]>(self, "_enemyProjectiles").Count(projectile => projectile.IsActive);
+            self.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
 
         /// <summary>
         /// Executes the projectile portion of the gameplay frame after enemy instructions have
@@ -1557,7 +1556,7 @@ internal static class RoomEnemySystemAccess
             SamusBombProjectileSystem? samusBombs = null)
         {
             self.StepEnemyProjectileInstructions(level, samus, camera, nmiFrameCounter8, samusBombs);
-            self.ResolveEnemyProjectileSamusHits(samus);
+            self.Projectiles.ResolveEnemyProjectileSamusHits(samus);
         }
 
         /// <summary>
@@ -1568,17 +1567,17 @@ internal static class RoomEnemySystemAccess
         internal void DrawEnemyProjectiles(OamBuffer oam, Position16<RoomPixels> camera, bool timeIsFrozen = false)
         {
             Ensure.NotNull(oam);
-            PrivateState.Invoke(self, "EnsureLoaded");
+            self.Room.EnsureLoaded();
 
-            PrivateState.Invoke(self, "DrawRoomSpriteObjects", oam, camera);
-            PrivateState.Invoke(self, "DrawEnemyProjectilePass", oam, camera, EnemyProjectileDrawPriority.High, timeIsFrozen);
-            PrivateState.Invoke(self, "DrawEnemyProjectilePass", oam, camera, EnemyProjectileDrawPriority.Low, timeIsFrozen);
+            self.SpriteObjects.DrawRoomSpriteObjects(oam, camera);
+            self.Projectiles.DrawEnemyProjectilePass(oam, camera, EnemyProjectileDrawPriority.High, timeIsFrozen);
+            self.Projectiles.DrawEnemyProjectilePass(oam, camera, EnemyProjectileDrawPriority.Low, timeIsFrozen);
         }
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>
         internal bool ResolveRidleySamusContact(SamusState samus) =>
-            (bool)PrivateState.Invoke(self, "ResolveRidleyBodySamusContact", samus)! ||
-            (bool)PrivateState.Invoke(self, "ResolveRidleyTailSamusContact", samus)!;
+            (bool)self.CeresRidleyBehavior.ResolveRidleyBodySamusContact(samus)! ||
+            (bool)self.RidleyTail.ResolveRidleyTailSamusContact(samus)!;
     }
 }
 
@@ -1943,8 +1942,8 @@ internal static class SamusGrappleMovementAccess
             samus.Pose = faceRight
                 ? SamusPoseId.GrappleSwingRightPose
                 : SamusPoseId.GrappleSwingLeftPose;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus, initialFrame: 0);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
 
             // $94:AC11 and $9B:BD95 run as soon as the connection is accepted. Publishing the
             // first pendulum position now prevents one frame of stale pre-grapple coordinates.
@@ -2029,10 +2028,10 @@ internal static class SamusProjectileSystemAccess
         /// The independent trail pool in native low-to-high byte-index order. Allocation scans
         /// this collection backward, matching <c>$90:B679-$B683</c> rather than using a queue.
         /// </summary>
-        internal IReadOnlyList<SamusProjectileTrailSlot> TrailSlots => PrivateState.Field<SamusProjectileTrailSlot[]>(self, "_trailSlots");
+        internal IReadOnlyList<SamusProjectileTrailSlot> TrailSlots => self.SlotTable._trailSlots;
 
         /// <summary>Debugger-friendly count of slots whose left stream still owns the slot.</summary>
-        internal int ActiveTrailCount => PrivateState.Field<SamusProjectileTrailSlot[]>(self, "_trailSlots").Count(slot => slot.IsActive);
+        internal int ActiveTrailCount => self.SlotTable._trailSlots.Count(slot => slot.IsActive);
     }
 }
 
@@ -2146,7 +2145,7 @@ internal static class SamusStateAccess
                 throw new InvalidOperationException(
                     $"Spin-fire compatibility route requires pose $13/$14, not ${(int)targetPose:X2}.");
             }
-            return self.TryApplySpinOrWallJumpToNormalJumpTransition(
+            return self.PoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(
                 bus,
                 level,
                 targetPose,
@@ -2159,19 +2158,19 @@ internal static class SamusStateAccess
         /// Convenience debugger/test entry that performs both native phases: publishing the
         /// bank-$A0 timer-eight overlap direction, then consuming it through $90:DF99 and
         /// special command three $91:EE80. Live runtime code calls those phases on either
-        /// side of movement through <see cref="SamusState.PublishBombJumpDirection"/> and
-        /// <see cref="SamusState.TrySetupPublishedBombJump"/>.
+        /// side of movement through <see cref="SamusPoseMetadata.PublishBombJumpDirection"/> and
+        /// <see cref="SamusPoseMetadata.TrySetupPublishedBombJump"/>.
         /// </summary>
         internal void RequestMorphedBombJump(byte direction)
         {
-            if (!SamusState.IsStableBallPose(self.Pose))
+            if (!SamusPoseMetadata.IsStableBallPose(self.Pose))
             {
                 throw new InvalidOperationException(
                     $"The morphed bomb-jump fixture requires a stable ball pose, not ${(int)self.Pose:X2}.");
             }
 
-            self.PublishBombJumpDirection(direction);
-            PrivateState.Invoke(self, "ArmPublishedBombJump");
+            self.PoseMetadata.PublishBombJumpDirection(direction);
+            PrivateState.Invoke(self.PoseMetadata, "ArmPublishedBombJump");
         }
     }
 }

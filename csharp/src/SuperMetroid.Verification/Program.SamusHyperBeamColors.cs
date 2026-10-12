@@ -351,9 +351,9 @@ internal static class SamusHyperBeamColorsVerification
                     "Shot edits cannot mutate the separate full-body asset");
             }
         }
-        var shotSamus = new SamusState { HyperBeam = 0x8000, ChargeColors = shot };
+        var shotSamus = new SamusState { HyperBeam = 0x8000, Presentation = { ChargeColors = shot } };
         var projectiles = new SamusProjectileSystem();
-        typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ChargedShotGlowTimer))!.SetValue(projectiles, (ushort)0x8014);
+        typeof(BeamChargeState).GetProperty(nameof(BeamChargeState.ChargedShotGlowTimer))!.SetValue(projectiles.Charge, (ushort)0x8014);
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
         {
@@ -416,14 +416,14 @@ internal static class SamusHyperBeamColorsVerification
 
         var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
         {
-            MapPresentation = edited,
+            Artwork = { MapPresentation = edited },
         };
         fixtureAssets.Bind(runtime);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        SamusState samus = runtime.Samus ??
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        SamusState samus = runtime.Player.Samus ??
             throw new InvalidOperationException("Ceres initialization did not construct Samus.");
         AssertTrue(ReferenceEquals(edited.SamusHyperBeamColors, samus.Drained.PresentationColors),
             "new Samus binds installed Hyper Beam colors");

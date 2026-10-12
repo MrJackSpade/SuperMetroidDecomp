@@ -27,13 +27,13 @@ internal static class ZebesEscapeFadeVerification
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime", flags)!.Invoke(game, [false]);
         var runtime = (SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime", flags)!.GetValue(game)!;
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
 
         typeof(SuperMetroidGame).GetMethod("BeginZebesEscapeFade", flags)!.Invoke(game, null);
         AssertEqual(SuperMetroidGameState.SamusEscapesFromZebes, game.GameState, "the takeoff publishes state $26");
-        AssertTrue(!runtime.TimeIsFrozen, "state $26 keeps gameplay time running");
+        AssertTrue(!runtime.Freeze.TimeIsFrozen, "state $26 keeps gameplay time running");
 
         int calls = 0;
         while (game.GameState == SuperMetroidGameState.SamusEscapesFromZebes)

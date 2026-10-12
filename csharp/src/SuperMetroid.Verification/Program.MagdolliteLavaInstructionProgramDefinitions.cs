@@ -54,33 +54,27 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
         var guard = NewMagdolliteLavaInstructionGuard(rom);
         var observedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
-        typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", instanceFlags)!.SetValue(
-            enemies,
-            new SamusState
+        enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState
             {
                 Health = 99,
                 MaxHealth = 99,
-            });
+            };
 
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnMagdolliteLava", instanceFlags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
-        RoomEnemySlot source = enemies.Slots[0];
+        Action<RoomEnemySlot, ushort> spawn = enemies.MagdolliteBehavior.SpawnMagdolliteLava;
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(0x0120, 0x0080));
         source.VramTilesIndex = 0x0200;
         source.PaletteIndex = 0x0c00;
 
         spawn(source, 0);
         spawn(source, 1);
-        RoomEnemyProjectileSlot left = enemies.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot left = enemies.Projectiles.EnemyProjectiles.Single(
             projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite &&
                 projectile.DirectionParameter == 0);
-        RoomEnemyProjectileSlot right = enemies.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot right = enemies.Projectiles.EnemyProjectiles.Single(
             projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite &&
                 projectile.DirectionParameter == 1);
@@ -98,13 +92,13 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
 
         left.InstructionPointer = MagdolliteLavaInstructionProgramDefinitions.Shot;
         left.InstructionTimer = 1;
-        process.Invoke(enemies, [left, null, Position16<RoomPixels>.Zero]);
+        enemies.Projectiles.ProcessEnemyProjectileInstructions(left, null, Position16<RoomPixels>.Zero);
         AssertTrue(!left.IsActive,
             "Magdollite shot program follows its native goto into shared delete");
-        AssertTrue(enemies.LastMagdolliteLavaDropRequest is not null,
+        AssertTrue(enemies.MagdolliteBehavior.LastMagdolliteLavaDropRequest is not null,
             "Magdollite shot program executes its native drop callback");
         // `$86:DFEA` allocates its pickup actor at the shot projectile's position.
-        RoomEnemyProjectileSlot drop = enemies.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot drop = enemies.Projectiles.EnemyProjectiles.Single(
             projectile =>
                 projectile.IsActive &&
                 projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
@@ -175,12 +169,12 @@ internal static class MagdolliteLavaInstructionProgramDefinitionsVerification
             string direction)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
             ObserveFrame(projectile);
             AssertEqual(unchecked((ushort)(program + 4)), projectile.InstructionPointer,
                 $"{direction} Magdollite-lava pose reaches terminal sleep");
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
             ObserveFrame(projectile);
             AssertEqual((ushort)0, projectile.InstructionTimer,
                 $"{direction} Magdollite-lava terminal sleep parks the program");

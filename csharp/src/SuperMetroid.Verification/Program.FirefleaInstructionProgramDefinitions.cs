@@ -50,19 +50,17 @@ internal static class FirefleaInstructionProgramDefinitionsVerification
                  FirefleaInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)(address - 1)))),
             address => $"Production read compiled Fireflea instruction byte ${address:X6}.");
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Fireflea;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
-        typeof(RoomEnemySystem).GetMethod("InitializeFireflea", flags)!
-            .Invoke(enemies, [slot]);
+        enemies.FirefleaBehavior.InitializeFireflea(slot);
         AssertEqual(FirefleaInstructionProgramDefinitions.Loop,
             slot.CurrentInstruction,
             "Fireflea real initializer selects compiled loop");
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int call = 0;
@@ -70,7 +68,7 @@ internal static class FirefleaInstructionProgramDefinitionsVerification
              call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             ushort operand = FirefleaInstructionProgramDefinitionsTooling.PresentationWordAddress(
                 call % FirefleaInstructionProgramDefinitions.FrameCount);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | operand);

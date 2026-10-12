@@ -22,11 +22,11 @@ internal static class SpringBallFallingFallbackVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
         {
@@ -34,13 +34,13 @@ internal static class SpringBallFallingFallbackVerification
             level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0, RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
         samus.Pose = SamusPoseId.SpringBallFallingRightPose;
         samus.Position = samus.Position.WithWhole(new(512, 400));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         // The movie's state entering update 349335: base 1.4000, extra 1.E000, mode two.
         samus.HorizontalSpeed.BaseSpeed = 1;

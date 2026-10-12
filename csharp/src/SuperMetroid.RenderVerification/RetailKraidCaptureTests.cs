@@ -14,16 +14,16 @@ internal static class RetailKraidCaptureTests
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         // Match the existing Kraid rise audit's stationary approach position.
         samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-        var boss = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
-        var body = runtime.Enemies.Slots[0];
+        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
+        var boss = runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
+        var body = runtime.Enemies.SlotTable.Slots[0];
         var phases = new HashSet<ushort>();
         int samples = 0;
         bool completed = false, ownedBackground = false;
@@ -116,9 +116,9 @@ internal static class RetailKraidCaptureTests
         // regression. Run the defeated-room restoration before opening the other door.
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
         int restoreTicks = 0;
-        while (runtime.Enemies.Kraid is { DeathSequenceComplete: false } && restoreTicks++ < 120)
+        while (runtime.Enemies.KraidBehavior.Kraid is { DeathSequenceComplete: false } && restoreTicks++ < 120)
             runtime.StepFrame(0);
-        if (runtime.Enemies.Kraid is not { DeathSequenceComplete: true })
+        if (runtime.Enemies.KraidBehavior.Kraid is not { DeathSequenceComplete: true })
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
         RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
     }
@@ -129,7 +129,7 @@ internal static class RetailKraidCaptureTests
         // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly
         // as collision does: compiled $A7:9788 records or a live bank-$A7 low-half alias.
         var (left, top, bottom) = KraidMouthHitboxes.ResolveCollision(bus, boss.InvulnerableMouthHitbox);
-        var shots = RepositoryInstallation.CreateProjectileSystem();
+        var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;
         shot.Damage = 100; shot.Direction = (ushort)SamusProjectileDirection.Right;
@@ -138,9 +138,9 @@ internal static class RetailKraidCaptureTests
         shot.InstructionPointer = KraidCaptureDefinitions.AuditLiveInstruction;
         shot.InstructionTimer = 1;
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
-        typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ProjectileCounter))!.SetValue(shots, (ushort)1);
+        typeof(ProjectileSlotTable).GetProperty(nameof(ProjectileSlotTable.ProjectileCounter))!.SetValue(shots.SlotTable, (ushort)1);
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).
-        if (runtime.Enemies.ResolveKraidProjectileHits(bus, shots, RepositoryInstallation.CreateBombSystem()) == 0)
+        if (runtime.Enemies.ResolveKraidProjectileHits(bus, shots, InstalledFixtures.CreateBombSystem()) == 0)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");
     }
 }

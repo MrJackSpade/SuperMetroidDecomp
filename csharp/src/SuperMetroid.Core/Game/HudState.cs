@@ -196,7 +196,7 @@ public sealed class HudState
                 presentation?.DeselectedPalette ?? GameplayHudDefinitions.DeselectedPalette);
             _previousSelectedItem = samus.SelectedHudItem;
 
-            SamusMovementType movementType = samus.ReadMovementType(bus);
+            SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
             SelectionSoundRequestedThisFrame =
                 movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&

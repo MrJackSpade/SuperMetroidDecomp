@@ -26,7 +26,6 @@ internal static class ZebetiteDefinitionsVerification
         const int linkedHealthTable = 0xa6fd54;
         const int primarySpawn = 0xa6fce1;
         const int linkedSpawn = 0xa6fcf9;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort generation = 0; generation < 4; generation++)
         {
@@ -91,26 +90,16 @@ internal static class ZebetiteDefinitionsVerification
         }
 
         var guarded = NewZebetiteDefinitionReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeZebetite",
-            instanceFlags)!;
-        MethodInfo selectHealth = typeof(RoomEnemySystem).GetMethod(
-            "SelectZebetiteHealthAnimation",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnZebetite",
-            instanceFlags)!;
 
         foreach (ushort generation in new ushort[] { 0, 1, 2, 3 })
         foreach (bool linkedHalf in new[] { false, true })
         {
             var enemies = NewZebetiteDefinitionSystem(
                 guarded,
-                generation,
-                instanceFlags);
-            RoomEnemySlot slot = enemies.Slots[0];
+                generation);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = linkedHalf ? (ushort)2 : (ushort)0;
-            initialize.Invoke(enemies, [slot]);
+            enemies.ZebetiteBehavior.InitializeZebetite(slot);
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");
             ZebetiteGenerationDefinition expected = ZebetiteDefinitions.Generation(generation);
@@ -128,7 +117,7 @@ internal static class ZebetiteDefinitionsVerification
             foreach (ushort health in healthSamples)
             {
                 slot.Health = health;
-                selectHealth.Invoke(null, [slot, state]);
+                ZebetiteBehavior.SelectZebetiteHealthAnimation(slot, state);
                 AssertEqual(ZebetiteDefinitions.HealthInstruction(
                         (expected.GenerationFlags & 0x8000) != 0,
                         health),
@@ -139,8 +128,8 @@ internal static class ZebetiteDefinitionsVerification
 
         foreach (bool linkedHalf in new[] { false, true })
         {
-            var enemies = NewZebetiteDefinitionSystem(guarded, 0, instanceFlags);
-            RoomEnemySlot slot = (RoomEnemySlot)spawn.Invoke(enemies, [linkedHalf])!;
+            var enemies = NewZebetiteDefinitionSystem(guarded, 0);
+            RoomEnemySlot slot = (RoomEnemySlot)enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf);
             AssertEqual(ZebetiteDefinitions.SpawnPopulation(linkedHalf), slot.Spawn.Population,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
             AssertEqual(linkedHalf, slot.Parameter1 != 0,
@@ -153,11 +142,10 @@ internal static class ZebetiteDefinitionsVerification
 
     private static RoomEnemySystem NewZebetiteDefinitionSystem(
         ISnesAddressSpace bus,
-        ushort generation,
-        BindingFlags instanceFlags)
+        ushort generation)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(eventNumber => eventNumber switch
             {
                 EventNumber.ZebetiteDestroyedBit2 => (generation & 4) != 0,

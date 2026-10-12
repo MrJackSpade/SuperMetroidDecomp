@@ -40,13 +40,11 @@ internal static class PolypInstructionProgramDefinitionsVerification
         var guard = NewPolypInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
-        var initialize = type.GetMethod("InitializePolyp", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        var initialize = new Action<RoomEnemySlot>(enemies.PolypBehavior.InitializePolyp);
 
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.LavaRocks;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         initialize(slot);
@@ -57,11 +55,11 @@ internal static class PolypInstructionProgramDefinitionsVerification
         object?[] processArguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         slot.InstructionTimer = 1;
-        process.Invoke(enemies, processArguments);
+        EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa20000 | PolypInstructionProgramDefinitions.PresentationWord), slot.SpritemapPointer,
             "Polyp selects its exact native frame without cartridge reads");
         slot.InstructionTimer = 1;
-        process.Invoke(enemies, processArguments);
+        EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(PolypInstructionProgramDefinitions.Stationary + 4)),
             slot.CurrentInstruction,
             "Polyp program reaches terminal sleep");

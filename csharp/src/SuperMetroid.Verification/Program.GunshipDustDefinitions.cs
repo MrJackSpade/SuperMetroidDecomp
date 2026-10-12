@@ -9,11 +9,10 @@ internal static class GunshipDustDefinitionsVerification
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewGunshipDustGuard(rom));
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnGunshipLiftoffDustCloud", flags)!
-            .CreateDelegate<Action<ushort, SamusState>>(enemies);
+        enemies.BindFixtureBus(NewGunshipDustGuard(rom));
+        var spawn = new Action<ushort, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
         var samus = new SamusState();
-        var slot = enemies.EnemyProjectiles[^1];
+        var slot = enemies.Projectiles.EnemyProjectiles[^1];
         for (ushort parameter = 0; parameter <= 10; parameter += 2)
         {
             short dx = unchecked((short)Word(EnemyRomTablePointersGunship.DustXOffsetWords + parameter));
@@ -42,14 +41,14 @@ internal static class GunshipDustDefinitionsVerification
                 AssertEqual((ushort)0, slot.Velocity.Y.RawValue, "Dust clears stale Y velocity");
             }
         }
-        foreach (var occupied in enemies.EnemyProjectiles)
+        foreach (var occupied in enemies.Projectiles.EnemyProjectiles)
         {
             occupied.Kind = RoomEnemyProjectileKind.PhantoonStartingFlame;
             occupied.Position = occupied.Position.WithWholeX(0x1234);
             occupied.InstructionPointer = 0x5678;
         }
         for (ushort parameter = 0; parameter <= 10; parameter += 2) spawn(parameter, samus);
-        foreach (var occupied in enemies.EnemyProjectiles)
+        foreach (var occupied in enemies.Projectiles.EnemyProjectiles)
         {
             AssertEqual(RoomEnemyProjectileKind.PhantoonStartingFlame, occupied.Kind, "Full pool retains owner");
             AssertEqual((ushort)0x1234, occupied.Position.X.Whole, "Full pool retains X");

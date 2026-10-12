@@ -9,13 +9,13 @@ internal static class MaridiaPipeIncomingDoorSeed
     public static void Apply(SuperMetroidRuntime runtime, ISnesAddressSpace bus, CartridgeDoorHeader door)
     {
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom);
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         int entry = -1;
         for (int index = 0; index < level.ForegroundEntries.Length; index++)
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            if (level.ResolveDoorCollision(bus, block.Behavior, runtime.Samus!.Pose, false).Pointer != door.Pointer) continue;
+            if (level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.Samus!.Pose, false).Pointer != door.Pointer) continue;
             entry = index;
             break;
         }
@@ -24,8 +24,8 @@ internal static class MaridiaPipeIncomingDoorSeed
         ushort y = checked((ushort)((entry / level.Size.X) * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom,
             new Position16<RoomPixels>((ushort)(SnesLittleEndian.HighByteInPlace(x)), (ushort)(SnesLittleEndian.HighByteInPlace(y))));
-        runtime.Samus!.Kinematics.Position = runtime.Samus!.Kinematics.Position.WithX(new SnesFixedPosition(x, 0));
-        runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithY(new SnesFixedPosition(y, 0));
+        runtime.Player.Samus!.Kinematics.Position = runtime.Player.Samus!.Kinematics.Position.WithX(new SnesFixedPosition(x, 0));
+        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithY(new SnesFixedPosition(y, 0));
         // Let gravity reach the authored door block. Publishing a pending door here
         // skipped the source camera's approach and retained an arbitrary scroll phase.
         Console.WriteLine($"incoming seed block={entry} Samus={x}/{y} door={door.Pointer:X4}");

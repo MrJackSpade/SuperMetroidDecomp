@@ -20,7 +20,6 @@ internal static class ShaktoolInstructionDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool instruction definitions")]
     internal static void VerifyShaktoolInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
@@ -35,13 +34,11 @@ internal static class ShaktoolInstructionDefinitionsVerification
                 $"Shaktool collision list {index}");
         }
 
-        RoomEnemySystem enemies = CreateCompiledShaktoolGroup(rom, flags);
-        RoomEnemySlot center = enemies.Slots[3];
+        RoomEnemySystem enemies = CreateCompiledShaktoolGroup(rom);
+        RoomEnemySlot center = enemies.SlotTable.Slots[3];
         ShaktoolSegmentState centerState = enemies.ShaktoolSegments[3]!;
         ShaktoolSegmentState nextState = enemies.ShaktoolSegments[4]!;
-        var orient = typeof(RoomEnemySystem).GetMethod(
-                "AdvanceAndOrientShaktoolCenter", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState>>(enemies);
+        Action<RoomEnemySlot, ShaktoolSegmentState> orient = enemies.ShaktoolBehavior.AdvanceAndOrientShaktoolCenter;
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
@@ -59,17 +56,14 @@ internal static class ShaktoolInstructionDefinitionsVerification
                 $"Shaktool production orientation list {bucket:X2}");
         }
 
-        RoomEnemySlot tail = enemies.Slots[6];
+        RoomEnemySlot tail = enemies.SlotTable.Slots[6];
         ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6]!;
-        var reverse = typeof(RoomEnemySystem).GetMethod(
-                "ReverseShaktoolAfterCollision", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>>>(
-                enemies);
+        Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>> reverse = enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision;
         reverse(tail, tailState, tail.Position.Whole);
         for (int index = 0; index < 7; index++)
         {
             AssertEqual(ShaktoolInstructionDefinitions.CollisionForSegment(index),
-                enemies.Slots[index].CurrentInstruction,
+                enemies.SlotTable.Slots[index].CurrentInstruction,
                 $"Shaktool production collision list {index}");
         }
 
@@ -95,7 +89,6 @@ internal static class ShaktoolInstructionDefinitionsVerification
     internal static void VerifyShaktoolInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (int index = 0;
              index < ShaktoolInstructionProgramDefinitionsTooling.MechanicsWordCount;
@@ -110,8 +103,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         }
 
         var guard = NewShaktoolInstructionReadGuard(rom);
-        RoomEnemySystem enemies = CreateCompiledShaktoolGroup(guard, flags);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        RoomEnemySystem enemies = CreateCompiledShaktoolGroup(guard);
 
         ushort[] steadyPrograms =
         [
@@ -129,20 +121,17 @@ internal static class ShaktoolInstructionDefinitionsVerification
         ];
         for (int index = 0; index < steadyPrograms.Length; index++)
         {
-            RoomEnemySlot segment = enemies.Slots[Math.Min(index, 6)];
+            RoomEnemySlot segment = enemies.SlotTable.Slots[Math.Min(index, 6)];
             segment.CurrentInstruction = steadyPrograms[index];
-            RunForcedShaktoolInstructions(process, enemies, segment, 5);
+            RunForcedShaktoolInstructions(enemies, segment, 5);
         }
 
-        RoomEnemySlot tail = enemies.Slots[6];
+        RoomEnemySlot tail = enemies.SlotTable.Slots[6];
         ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6]!;
-        var reverse = typeof(RoomEnemySystem).GetMethod(
-                "ReverseShaktoolAfterCollision", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>>>(
-                enemies);
+        Action<RoomEnemySlot, ShaktoolSegmentState, Position16<RoomPixels>> reverse = enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision;
         reverse(tail, tailState, tail.Position.Whole);
         for (int index = 0; index < 7; index++)
-            RunForcedShaktoolInstructions(process, enemies, enemies.Slots[index], 8);
+            RunForcedShaktoolInstructions(enemies, enemies.SlotTable.Slots[index], 8);
 
         AssertEqual(0, guard.ObservedWords.Count,
             "Shaktool execution uses compiled spritemap selectors");
@@ -178,7 +167,6 @@ internal static class ShaktoolInstructionDefinitionsVerification
     }
 
     private static bool RunForcedShaktoolInstructions(
-        MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot segment,
         int steps)
@@ -190,7 +178,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         {
             (ushort X, ushort Y) before = (segment.Position.X.Whole, segment.Position.Y.Whole);
             segment.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             moved |= segment.Position.X.Whole != before.X || segment.Position.Y.Whole != before.Y;
         }
         return moved;
@@ -208,17 +196,14 @@ internal static class ShaktoolInstructionDefinitionsVerification
     }
 
     private static RoomEnemySystem CreateCompiledShaktoolGroup(
-        ISnesAddressSpace rom,
-        BindingFlags flags)
+        ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, NewShaktoolInstructionReadGuard(rom));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeShaktool", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
+        enemies.BindFixtureBus(NewShaktoolInstructionReadGuard(rom));
+        Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < 7; index++)
         {
-            RoomEnemySlot slot = enemies.Slots[index];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xaa };
             slot.Parameter2 = unchecked((ushort)(index * 2));

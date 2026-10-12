@@ -13,15 +13,15 @@ internal static class RuntimeOverlayTests
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        runtime.RunNmi(0, true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.NmiHandler.RunNmi(0, true);
         long sequence = 0;
         Check("Ceres mixed-mode initial publication");
         runtime.LoadCartridgeRoomForDebug(OverlayFixtureRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
-        runtime.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0, true);
         Check("ordinary room without overlays");
 
         // Deliberately combine owners rather than claim this is a natural pickup
@@ -31,8 +31,8 @@ internal static class RuntimeOverlayTests
         for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(bus, runtime.Samus!, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(bus, runtime.Samus!, runtime.Cgram);
+        runtime.SuitPickup.Begin(bus, runtime.Player.Samus!, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(bus, runtime.Player.Samus!, runtime.Cgram);
         var initial = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         if (initial.Layers.Length != 4 || initial.Layers[0] is not OrdinaryGameplayRenderLayer
             || initial.Layers[1] is not ScanlineColorAddRenderLayer
@@ -45,7 +45,7 @@ internal static class RuntimeOverlayTests
             var retained = Check($"combined overlay tick {tick}");
             runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
             runtime.MessageBox.Step(0);
-            runtime.SuitPickup.Step(bus, runtime.Samus!, runtime.Cgram);
+            runtime.SuitPickup.Step(bus, runtime.Player.Samus!, runtime.Cgram);
             // Force GPU resources to contain the next frame before replaying the old
             // packet. A cached output or borrowed live palette cannot satisfy this.
             Check($"updated overlay tick {tick}");

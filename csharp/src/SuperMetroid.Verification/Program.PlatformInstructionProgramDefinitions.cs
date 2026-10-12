@@ -35,12 +35,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyPlatformAnimationProgramSelection), () => VerifyPlatformAnimationProgramSelection(rom));
 
         var guard = NewPlatformInstructionProgramReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializePlatform", flags)!;
-        MethodInfo installMoving = typeof(RoomEnemySystem).GetMethod(
-            "InstallPlatformVerticallyMovingForCurrentDirection", flags)!;
-        MethodInfo installStill = typeof(RoomEnemySystem).GetMethod(
-            "InstallPlatformVerticallyStillForCurrentDirection", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        Action<RoomEnemySlot, PlatformEnemyState> installMoving = PlatformsBehavior.InstallPlatformVerticallyMovingForCurrentDirection;
+        Action<RoomEnemySlot, PlatformEnemyState> installStill = PlatformsBehavior.InstallPlatformVerticallyStillForCurrentDirection;
 
         PlatformProgramCase[] cases =
         [
@@ -65,8 +61,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         foreach (PlatformProgramCase testCase in cases)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = testCase.IsKamer
                 ? EnemyDefinitionId.Kamer2
                 : EnemyDefinitionId.Tripper;
@@ -74,7 +70,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             slot.Parameter1 = (ushort)testCase.Direction;
             slot.Parameter2 = 0x0101;
             slot.Position = slot.Position.WithWholeY(0x0100);
-            initialize.Invoke(enemies, [slot]);
+            enemies.PlatformsBehavior.InitializePlatform(slot);
 
             PlatformEnemyState state = enemies.PlatformStates[0]!;
             ushort expectedInitial = testCase.IsKamer
@@ -88,11 +84,11 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 $"real {(testCase.IsKamer ? "Kamer" : "Tripper")} initializer " +
                 $"selects {testCase.Direction} still program");
 
-            (testCase.IsMoving ? installMoving : installStill).Invoke(null, [slot, state]);
+            (testCase.IsMoving ? installMoving : installStill)(slot, state);
             AssertEqual(testCase.EntryPoint, slot.CurrentInstruction,
                 $"production platform installer selects $A3:{testCase.EntryPoint:X4}");
 
-            ExecutePlatformProgram(enemies, process, slot, callCount: 5);
+            ExecutePlatformProgram(enemies, slot, callCount: 5);
             AssertEqual(testCase.Direction, state.XMovement,
                 $"platform program $A3:{testCase.EntryPoint:X4} publishes direction");
             AssertEqual(unchecked((ushort)(testCase.EntryPoint + 6)),
@@ -131,7 +127,6 @@ internal static class PlatformInstructionProgramDefinitionsVerification
 
     private static void ExecutePlatformProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot slot,
         int callCount)
     {
@@ -140,7 +135,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

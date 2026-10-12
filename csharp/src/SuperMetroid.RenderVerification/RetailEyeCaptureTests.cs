@@ -12,12 +12,12 @@ internal static class RetailEyeCaptureTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom,
             new Position16<RoomPixels>(EyeCaptureFixture.CameraX, EyeCaptureFixture.CameraY));
-        var body = runtime.Enemies.Slots[1];
-        var samus = runtime.Samus!;
+        var body = runtime.Enemies.SlotTable.Slots[1];
+        var samus = runtime.Player.Samus!;
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + 64)), body.Position.Y.Whole));
         samus.InputLocked = true;
@@ -25,8 +25,8 @@ internal static class RetailEyeCaptureTests
         for (int tick = 0; tick < 96; tick++)
         {
             runtime.StepFrame(0);
-            firstBeam |= runtime.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Widening, AngularWidth: 0 };
-            fullBeam |= runtime.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Full };
+            firstBeam |= runtime.Display.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Widening, AngularWidth: 0 };
+            fullBeam |= runtime.Display.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Full };
             var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));

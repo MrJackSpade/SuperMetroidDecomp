@@ -19,18 +19,18 @@ internal static class FirefleaEyeVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xb6ee);
         AssertEqual(RoomFxType.Fireflea, runtime.RoomLayer3Fx.Type, "reported room uses Fireflea darkness");
-        var eye = runtime.Enemies.Slots[0];
+        var eye = runtime.Enemies.SlotTable.Slots[0];
         AssertEqual(EnemyDefinitionId.Fune, eye.EnemyDefinitionPointer, "reported rock eye is retail Fune/Namihe family");
         ushort cameraX = 368, cameraY = 608;
-        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Samus, Level = runtime.LevelData });
+        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
         var oam = new OamBuffer();
         oam.BeginFrame();
-        runtime.Enemies.DrawLayers(oam, new(cameraX, cameraY), 0, 7);
+        runtime.Enemies.Drawing.DrawLayers(oam, new(cameraX, cameraY), 0, 7);
         oam.FinalizeFrame();
         AssertTrue(oam.LastFinalizedSpriteCount > 0, "retail rock eye emits sprites");
         var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, oam);

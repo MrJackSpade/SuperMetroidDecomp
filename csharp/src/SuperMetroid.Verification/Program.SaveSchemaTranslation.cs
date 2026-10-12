@@ -100,7 +100,10 @@ internal static class SaveSchemaTranslationVerification
     {
         // Confirm the translated completion bit is consumed and produced by the frontend.
         var frontend = new SuperMetroidGame(bus);
-        frontend.BindMapPresentation(RetailPresentationFixture());
+        frontend.BindArtwork(frontend.Artwork with
+        {
+            MapPresentation = RetailPresentationFixture(),
+        });
         ram.SelectSlot(2);
         ram.SetGameCompleted(false);
         AssertEqual(3, frontend.AvailableDemoSetCount(), "incomplete save exposes three demo sets");
@@ -135,7 +138,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(1, exposed.System.LoadedItemCount, "exposed item setup increments saved counter");
         AssertEqual(1, shot.System.LoadedItemCount, "collected shot-block setup increments saved counter");
         shot.System.LoadedItemCount = ushort.MaxValue;
-        shot.Plms.LoadRoomPopulation(new PlmRoom(fixtureBus, shot.Level, shot.Streamer, new SnesVram(), shot.System, AreaId.Crateria), SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        shot.Plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(fixtureBus, shot.Level, shot.Streamer, new SnesVram(), shot.System, AreaId.Crateria), SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, shot.System.LoadedItemCount, "saved item-load counter wraps as a native word");
         ram.SelectSlot(0);
     }

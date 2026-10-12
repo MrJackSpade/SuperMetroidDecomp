@@ -38,16 +38,10 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                 $"Space Pirate projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewSpacePirateProjectileInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawnLaser = typeof(RoomEnemySystem).GetMethod(
-            "SpawnPirateMotherBrainLaser", flags)!;
-        MethodInfo spawnClaw = typeof(RoomEnemySystem).GetMethod(
-            "SpawnNinjaPirateClaw", flags)!;
 
         foreach ((bool movingRight, ushort program, ushort loop,
                   ushort movement, ushort expectedX) in new[]
@@ -65,12 +59,10 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot source = enemies.Slots[0];
+            RoomEnemySlot source = enemies.SlotTable.Slots[0];
             source.Position = source.Position.WithWhole(new(128, 96));
             source.Parameter1 = 0;
-            RoomEnemyProjectileSlot laser = (RoomEnemyProjectileSlot)spawnLaser.Invoke(
-                enemies,
-                [source, new Position16<RoomPixels>(128, 96), movingRight])!;
+            RoomEnemyProjectileSlot laser = (RoomEnemyProjectileSlot)enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight);
             AssertEqual(program, laser.InstructionPointer,
                 "real Pirate/Mother Brain laser producer selects its facing program");
             AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_86A05B, laser.PreInstruction,
@@ -101,13 +93,11 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemySlot source = enemies.Slots[0];
+            RoomEnemySlot source = enemies.SlotTable.Slots[0];
             source.Position = source.Position.WithWhole(new(128, 96));
             var state = new NinjaSpacePirateEnemyState(source);
-            spawnClaw.Invoke(
-                enemies,
-                [source, state, direction, Offset16<RoomPixels>.Zero]);
-            RoomEnemyProjectileSlot claw = enemies.EnemyProjectiles.Single(
+            enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source, state, direction, Offset16<RoomPixels>.Zero);
+            RoomEnemyProjectileSlot claw = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
             AssertEqual(program, claw.InstructionPointer,
                 "real Ninja Pirate claw producer selects its facing program");
@@ -120,12 +110,10 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         }
 
         RoomEnemySystem deleteSystem = NewSystem();
-        RoomEnemySlot deleteSource = deleteSystem.Slots[0];
+        RoomEnemySlot deleteSource = deleteSystem.SlotTable.Slots[0];
         var deleteState = new NinjaSpacePirateEnemyState(deleteSource);
-        spawnClaw.Invoke(
-            deleteSystem,
-            [deleteSource, deleteState, (ushort)0, Offset16<RoomPixels>.Zero]);
-        RoomEnemyProjectileSlot deleting = deleteSystem.EnemyProjectiles.Single(
+        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, deleteState, (ushort)0, Offset16<RoomPixels>.Zero);
+        RoomEnemyProjectileSlot deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
         deleting.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         RunForcedTick(deleteSystem, deleting);
@@ -170,7 +158,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             return enemies;
         }
 
@@ -179,7 +167,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 

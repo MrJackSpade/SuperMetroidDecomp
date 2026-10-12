@@ -1,0 +1,96 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>The six literal bank-$A6 function words stored in Boulder's variable A.</summary>
+public enum BoulderAiFunction : ushort
+{
+    /// <summary>$A6:879A, <c>Function_Boulder_WaitForSamusToGetNear</c>: waits for Samus to enter the direction-dependent X window and vertical trigger range before selecting an initial fall or immediate roll.</summary>
+    WaitingForSamus = 0x879a,
+    /// <summary>$A6:87ED, <c>Function_Boulder_Falling</c>: accelerates downward without terrain collision checks until the original spawn Y is reached, then starts the first rebound.</summary>
+    InitialFall = 0x87ed,
+    /// <summary>$A6:8832, <c>Function_Boulder_Bounce_Rising</c>: decelerates the upward quadratic-table motion while accelerating horizontally, then enters the falling half of the bounce.</summary>
+    Rebound = 0x8832,
+    /// <summary>$A6:888B, <c>Function_Boulder_Bounce_Falling</c>: falls with terrain collision, selects progressively smaller rebounds, and enters rolling when the bounce counter underflows; direction two breaks on impact.</summary>
+    Falling = 0x888b,
+    /// <summary>$A6:8942, <c>Function_Boulder_Rolling</c>: follows terrain with vertical compensation and accelerates horizontally until wall collision hides and deletes the actor with a dust effect.</summary>
+    Rolling = 0x8942,
+    /// <summary>$A6:89FC, <c>Function_Boulder_LoadEnemyIndex</c>: native load-index-and-return target written after terminal rolling impact; no further movement occurs before slot cleanup.</summary>
+    Inert = 0x89fc,
+}
+
+/// <summary>
+/// Debugger-facing view of the otherwise anonymous Boulder words at enemy offsets
+/// <c>$7800-$780E</c>. The function and three motion counters remain backed by the common
+/// enemy slot so watches retain the same values that the instruction/AI dispatcher sees.
+/// </summary>
+public sealed class BoulderEnemyState
+{
+    private readonly RoomEnemySlot _slot;
+
+    internal BoulderEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Current bank-$A6 indirect AI target, backed by common variable A here and corresponding to native <c>Boulder.function</c> at $0FA8,x.</summary>
+    public BoulderAiFunction Function
+    {
+        get => (BoulderAiFunction)_slot.VariableA;
+        internal set => _slot.VariableA = (ushort)value;
+    }
+
+    /// <summary>
+    /// Variable B, the travel acceleration clock: advanced in $20/$40 steps and indexed by
+    /// its high byte into the quadratic speed table. It drives horizontal travel while
+    /// bouncing and rolling, and also the ground-following fall while rolling, so it is an
+    /// independent clock rather than one axis of a velocity.
+    /// </summary>
+    public ushort TravelSpeedAccumulator
+    {
+        get => _slot.VariableB;
+        internal set => _slot.VariableB = value;
+    }
+
+    /// <summary>
+    /// Variable C, the bounce acceleration clock: the quadratic-table accumulator for the
+    /// initial fall and the rebound arcs, with its own steps, caps and resets.
+    /// </summary>
+    public ushort BounceSpeedAccumulator
+    {
+        get => _slot.VariableC;
+        internal set => _slot.VariableC = value;
+    }
+
+    /// <summary>Variable D. Its deliberate zero-to-$FFFF underflow ends the bounce phase.</summary>
+    public ushort BounceCounter
+    {
+        get => _slot.VariableD;
+        internal set => _slot.VariableD = value;
+    }
+
+    /// <summary>Variable E, copied from parameter one's high byte and used as direction.</summary>
+    public ushort DirectionSelector
+    {
+        get => _slot.VariableE;
+        internal set => _slot.VariableE = value;
+    }
+
+    /// <summary>Signed pixel threshold for Samus's X displacement, from parameter two's low byte: positive for rightward activation and negative for leftward activation. Native <c>XProximity</c> at $7E:7800,x.</summary>
+    public short HorizontalTriggerLimit { get; internal set; }
+    /// <summary>Whole-pixel extra downward collision reach during rolling, subtracted from Y afterward; initially two or five from parameter one's low byte, then zero once the full Y position stops changing. Native <c>minimumDistanceFromGround</c> at $7E:7802,x.</summary>
+    public ushort VerticalCompensation { get; internal set; }
+    /// <summary>Saved fractional Y position in 1/65536 pixel units, compared with the saved whole position to detect stationary rolling and refreshed after each rolling update. Native <c>previousEnemyYSubPosition</c> at $7E:7804,x.</summary>
+    public ushort PreviousYSubposition { get; internal set; }
+    /// <summary>Saved room Y coordinate in pixels for the rolling stability check; captured at initialization and on the final bounce, then refreshed during rolling. Native <c>previousEnemyYPosition</c> at $7E:7806,x.</summary>
+    public ushort PreviousYPosition { get; internal set; }
+    /// <summary>
+    /// Original population position in room pixels: X retained as native <c>spawnXPosition</c>
+    /// at $7E:7808,x (the translated movement does not subsequently consume it), and Y before
+    /// the initial upward offset, which the first fall snaps to before rebounding (native
+    /// <c>fallingTargetYPosition</c> at $7E:780A,x).
+    /// </summary>
+    public Position16<RoomPixels> InitialPosition { get; internal set; }
+    /// <summary>Exclusive upper pixel threshold for Samus's nonnegative Y displacement, taken from the population initialization instruction word's low byte. Native <c>YProximity</c> at $7E:780C,x.</summary>
+    public byte VerticalTriggerLimit { get; internal set; }
+    /// <summary>True when parameter two's high byte is zero: initialization substitutes a one-pixel upward offset and activation bypasses the falling and bounce sequence. Native <c>type</c> at $7E:780E,x.</summary>
+    public bool StartsRollingWithoutBounce { get; internal set; }
+}

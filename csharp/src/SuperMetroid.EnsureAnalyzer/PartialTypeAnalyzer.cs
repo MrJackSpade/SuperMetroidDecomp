@@ -1,0 +1,107 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
+
+namespace SuperMetroid.EnsureAnalyzer;
+
+/// <summary>
+/// #621: a type is one hand-written declaration. <c>partial</c> exists only for a generated boundary: one
+/// hand-written declaration plus generated declarations, whether a source generator emits them (LibraryImport,
+/// GeneratedRegex, ...) or a checked-in generator does. Generated declarations are recognized structurally, by
+/// the same conventions the compiler uses: an <c>&lt;auto-generated&gt;</c> header comment, or a
+/// <c>.g.cs</c>, <c>.generated.cs</c> or <c>.designer.cs</c> file name.
+/// </summary>
+[DiagnosticAnalyzer(LanguageNames.CSharp)]
+public sealed class PartialTypeAnalyzer : DiagnosticAnalyzer
+{
+    /// <summary>A type whose hand-written code is split across several partial declarations.</summary>
+    public const string SplitId = "SME6360";
+
+    /// <summary>A partial type with no generated declaration to justify the modifier.</summary>
+    public const string UngeneratedId = "SME6361";
+
+    private static readonly DiagnosticDescriptor SplitRule = new(
+        SplitId,
+        "Hand-written type split across partial declarations",
+        "{0} has {1} hand-written partial declarations; a type is one declaration, with partial only for a generated half",
+        "Architecture",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Split responsibilities into owned types instead of spreading one type over several files (#621).");
+
+    private static readonly DiagnosticDescriptor UngeneratedRule = new(
+        UngeneratedId,
+        "Partial type without a generated declaration",
+        "{0} is partial but no generated declaration completes it; remove partial",
+        "Architecture",
+        DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "partial is reserved for a type that a source generator or a checked-in generator completes (#621).");
+
+    /// <inheritdoc />
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [SplitRule, UngeneratedRule];
+
+    /// <inheritdoc />
+    public override void Initialize(AnalysisContext context)
+    {
+        // Generated declarations are part of every decision, so generated code is analyzed too; diagnostics
+        // are only reported at hand-written declarations.
+        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze);
+        context.EnableConcurrentExecution();
+        context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
+    }
+
+    private static void AnalyzeType(SymbolAnalysisContext context)
+    {
+        var type = (INamedTypeSymbol)context.Symbol;
+        var declarations = type.DeclaringSyntaxReferences
+            .Select(reference => reference.GetSyntax(context.CancellationToken))
+            .OfType<TypeDeclarationSyntax>()
+            .ToList();
+        if (!declarations.Any(declaration => declaration.Modifiers.Any(SyntaxKind.PartialKeyword)))
+            return;
+        var handWritten = declarations.Where(declaration => !IsGenerated(declaration.SyntaxTree, context.CancellationToken)).ToList();
+        if (handWritten.Count == 0)
+            return;
+        string name = type.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat);
+        if (handWritten.Count > 1)
+        {
+            foreach (TypeDeclarationSyntax declaration in handWritten)
+                context.ReportDiagnostic(Diagnostic.Create(SplitRule, declaration.Identifier.GetLocation(), name, handWritten.Count));
+            return;
+        }
+        if (handWritten.Count == declarations.Count)
+            context.ReportDiagnostic(Diagnostic.Create(UngeneratedRule, handWritten[0].Identifier.GetLocation(), name));
+    }
+
+    /// <summary>The compiler's generated-code conventions: file name suffixes and an auto-generated header comment.</summary>
+    internal static bool IsGenerated(SyntaxTree tree, CancellationToken cancellation)
+    {
+        string fileName = Path.GetFileName(tree.FilePath);
+        if (fileName.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) ||
+            fileName.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase) ||
+            fileName.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase) ||
+            fileName.EndsWith(".designer.cs", StringComparison.OrdinalIgnoreCase))
+            return true;
+        foreach (SyntaxTrivia trivia in tree.GetRoot(cancellation).GetLeadingTrivia())
+        {
+            if (trivia.IsKind(SyntaxKind.SingleLineCommentTrivia) || trivia.IsKind(SyntaxKind.MultiLineCommentTrivia))
+            {
+                string text = trivia.ToString();
+                if (text.Contains("<auto-generated", StringComparison.Ordinal) || text.Contains("<autogenerated", StringComparison.Ordinal))
+                    return true;
+            }
+            else if (!trivia.IsKind(SyntaxKind.WhitespaceTrivia) && !trivia.IsKind(SyntaxKind.EndOfLineTrivia))
+            {
+                break;
+            }
+        }
+        return false;
+    }
+}

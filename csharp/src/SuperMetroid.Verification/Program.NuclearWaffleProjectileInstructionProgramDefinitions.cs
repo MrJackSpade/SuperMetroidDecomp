@@ -38,18 +38,15 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
                 $"Nuclear Waffle projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewNuclearWaffleProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeNuclearWaffle", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemySlot> initialize = enemies.NuclearWaffleBehavior.InitializeNuclearWaffle;
 
-        RoomEnemySlot owner = enemies.Slots[0];
+        RoomEnemySlot owner = enemies.SlotTable.Slots[0];
         owner.Parameter1 = 0x2001;
         owner.Parameter2 = 0x2000;
         owner.Position = owner.Position.WithWhole(new(0x0180, 0x0200));
@@ -124,7 +121,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 if (projectile.IsActive)
                 {

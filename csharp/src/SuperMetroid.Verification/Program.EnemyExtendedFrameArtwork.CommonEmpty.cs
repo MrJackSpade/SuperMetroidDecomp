@@ -23,14 +23,9 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             // $804F root below, enemies can select $804D directly during their
             // initialization. A full-ROM read guard proves this is compiled.
             var ordinaryEnemies = new RoomEnemySystem { TileArtwork = stock };
-            typeof(RoomEnemySystem).GetField("_bus",
-                BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(
-                    ordinaryEnemies, NewFrontendCartridgeReadGuard(rom));
+            ordinaryEnemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
             var emptyDraw = new OamBuffer();
-            typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap",
-                BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(
-                    ordinaryEnemies,
-                    [emptyDraw, new EnemySpritemapDraw { Bank = (byte)bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true }]);
+            ordinaryEnemies.Presentation.DrawEnemySpritemap(emptyDraw, new EnemySpritemapDraw { Bank = (byte)bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameDefinitions.Frame));
@@ -88,16 +83,14 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Definition = default(RoomEnemyDefinition) with { Bank = bank };
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
             [slot, new Position16<RoomPixels>((ushort)0x0080, (ushort)0x0080), new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
-        bool found = (bool)typeof(RoomEnemySystem)
-            .GetMethod("TryFindExtendedHitboxCallback", flags)!
-            .Invoke(enemies, arguments)!;
+        bool found = ExtendedHitboxWalker.Find(enemies, arguments);
         AssertTrue(found, "shared empty extended point overlaps its origin");
         return (ushort)arguments[4]!;
     }

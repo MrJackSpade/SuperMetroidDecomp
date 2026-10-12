@@ -7,6 +7,7 @@ using static SuperMetroid.EnsureVerification.EnsureCodeFixTests;
 using static SuperMetroid.EnsureVerification.PaletteFxContractTests;
 using static SuperMetroid.EnsureVerification.ParameterContractsTests;
 using static SuperMetroid.EnsureVerification.ParameterListAnalyzerTests;
+using static SuperMetroid.EnsureVerification.PartialTypeAnalyzerTests;
 using static SuperMetroid.EnsureVerification.WordReadAnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
@@ -36,6 +37,7 @@ internal static class Program
             VerifyDspRegisterAccessAnalyzer();
             VerifySpcMemoryAccessAnalyzer();
             VerifyParameterListAnalyzer();
+            VerifyPartialTypeAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();
             VerifyEnsureCallsAndCodeFix();

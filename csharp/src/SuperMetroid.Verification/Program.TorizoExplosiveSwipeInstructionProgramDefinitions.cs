@@ -39,18 +39,14 @@ internal static class TorizoExplosiveSwipeInstructionProgramDefinitionsVerificat
 
         var guard = NewTorizoExplosiveSwipeInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        var spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnBombTorizoExplosiveSwipe", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemySlot, ushort> spawn = enemies.BombTorizoBehavior.SpawnBombTorizoExplosiveSwipe;
 
-        RoomEnemySlot torizo = enemies.Slots[0];
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.Parameter1 = 0;
         spawn(torizo, 0);
-        RoomEnemyProjectileSlot swipe = enemies.EnemyProjectiles.First(
+        RoomEnemyProjectileSlot swipe = enemies.Projectiles.EnemyProjectiles.First(
             projectile => projectile.Kind == RoomEnemyProjectileKind.BombTorizoExplosiveSwipe);
         AssertEqual(TorizoExplosiveSwipeInstructionProgramDefinitions.Initial,
             swipe.InstructionPointer, "real Torizo swipe selects compiled program");
@@ -59,11 +55,11 @@ internal static class TorizoExplosiveSwipeInstructionProgramDefinitionsVerificat
 
         for (int frame = 0; frame < 25; frame++)
         {
-            process.Invoke(enemies, [swipe, null, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(swipe, null, Position16<RoomPixels>.Zero);
             AssertTrue(swipe.IsActive,
                 $"Torizo explosive swipe remains active through frame {frame + 1}");
         }
-        process.Invoke(enemies, [swipe, null, Position16<RoomPixels>.Zero]);
+        enemies.Projectiles.ProcessEnemyProjectileInstructions(swipe, null, Position16<RoomPixels>.Zero);
         AssertTrue(!swipe.IsActive,
             "Torizo explosive swipe deletes on the tick after five five-frame poses");
 

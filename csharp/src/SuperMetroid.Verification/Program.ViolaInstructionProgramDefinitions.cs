@@ -41,13 +41,11 @@ internal static class ViolaInstructionProgramDefinitionsVerification
         }
 
         var guard = NewViolaInstructionReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Viola;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             // InitAI_Viola ($A3:B678) selects with the property bits; a different
@@ -55,14 +53,13 @@ internal static class ViolaInstructionProgramDefinitionsVerification
             slot.CurrentInstruction = (ushort)((ushort)orientation ^ 1);
             slot.Properties = (ushort)orientation;
             slot.Parameter1 = 0;
-            initialize.Invoke(enemies,
-                [slot, CrawlerAnimationFamily.Viola, (ushort?)6]);
+            enemies.CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Viola, (ushort?)6);
 
             ushort entry = CrawlerAnimationDefinitions.InitialInstruction(
                 CrawlerAnimationFamily.Viola, orientation);
             AssertEqual(entry, slot.CurrentInstruction,
                 $"Viola real initializer selects {orientation}");
-            ExecuteViolaProgram(enemies, process, slot, callCount: 15);
+            ExecuteViolaProgram(enemies, slot, callCount: 15);
             CrawlerEnemyFunction expected = orientation is
                 CrawlerSurfaceOrientation.UpsideRight or
                 CrawlerSurfaceOrientation.UpsideLeft
@@ -113,7 +110,6 @@ internal static class ViolaInstructionProgramDefinitionsVerification
 
     private static void ExecuteViolaProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot slot,
         int callCount)
     {
@@ -122,7 +118,7 @@ internal static class ViolaInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

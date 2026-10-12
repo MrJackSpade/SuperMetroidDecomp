@@ -99,7 +99,7 @@ For Samus, the current runtime prepares terrain interaction, performs alpha work
 runs enemies, then proceeds into beta. Moving platforms can contribute displacement
 between preparation and movement. An entity can encapsulate its part of each
 operation while the dispatcher preserves that interleaving. See
-[`PrepareEnemyFrame` and `RunEnemyMainPhase`](../csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.EnemyPhase.cs).
+[`PrepareEnemyFrame` and `RunEnemyMainPhase`](../csharp/src/SuperMetroid.Core/Runtime/EnemyFramePhase.cs).
 
 When ordering is nested, prefer nested dispatchers or explicit nested schedules.
 The following is only a partial ordinary-gameplay example; conditional branches
@@ -121,7 +121,7 @@ Preserve collision-before-AI within each enemy's turn. A global pass over all
 collisions followed by a global pass over all AI has a different mutation order.
 Likewise, phase numbers sorted ahead of slot numbers cannot represent every nested
 schedule. See [`RoomEnemySystem.StepFrame`](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs)
-and [`ResolveOrdinaryProjectileHits`](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.OrdinaryCombat.cs).
+and [`ResolveOrdinaryProjectileHits`](../csharp/src/SuperMetroid.Core/Game/EnemyCollision.cs).
 
 ### Immediate effects and retained observations
 
@@ -227,7 +227,7 @@ When entities spawn or disappear during a pass, specify separately:
 
 Prefer the domain's original rules over a universal end-of-frame mutation queue.
 Preserve capacity and exhaustion behavior: the current
-[`Mother Brain falling-tube spawn`](../csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.MotherBrainFakeDeath.cs)
+[`Mother Brain falling-tube spawn`](../csharp/src/SuperMetroid.Core/Game/MotherBrainBehavior.cs)
 returns without spawning when the enemy pool is full. Other paths have their own
 failure contracts.
 
@@ -302,7 +302,7 @@ Menu frames participate in RNG progression, and runtime release preserves the
 value. Some HDMA effect work mutates it before the gameplay prologue advances it.
 Only the established reset path should reseed it. Presentation previews and added
 cosmetic effects must not consume the gameplay stream. See
-[`SuperMetroidGame.Random`](../csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.Random.cs)
+[`SuperMetroidGame.AdvanceMenuRandom`](../csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs)
 and `StepFrameGuarded` in the runtime.
 
 ## Godot timing and presentation boundaries
@@ -379,15 +379,15 @@ simulation phases before replacing their graphics output. Samus's draw epilogue
 updates input history, and drawing also participates in palette and other state
 progression. That work must run under its original eligibility rules even when
 the host does not display a picture. See
-[`SamusState.InputSnapshot`](../csharp/src/SuperMetroid.Core/Game/SamusState.InputSnapshot.cs)
-and [`SuperMetroidRuntime.ActorDrawing`](../csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.ActorDrawing.cs).
+[`SamusInputSnapshot`](../csharp/src/SuperMetroid.Core/Game/SamusInputSnapshot.cs)
+and [`GameplayActorDrawing`](../csharp/src/SuperMetroid.Core/Runtime/GameplayActorDrawing.cs).
 
 When display state is latched before subsequent gameplay changes, publish the
 latched state. `RunNmi` copies finalized OAM and display registers and drains
 transfers in a defined order. Publishing the latest live actor transform can
 change visual timing even with identical simulation positions. Prefer an explicit
 display snapshot boundary such as the existing
-[`StepCaptured`](../csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.RenderCapture.cs).
+[`StepCaptured`](../csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs) and [`FrontendDisplay`](../csharp/src/SuperMetroid.Core/Frontend/FrontendDisplay.cs).
 Repainting or attaching a view must not advance simulation or rerun draw side effects.
 
 When stock rendering semantics depend on sprite priority, palette arithmetic,
@@ -487,7 +487,7 @@ all actors into one flat strip.
 
 When animation advancement affects behavior, keep its timer, instruction cursor,
 branching, and side effects in the original simulation phases. The existing
-[Samus animation path](../csharp/src/SuperMetroid.Core/Game/SamusState.Rendering.cs)
+[Samus animation path](../csharp/src/SuperMetroid.Core/Game/SamusPresentation.cs)
 depends on liquid state, rising versus falling, running momentum, and special
 handlers that write frame/timer state. Enemy instruction processing likewise
 belongs to the domain dispatcher. These are not all fixed-FPS loops.
@@ -593,7 +593,7 @@ the original boundaries. The existing loader carries elevator and X-ray state
 into destination setup. Godot scene replacement alone does not define those
 semantics. Asynchronous asset preparation must not insert unintended simulation
 steps while a transition waits. See
-[`SuperMetroidRuntime.RoomLoading`](../csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.RoomLoading.cs).
+[`RoomLoader`](../csharp/src/SuperMetroid.Core/Runtime/RoomLoader.cs).
 
 When a smaller integer width, unusual index, alias, or bounded overread affects
 behavior, preserve the operation's exact interpretation. Wider arithmetic followed

@@ -1,13 +1,13 @@
 using SuperMetroid.Core.Hardware;
 
-internal static partial class AssetTools
+internal static class PpuLayoutInventoryGenerator
 {
     /// <summary>
     /// Regenerates <c>docs/ppu-layout-inventory.json</c> from the production PPU layout catalogs
     /// (#630), refusing to write an inventory whose catalogs break the identity or alias rules.
     /// Run from the repository root.
     /// </summary>
-    private static int GeneratePpuLayoutInventory()
+    internal static int GeneratePpuLayoutInventory()
     {
         string root = Directory.GetCurrentDirectory();
         IReadOnlyList<PpuLayoutCatalogEntry> entries = PpuLayoutCatalogInventory.Enumerate(PpuLayoutCatalogInventory.ProductionAssemblies);

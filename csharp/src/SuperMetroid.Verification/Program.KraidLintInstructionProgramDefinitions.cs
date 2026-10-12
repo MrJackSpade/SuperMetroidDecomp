@@ -50,18 +50,14 @@ internal static class KraidLintInstructionProgramDefinitionsVerification
             foreach (ushort program in programs)
             {
                 var enemies = new RoomEnemySystem();
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-                RoomEnemySlot lint = enemies.Slots[0];
+                enemies.BindFixtureBus(guard);
+                RoomEnemySlot lint = enemies.SlotTable.Slots[0];
                 lint.EnemyDefinitionPointer = definition;
                 lint.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
                 lint.CurrentInstruction = program;
                 lint.InstructionTimer = 1;
 
-                MethodInfo process =
-                    typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-                process.Invoke(
-                    enemies,
-                    [lint, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+                enemies.Instructions.ProcessInstructions(lint, null, null, Position16<RoomPixels>.Zero, (ushort)0);
                 VerifyExecutedEnemySelector(rom, lint, executedOperands);
                 AssertEqual((ushort)0x7fff, lint.InstructionTimer,
                     $"Kraid lint ${(int)definition:X4}/${program:X4} installs native duration");

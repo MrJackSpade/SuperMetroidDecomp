@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
@@ -21,147 +22,122 @@ namespace SuperMetroid.Core.Rooms;
 /// other pointer fails instead of silently inventing an effect for a still-untranslated PLM
 /// family.
 /// </remarks>
-public sealed partial class RoomPlmSystem
+public sealed class RoomPlmSystem
 {
-    private const int SlotCount = 40;
+    /// <summary>The <see cref="BlockReactionPlms"/> owner of this RoomPlmSystem.</summary>
+    internal BlockReactionPlms BlockReactions { get; }
 
-    private readonly PlmSlot[] _slots = Enumerable
-        .Range(0, SlotCount)
-        .Select(_ => new PlmSlot())
-        .ToArray();
-    private readonly List<PlmSoundRequest> _soundRequests = new();
-    private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
-    private AreaId _activeAreaIndex = AreaId.Crateria;
+    /// <summary>The <see cref="BossRoomMutationPlms"/> owner of this RoomPlmSystem.</summary>
+    internal BossRoomMutationPlms BossRoomMutations { get; }
 
-    /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmShotBlockVisualCatalog? ShotBlockVisuals { get; set; }
+    /// <summary>The <see cref="PlmSlotTable"/> owner of this RoomPlmSystem.</summary>
+    internal PlmRoomBindings Bindings { get; }
 
-    /// <summary>Nonserialized Grapple-block art; the compiled full level words own collision.</summary>
-    [field: NonSerialized]
-    public RoomPlmGrappleBlockVisualCatalog? GrappleBlockVisuals { get; set; }
+    internal PlmSlotTable SlotTable { get; }
 
-    /// <summary>Nonserialized station appearance; the compiled level words retain collision.</summary>
-    [field: NonSerialized]
-    public RoomPlmStationVisualCatalog? StationVisuals { get; set; }
+    /// <summary>The <see cref="PlmSoundQueue"/> owner of this RoomPlmSystem.</summary>
+    internal PlmSoundQueue Sounds { get; }
 
-    /// <summary>Visual-only blue-door cap frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmBlueDoorVisualCatalog? BlueDoorVisuals { get; set; }
+    /// <summary>The <see cref="PlmBlockDrawing"/> owner of this RoomPlmSystem.</summary>
+    internal PlmBlockDrawing Drawing { get; }
 
-    /// <summary>Visual-only colored-door cap frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmColoredDoorVisualCatalog? ColoredDoorVisuals { get; set; }
+    /// <summary>The <see cref="ProjectileTriggerPlms"/> owner of this RoomPlmSystem.</summary>
+    internal ProjectileTriggerPlms ProjectileTriggers { get; }
 
-    /// <summary>Visual-only grey caps and shared clear frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmGreyDoorVisualCatalog? GreyDoorVisuals { get; set; }
+    /// <summary>The <see cref="EnemyBreakableTerrainPlms"/> owner of this RoomPlmSystem.</summary>
+    internal EnemyBreakableTerrainPlms BreakableTerrain { get; }
 
-    /// <summary>Visual-only mirrored eye-door frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmEyeDoorVisualCatalog? EyeDoorVisuals { get; set; }
+    /// <summary>The <see cref="QuicksandPlms"/> owner of this RoomPlmSystem.</summary>
+    internal QuicksandPlms Quicksand { get; }
 
-    /// <summary>Visual-only Mother Brain glass frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmMotherBrainGlassVisualCatalog? MotherBrainGlassVisuals { get; set; }
+    /// <summary>The <see cref="ShaktoolPlms"/> owner of this RoomPlmSystem.</summary>
+    internal ShaktoolPlms Shaktool { get; }
 
-    /// <summary>Visual-only n00b-tube frames supplied by installed content.</summary>
-    [field: NonSerialized]
-    public RoomPlmNoobTubeVisualCatalog? NoobTubeVisuals { get; set; }
+    /// <summary>The <see cref="SamusEaterPlms"/> owner of this RoomPlmSystem.</summary>
+    internal SamusEaterPlms SamusEater { get; }
 
-    /// <summary>Nonserialized gate-block appearance; compiled level words retain collision.</summary>
-    [field: NonSerialized]
-    public RoomPlmDownwardGateVisualCatalog? DownwardGateVisuals { get; set; }
+    /// <summary>The <see cref="TourianPlms"/> owner of this RoomPlmSystem.</summary>
+    internal TourianPlms Tourian { get; }
 
-    /// <summary>Visual-only elevator frames; platform collision and timing remain compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmElevatorPlatformVisualCatalog? ElevatorPlatformVisuals { get; set; }
+    /// <summary>The <see cref="EscapeAnimalPlms"/> owner of this RoomPlmSystem.</summary>
+    internal EscapeAnimalPlms EscapeAnimals { get; }
 
-    /// <summary>Nonserialized Mother Brain escape-gate appearance; collision stays compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmEscapeGateVisualCatalog? EscapeGateVisuals { get; set; }
+    /// <summary>The <see cref="SpeedBoosterEscapePlms"/> owner of this RoomPlmSystem.</summary>
+    internal SpeedBoosterEscapePlms SpeedBoosterEscape { get; }
 
-    /// <summary>Nonserialized Bomb Torizo hand art; physical draw words stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmBombTorizoHandVisualCatalog? BombTorizoHandVisuals { get; set; }
+    /// <summary>The <see cref="ChozoStatuePlms"/> owner of this RoomPlmSystem.</summary>
+    internal ChozoStatuePlms ChozoStatue { get; }
 
-    /// <summary>Nonserialized Draygon cannon art; physical draw words stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmDraygonCannonVisualCatalog? DraygonCannonVisuals { get; set; }
+    /// <summary>The <see cref="ScrollPlms"/> owner of this RoomPlmSystem.</summary>
+    internal ScrollPlms Scrolls { get; }
 
-    /// <summary>Nonserialized Chozo statue PLM art; physical draw words stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmChozoStatueVisualCatalog? ChozoStatueVisuals { get; set; }
+    /// <summary>The <see cref="DraygonCannonPlms"/> owner of this RoomPlmSystem.</summary>
+    internal DraygonCannonPlms DraygonCannons { get; }
 
-    /// <summary>Nonserialized linked-block restoration art; collision stays compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmLinkedRestoreVisualCatalog? LinkedRestoreVisuals { get; set; }
+    /// <summary>The <see cref="BombTorizoHandPlms"/> owner of this RoomPlmSystem.</summary>
+    internal BombTorizoHandPlms BombTorizoHand { get; }
 
-    /// <summary>Nonserialized Tourian access-floor art; physical level words stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmTourianAccessVisualCatalog? TourianAccessVisuals { get; set; }
+    /// <summary>The <see cref="NoobTubePlms"/> owner of this RoomPlmSystem.</summary>
+    internal NoobTubePlms NoobTube { get; }
 
-    /// <summary>Gets or replaces nonserialized Speed Booster block reveal artwork; compiled level words still determine collision and breakability.</summary>
-    /// <remarks>The catalog is shared by reference. Null uses the physical draw word's original visual fields.</remarks>
-    [field: NonSerialized]
-    public RoomPlmSpeedBoosterVisualCatalog? SpeedBoosterVisuals { get; set; }
+    /// <summary>The <see cref="WreckedShipTreadmillPlms"/> owner of this RoomPlmSystem.</summary>
+    internal WreckedShipTreadmillPlms WreckedShipTreadmill { get; }
 
-    /// <summary>Gets or replaces nonserialized Maridia elevatube artwork for the shared $84:9367 draw, selected by PLM ownership rather than borrowing Kraid's appearance.</summary>
-    /// <remarks>The catalog is shared by reference. Null preserves the physical word's original appearance; tube collision and motion remain compiled.</remarks>
-    [field: NonSerialized]
-    public RoomPlmMaridiaElevatubeVisualCatalog? MaridiaElevatubeVisuals { get; set; }
+    /// <summary>The <see cref="GatePlms"/> owner of this RoomPlmSystem.</summary>
+    internal GatePlms Gates { get; }
 
-    /// <summary>Gets or replaces nonserialized artwork for the two-by-two Spore Spawn ceiling clear/crumble draws, without changing their physical words or sequence timing.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
-    [field: NonSerialized]
-    public RoomPlmSporeSpawnCeilingVisualCatalog? SporeSpawnCeilingVisuals { get; set; }
+    /// <summary>The <see cref="MotherBrainGlassPlms"/> owner of this RoomPlmSystem.</summary>
+    internal MotherBrainGlassPlms MotherBrainGlass { get; }
 
-    /// <summary>Replaceable plant tiles; the three-run collision layout stays compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmSamusEaterVisualCatalog? SamusEaterVisuals { get; set; }
+    /// <summary>The <see cref="PlmPopulationLoader"/> owner of this RoomPlmSystem.</summary>
+    internal PlmPopulationLoader PopulationLoader { get; }
 
-    /// <summary>Gets or replaces nonserialized appearance for $84:930F's nine-block vertical Botwoon wall clear; its compiled air-block collision remains unchanged.</summary>
-    /// <remarks>The catalog is shared by reference. Null uses the physical clear words' original visual fields.</remarks>
-    [field: NonSerialized]
-    public RoomPlmBotwoonWallVisualCatalog? BotwoonWallVisuals { get; set; }
+    /// <summary>The <see cref="StationPlms"/> owner of this RoomPlmSystem.</summary>
+    internal StationPlms Stations { get; }
 
-    /// <summary>Gets or replaces nonserialized Kraid ceiling/spike PLM artwork, distinct from the boss's private BG2 body maps and from elevatube owners of the shared $84:9367 draw.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; block collision and mutation timing remain compiled.</remarks>
-    [field: NonSerialized]
-    public RoomPlmKraidVisualCatalog? KraidVisuals { get; set; }
+    /// <summary>The <see cref="CollectiblePlms"/> owner of this RoomPlmSystem.</summary>
+    internal CollectiblePlms CollectiblePlms { get; }
 
-    /// <summary>Gets or replaces nonserialized Crocomire arena bridge-clear/crumble and invisible-wall artwork; compiled draw runs still own block placement and collision.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains each physical draw word's original visual fields.</remarks>
-    [field: NonSerialized]
-    public RoomPlmCrocomireVisualCatalog? CrocomireVisuals { get; set; }
+    /// <summary>The <see cref="EyeDoorPlms"/> owner of this RoomPlmSystem.</summary>
+    internal EyeDoorPlms EyeDoors { get; }
 
-    /// <summary>Gets or replaces nonserialized Mother Brain fake-death room wall, door, and background-row artwork, separate from the boss's sprite and palette presentations.</summary>
-    /// <remarks>The catalog is shared by reference. Null retains physical draw appearance; compiled run geometry, collision words, and PLM timing remain unchanged.</remarks>
-    [field: NonSerialized]
-    public RoomPlmMotherBrainFakeDeathVisualCatalog? MotherBrainFakeDeathVisuals { get; set; }
+    /// <summary>The <see cref="GreyDoorPlms"/> owner of this RoomPlmSystem.</summary>
+    internal GreyDoorPlms GreyDoors { get; }
 
-    /// <summary>Nonserialized collectible art; compiled level words retain collision.</summary>
-    [field: NonSerialized]
-    public RoomPlmCollectibleVisualCatalog? CollectibleVisuals { get; set; }
-
-    /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
-    [field: NonSerialized]
-    public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt { get; set; }
-
-    /// <summary>Sound commands emitted during the most recent handler pass.</summary>
-    public IReadOnlyList<PlmSoundRequest> SoundRequests => _soundRequests;
-
-    /// <summary>Number of occupied native-equivalent PLM slots.</summary>
-    public int ActiveCount
+    /// <summary>Creates the forty empty PLM slots and the PLM family owners that run in them.</summary>
+    public RoomPlmSystem()
     {
-        get
-        {
-            int count = 0;
-            foreach (PlmSlot slot in _slots)
-                if (slot.Active) count++;
-            return count;
-        }
+        SlotTable = new PlmSlotTable();
+        Sounds = new PlmSoundQueue();
+        Drawing = new PlmBlockDrawing();
+        ProjectileTriggers = new ProjectileTriggerPlms(SlotTable);
+        BreakableTerrain = new EnemyBreakableTerrainPlms(SlotTable);
+        Quicksand = new QuicksandPlms(SlotTable);
+        Scrolls = new ScrollPlms(SlotTable);
+        WreckedShipTreadmill = new WreckedShipTreadmillPlms(SlotTable);
+        Bindings = new PlmRoomBindings();
+        Shaktool = new ShaktoolPlms(Bindings, SlotTable);
+        SamusEater = new SamusEaterPlms(Bindings, SlotTable);
+        EscapeAnimals = new EscapeAnimalPlms(Bindings, SlotTable);
+        SpeedBoosterEscape = new SpeedBoosterEscapePlms(Bindings);
+        ChozoStatue = new ChozoStatuePlms(Bindings, SlotTable);
+        DraygonCannons = new DraygonCannonPlms(Bindings);
+        BombTorizoHand = new BombTorizoHandPlms(Bindings, SlotTable);
+        NoobTube = new NoobTubePlms(Bindings, Sounds);
+        Gates = new GatePlms(Bindings, SlotTable, Sounds);
+        MotherBrainGlass = new MotherBrainGlassPlms(Bindings, SlotTable, Sounds);
+        Stations = new StationPlms(Bindings, Drawing, SlotTable, Sounds);
+        CollectiblePlms = new CollectiblePlms(Bindings, Drawing, SlotTable, Sounds);
+        EyeDoors = new EyeDoorPlms(Bindings, Sounds);
+        GreyDoors = new GreyDoorPlms(Bindings, Drawing, Sounds);
+        DoorPlms = new DoorPlms(Bindings, Drawing, SlotTable, Sounds);
+        Tourian = new TourianPlms(Bindings, SlotTable);
+        PopulationLoader = new PlmPopulationLoader(new PlmPopulationLoaderDependencies { Bindings = Bindings, BombTorizoHand = BombTorizoHand, CollectiblePlms = CollectiblePlms, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
+        BlockReactions = new BlockReactionPlms(Bindings, EscapeAnimals, SlotTable);
+        BossRoomMutations = new BossRoomMutationPlms(SlotTable);
     }
+
+    internal DoorPlms DoorPlms { get; }
 
     /// <summary>
     /// Clears the room-owned allocation during <c>$82:E3C0</c>'s destination-room setup.
@@ -170,9 +146,9 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public void Reset()
     {
-        _chozoEnemies = null;
-        _chozoRoomFx = null;
-        foreach (PlmSlot slot in _slots)
+        ChozoStatue._chozoEnemies = null;
+        ChozoStatue._chozoRoomFx = null;
+        foreach (PlmSlot slot in SlotTable._slots)
         {
             slot.Active = false;
             slot.PlantHeldPosition = Position16<RoomPixels>.Zero;
@@ -196,852 +172,19 @@ public sealed partial class RoomPlmSystem
             slot.EyeDoor = null;
             slot.DraygonCannon = null;
         }
-        _soundRequests.Clear();
-        _pendingDownwardGateSounds.Clear();
-        _downwardGateProjectileRequests.Clear();
-        _downwardGateSamus = null;
-        _downwardGateRoomWidth = 0;
-        _tilemapUpdates.Clear();
-        _stationActivationEvents.Clear();
-        _saveStationLockedOut = false;
+        Sounds._soundRequests.Clear();
+        Gates._pendingDownwardGateSounds.Clear();
+        Gates._downwardGateProjectileRequests.Clear();
+        Bindings.Clear();
+        Drawing._tilemapUpdates.Clear();
+        Stations._stationActivationEvents.Clear();
+        Stations._saveStationLockedOut = false;
         // The progression owner belongs to the room population just discarded. Holding
         // it past Reset would let an accidentally reused PLM slot persist a hit into the
         // previous runtime/system-state instance.
-        _coloredDoorSystem = null;
-        _greyDoorSystem = null;
-        _greyDoorArea = AreaId.Crateria;
-        _activeAreaIndex = AreaId.Crateria;
-        _tourianStatue = null;
-        _events = null;
-        ResetSpeedBoosterEscapeState();
-        ResetMotherBrainGlassState();
-        ResetCollectibleState();
-        ResetBombTorizoHandState();
-        ResetNoobTubeState();
-        ResetEyeDoorState();
-        ResetOldTourianEscapeShaftWallState();
-        ResetDraygonCannonState();
-    }
-
-    /// <summary>
-    /// Spawns Botwoon's hardcoded wall PLM at room block (15,4), preserving the header's
-    /// setup routine and the retail descending 40-slot allocation order.
-    /// </summary>
-    /// <remarks>
-    /// Header <c>$B797</c> has an RTS setup and clears an already-defeated room on the next
-    /// handler pass. Header <c>$B79B</c> runs setup <c>$84:AB28</c>, which delays its crumble
-    /// list for exactly 64 PLM frames. The live list itself moves one block downward after
-    /// each four-frame, four-image row and repeats nine times using PLM_Timers.
-    /// </remarks>
-    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
-    public bool TrySpawnBotwoonWall(RoomLevelData level, PlmHeaderId header)
-    {
-        Ensure.NotNull(level);
-        if (header is not (
-            PlmHeaderId.ClearBotwoonWall or
-            PlmHeaderId.CrumbleBotwoonWall))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(header),
-                header,
-                "Botwoon wall header must be $B797 (clear) or $B79B (crumble).");
-        }
-
-        // Both `$B3:9590` and `$B3:9ADD` pass the literal hardcoded coordinates (15,4).
-        // Validate through RoomLevelData rather than allowing a malformed fixture to install
-        // a PLM whose later vertical draws would address unrelated host memory.
-        int blockIndex = level.GetBlockIndex(new(15, 4));
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            // SpawnHardcodedPlm stores the header before setup. Keep identity intact
-            // for owner queries and mixed populations, not just instruction dispatch.
-            slot.HeaderPointer = header;
-            slot.LoopTimer = 0;
-            slot.InstructionPointer = header == PlmHeaderId.ClearBotwoonWall
-                ? RoomPlmInstructionLists.ClearBotwoonWall
-                : RoomPlmInstructionLists.CrumbleBotwoonWall;
-
-            // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
-            // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
-            // PLM instruction-timer allocation before returning to the enemy initializer.
-            slot.InstructionTimer = header == PlmHeaderId.CrumbleBotwoonWall
-                ? (ushort)64
-                : (ushort)1;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Spawns Spore Spawn's hardcoded 2x2 ceiling mutation at room block (7,30).
-    /// Header $B78F animates three crumble frames and then falls through to $AB21's clear;
-    /// header $B793 starts directly at that clear list for an already-defeated room.
-    /// </summary>
-    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
-    public bool TrySpawnSporeSpawnCeiling(RoomLevelData level, PlmHeaderId header)
-    {
-        Ensure.NotNull(level);
-        if (header is not (
-                PlmHeaderId.CrumbleSporeSpawnCeiling or
-                PlmHeaderId.ClearSporeSpawnCeiling))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(header),
-                header,
-                "Spore Spawn ceiling header must be $B78F (crumble) or $B793 (clear).");
-        }
-
-        int blockIndex = level.GetBlockIndex(new(7, 30));
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.LoopTimer = 0;
-            slot.InstructionPointer = header == PlmHeaderId.CrumbleSporeSpawnCeiling
-                ? RoomPlmInstructionLists.CrumbleSporeSpawnCeiling
-                : RoomPlmInstructionLists.ClearSporeSpawnCeiling;
-            slot.InstructionTimer = 1;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Spawns one hardcoded Kraid ceiling/platform mutation and runs setup $84:B3C1.
-    /// Setup immediately deactivates the collision type while preserving priority and the
-    /// visual block index; the selected ROM list then draws its three crumble frames and
-    /// deletes the finite PLM on the authored cadence.
-    /// </summary>
-    /// <returns>False only when all forty native PLM slots are occupied.</returns>
-    public bool TrySpawnKraidRoomMutation(
-        RoomLevelData level,
-        Position16<RoomBlocks> block,
-        PlmHeaderId header)
-    {
-        Ensure.NotNull(level);
-        ushort instructionPointer = header switch
-        {
-            PlmHeaderId.CrumbleKraidCeilingIntoBackground1 =>
-                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground1,
-            PlmHeaderId.CrumbleKraidPlatformVariant1 =>
-                RoomPlmInstructionLists.CrumbleKraidPlatformVariant1,
-            PlmHeaderId.CrumbleKraidCeilingIntoBackground2 =>
-                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground2,
-            PlmHeaderId.CrumbleKraidPlatformVariant2 =>
-                RoomPlmInstructionLists.CrumbleKraidPlatformVariant2,
-            PlmHeaderId.CrumbleKraidCeilingIntoBackground3 =>
-                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground3,
-            PlmHeaderId.ClearKraidCeiling => RoomPlmInstructionLists.ClearKraidCeiling,
-            PlmHeaderId.ClearKraidSpikes => RoomPlmInstructionLists.ClearKraidSpikes,
-            PlmHeaderId.CrumbleKraidSpikes => RoomPlmInstructionLists.CrumbleKraidSpikes,
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(header),
-                header,
-                "Kraid room mutation header is outside the authored Kraid mutation set."),
-        };
-
-        int blockIndex = level.GetBlockIndex(block);
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = instructionPointer;
-            slot.InstructionTimer = 1;
-
-            // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
-            // bits. Bit 15 is the independent tile priority flag and survives setup.
-            ushort authored = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-            level.SetForegroundEntry(blockIndex, unchecked((ushort)(authored & 0x8fff)));
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Spawns one of Crocomire's five hardcoded arena PLMs at its literal room-block origin.
-    /// </summary>
-    /// <remarks>
-    /// The instruction pointers are the words selected by entries $84:B747-$B757 after
-    /// their no-op setup. The shared instruction interpreter below already understands the
-    /// positive timer/draw pair and $86BC deletion used by every one of these lists.
-    /// </remarks>
-    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
-    public bool TrySpawnCrocomireArenaMutation(
-        RoomLevelData level,
-        Position16<RoomBlocks> block,
-        PlmHeaderId header)
-    {
-        Ensure.NotNull(level);
-        ushort instructionPointer = header switch
-        {
-            PlmHeaderId.ClearCrocomireBridge => RoomPlmInstructionLists.ClearCrocomireBridge,
-            PlmHeaderId.CrumbleCrocomireBridgeBlock => RoomPlmInstructionLists.CrumbleCrocomireBridgeBlock,
-            PlmHeaderId.ClearCrocomireBridgeBlock => RoomPlmInstructionLists.ClearCrocomireBridgeBlock,
-            PlmHeaderId.ClearCrocomireInvisibleWall => RoomPlmInstructionLists.ClearCrocomireInvisibleWall,
-            PlmHeaderId.CreateCrocomireInvisibleWall => RoomPlmInstructionLists.CreateCrocomireInvisibleWall,
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(header),
-                header,
-                "Crocomire arena header must be $B747, $B74B, $B74F, $B753, or $B757."),
-        };
-
-        int blockIndex = level.GetBlockIndex(block);
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.LoopTimer = 0;
-            slot.InstructionPointer = instructionPointer;
-            slot.InstructionTimer = 1;
-            slot.HeaderPointer = header;
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Spawns Shitroid's hardcoded ten-block vertical wall mutation at `$84:B763/$B767`.
-    /// Setup executes synchronously inside <c>SpawnHardcodedPLM</c>: `$B763` clears the
-    /// collision nibble and `$B767` replaces it with type eight while preserving the low
-    /// twelve bits of every authored level word.
-    /// </summary>
-    /// <returns>False when all forty native PLM slots are occupied; no terrain is changed.</returns>
-    public bool TrySpawnShitroidWallMutation(
-        RoomLevelData level,
-        Position16<RoomBlocks> block,
-        PlmHeaderId header)
-    {
-        Ensure.NotNull(level);
-        if (header is not (
-            PlmHeaderId.ClearBabyMetroidInvisibleWall or
-            PlmHeaderId.CreateBabyMetroidInvisibleWall))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(header),
-                header,
-                "Shitroid wall header must be $B763 or $B767.");
-        }
-
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.HeaderPointer = header;
-            slot.BlockIndex = level.GetBlockIndex(block);
-            slot.RestoreLevelWord = 0;
-            slot.LoopTimer = 0;
-            slot.PreInstruction = 0;
-            slot.RoomArgument = 0;
-            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
-            slot.InstructionTimer = 1;
-
-            // Both setup routines walk downward through ten blocks in the same column.
-            // The mutation is part of setup, so it must occur before the PLM handler's
-            // instruction timer is allowed to consume and delete this allocated slot.
-            for (int rowOffset = 0; rowOffset < 10; rowOffset++)
-            {
-                int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, checked((short)rowOffset)));
-                ushort current = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-                ushort replacement = header == PlmHeaderId.CreateBabyMetroidInvisibleWall
-                    ? unchecked((ushort)((current & 0x0fff) | 0x8000))
-                    : unchecked((ushort)(current & 0x0fff));
-                level.SetForegroundEntry(blockIndex, replacement);
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Allocates one of Mother Brain's literal fake-death room mutations from
-    /// <c>$84:B673-$84:B6C7</c>. Every listed header uses setup $B3D0 (deactivate) and a
-    /// one-frame draw/delete list, so the shared PLM interpreter—not boss-specific terrain
-    /// painting—owns the actual room edit and tilemap upload.
-    /// </summary>
-    /// <returns>False only when all forty native PLM slots are occupied.</returns>
-    public bool TrySpawnMotherBrainMutation(
-        RoomLevelData level,
-        Position16<RoomBlocks> block,
-        PlmHeaderId header)
-    {
-        Ensure.NotNull(level);
-        ushort instructionPointer = header switch
-        {
-            PlmHeaderId.FillMotherBrainsWall => RoomPlmInstructionLists.FillMotherBrainsWall,
-            PlmHeaderId.MotherBrainsRoomEscapeDoor => RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor,
-            PlmHeaderId.MotherBrainsBackgroundRow2 => RoomPlmInstructionLists.MotherBrainsBackgroundRow2,
-            PlmHeaderId.MotherBrainsBackgroundRow3 => RoomPlmInstructionLists.MotherBrainsBackgroundRow3,
-            PlmHeaderId.MotherBrainsBackgroundRow4 => RoomPlmInstructionLists.MotherBrainsBackgroundRow4,
-            PlmHeaderId.MotherBrainsBackgroundRow5 => RoomPlmInstructionLists.MotherBrainsBackgroundRow5,
-            PlmHeaderId.MotherBrainsBackgroundRow6 => RoomPlmInstructionLists.MotherBrainsBackgroundRow6,
-            PlmHeaderId.MotherBrainsBackgroundRow7 => RoomPlmInstructionLists.MotherBrainsBackgroundRow7,
-            PlmHeaderId.MotherBrainsBackgroundRow8 => RoomPlmInstructionLists.MotherBrainsBackgroundRow8,
-            PlmHeaderId.MotherBrainsBackgroundRow9 => RoomPlmInstructionLists.MotherBrainsBackgroundRow9,
-            PlmHeaderId.MotherBrainsBackgroundRowA => RoomPlmInstructionLists.MotherBrainsBackgroundRowA,
-            PlmHeaderId.MotherBrainsBackgroundRowB => RoomPlmInstructionLists.MotherBrainsBackgroundRowB,
-            PlmHeaderId.MotherBrainsBackgroundRowC => RoomPlmInstructionLists.MotherBrainsBackgroundRowC,
-            PlmHeaderId.MotherBrainsBackgroundRowD => RoomPlmInstructionLists.MotherBrainsBackgroundRowD,
-            PlmHeaderId.ClearMotherBrainCeilingBlock => RoomPlmInstructionLists.ClearMotherBrainCeilingBlock,
-            PlmHeaderId.ClearMotherBrainCeilingTube => RoomPlmInstructionLists.ClearMotherBrainCeilingTube,
-            PlmHeaderId.ClearMotherBrainBottomMiddleSideTube => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleSideTube,
-            PlmHeaderId.ClearMotherBrainBottomMiddleTubes => RoomPlmInstructionLists.ClearMotherBrainBottomMiddleTubes,
-            PlmHeaderId.ClearMotherBrainBottomLeftTube => RoomPlmInstructionLists.ClearMotherBrainBottomLeftTube,
-            PlmHeaderId.ClearMotherBrainBottomRightTube => RoomPlmInstructionLists.ClearMotherBrainBottomRightTube,
-            _ => throw new ArgumentOutOfRangeException(
-                nameof(header),
-                header,
-                "Mother Brain mutation header is outside $B673-$B6C7's authored set."),
-        };
-
-        // SpawnHardcodedPLM probes native slots $4E,$4C,...,$00. Do not reserve a boss
-        // slot or coalesce adjacent row requests: their allocation order is observable.
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = level.GetBlockIndex(block);
-            slot.RestoreLevelWord = 0;
-            slot.LoopTimer = 0;
-            slot.InstructionPointer = instructionPointer;
-            slot.InstructionTimer = 1;
-            slot.HeaderPointer = header;
-            if (header == PlmHeaderId.MotherBrainsRoomEscapeDoor)
-            {
-                // B5F8 installs the door-list index and three upward-linked extensions
-                // synchronously, before the first draw instruction changes their artwork.
-                WritePlmCollisionTypeAndBts(level, slot.BlockIndex, MotherBrainDeathRomData.EscapeDoorCollision);
-                for (int row = 1; row < 4; row++)
-                    WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.Size.X,
-                        MotherBrainDeathRomData.EscapeDoorExtension);
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Typed BTS overload used by grapple collision dispatch.</summary>
-    public bool TrySpawnBreakableGrappleBlock(
-        RoomLevelData level,
-        int blockIndex,
-        RoomBlockBehavior bts)
-    {
-        Ensure.NotNull(level);
-        if (!bts.IsBreakableGrappleReaction)
-            throw new ArgumentOutOfRangeException(nameof(bts), "Breakable grapple BTS must be one or two.");
-
-        // Spawn_PLM at $84:84E7 probes $4E,$4C,...,$00. Matching it matters if multiple
-        // PLMs mutate the same room on one frame because the handler uses the same order.
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = block.LevelWord;
-            slot.InstructionPointer = bts.GrappleReactionIndex == 1
-                ? RoomPlmInstructionLists.RespawningBreakableGrappleBlock
-                : RoomPlmInstructionLists.PermanentBreakableGrappleBlock;
-            slot.InstructionTimer = 1;
-
-            // Setup_CFB5 saves the complete original level word but clears only the low BTS
-            // byte. It deliberately leaves collision type E intact until the first PLM pass
-            // later in this same gameplay frame draws $E0B7.
-            level.SetBehavior(blockIndex, RoomBlockBehaviorValues.None);
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Typed BTS overload used by Samus collision dispatch.</summary>
-    public bool TrySpawnCollisionBombBlock(
-        RoomLevelData level,
-        int blockIndex,
-        RoomBlockBehavior bts)
-    {
-        Ensure.NotNull(level);
-        if (!bts.IsNormalReactionIndex(8))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Collision bomb-block BTS must be in the native table range zero through seven.");
-        }
-
-        // `$84:84ED-$84F7` searches the same descending slot order used by every other
-        // gameplay-spawned PLM. Do not coalesce neighboring pieces: a native collision scan
-        // can allocate more than one independently timed object in a single movement call.
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-
-            // This is not the original visual word. Setup_CE83 deliberately replaces all
-            // low twelve bits with visual block `$058`; multi-block restoration lists then
-            // add type-$5/$D extension words around this type-$F parent.
-            slot.RestoreLevelWord = new RoomLevelWord(RoomPlmVisualBlockIndexes.CollisionBombParent)
-                .WithCollisionType(block.CollisionType).Raw;
-            slot.InstructionPointer = RoomPlmInstructionLists.CollisionBombByReactionIndex(bts.NormalReactionIndex);
-            slot.InstructionTimer = 1;
-            level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockIndexes.CollisionBombParent);
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Spawns the bank-$84 crumble actor selected when downward Samus collision reaches a
-    /// type-$B special block with BTS `$00-$07`.
-    /// </summary>
-    /// <remarks>
-    /// This is setup <c>$84:CE37</c>. Bank $94 only permits activation for collision
-    /// direction three (down): setup synthesizes <c>(levelWord &amp; $F000) | $00BC</c>,
-    /// replaces the live collision nibble with type-eight solid, and delays list execution for four PLM handler
-    /// passes. BTS `$00-$03` reverse their animation and restore the synthesized parent;
-    /// `$04-$07` end on air. The collision dispatcher independently returns solid for the
-    /// triggering frame, so allocation success is not a collision-result substitute.
-    /// </remarks>
-    public bool TrySpawnSamusContactCrumbleBlock(
-        RoomLevelData level,
-        int blockIndex,
-        RoomBlockBehavior bts)
-    {
-        Ensure.NotNull(level);
-        if (!bts.IsNormalReactionIndex(8))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Samus-contact crumble BTS must be in the native table range zero through seven.");
-        }
-
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.HeaderPointer =
-                RoomPlmHeaders.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
-            slot.BlockIndex = blockIndex;
-            RoomLevelWord restoreWord = new RoomLevelWord(block.LevelWord)
-                .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.ContactCrumbleParent);
-            slot.RestoreLevelWord = restoreWord.Raw;
-            slot.InstructionPointer =
-                RoomPlmInstructionLists.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
-            slot.InstructionTimer = 4;
-            level.SetForegroundEntry(
-                blockIndex,
-                restoreWord.WithCollisionType(RoomCollisionType.SolidBlock).Raw);
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Runs setup <c>$84:CDEA</c> for a type-$B special block selected by either the
-    /// area-independent BTS <c>$0E/$0F</c> entries or Brinstar's BTS <c>$82-$85</c> table.
-    /// </summary>
-    /// <remarks>
-    /// Native setup accepts boost-counter stage four and all six directional shinespark
-    /// poses. On acceptance it preserves the collision nibble in the eventual restore word,
-    /// substitutes visual block <c>$0B6</c>, and clears the live collision nibble before the
-    /// PLM handler draws the first crumble frame. Rejected contact deletes the temporary
-    /// slot synchronously and remains solid in the caller.
-    /// </remarks>
-    /// <returns>True when contact passes: accepted setup, or an exhausted native pool.</returns>
-    public bool TrySpawnSamusSpeedBoosterBlock(
-        RoomLevelData level,
-        int blockIndex,
-        RoomBlockBehavior bts,
-        SamusState samus)
-    {
-        Ensure.NotNull(level);
-        Ensure.NotNull(samus);
-        if (!SpeedBoosterBlockPlmDefinitions.TryResolve(
-                bts,
-                _activeAreaIndex,
-                out SpeedBoosterBlockPlmDefinition definition))
-        {
-            return false;
-        }
-
-        // Bank $94's special-block dispatcher clears carry while indexing BTS.
-        // Spawn_PLM returns that carry unchanged when every slot is occupied:
-        // setup never runs, so its no-Speed-Booster rejection cannot make this
-        // contact solid. Preserve the block word; this is not a break animation.
-        if (_slots.All(slot => slot.Active))
-            return true;
-
-        bool activeSpeedBooster = samus.HorizontalSpeed.IsActivelySpeedBoosting;
-        bool activeShinespark = samus.Pose is >= SamusPoseId.ShinesparkHorizontalRightPose
-            and <= SamusPoseId.ShinesparkDiagonalLeftPose;
-        if (!activeSpeedBooster && !activeShinespark)
-            return false;
-
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.HeaderPointer = definition.HeaderPointer;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord)
-                .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.SpeedBoosterParent)
-                .Raw;
-            slot.InstructionPointer = definition.InstructionPointer;
-            slot.InstructionTimer = 1;
-            level.SetForegroundEntry(
-                blockIndex,
-                new RoomLevelWord(slot.RestoreLevelWord)
-                    .WithCollisionType(RoomCollisionType.Air)
-                    .Raw);
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
-    public bool TrySpawnBombReactionBlock(
-        RoomLevelData level,
-        int blockIndex,
-        RoomBlockBehavior bts,
-        SamusProjectileTypeWord projectileType)
-    {
-        Ensure.NotNull(level);
-        if (!bts.IsNormalReactionIndex(16))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Bomb-reaction BTS must be in the native table range zero through fifteen.");
-        }
-
-        SamusProjectileFamily projectileFamily = projectileType.Family;
-        if (projectileFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(projectileType),
-                "Bomb-reaction setup accepts only normal-bomb or power-bomb projectile families.");
-        }
-
-        // `$84:84ED-$84F7` searches from native slot `$4E` toward `$00`. Importantly, the
-        // full-pool path never calls setup and therefore must not mutate live level data.
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.InstructionTimer = 1;
-
-            if (!bts.IsNormalReactionIndex(8))
-            {
-                // Table entries 8..15 are all `$84:B62F`, whose setup is a bare RTS and
-                // whose instruction list is the one-word delete stream at `$84:AAE3`.
-                slot.RestoreLevelWord = 0;
-                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
-                return true;
-            }
-
-            // Setup_CEDA discards the original low twelve bits rather than preserving the
-            // visible tile number. Dimension-specific final draw lists reconstruct linked
-            // extension words; the 1x1 respawn tail uses this exact PLM_Vars value.
-            slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
-            ushort instructionPointer = RoomPlmInstructionLists.ReactionBombByReactionIndex(bts.NormalReactionIndex);
-
-            // `$84:CF0C-$CF13` adds three only for normal bombs. The skipped bytes are
-            // `{Instruction_PLM_QueueSound_Y_Lib2_Max3, $0A}` in the odd-byte operand form.
-            slot.InstructionPointer = projectileFamily == SamusProjectileFamily.Bomb
-                ? unchecked((ushort)(instructionPointer + 3))
-                : instructionPointer;
-
-            ushort temporaryLevelWord = unchecked((ushort)(slot.RestoreLevelWord & 0x8fff));
-            level.SetForegroundEntry(blockIndex, temporaryLevelWord);
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>Typed BTS overload used by projectile and grapple collision dispatch.</summary>
-    public bool TrySpawnProjectileShotBlock(
-        RoomLevelData level,
-        int blockIndex,
-        RoomBlockBehavior bts,
-        SamusProjectileTypeWord projectileType,
-        bool solidBlock)
-    {
-        Ensure.NotNull(level);
-        if (bts.Value == EscapeAnimalPlmRomData.ReactionBts)
-            return TrySpawnCrittersEscapeReaction(level, blockIndex, projectileType);
-        bool areaDependent = bts.UsesAreaReactionTable;
-        if (areaDependent && !bts.IsAreaReactionIndex(8))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Area-dependent shootable BTS must address one of its eight native entries.");
-        }
-        if (!areaDependent &&
-            !bts.IsNormalReactionIndex(16) &&
-            !bts.IsShootableCollisionProbe && !bts.IsUnusedShootableReaction)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                $"Shootable BTS ${bts.Value:X2} requires a specialized reaction outside the breakable/nothing PLM dispatcher.");
-        }
-
-        // `$94:9E55` checks the sign bit before Spawn_PLM for shootable air. Its solid-block
-        // sibling `$94:9E73` instead performs the area-table lookup and allocates the retail
-        // no-op entry. This early return is therefore collision-nibble-specific.
-        if (areaDependent && !solidBlock)
-            return false;
-
-        SamusProjectileFamily projectileFamily = projectileType.Family;
-
-        // `$84:CF2E/$CF67` clear the newly allocated PLM header when the weapon family is
-        // wrong. Observably that is identical to returning with no active slot: setup never
-        // changes the live word, and the next handler has nothing to process. Perform this
-        // gate before the host allocation loop while preserving every accepted native path.
-        if (bts.RequiresPowerBombReaction && projectileFamily is not (
-            SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
-            return false;
-        if (bts.RequiresSuperMissileReaction && projectileFamily is not (
-            SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Bomb))
-            return false;
-
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.InstructionTimer = 1;
-            slot.RestoreLevelWord = 0;
-
-            if (areaDependent)
-            {
-                // Every retail area-table target at `$94:9FC6-$9FD4` is the nothing entry.
-                // Spawn_PLM still consumes a slot until its delete instruction runs.
-                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
-                return true;
-            }
-
-            if (bts.IsShootableCollisionProbe)
-            {
-                // Setup ends the projectile scan and forces its collision counter;
-                // the caller publishes those scratch effects only after successful
-                // allocation. This actor does not mutate terrain and deletes next pass.
-                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
-                return true;
-            }
-
-            if (bts.IsRespawningReaction)
-            {
-                // `$84:CE6B` synthesizes `$x052`, stores it for the 384-frame restoration,
-                // and clears type bits `$4000/$2000/$1000` through `AND $8FFF` immediately.
-                slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0052));
-                slot.InstructionPointer =
-                    RoomPlmInstructionLists.RespawningShotBySize(bts.NormalReactionIndex);
-                level.SetForegroundEntry(
-                    blockIndex,
-                    unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
-                return true;
-            }
-
-            if (bts.IsPermanentReaction)
-            {
-                // `$84:B3C1` keeps no restoration word: BTS four through seven are
-                // permanent. The current word loses the shootable collision bits before
-                // the first animated breaking frame runs later in this gameplay pass.
-                slot.InstructionPointer =
-                    RoomPlmInstructionLists.PermanentShotBySize(bts.NormalReactionIndex - 4);
-                level.SetForegroundEntry(
-                    blockIndex,
-                    unchecked((ushort)(block.LevelWord & 0x8fff)));
-                return true;
-            }
-
-            if (bts.RequiresPowerBombReaction)
-            {
-                if (projectileFamily == SamusProjectileFamily.Bomb)
-                {
-                    // A normal bomb does not break this block. `$84:CF2E` redirects to the
-                    // one-frame visible power-bomb diagnostic without touching collision.
-                    slot.InstructionPointer = RoomPlmInstructionLists.BombedPowerBombBlockUnused;
-                    return true;
-                }
-
-                // A power bomb synthesizes `$x057`, applies `AND $8FFF`, and retains the
-                // exact list selected by header `$D084/$D088`. BTS eight uses the ordinary
-                // four-frame breakup; BTS nine uses its shorter 3/2/1-frame counterpart.
-                slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0057));
-                slot.InstructionPointer = bts.NormalReactionIndex == 8
-                    ? RoomPlmInstructionLists.RespawningPowerBombBlock
-                    : RoomPlmInstructionLists.PermanentPowerBombBlock;
-                level.SetForegroundEntry(
-                    blockIndex,
-                    unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
-                return true;
-            }
-
-            if (bts.RequiresSuperMissileReaction)
-            {
-                if (projectileFamily == SamusProjectileFamily.Bomb)
-                {
-                    // `$84:CF67` gives ordinary bombs the analogous one-frame Super Missile
-                    // reveal. It deliberately leaves the live collision word untouched.
-                    slot.InstructionPointer = RoomPlmInstructionLists.BombedSuperMissileBlockUnused;
-                    return true;
-                }
-
-                // Super Missiles synthesize `$x09F`. Header `$D08C` owns the respawning
-                // `$CB71` list and `$D090` owns the permanent `$CC0B` list.
-                slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x009f));
-                slot.InstructionPointer = bts.NormalReactionIndex == 10
-                    ? RoomPlmInstructionLists.RespawningSuperMissileBlock
-                    : RoomPlmInstructionLists.PermanentSuperMissileBlock;
-                level.SetForegroundEntry(
-                    blockIndex,
-                    unchecked((ushort)(slot.RestoreLevelWord & 0x8fff)));
-                return true;
-            }
-
-            // `$94:9EA6` entries C..F all point to `$84:B62F`. Its empty setup leaves the
-            // block alone and its one-word `$AAE3` list deletes on the next handler pass.
-            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
-            return true;
-        }
-
-        // Spawn_PLM scans from native slot `$4E` down and performs no setup mutation when
-        // full. The projectile still receives the collision nibble's normal carry result.
-        return false;
-    }
-
-    /// <summary>Typed BTS overload used by bomb collision dispatch.</summary>
-    public bool TrySpawnBombedSpecialBlock(
-        RoomLevelData level,
-        int blockIndex,
-        RoomBlockBehavior bts,
-        AreaId areaIndex,
-        SamusProjectileTypeWord projectileType)
-    {
-        Ensure.NotNull(level);
-        _ = AreaIds.ToIndex(areaIndex);
-        if (projectileType.Family == SamusProjectileFamily.PowerBomb)
-            return false;
-        if (projectileType.Family != SamusProjectileFamily.Bomb)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(projectileType),
-                "The bomb-special setup accepts only normal-bomb and Power-Bomb families.");
-        }
-
-        ushort instructionPointer;
-        if (!bts.UsesAreaReactionTable)
-        {
-            if (!bts.IsNormalReactionIndex(BombSpecialBlockReactions.Count))
-                throw new ArgumentOutOfRangeException(nameof(bts),
-                    "Area-independent special-block BTS is outside the cartridge reaction table.");
-
-            instructionPointer = BombSpecialBlockReactions.InstructionListAt(bts.NormalReactionIndex);
-        }
-        else
-        {
-            int areaBehavior = bts.AreaReactionIndex;
-            if (!bts.IsAreaReactionIndex(8))
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(bts),
-                    "Area-dependent bomb-special BTS must address one of its eight native entries.");
-            }
-
-            instructionPointer = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5
-                ? RoomPlmInstructionLists.BombReactionSpeedBlock
-                : RoomPlmInstructionLists.Delete;
-        }
-
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
-        {
-            PlmSlot slot = _slots[slotIndex];
-            if (slot.Active)
-                continue;
-
-            ClearSlot(slot);
-            slot.Active = true;
-            slot.BlockIndex = blockIndex;
-            slot.RestoreLevelWord = 0;
-            slot.InstructionPointer = instructionPointer;
-            slot.InstructionTimer = 1;
-            return true;
-        }
-
-        return false;
+        MotherBrainGlass.ResetMotherBrainGlassState();
+        CollectiblePlms.ResetCollectibleState();
+        BombTorizoHand.ResetBombTorizoHandState();
     }
 
     /// <summary>
@@ -1053,59 +196,59 @@ public sealed partial class RoomPlmSystem
         Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(streamer);
-        _soundRequests.Clear();
-        PublishPendingDownwardGateSounds();
-        _tilemapUpdates.Clear();
-        _stationActivationEvents.Clear();
-        BeginMotherBrainGlassFrame();
-        BeginCollectibleFrame();
-        BeginBombTorizoHandFrame();
+        Sounds._soundRequests.Clear();
+        Gates.PublishPendingDownwardGateSounds();
+        Drawing._tilemapUpdates.Clear();
+        Stations._stationActivationEvents.Clear();
+        MotherBrainGlass.BeginMotherBrainGlassFrame();
+        CollectiblePlms.BeginCollectibleFrame();
+        BombTorizoHand.BeginBombTorizoHandFrame();
 
-        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        for (int slotIndex = SlotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
-            PlmSlot slot = _slots[slotIndex];
+            PlmSlot slot = SlotTable._slots[slotIndex];
             if (!slot.Active)
                 continue;
 
-            if (TryStepScrollPlm(level, frame.Scrolls, slot))
+            if (ScrollPlms.TryStepScrollPlm(level, frame.Scrolls, slot))
                 continue;
 
-            if (TryStepWreckedShipTreadmill(level, streamer, slot))
+            if (WreckedShipTreadmillPlms.TryStepWreckedShipTreadmill(level, streamer, slot))
                 continue;
 
-            if (TryStepStation(bus, level, streamer, slot, view))
+            if (Stations.TryStepStation(bus, level, streamer, slot, view))
             {
                 continue;
             }
 
-            if (TryStepCollectible(bus, level, streamer, slot, view))
+            if (CollectiblePlms.TryStepCollectible(bus, level, streamer, slot, view))
             {
                 continue;
             }
 
-            if (TryStepColoredDoor(bus, level, streamer, slot, view))
+            if (DoorPlms.TryStepColoredDoor(bus, level, streamer, slot, view))
             {
                 continue;
             }
 
-            if (TryStepGreyDoor(bus, level, streamer, slot, view, frame.EnemyDeaths, frame.EnemyDeathQuota))
+            if (GreyDoors.TryStepGreyDoor(bus, level, streamer, slot, view, frame.EnemyDeaths, frame.EnemyDeathQuota))
             {
                 continue;
             }
 
-            RunMetroidsClearedPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
-            RunShaktoolRoomPreInstruction(slot, frame.Scrolls, frame.PowerBombExplosionStatus);
-            RunSamusEaterPreInstruction(slot);
-            RunSpeedBoosterEscapePreInstruction(slot);
-            RunOldTourianEscapeShaftWallPreInstruction(slot);
-            RunWreckedShipAtticPreInstruction(slot);
-            RunBombTorizoHandPreInstruction(slot);
-            RunChozoStatuePreInstruction(level, slot);
-            RunMotherBrainGlassPreInstruction(slot);
-            RunNoobTubePreInstruction(slot, frame.ControllerNewInput);
-            RunDownwardGatePreInstruction(slot);
-            RunEyeDoorPreInstruction(slot);
-            RunDraygonCannonPreInstruction(slot);
+            Tourian.RunMetroidsClearedPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
+            Shaktool.RunShaktoolRoomPreInstruction(slot, frame.Scrolls, frame.PowerBombExplosionStatus);
+            SamusEater.RunSamusEaterPreInstruction(slot);
+            SpeedBoosterEscape.RunSpeedBoosterEscapePreInstruction(slot);
+            Tourian.RunOldTourianEscapeShaftWallPreInstruction(slot);
+            WreckedShipAtticPlms.RunWreckedShipAtticPreInstruction(slot);
+            BombTorizoHand.RunBombTorizoHandPreInstruction(slot);
+            ChozoStatuePlms.RunChozoStatuePreInstruction(level, slot);
+            MotherBrainGlassPlms.RunMotherBrainGlassPreInstruction(slot);
+            NoobTube.RunNoobTubePreInstruction(slot, frame.ControllerNewInput);
+            Gates.RunDownwardGatePreInstruction(slot);
+            EyeDoors.RunEyeDoorPreInstruction(slot);
+            DraygonCannonPlms.RunDraygonCannonPreInstruction(slot);
             if (!slot.Active)
                 continue;
 
@@ -1116,7 +259,7 @@ public sealed partial class RoomPlmSystem
             ExecuteInstructionStream(bus, level, streamer, slot, view, frame.Scrolls, frame.CollectedItems);
         }
 
-        return _tilemapUpdates;
+        return Drawing._tilemapUpdates;
     }
 
     private void ExecuteInstructionStream(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, RoomScrollGrid? scrolls, ushort collectedItems)
@@ -1134,7 +277,7 @@ public sealed partial class RoomPlmSystem
                     unchecked((ushort)(slot.InstructionPointer + 2)));
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                 slot.InstructionTimer = instruction;
-                DrawPlmInstruction(bus, level, streamer, slot.HeaderPointer, slot.BlockIndex, drawPointer, view);
+                Drawing.DrawPlmInstruction(bus, level, streamer, slot.HeaderPointer, slot.BlockIndex, drawPointer, view);
                 return;
             }
 
@@ -1143,15 +286,15 @@ public sealed partial class RoomPlmSystem
             switch (code)
             {
                 case RoomPlmInstruction.SamusEaterDamage:
-                    RequirePlantSamus().LiquidPhysics.AccumulatePeriodicDamage(0, 2);
+                    SamusEater.RequirePlantSamus().LiquidPhysics.AccumulatePeriodicDamage(0, 2);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
                 case RoomPlmInstruction.SamusEaterReleaseImmunity:
-                    RequirePlantSamus().InvincibilityTimer = 0x30;
+                    SamusEater.RequirePlantSamus().InvincibilityTimer = 0x30;
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
                 case RoomPlmInstruction.SetAnimalsEscapedEvent:
-                    (_events ?? throw new InvalidOperationException("Animal rescue requires the room event owner.")).Set(EventNumber.CrittersEscaped);
+                    (Bindings.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner.")).Set(EventNumber.CrittersEscaped);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
                 case RoomPlmInstruction.InstallPreInstruction:
@@ -1177,7 +320,7 @@ public sealed partial class RoomPlmSystem
                     // operand layout as `$8C10/$8C46`, but permits only one pending sound.
                     byte singleSoundId = ReadProgramByte(
                         bus, unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, singleSoundId), MaximumQueued: 1));
+                    Sounds._soundRequests.Add(Sounds.CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, singleSoundId), MaximumQueued: 1));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1187,7 +330,7 @@ public sealed partial class RoomPlmSystem
                     // a short branch. Both consume the identical odd-byte sound operand.
                     byte directSingleSoundId = ReadProgramByte(
                         bus, unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, directSingleSoundId), MaximumQueued: 1));
+                    Sounds._soundRequests.Add(Sounds.CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, directSingleSoundId), MaximumQueued: 1));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1196,7 +339,7 @@ public sealed partial class RoomPlmSystem
                     // low byte is read as A's harmless high byte by the 16-bit LDA.
                     byte soundId = ReadProgramByte(
                         bus, unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, soundId), MaximumQueued: 6));
+                    Sounds._soundRequests.Add(Sounds.CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, soundId), MaximumQueued: 6));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1205,7 +348,7 @@ public sealed partial class RoomPlmSystem
                     // collision-bomb list's crumble sound `$06` uses the stricter queue cap.
                     byte cappedSoundId = ReadProgramByte(
                         bus, unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, cappedSoundId), MaximumQueued: 3));
+                    Sounds._soundRequests.Add(Sounds.CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, cappedSoundId), MaximumQueued: 3));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1215,7 +358,7 @@ public sealed partial class RoomPlmSystem
                     // only one argument byte before advancing Y by one.
                     byte doorSoundId = ReadProgramByte(
                         bus, unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, doorSoundId), MaximumQueued: 6));
+                    Sounds._soundRequests.Add(Sounds.CreateSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, doorSoundId), MaximumQueued: 6));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1225,7 +368,7 @@ public sealed partial class RoomPlmSystem
                     continue;
 
                 case RoomPlmInstruction.SpawnDownwardGateProjectile:
-                    _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
+                    Gates._downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
                         DownwardGateProjectileOperation.Spawn,
                         ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2))),
                         slot.BlockIndex));
@@ -1235,7 +378,7 @@ public sealed partial class RoomPlmSystem
                 case RoomPlmInstruction.WakeDownwardGateProjectile:
                     // $BBF0 consumes but does not use the following list address. It locates
                     // the actor whose variable-E stores this PLM's native block byte index.
-                    _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
+                    Gates._downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
                         DownwardGateProjectileOperation.Wake,
                         DefinitionPointer: 0,
                         slot.BlockIndex));
@@ -1249,7 +392,7 @@ public sealed partial class RoomPlmSystem
                     ushort gotoTarget = ReadProgramWord(
                         bus,
                         unchecked((ushort)(slot.InstructionPointer + 2)));
-                    if (TryCompleteResidentDoorClosing(bus, level, streamer, slot, gotoTarget, view))
+                    if (DoorPlms.TryCompleteResidentDoorClosing(bus, level, streamer, slot, gotoTarget, view))
                     {
                         return;
                     }
@@ -1348,13 +491,13 @@ public sealed partial class RoomPlmSystem
                     // occurs on the next PLM pass rather than this restoration pass.
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     slot.InstructionTimer = 1;
-                    DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord, view);
+                    Drawing.DrawLevelWord(level, streamer, slot.BlockIndex, slot.RestoreLevelWord, view);
                     return;
 
                 case RoomPlmInstruction.Delete:
                     slot.Active = false;
-                    MarkBombTorizoHandDeleted(slot);
-                    OnPlmDeleted(slot);
+                    BombTorizoHandPlms.MarkBombTorizoHandDeleted(slot);
+                    MotherBrainGlass.OnPlmDeleted(slot);
                     // Semantic family references are discriminators, not retained debug
                     // history. A later allocation can reuse this physical native slot and
                     // must never inherit door-only pre-handler behavior.
@@ -1374,17 +517,17 @@ public sealed partial class RoomPlmSystem
                     return;
 
                 default:
-                    if (TryExecuteChozoStatueInstruction(bus, level, slot, code))
+                    if (ChozoStatue.TryExecuteChozoStatueInstruction(bus, level, slot, code))
                         continue;
-                    if (TryExecuteBombTorizoHandInstruction(bus, slot, code))
+                    if (BombTorizoHand.TryExecuteBombTorizoHandInstruction(bus, slot, code))
                         continue;
-                    if (TryExecuteMotherBrainGlassInstruction(bus, slot, code))
+                    if (MotherBrainGlass.TryExecuteMotherBrainGlassInstruction(bus, slot, code))
                         continue;
-                    if (TryExecuteNoobTubeInstruction(bus, slot, code))
+                    if (NoobTube.TryExecuteNoobTubeInstruction(bus, slot, code))
                         continue;
-                    if (TryExecuteEyeDoorInstruction(bus, level, slot, code))
+                    if (EyeDoors.TryExecuteEyeDoorInstruction(bus, level, slot, code))
                         continue;
-                    if (TryExecuteDraygonCannonInstruction(bus, level, slot, code))
+                    if (DraygonCannons.TryExecuteDraygonCannonInstruction(bus, level, slot, code))
                         continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached untranslated bank-$84 instruction ${instruction:X4}.");
@@ -1394,447 +537,17 @@ public sealed partial class RoomPlmSystem
         throw new InvalidDataException("Movement-owned PLM instruction chain did not reach a timer.");
     }
 
-    private void DrawPlmInstruction(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort drawPointer, PlmView view) =>
-        DrawPlmInstruction(bus, level, streamer, 0, blockIndex, drawPointer, view);
-
-    private void DrawPlmInstruction(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer, PlmView view)
-    {
-        // `$84:861E-$86B3` treats each record as a direction/count word followed by complete
-        // level words. Bit 15 means a vertical column; a clear bit means a horizontal row.
-        // After its words, a signed-byte X/Y pair locates another record relative to the PLM
-        // origin. A zero pair terminates. The 2x2 bomb art is consequently two horizontal
-        // records: row zero, then `{dx=0,dy=1}` and row one.
-        Position16<RoomBlocks> origin = level.Size.CellAtRowMajorIndex(blockIndex);
-        if (RoomPlmBombedRevealDrawDefinitions.TryGet(drawPointer, out var bombedReveal))
-        {
-            DrawCompiledBlockInstruction(level, streamer, bombedReveal, origin, view);
-            return;
-        }
-        if (CrateriaMainstreetEscapePassagePlmDefinitions.TryGetDraw(drawPointer, out var clearedPassage))
-        {
-            DrawCompiledBlockInstruction(level, streamer, clearedPassage, origin, view);
-            return;
-        }
-        if (OldTourianEscapeShaftWallPlmDefinitions.TryGetDraw(drawPointer, out var openWall))
-        {
-            DrawCompiledBlockInstruction(level, streamer, openWall, origin, view);
-            return;
-        }
-        if (EscapeAnimalPlmDrawDefinitions.TryGet(drawPointer, out var animalWall))
-        {
-            DrawCompiledBlockInstruction(level, streamer, animalWall, origin, view);
-            return;
-        }
-        if (RoomPlmShotBlockDrawDefinitions.TryGet(drawPointer, out var compiled))
-        {
-            for (int run = 0; run < compiled.RunCount; run++)
-            for (int block = 0; block < compiled.WordsPerRun; block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(compiled.Vertical ? 0 : block)), checked((short)(compiled.Vertical ? block : run))), compiled.WordAt(run, block), view, ShotBlockVisuals?.GetWord(drawPointer, run, block));
-            return;
-        }
-        if (drawPointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw)
-        {
-            DrawPlmWordAt(level, streamer, drawPointer, origin, SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord, view, SpeedBoosterVisuals?.GetWord(drawPointer, 0, 0));
-            return;
-        }
-        if (KraidRoomPlmDrawDefinitions.IsKraidOwner(headerPointer) &&
-            KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var ownedKraidDraw))
-        {
-            // $9367 is shared with Maridia's elevatube. Select its appearance
-            // from the active PLM header, never from the pointer alone.
-            DrawKraidBlockInstruction(level, streamer, ownedKraidDraw, origin, view, KraidVisuals);
-            return;
-        }
-        if (drawPointer == MaridiaElevatubePlmDefinitions.DrawPointer)
-        {
-            DrawPlmWordAt(level, streamer, drawPointer, origin, MaridiaElevatubePlmDefinitions.PhysicalWord, view, MaridiaElevatubeVisuals?.GetWord(drawPointer, 0, 0));
-            return;
-        }
-        if (KraidRoomPlmDrawDefinitions.TryGet(drawPointer, out var kraidDraw))
-        {
-            DrawKraidBlockInstruction(level, streamer, kraidDraw, origin, view, null);
-            return;
-        }
-        if (CrocomireArenaPlmDrawDefinitions.TryDescribe(drawPointer,
-                out var crocomireDraw))
-        {
-            for (int run = 0; run < crocomireDraw.RunCount; run++)
-            for (int block = 0; block < crocomireDraw.WordsPerRun; block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(crocomireDraw.Wall ? run : block)), checked((short)(crocomireDraw.Wall ? block : 0))), crocomireDraw.WordAt(run, block), view, CrocomireVisuals?.GetWord(drawPointer, run, block));
-            return;
-        }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBackground(drawPointer, out var backgroundFakeDeath))
-        {
-            for (int column = 0; column < 13; column++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), 0), backgroundFakeDeath.WordAt(column), view, MotherBrainFakeDeathVisuals?.GetWord(drawPointer, 0, column));
-            return;
-        }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(drawPointer, out var regularFakeDeath))
-        {
-            for (int run = 0; run < regularFakeDeath.RunCount; run++)
-            for (int block = 0; block < regularFakeDeath.Count(run); block++)
-            {
-                bool vertical = regularFakeDeath.Vertical(run);
-                Position16<RoomBlocks> run0 = origin + new Offset16<RoomBlocks>(checked((short)(run == 0 ? 0 : regularFakeDeath.NextX(run - 1))), 0);
-                DrawPlmWordAt(level, streamer, drawPointer, run0 + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : block)), checked((short)(vertical ? block : 0))), regularFakeDeath.WordAt(run, block), view, MotherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
-            }
-            return;
-        }
-        if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeBoundary(drawPointer, out var boundaryFakeDeath))
-        {
-            for (int run = 0; run < 2; run++)
-            for (int block = 0; block < boundaryFakeDeath.Count(run); block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(run == 0 ? 0 : boundaryFakeDeath.NextX(0))), checked((short)((run == 0 ? 0 : boundaryFakeDeath.NextY(0)) + block))), boundaryFakeDeath.WordAt(run, block), view, MotherBrainFakeDeathVisuals?.GetWord(drawPointer, run, block));
-            return;
-        }
-        if (TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int tourianRows, out ushort tourianWord))
-        {
-            for (int row = 0; row < tourianRows; row++)
-            for (int column = 0; column < 4; column++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), tourianWord, view, TourianAccessVisuals?.GetWord(drawPointer, row, column));
-            return;
-        }
-        if (SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(drawPointer, out ushort sporeCeilingWord))
-        {
-            for (int row = 0; row < 2; row++)
-            for (int column = 0; column < 2; column++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)column), checked((short)row)), sporeCeilingWord, view, SporeSpawnCeilingVisuals?.GetWord(drawPointer, row, column));
-            return;
-        }
-        if (SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var samusEater))
-        {
-            Position16<RoomBlocks> plant = origin;
-            for (int run = 0; run < 3; run++)
-            {
-                for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
-                    DrawPlmWordAt(level, streamer, drawPointer, plant + new Offset16<RoomBlocks>(checked((short)block), 0), samusEater.WordAt(run, block), view, SamusEaterVisuals?.GetWord(drawPointer, run, block));
-                plant = origin + new Offset16<RoomBlocks>(SamusEaterPlmDrawDefinitions.Draw.NextX(run), samusEater.NextY(run));
-            }
-            return;
-        }
-        if (drawPointer == BotwoonWallPlmDrawDefinitions.ClearPointer)
-        {
-            for (int row = 0; row < BotwoonWallPlmDrawDefinitions.BlockCount; row++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(0, checked((short)row)), BotwoonWallPlmDrawDefinitions.LevelWordAt(row), view, BotwoonWallVisuals?.GetWord(drawPointer, 0, row));
-            return;
-        }
-        if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(drawPointer, out var bombRestore))
-        {
-            for (int run = 0; run < bombRestore.RunCount; run++)
-            for (int block = 0; block < 2; block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(bombRestore.Vertical ? 0 : block)), checked((short)(bombRestore.Vertical ? block : run))), bombRestore.WordAt(run, block), view, LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
-            return;
-        }
-        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(drawPointer, out var crumbleRestore))
-        {
-            for (int run = 0; run < crumbleRestore.RunCount; run++)
-            for (int block = 0; block < 2; block++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(crumbleRestore.Vertical ? 0 : block)), checked((short)(crumbleRestore.Vertical ? block : run))), crumbleRestore.WordAt(run, block), view, LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
-            return;
-        }
-        if (BlueDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var blueDoor))
-        {
-            for (int cell = 0; cell < 4; cell++)
-            {
-                ushort physical = blueDoor.WordAt(cell);
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(blueDoor.Vertical ? 0 : cell)), checked((short)(blueDoor.Vertical ? cell : 0))), physical, view, BlueDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
-            }
-            return;
-        }
-        if (ColoredDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var coloredDoor))
-        {
-            for (int cell = 0; cell < 4; cell++)
-            {
-                ushort physical = coloredDoor.WordAt(cell);
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(coloredDoor.Vertical ? 0 : cell)), checked((short)(coloredDoor.Vertical ? cell : 0))), physical, view, ColoredDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(physical).VisualWord);
-            }
-            return;
-        }
-        if (GreyDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var greyDoor))
-        {
-            for (int cell = 0; cell < 4; cell++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(greyDoor.Vertical ? 0 : cell)), checked((short)(greyDoor.Vertical ? cell : 0))), greyDoor.WordAt(cell), view, GreyDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(greyDoor.WordAt(cell)).VisualWord);
-            return;
-        }
-        if (EyeDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var eyeDoor))
-        {
-            for (int cell = 0; cell < eyeDoor.WordCount; cell++)
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(eyeDoor.Vertical ? 0 : cell)), checked((short)(eyeDoor.Vertical ? cell : 0))), eyeDoor.WordAt(cell), view, EyeDoorVisuals?.GetWord(drawPointer, cell) ?? new RoomLevelWord(eyeDoor.WordAt(cell)).VisualWord);
-            return;
-        }
-        if (MotherBrainGlassPlmDrawDefinitions.TryDescribe(drawPointer, out var motherBrainGlass))
-        {
-            Position16<RoomBlocks> glass = origin;
-            for (int run = 0; run < motherBrainGlass.RunCount; run++)
-            {
-                bool vertical = motherBrainGlass.Vertical(run);
-                for (int cell = 0; cell < motherBrainGlass.WordCount(run); cell++)
-                {
-                    ushort physical = motherBrainGlass.WordAt(run, cell);
-                    ushort visual = MotherBrainGlassVisuals?.GetWord(drawPointer, run, cell)
-                        ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, glass + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : cell)), checked((short)(vertical ? cell : 0))), physical, view, visual);
-                }
-                glass = origin + new Offset16<RoomBlocks>(motherBrainGlass.NextX(run), motherBrainGlass.NextY(run));
-            }
-            return;
-        }
-        if (NoobTubePlmDrawDefinitions.TryDescribe(drawPointer, out var noobTube))
-        {
-            Position16<RoomBlocks> tube = origin;
-            for (int run = 0; run < noobTube.RunCount; run++)
-            {
-                for (int cell = 0; cell < noobTube.WordCount(run); cell++)
-                {
-                    ushort physical = noobTube.WordAt(run, cell);
-                    ushort visual = NoobTubeVisuals?.GetWord(drawPointer, run, cell)
-                        ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, tube + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
-                }
-                tube = origin + new Offset16<RoomBlocks>(0, noobTube.NextY(run));
-            }
-            return;
-        }
-        if (RoomPlmStationDrawDefinitions.TryDescribe(drawPointer, out var station))
-        {
-            Position16<RoomBlocks> stationCursor = origin;
-            for (int run = 0; run < station.RunCount; run++)
-            {
-                for (int cell = 0; cell < station.WordCount(run); cell++)
-                {
-                    ushort physical = station.WordAt(run, cell);
-                    ushort visual = StationVisuals?.GetWord(drawPointer, run, cell)
-                        ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, stationCursor + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
-                }
-                stationCursor = origin + new Offset16<RoomBlocks>(station.NextX(run), station.NextY(run));
-            }
-            return;
-        }
-        if (ElevatorPlatformPlmDefinitions.TryDescribe(drawPointer, out var elevator))
-        {
-            Position16<RoomBlocks> elevatorCursor = origin;
-            for (int run = 0; run < elevator.RunCount; run++)
-            {
-                for (int cell = 0; cell < elevator.WordCount(run); cell++)
-                {
-                    ushort physical = elevator.WordAt(run, cell);
-                    ushort visual = ElevatorPlatformVisuals?.GetWord(drawPointer, run, cell)
-                        ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, elevatorCursor + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
-                }
-                elevatorCursor = origin + new Offset16<RoomBlocks>(elevator.NextX(run), elevator.NextY(run));
-            }
-            return;
-        }
-        if (DownwardGatePlmDrawDefinitions.TryDescribe(drawPointer, out var gate))
-        {
-            Position16<RoomBlocks> gateCursor = origin;
-            for (int run = 0; run < gate.RunCount; run++)
-            {
-                for (int word = 0; word < gate.WordCount(run); word++)
-                {
-                    ushort physical = gate.WordAt(run, word);
-                    ushort visual = DownwardGateVisuals?.GetWord(drawPointer, run, word)
-                        ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, gateCursor + new Offset16<RoomBlocks>(checked((short)(gate.Column ? 0 : word)), checked((short)(gate.Column ? word : 0))), physical, view, visual);
-                }
-                gateCursor = origin + new Offset16<RoomBlocks>(gate.NextX(run), 0);
-            }
-            return;
-        }
-        if (MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(drawPointer, out var escapeGate))
-        {
-            for (int row = 0; row < 4; row++)
-            {
-                ushort physical = escapeGate.WordAt(row);
-                ushort visual = EscapeGateVisuals?.GetWord(drawPointer, row)
-                    ?? new RoomLevelWord(physical).VisualWord;
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(0, checked((short)row)), physical, view, visual);
-            }
-            return;
-        }
-        if (BombTorizoHandPlmDrawDefinitions.TryDescribe(drawPointer, out var bombTorizoHand))
-        {
-            for (int run = 0; run < bombTorizoHand.RunCount; run++)
-            for (int word = 0; word < bombTorizoHand.WordCount(run); word++)
-            {
-                ushort physical = bombTorizoHand.WordAt(run, word);
-                ushort visual = BombTorizoHandVisuals?.GetWord(drawPointer, run, word)
-                    ?? new RoomLevelWord(physical).VisualWord;
-                DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(bombTorizoHand.OriginX(run) + word)), bombTorizoHand.OriginY(run)), physical, view, visual);
-            }
-            return;
-        }
-        if (DraygonCannonPlmDrawDefinitions.TryDescribe(drawPointer, out var draygonCannon))
-        {
-            Position16<RoomBlocks> cannon = origin;
-            for (int run = 0; run < draygonCannon.RunCount; run++)
-            {
-                for (int cell = 0; cell < draygonCannon.WordCount(run); cell++)
-                {
-                    ushort physical = draygonCannon.WordAt(run, cell);
-                    ushort visual = DraygonCannonVisuals?.GetWord(drawPointer, run, cell)
-                        ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, cannon + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
-                }
-                cannon = origin + new Offset16<RoomBlocks>(draygonCannon.NextX(run), draygonCannon.NextY(run));
-            }
-            return;
-        }
-        if (ChozoStatuePlmDrawDefinitions.TryDescribe(drawPointer, out var chozoStatue))
-        {
-            Position16<RoomBlocks> chozo = origin;
-            for (int run = 0; run < chozoStatue.RunCount; run++)
-            {
-                for (int cell = 0; cell < chozoStatue.WordCount(run); cell++)
-                {
-                    ushort physical = chozoStatue.WordAt(run, cell);
-                    ushort visual = ChozoStatueVisuals?.GetWord(drawPointer, run, cell)
-                        ?? new RoomLevelWord(physical).VisualWord;
-                    DrawPlmWordAt(level, streamer, drawPointer, chozo + new Offset16<RoomBlocks>(checked((short)cell), 0), physical, view, visual);
-                }
-                chozo = origin + new Offset16<RoomBlocks>(chozoStatue.NextX(run), chozoStatue.NextY(run));
-            }
-            return;
-        }
-        if (RoomPlmCollectibleDrawDefinitions.TryGetWord(drawPointer, out ushort collectible))
-        {
-            DrawPlmWordAt(level, streamer, drawPointer, origin, collectible, view, CollectibleVisuals?.GetWord(drawPointer));
-            return;
-        }
-        if (RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var grapple))
-        {
-            // All five cartridge lists are a single word at the PLM origin. The
-            // complete native word retains Grapple/air collision independently of art.
-            DrawPlmWordAt(level, streamer, grapple.Pointer, origin, grapple.LevelWord, view, GrappleBlockVisuals?.GetWord(grapple.Pointer));
-            return;
-        }
-
-        Position16<RoomBlocks> entry = origin;
-        ushort cursor = drawPointer;
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
-            throw new InvalidOperationException("A WRAM-authored PLM draw needs live mutable memory.");
-
-        // A pointer that wrapped into the low bank-$84 mirror may consume active WRAM.
-        // Every cartridge-resident draw must already have a compiled definition above;
-        // the explicit WRAM API rejects all cartridge and peripheral offsets.
-        for (int entryNumber = 0; entryNumber < 32; entryNumber++)
-        {
-            ushort directionAndCount = ReadPlmWorkRamWord(memory, cursor);
-            bool vertical = (directionAndCount & 0x8000) != 0;
-            int count = directionAndCount & 0x7fff;
-            if (count is <= 0 or > 0xff)
-            {
-                throw new InvalidDataException(
-                    $"PLM draw list ${drawPointer:X4} has invalid block count {count}.");
-            }
-            cursor = unchecked((ushort)(cursor + 2));
-
-            for (int blockOffset = 0; blockOffset < count; blockOffset++)
-            {
-                Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : blockOffset)), checked((short)(vertical ? blockOffset : 0)));
-                ushort levelWord = ReadPlmWorkRamWord(memory, cursor);
-                cursor = unchecked((ushort)(cursor + 2));
-                DrawPlmWordAt(level, streamer, drawPointer, block, levelWord, view);
-            }
-
-            byte relativeX = ReadPlmWorkRamByte(memory, cursor);
-            byte relativeY = ReadPlmWorkRamByte(memory, unchecked((ushort)(cursor + 1)));
-            if (relativeX == 0 && relativeY == 0)
-                return;
-
-            entry = origin + new Offset16<RoomBlocks>(unchecked((sbyte)relativeX), unchecked((sbyte)relativeY));
-            cursor = unchecked((ushort)(cursor + 2));
-        }
-
-        throw new InvalidDataException(
-            $"PLM draw list ${drawPointer:X4} did not reach its signed-offset terminator.");
-    }
-
-    private void DrawCompiledBlockInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, RoomPlmShotBlockDrawDefinitions.DrawList definition, Position16<RoomBlocks> origin, PlmView view)
-    {
-        Position16<RoomBlocks> entry = origin;
-        ReadOnlySpan<RoomPlmShotBlockDrawDefinitions.Run> runs = definition.Runs.Span;
-        for (int runIndex = 0; runIndex < runs.Length; runIndex++)
-        {
-            RoomPlmShotBlockDrawDefinitions.Run run = runs[runIndex];
-            bool vertical = (run.DirectionAndCount & 0x8000) != 0;
-            int count = run.DirectionAndCount & 0x7fff;
-            if (count != run.LevelWords.Length)
-                throw new InvalidDataException(
-                    $"Compiled PLM draw list ${definition.Pointer:X4} has inconsistent block count.");
-            for (int offset = 0; offset < count; offset++)
-            {
-                Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : offset)), checked((short)(vertical ? offset : 0)));
-                ushort physicalWord = run.LevelWords.Span[offset];
-                ushort visualWord = new RoomLevelWord(physicalWord).VisualWord;
-                DrawPlmWordAt(level, streamer, definition.Pointer, block, physicalWord, view, visualWord);
-            }
-
-            entry = origin + run.Next;
-        }
-    }
-
-    private void DrawPlmWordAt(RoomLevelData level, BackgroundTilemapStreamer streamer, ushort drawPointer, Position16<RoomBlocks> block, ushort levelWord, PlmView view, ushort? visualWord = null)
-    {
-        int blockIndex;
-        try
-        {
-            blockIndex = level.GetPlmBlockIndex(block);
-        }
-        catch (ArgumentOutOfRangeException error)
-        {
-            throw new InvalidDataException(
-                $"PLM draw list ${drawPointer:X4} targets block ({block.X},{block.Y}) outside " +
-                "the safe native level allocation.", error);
-        }
-
-        DrawLevelWord(level, streamer, blockIndex, levelWord, view, visualWord);
-    }
-
-    private void DrawLevelWord(RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort levelWord, PlmView view, ushort? visualWord = null)
-    {
-        ushort renderedWord = visualWord ?? new RoomLevelWord(levelWord).VisualWord;
-        level.SetPlmForegroundEntry(blockIndex, levelWord, renderedWord);
-        if (!level.IsLogicalBlockIndex(blockIndex))
-            return;
-
-        streamer.SetLevelEntry(blockIndex,
-            new RoomLevelWord(levelWord).WithVisualWord(renderedWord).Raw);
-
-        if (!IsInsideNativeDrawWindow(level.Size.CellAtRowMajorIndex(blockIndex), view.Layer1Position))
-            return;
-
-        _tilemapUpdates.Add(streamer.BuildPlmLevelBlockUpdate(blockIndex, view.Bg1XOffset));
-    }
-
-    private static bool IsInsideNativeDrawWindow(
-        Position16<RoomBlocks> block,
-        Position16<RoomPixels> layer1Position)
-    {
-        int topBlock = layer1Position.Y >> 4;
-        if (block.Y < topBlock || block.Y > topBlock + 15)
-            return false;
-
-        // $84:8DF4 calculates floor((layer1X+15)/16)-1, then admits the following
-        // seventeen blocks. In ordinary non-wrapped room coordinates this is the partially
-        // visible left block plus the sixteen blocks that can intersect the 256-pixel view.
-        int leftBlock = ((layer1Position.X + 15) >> 4) - 1;
-        return block.X >= leftBlock && block.X < leftBlock + 17;
-    }
-
-    private static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
+    internal static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
         new PlmLowBankAliasMemory(memory).Word(offset);
 
-    private static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
+    internal static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
         new PlmLowBankAliasMemory(memory).Byte(offset);
 
     // Instruction control is compiled independently of PLM draw-list payloads. A
     // compiled family claims only its own exact control addresses; all other bank-$84
     // identities must have compiled mechanics.
     // A low-window wrap may still read live WRAM; no branch can read cartridge bytes.
-    private static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
+    internal static ushort ReadProgramWord(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadWord(address, out ushort value)
             ? value
             : address < RoomPlmMemoryLayout.WorkRamMirrorEnd
@@ -1843,7 +556,7 @@ public sealed partial class RoomPlmSystem
                 : throw new InvalidDataException(
                     $"PLM program word $84:{address:X4} has no compiled definition.");
 
-    private static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
+    internal static byte ReadProgramByte(ISnesAddressSpace bus, ushort address) =>
         RoomPlmProgramDefinitions.TryReadByte(address, out byte value)
             ? value
             : address < RoomPlmMemoryLayout.WorkRamMirrorEnd
@@ -1852,82 +565,16 @@ public sealed partial class RoomPlmSystem
                 : throw new InvalidDataException(
                     $"PLM program byte $84:{address:X4} has no compiled definition.");
 
-    private sealed class PlmSlot
+    /// <summary>
+    /// Shared Write_Level_Data_Block_Type_and_BTS operation: preserve visual index/flips,
+    /// replace the collision nibble, and publish the independent low-byte behavior.
+    /// </summary>
+    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, ushort typeAndBts)
     {
-        /// <summary>Samus position saved by the Brinstar plant setup (native <c>PLM_Vars</c> X, <c>PLMExtra_Vars</c> Y).</summary>
-        public Position16<RoomPixels> PlantHeldPosition { get; set; }
-        public bool Active { get; set; }
-        public PlmHeaderId HeaderPointer { get; set; }
-        public int BlockIndex { get; set; }
-        /// <summary>
-        /// Native <c>PLM_Vars</c>. Grapple setup saves the original word; collision-bomb
-        /// setup synthesizes the dimension-parent restoration word <c>$x058</c> instead.
-        /// </summary>
-        public ushort RestoreLevelWord { get; set; }
-        public ushort InstructionPointer { get; set; }
-        public ushort InstructionTimer { get; set; }
-        /// <summary>Native bank-$84 pre-instruction pointer run before the timer/list pass.</summary>
-        public ushort PreInstruction { get; set; }
-        /// <summary>Native room argument word owned independently by every physical PLM slot.</summary>
-        public ushort RoomArgument { get; set; }
-        /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
-        public ushort LoopTimer { get; set; }
-        /// <summary>Native extra PLM link-instruction word used by sleeping coroutines.</summary>
-        public ushort LinkInstruction { get; set; }
-        /// <summary>
-        /// Semantic state for one of bank $84's 63 permanent-item headers. A null value
-        /// leaves this physical slot under the ordinary instruction interpreter.
-        /// </summary>
-        public CollectiblePlmState? Item { get; set; }
-        /// <summary>Semantic state for resident bank-$84 scroll trigger header $B703.</summary>
-        public ScrollPlmState? Scroll { get; set; }
-        /// <summary>Semantic state for resident yellow/green/red door-cap PLMs.</summary>
-        public ColoredDoorPlmState? ColoredDoor { get; set; }
-        /// <summary>Semantic state for condition-gated grey door-cap PLMs.</summary>
-        public GreyDoorPlmState? GreyDoor { get; set; }
-        /// <summary>Semantic owner for map/resource/save station instruction families.</summary>
-        public StationPlmState? Station { get; set; }
-        /// <summary>Marks header $B70B while its animation remains generic list execution.</summary>
-        public bool IsElevatorPlatform { get; set; }
-        /// <summary>Marks the resident five-block downward gate coroutine.</summary>
-        public DownwardGatePlmState? Gate { get; set; }
-        /// <summary>Semantic owner for one component of a mirrored eye-door assembly.</summary>
-        public EyeDoorPlmState? EyeDoor { get; set; }
-        /// <summary>Semantic owner for one of Draygon's three retail cannon headers.</summary>
-        public DraygonCannonPlmState? DraygonCannon { get; set; }
-        /// <summary>Semantic owner for door-spawned Wrecked Ship treadmill PLMs.</summary>
-        public WreckedShipTreadmillPlmState? Treadmill { get; set; }
+        var original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;
+        var replacement = new RoomLevelWord(typeAndBts);
+        level.SetPlmForegroundEntry(blockIndex, RoomLevelWord.Create(original.VisualBlockIndex,
+            original.VisualFlipFlags, replacement.CollisionType).Raw);
+        level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
     }
 }
-
-/// <summary>The bank-$84 instruction lists and draw a coloured door runs through its lifetime (#633).</summary>
-internal readonly record struct ColoredDoorPrograms(
-    ushort InitialList, ushort ClosedBlueList, ushort HitList, ushort OpeningList, ushort ColoredClosedDraw);
-
-internal sealed class ColoredDoorPlmState(
-    ColoredDoorColor color,
-    ColoredDoorOrientation orientation,
-    ColoredDoorPrograms programs,
-    byte hitThreshold,
-    ColoredDoorPhase phase)
-{
-    public ColoredDoorColor Color { get; } = color;
-    public ColoredDoorOrientation Orientation { get; } = orientation;
-    public ushort InitialList { get; } = programs.InitialList;
-    public ushort ClosedBlueList { get; } = programs.ClosedBlueList;
-    public ushort HitList { get; } = programs.HitList;
-    public ushort OpeningList { get; } = programs.OpeningList;
-    public ushort ColoredClosedDraw { get; } = programs.ColoredClosedDraw;
-    public byte HitThreshold { get; } = hitThreshold;
-    public ColoredDoorPhase Phase { get; set; } = phase;
-    public byte HitCounter { get; set; }
-    public bool InitialDrawCompleted { get; set; }
-    public bool HasPendingHit { get; set; }
-    public SamusProjectileTypeWord PendingProjectileType { get; set; }
-}
-
-/// <summary>Observable call to one of the cartridge's three queued-sound libraries.</summary>
-public readonly record struct PlmSoundRequest(
-    SoundEffectId SoundEffect,
-    byte MaximumQueued,
-    bool SoundSuppressed = false);

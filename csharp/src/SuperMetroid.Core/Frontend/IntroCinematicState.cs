@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend;
 /// continues through the first narration card, the complete first illustrated/typewriter
 /// page, and the native palette transition into the Mother Brain gameplay flashback.
 /// </remarks>
-public sealed partial class IntroCinematicState
+public sealed class IntroCinematicState
 {
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
     [NonSerialized] private Rgba32[]? frameBuffer;
@@ -34,8 +34,8 @@ public sealed partial class IntroCinematicState
     /// <summary>Host-owned frame artwork for the Mother Brain flashback projectile slots.</summary>
     public ProjectileFrameBindingCatalog? ProjectileFrameBindings
     {
-        get => flashbackProjectiles.FrameBindings;
-        set => flashbackProjectiles.FrameBindings = value;
+        get => flashbackProjectiles.Animation.FrameBindings;
+        set => flashbackProjectiles.Animation.FrameBindings = value;
     }
 
     [NonSerialized] private IntroFontAtlas? introFont;
@@ -49,8 +49,8 @@ public sealed partial class IntroCinematicState
     public void BindSamusBodyArtwork(SamusBodyArtworkCatalog? value)
     {
         samusBodyArtwork = value;
-        flashbackSamus?.TileTransfers.BindArtwork(value);
-        babyDiscovery?.Samus.TileTransfers.BindArtwork(value);
+        flashbackSamus?.Presentation.TileTransfers.BindArtwork(value);
+        babyDiscovery?.Samus.Presentation.TileTransfers.BindArtwork(value);
     }
     /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
     [field: NonSerialized]     public IntroNarrationPresentation? NarrationPresentation
@@ -274,7 +274,7 @@ public sealed partial class IntroCinematicState
     /// <param name="controllerInput">The current raw controller-held word.</param>
     public void Step(ushort controllerInput)
     {
-        flashbackProjectiles.BeginImpactAudioFrame(cinematicActive: true);
+        flashbackProjectiles.ImpactAudio.BeginImpactAudioFrame(cinematicActive: true);
         // Cinematic functions consume joypad1_newkeys, not the raw held word. Latching at
         // this state boundary preserves a one-frame edge and prevents a held A/Start from
         // skipping both the options menu and the first narration page.
@@ -531,7 +531,7 @@ public sealed partial class IntroCinematicState
         {
             // Intro-demo alpha refreshes the live radius before projectiles and beta movement.
             // Pose commits at the end of the previous frame deliberately leave it unchanged.
-            flashbackSamus.RefreshCollisionRadii(bus);
+            flashbackSamus.PoseMetadata.RefreshCollisionRadii(bus);
 
             // $90:E91D runs DemoInputObjectHandler inside Samus's current-state handler,
             // after the cinematic function, so a demo loaded by $8B:AEB8 plays its first
@@ -556,7 +556,7 @@ public sealed partial class IntroCinematicState
             // the next dispatch on.
             if (!flashbackMotherBrain.IsVisible)
                 flashbackSamusDisplay = IntroSamusDisplay.Hidden;
-            if (flashbackProjectiles.TryImpactIntroMotherBrainMissile(bus, flashbackBombProjectiles))
+            if (flashbackProjectiles.EnemyImpacts.TryImpactIntroMotherBrainMissile(bus, flashbackBombProjectiles))
             {
                 bool fourthHit = flashbackMotherBrain.RegisterMissileHit();
                 if (fourthHit)
@@ -648,15 +648,15 @@ public sealed partial class IntroCinematicState
         // Shared Samus handlers read the nonzero cinematic-function word to select
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         flashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
-        flashbackSamus.TileTransfers.BindArtwork(samusBodyArtwork);
-        flashbackSamus.RefreshCollisionRadii(bus);
-        flashbackSamus.InitializeAnimation(bus);
+        flashbackSamus.Presentation.TileTransfers.BindArtwork(samusBodyArtwork);
+        flashbackSamus.PoseMetadata.RefreshCollisionRadii(bus);
+        flashbackSamus.Presentation.InitializeAnimation(bus);
         flashbackSamus.CommitPoseHistory(bus);
-        flashbackSamus.PrimeGraphics(bus);
+        flashbackSamus.Presentation.PrimeGraphics(bus);
         // The native NMI consumes the freshly selected top/bottom definitions before the
         // next displayed OAM image. Apply that dedicated DMA now so the first host-rendered
         // flashback frame names initialized OBJ characters rather than stale intro art.
-        flashbackSamus.TileTransfers.TransferToVram(bus, vram);
+        flashbackSamus.Presentation.TileTransfers.TransferToVram(bus, vram);
         flashbackMotherBrain = new IntroMotherBrainSpriteState();
         flashbackMotherBrainExplosions = null;
         flashbackRinkas = new IntroRinkaSystem();
@@ -756,7 +756,7 @@ public sealed partial class IntroCinematicState
         // text-to-gameplay palette crossfade as the Mother Brain scene.
         babyDiscovery = new IntroBabyDiscoveryState(bus, audio, flashbackSamus
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."));
-        babyDiscovery.Samus.TileTransfers.TransferToVram(bus, vram);
+        babyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(bus, vram);
 
         // The old gameplay objects have reached their delete lists. Releasing the scoped
         // references prevents their projectile/collision handlers from running behind the
@@ -966,7 +966,7 @@ public sealed partial class IntroCinematicState
         // $90:E70D/$90:E71C: both the demo and locked handlers end with
         // ResetMovementAndPoseChangeVariables, so a later missile inherits only the
         // movement recorded in its own dispatch.
-        flashbackSamus!.ClearPoseTransitionShotDirection();
+        flashbackSamus!.PoseTransitions.ClearPoseTransitionShotDirection();
         SamusProjectileInheritance.ClearMovement(bus);
     }
 
@@ -983,7 +983,7 @@ public sealed partial class IntroCinematicState
         // Accepted NMI transfers the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding ROM graphics rather than
         // interpreting stale standing tiles as a hurt body on the next visible frame.
-        samus.TileTransfers.TransferToVram(bus, vram);
+        samus.Presentation.TileTransfers.TransferToVram(bus, vram);
 
         AerialMovementResult? fallingMovement = null;
         BlockMoveResult? hurtEndingProbe = null;
@@ -1001,7 +1001,7 @@ public sealed partial class IntroCinematicState
                 bus, level, samus, nmiFrameCounter);
         }
         else if (flashbackDemoInput?.Enabled == true &&
-            (SamusState.IsLeftFacingStandingPose(samus.Pose) || SamusState.IsLeftFacingRunningPose(samus.Pose)))
+            (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
         {
             // The demo's later run/jump records use the same alpha/beta order as the
             // discovery scene. This coordinator already animates and commits its pose.
@@ -1014,7 +1014,7 @@ public sealed partial class IntroCinematicState
             fallingMovement = SamusAerialMovement.StepSpinJump(bus, level, samus,
                 demoInput, nmiFrameCounter, flashbackDemoInput?.NewlyPressed ?? 0);
         }
-        else if (SamusState.IsLeftFacingNormalJumpPose(samus.Pose))
+        else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
             fallingMovement = SamusAerialMovement.StepNormalJump(bus, level, samus,
                 demoInput, nmiFrameCounter);
@@ -1035,19 +1035,19 @@ public sealed partial class IntroCinematicState
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            samus.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = nmiFrameCounter });
+            samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = nmiFrameCounter });
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode
         // can ever be misread as another animation duration. This completes landing art's
         // native A5 -> 02 transition instead of walking beyond its ROM delay list.
-        bool animationTransitionApplied = samus.ApplyPendingVerifiedAnimationTransition(bus);
+        bool animationTransitionApplied = samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus);
         animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, samus);
         transitionAccepted |= animationTransitionApplied;
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            samus.ApplyWalkedOffFloorTransition(bus, level, samus.SelectFallingPoseForCurrentAim(bus), nmiFrameCounter);
+            samus.PoseTransitions.ApplyWalkedOffFloorTransition(bus, level, samus.PoseTransitions.SelectFallingPoseForCurrentAim(bus), nmiFrameCounter);
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -1056,7 +1056,7 @@ public sealed partial class IntroCinematicState
         // next animation list all come from the same bank-$91 implementation as gameplay.
         if (!animationTransitionApplied && fallingMovement is { Landed: true })
         {
-            samus.ApplyAerialLanding(bus, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
+            samus.PoseTransitions.ApplyAerialLanding(bus, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
             transitionAccepted = true;
         }
 
@@ -1102,9 +1102,9 @@ public sealed partial class IntroCinematicState
         // this scoped frontend yet; freezing input after the exact pose change has the same
         // observable contract for the remaining Mother Brain explosion frames.
         flashbackSamus!.Pose = SamusPoseId.FacingLeftNormalPose;
-        flashbackSamus.RefreshCollisionRadii(bus);
+        flashbackSamus.PoseMetadata.RefreshCollisionRadii(bus);
         // $91:874B: a Samus already in pose two keeps her running animation.
-        flashbackSamus.SetAnimationFrameIfPoseChanged(bus);
+        flashbackSamus.Presentation.SetAnimationFrameIfPoseChanged(bus);
         flashbackSamus.CommitPoseHistory(bus);
         demo.Disable();
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
@@ -1161,7 +1161,7 @@ public sealed partial class IntroCinematicState
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            flashbackSamus!.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+            flashbackSamus!.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
             flashbackProjectiles.DrawLiveProjectiles(bus, oam, Position16<RoomPixels>.Zero, nmiFrameCounter, ProjectileCompositions);
             flashbackProjectiles.HandleTrailsAndDraw(bus, oam, Position16<RoomPixels>.Zero, timeIsFrozen: false, TrailArtwork);
             flashbackProjectiles.DrawExplosions(bus, oam, Position16<RoomPixels>.Zero, ProjectileCompositions);
@@ -1223,8 +1223,8 @@ public sealed partial class IntroCinematicState
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        babyDiscovery!.Samus.TileTransfers.TransferToVram(bus, vram);
-        babyDiscovery.Samus.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+        babyDiscovery!.Samus.Presentation.TileTransfers.TransferToVram(bus, vram);
+        babyDiscovery.Samus.Presentation.Draw(bus, oam, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
     }
 
     private Rgba32[] RenderScientistCutscene()
@@ -1482,6 +1482,69 @@ public sealed partial class IntroCinematicState
         public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
             owner.HandleMotherBrainDemoInstruction(demo, opcode, cursor);
     }
+
+    /// <summary>Prepares the current display once and owns all inputs needed by a detached renderer.</summary>
+    internal LayeredRenderSnapshot CaptureTranslatedRenderSnapshot()
+    {
+        if (ceresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
+            return ceresFlight.CaptureRenderSnapshot();
+
+        OamBuffer oam;
+        Bg4BppRenderLayer room;
+        if (Phase is IntroCinematicPhase.MotherBrainCrossfade or
+            IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
+        {
+            oam = PrepareMotherBrainOam();
+            room = Plane(IntroCinematicRomData.Layers.SceneBg1TilemapWord, new(0,
+                flashbackMotherBrain?.BackgroundVerticalScroll ?? GameplayFlashbackBg1VerticalScroll));
+        }
+        else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
+            IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
+        {
+            oam = PrepareBabyDiscoveryOam();
+            room = Plane(IntroCinematicRomData.Layers.SceneBg2TilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
+        }
+        else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
+            IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
+            IntroCinematicPhase.BabyMetroidExaminationCrossfade or
+            IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
+        {
+            oam = PrepareScientistOam();
+            room = Plane(scientistCutscene!.TilemapBaseWord, scientistCutscene.Background.AsBgPlaneScroll());
+        }
+        else if (objects is null)
+        {
+            oam = new OamBuffer();
+            oam.BeginFrame();
+            oam.FinalizeFrame();
+            // The first card is opaque and unscrolled; later text is transparent
+            // and cropped one tile down. Do not conflate those two PPU setups.
+            return new(PpuMemorySnapshot.Capture(vram, cgram, oam),
+                new RenderLayer[] { new Bg2BppViewportRenderLayer(
+                    IntroCinematicRomData.Layers.NarrationTilemapWord,
+                    IntroCinematicRomData.Layers.FontCharacterBaseWord, 0, false, null) },
+                MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
+        }
+        else
+        {
+            oam = PrepareIllustratedPageOam();
+            room = Plane(IntroCinematicRomData.Layers.PortraitTilemapWord, new(0, GameplayFlashbackBg1VerticalScroll));
+        }
+
+        var text = new Bg2BppViewportRenderLayer(IntroCinematicRomData.Layers.NarrationTilemapWord,
+            IntroCinematicRomData.Layers.FontCharacterBaseWord, GameplayFlashbackBg1VerticalScroll, true, false);
+        // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
+        // insertion points of text/room priority planes during palette crossfades.
+        return new(PpuMemorySnapshot.Capture(vram, cgram, oam), new RenderLayer[]
+        {
+            new ObjPriorityRenderLayer(0), text, new ObjPriorityRenderLayer(1), room,
+            new ObjPriorityRenderLayer(2), room with { Priority = true },
+            new ObjPriorityRenderLayer(3), text with { Priority = true },
+        }, MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
+    }
+
+    private static Bg4BppRenderLayer Plane(ushort tilemap, Position16<BgPlanePixels> scroll) =>
+        new(tilemap, 0, scroll, new Extent16<TilemapCells>(32, 32), false);
 }
 
 /// <summary>Ordered phases of the opening narration, flashbacks, laboratory scenes, and Ceres flight.</summary>

@@ -27,8 +27,7 @@ internal static class RidleyFlightTailVerification
 
     internal static void VerifyRidleyFlightTail()
     {
-        var update = typeof(RoomEnemySystem).GetMethod("UpdateRidleySwoopVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RidleyEnemyState, int, int, int>>();
+        Action<RidleyEnemyState, int, int, int> update = CeresRidleyBehavior.UpdateRidleySwoopVelocity;
         var state = new RidleyEnemyState { SwoopSpeedMagnitude = 0x500 };
         update(state, 0, 0, 0x500);
         AssertEqual((ushort)0x500, state.Velocity.Y.RawValue, "native downward swoop uses full speed");
@@ -50,13 +49,11 @@ internal static class RidleyFlightTailVerification
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
-        var tail = typeof(RoomEnemySystem).GetMethod("TickRidleyTail", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
-        var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
-        var slot = enemies.Slots[0];
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> tail = enemies.RidleyTail.TickRidleyTail;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
+        var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(128, 128));
         state = new RidleyEnemyState
         {
@@ -87,8 +84,7 @@ internal static class RidleyFlightTailVerification
         run(slot, state, null, 0, null);
         AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "leaving pogo restores neutral tail");
         AssertEqual((ushort)1, state.TailAngleDelta, "leaving pogo restores native delta");
-        var aim = typeof(RoomEnemySystem).GetMethod("AimCeresRidleyTailWhip", flags)!
-            .CreateDelegate<Action<RidleyEnemyState, SamusState?, byte>>(enemies);
+        Action<RidleyEnemyState, SamusState?, byte> aim = enemies.RidleyTail.AimCeresRidleyTailWhip;
         state.FightMode = RidleyFightMode.Fighting;
         state.FacingDirection = RidleyFacing.Left;
         state.TailSegments[0].Position = new Position16<RoomPixels>(128, 128);
@@ -98,22 +94,21 @@ internal static class RidleyFlightTailVerification
         aim(state, samus, 0);
         ushort samusTarget = state.TailWhipTargetClockwiseAngle;
         var projectiles = new SamusProjectileSystem();
-        typeof(SamusProjectileSystem).GetProperty("ProjectileCounter")!.SetValue(projectiles, (ushort)1);
+        typeof(ProjectileSlotTable).GetProperty("ProjectileCounter")!.SetValue(projectiles.SlotTable, (ushort)1);
         projectiles.Slots[0].Type = (ushort)SamusProjectileFamily.Missile;
         projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWhole(new(96, 128));
-        typeof(RoomEnemySystem).GetField("_samusProjectilesForEnemyFrame", flags)!.SetValue(enemies, projectiles);
+        enemies.FrameContext._samusProjectilesForEnemyFrame = projectiles;
         aim(state, samus, 0);
         ushort missileTarget = state.TailWhipTargetClockwiseAngle;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
-        typeof(RoomEnemySystem).GetField("_samusProjectilesForEnemyFrame", flags)!.SetValue(enemies, null);
+        enemies.FrameContext._samusProjectilesForEnemyFrame = null;
         aim(state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
         AssertEqual(missileTarget, state.TailWhipTargetClockwiseAngle, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;
         int advances = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => seed);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return 0; });
-        var neutral = typeof(RoomEnemySystem).GetMethod("HandleCeresRidleyNeutralTailControl", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> neutral = enemies.RidleyTail.HandleCeresRidleyNeutralTailControl;
         state.IdleTailWhipEnabled = 1;
         state.TailSegments[0].Angle = 0x5000;
         foreach (var segment in state.TailSegments) segment.Active = true;
@@ -121,8 +116,7 @@ internal static class RidleyFlightTailVerification
         neutral(slot, state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
         AssertTrue(state.TailWhipTargetClockwiseAngle != ushort.MaxValue, "native random fling admission works outside proximity range");
         AssertEqual(0, advances, "tail controller never advances RNG");
-        var direction = typeof(RoomEnemySystem).GetMethod("SetRidleyPogoHorizontalDirection", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> direction = enemies.RidleyBehavior.SetRidleyPogoHorizontalDirection;
         state.MovementMinimum = state.MovementMinimum.WithX(64);
         state.MovementMaximum = state.MovementMaximum.WithX(192);
         slot.Position = slot.Position.WithWholeX(128);

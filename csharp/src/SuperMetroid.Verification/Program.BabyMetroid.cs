@@ -74,7 +74,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // The real route reached `$E9` through controller zero, which had already loaded the
     // pose radius. Controller one/four intentionally do not refresh it, so initialize that
     // pre-existing WRAM state once rather than widening touch collision in production code.
-    samus.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii(bus);
     var motherBrain = new MotherBrainRainbowBeamAttackSequence
     {
         BrainPosition = new(0x0040, 0x0060),

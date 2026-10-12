@@ -23,39 +23,35 @@ internal static class ElevatorInputDefinitionsVerification
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies,
-                NewElevatorInputReadGuard(rom));
+            enemies.BindFixtureBus(NewElevatorInputReadGuard(rom));
             enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeElevator", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState>>(enemies);
-            var wait = typeof(RoomEnemySystem).GetMethod("WaitForElevatorDirectionInput", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, ElevatorEnemyState, SamusState, ushort,
-                    SamusProjectileSystem?>>(enemies);
+            Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
+            Action<RoomEnemySlot, ElevatorEnemyState, SamusState, ushort,
+                    SamusProjectileSystem?> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
 
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = direction;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState();
-            samus.TileTransfers.BindArtwork(bodyArtwork);
+            samus.Presentation.TileTransfers.BindArtwork(bodyArtwork);
             initialize(slot, samus);
             AssertEqual(tableByteOffset, enemies.ElevatorStates[0]!.DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
             ushort opposite = (ushort)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
-            ElevatorActorStatus before = enemies.ElevatorStatus;
-            enemies.PublishElevatorDoorContact();
+            ElevatorActorStatus before = enemies.ElevatorBehavior.ElevatorStatus;
+            enemies.ElevatorBehavior.PublishElevatorDoorContact();
             wait(slot, enemies.ElevatorStates[0]!, samus, opposite, null);
-            AssertEqual(before, enemies.ElevatorStatus, "opposite elevator direction cannot start departure");
-            AssertEqual(0, enemies.SoundRequests.Count, "opposite elevator input queues no departure sounds");
-            enemies.PublishElevatorDoorContact();
+            AssertEqual(before, enemies.ElevatorBehavior.ElevatorStatus, "opposite elevator direction cannot start departure");
+            AssertEqual(0, enemies.Audio.SoundRequests.Count, "opposite elevator input queues no departure sounds");
+            enemies.ElevatorBehavior.PublishElevatorDoorContact();
             wait(slot, enemies.ElevatorStates[0]!, samus, native, null);
-            AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorStatus,
+            AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorBehavior.ElevatorStatus,
                 $"elevator departure input {direction}");
-            AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.LastElevatorEvent,
+            AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.ElevatorBehavior.LastElevatorEvent,
                 $"elevator departure event {direction}");
             AssertEqual(true, samus.InputLocked, $"elevator Samus input lock {direction}");
-            AssertEqual(2, enemies.SoundRequests.Count, $"elevator departure sounds {direction}");
+            AssertEqual(2, enemies.Audio.SoundRequests.Count, $"elevator departure sounds {direction}");
         }
 
         Console.WriteLine(

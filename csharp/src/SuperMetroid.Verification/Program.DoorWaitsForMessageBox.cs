@@ -28,21 +28,21 @@ internal static class DoorWaitsForMessageBoxVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        runtime.Samus!.InputLocked = false;
+        runtime.Player.Samus!.InputLocked = false;
         CartridgeDoorHeader door = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
             .First(candidate => (candidate.DestinationRoomPointer & 0x8000) != 0);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
 
         // The gameplay call's movement published the door; its PLM handler opened the notice.
-        PrivateState.SetProperty(runtime.LevelData!, nameof(RoomLevelData.PendingDoorTransition), door);
+        PrivateState.SetProperty(runtime.Room.LevelData!, nameof(RoomLevelData.PendingDoorTransition), door);
         runtime.MessageBox.Begin(bus, GameplayMessageId.MissileRechargeCompleted, 0);
         game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the open box holds the door's state");

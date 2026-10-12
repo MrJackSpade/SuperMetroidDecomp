@@ -22,11 +22,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
         var colorReaderOwner = new RoomEnemySystem { TileArtwork = stock };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(colorReaderOwner, guardForAllColors);
-        var productionReader = typeof(RoomEnemySystem)
-            .GetMethod("ReadKraidColor", flags)!
-            .CreateDelegate<Func<KraidPaletteSource, int, Bgr555>>(colorReaderOwner);
+        colorReaderOwner.BindFixtureBus(guardForAllColors);
+        Func<KraidPaletteSource, int, Bgr555> productionReader = colorReaderOwner.KraidBehavior.ReadKraidColor;
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
             int count = KraidPaletteRomData.ColorCount(source);
@@ -192,17 +189,16 @@ internal static class EnemyTileArtworkKraidColorsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var cgram = new SnesCgram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        RoomEnemySlot body = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        enemies.Presentation._cgram = cgram;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;
         var state = new KraidEnemyState();
         switch (consumer)
         {
             case KraidPaletteConsumer.BackdropLoad:
             case KraidPaletteConsumer.InitialTargetLoad:
-                typeof(RoomEnemySystem).GetMethod("LoadKraidColorBand", flags)!
-                    .CreateDelegate<Action<KraidPaletteSource, CgramPalette>>(enemies)(
+                new Action<KraidPaletteSource, CgramPalette>(enemies.KraidBehavior.LoadKraidColorBand)(
                         consumer == KraidPaletteConsumer.BackdropLoad
                             ? KraidPaletteSource.RoomBackdrop
                             : KraidPaletteSource.InitialTarget,
@@ -211,26 +207,22 @@ internal static class EnemyTileArtworkKraidColorsVerification
                             : new EnemyPalettes(cgram).KraidSprites);
                 break;
             case KraidPaletteConsumer.BackdropFade:
-                enemies.GradualColorChange.Numerator = 13;
-                _ = typeof(RoomEnemySystem).GetMethod("AdvanceKraidRoomBackgroundFade", flags)!
-                    .CreateDelegate<Func<bool, bool>>(enemies)(false);
+                enemies.Presentation.GradualColorChange.Numerator = 13;
+                _ = new Func<bool, bool>(enemies.KraidBehavior.AdvanceKraidRoomBackgroundFade)(false);
                 break;
             case KraidPaletteConsumer.HealthNormal:
             case KraidPaletteConsumer.HealthFlash:
                 state.HurtFrame = consumer == KraidPaletteConsumer.HealthFlash
                     ? (ushort)1 : (ushort)0;
-                typeof(RoomEnemySystem).GetMethod("UpdateKraidHealthPalettes", flags)!
-                    .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.UpdateKraidHealthPalettes)(body, state);
                 break;
             case KraidPaletteConsumer.EyeUnglow:
                 for (int eye = 0; eye < 3; eye++)
                     cgram.SetColor(113 + eye, Bgr555.FromWord(0x03ff));
-                typeof(RoomEnemySystem).GetMethod("UnglowKraidEye", flags)!
-                    .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.UnglowKraidEye)(body, state);
                 break;
             case KraidPaletteConsumer.DeathArm:
-                typeof(RoomEnemySystem).GetMethod("InitializeKraidDeath", flags)!
-                    .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies)(body, state);
+                new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidDeath)(body, state);
                 break;
             default:
                 throw new InvalidOperationException($"Unknown Kraid palette consumer {consumer}.");

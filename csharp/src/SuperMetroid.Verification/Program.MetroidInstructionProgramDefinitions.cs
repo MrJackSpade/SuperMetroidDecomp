@@ -25,7 +25,6 @@ internal static class MetroidInstructionProgramDefinitionsVerification
     internal static void VerifyMetroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertEqual(31, MetroidInstructionProgramDefinitionsTooling.MechanicsWordCount,
             "Metroid compiled mechanics word count");
         AssertEqual(25, MetroidInstructionProgramDefinitionsTooling.PresentationWordCount,
@@ -42,12 +41,10 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         }
 
         var guard = NewMetroidInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         int randomCalls = 0;
         (RoomEnemySystem chasingEnemies, RoomEnemySlot chasing) =
             NewMetroidInstructionSystem(
                 guard,
-                flags,
                 MetroidInstructionProgramDefinitions.ChasingSamus,
                 () =>
                 {
@@ -57,7 +54,6 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         object?[] chasingArguments =
             [chasing, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         RunMetroidInstructionFrames(
-            process,
             chasingEnemies,
             chasingArguments,
             chasing,
@@ -68,20 +64,18 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         AssertEqual(1, randomCalls,
             "Metroid chasing callback advances the random generator once");
         AssertEqual((ushort?)MetroidBehaviorDefinitions.RandomCrySoundEffect(5),
-            chasingEnemies.LastMetroidSoundEffectLibrary2,
+            chasingEnemies.MetroidBehavior.LastMetroidSoundEffectLibrary2,
             "Metroid chasing callback publishes its selected cry");
 
         (RoomEnemySystem drainingEnemies, RoomEnemySlot draining) =
             NewMetroidInstructionSystem(
                 guard,
-                flags,
                 MetroidInstructionProgramDefinitions.DrainingSamus,
                 () => throw new InvalidOperationException(
                     "Draining Metroid animation must not advance the random generator."));
         object?[] drainingArguments =
             [draining, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         RunMetroidInstructionFrames(
-            process,
             drainingEnemies,
             drainingArguments,
             draining,
@@ -89,10 +83,10 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         AssertEqual(unchecked((ushort)(MetroidInstructionProgramDefinitions.DrainingSamus + 4)),
             draining.CurrentInstruction,
             "Metroid draining program completes its five-frame loop");
-        AssertEqual((ushort?)0x0050, drainingEnemies.LastMetroidSoundEffectLibrary2,
+        AssertEqual((ushort?)0x0050, drainingEnemies.MetroidBehavior.LastMetroidSoundEffectLibrary2,
             "Metroid draining callback publishes the native sound");
 
-        Suite(nameof(VerifyMetroidInstructionInitializer), () => VerifyMetroidInstructionInitializer(guard, flags));
+        Suite(nameof(VerifyMetroidInstructionInitializer), () => VerifyMetroidInstructionInitializer(guard));
 
         AssertEqual(0, guard.ObservedWords.Count,
             "both Metroid loops use compiled visual selectors, not cartridge reads");
@@ -120,17 +114,15 @@ internal static class MetroidInstructionProgramDefinitionsVerification
             "loops and sound callbacks, and 25 compiled visual selectors pass.");
     }
 
-    private static void VerifyMetroidInstructionInitializer(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+    private static void VerifyMetroidInstructionInitializer(ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         slot.Position = slot.Position.WithWhole(new(128, 128));
-        typeof(RoomEnemySystem).GetMethod("InitializeMetroid", flags)!.Invoke(enemies, [slot]);
+        enemies.MetroidBehavior.InitializeMetroid(slot);
         AssertEqual(MetroidInstructionProgramDefinitions.ChasingSamus,
             slot.CurrentInstruction,
             "Metroid initializer selects the chasing program");
@@ -146,14 +138,13 @@ internal static class MetroidInstructionProgramDefinitionsVerification
     internal static (RoomEnemySystem Enemies, RoomEnemySlot Slot)
         NewMetroidInstructionSystem(
             ISnesAddressSpace bus,
-            BindingFlags flags,
             ushort entry,
             Func<ushort> nextRandom)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().NextRandom = nextRandom;
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         slot.CurrentInstruction = entry;
@@ -162,7 +153,6 @@ internal static class MetroidInstructionProgramDefinitionsVerification
     }
 
     private static void RunMetroidInstructionFrames(
-        MethodInfo process,
         RoomEnemySystem enemies,
         object?[] arguments,
         RoomEnemySlot slot,
@@ -171,7 +161,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         for (int call = 0; call < count; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

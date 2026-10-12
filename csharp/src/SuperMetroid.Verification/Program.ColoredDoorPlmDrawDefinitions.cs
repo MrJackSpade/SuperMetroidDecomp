@@ -81,13 +81,13 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             var plms = new RoomPlmSystem
             {
-                ColoredDoorVisuals = header == PlmHeaderId.GreenDoorFacingLeft
-                    ? edited : stock,
+                Drawing = { ColoredDoorVisuals = header == PlmHeaderId.GreenDoorFacingLeft
+                    ? edited : stock },
             };
             var system = new Bank80SystemState();
             var guarded = NewColoredDoorDrawReadGuard(bus, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident colored-door header ${(int)header:X4} loads");
             ushort initial = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | ((ushort)header + 2)));
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (initial + 14)));
@@ -119,7 +119,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 DestinationScreen: new(0, 0),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
-            AssertTrue(plms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
+            AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(guarded, level, enteringDoor, system),
                 $"resident colored door ${(int)header:X4} selects its native closing list");
             for (int frame = 0; frame < 20 &&
                  plms.ColoredDoors.Single().Phase == ColoredDoorPhase.Closing; frame++)
@@ -144,9 +144,9 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             }
             AssertEqual(ColoredDoorPhase.Opening, plms.ColoredDoors.Single().Phase,
                 $"resident colored door ${(int)header:X4} reaches opening threshold");
-            for (int frame = 0; frame < 128 && plms.ActiveCount != 0; frame++)
+            for (int frame = 0; frame < 128 && plms.SlotTable.ActiveCount != 0; frame++)
                 plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(0, plms.ActiveCount,
+            AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"resident colored door ${(int)header:X4} completes opening and deletes");
             AssertTrue(system.HasOpenedDoorBit(0),
                 $"resident colored door ${(int)header:X4} persists the opened state");
@@ -155,11 +155,11 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
 
             var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             BackgroundTilemapStreamer reopenedStreamer = reopenedLevel.CreateBackgroundStreamer();
-            var reopened = new RoomPlmSystem { ColoredDoorVisuals = stock };
-            AssertEqual(1, reopened.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+            var reopened = new RoomPlmSystem { Drawing = { ColoredDoorVisuals = stock } };
+            AssertEqual(1, reopened.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"opened colored door ${(int)header:X4} reloads");
             reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(0, reopened.ActiveCount,
+            AssertEqual(0, reopened.SlotTable.ActiveCount,
                 $"opened colored door ${(int)header:X4} converts to a blue cap");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"opened colored door ${(int)header:X4} converts without program/draw ROM reads");

@@ -22,15 +22,15 @@ internal static class XrayInputVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         // The platform's lowest position is a Morph-only tunnel. Standing there
         // embeds the torso in terrain and cannot validate a visible X-ray beam.
         // Use the open floor in the Scope chamber instead.
@@ -40,12 +40,12 @@ internal static class XrayInputVerification
         runtime.StepFrame(0);
         runtime.StepFrame((ushort)SnesButton.Select);
         AssertEqual(SamusXrayRomData.SelectedHudItem, samus.SelectedHudItem, "Select reaches the equipped X-ray through ordinary HUD input");
-        runtime.StepFrame(runtime.ControllerBindings.Dash);
+        runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "held Run activates selected X-ray without diagnostic activation");
-        AssertTrue(runtime.TimeIsFrozen, "X-ray activation freezes gameplay");
+        AssertTrue(runtime.Freeze.TimeIsFrozen, "X-ray activation freezes gameplay");
         for (int frame = 0; frame < 90; frame++)
         {
-            runtime.StepFrame(runtime.ControllerBindings.Dash);
+            runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
             if (frame < 8)
             {
                 var startup = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
@@ -64,7 +64,7 @@ internal static class XrayInputVerification
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
         var horizontal = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         var horizontalPixels = SoftwareLayeredSnapshotRenderer.Render(horizontal);
-        var probe = runtime.LevelData!.GetPlmCollisionBlockByIndex(7 * runtime.LevelData.Size.X + 12);
+        var probe = runtime.Room.LevelData!.GetPlmCollisionBlockByIndex(7 * runtime.Room.LevelData.Size.X + 12);
         AssertEqual((ushort)255, XrayRevealTable.Find(probe.CollisionType, probe.Behavior)!.Value.TopLeft,
             "native air definition replaces decorative wall art with the blank metatile");
         var ordinaryPixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.CaptureOrdinaryBase(runtime));
@@ -78,7 +78,7 @@ internal static class XrayInputVerification
         }
         for (int frame = 0; frame < 240; frame++)
         {
-            runtime.StepFrame((ushort)(runtime.ControllerBindings.Dash | (ushort)(frame < 80 ? SnesButton.Up : SnesButton.Down)));
+            runtime.StepFrame((ushort)(runtime.Options.ControllerBindings.Dash | (ushort)(frame < 80 ? SnesButton.Up : SnesButton.Down)));
             VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
         }
         var captured = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
@@ -113,14 +113,14 @@ internal static class XrayInputVerification
             AssertEqual((ushort)0, restoring.Memory.Cgram[0], "deactivation resets the backdrop before unfreezing");
         }
         runtime.StepFrame(0);
-        AssertTrue(!runtime.TimeIsFrozen, "phase five releases gameplay time");
+        AssertTrue(!runtime.Freeze.TimeIsFrozen, "phase five releases gameplay time");
         var finishFrame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         AssertTrue(finishFrame.Layers[0] is GameplayColorMathRenderLayer,
             "phase five still publishes X-ray blending before the next HDMA pass resets configuration");
         AssertEqual((byte)0, ((GameplayColorMathRenderLayer)finishFrame.Layers[0]).FixedRed,
             "phase five clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
-        AssertTrue(!samus.Xray.IsActive && !runtime.TimeIsFrozen, "releasing Run restores ordinary gameplay");
+        AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");
         AssertTrue(!GameplayDisplayCapture.TryCaptureFrame(runtime)!.Layers.ToArray().Any(layer => layer is GameplayColorMathRenderLayer),
             "release removes the X-ray display window");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(captured)),
@@ -133,13 +133,13 @@ internal static class XrayInputVerification
             runtime.LoadCartridgeRoomForDebug(roomPointer);
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             // This fixture checks display selection only; X-ray freezes the seeded
             // position so it need not drive an unrelated room's entrance sequence.
-            AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus), new XrayBeginConditions()), "excluded-room capture fixture activates");
-            for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.ControllerBindings.Dash);
+            AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions()), "excluded-room capture fixture activates");
+            for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
             var baseFrame = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
             var excludedFrame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             var excluded = (GameplayColorMathRenderLayer)excludedFrame.Layers[0];

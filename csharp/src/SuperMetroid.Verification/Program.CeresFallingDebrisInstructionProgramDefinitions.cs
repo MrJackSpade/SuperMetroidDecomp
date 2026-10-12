@@ -37,12 +37,10 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
                 $"Ceres falling-debris mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewCeresFallingDebrisInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
 
         foreach ((bool dark, RoomEnemyProjectileKind kind, ushort program, ushort sleep) in
                  new[]
@@ -54,8 +52,8 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            enemies.SpawnCeresFallingDebris(96, dark);
-            RoomEnemyProjectileSlot debris = enemies.EnemyProjectiles.Single(
+            enemies.Projectiles.SpawnCeresFallingDebris(96, dark);
+            RoomEnemyProjectileSlot debris = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == kind);
             AssertEqual(program, debris.InstructionPointer,
                 "real Ceres debris producer selects the named pose");
@@ -112,14 +110,14 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             return enemies;
         }
 
         void RunForcedTick(RoomEnemySystem enemies, RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }

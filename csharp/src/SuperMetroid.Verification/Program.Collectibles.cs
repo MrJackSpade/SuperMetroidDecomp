@@ -41,7 +41,7 @@ internal static class CollectiblesVerification
             var unusedPlms = new RoomPlmSystem();
             AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),
                 "unused shootable entry allocates native nothing PLM");
-            AssertEqual(1, unusedPlms.ActiveCount, "nothing PLM retains its provisional slot");
+            AssertEqual(1, unusedPlms.SlotTable.ActiveCount, "nothing PLM retains its provisional slot");
             AssertEqual((ushort)0, emptyLevel.ForegroundEntries.Span[0], "nothing PLM leaves terrain unchanged");
         }
 
@@ -50,9 +50,9 @@ internal static class CollectiblesVerification
             InWorldCollectibleKind kind = (InWorldCollectibleKind)kindIndex;
             CollectibleFixture fixture = LoadCollectible(bus, header: unchecked((ushort)(0xeed7 + kindIndex * 4)), roomArgument: unchecked((ushort)kindIndex), precollected: false);
 
-            AssertEqual(1, fixture.Plms.Collectibles.Count,
+            AssertEqual(1, fixture.Plms.CollectiblePlms.Collectibles.Count,
                 $"{kind} exposed header loads through room population");
-            CollectiblePlmSnapshot loaded = fixture.Plms.Collectibles[0];
+            CollectiblePlmSnapshot loaded = fixture.Plms.CollectiblePlms.Collectibles[0];
             AssertEqual(kind, loaded.Kind, $"{kind} header identity");
             AssertEqual(CollectiblePresentation.Exposed, fixture.Plms.CollectiblePresentations[0],
                 $"{kind} exposed presentation");
@@ -75,27 +75,27 @@ internal static class CollectiblesVerification
                     $"{kind} live streamer uses its dynamic PLM character definition");
             }
             ushort visibleItemWord = fixture.Level.ForegroundEntries.Span[fixture.BlockIndex];
-            AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
+            AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 $"{kind} visible block accepts Samus contact");
             fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
 
             AssertTrue(fixture.System.HasCollectedItemBit(kindIndex),
                 $"{kind} marks its physical item bit");
-            AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count,
+            AssertEqual(1, fixture.Plms.CollectiblePlms.CollectiblePickupEvents.Count,
                 $"{kind} publishes exactly one acquisition");
-            AssertEqual(kind, fixture.Plms.CollectiblePickupEvents[0].Kind,
+            AssertEqual(kind, fixture.Plms.CollectiblePlms.CollectiblePickupEvents[0].Kind,
                 $"{kind} acquisition identity");
             AssertTrue(
-                fixture.Plms.ConsumeCollectibleFanfareRequest(),
+                fixture.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest(),
                 $"{kind} publishes one shared permanent-item fanfare edge");
             AssertTrue(
-                !fixture.Plms.ConsumeCollectibleFanfareRequest(),
+                !fixture.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest(),
                 $"{kind} fanfare edge cannot repeat during its synchronous message");
             AssertPermanentCollectibleEffect(kind, fixture.Samus);
 
             AssertEqual(visibleItemWord, fixture.Level.ForegroundEntries.Span[fixture.BlockIndex],
                 $"{kind} retains pickup artwork during its message");
-            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
 
             // Returning from the message frees the native physical ID. Reuse that same highest slot for
@@ -109,10 +109,10 @@ internal static class CollectiblesVerification
                     areaIndex: AreaId.Crateria,
                     projectileType: 0x0500),
                 $"{kind} freed PLM slot can be reused by a bomb-special actor");
-            AssertEqual(0, fixture.Plms.Collectibles.Count,
+            AssertEqual(0, fixture.Plms.CollectiblePlms.Collectibles.Count,
                 $"{kind} semantic owner does not survive physical slot reuse");
             fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count,
+            AssertEqual(0, fixture.Plms.CollectiblePlms.CollectiblePickupEvents.Count,
                 $"{kind} reused slot cannot republish its pickup message");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
             {
@@ -126,7 +126,7 @@ internal static class CollectiblesVerification
         // inventory words that multiple tanks share.
         CollectibleFixture collected = LoadCollectible(bus, header: 0xeed7, roomArgument: 37, precollected: true);
         collected.Plms.Step(bus, collected.Level, collected.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0, collected.Plms.ActiveCount,
+        AssertEqual(0, collected.Plms.SlotTable.ActiveCount,
             "previously collected exposed item removes itself");
         AssertEqual(99, collected.Samus.MaxHealth,
             "previously collected exposed item does not grant twice");
@@ -152,7 +152,7 @@ internal static class CollectiblesVerification
         AssertEqual(CollectiblePhase.Visible, orb.Plms.CollectiblePhases[0],
             "Chozo burst exposes the item");
         ushort orbItemWord = orb.Level.ForegroundEntries.Span[orb.BlockIndex];
-        AssertTrue(orb.Plms.TryNotifyCollectibleTouch(orb.BlockIndex),
+        AssertTrue(orb.Plms.CollectiblePlms.TryNotifyCollectibleTouch(orb.BlockIndex),
             "exposed Chozo item accepts touch");
         orb.Plms.Step(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(orb.System.HasCollectedItemBit(91),
@@ -162,9 +162,9 @@ internal static class CollectiblesVerification
 
         AssertEqual(orbItemWord, orb.Level.ForegroundEntries.Span[orb.BlockIndex],
             "Chozo pickup remains visible throughout message");
-        orb.Plms.CompleteCollectibleMessage(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        orb.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         orb.Plms.Step(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0, orb.Plms.Collectibles.Count, "Chozo pickup deletes after message");
+        AssertEqual(0, orb.Plms.CollectiblePlms.Collectibles.Count, "Chozo pickup deletes after message");
 
         CollectibleFixture reopenedOrb = LoadCollectible(bus, header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)), roomArgument: 91, precollected: false, preopenedChozo: true);
         AssertEqual(CollectiblePhase.ChozoOrb, reopenedOrb.Plms.CollectiblePhases[0],
@@ -178,7 +178,7 @@ internal static class CollectiblesVerification
         CollectibleFixture shot = LoadCollectible(bus, header: unchecked((ushort)(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4)), roomArgument: 123, precollected: false);
         AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).LevelWord,
             "shot-item setup installs type-C concealed block");
-        AssertTrue(shot.Plms.TryNotifyCollectibleProjectileHit(shot.BlockIndex, 0x0100),
+        AssertTrue(shot.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(shot.BlockIndex, 0x0100),
             "concealed shot item accepts projectile reaction");
         StepUntil(
             () => shot.Plms.CollectiblePhases[0] == CollectiblePhase.ShotBlockVisible,
@@ -186,14 +186,14 @@ internal static class CollectiblesVerification
             maximumFrames: 20,
             context: "shot item reveal");
         ushort shotItemWord = shot.Level.ForegroundEntries.Span[shot.BlockIndex];
-        AssertTrue(shot.Plms.TryNotifyCollectibleTouch(shot.BlockIndex),
+        AssertTrue(shot.Plms.CollectiblePlms.TryNotifyCollectibleTouch(shot.BlockIndex),
             "revealed shot item accepts Samus contact");
         shot.Plms.Step(bus, shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(5, shot.Samus.MaxMissiles, "shot item grants missile capacity");
         StepFrames(180, _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
         AssertEqual(shotItemWord, shot.Level.ForegroundEntries.Span[shot.BlockIndex],
             "shot pickup cannot clear or begin respawn countdown during message");
-        shot.Plms.CompleteCollectibleMessage(bus, shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        shot.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         shot.Plms.Step(bus, shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(CollectiblePhase.CollectedShotBlockEmpty,
             shot.Plms.CollectiblePhases[0],
@@ -230,10 +230,10 @@ internal static class CollectiblesVerification
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
         AssertEqual(CollectiblePhase.AwaitingMessage, fixture.Plms.CollectiblePhases[0],
             "Morph Ball retains its owner during the synchronous message");
-        AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
+        AssertEqual(1, fixture.Plms.CollectiblePlms.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
         // The message returns into the item's list, which draws empty for one frame
         // within that same PLM_Handler call and deletes the PLM on the next pass.
-        fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
+        fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
         AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
             "Morph Ball pickup draws native empty level word on message return");
         var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
@@ -242,8 +242,8 @@ internal static class CollectiblesVerification
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.Plms.CollectiblePhases[0],
             "repeat contact preserves the pending delete");
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
-        AssertEqual(0, fixture.Plms.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
-        AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
+        AssertEqual(0, fixture.Plms.SlotTable.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
+        AssertEqual(0, fixture.Plms.CollectiblePlms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
         var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
         AssertEqual((ushort)1121, movement.Position.X.Whole, "movement also advances after owner deletion");
@@ -282,7 +282,7 @@ internal static class CollectiblesVerification
             MaxHealth = 99,
         };
         var plms = new RoomPlmSystem();
-        int loaded = plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx });
+        int loaded = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx });
         AssertEqual(1, loaded, "one-item room population load count");
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }
@@ -655,8 +655,8 @@ internal static class CollectiblesVerification
             EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit,
             CollectedItems = (ushort)SamusEquipmentFlags.VariaSuit,
         };
-        samus.SuitColors = suitColors;
-        SamusState.LoadPowerSuitPalette(bus, cgram, suitColors);
+        samus.Presentation.SuitColors = suitColors;
+        SamusPresentation.LoadPowerSuitPalette(bus, cgram, suitColors);
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = NewSuitPickupBeamCurveReadGuard(bus);
@@ -727,7 +727,7 @@ internal static class CollectiblesVerification
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.GravitySuit;
-        samus.LoadSuitPalette(bus, cgram);
+        samus.Presentation.LoadSuitPalette(bus, cgram);
         AssertEqual((ushort)0x7c00, cgram.Colors[192],
             "normal suit palette loader gives Gravity priority over Varia");
     }
@@ -740,7 +740,7 @@ internal static class CollectiblesVerification
             var samus = new SamusState { EquippedItems = otherSuit
                 ? (ushort)(kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
                 : (ushort)0 };
-            samus.SuitColors = suitColors;
+            samus.Presentation.SuitColors = suitColors;
             var history = samus.PoseHistory;
             history.PreviousPose = SamusPoseId.SpinJumpRightPose;
             history.PreviousDirectionAndMovement = 0x0308;
@@ -749,7 +749,7 @@ internal static class CollectiblesVerification
             var pickup = new SamusSuitPickupState();
             pickup.Begin(bus, samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
-            ushort initialMetadata = (ushort)(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)));
+            ushort initialMetadata = (ushort)(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(bus), (byte)samus.PoseMetadata.ReadMovementType(bus)));
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
             AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
@@ -761,7 +761,7 @@ internal static class CollectiblesVerification
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
             AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
-            AssertEqual(SnesLittleEndian.Word(samus.ReadPoseXDirection(bus), (byte)samus.ReadMovementType(bus)),
+            AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(bus), (byte)samus.PoseMetadata.ReadMovementType(bus)),
                 history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
         }

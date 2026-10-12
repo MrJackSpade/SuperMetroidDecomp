@@ -137,13 +137,13 @@ internal static class ProjectileRadiiVerification
             int activeRecord = 0x930000 | pointer;
             foreach (bool replaceArt in new[] { false, true })
             {
-                projectiles.FrameBindings = bombs.FrameBindings = replaceArt ? edited : stock;
+                projectiles.Animation.FrameBindings = bombs.FrameBindings = replaceArt ? edited : stock;
                 ushort nativeSprite = CartridgeImportSource.Require(rom).ReadCartridgeWord((activeRecord + 2));
                 ushort expectedSprite = replaceArt
                     ? (nativeSprite == replacementSprites[0] ? replacementSprites[1] : replacementSprites[0])
                     : nativeSprite;
                 var slot = new SamusProjectileSlot(0) { InstructionTimer = 1, InstructionPointer = pointer, Damage = 30 };
-                AssertEqual(false, projectiles.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
+                AssertEqual(false, projectiles.Animation.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
                 AssertEqual(duration, slot.InstructionTimer, "Frame duration unchanged");
                 AssertEqual(expectedSprite, slot.SpritemapPointer, "Artwork reference changes independently");
                 AssertEqual((ushort)rom.ReadCartridgeByte(address), slot.Radius.X, "Published collision X independent of artwork");

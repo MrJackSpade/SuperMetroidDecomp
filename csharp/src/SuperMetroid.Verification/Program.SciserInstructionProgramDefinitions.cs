@@ -40,25 +40,22 @@ internal static class SciserInstructionProgramDefinitionsVerification
         }
 
         var guard = NewSciserInstructionReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.CurrentInstruction = (ushort)orientation;
             slot.Parameter1 = 0;
-            initialize.Invoke(enemies,
-                [slot, CrawlerAnimationFamily.Sciser, (ushort?)8]);
+            enemies.CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, (ushort?)8);
 
             ushort entry = CrawlerAnimationDefinitions.InitialInstruction(
                 CrawlerAnimationFamily.Sciser, orientation);
             AssertEqual(entry, slot.CurrentInstruction,
                 $"Sciser real initializer selects {orientation}");
-            ExecuteSciserProgram(enemies, process, slot, callCount: 5);
+            ExecuteSciserProgram(enemies, slot, callCount: 5);
             CrawlerEnemyFunction expected = orientation is
                 CrawlerSurfaceOrientation.UpsideRight or
                 CrawlerSurfaceOrientation.UpsideLeft
@@ -108,7 +105,6 @@ internal static class SciserInstructionProgramDefinitionsVerification
 
     private static void ExecuteSciserProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot slot,
         int callCount)
     {
@@ -117,7 +113,7 @@ internal static class SciserInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

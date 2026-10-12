@@ -10,25 +10,19 @@ internal static class PipeBugAnimationDefinitionsVerification
         const int normalTable = 0xb3882b;
         const int strongTable = 0xb38833;
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeBrinstarPipeBug", instanceFlags)!;
-        MethodInfo select = typeof(RoomEnemySystem).GetMethod(
-            "SelectBrinstarPipeBugAnimation",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
         var guarded = NewPipeBugAnimationReadGuard(rom);
 
         foreach (bool strong in new[] { false, true })
         {
             var initializedEnemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-                .SetValue(initializedEnemies, guarded);
-            RoomEnemySlot initializedSlot = initializedEnemies.Slots[0];
+            initializedEnemies.BindFixtureBus(guarded);
+            RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
             initializedSlot.EnemyDefinitionPointer = strong
                 ? EnemyDefinitionId.Zebbo
                 : EnemyDefinitionId.Zeb;
             initializedSlot.Parameter1 = strong ? (ushort)1 : (ushort)0;
             initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
-            initialize.Invoke(initializedEnemies, [initializedSlot]);
+            initializedEnemies.PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
             AssertEqual(PipeBugDefinitions.BrinstarInstructionList(
                     strong,
                     PipeBugAnimationSelector.None),
@@ -44,8 +38,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
                 var enemies = new RoomEnemySystem();
-                typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-                    .SetValue(enemies, guarded);
+                enemies.BindFixtureBus(guarded);
                 var slot = new RoomEnemySlot(0)
                 {
                     Parameter1 = strong ? (ushort)1 : (ushort)0,
@@ -60,7 +53,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                         ? PipeBugAnimationSelector.Shooting
                         : PipeBugAnimationSelector.None,
                 };
-                select.Invoke(null, [slot, state]);
+                PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state);
                 AssertEqual(selector, state.InstalledAnimationState,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
                 AssertEqual(expected, slot.CurrentInstruction,

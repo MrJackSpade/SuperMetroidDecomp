@@ -52,7 +52,7 @@ internal static class ShotBlockPlmProgramsVerification
             };
             AssertEqual(expected, fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
                 $"shot-block BTS {behavior} restores or permanently clears the native parent");
-            AssertEqual(0, fixture.Plms.ActiveCount,
+            AssertEqual(0, fixture.Plms.SlotTable.ActiveCount,
                 $"shot-block BTS {behavior} finishes its compiled program");
         }
         Console.WriteLine("#1157: permanent-shot-block failure and all eight shared timed-record operand contracts confirmed on RAM-only memory.");
@@ -175,9 +175,9 @@ internal static class ShotBlockPlmProgramsVerification
             {
                 stock.Plms.Step(rom, stock.Level, stock.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                AssertEqual(stock.Plms.ActiveCount, compiled.Plms.ActiveCount,
+                AssertEqual(stock.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"shot-block BTS {behavior} active slots at frame {frame}");
-                AssertEqual(stock.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
+                AssertEqual(stock.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"shot-block BTS {behavior} sound count at frame {frame}");
                 for (int index = 0; index < 64; index++)
                     AssertEqual(stock.Level.GetCollisionBlockByIndex(index).LevelWord,
@@ -187,7 +187,7 @@ internal static class ShotBlockPlmProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"shot-block BTS {behavior} executes without control-byte ROM reads");
-            AssertEqual(0, compiled.Plms.ActiveCount,
+            AssertEqual(0, compiled.Plms.SlotTable.ActiveCount,
                 $"shot-block BTS {behavior} completes within the retail timer window");
         }
 
@@ -373,7 +373,7 @@ internal static class ShotBlockPlmProgramsVerification
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
             var streamer = level.CreateBackgroundStreamer();
-            var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
+            var plms = new RoomPlmSystem { Drawing = { ShotBlockVisuals = visuals } };
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
                 "visual-only test allocates the production shot-block PLM");
             plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });

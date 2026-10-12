@@ -29,10 +29,10 @@ internal static class GameplayHudPresentationVerification
                 InHudRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
         var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
-            { MapPresentation = original };
+            { Artwork = { MapPresentation = original } };
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
-        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, ReferenceMutableMemory.From(guard), topRowRuntime);
+        topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, ReferenceMutableMemory.From(guard), topRowRuntime.Artwork);
         AssertTrue(topRowRuntime.Vram.Bytes.Slice(0xb000, GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(presentation.TopRowTransfer.Span),
             "queued immutable HUD row uses installed visual data without source reads");
@@ -102,11 +102,11 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
         var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
-            { MapPresentation = edited };
+            { Artwork = { MapPresentation = edited } };
         editedTopRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
         editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram, ReferenceMutableMemory.From(guard),
-            editedTopRowRuntime);
+            editedTopRowRuntime.Artwork);
         AssertTrue(editedTopRowRuntime.Vram.Bytes.Slice(0xb000,
                 GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(edited.GameplayHud.TopRowTransfer.Span),

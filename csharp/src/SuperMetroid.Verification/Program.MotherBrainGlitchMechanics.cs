@@ -17,18 +17,18 @@ internal static class MotherBrainGlitchMechanicsVerification
 
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
         var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
-        spinning.RefreshCollisionRadii(bus);
-        spinning.InitializeAnimation(bus);
+        spinning.PoseMetadata.RefreshCollisionRadii(bus);
+        spinning.Presentation.InitializeAnimation(bus);
         spinning.Drained.PutStanding(bus, spinning);
         AssertEqual(SamusPoseId.DrainedStandingRightPose, spinning.Pose, "drained controller installs the standing drained pose");
         AssertEqual(SamusPoseId.SpinJumpRightPose, spinning.InitializedPose, "drained controller skips InitializeSamusPose_1");
-        AssertEqual(SamusMovementType.SpinJumping, spinning.ReadMovementType(bus), "cached $0A1F keeps the spin-jump movement type");
+        AssertEqual(SamusMovementType.SpinJumping, spinning.PoseMetadata.ReadMovementType(bus), "cached $0A1F keeps the spin-jump movement type");
 
         // $90:9DB2 tests only the Screw Attack poses; any other pose rewinds to frame $0A.
-        spinning.ApplyWallContactAnimationRewind();
+        spinning.PoseTransitions.ApplyWallContactAnimationRewind();
         AssertEqual((ushort)0x0a, spinning.AnimationFrame, "wall-contact rewind runs for the drained pose");
         // $91:EABE is gated by the spin mover, i.e. the cached type, not the live pose.
-        spinning.ApplyWallJumpTrigger(bus);
+        spinning.PoseTransitions.ApplyWallJumpTrigger(bus);
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
 
@@ -42,7 +42,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         ushort LatchVelocity(int startDx, ushort invincibility)
         {
             var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = invincibility };
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             var baby = new BabyMetroidCutsceneState();
             baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
             void Set(string name, object value) => typeof(BabyMetroidCutsceneState).GetProperty(name)!.SetValue(baby, value);

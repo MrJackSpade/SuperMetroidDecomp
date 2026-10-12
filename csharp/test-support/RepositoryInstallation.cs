@@ -12,7 +12,7 @@ using SuperMetroid.Core.Runtime;
 /// verifier and the developer tools. Each process loads its catalogs once; every fixture built
 /// here keeps its own bus and mutable runtime state.
 /// </summary>
-internal static partial class RepositoryInstallation
+internal static class RepositoryInstallation
 {
     private static readonly Lazy<GameInstallation> installation = new(() =>
     {
@@ -32,8 +32,11 @@ internal static partial class RepositoryInstallation
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false)
     {
         var runtime = new SuperMetroidRuntime(addressSpace, new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
-        runtimeBindings.Value(runtime);
+        BindRuntime(runtime);
         return runtime;
     }
+
+    /// <summary>Rebinds the host catalogs to a runtime restored from a debugger state, which omits them.</summary>
+    internal static void BindRuntime(SuperMetroidRuntime runtime) => runtimeBindings.Value(runtime);
 }
 

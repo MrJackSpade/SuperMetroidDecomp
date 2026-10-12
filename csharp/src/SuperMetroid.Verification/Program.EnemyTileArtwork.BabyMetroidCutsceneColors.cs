@@ -73,12 +73,11 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = cgram;
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
         cgram.SetColor(destination - 1, Bgr555.FromWord(0x1234));
-        MethodInfo initial = type.GetMethod("LoadBabyMetroidCutsceneInitialPalette", flags)!;
-        initial.Invoke(enemies, null);
+        enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();
         AssertEqual((ushort)0x1234, cgram.Colors[destination - 1],
             "cutscene Baby initial load preserves palette color zero");
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
@@ -86,7 +85,6 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
                 $"live cutscene Baby initial color {color}");
         Bgr555 initialLastColor = cgram.Colors[destination + 14];
 
-        MethodInfo fade = type.GetMethod("LoadBabyMetroidCutsceneFadePalette", flags)!;
         for (int index = 1; index <= BabyMetroidCutsceneColorRomData.FadeFrameCount; index++)
         {
             var transfer = new BabyMetroidPaletteTransferRequest(
@@ -94,7 +92,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
                 (uint)BabyMetroidCutsceneColorRomData.FadeSource(index),
                 BabyMetroidCutsceneColorRomData.DestinationByteIndex,
                 BabyMetroidCutsceneColorRomData.FadeColorCount);
-            fade.Invoke(enemies, [transfer]);
+            enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneFadePalette(transfer);
             for (int color = 0; color < BabyMetroidCutsceneColorRomData.FadeColorCount; color++)
                 AssertEqual(colors.FadeColor(index, color), cgram.Colors[destination + color],
                     $"live cutscene Baby fade {index} color {color}");

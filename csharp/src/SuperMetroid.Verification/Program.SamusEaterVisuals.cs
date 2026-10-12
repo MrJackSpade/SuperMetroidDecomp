@@ -251,15 +251,15 @@ internal static class SamusEaterVisualsVerification
         var level = CreateRoom(new(width, height), new ushort[width * height],
             new byte[width * height], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(visualWord * 4, visualWord);
-        var plms = new RoomPlmSystem { SamusEaterVisuals = visuals };
+        var plms = new RoomPlmSystem { Drawing = { SamusEaterVisuals = visuals } };
         var guard = NewSamusEaterVisualSourceGuard();
         var streamer = level.CreateBackgroundStreamer();
-        MethodInfo draw = typeof(RoomPlmSystem)
+        MethodInfo draw = typeof(PlmBlockDrawing)
             .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
             .Single(method => method.Name == "DrawPlmInstruction" &&
                 method.GetParameters().Length == 7);
         int origin = 8 * width + 8;
-        draw.Invoke(plms, [guard, level, streamer, (ushort)0, origin, pointer, default(PlmView)]);
+        draw.Invoke(plms.Drawing, [guard, level, streamer, (ushort)0, origin, pointer, default(PlmView)]);
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(origin).LevelWord,
             "Samus Eater edited draw retains native collision word");

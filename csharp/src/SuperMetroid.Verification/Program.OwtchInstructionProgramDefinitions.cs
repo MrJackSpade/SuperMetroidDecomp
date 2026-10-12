@@ -100,10 +100,9 @@ internal static class OwtchInstructionProgramDefinitionsVerification
             string direction)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeOwtch", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.OwtchBehavior.InitializeOwtch;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Owtch;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = (ushort)initialState;
@@ -127,13 +126,11 @@ internal static class OwtchInstructionProgramDefinitionsVerification
             RoomEnemySlot slot,
             int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
             {
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
                 if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
                     observedFrames.Add(slot.SpritemapPointer);
             }

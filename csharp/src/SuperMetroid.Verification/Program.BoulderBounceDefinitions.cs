@@ -11,12 +11,11 @@ internal static class BoulderBounceDefinitionsVerification
     internal static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        var fall = typeof(RoomEnemySystem).GetMethod("RunBoulderFalling", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .CreateDelegate<Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData>>(enemies);
+        Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;
         var blocks = new ushort[64];
         Array.Fill(blocks, (ushort)0x8000, 32, 32);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(blocks, new byte[64], new ushort[64]), new byte[8]);
-        RoomEnemySlot actor = enemies.Slots[0];
+        RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new BoulderEnemyState(actor);
         actor.Position = actor.Position.WithWholeX(40);
         actor.Radius = new(8, 8);

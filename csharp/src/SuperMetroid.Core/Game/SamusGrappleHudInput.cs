@@ -7,15 +7,15 @@ internal static class SamusGrappleHudInput
 {
     public static bool IsSelectedAndAdmitted(ISnesAddressSpace bus, SamusState samus)
     {
-        if (samus.InputLocked || SamusState.IsForwardFacingPose(samus.Pose) ||
+        if (samus.InputLocked || SamusPoseMetadata.IsForwardFacingPose(samus.Pose) ||
             samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem)
             return false;
 
-        SamusHudHandler handler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(bus));
+        SamusHudHandler handler = SamusHudDefinitions.MovementHandler(samus.PoseMetadata.ReadMovementType(bus));
         return handler switch
         {
             SamusHudHandler.Standard or SamusHudHandler.Grapple => true,
-            SamusHudHandler.DraygonHeld => samus.ReadMovementType(bus) == SamusMovementType.DraygonHeld,
+            SamusHudHandler.DraygonHeld => samus.PoseMetadata.ReadMovementType(bus) == SamusMovementType.DraygonHeld,
             SamusHudHandler.Turning => samus.PoseTransitionShotDirection != 0,
             SamusHudHandler.Transition => SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false),
             SamusHudHandler.MorphBall or SamusHudHandler.Jump => false,

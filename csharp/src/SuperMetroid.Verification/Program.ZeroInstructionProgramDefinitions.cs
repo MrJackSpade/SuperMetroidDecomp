@@ -40,25 +40,22 @@ internal static class ZeroInstructionProgramDefinitionsVerification
         }
 
         var guard = NewZeroInstructionReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Zero;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.CurrentInstruction = (ushort)orientation;
             slot.Parameter1 = 0;
-            initialize.Invoke(enemies,
-                [slot, CrawlerAnimationFamily.Zero, (ushort?)10]);
+            enemies.CrawlersBehavior.InitializeCrawler(slot, CrawlerAnimationFamily.Zero, (ushort?)10);
 
             ushort entry = CrawlerAnimationDefinitions.InitialInstruction(
                 CrawlerAnimationFamily.Zero, orientation);
             AssertEqual(entry, slot.CurrentInstruction,
                 $"Zero real initializer selects {orientation}");
-            ExecuteZeroProgram(enemies, process, slot, callCount: 7);
+            ExecuteZeroProgram(enemies, slot, callCount: 7);
             CrawlerEnemyFunction expected = orientation is
                 CrawlerSurfaceOrientation.UpsideRight or
                 CrawlerSurfaceOrientation.UpsideLeft
@@ -109,7 +106,6 @@ internal static class ZeroInstructionProgramDefinitionsVerification
 
     private static void ExecuteZeroProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot slot,
         int callCount)
     {
@@ -118,7 +114,7 @@ internal static class ZeroInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

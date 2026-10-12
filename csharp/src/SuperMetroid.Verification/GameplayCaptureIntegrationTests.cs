@@ -20,21 +20,21 @@ internal static class GameplayCaptureIntegrationTestsVerification
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.RunNmi(0, true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.NmiHandler.RunNmi(0, true);
         AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime).AsSpan().SequenceEqual(
             SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!)), "Ceres Mode-7 capture parity");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
-        runtime.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0, true);
 
         // Chainsaw slot four stores a word at $68: WOBJLOG receives the low byte and TM
         // receives the high byte. Prove this is the runtime's shared cache rather than a
         // projectile-private diagnostic copy, and that only an accepted NMI publishes it.
-        runtime.Projectiles.ChainsawWindowRegisters.WriteWord(
+        runtime.Projectiles.Chainsaw.ChainsawWindowRegisters.WriteWord(
             GameplayWindowRegisterAddresses.ObjectColorLogic,
             0x0412);
-        runtime.RunNmi(0, mainLoopRequestedNmi: false);
+        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: false);
         OrdinaryGameplayRegisters laggedRegisters =
             ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime)
                 .Layers[0]).Registers;
@@ -44,7 +44,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
             laggedRegisters.MainScreenLayers,
             "lag NMI retains preceding gameplay TM");
-        runtime.RunNmi(0, mainLoopRequestedNmi: true);
+        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
         OrdinaryGameplayRegisters acceptedRegisters =
             ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime)
                 .Layers[0]).Registers;
@@ -52,16 +52,16 @@ internal static class GameplayCaptureIntegrationTestsVerification
             "accepted NMI publishes Chainsaw WOBJLOG store");
         AssertEqual(SnesMainScreenLayers.Bg3, acceptedRegisters.MainScreenLayers,
             "accepted NMI publishes slot-four Chainsaw TM overwrite");
-        runtime.Projectiles.ChainsawWindowRegisters.InitializeWindowAndScreenSelection();
-        runtime.RunNmi(0, true);
+        runtime.Projectiles.Chainsaw.ChainsawWindowRegisters.InitializeWindowAndScreenSelection();
+        runtime.NmiHandler.RunNmi(0, true);
 
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
         for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(bus, runtime.Samus!, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(bus, runtime.Samus!, runtime.Cgram);
+        runtime.SuitPickup.Begin(bus, runtime.Player.Samus!, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(bus, runtime.Player.Samus!, runtime.Cgram);
         Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
         LayeredRenderSnapshot captured = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         AssertTrue(captured.Layers.Length == 4 && captured.Layers[0] is OrdinaryGameplayRenderLayer
@@ -70,7 +70,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         var retained = RoundTripRenderPacket(new(new(1, 1, 0), captured));
         AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step((ushort)SnesButton.A);
-        runtime.SuitPickup.Step(bus, runtime.Samus!, runtime.Cgram);
+        runtime.SuitPickup.Step(bus, runtime.Player.Samus!, runtime.Cgram);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 
@@ -78,8 +78,14 @@ internal static class GameplayCaptureIntegrationTestsVerification
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         var packets = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        legacy.BindMapPresentation(presentation);
-        packets.BindMapPresentation(presentation);
+        legacy.BindArtwork(legacy.Artwork with
+        {
+            MapPresentation = presentation,
+        });
+        packets.BindArtwork(packets.Artwork with
+        {
+            MapPresentation = presentation,
+        });
         long sequence = 0;
         bool sawMode7Packet = false;
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
@@ -88,7 +94,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);
-            if (packets.RuntimeForVerification?.ActiveDoor?.UsesCeresElevatorMode7 == true)
+            if (packets.RuntimeForVerification?.Room.ActiveDoor?.UsesCeresElevatorMode7 == true)
             {
                 AssertTrue(!actual.UsedLegacyRaster, "Ceres startup uses captured packets");
                 sawMode7Packet = true;
@@ -100,7 +106,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         foreach (SuperMetroidGame game in new[] { legacy, packets })
         {
             game.RuntimeForVerification!.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
-            game.RuntimeForVerification!.RunNmi(0, true);
+            game.RuntimeForVerification!.NmiHandler.RunNmi(0, true);
         }
         bool sawPause = false;
         var fadeFrames = new Dictionary<SuperMetroidGameState, int>

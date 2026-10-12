@@ -29,16 +29,16 @@ internal static class CrystalFlashCleanupVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         // Keep the constructed clearing visible; the old mechanics-only fixture
         // left the displayed camera at zero, outside the tested Samus trajectory.
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, camera: new Position16<RoomPixels>(384, 384));
         for (ushort y = 1; y <= 2; y++)
         for (ushort x = 1; x <= 2; x++)
-            runtime.Camera!.Scrolls.SetLogicalState(new(x, y), RoomScrollState.Green);
-        var level = runtime.LevelData!;
+            runtime.Room.Camera!.Scrolls.SetLogicalState(new(x, y), RoomScrollState.Green);
+        var level = runtime.Room.LevelData!;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
         {
@@ -47,7 +47,7 @@ internal static class CrystalFlashCleanupVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
@@ -57,12 +57,12 @@ internal static class CrystalFlashCleanupVerification
         samus.PowerBombs = samus.MaxPowerBombs = capacity;
         samus.SelectedHudItem = 3;
         samus.Position = samus.Position.WithWholeX(512);
-        samus.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Position = samus.Position.WithWholeY((ushort)(511 - samus.Kinematics.Radius.Y));
-        samus.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation(bus);
         runtime.StepFrame(0);
         ushort startingY = samus.Position.Y.Whole;
-        runtime.StepFrame(runtime.ControllerBindings.Shoot);
+        runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
         AssertEqual(capacity - 1, samus.PowerBombs, "normal placement consumes one Power Bomb");
         ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
         int started = -1, finished = -1;
@@ -91,7 +91,7 @@ internal static class CrystalFlashCleanupVerification
                 // zero-only RNG would hang native-style drop selection on death.
                 var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.Whole);
                 runtime.Enemies.Load(new RoomEnemyLoadRequest(contactBus, CrystalFlashContactDefinitions.Pointer, CrystalFlashContactDefinitions.Pointer, runtime.Vram, runtime.Cgram, new StandaloneRoomEnemyServices(() => 1)));
-                contactEnemy = runtime.Enemies.Slots[0];
+                contactEnemy = runtime.Enemies.SlotTable.Slots[0];
                 contactEnemy.VariableC = contactEnemy.VariableD = 0;
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
@@ -107,7 +107,7 @@ internal static class CrystalFlashCleanupVerification
             if (testContact)
             {
                 int afterDamage = Math.Max(0, beforeHealth - contactDamage);
-                int expected = Math.Min(samus.MaxHealth, afterDamage + ((runtime.NmiFrameCounter & 7) == 0 ? 50 : 0));
+                int expected = Math.Min(samus.MaxHealth, afterDamage + ((runtime.Nmi.NmiFrameCounter & 7) == 0 ? 50 : 0));
                 AssertTrue(contactDamage > 0, "constructed contact actor has nonzero retail damage");
                 AssertEqual(expected, samus.Health, "enemy contact damages Crystal Flash before its energy refill");
                 AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash clears immunity after actual contact");

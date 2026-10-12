@@ -107,18 +107,17 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
 /// <summary>Verification access to the services of a <see cref="RoomEnemySystem"/> (#633).</summary>
 internal static class RoomEnemyServicesAccess
 {
-    private const string ServicesField = "<Services>k__BackingField";
-
     extension(RoomEnemySystem self)
     {
         /// <summary>The case's own services, installed over whatever <c>Load</c> installed on first use.</summary>
         internal VerificationRoomEnemyServices VerificationServices()
         {
-            object? current = PrivateState.Field<object?>(self, ServicesField);
+            // The installed services, if any; the case layers its own over them.
+            IRoomEnemyServices? current = PrivateState.Field<IRoomEnemyServices?>(self.Room, "<Services>k__BackingField");
             if (current is VerificationRoomEnemyServices installed)
                 return installed;
-            var services = new VerificationRoomEnemyServices((IRoomEnemyServices?)current);
-            PrivateState.SetField(self, ServicesField, services);
+            var services = new VerificationRoomEnemyServices(current);
+            self.Room.Services = services;
             return services;
         }
     }

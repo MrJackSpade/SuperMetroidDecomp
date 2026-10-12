@@ -30,14 +30,13 @@ internal static class DraygonTilemapProductionVerification
         var random = new Bank80SystemState(0x1234);
         var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 64)),
             Pose = SamusPoseId.FacingRightNormalPose };
-        samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
+        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => false } }) { Level = assets.LevelData, Samus = samus });
-        var boss = enemies.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
+        var boss = enemies.DraygonBehavior.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
         // Observe which native enemy indexes were actually scheduled, without adding
         // a diagnostic callback to production. This does NOT independently verify AI
         // or queue construction; it isolates the downstream tilemap/DMA producer.
-        var queues = (List<ushort>[])typeof(RoomEnemySystem).GetField("_drawQueues", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(enemies)!;
         var staging = Enumerable.Repeat((ushort)0x0338, 2048).ToArray();
         var expectedVram = staging.ToArray();
         AssertEqual((ushort)0x0400, boss.Bg2TilemapSize, "A5:86D7 initializes the native DMA prefix size");
@@ -52,10 +51,10 @@ internal static class DraygonTilemapProductionVerification
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData, NmiFrameCounter8 = unchecked((byte)frame) });
             functions.Add(boss.Function);
             bool queuedTransfer = false;
-            foreach (var queue in queues)
+            foreach (var queue in enemies.Drawing.QueuesForVerification)
             foreach (ushort nativeIndex in queue)
             {
-                var slot = enemies.Slots[nativeIndex / 64];
+                var slot = enemies.SlotTable.Slots[nativeIndex / 64];
                 if (((ushort)slot.ExtraProperties & 0x8004) != 0x8004) continue;
                 int bank = (int)new SnesAddress(slot.Definition.Bank, 0);
                 int count = bus.ReadCartridgeByte(bank | slot.SpritemapPointer);
@@ -83,7 +82,7 @@ internal static class DraygonTilemapProductionVerification
                 staging.AsSpan(0, boss.Bg2TilemapSize / 2).CopyTo(expectedVram);
                 transfers++;
             }
-            oam.BeginFrame(); enemies.DrawLayers(oam, new(0, 0), 0, 7); oam.FinalizeFrame();
+            oam.BeginFrame(); enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 7); oam.FinalizeFrame();
             for (int word = 0; word < expectedVram.Length; word++)
             {
                 ushort actual = vram.ReadWord(0x4800 + word);

@@ -19,10 +19,8 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(759), "quadratic partial word");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadDisplacement(757), "quadratic partial displacement");
         if (definitionsOnly) return;
-        T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
-            .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();
-        var shared = Method<Func<ushort, bool, int>>("ReadQuadraticEnemySpeed");
-        var addRock = Method<Action<RoomEnemyProjectileSlot, ushort, bool>>("AddPolypRockQuadraticStep");
+        var shared = new Func<ushort, bool, int>(EnemyMath.ReadQuadraticEnemySpeed);
+        var addRock = new Action<RoomEnemyProjectileSlot, ushort, bool>(PolypBehavior.AddPolypRockQuadraticStep);
         var rock = new RoomEnemyProjectileSlot(0);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (ushort index = 0; index < 95; index++)
@@ -44,8 +42,8 @@ internal static class EnemyQuadraticSpeedsVerification
             AssertEqual(unchecked((int)SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))), shared(index, negative),
                 "quadratic shared production reader");
         }
-        var beetom = Method<Func<ushort, ushort, ushort>>("CalculateInitialBeetomYSpeedIndex");
-        var hopper = Method<Func<ushort, ushort, ushort>>("CalculateInitialHopperYSpeedTableIndex");
+        var beetom = new Func<ushort, ushort, ushort>(BeetomBehavior.CalculateInitialBeetomYSpeedIndex);
+        var hopper = new Func<ushort, ushort, ushort>(HoppersBehavior.CalculateInitialHopperYSpeedTableIndex);
         int initialIndexCases = 0;
         foreach (ushort delta in new ushort[] { 1, 2, 4 })
         for (int height = 0; height <= ushort.MaxValue; height++)
@@ -66,15 +64,15 @@ internal static class EnemyQuadraticSpeedsVerification
         // table. Out-of-table instruction-byte reads are not a fabricated math API.
         AssertTrue(initialIndexCases > 100000, "wide signed-height hop corpus is exercised");
 
-        var wings = Method<Func<ushort, bool, ushort>>("ReadKiHunterQuadraticAngleDelta");
+        var wings = new Func<ushort, bool, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
         for (int index = 0; index < 95; index++)
         for (int low = 0; low < 256; low++)
         foreach (bool negative in new[] { false, true })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (index * 8 + (negative ? 5 : 1))), wings((ushort)(index * 256 + low), negative),
                 "KiHunter high-byte index and odd-word angle delta");
 
-        var addMaw = Method<Action<YappingMawEnemyState>>("AddYappingMawQuadraticSpeed");
-        var maw = new YappingMawEnemyState(new RoomEnemySystem().Slots[0]);
+        var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
+        var maw = new YappingMawEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int offset = 0; offset <= 756; offset++)
         {

@@ -22,16 +22,16 @@ internal static class JumpNoXMovementVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RedFish);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         // Native state after update 366219's ceiling hit.
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = 0;
@@ -39,7 +39,7 @@ internal static class JumpNoXMovementVerification
         samus.Kinematics.YSubacceleration = 0x1c00;
         samus.HorizontalSpeed.AccelerationMode = 0;
 
-        SamusAerialMovement.StepNormalJump(bus, runtime.LevelData!, samus,
+        SamusAerialMovement.StepNormalJump(bus, runtime.Room.LevelData!, samus,
             (ushort)(SnesButton.A | SnesButton.B), nmiFrameCounter: 0);
         AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
         AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");

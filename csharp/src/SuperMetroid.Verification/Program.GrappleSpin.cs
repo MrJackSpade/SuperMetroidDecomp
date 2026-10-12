@@ -22,16 +22,16 @@ internal static class GrappleSpinVerification
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(0x93fe);
-            var samus = runtime.Samus!;
+            var samus = runtime.Player.Samus!;
             samus.InputLocked = false;
             samus.Position = samus.Position.WithWhole(new(512, 256));
             samus.Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             samus.SelectedHudItem = 4;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;

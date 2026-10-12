@@ -17,14 +17,6 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 $"enemy spike reaction header {index}");
         }
 
-        MethodInfo react = typeof(RoomEnemySystem).GetMethod(
-            "ReactToEnemySpikeBlock",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo plmField = typeof(RoomEnemySystem).GetField(
-            "_collisionPlms", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var guarded = NewEnemyTerrainReactionReadGuard(rom);
         for (int highBit = 0; highBit <= 0x80; highBit += 0x80)
         for (int index = 0; index < 16; index++)
         {
@@ -35,11 +27,12 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock).Raw], [behavior], [0]), []);
             var plms = new RoomPlmSystem();
-            var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
-            plmField.SetValue(enemies, plms);
+            // EnemyTerrain owns no bus, so the reaction cannot read cartridge memory.
+            var terrain = new EnemyTerrain();
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(0);
-            bool collision = (bool)react.Invoke(enemies, [level, 0, block])!;
+            bool collision;
+            using (new EnemyTerrain.EnemyTerrainScope(terrain, plms))
+                collision = terrain.ReactToEnemySpikeBlock(level, 0, block);
 
             AssertEqual(index != 15, collision,
                 $"production enemy spike collision ${behavior:X2}");
@@ -60,11 +53,6 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
         }
 
         Console.WriteLine(
-            "Enemy terrain reactions: sixteen native headers, all 32 authored/high-bit selectors and real collision/PLM handoffs pass with the reaction table forbidden; 224 adjacent-code selectors fail explicitly.");
+            "Enemy terrain reactions: sixteen native headers, all 32 authored/high-bit selectors and real collision/PLM handoffs pass through the bus-free terrain owner; 224 adjacent-code selectors fail explicitly.");
     }
-
-    private static CartridgeReadGuard NewEnemyTerrainReactionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa0c2da and < 0xa0c2fa,
-                address => $"Enemy terrain reaction attempted migrated table read ${address:X6}.");
 }

@@ -1,0 +1,35 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Assets;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>The collaborators a <see cref="ZebetiteBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
+internal sealed record ZebetiteBehaviorDependencies
+{
+    /// <summary>Dispatch.</summary>
+    public required IEnemyDispatch Dispatch { get; init; }
+
+    /// <summary>Room.</summary>
+    public required EnemyRoomBinding Room { get; init; }
+
+    /// <summary>Projectiles.</summary>
+    public required EnemyProjectileEngine Projectiles { get; init; }
+
+    /// <summary>Earthquake.</summary>
+    public required RoomEarthquake Earthquake { get; init; }
+
+    /// <summary>Slot table.</summary>
+    public required EnemySlotTable SlotTable { get; init; }
+
+    /// <summary>Presentation.</summary>
+    public required EnemyPresentation Presentation { get; init; }
+
+    /// <summary>Elevator behavior.</summary>
+    public required ElevatorBehavior ElevatorBehavior { get; init; }
+
+    /// <summary>Room status.</summary>
+    public required EnemyRoomStatus RoomStatus { get; init; }
+
+    /// <summary>Collision.</summary>
+    public required EnemyCollision Collision { get; init; }
+}

@@ -922,13 +922,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
-            string producer = program == SkreeMetareeParticleInstructionProgramDefinitions.Skree
-                ? "SpawnSkreeParticleBurst" : "SpawnMetareeParticleBurst";
-            var spawn = typeof(RoomEnemySystem).GetMethod(producer, flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            var process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessEnemyProjectileInstructions", flags)!;
+            enemies.BindFixtureBus(source);
+            Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleInstructionProgramDefinitions.Skree
+                ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
             var enemy = new RoomEnemySlot(0)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -936,11 +932,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 PaletteIndex = 0x0c00,
             };
             spawn(enemy);
-            foreach (RoomEnemyProjectileSlot particle in enemies.EnemyProjectiles
+            foreach (RoomEnemyProjectileSlot particle in enemies.Projectiles.EnemyProjectiles
                          .Where(particle => particle.IsActive))
             {
                 particle.InstructionTimer = 1;
-                process.Invoke(enemies, [particle, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(), Position16<RoomPixels>.Zero);
             }
             var oam = new OamBuffer();
             oam.BeginFrame();
@@ -958,16 +954,14 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
-            RoomEnemyProjectileSlot slot = enemies.EnemyProjectiles[0];
+            enemies.BindFixtureBus(source);
+            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.GraphicsIndex = 0x0a04;
             slot.InstructionPointer = unchecked((ushort)(operand - 2));
             slot.InstructionTimer = 1;
-            typeof(RoomEnemySystem).GetMethod(
-                "ProcessEnemyProjectileInstructions", flags)!
-                .Invoke(enemies, [slot, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
@@ -979,8 +973,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
-            RoomEnemyProjectileSlot slot = enemies.EnemyProjectiles[0];
+            enemies.BindFixtureBus(source);
+            RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.Variable1 = 128;
             slot.Position = slot.Position.WithWhole(new(128, 96));
@@ -988,9 +982,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.InstructionPointer = unchecked((ushort)(
                 NoobTubeProjectileInstructionProgramDefinitions.ShardInstructionLists[0] + 4));
             slot.InstructionTimer = 1;
-            typeof(RoomEnemySystem).GetMethod(
-                "ProcessEnemyProjectileInstructions", flags)!
-                .Invoke(enemies, [slot, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
             var oam = new OamBuffer();
             oam.BeginFrame();
             enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);

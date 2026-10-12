@@ -9,9 +9,7 @@ internal static class FamilyTrigonometryVerification
 {
     internal static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
     {
-        var bullSample = typeof(RoomEnemySystem)
-            .GetMethod("ReadBullSignedSine", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<byte, short>>();
+        Func<byte, short> bullSample = BullBehavior.ReadBullSignedSine;
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
@@ -31,12 +29,10 @@ internal static class FamilyTrigonometryVerification
             .Select(i => Read(EnemyMathReferenceData.SignedSixteenBitSine + i * 2)).ToArray();
         short[] orbit = Enumerable.Range(0, 320)
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
-        T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
-            .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();
         Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(rom));
-        var bullMove = Method<Action<RoomEnemySlot, BullEnemyState>>("MoveBull");
-        var mawX = Method<Func<ushort, ushort, ushort>>("CalculateYappingMawX");
-        var mawY = Method<Func<ushort, ushort, ushort>>("CalculateYappingMawY");
+        var bullMove = new Action<RoomEnemySlot, BullEnemyState>(BullBehavior.MoveBull);
+        var mawX = new Func<ushort, ushort, ushort>(YappingMawBehavior.CalculateYappingMawX);
+        var mawY = new Func<ushort, ushort, ushort>(YappingMawBehavior.CalculateYappingMawY);
         Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(rom));
 
         ushort MawReference(int angle, int length)
@@ -88,13 +84,11 @@ internal static class FamilyTrigonometryVerification
         // A real linked-slot placement with no loaded bus verifies the production
         // caller, low angular byte, preceding segment subpixels and signed carry/wrap.
         var enemies = new RoomEnemySystem();
-        var previous = enemies.Slots[0];
-        var segment = enemies.Slots[1];
+        var previous = enemies.SlotTable.Slots[0];
+        var segment = enemies.SlotTable.Slots[1];
         previous.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
         var segmentState = new ShaktoolSegmentState(segment);
-        var place = typeof(RoomEnemySystem).GetMethod("PositionShaktoolAroundPreviousSegment",
-            BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot, ShaktoolSegmentState>>(enemies);
+        Action<RoomEnemySlot, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {

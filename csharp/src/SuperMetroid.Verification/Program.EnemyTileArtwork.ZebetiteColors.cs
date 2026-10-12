@@ -29,9 +29,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             ReferenceCycle(nativeCgram, ref nativeCounter);
             Cycle(installed);
             AssertEqual((ushort)((call + 1) & ZebetiteDefinitions.PaletteCycleMask),
-                installed.Slots[0].VariableC,
+                installed.SlotTable.Slots[0].VariableC,
                 "Installed Zebetite pulse retains physical-slot-zero counter and wrap");
-            AssertEqual(nativeCounter, installed.Slots[0].VariableC,
+            AssertEqual(nativeCounter, installed.SlotTable.Slots[0].VariableC,
                 "Installed Zebetite pulse keeps native frame selection");
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 "Installed Zebetite pulse preserves full native CGRAM and neighbors");
@@ -67,17 +67,17 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
                 (color == ZebetiteDefinitions.PaletteDestinationColor + 1 ? 1 : 0)),
                 selectedCgram.Colors[color],
                 "Zebetite visual edit changes only one color channel at the selected frame");
-        AssertEqual(controlCounter, selected.Slots[0].VariableC,
+        AssertEqual(controlCounter, selected.SlotTable.Slots[0].VariableC,
             "Zebetite color edit does not change animation counter");
-        selected.PaletteChangeNumber = 1;
-        ushort counterBeforeGate = selected.Slots[0].VariableC;
+        selected.ZebetiteBehavior.PaletteChangeNumber = 1;
+        ushort counterBeforeGate = selected.SlotTable.Slots[0].VariableC;
         Cycle(selected);
-        AssertEqual(counterBeforeGate, selected.Slots[0].VariableC,
+        AssertEqual(counterBeforeGate, selected.SlotTable.Slots[0].VariableC,
             "Zebetite palette-change gate remains an engine-owned condition");
-        selected.PaletteChangeNumber = 0;
-        selected.Slots[0].Parameter1 = 1;
+        selected.ZebetiteBehavior.PaletteChangeNumber = 0;
+        selected.SlotTable.Slots[0].Parameter1 = 1;
         Cycle(selected);
-        AssertEqual(counterBeforeGate, selected.Slots[0].VariableC,
+        AssertEqual(counterBeforeGate, selected.SlotTable.Slots[0].VariableC,
             "Zebetite secondary-half gate remains an engine-owned condition");
 
         EnemyTileArtworkFiles.Extract(bus, stockDirectory, SupportedCartridge.Sha256);
@@ -115,8 +115,8 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+            enemies.BindFixtureBus(source);
+            enemies.Presentation._cgram = cgram;
             return (enemies, cgram);
         }
 
@@ -143,8 +143,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         static void Cycle(RoomEnemySystem enemies)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            typeof(RoomEnemySystem).GetMethod("CycleZebetitePalette", flags)!
-                .Invoke(enemies, [enemies.Slots[0]]);
+            enemies.ZebetiteBehavior.CycleZebetitePalette(enemies.SlotTable.Slots[0]);
         }
     }
 }

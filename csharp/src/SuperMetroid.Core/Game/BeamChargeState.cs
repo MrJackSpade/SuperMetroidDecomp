@@ -1,0 +1,32 @@
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>Beam charge state: the flare counter $0CD0, the previous charge $0DC2, the charged-shot glow timer $0B18, the charge palette index $0B62 and the three flare components' frames and timers.</summary>
+internal sealed class BeamChargeState
+{
+
+    /// <summary>WRAM <c>$0CD0</c>; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
+    public ushort FlareCounter { get; internal set; }
+
+    /// <summary>WRAM <c>$0DC2</c>; sampled before the current charge-input update.</summary>
+    public ushort PreviousBeamChargeCounter { get; internal set; }
+
+    /// <summary>
+    /// WRAM <c>$0B18</c>. Ordinary charged shots use values four through zero for three
+    /// white frames and a fourth-call suit restore. Hyper Beam uses `$8014` through `$8000`
+    /// for ten ROM palettes held two calls each before the same restore path.
+    /// </summary>
+    public ushort ChargedShotGlowTimer { get; internal set; }
+
+    /// <summary>
+    /// WRAM <c>$0B62</c>, a byte offset into the active six-word charge-palette list.
+    /// Native values are exactly 0, 2, 4, 6, 8, and 10; the sixth call wraps to zero.
+    /// </summary>
+    public ushort SamusChargePaletteIndex { get; internal set; }
+
+    internal readonly ushort[] _flareFrames = new ushort[3];
+    internal readonly ushort[] _flareTimers = new ushort[3];
+}

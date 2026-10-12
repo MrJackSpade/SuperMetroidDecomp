@@ -60,13 +60,11 @@ internal static class KraidHeadInstructionsVerification
             KraidHeadInstructionDefinitions.All)
         {
             var guard = new KraidHeadProgramReadGuard(rom);
-            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
-            var execute = typeof(RoomEnemySystem)
-                .GetMethod("ExecuteKraidHeadInstruction", flags)!
-                .CreateDelegate<Func<RoomEnemySlot, KraidEnemyState, ushort>>(enemies);
-            RoomEnemySlot body = enemies.Slots[0];
+            var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            enemies.BindFixtureBus(guard);
+            enemies.Presentation._vram = new SnesVram();
+            Func<RoomEnemySlot, KraidEnemyState, ushort> execute = enemies.KraidBehavior.ExecuteKraidHeadInstruction;
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             var state = new KraidEnemyState();
             body.VariableB = definition.Pointer;
 
@@ -105,7 +103,7 @@ internal static class KraidHeadInstructionsVerification
                 KraidHeadInstructionKind.DyingSound)
             {
                 AssertEqual(unchecked((byte)definition.SoundId),
-                    enemies.LastKraidSoundEffect!.Value.SoundEffect.Value,
+                    enemies.KraidBehavior.LastKraidSoundEffect!.Value.SoundEffect.Value,
                     $"Kraid sound command ${definition.Pointer:X4} queues exact sound");
             }
             AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -115,24 +113,18 @@ internal static class KraidHeadInstructionsVerification
 
     private static void VerifyTimerAndGrowthConsumers(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         var state = new KraidEnemyState();
         var guard = new KraidHeadProgramReadGuard(rom);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
-        T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
-            .GetMethod(name, flags)!.CreateDelegate<T>(enemies);
-        var growth = Method<Func<RoomEnemySlot, KraidEnemyState, bool>>(
-            "TryBeginKraidGrowth");
-        var glow = Method<Action<RoomEnemySlot, KraidEnemyState>>(
-            "InitializeKraidEyeGlow");
-        var death = Method<Action<RoomEnemySlot, KraidEnemyState>>(
-            "InitializeKraidDeath");
-        var combat = Method<Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?, ushort>>(
-            "RunKraidCombatFunction");
-        RoomEnemySlot body = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = new SnesCgram();
+        enemies.Presentation._vram = new SnesVram();
+        var growth = new Func<RoomEnemySlot, KraidEnemyState, bool>(enemies.KraidBehavior.TryBeginKraidGrowth);
+        var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidEyeGlow);
+        var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidDeath);
+        var combat = new Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?, ushort>(enemies.KraidBehavior.RunKraidCombatFunction);
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         state.InitialHealth = 1000;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

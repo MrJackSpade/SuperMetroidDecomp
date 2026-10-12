@@ -22,12 +22,10 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo selector = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyVisualSelector", BindingFlags.NonPublic | BindingFlags.Static)!;
         var denied = NewCrocomireTongueNoReadBus();
         var enemies = new RoomEnemySystem { TileArtwork = stock };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(denied);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.CrocomireTongue;
         slot.Definition = default(RoomEnemyDefinition) with
         { Bank = CrocomireTongueCollisionDefinitions.Bank };
@@ -39,7 +37,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
             ushort operand = CrocomireTongueInstructionProgramDefinitionsTooling
                 .PresentationWordAddress(index);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operand);
-            ushort selected = (ushort)selector.Invoke(enemies, [slot, operand])!;
+            ushort selected = (ushort)EnemyInstructionInterpreter.ReadEnemyVisualSelector(slot, operand);
             AssertEqual(native, selected,
                 $"Crocomire tongue selector $A4:{operand:X4} matches native");
             AssertTrue(stock.ExtendedFrames!.TryGetDisplay(
@@ -99,12 +97,10 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         Suite(nameof(VerifyCrocomireTongueComponentCases), () => VerifyCrocomireTongueComponentCases(rom));
         var denied = NewCrocomireTongueNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
         var compiled = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
+        compiled.BindFixtureBus(denied);
         var nativeSlot = new RoomEnemySlot(0);
-        RoomEnemySlot compiledSlot = compiled.Slots[0];
+        RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         nativeSlot.Definition = compiledSlot.Definition =
             default(RoomEnemyDefinition) with
             { Bank = CrocomireTongueCollisionDefinitions.Bank };
@@ -138,7 +134,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
                 object?[] compiledArguments =
                     [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
-                bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
+                bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire tongue $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                 AssertEqual((ushort)nativeArguments[^1]!,

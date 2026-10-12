@@ -169,8 +169,8 @@ internal static class SporeSpawnCeilingVisualsVerification
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);
-        var plms = new RoomPlmSystem { SporeSpawnCeilingVisuals = edited };
-        AssertTrue(plms.TrySpawnSporeSpawnCeiling(level,
+        var plms = new RoomPlmSystem { Drawing = { SporeSpawnCeilingVisuals = edited } };
+        AssertTrue(plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(level,
                 clear ? PlmHeaderId.ClearSporeSpawnCeiling :
                     PlmHeaderId.CrumbleSporeSpawnCeiling),
             $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
@@ -195,10 +195,10 @@ internal static class SporeSpawnCeilingVisualsVerification
                 blockIndex, 0).TopRow[0],
             $"Spore Spawn {(clear ? "clear" : "crumble")} edit survives streaming");
         int deletionFrame = -1;
-        for (int frame = 1; frame < 24 && plms.ActiveCount != 0; frame++)
+        for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
         {
             plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 16 * 16), Bg1XOffset = 0 });
-            if (plms.ActiveCount == 0)
+            if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(clear ? 4 : 16, deletionFrame,

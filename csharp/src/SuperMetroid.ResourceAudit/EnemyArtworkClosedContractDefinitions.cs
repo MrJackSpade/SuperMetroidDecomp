@@ -8,11 +8,8 @@ internal static class EnemyArtworkClosedContractDefinitions
         new("SuperMetroid.Core.Assets.EnemyTileArtworkCatalog", "installed-enemy-sheets-palettes-and-dma", ["LoadTo", "LoadPaletteTo", "TryResolve"],
             // #1172: reviewed schema 68 -> 69 bump; provider and DMA routing are unchanged.
             [new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.Construction.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/EnemyTileSourceDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment0.cs"),
-             new("csharp/src/SuperMetroid.Core/Game/RoomEnemyGraphicsSetDefinitions.Segment1.cs"),
              new("csharp/src/SuperMetroid.Core/Game/RoomEnemyDefinitionCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Game/RoomEnemyData.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/RoomCharacterAtlas.cs"),

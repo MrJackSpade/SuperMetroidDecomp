@@ -21,9 +21,9 @@ internal static class ElevatubeScrollingVerification
         foreach (bool fromNorth in new[] { true, false })
         {
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             var door = SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, fromNorth
                 ? DoorPointers.MaridiaElevatubeFromNorth : DoorPointers.MaridiaElevatubeFromSouth);
             // Clear the constructor's Ceres arrival fixture before applying the real
@@ -31,8 +31,8 @@ internal static class ElevatubeScrollingVerification
             runtime.LoadCartridgeRoomForDebug(door.DestinationRoomPointer);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
-            var samus = runtime.Samus!;
-            var camera = runtime.Camera!;
+            var samus = runtime.Player.Samus!;
+            var camera = runtime.Room.Camera!;
             samus.Position = samus.Position.WithWholeX(MaridiaElevatubeRomData.SamusCenterX);
             samus.Position = samus.Position.WithWholeY(fromNorth ? MaridiaElevatubeRomData.NorthStartingPosition
                 : MaridiaElevatubeRomData.SouthStartingPosition);
@@ -41,7 +41,7 @@ internal static class ElevatubeScrollingVerification
             {
                 uint beforeY = samus.Kinematics.Position.Y.RawValue;
                 uint expectedY = unchecked(beforeY + (uint)(SnesSixteenSixteen.FromEightEight((short)runtime.MaridiaElevatube.Velocity)));
-                AssertTrue(samus.StationaryScriptControlLocked,
+                AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked,
                     "both tube entry callbacks install native command-zero ownership");
                 runtime.StepFrame(0);
                 AssertEqual(expectedY, samus.Kinematics.Position.Y.RawValue,

@@ -146,7 +146,7 @@ internal static class StokeInstructionProgramDefinitionsVerification
                 $"Stoke {direction} attack restores walking function");
             AssertEqual(expectedLoopCursor, slot.CurrentInstruction,
                 $"Stoke {direction} attack enters walking loop");
-            RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles.Single(
+            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.Kind == RoomEnemyProjectileKind.StokeProjectile);
             AssertEqual(expectedProjectileDirection, projectile.DirectionParameter,
                 $"Stoke {direction} attack projectile direction");
@@ -156,10 +156,9 @@ internal static class StokeInstructionProgramDefinitionsVerification
             StokeDirection direction)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeStoke", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.StokeBehavior.InitializeStoke;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Stoke;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = (ushort)direction;
@@ -180,13 +179,11 @@ internal static class StokeInstructionProgramDefinitionsVerification
             RoomEnemySlot slot,
             int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
             {
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
                 if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
                     observedFrames.Add(slot.SpritemapPointer);
             }

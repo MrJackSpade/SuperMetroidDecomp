@@ -35,6 +35,10 @@ jobs:
         run: dotnet build csharp/SuperMetroid.Full.slnx -c Release
       - name: Fail on dead code (empty allow-list)
         run: dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx --check csharp/src/SuperMetroid.ReachabilityAudit/reachability-allow-list.txt --output out/reachability
+      # #621: every type has a disposition; flagged owners, locators, context bags and large classes are reviewed.
+      - name: Architecture audit (inventory current, every finding reviewed)
+        if: always()
+        run: dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

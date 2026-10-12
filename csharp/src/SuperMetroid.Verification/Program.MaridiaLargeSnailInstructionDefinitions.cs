@@ -22,10 +22,6 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo install = typeof(RoomEnemySystem).GetMethod(
-            "InstallMaridiaLargeSnailInstructionList",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
         var executedOperands = new HashSet<ushort>();
         var guarded = NewMaridiaLargeSnailInstructionReadGuard(rom);
 
@@ -37,8 +33,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 $"Maridia Large Snail instruction selector {animationIndex}");
 
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guarded);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             var state = new MaridiaLargeSnailEnemyState(slot)
             {
                 RequestedInstructionListIndex = animationIndex,
@@ -47,7 +43,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             slot.InstructionTimer = 0x1234;
             slot.Timer = 0x5678;
 
-            install.Invoke(null, [slot, state]);
+            MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailInstructionList(slot, state);
             AssertEqual(animationIndex, state.InstalledInstructionListIndex,
                 $"production Maridia Large Snail installed selector {animationIndex}");
             AssertEqual(expected, slot.CurrentInstruction,
@@ -93,13 +89,9 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         foreach (var program in programs)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
-            var initialize = typeof(RoomEnemySystem).GetMethod(
-                "InitializeMaridiaLargeSnail", instance)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", instance)!;
-            RoomEnemySlot snail = enemies.Slots[0];
+            enemies.BindFixtureBus(guarded);
+            Action<RoomEnemySlot> initialize = enemies.MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail;
+            RoomEnemySlot snail = enemies.SlotTable.Slots[0];
             snail.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
             snail.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             initialize(snail);
@@ -108,7 +100,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 snail.CurrentInstruction,
                 $"real Maridia Large Snail initializer before {program.Name}");
             ExecuteMaridiaLargeSnailProgram(rom, executedOperands,
-                enemies, process, snail, program.Program, program.Calls);
+                enemies, snail, program.Program, program.Calls);
             AssertEqual(program.Terminal, snail.CurrentInstruction,
                 $"Maridia Large Snail {program.Name} terminal instruction");
 
@@ -116,7 +108,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             AssertEqual(program.FinishesAttack, state.AttackAnimationFinished,
                 $"Maridia Large Snail {program.Name} completion flag");
             AssertEqual(program.PlaysSplash ? (ushort?)0x000e : null,
-                enemies.LastMaridiaLargeSnailSoundEffect,
+                enemies.MaridiaLargeSnailBehavior.LastMaridiaLargeSnailSoundEffect,
                 $"Maridia Large Snail {program.Name} splash sound");
             AssertEqual(false, state.AttackAllowsRotation,
                 $"Maridia Large Snail {program.Name} leaves rotation disallowed");
@@ -124,19 +116,14 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
 
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
-            var initialize = typeof(RoomEnemySystem).GetMethod(
-                "InitializeMaridiaLargeSnail", instance)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", instance)!;
-            RoomEnemySlot snail = enemies.Slots[0];
+            enemies.BindFixtureBus(guarded);
+            Action<RoomEnemySlot> initialize = enemies.MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail;
+            RoomEnemySlot snail = enemies.SlotTable.Slots[0];
             snail.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
             snail.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             initialize(snail);
             ExecuteMaridiaLargeSnailProgram(rom, executedOperands,
                 enemies,
-                process,
                 snail,
                 MaridiaLargeSnailInstructionProgramDefinitions.FacingLeftRollingForwards,
                 2);
@@ -144,7 +131,6 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 "Maridia Large Snail forward roll enables its attack window");
             ExecuteMaridiaLargeSnailProgram(rom, executedOperands,
                 enemies,
-                process,
                 snail,
                 snail.CurrentInstruction,
                 1);
@@ -191,7 +177,6 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot snail,
         ushort program,
         int callCount)
@@ -202,7 +187,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             snail.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, snail, executedOperands);
         }
     }

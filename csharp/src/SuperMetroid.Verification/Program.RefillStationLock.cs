@@ -21,11 +21,11 @@ internal static class RefillStationLockVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         for (int frame = 0; frame < 8; frame++)
             runtime.StepFrame(0);
@@ -35,8 +35,8 @@ internal static class RefillStationLockVerification
         runtime.StepFrame(0);
         AssertTrue(Animation() != unlocked, "the normal beta advances Samus's animation");
 
-        samus.LockIntoRefillStation();
-        AssertTrue(samus.RefillStationLocked && samus.InputLocked && !samus.StationaryScriptControlLocked,
+        samus.ScriptLocks.LockIntoRefillStation();
+        AssertTrue(samus.ScriptLocks.RefillStationLocked && samus.InputLocked && !samus.ScriptLocks.StationaryScriptControlLocked,
             "command six installs the station pair, not command zero's");
         var locked = Animation();
         for (int frame = 0; frame < 4; frame++)
@@ -44,7 +44,7 @@ internal static class RefillStationLockVerification
         AssertEqual(locked, Animation(), "the station beta does not animate Samus");
 
         samus.InputLocked = false;
-        AssertTrue(!samus.RefillStationLocked, "restoring the normal handlers releases the station beta");
+        AssertTrue(!samus.ScriptLocks.RefillStationLocked, "restoring the normal handlers releases the station beta");
         Console.WriteLine("Refill-station lock: command six's RTL beta holds Samus's animation until release.");
     }
 

@@ -10,9 +10,6 @@ internal static class MotherBrainFallingTubeInstructionDefinitionsVerification
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo processInstructions = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
 
         for (int index = 0; index < MotherBrainFallingTubeInstructionDefinitionsTooling.ListCount;
             index++)
@@ -33,7 +30,7 @@ internal static class MotherBrainFallingTubeInstructionDefinitionsVerification
                 $"Mother Brain falling tube {index} terminal opcode");
 
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, NewMotherBrainFallingTubeReadGuard(rom));
+            enemies.BindFixtureBus(NewMotherBrainFallingTubeReadGuard(rom));
             var tube = new RoomEnemySlot(0)
             {
                 EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainTubes,
@@ -42,7 +39,7 @@ internal static class MotherBrainFallingTubeInstructionDefinitionsVerification
                 InstructionTimer = 1,
             };
             object?[] args = [tube, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            processInstructions.Invoke(enemies, args);
+            EnemyInstructionRunner.Process(enemies, args);
             AssertEqual((ushort)(start + 4), tube.CurrentInstruction,
                 $"falling tube {index} advances from frame to terminal opcode");
             AssertEqual((ushort)1, tube.InstructionTimer,
@@ -50,7 +47,7 @@ internal static class MotherBrainFallingTubeInstructionDefinitionsVerification
             AssertEqual(MotherBrainFallingTubeInstructionDefinitions.ReadVisualSelector(
                     unchecked((ushort)(start + 2))), tube.SpritemapPointer,
                 $"falling tube {index} publishes its own selected composition");
-            processInstructions.Invoke(enemies, args);
+            EnemyInstructionRunner.Process(enemies, args);
             AssertEqual((ushort)(start + 4), tube.CurrentInstruction,
                 $"falling tube {index} sleeps on the native terminal word");
         }

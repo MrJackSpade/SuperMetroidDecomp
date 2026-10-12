@@ -16,9 +16,9 @@ internal static class GrappleDemoTrajectoryVerification
         AssertEqual(AttractDemoRomDataInputObjects.GrappleBeam, scene.InputObject,
             "retail basic grapple demo identity");
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeAttractDemo(scene);
-        var samus = runtime.Samus!;
-        var level = runtime.LevelData!;
+        runtime.AttractDemo.InitializeAttractDemo(scene);
+        var samus = runtime.Player.Samus!;
+        var level = runtime.Room.LevelData!;
         var expectedColumns = new SortedSet<int>();
         for (int y = 0; y < level.Size.Y; y++)
             for (int x = 0; x < level.Size.X; x++)
@@ -31,7 +31,7 @@ internal static class GrappleDemoTrajectoryVerification
         GrapplePhase previousPhase = GrapplePhase.Inactive;
         for (int frame = 0; frame < scene.Duration; frame++)
         {
-            input.Step(bus, SuperMetroidGameState.PlayingDemo, samus.ReadMovementType(bus));
+            input.Step(bus, SuperMetroidGameState.PlayingDemo, samus.PoseMetadata.ReadMovementType(bus));
             if ((input.Script.NewlyPressed & (ushort)SnesButton.X) != 0) scriptedShots++;
             runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } });
             if (frame == 164)

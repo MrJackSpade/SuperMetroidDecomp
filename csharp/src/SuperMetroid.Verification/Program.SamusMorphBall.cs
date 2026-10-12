@@ -90,11 +90,11 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    samus.RefreshCollisionRadii(bus);
-    samus.InitializeAnimation(bus);
+    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.Presentation.InitializeAnimation(bus);
 
     AssertTrue(
-        !samus.TryApplyMorphTransition(
+        !samus.PoseTransitions.TryApplyMorphTransition(
             bus, floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "morph entry is rejected without item bit $0004");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "rejected morph retains crouch");
@@ -102,7 +102,7 @@ internal static void VerifySamusMorphBallMovement()
 
     samus.EquippedItems = 0x0004;
     AssertTrue(
-        samus.TryApplyMorphTransition(
+        samus.PoseTransitions.TryApplyMorphTransition(
             bus, floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "equipped Morph Ball begins entry transition");
     AssertEqual(7, samus.Kinematics.Radius.Y, "morph transition radius from ROM");
@@ -121,9 +121,9 @@ internal static void VerifySamusMorphBallMovement()
         BombSpreadChargeTimeoutCounter = 0x1234,
         ProjectileFlareCounter = 0x003c,
     };
-    fallingMorph.RefreshCollisionRadii(bus);
+    fallingMorph.PoseMetadata.RefreshCollisionRadii(bus);
     fallingMorph.HorizontalSpeed.AccelerationMode = 1;
-    AssertTrue(fallingMorph.TryApplyMorphTransition(
+    AssertTrue(fallingMorph.PoseTransitions.TryApplyMorphTransition(
             bus, floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 1),
         "compact falling pose begins cartridge morph transition");
     AssertEqual(49, fallingMorph.Position.Y.Whole,
@@ -133,8 +133,8 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.FallingAimDownLeftPose, EquippedItems = 0x0004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 54)),
     };
-    clippedMorph.RefreshCollisionRadii(bus);
-    AssertTrue(clippedMorph.TryApplyMorphTransition(bus, floor,
+    clippedMorph.PoseMetadata.RefreshCollisionRadii(bus);
+    AssertTrue(clippedMorph.PoseTransitions.TryApplyMorphTransition(bus, floor,
         SamusPoseId.MorphingTransitionLeftPose, 0), "near-floor morph is admitted");
     AssertEqual(57, clippedMorph.Position.Y.Whole,
         "command-seven nine-pixel request clips to three pixels at the floor");
@@ -151,8 +151,8 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x0004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 40)),
     };
-    spinMorph.RefreshCollisionRadii(bus);
-    AssertTrue(spinMorph.TryApplyMorphTransition(
+    spinMorph.PoseMetadata.RefreshCollisionRadii(bus);
+    AssertTrue(spinMorph.PoseTransitions.TryApplyMorphTransition(
             bus, floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 0),
         "spin pose begins cartridge morph transition");
     AssertEqual(2, spinMorph.HorizontalSpeed.AccelerationMode,
@@ -161,36 +161,36 @@ internal static void VerifySamusMorphBallMovement()
     // The compiled retail transition is 03,03,F9: six animation ticks
     // reach the frame-two branch while retaining its native F9 operands.
     for (int tick = 0; tick < 6; tick++)
-        samus.AnimateNoFx(bus, new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xf9, samus.LastAnimationDelayCommand!.Value, "morph transition reaches F9");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, samus.PendingTransitionalPose!.Value,
         "F9 selects no-spring grounded endpoint");
-    AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "grounded F9 endpoint applies");
+    AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "grounded F9 endpoint applies");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, samus.Pose, "morph entry reaches stable ball");
 
     // Changing to the moving record preserves the shared rolling frame/timer. Movement
     // type four uses native 0.C000 acceleration and remains floor-constrained.
     ushort timerBeforeRoll = samus.AnimationFrameTimer;
-    samus.ApplyMorphBallPoseChange(bus, SamusPoseId.MorphBallMovingRightPose);
+    samus.PoseTransitions.ApplyMorphBallPoseChange(bus, SamusPoseId.MorphBallMovingRightPose);
     AssertEqual(timerBeforeRoll, samus.AnimationFrameTimer, "ball direction change preserves timer");
     MorphBallMovementResult rolling = SamusMorphBallMovement.StepGrounded(
         bus, floor, samus, nmiFrameCounter: 0);
     AssertTrue(rolling.Vertical.Collided, "rolling ball retains floor contact");
     AssertEqual(0xc000, samus.HorizontalSpeed.BaseSubspeed, "type-four acceleration uses native definition");
 
-    samus.ApplyMorphBallPoseChange(bus, SamusPoseId.MorphBallMovingLeftPose);
+    samus.PoseTransitions.ApplyMorphBallPoseChange(bus, SamusPoseId.MorphBallMovingLeftPose);
     AssertEqual(1, samus.HorizontalSpeed.AccelerationMode, "ball reversal selects momentum mode one");
     AssertEqual(0xc000, samus.HorizontalSpeed.BaseSubspeed, "ball reversal preserves base magnitude");
 
     // Remove the floor and execute the stable grounded handler. Its failed +1 probe drives
     // the explicit `$1D/$41 -> $31/$32` walk-off transition and starts downward gravity.
     RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
-    samus.ApplyMorphBallPoseChange(bus, SamusPoseId.MorphBallGroundLeftPose);
+    samus.PoseTransitions.ApplyMorphBallPoseChange(bus, SamusPoseId.MorphBallGroundLeftPose);
     samus.HorizontalSpeed.AccelerationMode = 0;
     MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
         bus, empty, samus, nmiFrameCounter: 1);
     AssertTrue(!unsupported.Vertical.Collided, "grounded ball detects missing floor");
-    samus.ApplyMorphBallWalkOff(bus);
+    samus.PoseTransitions.ApplyMorphBallWalkOff(bus);
     AssertEqual(SamusPoseId.MorphBallFallingLeftPose, samus.Pose, "left ball walk-off endpoint");
     AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "ball walk-off starts falling");
 
@@ -207,7 +207,7 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.MorphBallMovingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
-    boostedRoll.RefreshCollisionRadii(bus);
+    boostedRoll.PoseMetadata.RefreshCollisionRadii(bus);
     boostedRoll.HorizontalSpeed.HasRunningMomentum = true;
     boostedRoll.HorizontalSpeed.ExtraRunSpeed = 1;
     boostedRoll.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
@@ -226,7 +226,7 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.MorphBallFallingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
-    boostedFall.RefreshCollisionRadii(bus);
+    boostedFall.PoseMetadata.RefreshCollisionRadii(bus);
     boostedFall.HorizontalSpeed.ExtraRunSpeed = 1;
     boostedFall.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
     boostedFall.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -248,7 +248,7 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.MorphBallFallingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
-    opposedDirectionFall.RefreshCollisionRadii(bus);
+    opposedDirectionFall.PoseMetadata.RefreshCollisionRadii(bus);
     opposedDirectionFall.HorizontalSpeed.ExtraRunSpeed = 1;
     opposedDirectionFall.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
     opposedDirectionFall.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -269,7 +269,7 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.SpringBallJumpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
-    boostedSpring.RefreshCollisionRadii(bus);
+    boostedSpring.PoseMetadata.RefreshCollisionRadii(bus);
     boostedSpring.HorizontalSpeed.ExtraRunSpeed = 1;
     boostedSpring.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
     boostedSpring.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -289,7 +289,7 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.MorphingTransitionRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
     };
-    boostedTransition.RefreshCollisionRadii(bus);
+    boostedTransition.PoseMetadata.RefreshCollisionRadii(bus);
     boostedTransition.HorizontalSpeed.ExtraRunSpeed = 1;
     boostedTransition.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
     SamusMorphBallMovement.StepTransition(
@@ -312,10 +312,10 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    frozenCrouchBombJump.RefreshCollisionRadii(bus);
-    frozenCrouchBombJump.InitializeAnimation(bus);
-    frozenCrouchBombJump.PublishBombJumpDirection(2);
-    AssertTrue(!frozenCrouchBombJump.TrySetupPublishedBombJump(
+    frozenCrouchBombJump.PoseMetadata.RefreshCollisionRadii(bus);
+    frozenCrouchBombJump.Presentation.InitializeAnimation(bus);
+    frozenCrouchBombJump.PoseMetadata.PublishBombJumpDirection(2);
+    AssertTrue(!frozenCrouchBombJump.PoseMetadata.TrySetupPublishedBombJump(
             bus,
             floor,
             timeIsFrozen: true,
@@ -331,10 +331,10 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    crouchBombJump.RefreshCollisionRadii(bus);
-    crouchBombJump.InitializeAnimation(bus);
-    crouchBombJump.PublishBombJumpDirection(1);
-    AssertTrue(crouchBombJump.TrySetupPublishedBombJump(
+    crouchBombJump.PoseMetadata.RefreshCollisionRadii(bus);
+    crouchBombJump.Presentation.InitializeAnimation(bus);
+    crouchBombJump.PoseMetadata.PublishBombJumpDirection(1);
+    AssertTrue(crouchBombJump.PoseMetadata.TrySetupPublishedBombJump(
             bus,
             floor,
             timeIsFrozen: false,
@@ -354,10 +354,10 @@ internal static void VerifySamusMorphBallMovement()
         Pose = SamusPoseId.NormalJumpForwardRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 32)),
     };
-    airborneBombRejection.RefreshCollisionRadii(bus);
-    airborneBombRejection.InitializeAnimation(bus);
-    airborneBombRejection.PublishBombJumpDirection(3);
-    AssertTrue(!airborneBombRejection.TrySetupPublishedBombJump(
+    airborneBombRejection.PoseMetadata.RefreshCollisionRadii(bus);
+    airborneBombRejection.Presentation.InitializeAnimation(bus);
+    airborneBombRejection.PoseMetadata.PublishBombJumpDirection(3);
+    AssertTrue(!airborneBombRejection.PoseMetadata.TrySetupPublishedBombJump(
             bus,
             empty,
             timeIsFrozen: false,
@@ -382,7 +382,7 @@ internal static void VerifySamusMorphBallMovement()
     samus.HorizontalSpeed.BaseSpeed = 2;
     samus.HorizontalSpeed.BaseSubspeed = 0x8000;
     samus.HorizontalSpeed.AccelerationMode = 2;
-    AssertTrue(!samus.ApplyMorphBallLanding(bus), "hard landing launches first rebound");
+    AssertTrue(!samus.PoseTransitions.ApplyMorphBallLanding(bus), "hard landing launches first rebound");
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "first rebound retains horizontal momentum");
     AssertEqual(SamusBallBounceState.FirstRebound, samus.MorphBallBounceState, "first rebound state");
     AssertEqual(1, samus.Kinematics.YSpeed, "first rebound whole speed from ROM");
@@ -395,14 +395,14 @@ internal static void VerifySamusMorphBallMovement()
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.Kinematics.YSpeed = 1;
     samus.Kinematics.YSubspeed = 0;
-    AssertTrue(!samus.ApplyMorphBallLanding(bus), "first-bounce collision launches second rebound");
+    AssertTrue(!samus.PoseTransitions.ApplyMorphBallLanding(bus), "first-bounce collision launches second rebound");
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "second rebound retains horizontal momentum");
     AssertEqual(SamusBallBounceState.SecondRebound, samus.MorphBallBounceState, "second rebound state");
     AssertEqual(0, samus.Kinematics.YSpeed, "second rebound decrements whole constant");
 
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.Kinematics.YSpeed = 1;
-    AssertTrue(samus.ApplyMorphBallLanding(bus), "second-bounce collision grounds ball");
+    AssertTrue(samus.PoseTransitions.ApplyMorphBallLanding(bus), "second-bounce collision grounds ball");
     AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "final ball landing clears both base-speed words");
     AssertEqual(0, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
@@ -413,12 +413,12 @@ internal static void VerifySamusMorphBallMovement()
     // A ceiling in row two makes both initial expansion probes collide;
     // radius-seven `$91:FFA7` must retain the ball instead of selecting crouch.
     AssertTrue(
-        samus.TryApplyMorphTransition(
+        samus.PoseTransitions.TryApplyMorphTransition(
             bus, floor, SamusPoseId.UnmorphingTransitionLeftPose, nmiFrameCounter: 0),
         "floor-constrained unmorph succeeds");
     AssertEqual(7, samus.Kinematics.Radius.Y, "unmorph retains old live radius through beta");
     AssertEqual(48, samus.Position.Y.Whole, "unmorph expansion keeps bottom boundary");
-    samus.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii(bus);
     AssertEqual(16, samus.Kinematics.Radius.Y, "following alpha publishes unmorph radius");
 
     var tunnelBlocks = (ushort[])floorBlocks.Clone();
@@ -431,10 +431,10 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x0004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
     };
-    boxedBall.RefreshCollisionRadii(bus);
-    boxedBall.InitializeAnimation(bus);
+    boxedBall.PoseMetadata.RefreshCollisionRadii(bus);
+    boxedBall.Presentation.InitializeAnimation(bus);
     AssertTrue(
-        !boxedBall.TryApplyMorphTransition(
+        !boxedBall.PoseTransitions.TryApplyMorphTransition(
             bus, tunnel, SamusPoseId.UnmorphingTransitionRightPose, nmiFrameCounter: 1),
         "boxed Morph Ball rejects unmorph");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, boxedBall.Pose, "boxed unmorph retains ball pose");
@@ -456,8 +456,8 @@ internal static void VerifySamusMorphBallMovement()
             Pose = sourcePose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
         };
-        fallingUnmorph.RefreshCollisionRadii(bus);
-        fallingUnmorph.InitializeAnimation(bus);
+        fallingUnmorph.PoseMetadata.RefreshCollisionRadii(bus);
+        fallingUnmorph.Presentation.InitializeAnimation(bus);
         fallingUnmorph.HorizontalSpeed.BaseSpeed = 2;
         fallingUnmorph.HorizontalSpeed.BaseSubspeed = 0x3456;
         fallingUnmorph.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -465,7 +465,7 @@ internal static void VerifySamusMorphBallMovement()
         fallingUnmorph.Kinematics.YSubspeed = 0x8000;
 
         AssertTrue(
-            fallingUnmorph.TryApplyUnmorphToFallingTransition(
+            fallingUnmorph.PoseTransitions.TryApplyUnmorphToFallingTransition(
                 bus, empty, targetPose, nmiFrameCounter: 3),
             $"unmorph ${(int)sourcePose:X2} accepts same-facing falling input");
         AssertEqual(targetPose, fallingUnmorph.Pose,
@@ -492,15 +492,15 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x0004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    airborneEntry.RefreshCollisionRadii(bus);
-    airborneEntry.InitializeAnimation(bus);
+    airborneEntry.PoseMetadata.RefreshCollisionRadii(bus);
+    airborneEntry.Presentation.InitializeAnimation(bus);
     AssertTrue(
-        airborneEntry.TryApplyMorphTransition(
+        airborneEntry.PoseTransitions.TryApplyMorphTransition(
             bus, floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "airborne F9 fixture begins morph");
     airborneEntry.Kinematics.YSubspeed = 1;
     for (int tick = 0; tick < 6; tick++)
-        airborneEntry.AnimateNoFx(bus, new SamusAnimationStep());
+        airborneEntry.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, airborneEntry.PendingTransitionalPose!.Value,
         "F9 nonzero Y subspeed selects airborne endpoint");
 
@@ -512,18 +512,18 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x0006,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    spring.RefreshCollisionRadii(bus);
-    spring.InitializeAnimation(bus);
+    spring.PoseMetadata.RefreshCollisionRadii(bus);
+    spring.Presentation.InitializeAnimation(bus);
     AssertTrue(
-        spring.TryApplyMorphTransition(
+        spring.PoseTransitions.TryApplyMorphTransition(
             bus, floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "Spring Ball fixture begins morph entry");
     for (int tick = 0; tick < 6; tick++)
-        spring.AnimateNoFx(bus, new SamusAnimationStep());
+        spring.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(SamusPoseId.SpringBallGroundRightPose, spring.PendingTransitionalPose!.Value,
         "F9 equipped endpoint selects Spring Ball ground");
-    AssertTrue(spring.ApplyPendingVerifiedAnimationTransition(bus), "Spring Ball F9 applies");
-    spring.ApplyMorphBallPoseChange(bus, SamusPoseId.SpringBallMovingRightPose);
+    AssertTrue(spring.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "Spring Ball F9 applies");
+    spring.PoseTransitions.ApplyMorphBallPoseChange(bus, SamusPoseId.SpringBallMovingRightPose);
     MorphBallMovementResult springRoll = SamusMorphBallMovement.StepGrounded(
         bus, floor, spring, nmiFrameCounter: 0);
     AssertTrue(springRoll.Vertical.Collided, "Spring Ball roll retains floor contact");
@@ -532,8 +532,8 @@ internal static void VerifySamusMorphBallMovement()
 
     // `$79 -> $7F` initializes the literal dry-air 4.E000 jump. Releasing Jump on its
     // first movement frame invokes the shared variable-height cutoff before displacement.
-    spring.ApplyMorphBallPoseChange(bus, SamusPoseId.SpringBallGroundRightPose);
-    spring.ApplySpringBallJump(bus, SamusPoseId.SpringBallJumpRightPose);
+    spring.PoseTransitions.ApplyMorphBallPoseChange(bus, SamusPoseId.SpringBallGroundRightPose);
+    spring.PoseTransitions.ApplySpringBallJump(bus, SamusPoseId.SpringBallJumpRightPose);
     AssertEqual(4, spring.Kinematics.YSpeed, "Spring Ball launch whole speed");
     AssertEqual(0xe000, spring.Kinematics.YSubspeed, "Spring Ball launch subspeed");
     SamusMorphBallMovement.StepSpringBallInAir(
@@ -542,15 +542,15 @@ internal static void VerifySamusMorphBallMovement()
 
     // The no-Jump hard impact stores the distinctive `$0601` state. A held-Jump impact
     // instead clears that state and immediately relaunches through Make_Samus_Jump.
-    spring.ApplyMorphBallPoseChange(bus, SamusPoseId.SpringBallFallingRightPose);
+    spring.PoseTransitions.ApplyMorphBallPoseChange(bus, SamusPoseId.SpringBallFallingRightPose);
     spring.Kinematics.YSpeed = 3;
     spring.Kinematics.YSubspeed = 0;
     spring.Kinematics.YDirection = SamusVerticalDirection.Down;
-    AssertTrue(!spring.ApplySpringBallLanding(bus, controllerInput: 0),
+    AssertTrue(!spring.PoseTransitions.ApplySpringBallLanding(bus, controllerInput: 0),
         "Spring Ball hard impact rebounds");
     AssertEqual(SamusBallBounceState.SpringBallFirstRebound, spring.MorphBallBounceState, "Spring Ball first bounce state");
     var springLandingAnimation = (spring.AnimationFrame, spring.AnimationFrameTimer);
-    AssertTrue(!spring.ApplySpringBallLanding(bus, (ushort)SnesButton.A),
+    AssertTrue(!spring.PoseTransitions.ApplySpringBallLanding(bus, (ushort)SnesButton.A),
         "held Jump immediately relaunches Spring Ball");
     AssertEqual(SamusBallBounceState.None, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseId.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
@@ -570,15 +570,15 @@ internal static void VerifySamusMorphBallMovement()
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall |
                 (springEquipped ? SamusEquipmentFlags.SpringBall : 0)),
         };
-        impact.RefreshCollisionRadii(bus);
-        impact.InitializeAnimation(bus);
+        impact.PoseMetadata.RefreshCollisionRadii(bus);
+        impact.Presentation.InitializeAnimation(bus);
         impact.Kinematics.YSpeed = impactSpeed;
         impact.HorizontalSpeed.BaseSpeed = 1;
         impact.HorizontalSpeed.BaseSubspeed = 0x8000;
         impact.HorizontalSpeed.AccelerationMode = 2;
         bool grounded = springEquipped
-            ? impact.ApplySpringBallLanding(bus, controllerInput: 0)
-            : impact.ApplyMorphBallLanding(bus);
+            ? impact.PoseTransitions.ApplySpringBallLanding(bus, controllerInput: 0)
+            : impact.PoseTransitions.ApplyMorphBallLanding(bus);
         AssertEqual(!rebounds, grounded, $"ball landing signed threshold {impactSpeed:X4}, spring={springEquipped}");
         AssertEqual(rebounds
             ? springEquipped ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound
@@ -602,7 +602,7 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x0004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
     };
-    noBombItemSamus.RefreshCollisionRadii(bus);
+    noBombItemSamus.PoseMetadata.RefreshCollisionRadii(bus);
     var noBombItemSystem = CreateBombFixture();
     noBombItemSystem.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, noBombItemSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     AssertTrue(noBombItemSystem.BombCounter == 0 && noBombItemSystem.Slots.All(slot => !slot.IsActive),
@@ -614,7 +614,7 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x1004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
     };
-    bombProjectileSamus.RefreshCollisionRadii(bus);
+    bombProjectileSamus.PoseMetadata.RefreshCollisionRadii(bus);
     var bombs = CreateBombFixture();
     bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     AssertTrue(bombs.Slots[0].IsActive && bombs.Slots.Skip(1).All(slot => !slot.IsActive),
@@ -648,7 +648,7 @@ internal static void VerifySamusMorphBallMovement()
             EquippedItems = 0x1004,
             Position = FixedPosition<RoomPixels>.FromWhole(new(48, 57)),
         };
-        fixtureSamus.RefreshCollisionRadii(fixtureBus);
+        fixtureSamus.PoseMetadata.RefreshCollisionRadii(fixtureBus);
         var fixtureSystem = CreateBombFixture();
         fixtureSystem.StepFrame(new SamusTerrain { Bus = fixtureBus, Level = fixtureFloor }, fixtureSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
         while (fixtureSystem.Slots[0].BombTimer > 9)
@@ -686,7 +686,7 @@ internal static void VerifySamusMorphBallMovement()
         bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, 0, 0);
     AssertEqual(2, bombProjectileSamus.BombJumpDirection,
         "same-X timer-eight overlap publishes straight direction");
-    AssertTrue(bombProjectileSamus.TrySetupPublishedBombJump(
+    AssertTrue(bombProjectileSamus.PoseMetadata.TrySetupPublishedBombJump(
             bus,
             floor,
             timeIsFrozen: false,
@@ -725,7 +725,7 @@ internal static void VerifySamusMorphBallMovement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
         ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
     };
-    spreadSamus.RefreshCollisionRadii(bus);
+    spreadSamus.PoseMetadata.RefreshCollisionRadii(bus);
     var spreadBombs = CreateBombFixture();
     spreadBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, spreadSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
     AssertTrue(spreadBombs.Slots.All(slot => !slot.IsActive),
@@ -769,7 +769,7 @@ internal static void VerifySamusMorphBallMovement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
         ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
     };
-    selectedPowerBombSpreadSamus.RefreshCollisionRadii(bus);
+    selectedPowerBombSpreadSamus.PoseMetadata.RefreshCollisionRadii(bus);
     var selectedPowerBombSpreadBombs = CreateBombFixture();
     selectedPowerBombSpreadBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, selectedPowerBombSpreadSamus, (ushort)SnesButton.X, 0);
     AssertTrue(selectedPowerBombSpreadBombs.Slots.All(slot => !slot.IsBombSpread),
@@ -831,7 +831,7 @@ internal static void VerifySamusMorphBallMovement()
         ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
         BombSpreadChargeTimeoutCounter = 0x00bf,
     };
-    timeoutSamus.RefreshCollisionRadii(bus);
+    timeoutSamus.PoseMetadata.RefreshCollisionRadii(bus);
     var timeoutBombs = CreateBombFixture();
     timeoutBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
     AssertTrue(timeoutBombs.Slots.All(slot => !slot.IsActive),
@@ -869,7 +869,7 @@ internal static void VerifySamusMorphBallMovement()
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    powerBombSamus.RefreshCollisionRadii(bus);
+    powerBombSamus.PoseMetadata.RefreshCollisionRadii(bus);
     var powerBombs = CreateBombFixture();
     powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     AssertTrue(powerBombs.Slots[0].IsActive && powerBombs.Slots.Skip(1).All(slot => !slot.IsActive),
@@ -906,7 +906,7 @@ internal static void VerifySamusMorphBallMovement()
         "power-bomb timer fifteen enters retail fast list");
     var armedPowerBombOam = new OamBuffer();
     armedPowerBombOam.BeginFrame();
-    powerBombs.Draw(bus, armedPowerBombOam, layer1: new(0, 0), compositions: RepositoryInstallation.Projectiles.Catalog);
+    powerBombs.Draw(bus, armedPowerBombOam, layer1: new(0, 0), compositions: InstalledFixtures.Projectiles.Catalog);
     AssertTrue(armedPowerBombOam.NextByteOffset > 0,
         "armed Power Bomb draws its fast-list spritemap before detonation");
 
@@ -928,7 +928,7 @@ internal static void VerifySamusMorphBallMovement()
         "power-bomb spawn queues cartridge library-one explosion sound");
     var detonatedPowerBombOam = new OamBuffer();
     detonatedPowerBombOam.BeginFrame();
-    powerBombs.Draw(bus, detonatedPowerBombOam, layer1: new(0, 0), compositions: RepositoryInstallation.Projectiles.Catalog);
+    powerBombs.Draw(bus, detonatedPowerBombOam, layer1: new(0, 0), compositions: InstalledFixtures.Projectiles.Catalog);
     AssertEqual(0, detonatedPowerBombOam.NextByteOffset,
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 
@@ -1044,7 +1044,7 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x1004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    reactionSamus.RefreshCollisionRadii(bus);
+    reactionSamus.PoseMetadata.RefreshCollisionRadii(bus);
     reactionBombs.StepFrame(new SamusTerrain { Bus = bus, Level = reactionLevel, Plms = reactionPlms }, reactionSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
 
     while (!reactionBombs.Slots[0].IsExploding)
@@ -1063,7 +1063,7 @@ internal static void VerifySamusMorphBallMovement()
         "later left-arm reaction observes the synchronously mutated parent");
     AssertTrue(reactionPlms.PopulationSlots.Any(slot => slot.BlockIndex == reactionParentIndex),
         "extension redirect installs its reaction PLM on the parent block");
-    AssertEqual(1, reactionPlms.ActiveCount,
+    AssertEqual(1, reactionPlms.SlotTable.ActiveCount,
         "extension and later parent visit produce one native reaction PLM");
     AssertEqual(0x8058,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
@@ -1076,7 +1076,7 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(0x0053,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
         "same-frame PLM pass draws the first bomb-block air frame");
-    AssertEqual(0, reactionPlms.SoundRequests.Count,
+    AssertEqual(0, reactionPlms.Sounds.SoundRequests.Count,
         "normal bomb setup skips reaction PLM sound $0A");
 
     // Walk the exact forward, 384-frame blank hold, reverse, restore, and delayed-delete
@@ -1091,10 +1091,10 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(0xf058,
         reactionLevel.GetCollisionBlockByIndex(reactionParentIndex).LevelWord,
         "bomb reaction restores synthesized type-F parent after native hold");
-    AssertEqual(1, reactionPlms.ActiveCount,
+    AssertEqual(1, reactionPlms.SlotTable.ActiveCount,
         "DrawPLMBlock retains reaction PLM through its timer-one restore pass");
     reactionPlms.Step(bus, reactionLevel, reactionStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    AssertEqual(0, reactionPlms.ActiveCount,
+    AssertEqual(0, reactionPlms.SlotTable.ActiveCount,
         "bomb reaction PLM deletes on the handler pass after restoration");
 
     // Exercise the public bomb pipeline as well as the setup methods below. A BTS-eight
@@ -1117,7 +1117,7 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x1004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    integratedRevealSamus.RefreshCollisionRadii(bus);
+    integratedRevealSamus.PoseMetadata.RefreshCollisionRadii(bus);
     integratedRevealBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedRevealLevel, Plms = integratedRevealPlms }, integratedRevealSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     while (!integratedRevealBombs.Slots[0].IsExploding)
     {
@@ -1128,7 +1128,7 @@ internal static void VerifySamusMorphBallMovement()
         "bomb dispatcher visits center shootable-solid parent");
     AssertTrue(integratedRevealPlms.PopulationSlots.Any(slot => slot.BlockIndex == integratedRevealIndex),
         "bomb dispatcher installs its reveal PLM on the center parent");
-    AssertEqual(1, integratedRevealPlms.ActiveCount,
+    AssertEqual(1, integratedRevealPlms.SlotTable.ActiveCount,
         "bomb dispatcher installs shootable reveal PLM");
     AssertEqual(0xc000,
         integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).LevelWord,
@@ -1157,13 +1157,13 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x1004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    bombDoorSamus.RefreshCollisionRadii(bus);
+    bombDoorSamus.PoseMetadata.RefreshCollisionRadii(bus);
     bombDoorBombs.StepFrame(new SamusTerrain { Bus = bus, Level = bombDoorLevel, Plms = bombDoorPlms }, bombDoorSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     while (!bombDoorBombs.Slots[0].IsExploding)
     {
         bombDoorBombs.StepFrame(new SamusTerrain { Bus = bus, Level = bombDoorLevel, Plms = bombDoorPlms }, bombDoorSamus, 0, 0);
     }
-    AssertEqual(1, bombDoorPlms.ActiveCount,
+    AssertEqual(1, bombDoorPlms.SlotTable.ActiveCount,
         "normal bomb allocates one blue-door opening PLM");
     AssertEqual(RoomCollisionType.SolidBlock,
         bombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
@@ -1171,7 +1171,7 @@ internal static void VerifySamusMorphBallMovement()
 
     RoomLevelData powerBombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new ushort[bombDoorWords.Length]), reactionDefinitions);
     var powerBombDoorPlms = new RoomPlmSystem();
-    AssertTrue(!powerBombDoorPlms.TrySpawnBlueDoorOpening(
+    AssertTrue(!powerBombDoorPlms.DoorPlms.TrySpawnBlueDoorOpening(
             powerBombDoorLevel,
             bombDoorIndex,
             RoomBlockBehaviorValues.BlueDoorFacingRight,
@@ -1201,11 +1201,11 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(0x0053,
         shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning shot block begins with retail air frame");
-    AssertEqual(1, shotPlms.SoundRequests.Count,
+    AssertEqual(1, shotPlms.Sounds.SoundRequests.Count,
         "shot-block head queues one sound request");
-    AssertEqual(0x0a, shotPlms.SoundRequests[0].SoundEffect.Value,
+    AssertEqual(0x0a, shotPlms.Sounds.SoundRequests[0].SoundEffect.Value,
         "shot-block head queues crumble sound $0A");
-    AssertEqual(1, shotPlms.SoundRequests[0].MaximumQueued,
+    AssertEqual(1, shotPlms.Sounds.SoundRequests[0].MaximumQueued,
         "$84:8C79 uses sound-library-two maximum one");
     StepFrames(12, _ => shotPlms.Step(bus, shotLevel, shotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
     AssertEqual(0x00ff,
@@ -1217,7 +1217,7 @@ internal static void VerifySamusMorphBallMovement()
         shotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning shot block restores CE6B's synthesized parent");
     shotPlms.Step(bus, shotLevel, shotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    AssertEqual(0, shotPlms.ActiveCount,
+    AssertEqual(0, shotPlms.SlotTable.ActiveCount,
         "respawning shot block deletes one handler pass after restoration");
 
     // `$84:D084` is the respawning power-bomb block. Its CF2E setup accepts family `$0300`,
@@ -1244,7 +1244,7 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(0x0053,
         powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "power-bomb block begins with retail air frame");
-    AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 1), powerBombShotPlms.SoundRequests[0],
+    AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 1), powerBombShotPlms.Sounds.SoundRequests[0],
         "$8C7C queues power-bomb breakup sound with maximum one");
     StepFrames(12 + 384 + 12, _ =>
         powerBombShotPlms.Step(bus, powerBombShotLevel, powerBombShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
@@ -1252,7 +1252,7 @@ internal static void VerifySamusMorphBallMovement()
         powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning power-bomb block restores synthesized $C057 parent");
     powerBombShotPlms.Step(bus, powerBombShotLevel, powerBombShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    AssertEqual(0, powerBombShotPlms.ActiveCount,
+    AssertEqual(0, powerBombShotPlms.SlotTable.ActiveCount,
         "respawning power-bomb block deletes after restoration");
 
     // Issue #286 reached this same BTS-eight setup through the integrated expanding
@@ -1278,7 +1278,7 @@ internal static void VerifySamusMorphBallMovement()
         MaxPowerBombs = 5,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    integratedPowerBombSamus.RefreshCollisionRadii(bus);
+    integratedPowerBombSamus.PoseMetadata.RefreshCollisionRadii(bus);
     integratedPowerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedPowerBombLevel, Plms = integratedPowerBombPlms }, integratedPowerBombSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     while (!integratedPowerBombs.PowerBombExplosion.IsActive)
     {
@@ -1293,7 +1293,7 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(0x8057,
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "integrated CF2E setup installs temporary power-bomb block word");
-    AssertEqual(1, integratedPowerBombPlms.ActiveCount,
+    AssertEqual(1, integratedPowerBombPlms.SlotTable.ActiveCount,
         "integrated power-bomb radius allocates the gated block PLM exactly once");
     integratedPowerBombPlms.Step(bus, integratedPowerBombLevel, integratedPowerBombStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0x0053,
@@ -1317,7 +1317,7 @@ internal static void VerifySamusMorphBallMovement()
             position: new(48, 48));
     AssertTrue(collisionProbePlms.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
         "expanding power bomb visits native BTS-ten collision-probe entry");
-    AssertEqual(4, collisionProbePlms.ActiveCount,
+    AssertEqual(4, collisionProbePlms.SlotTable.ActiveCount,
         "zero-radius border visits its center four times and allocates four B974 PLMs");
     AssertEqual(0xc321,
         collisionProbeLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
@@ -1340,7 +1340,7 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(0xc321,
         superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "rejected missile leaves Super Missile block word untouched");
-    AssertEqual(0, superShotPlms.ActiveCount,
+    AssertEqual(0, superShotPlms.SlotTable.ActiveCount,
         "rejected missile leaves no live PLM header");
     AssertTrue(superShotPlms.TrySpawnProjectileShotBlock(
             superShotLevel,
@@ -1353,7 +1353,7 @@ internal static void VerifySamusMorphBallMovement()
         superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "CF67 installs synthesized temporary Super Missile word");
     superShotPlms.Step(bus, superShotLevel, superShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6), superShotPlms.SoundRequests[0],
+    AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6), superShotPlms.Sounds.SoundRequests[0],
         "$CB71 queues Super Missile breakup sound with maximum six");
     StepFrames(12 + 384 + 12, _ =>
         superShotPlms.Step(bus, superShotLevel, superShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
@@ -1361,7 +1361,7 @@ internal static void VerifySamusMorphBallMovement()
         superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "respawning Super Missile block restores synthesized $C09F parent");
     superShotPlms.Step(bus, superShotLevel, superShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    AssertEqual(0, superShotPlms.ActiveCount,
+    AssertEqual(0, superShotPlms.SlotTable.ActiveCount,
         "respawning Super Missile block deletes after restoration");
 
     // BTS nine and B select the two permanent lists. Run both beyond their final timer so
@@ -1391,7 +1391,7 @@ internal static void VerifySamusMorphBallMovement()
         AssertEqual(0x00ff,
             permanentWeaponLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
             $"permanent {familyName} block ends on retail blank word");
-        AssertEqual(0, permanentWeaponPlms.ActiveCount,
+        AssertEqual(0, permanentWeaponPlms.SlotTable.ActiveCount,
             $"permanent {familyName} block deletes without restoration");
     }
 
@@ -1430,13 +1430,13 @@ internal static void VerifySamusMorphBallMovement()
             projectileType: 0x0300,
             solidBlock: true),
         "BTS-ten allocates the native B974 collision-probe PLM");
-    AssertEqual(3, noOpShotPlms.ActiveCount,
+    AssertEqual(3, noOpShotPlms.SlotTable.ActiveCount,
         "the three solid/no-op reactions occupy native slots");
     AssertEqual(0xc321,
         noOpShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "all no-op shot reactions preserve terrain");
     noOpShotPlms.Step(bus, noOpShotLevel, noOpShotStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    AssertEqual(0, noOpShotPlms.ActiveCount,
+    AssertEqual(0, noOpShotPlms.SlotTable.ActiveCount,
         "no-op shot PLMs delete on their first handler pass");
 
     // Normal bombs striking BTS 8 and A do not break their weapon-gated blocks. CF2E/CF67
@@ -1468,15 +1468,15 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(0xc09f,
         revealLevel.GetCollisionBlockByIndex(superRevealIndex).LevelWord,
         "normal bomb reveals visible super-missile block word");
-    AssertEqual(0, revealPlms.SoundRequests.Count,
+    AssertEqual(0, revealPlms.Sounds.SoundRequests.Count,
         "weapon-required reveal lists do not queue shot-break sound");
     AssertEqual(0xc222,
         revealLevel.GetCollisionBlockByIndex(areaNoOpIndex).LevelWord,
         "area-dependent shootable no-op leaves terrain unchanged");
-    AssertEqual(2, revealPlms.ActiveCount,
+    AssertEqual(2, revealPlms.SlotTable.ActiveCount,
         "area no-op deletes while both one-frame reveal PLMs remain timed");
     revealPlms.Step(bus, revealLevel, revealStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    AssertEqual(0, revealPlms.ActiveCount,
+    AssertEqual(0, revealPlms.SlotTable.ActiveCount,
         "weapon-required reveal PLMs delete after their one-frame draw");
 
     // `$94:9DA4` chooses a two-by-two crumble reveal for BTS three. The draw record is two
@@ -1520,7 +1520,7 @@ internal static void VerifySamusMorphBallMovement()
         !specialPlms.TrySpawnBombedSpecialBlock(
             specialLevel, crumbleIndex, 3, AreaId.Crateria, 0x0300),
         "Power Bomb visits special block but CFA0 synchronously clears its PLM header");
-    AssertEqual(2, specialPlms.ActiveCount,
+    AssertEqual(2, specialPlms.SlotTable.ActiveCount,
         "rejected Power Bomb special reveal leaves no active PLM slot");
     specialPlms.Step(bus, specialLevel, specialStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
     AssertEqual(0xb0bc,
@@ -1539,7 +1539,7 @@ internal static void VerifySamusMorphBallMovement()
         specialLevel.GetCollisionBlockByIndex(speedIndex).LevelWord,
         "Brinstar area table reveals speed-booster block");
     specialPlms.Step(bus, specialLevel, specialStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-    AssertEqual(0, specialPlms.ActiveCount,
+    AssertEqual(0, specialPlms.SlotTable.ActiveCount,
         "special reveal PLMs delete after their one-frame draw");
 
     // Bank `$A0:97E2-$A0:984E` decides direction from bomb-versus-Samus X. Its bank-$91
@@ -1551,8 +1551,8 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x0004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    bombJump.RefreshCollisionRadii(bus);
-    bombJump.InitializeAnimation(bus);
+    bombJump.PoseMetadata.RefreshCollisionRadii(bus);
+    bombJump.Presentation.InitializeAnimation(bus);
     bombJump.Kinematics.YAcceleration = 0;
     bombJump.Kinematics.YSubacceleration = 0x4000;
     AssertThrows<ArgumentOutOfRangeException>(
@@ -1608,8 +1608,8 @@ internal static void VerifySamusMorphBallMovement()
         EquippedItems = 0x0004,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 56)),
     };
-    straightBombJump.RefreshCollisionRadii(bus);
-    straightBombJump.InitializeAnimation(bus);
+    straightBombJump.PoseMetadata.RefreshCollisionRadii(bus);
+    straightBombJump.Presentation.InitializeAnimation(bus);
     straightBombJump.Kinematics.YAcceleration = 0;
     straightBombJump.Kinematics.YSubacceleration = 0x4000;
     straightBombJump.RequestMorphedBombJump(2);
@@ -1636,7 +1636,7 @@ internal static void VerifySamusMorphBallMovement()
     MorphBallMovementResult bombLanding = SamusMorphBallMovement.StepGrounded(
         bus, floor, straightBombJump, nmiFrameCounter: 0);
     AssertTrue(bombLanding.Landed, "post-bomb-jump grounded art collides with floor");
-    AssertTrue(!straightBombJump.ApplyMorphBallLanding(bus), "post-bomb-jump landing launches bounce");
+    AssertTrue(!straightBombJump.PoseTransitions.ApplyMorphBallLanding(bus), "post-bomb-jump landing launches bounce");
     AssertEqual(SamusBallBounceState.FirstRebound, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
 
     Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
@@ -1657,7 +1657,7 @@ private static void RunPowerBombToInitialBoundary(
         MaxPowerBombs = 5,
         Position = FixedPosition<RoomPixels>.FromWhole(position),
     };
-    samus.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii(bus);
     var bombs = CreateBombFixture();
     bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, (ushort)SnesButton.X, (ushort)SnesButton.X);
 

@@ -28,25 +28,25 @@ internal static class DoorSoundsDuringPowerBombVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        runtime.Samus!.InputLocked = true;
+        runtime.Player.Samus!.InputLocked = true;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
         game.Step(0);
 
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
         for (int x = 0; x < level.Size.X && !selected; x++)
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(bus, block.Behavior, runtime.Samus.Pose, true);
+            level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.Samus.Pose, true);
             selected = true;
         }
         AssertTrue(selected, "Landing Site has an exit");

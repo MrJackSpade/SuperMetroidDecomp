@@ -49,12 +49,6 @@ internal static class BombTorizoAttackDefinitionsVerification
             "Bomb Torizo raw explosion outside table");
 
         var guarded = NewBombTorizoAttackReadGuard(rom);
-        MethodInfo swipeSpawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnBombTorizoExplosiveSwipe",
-            instanceFlags)!;
-        MethodInfo explosionSpawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnBombTorizoLowHealthExplosion",
-            instanceFlags)!;
 
         foreach (bool facingRight in new[] { false, true })
         for (ushort index = 0; index < 11; index++)
@@ -64,8 +58,8 @@ internal static class BombTorizoAttackDefinitionsVerification
                 BombTorizoAttackDefinitions.Swipe(parameter);
             (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                 CreateBombTorizoAttackFixture(guarded, facingRight);
-            swipeSpawn.Invoke(enemies, [torizo, parameter]);
-            RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
+            enemies.BombTorizoBehavior.SpawnBombTorizoExplosiveSwipe(torizo, parameter);
+            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
             AssertTrue(projectile.IsActive,
                 $"Bomb Torizo swipe {index} facing {facingRight} allocation");
@@ -85,8 +79,8 @@ internal static class BombTorizoAttackDefinitionsVerification
                     BombTorizoAttackDefinitions.LowHealthExplosion(parameter, facingRight);
                 (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                     CreateBombTorizoAttackFixture(guarded, facingRight);
-                explosionSpawn.Invoke(enemies, [torizo, parameter]);
-                RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
+                enemies.BombTorizoBehavior.SpawnBombTorizoLowHealthExplosion(torizo, parameter);
+                RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
                 AssertTrue(projectile.IsActive,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} allocation");
@@ -117,8 +111,8 @@ internal static class BombTorizoAttackDefinitionsVerification
     {
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
-        RoomEnemySlot torizo = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
         return (enemies, torizo);

@@ -87,12 +87,12 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guarded);
-        type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        type.GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
-        RoomEnemySlot body = enemies.Slots[0];
-        type.GetMethod("InitializeDraygonBody", flags)!.Invoke(enemies, [body]);
-        DraygonEnemyState state = enemies.Draygon ??
+        enemies.BindFixtureBus(guarded);
+        enemies.Presentation._cgram = cgram;
+        enemies.Presentation._vram = new SnesVram();
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        enemies.DraygonBehavior.InitializeDraygonBody(body);
+        DraygonEnemyState state = enemies.DraygonBehavior.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
             "installed Draygon colors leave intro mechanics unchanged");
@@ -100,8 +100,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorRomData.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
         state.HealthPaletteTableByteIndex = 2;
-        MethodInfo hurt = type.GetMethod("ApplyDraygonHurt", flags)!;
-        hurt.Invoke(enemies, [body, state, null]);
+        enemies.DraygonBehavior.ApplyDraygonHurt(body, state, null);
         for (int color = 0; color < DraygonColorRomData.BackgroundCount; color++)
         {
             Bgr555 expected = color is >= 9 and <= 12
@@ -115,18 +114,17 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorRomData.SpriteCount, colors.ResolveSprite,
             "normal hurt sprite CGRAM");
         body.FlashTimer = 2;
-        hurt.Invoke(enemies, [body, state, null]);
+        enemies.DraygonBehavior.ApplyDraygonHurt(body, state, null);
         AssertBand(DraygonColorRomData.BackgroundDestination,
             DraygonColorRomData.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt background CGRAM");
         AssertBand(DraygonColorRomData.SpriteDestination,
             DraygonColorRomData.WhiteFlashCount, colors.ResolveWhiteFlash,
             "white hurt sprite CGRAM");
-        MethodInfo health = type.GetMethod("CopyDraygonHealthColors", flags)!;
         for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
         {
             state.HealthPaletteTableByteIndex = unchecked((ushort)(band * sizeof(ushort)));
-            health.Invoke(enemies, [state]);
+            enemies.DraygonBehavior.CopyDraygonHealthColors(state);
             for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
                     cgram.Colors[DraygonColorRomData.HealthDestination + color],

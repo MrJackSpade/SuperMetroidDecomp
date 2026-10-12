@@ -25,8 +25,14 @@ internal static class AttractCaptureTestsVerification
         {
             var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
             var captured = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-            legacy.BindMapPresentation(presentation);
-            captured.BindMapPresentation(presentation);
+            legacy.BindArtwork(legacy.Artwork with
+            {
+                MapPresentation = presentation,
+            });
+            captured.BindArtwork(captured.Artwork with
+            {
+                MapPresentation = presentation,
+            });
             var states = new HashSet<SuperMetroidGameState>();
             bool sawHold = false, returned = false, bounded = false;
             Rgba32[]? held = null;

@@ -75,33 +75,33 @@ internal static class BeamPaletteArtworkVerification
     {
         var artwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), palettes);
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        runtime.RunNmi(0, true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.NmiHandler.RunNmi(0, true);
         var expected = new SnesCgram();
         palettes.LoadTo(expected, 0);
         runtime.Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex, new Bgr555(27, 3, 0));
-        runtime.BeamArtwork = artwork;
-        runtime.RunNmi(0, false);
+        runtime.Artwork.BeamArtwork = artwork;
+        runtime.NmiHandler.RunNmi(0, false);
         AssertEqual(123, runtime.Cgram.Colors[SamusProjectileRomData.Palettes.BeamDestinationIndex], "Lag NMI retains palette before rebind publication");
-        runtime.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0, true);
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
-        var flash = runtime.Samus!.CrystalFlash;
+        var flash = runtime.Player.Samus!.CrystalFlash;
         typeof(SamusCrystalFlashState).GetProperty(nameof(SamusCrystalFlashState.SpecialPaletteType))!.SetValue(flash, (ushort)SamusSpecialPaletteType.CrystalFlash);
         runtime.Cgram.SetColor(224, new Bgr555(27, 3, 0));
-        runtime.BeamArtwork = artwork;
-        runtime.RunNmi(0, true);
+        runtime.Artwork.BeamArtwork = artwork;
+        runtime.NmiHandler.RunNmi(0, true);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
         typeof(SamusCrystalFlashState).GetProperty(nameof(SamusCrystalFlashState.SpecialPaletteTimer))!.SetValue(flash, ushort.MaxValue);
-        AssertTrue(flash.UpdatePalette(NewProjectileCompositionForbiddenBus(), runtime.Cgram, runtime.Samus, palettes), "Crystal Flash restores catalog without ROM reads");
+        AssertTrue(flash.UpdatePalette(NewProjectileCompositionForbiddenBus(), runtime.Cgram, runtime.Player.Samus, palettes), "Crystal Flash restores catalog without ROM reads");
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");
-        runtime.Samus.Drained.HyperBeamPaletteFx.Spawn();
+        runtime.Player.Samus.Drained.HyperBeamPaletteFx.Spawn();
         runtime.Cgram.SetColor(224, new Bgr555(8, 14, 0));
-        runtime.BeamArtwork = artwork;
-        runtime.RunNmi(0, true);
+        runtime.Artwork.BeamArtwork = artwork;
+        runtime.NmiHandler.RunNmi(0, true);
         AssertEqual(456, runtime.Cgram.Colors[224], "Rebind cannot erase active Hyper palette");
 
         // Debug grapple selection uses the same palette index as native firing, but
@@ -119,7 +119,7 @@ internal static class BeamPaletteArtworkVerification
         var editedPalettes = BeamPaletteCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(editedDocument.ToJsonString())));
         var editedArtwork = BeamTileCatalog.Load(BeamTileExtractor.Extract(bus), editedPalettes);
-        nativeRuntime.BeamArtwork = editedArtwork;
+        nativeRuntime.Artwork.BeamArtwork = editedArtwork;
         nativeRuntime.LoadDebugGrapplePalette();
         editedPalettes.LoadTo(grappleExpected, SamusBeamCombination.Ice);
         AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),

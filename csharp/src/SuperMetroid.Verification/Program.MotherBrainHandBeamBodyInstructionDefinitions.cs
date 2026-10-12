@@ -29,13 +29,8 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsVerification
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
-        MethodInfo readVisual = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyVisualSelector", BindingFlags.NonPublic | BindingFlags.Static)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
         var enemies = new RoomEnemySystem();
-        busField.SetValue(enemies, NewMotherBrainHandBeamListReadGuard(rom));
+        enemies.BindFixtureBus(NewMotherBrainHandBeamListReadGuard(rom));
         var body = new RoomEnemySlot(0)
         {
             EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody,
@@ -53,8 +48,7 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsVerification
             {
                 compiled = MotherBrainHandBeamBodyInstructionDefinitions.ReadMechanicsWord(
                     address);
-                AssertEqual(compiled, (ushort)readMechanics.Invoke(enemies,
-                        [body, address])!,
+                AssertEqual(compiled, (ushort)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(body, address),
                     $"production Mother Brain hand-beam mechanics $A9:{pointer:X4}");
                 mechanicsWords++;
             }
@@ -62,8 +56,7 @@ internal static class MotherBrainHandBeamBodyInstructionDefinitionsVerification
             {
                 compiled = MotherBrainHandBeamBodyInstructionDefinitions.ReadVisualSelector(
                     address);
-                AssertEqual(compiled, (ushort)readVisual.Invoke(enemies,
-                        [body, address])!,
+                AssertEqual(compiled, (ushort)EnemyInstructionInterpreter.ReadEnemyVisualSelector(body, address),
                     $"production Mother Brain hand-beam visual selector $A9:{pointer:X4}");
                 visualWords++;
             }

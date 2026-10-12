@@ -21,22 +21,18 @@ internal static class FrozenMetroidShellVerification
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-        var slot = enemies.Slots[0];
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));
-        typeof(RoomEnemySystem).GetMethod("InitializeMetroid", instance)!.Invoke(enemies, [slot]);
+        enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0]!;
         state.OuterBodyA.Position = state.OuterBodyA.Position.WithWholeX(500); // Isolate the shell from the electrical overlay.
         var shell = state.OuterBodyB;
         shell.InstructionPointer = 0xc4ba; // Native alternating empty shell record.
-        typeof(RoomEnemySystem).GetMethod("LoadRoomSpriteObjectFrame",
-            BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [shell]);
-        var draw = typeof(RoomEnemySystem).GetMethod("DrawRoomSpriteObjects", instance)!;
-        var freeze = typeof(RoomEnemySystem).GetMethod("RunMetroidFrozen", instance)!;
-        var step = typeof(RoomEnemySystem).GetMethod("StepRoomSpriteObjects", instance)!;
+        RoomSpriteObjectPool.LoadRoomSpriteObjectFrame(shell);
         var actual = new OamBuffer();
         actual.BeginFrame();
-        draw.Invoke(enemies, [actual, Position16<RoomPixels>.Zero]);
+        enemies.SpriteObjects.DrawRoomSpriteObjects(actual, Position16<RoomPixels>.Zero);
         Require(shell.SpritemapPointer == 0xbda6 && actual.NextByteOffset == 0,
             "The reproduction must begin on the native empty shell frame.");
         ushort retainedTimer = shell.InstructionTimer;
@@ -49,14 +45,14 @@ internal static class FrozenMetroidShellVerification
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {
-            freeze.Invoke(enemies, [slot]);
-            step.Invoke(enemies, null);
+            enemies.MetroidBehavior.RunMetroidFrozen(slot);
+            enemies.SpriteObjects.StepRoomSpriteObjects();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");
             Require(shell.InstructionTimer == retainedTimer && shell.DisableFlags == 1,
                 "Freezing must preserve the native animation timer while disabling advancement.");
             actual.BeginFrame();
-            draw.Invoke(enemies, [actual, Position16<RoomPixels>.Zero]);
+            enemies.SpriteObjects.DrawRoomSpriteObjects(actual, Position16<RoomPixels>.Zero);
             Require(actual.NextByteOffset == expected.NextByteOffset &&
                 actual.ImageEquals(expected),
                 "Frozen shell OAM must match every authored part and frozen palette attribute.");

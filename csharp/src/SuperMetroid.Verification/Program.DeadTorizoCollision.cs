@@ -20,14 +20,14 @@ internal static class DeadTorizoCollisionVerification
         var installation = RepositoryInstallation.Installation;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
-            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, installation.OpenRuntimeAddressSpace());
+            var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            enemies.BindFixtureBus(installation.OpenRuntimeAddressSpace());
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
-            var slot = enemies.Slots[0];
+            var slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
             slot.Position = slot.Position.WithWhole(new(120, 100));
             slot.Radius = new(16, 32);
-            Call("InitializeDeadTorizo", slot);
+            enemies.DeadTorizoBehavior.InitializeDeadTorizo(slot);
             Require(IsInteractive(), "The intact corpse must initially be interactive.");
             Require(slot.Properties.HasAny(EnemyProperties.SolidToSamus),
                 "Native initial solidity must be retained.");
@@ -39,21 +39,21 @@ internal static class DeadTorizoCollisionVerification
             {
                 case "contact":
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(120);
-                    Call("RunDeadTorizoMain", slot, samus);
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, samus);
                     Require(samus.Kinematics.ExtraDisplacement.X.WholePixels >= 4 &&
                         samus.Kinematics.ExtraDisplacement.Y.WholePixels == 4,
                         "The custom touch rectangles must publish native displacement.");
                     break;
-                case "shot": Call("TriggerDeadTorizoRotting", slot); break;
-                case "power bomb": Call("TriggerDeadTorizoPowerBomb", slot); break;
+                case "shot": enemies.DeadTorizoBehavior.TriggerDeadTorizoRotting(slot); break;
+                case "power bomb": enemies.DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot); break;
                 default:
                     samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(500); // Exercise solid-contact delay independently of custom overlap.
                     samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, slot.NativeIndex);
                     // The wait handler reads Samus's collision indexes.
-                    Call("RunDeadTorizoMain", slot, samus);
-                    for (int frame = 0; frame < 15; frame++) Call("RunDeadTorizoMain", slot, null);
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, samus);
+                    for (int frame = 0; frame < 15; frame++) enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, null);
                     Require(IsInteractive(), "The native 16-frame pre-rot delay must retain collision.");
-                    Call("RunDeadTorizoMain", slot, null);
+                    enemies.DeadTorizoBehavior.RunDeadTorizoMain(slot, null);
                     break;
             }
             Require(slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
@@ -63,7 +63,7 @@ internal static class DeadTorizoCollisionVerification
             Require(!Probe().Collided, $"{trigger}: the same movement must pass the rotting corpse.");
             ushort phase = slot.VariableA;
             slot.VariableA = 0xd3c7; // Native completed/no-operation phase.
-            Call("TriggerDeadTorizoPowerBomb", slot);
+            enemies.DeadTorizoBehavior.TriggerDeadTorizoPowerBomb(slot);
             Require(slot.VariableA == 0xd3c7, "An ignored corpse must not restart from another power bomb.");
             Require(phase == 0xd3e6, "Each trigger must enter the native rotting phase.");
 
@@ -71,9 +71,8 @@ internal static class DeadTorizoCollisionVerification
                 typeof(RoomEnemySystem).GetMethod(name, flags)!.Invoke(enemies, arguments);
             bool IsInteractive()
             {
-                Call("DetermineWhichEnemiesToProcess", (ushort)0, (ushort)0);
-                return ((IReadOnlyList<ushort>)typeof(RoomEnemySystem)
-                    .GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!).Contains(slot.NativeIndex);
+                enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
+                return ((IReadOnlyList<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes).Contains(slot.NativeIndex);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
                 IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), slot.FrozenTimer, slot.Properties)] : [],

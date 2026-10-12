@@ -8,11 +8,9 @@ internal static class CrawlerSpeedsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled crawler speeds")]
     internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
-        T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
-            .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<T>();
-        var reset = Method<Action<RoomEnemySlot>>("ResetCrawlerVelocitiesFromProperties");
-        var setYard = Method<Action<RoomEnemySlot, YardEnemyState, ushort>>("SetYardCrawlingVelocities");
-        var slot = new RoomEnemySystem().Slots[0];
+        var reset = new Action<RoomEnemySlot>(CrawlersBehavior.ResetCrawlerVelocitiesFromProperties);
+        var setYard = new Action<RoomEnemySlot, YardEnemyState, ushort>(YardEnemyBehavior.SetYardCrawlingVelocities);
+        var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var yard = new YardEnemyState(slot);
         for (ushort parameter = 0; parameter < 32; parameter++)
         {

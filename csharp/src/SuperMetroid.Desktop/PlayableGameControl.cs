@@ -11,15 +11,20 @@ using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 using Microsoft.Win32;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Spatial;
+using SuperMetroid.Rendering.Direct3D11;
 
 namespace SuperMetroid.Desktop;
 
 /// <summary>
 /// Thin keyboard/gamepad/debugger host for the installed-content game dispatcher.
 /// </summary>
-public sealed partial class PlayableGameControl : UserControl
+public sealed class PlayableGameControl : UserControl
 {
-    private SuperMetroid.Core.Assets.EnemyTileArtworkCatalog? enemyTileArtwork;
+    private SuperMetroid.Core.Assets.AreaMapPresentationCatalog? mapPresentation;
+    private SuperMetroid.AssetExtraction.InstalledProjectilePresentation? projectilePresentation;
+    private GameArtwork? artwork;
     private readonly string saveFilePath;
     private readonly string legacySaveRamPath;
     private readonly SuperMetroidGameOptions gameOptions;
@@ -230,113 +235,17 @@ public sealed partial class PlayableGameControl : UserControl
         else
             LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
-        game.BindMapPresentation(mapPresentation);
-        gameplayBasePalettes = installation.LoadGameplayBasePalettes();
-        game.BindGameplayBasePalettes(gameplayBasePalettes);
-        standardObjectArt = installation.LoadStandardObjects();
-        game.BindStandardObjectArt(standardObjectArt);
-        introCinematicArt = installation.LoadIntroCinematicArt();
-        game.BindIntroCinematicArt(introCinematicArt);
-        samusBodyArt = installation.LoadSamusBodyArt();
-        game.BindSamusBodyArt(samusBodyArt);
-        endingMode7Art = installation.LoadEndingMode7Art();
-        game.BindEndingMode7Art(endingMode7Art);
-        endingObjectArt = installation.LoadEndingObjectArt();
-        game.BindEndingObjectArt(endingObjectArt);
-        endingPaletteArt = installation.LoadEndingPalettes();
-        game.BindEndingPaletteArt(endingPaletteArt);
-        roomCharacterArt = installation.LoadRoomCharacters();
-        game.BindRoomCharacterArt(roomCharacterArt);
-        roomPaletteArt = installation.LoadRoomPalettes();
-        game.BindRoomPaletteArt(roomPaletteArt);
-        roomMetatileArt = installation.LoadRoomMetatiles();
-        game.BindRoomMetatileArt(roomMetatileArt);
-        roomVisualLayouts = installation.LoadRoomVisualLayouts();
-        game.BindRoomVisualLayouts(roomVisualLayouts);
-        roomPlmShotBlockVisuals = installation.LoadRoomPlmShotBlockVisuals();
-        game.BindRoomPlmShotBlockVisuals(roomPlmShotBlockVisuals);
-        roomPlmGrappleBlockVisuals = installation.LoadRoomPlmGrappleBlockVisuals();
-        game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
-        roomPlmStationVisuals = installation.LoadRoomPlmStationVisuals();
-        game.BindRoomPlmStationVisuals(roomPlmStationVisuals);
-        roomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals();
-        game.BindRoomPlmBlueDoorVisuals(roomPlmBlueDoorVisuals);
-        roomPlmColoredDoorVisuals = installation.LoadRoomPlmColoredDoorVisuals();
-        game.BindRoomPlmColoredDoorVisuals(roomPlmColoredDoorVisuals);
-        roomPlmGreyDoorVisuals = installation.LoadRoomPlmGreyDoorVisuals();
-        game.BindRoomPlmGreyDoorVisuals(roomPlmGreyDoorVisuals);
-        roomPlmEyeDoorVisuals = installation.LoadRoomPlmEyeDoorVisuals();
-        game.BindRoomPlmEyeDoorVisuals(roomPlmEyeDoorVisuals);
-        roomPlmMotherBrainGlassVisuals = installation.LoadRoomPlmMotherBrainGlassVisuals();
-        game.BindRoomPlmMotherBrainGlassVisuals(roomPlmMotherBrainGlassVisuals);
-        roomPlmNoobTubeVisuals = installation.LoadRoomPlmNoobTubeVisuals();
-        game.BindRoomPlmNoobTubeVisuals(roomPlmNoobTubeVisuals);
-        roomPlmDownwardGateVisuals = installation.LoadRoomPlmDownwardGateVisuals();
-        game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
-        roomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals();
-        game.BindRoomPlmElevatorPlatformVisuals(roomPlmElevatorPlatformVisuals);
-        roomPlmEscapeGateVisuals = installation.LoadRoomPlmEscapeGateVisuals();
-        game.BindRoomPlmEscapeGateVisuals(roomPlmEscapeGateVisuals);
-        roomPlmBombTorizoHandVisuals = installation.LoadRoomPlmBombTorizoHandVisuals();
-        game.BindRoomPlmBombTorizoHandVisuals(roomPlmBombTorizoHandVisuals);
-        roomPlmDraygonCannonVisuals = installation.LoadRoomPlmDraygonCannonVisuals();
-        game.BindRoomPlmDraygonCannonVisuals(roomPlmDraygonCannonVisuals);
-        roomPlmChozoStatueVisuals = installation.LoadRoomPlmChozoStatueVisuals();
-        game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
-        roomPlmLinkedRestoreVisuals = installation.LoadRoomPlmLinkedRestoreVisuals();
-        game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
-        roomPlmTourianAccessVisuals = installation.LoadRoomPlmTourianAccessVisuals();
-        game.BindRoomPlmTourianAccessVisuals(roomPlmTourianAccessVisuals);
-        roomPlmSpeedBoosterVisuals = installation.LoadRoomPlmSpeedBoosterVisuals();
-        game.BindRoomPlmSpeedBoosterVisuals(roomPlmSpeedBoosterVisuals);
-        roomPlmMaridiaElevatubeVisuals = installation.LoadRoomPlmMaridiaElevatubeVisuals();
-        game.BindRoomPlmMaridiaElevatubeVisuals(roomPlmMaridiaElevatubeVisuals);
-        roomPlmSporeSpawnCeilingVisuals = installation.LoadRoomPlmSporeSpawnCeilingVisuals();
-        game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
-        roomPlmSamusEaterVisuals = installation.LoadRoomPlmSamusEaterVisuals();
-        game.BindRoomPlmSamusEaterVisuals(roomPlmSamusEaterVisuals);
-        roomPlmBotwoonWallVisuals = installation.LoadRoomPlmBotwoonWallVisuals();
-        game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
-        roomPlmKraidVisuals = installation.LoadRoomPlmKraidVisuals();
-        game.BindRoomPlmKraidVisuals(roomPlmKraidVisuals);
-        roomPlmCrocomireVisuals = installation.LoadRoomPlmCrocomireVisuals();
-        game.BindRoomPlmCrocomireVisuals(roomPlmCrocomireVisuals);
-        roomPlmMotherBrainFakeDeathVisuals =
-            installation.LoadRoomPlmMotherBrainFakeDeathVisuals();
-        game.BindRoomPlmMotherBrainFakeDeathVisuals(roomPlmMotherBrainFakeDeathVisuals);
-        roomPlmCollectibleVisuals = installation.LoadRoomPlmCollectibleVisuals();
-        game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
-        roomPlmDynamicCollectibleArt = installation.LoadRoomPlmDynamicCollectibleArt();
-        game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
-        xrayRevealVisuals = installation.LoadXrayRevealVisuals();
-        game.BindXrayRevealVisuals(xrayRevealVisuals);
-        roomBackgroundTilemapArt = installation.LoadRoomBackgroundTilemaps();
-        game.BindRoomBackgroundTilemapArt(roomBackgroundTilemapArt);
-        roomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
-        game.BindRoomSkyTilemapArt(roomSkyTilemapArt);
         projectilePresentation = installation.LoadProjectiles();
-        enemyTileArtwork = installation.LoadEnemyTiles();
-        game.BindProjectileCompositions(projectilePresentation.Catalog);
-        game.BindProjectileFrameBindings(projectilePresentation.FrameBindings);
-        game.BindBeamArtwork(projectilePresentation.BeamTiles);
-        game.BindEnemyTileArtwork(enemyTileArtwork);
-        game.BindTrailArtwork(projectilePresentation.Trails);
-        game.BindChargeFlarePlacement(projectilePresentation.FlarePlacement);
-        game.BindChargeFlareCompositions(projectilePresentation.FlareCompositions);
-        game.BindGrappleArtwork(projectilePresentation.GrappleTiles);
+        artwork = installation.LoadGameArtwork(
+            mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
+            projectilePresentation);
+        game.BindArtwork(artwork);
         Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
         installedContentIdentity = GameContentIdentity.Create(
             selectedAudioAssets,
-            mapPresentation ?? throw new InvalidOperationException("Installed map identity is unavailable."),
-            projectilePresentation ?? throw new InvalidOperationException("Installed projectile identity is unavailable."),
-            RoomPresentationIdentity.Create(roomCharacterArt, roomPaletteArt, roomMetatileArt,
-                roomBackgroundTilemapArt, roomSkyTilemapArt, roomVisualLayouts)
-                .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, samusBodyArt.ContentIdentity))
-                .Concat(RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = roomPlmShotBlockVisuals, GrappleBlock = roomPlmGrappleBlockVisuals, Station = roomPlmStationVisuals, BlueDoor = roomPlmBlueDoorVisuals, ColoredDoor = roomPlmColoredDoorVisuals, GreyDoor = roomPlmGreyDoorVisuals, EyeDoor = roomPlmEyeDoorVisuals, MotherBrainGlass = roomPlmMotherBrainGlassVisuals, NoobTube = roomPlmNoobTubeVisuals, DownwardGate = roomPlmDownwardGateVisuals, ElevatorPlatform = roomPlmElevatorPlatformVisuals, EscapeGate = roomPlmEscapeGateVisuals, BombTorizoHand = roomPlmBombTorizoHandVisuals, DraygonCannon = roomPlmDraygonCannonVisuals, ChozoStatue = roomPlmChozoStatueVisuals, LinkedRestore = roomPlmLinkedRestoreVisuals, TourianAccess = roomPlmTourianAccessVisuals, SpeedBooster = roomPlmSpeedBoosterVisuals, MaridiaElevatube = roomPlmMaridiaElevatubeVisuals, SporeSpawnCeiling = roomPlmSporeSpawnCeilingVisuals, SamusEater = roomPlmSamusEaterVisuals, BotwoonWall = roomPlmBotwoonWallVisuals, Kraid = roomPlmKraidVisuals, Crocomire = roomPlmCrocomireVisuals, MotherBrainFakeDeath = roomPlmMotherBrainFakeDeathVisuals, Collectible = roomPlmCollectibleVisuals, DynamicCollectibleArt = roomPlmDynamicCollectibleArt }))
-                .Concat(GameplayPresentationIdentity.Create(gameplayBasePalettes, standardObjectArt, xrayRevealVisuals))
-                .Concat(EndingPresentationIdentity.Create(endingMode7Art, endingObjectArt, endingPaletteArt))
-                .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, introCinematicArt.ContentIdentity))
-                .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, enemyTileArtwork.ContentIdentity)));
+            mapPresentation,
+            projectilePresentation,
+            InstalledArtworkIdentity.Create(artwork));
         Console.WriteLine(
             $"Installed content: {installedContentIdentity.CompositeSha256}; " +
             $"definitions={installedContentIdentity.CompiledDefinitionsBuildId:D}, " +
@@ -423,58 +332,8 @@ public sealed partial class PlayableGameControl : UserControl
         if (rendererStopping || IsDisposed) return;
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
-        game.BindMapPresentation(mapPresentation);
-        game.BindGameplayBasePalettes(gameplayBasePalettes);
-        game.BindStandardObjectArt(standardObjectArt);
-        game.BindIntroCinematicArt(introCinematicArt);
-        game.BindSamusBodyArt(samusBodyArt);
-        game.BindEndingMode7Art(endingMode7Art);
-        game.BindEndingObjectArt(endingObjectArt);
-        game.BindEndingPaletteArt(endingPaletteArt);
-        game.BindRoomCharacterArt(roomCharacterArt);
-        game.BindRoomPaletteArt(roomPaletteArt);
-        game.BindRoomMetatileArt(roomMetatileArt);
-        game.BindRoomVisualLayouts(roomVisualLayouts);
-        game.BindRoomPlmShotBlockVisuals(roomPlmShotBlockVisuals);
-        game.BindRoomPlmGrappleBlockVisuals(roomPlmGrappleBlockVisuals);
-        game.BindRoomPlmStationVisuals(roomPlmStationVisuals);
-        game.BindRoomPlmBlueDoorVisuals(roomPlmBlueDoorVisuals);
-        game.BindRoomPlmColoredDoorVisuals(roomPlmColoredDoorVisuals);
-        game.BindRoomPlmGreyDoorVisuals(roomPlmGreyDoorVisuals);
-        game.BindRoomPlmEyeDoorVisuals(roomPlmEyeDoorVisuals);
-        game.BindRoomPlmMotherBrainGlassVisuals(roomPlmMotherBrainGlassVisuals);
-        game.BindRoomPlmNoobTubeVisuals(roomPlmNoobTubeVisuals);
-        game.BindRoomPlmDownwardGateVisuals(roomPlmDownwardGateVisuals);
-        game.BindRoomPlmElevatorPlatformVisuals(roomPlmElevatorPlatformVisuals);
-        game.BindRoomPlmEscapeGateVisuals(roomPlmEscapeGateVisuals);
-        game.BindRoomPlmBombTorizoHandVisuals(roomPlmBombTorizoHandVisuals);
-        game.BindRoomPlmDraygonCannonVisuals(roomPlmDraygonCannonVisuals);
-        game.BindRoomPlmChozoStatueVisuals(roomPlmChozoStatueVisuals);
-        game.BindRoomPlmLinkedRestoreVisuals(roomPlmLinkedRestoreVisuals);
-        game.BindRoomPlmTourianAccessVisuals(roomPlmTourianAccessVisuals);
-        game.BindRoomPlmSpeedBoosterVisuals(roomPlmSpeedBoosterVisuals);
-        game.BindRoomPlmMaridiaElevatubeVisuals(roomPlmMaridiaElevatubeVisuals);
-        game.BindRoomPlmSporeSpawnCeilingVisuals(roomPlmSporeSpawnCeilingVisuals);
-        game.BindRoomPlmSamusEaterVisuals(roomPlmSamusEaterVisuals);
-        game.BindRoomPlmBotwoonWallVisuals(roomPlmBotwoonWallVisuals);
-        game.BindRoomPlmKraidVisuals(roomPlmKraidVisuals);
-        game.BindRoomPlmCrocomireVisuals(roomPlmCrocomireVisuals);
-        game.BindRoomPlmMotherBrainFakeDeathVisuals(roomPlmMotherBrainFakeDeathVisuals);
-        game.BindRoomPlmCollectibleVisuals(roomPlmCollectibleVisuals);
-        game.BindRoomPlmDynamicCollectibleArt(roomPlmDynamicCollectibleArt);
-        game.BindXrayRevealVisuals(xrayRevealVisuals);
-        game.BindRoomBackgroundTilemapArt(roomBackgroundTilemapArt);
-        game.BindRoomSkyTilemapArt(roomSkyTilemapArt);
-        var installedProjectiles = projectilePresentation ?? throw new InvalidOperationException(
-            "Restored desktop session has no installed projectile presentation.");
-        game.BindProjectileCompositions(installedProjectiles.Catalog);
-        game.BindProjectileFrameBindings(installedProjectiles.FrameBindings);
-        game.BindBeamArtwork(installedProjectiles.BeamTiles);
-        game.BindEnemyTileArtwork(enemyTileArtwork);
-        game.BindTrailArtwork(installedProjectiles.Trails);
-        game.BindChargeFlarePlacement(installedProjectiles.FlarePlacement);
-        game.BindChargeFlareCompositions(installedProjectiles.FlareCompositions);
-        game.BindGrappleArtwork(installedProjectiles.GrappleTiles);
+        game.BindArtwork(artwork ?? throw new InvalidOperationException(
+            "Restored desktop session has no installed artwork."));
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;
@@ -988,5 +847,191 @@ public sealed partial class PlayableGameControl : UserControl
             inputRecorder = null;
         }
         base.Dispose(disposing);
+    }
+
+    // Host identities deliberately live outside the debugger-state graph.
+    private long displaySequence;
+    private long displayGeneration;
+    private RenderFrameSnapshot? pendingDisplay;
+    private D3D11RenderWorker? gpuWorker;
+    private bool rendererStarted;
+    private bool rendererStopping;
+    private Form? rendererHost;
+    private long previousPresentCount;
+    private long previousPresentTimestamp;
+    private double gpuFramesPerSecond;
+    private string rendererTimingDetail = string.Empty;
+
+    private void RefreshRendererTimingDetail()
+    {
+        if (gpuWorker is not { } worker) { rendererTimingDetail = string.Empty; return; }
+        var timings = worker.CaptureTimings();
+        static string Format(string name, RenderTimingDistribution value) =>
+            $"{name}: p50/p95/p99 {value.P50Milliseconds:F3}/{value.P95Milliseconds:F3}/{value.P99Milliseconds:F3} ms; " +
+            $"window {value.Retained}, warmup excluded {value.WarmupExcluded}, observed {value.Observed}";
+        rendererTimingDetail = Environment.NewLine + string.Join(Environment.NewLine,
+            Format("CPU composition submission", timings.CpuComposition),
+            Format("CPU upload submission (within composition/display)", worker.CaptureUploadTimings()),
+            $"Upload bytes {worker.SubmittedUploadBytes}, calls {worker.SubmittedUploadCalls}",
+            Format("CPU display + Present (includes wait)", timings.CpuDisplayAndPresent),
+            Format("GPU composition (excludes display/Present)", timings.GpuComposition),
+            Format("GPU composition + display (excludes CPU Present wait)", timings.GpuCompositionAndDisplay),
+            $"GPU samples skipped {worker.SkippedGpuTimingSamples}, invalid {worker.InvalidGpuTimingSamples}; recoveries {worker.DeviceRecoveries}");
+    }
+    private readonly System.Windows.Forms.Timer rendererHealthTimer = new() { Interval = 250 };
+
+    private string GpuTimingText => gpuWorker is { } worker
+        ? $" | GPU {gpuFramesPerSecond:F1} fps / replaced {worker.MailboxMetrics.Replaced}"
+        : string.Empty;
+
+    private void BeginDisplayGeneration()
+    {
+        displayGeneration = checked(displayGeneration + 1);
+        gpuWorker?.AdvanceGeneration(displayGeneration);
+        pendingDisplay = null;
+    }
+
+    private async Task<bool> BeginDisplayGenerationAsync()
+    {
+        long next = checked(displayGeneration + 1);
+        if (gpuWorker is { } worker && !await worker.AdvanceGenerationAsync(next)) return false;
+        if (rendererStopping || IsDisposed) return false;
+        displayGeneration = next;
+        pendingDisplay = null;
+        return true;
+    }
+
+    private async Task RestartAsync()
+    {
+        bool resume = playbackTimer.Enabled;
+        SetPlaying(false);
+        Enabled = false;
+        try
+        {
+            if (!await BeginDisplayGenerationAsync()) return;
+            if (rendererStopping || IsDisposed) return;
+            RestartCore();
+            SetPlaying(resume);
+        }
+        finally { if (!IsDisposed) Enabled = true; }
+    }
+
+    /// <summary>
+    /// Starts the window-owned renderer with the UI message pump free to service DXGI.
+    /// Call once after showing the form. Auto prefers hardware with logged startup fallback.
+    /// </summary>
+    public Task InitializeRendererAsync() => InitializeRendererAsync(static (window, clientSize, generation) =>
+        new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware));
+
+    /// <summary>Verification seam for a worker that genuinely fails asynchronous device/window startup.</summary>
+    internal async Task InitializeRendererAsync(Func<nint, Extent16<DisplayPixels>, long, D3D11RenderWorker> createWorker)
+    {
+        Ensure.NotNull(createWorker);
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (rendererStopping) throw new InvalidOperationException("Renderer has already been stopped.");
+        if (rendererStarted) throw new InvalidOperationException("Renderer already initialized.");
+        rendererStarted = true;
+        if (gameOptions.Renderer == RendererSelection.Software) return;
+        var worker = createWorker(canvas.Handle,
+            DisplayViewport.ClientSize(Math.Max(1, canvas.ClientSize.Width), Math.Max(1, canvas.ClientSize.Height)),
+            displayGeneration);
+        gpuWorker = worker;
+        string adapter;
+        try
+        {
+            adapter = await worker.Ready;
+        }
+        catch (Exception error)
+        {
+            // Drain failed creation before letting GDI reclaim this same window.
+            try { await worker.StopAsync(); }
+            catch (Exception stopError) { Console.Error.WriteLine(stopError); }
+            gpuWorker = null;
+            canvas.SetGpuOwned(false);
+            if (gameOptions.Renderer != RendererSelection.Auto || rendererStopping) throw;
+            Console.Error.WriteLine($"Direct3D11 startup failed; Auto selected software rendering.\n{error}");
+            RefreshFrame(game.CurrentFrame);
+            return;
+        }
+        if (rendererStopping) return;
+        canvas.SetGpuOwned(true);
+        canvas.SizeChanged += ResizeGpu;
+        rendererHost = FindForm();
+        if (rendererHost is not null) rendererHost.Resize += ResizeGpu;
+        ResizeGpu(this, EventArgs.Empty);
+        // A publication may already have occurred during asynchronous startup.
+        // Fresh identity makes this safe without advancing a paused game. Coverage or
+        // runtime failures are outside the Auto startup fallback boundary intentionally.
+        pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
+        PublishGpuDisplay();
+        rendererHealthTimer.Tick += CheckRendererHealth;
+        previousPresentTimestamp = System.Diagnostics.Stopwatch.GetTimestamp();
+        rendererHealthTimer.Start();
+        Console.WriteLine($"Renderer: Direct3D11 on {adapter}");
+    }
+
+    private void ResizeGpu(object? sender, EventArgs e)
+    {
+        if (rendererStopping) return;
+        // Minimization may retain the child canvas dimensions. The form's state,
+        // not just its child SizeChanged event, owns presentation suspension.
+        bool minimized = rendererHost?.WindowState == FormWindowState.Minimized;
+        gpuWorker?.Resize(minimized ? Extent16<DisplayPixels>.Zero
+            : DisplayViewport.ClientSize(canvas.ClientSize.Width, canvas.ClientSize.Height));
+    }
+
+    private void CheckRendererHealth(object? sender, EventArgs e)
+    {
+        if (gpuWorker?.Completion.IsFaulted == true)
+        {
+            rendererHealthTimer.Stop();
+            SetPlaying(false);
+            gpuWorker.ThrowIfFaulted();
+        }
+        if (gpuWorker is { } worker)
+        {
+            long now = System.Diagnostics.Stopwatch.GetTimestamp();
+            long count = worker.PresentedFrames;
+            gpuFramesPerSecond = (count - previousPresentCount) * (double)System.Diagnostics.Stopwatch.Frequency
+                / Math.Max(1, now - previousPresentTimestamp);
+            previousPresentCount = count;
+            previousPresentTimestamp = now;
+        }
+    }
+
+    private void PublishGpuDisplay()
+    {
+        if (gpuWorker is not { } worker || rendererStopping) return;
+        if (pendingDisplay is not { } packet)
+            throw new NotSupportedException("Direct3D11 requires a captured scene; legacy raster fallback is not permitted.");
+        worker.Publish(packet);
+    }
+
+    private void RefreshDisplay(FrontendFrame frame)
+    {
+        if (gpuWorker is not null) return;
+        var pixels = pendingDisplay is { } packet
+            ? SoftwareFrameSnapshotRenderer.Render(packet)
+            : frame.Pixels;
+        canvas.ReplaceFrame(new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels);
+    }
+
+    /// <summary>Await before destroying the form/child HWND; never synchronously wait on the UI thread.</summary>
+    public async Task StopRendererAsync()
+    {
+        rendererStopping = true;
+        SetPlaying(false);
+        rendererHealthTimer.Stop();
+        canvas.SizeChanged -= ResizeGpu;
+        if (rendererHost is not null) rendererHost.Resize -= ResizeGpu;
+        rendererHost = null;
+        if (gpuWorker is { } worker) await worker.StopAsync();
+    }
+
+    private void DisposeRendererHost()
+    {
+        if (gpuWorker is { Completion.IsCompleted: false })
+            throw new InvalidOperationException("Await StopRendererAsync before destroying the GPU window.");
+        rendererHealthTimer.Dispose();
     }
 }

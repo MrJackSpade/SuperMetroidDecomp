@@ -30,19 +30,17 @@ internal static class EnemyProjectileDefinitionsVerification
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
 
-        var initialize = typeof(RoomEnemySystem)
-            .GetMethod("InitializeEnemyProjectileFromDefinition", flags)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, ushort>>();
-        var collideWithSamus = typeof(RoomEnemySystem)
-            .GetMethod("ResolveEnemyProjectileSamusCollision", flags)!
-            .CreateDelegate<Func<RoomEnemyProjectileSlot, SamusState, ushort?>>();
+        Action<RoomEnemyProjectileSlot, RoomEnemyProjectileKind, ushort> initialize =
+            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition;
+        Func<RoomEnemyProjectileSlot, SamusState, ushort?> collideWithSamus =
+            EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
         var enemies = new RoomEnemySystem();
         enemies.Load(new RoomEnemyLoadRequest(setupBus, populationPointer, 0xffff, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
-        RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
+        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
 
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
@@ -102,7 +100,7 @@ internal static class EnemyProjectileDefinitionsVerification
             shot.Damage = 1;
             shot.Direction = (ushort)SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
-            int hits = enemies.ResolveEnemyProjectileSamusProjectileHits(
+            int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 guard,
                 shots,
                 new SamusBombProjectileSystem());

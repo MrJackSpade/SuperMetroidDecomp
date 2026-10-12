@@ -26,13 +26,13 @@ internal static class WrapShotRoomsVerification
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(setup.Room);
-            var level = runtime.LevelData!;
+            var level = runtime.Room.LevelData!;
             bool left = setup.Room == RoomHeaderPointers.GreenBrinstarMainShaft;
-            var samus = runtime.Samus!;
+            var samus = runtime.Player.Samus!;
             samus.Position = samus.Position.WithWhole(new((ushort)setup.X, (ushort)setup.Y));
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
             samus.PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose;
@@ -49,8 +49,8 @@ internal static class WrapShotRoomsVerification
                 runtime.Projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
-                runtime.Plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(cameraX, cameraY), Bg1XOffset = 0 });
-                openingSound |= runtime.Plms.SoundRequests.Any(request => request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
+                runtime.Plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(cameraX, cameraY), Bg1XOffset = 0 });
+                openingSound |= runtime.Plms.Sounds.SoundRequests.Any(request => request == new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;
             }

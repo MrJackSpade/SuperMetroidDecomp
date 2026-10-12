@@ -9,17 +9,16 @@ internal static class FallingSparkLaunchDefinitionsVerification
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CartridgeReadGuard(rom)
+        enemies.BindFixtureBus(new CartridgeReadGuard(rom)
             .Forbid(address => address is >= 0x86f3d4 and < 0x86f3f4, _ => "Unexpected migrated falling-spark launch read.")
             .RejectWrites(_ => "Unexpected falling-spark bus write."));
         ushort random = 0;
         int advances = 0;
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return random; });
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnFallingSpark", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var move = typeof(RoomEnemySystem).GetMethod("AddFallingSparkHorizontalVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot>>();
-        var source = enemies.Slots[0];
-        var projectile = enemies.EnemyProjectiles[^1];
+        Action<RoomEnemySlot> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
+        Action<RoomEnemyProjectileSlot> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
+        var source = enemies.SlotTable.Slots[0];
+        var projectile = enemies.Projectiles.EnemyProjectiles[^1];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -49,7 +48,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
-        foreach (var occupied in enemies.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.FallingSpark;
+        foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.FallingSpark;
         advances = 0;
         ushort previousX = projectile.Position.X.Whole;
         spawn(source);

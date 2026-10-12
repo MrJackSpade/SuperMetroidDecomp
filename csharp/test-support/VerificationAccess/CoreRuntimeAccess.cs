@@ -31,7 +31,7 @@ internal static class SuperMetroidRuntimeAccess
             ushort desiredScreenY = 166,
             int minimumFloorBlockY = 0x4d)
         {
-            if (self.Camera is null || self.LevelData is null)
+            if (self.Room.Camera is null || self.Room.LevelData is null)
             {
                 throw new InvalidOperationException(
                     "Landing Site camera and level data must be initialized before grounding debug Samus.");
@@ -40,15 +40,15 @@ internal static class SuperMetroidRuntimeAccess
             // Radius is pose data, so construct/refresh pose $01 before deriving the surface
             // center. The temporary Y=0 is never rendered or stepped.
             self.InitializeDebugSamus(new(xPosition, 0));
-            ushort yRadius = self.Samus!.Kinematics.Radius.Y;
+            ushort yRadius = self.Player.Samus!.Kinematics.Radius.Y;
 
-            if ((uint)minimumFloorBlockY >= (uint)self.LevelData.Size.Y)
+            if ((uint)minimumFloorBlockY >= (uint)self.Room.LevelData.Size.Y)
                 throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
 
             int blockX = xPosition >> 4;
-            for (int blockY = minimumFloorBlockY; blockY < self.LevelData.Size.Y; blockY++)
+            for (int blockY = minimumFloorBlockY; blockY < self.Room.LevelData.Size.Y; blockY++)
             {
-                RoomCollisionBlock floor = self.LevelData.GetCollisionBlock(new(checked((ushort)blockX), checked((ushort)blockY)));
+                RoomCollisionBlock floor = self.Room.LevelData.GetCollisionBlock(new(checked((ushort)blockX), checked((ushort)blockY)));
 
                 byte height;
                 if (floor.CollisionType == RoomCollisionType.SolidBlock)
@@ -81,19 +81,19 @@ internal static class SuperMetroidRuntimeAccess
                 // camera at that exact target so the first moved frame follows smoothly instead
                 // of spending several frames correcting the cutscene door's unrelated X=$400.
                 // Vertical framing remains the explicit host stimulus supplied by the caller.
-                self.Camera.SetPosition(new Position16<RoomPixels>(
+                self.Room.Camera.SetPosition(new Position16<RoomPixels>(
                     // Entry placement clamps a requested origin left of or above the room to zero.
                     (ushort)Math.Max(0, xPosition - 0x60),
                     (ushort)Math.Max(0, restingY - desiredScreenY)));
-                self.Samus.Position = self.Samus.Position.WithWholeY(restingY);
-                PrivateState.SetProperty(self, "GroundedSamusMovementEnabled", true);
-                PrivateState.SetProperty(self, "LastGroundedSamusMovement", null);
-                PrivateState.SetProperty(self, "LastAerialSamusMovement", null);
-                PrivateState.SetProperty(self, "LastMorphBallMovement", null);
-                PrivateState.SetProperty(self, "LastBombJumpMovement", null);
-                PrivateState.SetProperty(self, "LastKnockbackMovement", null);
+                self.Player.Samus.Position = self.Player.Samus.Position.WithWholeY(restingY);
+                self.Player.GroundedSamusMovementEnabled = true;
+                self.Player.LastGroundedSamusMovement = null;
+                self.Player.LastAerialSamusMovement = null;
+                self.Player.LastMorphBallMovement = null;
+                self.Player.LastBombJumpMovement = null;
+                self.Player.LastKnockbackMovement = null;
                 self.BombProjectiles.Reset();
-                self.Projectiles.Reset(self.Samus);
+                self.Projectiles.Reset(self.Player.Samus);
                 return new DebugGroundedSamusPlacement(
                     new(xPosition, restingY),
                     desiredScreenY,
@@ -107,34 +107,34 @@ internal static class SuperMetroidRuntimeAccess
                 $"Landing Site X=${xPosition:X4} from block row ${minimumFloorBlockY:X2}.");
         }
 
-        internal void LoadDebugGrapplePalette() => PrivateState.Invoke(self, "LoadGrapplePalette");
+        internal void LoadDebugGrapplePalette() => self.SamusPhases.LoadGrapplePalette();
 
         /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>
         internal void InitializeDebugSamus(Position16<RoomPixels> position)
         {
-            PrivateState.SetProperty(self, "Samus", new SamusState
+            self.Player.Samus = new SamusState
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 AnimationFrame = 0,
                 Position = FixedPosition<RoomPixels>.FromWhole(position),
-            });
-            PrivateState.Invoke(self, "BindSamusPalettePresentation");
+            };
+            self.Artwork.BindSamusPalettePresentation();
 
-            SamusState.LoadPowerSuitPalette(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"), self.Cgram, PrivateState.Field<AreaMapPresentationCatalog?>(self, "<MapPresentation>k__BackingField")?.SamusSuitColors);
-            self.Samus!.RefreshCollisionRadii(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
-            self.Samus.InitializeAnimation(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
-            if (self.LandingSiteEntry is not null)
+            SamusPresentation.LoadPowerSuitPalette(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"), self.Cgram, self.Artwork.MapPresentation?.SamusSuitColors);
+            self.Player.Samus!.PoseMetadata.RefreshCollisionRadii(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
+            self.Player.Samus.Presentation.InitializeAnimation(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
+            if (self.Room.LandingSiteEntry is not null)
             {
                 // FootstepGraphics dispatches on the literal area and room-index bytes. Keep
                 // those room-owned inputs beside the FX surface state instead of hard-coding
                 // “Landing Site” behavior into the generic atmospheric renderer.
-                self.Samus.LiquidPhysics.RoomIdentity = self.LandingSiteEntry.RoomIdentity;
+                self.Player.Samus.LiquidPhysics.RoomIdentity = self.Room.LandingSiteEntry.RoomIdentity;
             }
-            PrivateState.SetProperty(self, "PreviousMovementTypeForXray", self.Samus.ReadMovementType(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace")));
+            self.Player.PreviousMovementTypeForXray = self.Player.Samus.PoseMetadata.ReadMovementType(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
 
             // StepFrame begins with NMI, so prime the definitions now. Otherwise frame one's
             // OAM would name Samus tiles before any corresponding graphics reached VRAM.
-            self.Samus.PrimeGraphics(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
+            self.Player.Samus.Presentation.PrimeGraphics(PrivateState.Field<ISnesAddressSpace>(self, "_addressSpace"));
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ internal static class SuperMetroidRuntimeAccess
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal void QueueEscapeTimerSpriteTiles()
         {
-            if (self.MapPresentation is null)
+            if (self.Artwork.MapPresentation is null)
             {
                 self.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
                     EscapeTimerTileRomData.FirstSourceAddress,
@@ -155,7 +155,7 @@ internal static class SuperMetroidRuntimeAccess
                     VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.SecondDestinationWord));
             }
             else
-                self.MapPresentation.EscapeTimerTiles.QueueTo(self.VramWrites);
+                self.Artwork.MapPresentation.EscapeTimerTiles.QueueTo(self.VramWrites);
         }
     }
 }

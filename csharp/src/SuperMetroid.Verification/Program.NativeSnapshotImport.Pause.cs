@@ -25,8 +25,8 @@ internal static class NativeSnapshotImportPauseVerification
         AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");
         runtime.Cgram.LoadBytes(memory.AsSpan(PauseMemory.GameplayPaletteBackup, CgramPalettes.ByteCount));
 
-        CartridgeRoomHeader room = runtime.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
-        var menu = new PauseMenuState(bus, new PauseMenuEntry { Samus = runtime.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = PrivateState.Field<CartridgeAudioState>(game, "audio"), GameplayVram = runtime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = PrivateState.Field<AreaMapPresentationCatalog>(game, "mapPresentation") });
+        CartridgeRoomHeader room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
+        var menu = new PauseMenuState(bus, new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = PrivateState.Field<CartridgeAudioState>(game, "audio"), GameplayVram = runtime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
         PrivateState.SetField(menu, "mapScrollPosition",
             new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
         object palette = PrivateState.Field<object>(menu, "paletteAnimation");
@@ -36,8 +36,8 @@ internal static class NativeSnapshotImportPauseVerification
         PrivateState.SetField(menu, "mapIndicatorAnimationFrame", W(PauseMemory.IndicatorAnimationFrame) / 2);
         PrivateState.SetField(menu, "mapIndicatorAnimationTimer", (int)W(PauseMemory.IndicatorAnimationTimer));
         PrivateState.SetField(game, "pauseMenu", menu);
-        PrivateState.SetField(game, "pauseFadeDelay", (int)W(PauseMemory.ScreenFadeDelay));
-        PrivateState.SetField(game, "pauseFadeCounter", (int)W(PauseMemory.ScreenFadeCounter));
+        PrivateState.Field<ScreenFadeTimer>(game, "screenFade").Delay = W(PauseMemory.ScreenFadeDelay);
+        PrivateState.Field<ScreenFadeTimer>(game, "screenFade").Counter = W(PauseMemory.ScreenFadeCounter);
 
         foreach (var (property, address) in new[]
         {

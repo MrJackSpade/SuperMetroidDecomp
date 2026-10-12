@@ -156,7 +156,7 @@ internal static class SporeSpawnCeilingPlmsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnSporeSpawnCeiling(level,
+        AssertTrue(plms.BossRoomMutations.TrySpawnSporeSpawnCeiling(level,
                 clear ? PlmHeaderId.ClearSporeSpawnCeiling :
                     PlmHeaderId.CrumbleSporeSpawnCeiling),
             $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
@@ -164,10 +164,10 @@ internal static class SporeSpawnCeilingPlmsVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         int soundFrame = -1;
-        for (int frame = 0; frame < 32 && plms.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 32 && plms.SlotTable.ActiveCount != 0; frame++)
         {
             plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 16 * 16), Bg1XOffset = 0 });
-            if (plms.SoundRequests.Any(request =>
+            if (plms.Sounds.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,
                         SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId)))
@@ -187,7 +187,7 @@ internal static class SporeSpawnCeilingPlmsVerification
                         level.GetCollisionBlockByIndex(y * width + x).LevelWord,
                         $"Spore Spawn {(clear ? "clear" : "crumble")} frame {frame} ({x},{y})");
             }
-            if (plms.ActiveCount == 0)
+            if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(clear ? 4 : 16, deletionFrame,

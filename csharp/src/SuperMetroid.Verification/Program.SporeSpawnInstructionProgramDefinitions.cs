@@ -145,8 +145,8 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.TileArtwork = artwork ?? RepositoryInstallation.EnemyTiles;
-        RoomEnemySlot body = enemies.Slots[0];
+        enemies.TileArtwork = artwork ?? InstalledFixtures.EnemyTiles;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };
         body.Position = body.Position.WithWhole(new(128, 624));
@@ -161,19 +161,16 @@ internal static class SporeSpawnInstructionProgramDefinitionsVerification
             MaximumXRadius = 48,
             AngleDelta = 1,
         };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+        enemies.BindFixtureBus(bus);
+        enemies.Presentation._cgram = new SnesCgram();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x1234);
-        typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
-            enemies,
-            new SamusState { Health = 99, MaxHealth = 99 });
-        typeof(RoomEnemySystem).GetField("_sporeSpawn", flags)!.SetValue(enemies, state);
+        enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
+        enemies.SporeSpawnBehavior._sporeSpawn = state;
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments = [body, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int frame = 0; frame < frames; frame++)
         {
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             afterFrame?.Invoke(enemies, body);
         }
 

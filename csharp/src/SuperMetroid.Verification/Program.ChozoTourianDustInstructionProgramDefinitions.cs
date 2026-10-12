@@ -39,21 +39,15 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
 
         var guard = NewChozoTourianDustInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", instanceFlags)!;
-        MethodInfo spawnFootstep = typeof(RoomEnemySystem).GetMethod(
-            "SpawnWreckedShipChozoFootstep", instanceFlags)!;
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeEnemyProjectileFromDefinition", staticFlags)!;
 
         var statue = new RoomEnemySlot(0)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0080)),
         };
-        spawnFootstep.Invoke(enemies, [statue, (ushort)0]);
-        RoomEnemyProjectileSlot footstep = enemies.EnemyProjectiles.Single(
+        enemies.ChozoStatueBehavior.SpawnWreckedShipChozoFootstep(statue, (ushort)0);
+        RoomEnemyProjectileSlot footstep = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep);
         Run(footstep, 1);
@@ -71,12 +65,9 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
             "real Chozo footstep deletes after its fourth authored pose");
 
         var alternate = new RoomEnemyProjectileSlot(0);
-        initialize.Invoke(null,
-        [
-            alternate,
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(alternate,
             RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate,
-            (ushort)0,
-        ]);
+            (ushort)0);
         alternate.Position = alternate.Position.WithWhole(new(0x0100, 0x0080));
         Run(alternate, 1);
         AssertEqual((ushort)0x0104, alternate.Position.X.Whole,
@@ -90,8 +81,8 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
         AssertTrue(!alternate.IsActive,
             "alternate spike explosion deletes after its sixth authored pose");
 
-        enemies.SpawnTourianDescentDust();
-        RoomEnemyProjectileSlot dust = enemies.EnemyProjectiles.First(
+        enemies.TourianUnlockBehavior.SpawnTourianDescentDust();
+        RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.First(
             projectile => projectile.Kind == RoomEnemyProjectileKind.TourianStatueDescentDust);
         Run(dust, 1);
         AssertEqual((ushort)132, dust.Position.X.Whole,
@@ -155,7 +146,7 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
             }
         }
     }

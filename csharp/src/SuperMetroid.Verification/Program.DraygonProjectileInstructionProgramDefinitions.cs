@@ -36,17 +36,11 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
 
         var guard = NewDraygonProjectileInstructionReadGuard(rom);
         var selectedPresentation = new HashSet<ushort>();
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawnGoop = typeof(RoomEnemySystem).GetMethod(
-            "SpawnDraygonGoop", flags)!;
-        MethodInfo spawnTurret = typeof(RoomEnemySystem).GetMethod(
-            "SpawnDraygonWallTurret", flags)!;
 
         RoomEnemySystem goopSystem = NewSystem();
         DraygonEnemyState goopState = NewState(goopSystem);
-        spawnGoop.Invoke(goopSystem, [goopState, true]);
-        RoomEnemyProjectileSlot goop = goopSystem.EnemyProjectiles.Single(
+        goopSystem.DraygonBehavior.SpawnDraygonGoop(goopState, true);
+        RoomEnemyProjectileSlot goop = goopSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
         AssertEqual(DraygonProjectileInstructionProgramDefinitions.Goop,
             goop.InstructionPointer, "real Draygon goop producer selects named loop");
@@ -81,7 +75,7 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         RunForcedTicks(shotSystem, shot, 3, new SamusState { Health = 10, MaxHealth = 99 });
         AssertTrue(!shot.IsActive,
             "Draygon goop shot displays both frames, requests a drop, and deletes");
-        AssertTrue(shotSystem.EnemyProjectiles.Any(projectile =>
+        AssertTrue(shotSystem.Projectiles.EnemyProjectiles.Any(projectile =>
                 projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
             "Draygon goop shot allocates its production pickup before deletion");
 
@@ -95,8 +89,8 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         RoomEnemySystem turretSystem = NewSystem();
         DraygonEnemyState turretState = NewState(turretSystem);
         var targetSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        spawnTurret.Invoke(turretSystem, [turretState, targetSamus, (ushort)0]);
-        RoomEnemyProjectileSlot turret = turretSystem.EnemyProjectiles.Single(
+        turretSystem.DraygonBehavior.SpawnDraygonWallTurret(turretState, targetSamus, (ushort)0);
+        RoomEnemyProjectileSlot turret = turretSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret);
         AssertEqual(DraygonProjectileInstructionProgramDefinitions.WallTurretBloom,
             turret.InstructionPointer, "real Draygon turret producer selects named bloom");
@@ -148,16 +142,15 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x0080);
-            typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
-                enemies, new SamusState { Health = 10, MaxHealth = 99 });
+            enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 10, MaxHealth = 99 };
             return enemies;
         }
 
         static DraygonEnemyState NewState(RoomEnemySystem enemies)
         {
-            RoomEnemySlot body = enemies.Slots[0];
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(128, 128));
             return new DraygonEnemyState(body);
         }
@@ -165,8 +158,8 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
         RoomEnemyProjectileSlot SpawnGoop(RoomEnemySystem enemies)
         {
             DraygonEnemyState state = NewState(enemies);
-            spawnGoop.Invoke(enemies, [state, true]);
-            return enemies.EnemyProjectiles.Single(projectile => projectile.Kind ==
+            enemies.DraygonBehavior.SpawnDraygonGoop(state, true);
+            return enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.DraygonGoop);
         }
 
@@ -179,7 +172,7 @@ internal static class DraygonProjectileInstructionProgramDefinitionsVerification
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
                 if (projectile.PresentationOperandAddress != 0)
                     selectedPresentation.Add(projectile.PresentationOperandAddress);
             }

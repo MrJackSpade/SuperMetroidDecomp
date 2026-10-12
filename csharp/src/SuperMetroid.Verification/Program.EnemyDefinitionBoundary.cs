@@ -73,7 +73,6 @@ internal static class EnemyDefinitionBoundaryVerification
         AssertEqual(564, TorizoInstructionProgramDefinitions.PresentationWordCount, "complete Torizo visual operand count");
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        MethodInfo read = typeof(RoomEnemySystem).GetMethod("ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
         ushort previous = 0;
         for (int index = 0; index < TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
         {
@@ -83,9 +82,9 @@ internal static class EnemyDefinitionBoundaryVerification
             AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | word.Address)), word.Value, $"Torizo word {word.Address:X4}");
             foreach (EnemyDefinitionId pointer in new[] { EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo })
             {
-                RoomEnemySlot slot = enemies.Slots[0];
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.EnemyDefinitionPointer = pointer;
-                AssertEqual(word.Value, (ushort)read.Invoke(enemies, [slot, word.Address])!,
+                AssertEqual(word.Value, (ushort)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, word.Address),
                     "both Torizo interpreters resolve compiled words without a bus");
             }
         }

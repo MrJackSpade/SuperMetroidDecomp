@@ -6,7 +6,7 @@ internal static class PlmVramArtworkSourceContract
     internal static readonly ReviewedSource[] Sources =
     [
         .. EnemyArtworkClosedContractDefinitions.All[0].Sources,
-        new("csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.ProjectilePresentation.cs"),
+        new("csharp/src/SuperMetroid.Core/Runtime/RuntimeArtwork.cs"),
         // Restored beam routing admits only seven exact $9A sources of 256 bytes;
         // it cannot intercept the existing PLM artwork pages.
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs"),

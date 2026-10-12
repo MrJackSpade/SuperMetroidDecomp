@@ -5,6 +5,6 @@ internal static class RoomEnemySystemToolingExtensions
 {
     extension(RoomEnemySystem self)
     {
-        public IReadOnlyList<VerticalShutterEnemyState?> VerticalShutterStates => self._verticalShutterStates;
+        public IReadOnlyList<VerticalShutterEnemyState?> VerticalShutterStates => self.ShuttersBehavior._verticalShutterStates;
     }
 }

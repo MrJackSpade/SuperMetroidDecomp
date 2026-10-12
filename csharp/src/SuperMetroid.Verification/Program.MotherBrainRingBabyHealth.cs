@@ -24,19 +24,19 @@ internal static class MotherBrainRingBabyHealthVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
-        typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainBabyMetroid", flags)!.Invoke(runtime.Enemies, [state]);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
         RoomEnemySlot babySlot = state.BabyMetroidSlot!;
         AssertEqual((ushort)0x0c80, babySlot.Health, "the Baby spawns with 3200 health");
 
         // The movie's hit: the ring reaches ($AE,$8C), exactly $24 above the Baby at ($CE,$B0).
-        RoomEnemyProjectileSlot ring = runtime.Enemies.EnemyProjectiles[16];
+        RoomEnemyProjectileSlot ring = runtime.Enemies.Projectiles.EnemyProjectiles[16];
         ring.Kind = RoomEnemyProjectileKind.MotherBrainOnionRing;
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
@@ -45,8 +45,7 @@ internal static class MotherBrainRingBabyHealthVerification
         typeof(BabyMetroidCutsceneState).GetProperty(nameof(BabyMetroidCutsceneState.Position))!
             .SetValue(state.BabyMetroid, state.BabyMetroid!.Position.WithWhole(new(0x00ce, 0x00b0)));
 
-        typeof(RoomEnemySystem).GetMethod("RunMotherBrainOnionRingPreInstruction", flags)!
-            .Invoke(runtime.Enemies, [ring, runtime.Samus, (ushort)0]);
+        runtime.Enemies.MotherBrainBehavior.RunMotherBrainOnionRingPreInstruction(ring, runtime.Player.Samus, (ushort)0);
         AssertEqual((ushort)0x0c30, state.BabyMetroid!.Health, "the ring charges the Baby $50");
         AssertEqual((ushort)0x0c30, babySlot.Health, "the Baby slot's health drops within the projectile pass");
         Console.WriteLine("Mother Brain ring Baby health: the hit writes the Baby slot's health immediately.");

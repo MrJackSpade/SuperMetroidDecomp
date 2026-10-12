@@ -67,7 +67,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
         };
-        flashbackSamus.InitializeAnimation(NewFrontendCartridgeReadGuard(mutableBus));
+        flashbackSamus.Presentation.InitializeAnimation(NewFrontendCartridgeReadGuard(mutableBus));
         AssertEqual((int)(0x910000 |
             SamusAnimationDelayDefinitions.PointerForPose(SamusPoseId.FacingLeftNormalPose)),
             flashbackSamus.AnimationDelayListAddress,

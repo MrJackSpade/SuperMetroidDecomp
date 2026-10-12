@@ -106,8 +106,8 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(169, shine.Shinespark.ShineTimer,
         "warning frame still decrements timer");
 
-    shine.RefreshCollisionRadii(bus);
-    shine.InitializeAnimation(bus);
+    shine.PoseMetadata.RefreshCollisionRadii(bus);
+    shine.Presentation.InitializeAnimation(bus);
     shine.Shinespark.BeginWindup(shine);
     AssertEqual(ShinesparkPhase.Windup, shine.Shinespark.Phase,
         "stored shine installs windup handler");
@@ -161,8 +161,8 @@ internal static void VerifySamusStoredShineAndShinespark()
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 99,
         };
-        directional.RefreshCollisionRadii(bus);
-        directional.InitializeAnimation(bus);
+        directional.PoseMetadata.RefreshCollisionRadii(bus);
+        directional.Presentation.InitializeAnimation(bus);
         directional.Shinespark.TryStoreFromSpeedBooster(0x0400);
         directional.Shinespark.BeginWindup(directional);
         directional.Shinespark.BeginDirectionalLaunch(bus, directional, targetPose);
@@ -205,8 +205,8 @@ internal static void VerifySamusStoredShineAndShinespark()
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 99,
     };
-    externallyReversedSpark.RefreshCollisionRadii(bus);
-    externallyReversedSpark.InitializeAnimation(bus);
+    externallyReversedSpark.PoseMetadata.RefreshCollisionRadii(bus);
+    externallyReversedSpark.Presentation.InitializeAnimation(bus);
     externallyReversedSpark.Shinespark.TryStoreFromSpeedBooster(0x0400);
     externallyReversedSpark.Shinespark.BeginWindup(externallyReversedSpark);
     externallyReversedSpark.Shinespark.BeginDirectionalLaunch(
@@ -256,8 +256,8 @@ internal static void VerifySamusStoredShineAndShinespark()
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = energy,
         };
-        invincible.RefreshCollisionRadii(bus);
-        invincible.InitializeAnimation(bus);
+        invincible.PoseMetadata.RefreshCollisionRadii(bus);
+        invincible.Presentation.InitializeAnimation(bus);
         invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
         invincible.Shinespark.BeginWindup(invincible);
         invincible.Shinespark.BeginDirectionalLaunch(bus, invincible, targetPose);
@@ -279,8 +279,8 @@ internal static void VerifySamusStoredShineAndShinespark()
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 30,
     };
-    horizontal.RefreshCollisionRadii(bus);
-    horizontal.InitializeAnimation(bus);
+    horizontal.PoseMetadata.RefreshCollisionRadii(bus);
+    horizontal.Presentation.InitializeAnimation(bus);
     horizontal.Shinespark.TryStoreFromSpeedBooster(0x0400);
     horizontal.Shinespark.BeginWindup(horizontal);
     horizontal.Shinespark.BeginDirectionalLaunch(
@@ -298,7 +298,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         "horizontal spark breaks the BTS-7 block");
     AssertEqual(0x0058, empty.ForegroundEntries.Span[sparkBombBlockIndex],
         "bomb-block setup replaces collision and visual words like CE83");
-    AssertEqual(1, shineBombPlms.ActiveCount,
+    AssertEqual(1, shineBombPlms.SlotTable.ActiveCount,
         "shinespark collision installs the bank-$84 BTS-7 PLM in the active room owner");
     AssertEqual(0xd456, empty.ForegroundEntries.Span[sparkExtensionBlockIndex],
         "extension redispatch mutates its target rather than the extension word");
@@ -426,8 +426,8 @@ internal static void VerifySamusStoredShineAndShinespark()
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 29,
         };
-        fixture.RefreshCollisionRadii(fixtureBus);
-        fixture.InitializeAnimation(fixtureBus);
+        fixture.PoseMetadata.RefreshCollisionRadii(fixtureBus);
+        fixture.Presentation.InitializeAnimation(fixtureBus);
         fixture.Shinespark.TryStoreFromSpeedBooster(0x0400);
         fixture.Shinespark.BeginWindup(fixture);
         fixture.Shinespark.BeginDirectionalLaunch(

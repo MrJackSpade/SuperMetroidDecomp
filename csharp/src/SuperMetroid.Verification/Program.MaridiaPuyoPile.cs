@@ -27,10 +27,10 @@ internal static class MaridiaPuyoPileVerification
         (ushort X, ushort Y, ushort Delay)[] population =
             [(87,156,0x0f00), (98,156,0x0f00), (105,156,0x0f00),
              (91,152,0x0e00), (101,152,0x0e00), (97,148,0x0d00)];
-        AssertEqual(population.Length, enemies.EnemyCount, "reported room has six authored Puyos");
+        AssertEqual(population.Length, enemies.SlotTable.EnemyCount, "reported room has six authored Puyos");
         for (int i = 0; i < population.Length; i++)
         {
-            var actor = enemies.Slots[i];
+            var actor = enemies.SlotTable.Slots[i];
             AssertEqual(EnemyDefinitionId.Puyo, actor.EnemyDefinitionPointer, "pile actor is retail Puyo");
             AssertEqual(population[i].X, actor.Position.X.Whole, "native pile spawn X");
             AssertEqual(population[i].Y, actor.Position.Y.Whole, "native pile spawn Y");
@@ -48,8 +48,8 @@ internal static class MaridiaPuyoPileVerification
                 if (frame <= population[i].Delay)
                 {
                     AssertEqual(PuyoEnemyFunction.Grounded, state.Function, "native cooldown holds pile member grounded");
-                    AssertEqual(population[i].X, enemies.Slots[i].Position.X.Whole, "waiting pile X does not drift");
-                    AssertEqual(population[i].Y, enemies.Slots[i].Position.Y.Whole, "waiting pile Y does not collapse");
+                    AssertEqual(population[i].X, enemies.SlotTable.Slots[i].Position.X.Whole, "waiting pile X does not drift");
+                    AssertEqual(population[i].Y, enemies.SlotTable.Slots[i].Position.Y.Whole, "waiting pile Y does not collapse");
                 }
             }
         }

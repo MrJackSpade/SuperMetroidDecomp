@@ -22,10 +22,10 @@ internal static class SuperMetroidRuntimeToolingExtensions
             ushort roomPointer,
             Position16<RoomPixels> camera = default)
         {
-            if (self.Samus is null)
+            if (self.Player.Samus is null)
                 throw new InvalidOperationException("Direct debug room loading requires initialized Samus state.");
 
-            CartridgeRoomHeader room = self.LoadCartridgeRoomHeader(roomPointer);
+            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(roomPointer);
             // The debug seam intentionally supplies an inert synthetic door. Any room whose
             // correctness depends on setup code must instead be audited through its real door;
             // Ceres Ridley's ordinary mode-nine room has no incoming setup routine dependency.
@@ -38,17 +38,17 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
 
-            self.ActiveLoadStation = null;
-            self.CeresElevatorArrival = null;
-            InitialViewportResult viewport = self.LoadCartridgeRoom(
+            self.Room.ActiveLoadStation = null;
+            self.Room.CeresElevatorArrival = null;
+            InitialViewportResult viewport = self.RoomLoader.LoadCartridgeRoom(
                 door,
                 room,
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
-            self.Samus.LiquidPhysics.RoomIdentity = room.Identity;
-            self.Samus.RefreshCollisionRadii(self._addressSpace);
-            self.Samus.PrimeGraphics(self._addressSpace);
-            self.GroundedSamusMovementEnabled = true;
+            self.Player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
+            self.Player.Samus.PoseMetadata.RefreshCollisionRadii(self._addressSpace);
+            self.Player.Samus.Presentation.PrimeGraphics(self._addressSpace);
+            self.Player.GroundedSamusMovementEnabled = true;
             return viewport;
         }
         /// <summary>
@@ -60,11 +60,11 @@ internal static class SuperMetroidRuntimeToolingExtensions
             Position16<RoomPixels> camera = default)
         {
             Ensure.NotNull(door);
-            if (self.Samus is null)
+            if (self.Player.Samus is null)
                 throw new InvalidOperationException("Door verification requires initialized Samus state.");
 
-            CartridgeRoomHeader room = self.LoadCartridgeRoomHeader(door.DestinationRoomPointer);
-            return self.LoadCartridgeRoom(
+            CartridgeRoomHeader room = self.RoomLoader.LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+            return self.RoomLoader.LoadCartridgeRoom(
                 door,
                 room,
                 camera,

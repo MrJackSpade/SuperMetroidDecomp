@@ -155,7 +155,10 @@ internal static class ExploredMapPackingDefinitionsVerification
             }
 
             var game = new SuperMetroidGame(memory);
-            game.BindMapPresentation(original);
+            game.BindArtwork(game.Artwork with
+            {
+                MapPresentation = original,
+            });
             using var graph = new MemoryStream();
             DebuggerObjectGraphSerializer.Serialize(graph, game);
             graph.Position = 0;
@@ -164,7 +167,10 @@ internal static class ExploredMapPackingDefinitionsVerification
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
             var restoredSaves = (SuperMetroidSaveRam)field.GetValue(restored)!;
             AssertThrows<InvalidOperationException>(() => restoredSaves.ReadSlot(0), "debugger graph omits installed map provider");
-            restored.BindMapPresentation(edited);
+            restored.BindArtwork(restored.Artwork with
+            {
+                MapPresentation = edited,
+            });
             AssertTrue(restoredSaves.ReadSlot(0) is not null, "frontend rebind restores SRAM decoding");
             restoredSaves.SaveSlot(0, snapshot);
             AssertTrue(restoredSaves.ReadSlot(0)!.ExploredMapBytes.AsSpan().SequenceEqual(editedSaves.ReadSlot(0)!.ExploredMapBytes),

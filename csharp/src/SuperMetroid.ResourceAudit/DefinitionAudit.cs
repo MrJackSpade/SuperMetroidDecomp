@@ -91,7 +91,7 @@ internal static class DefinitionAudit
         string relative = calculated
             ? faceBlock ? "csharp/src/SuperMetroid.Core/Assets/BlueBrinstarFaceBlockVisualDefinitions.cs" : platform ? "csharp/src/SuperMetroid.Core/Assets/TripperKamerVisualDefinitions.cs" : shutter ? "csharp/src/SuperMetroid.Core/Assets/ShutterVisualDefinitions.cs" : bank == 0x86 ? "csharp/src/SuperMetroid.Core/Assets/EnemyProjectileSpritemapCatalog.cs" : kraidFamily ? "csharp/src/SuperMetroid.Core/Assets/KraidVisualDefinitions.cs"
                 : "csharp/src/SuperMetroid.Core/Assets/EnemySpritemapDefinitions.cs"
-            : $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.cs";
+            : $"csharp/src/SuperMetroid.Core/Assets/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
         int line = 0;
         foreach (string text in File.ReadLines(Path.Combine(root, relative)))
         {

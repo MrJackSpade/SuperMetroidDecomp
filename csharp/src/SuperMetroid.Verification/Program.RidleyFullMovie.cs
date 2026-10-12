@@ -30,11 +30,10 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
-        var tick = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyPogo", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley!; var samus = runtime.Player.Samus!;
         foreach (var sample in new[] { (0x7f, false, RidleyFacing.Right, false), (0x80, false, RidleyFacing.Right, true),
             (0xff, true, RidleyFacing.Right, false), (0xff, false, RidleyFacing.Turning, false), (0x180, false, RidleyFacing.Left, true) })
         {
@@ -43,7 +42,7 @@ internal static class RidleyFullMovieVerification
             state.FunctionTimer = 20; samus.Pose = SamusPoseId.SpinJumpRightPose;
             body.CurrentInstruction = NativeSnapshotMemory.RidleyRightFlyingSleep;
             body.InstructionTimer = 9; body.Timer = 11;
-            tick.Invoke(runtime.Enemies, [body, state, samus, true]);
+            runtime.Enemies.RidleyBehavior.TickNorfairRidleyPogo(body, state, samus, true);
             AssertEqual(sample.Item4 ? RidleyInstructionProgramDefinitions.Fireballing : NativeSnapshotMemory.RidleyRightFlyingSleep,
                 body.CurrentInstruction, "native spin-response fireball threshold/roar/facing gate");
             AssertEqual(sample.Item4 ? (ushort)1 : (ushort)9, body.InstructionTimer, "native fireball restarts instruction timer only when admitted");
@@ -57,11 +56,11 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 158));
-        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
+        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 158));
+        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley!; var samus = runtime.Player.Samus!;
         body.Position = body.Position.WithWhole(new(139, 282));
         body.SpritemapPointer = 0xe9e9; body.Properties = 0x3800;
         state.FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = 1; state.FacingDirection = RidleyFacing.Left;
@@ -70,7 +69,7 @@ internal static class RidleyFullMovieVerification
         state.TailFunctionIndex = RidleyTailFunction.None;
         samus.Position = samus.Position.WithWhole(new(110, 300)); samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
         samus.Health = 399; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
-        samus.InvincibilityTimer = 0; samus.RefreshCollisionRadii(bus);
+        samus.InvincibilityTimer = 0; samus.PoseMetadata.RefreshCollisionRadii(bus);
         var enemyPhase = typeof(SuperMetroidRuntime).GetMethod("RunEnemyMainPhase", BindingFlags.Instance | BindingFlags.NonPublic)!;
         enemyPhase.Invoke(runtime, null);
         AssertEqual((ushort)399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
@@ -85,21 +84,20 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!;
+        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley!;
         state.Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = 112;
         body.Position = body.Position.WithWhole(new(212, 200)); state.FacingDirection = RidleyFacing.Right;
-        var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
         AssertEqual((ushort)112, state.FunctionTimer, "native swoop setup retains general AI timer");
         AssertEqual((ushort)10, state.SwoopPhaseTimer, "native swoop setup initializes independent countdown");
         state.Function = RidleyAiFunction.NorfairSwoopAimDown; state.SwoopPhaseTimer = 1;
-        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
         AssertEqual((ushort)0, state.SwoopPhaseTimer, "native swoop decrements its own timer");
         AssertEqual((ushort)112, state.FunctionTimer, "native swoop countdown retains general timer");
-        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
         AssertEqual((ushort)20, state.SwoopPhaseTimer, "native next swoop phase installs its own duration");
         AssertEqual((ushort)112, state.FunctionTimer, "native phase transition retains general timer");
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
@@ -109,19 +107,18 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!;
-        typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.Enemies, runtime.Samus);
+        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley!;
+        runtime.Enemies.DeathsAndDrops._samusForEnemyDrops = runtime.Player.Samus;
         state.Function = RidleyAiFunction.NorfairDeathFinish; state.FunctionTimer = 0;
-        var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
         AssertEqual(RidleyAiFunction.NorfairDeathComplete, state.Function, "death finish selects native C600 return");
         AssertTrue(body.Properties.HasAny(EnemyProperties.Deleted), "death finish publishes deletion");
-        AssertTrue(state.BossDefeatPublished && runtime.Enemies.RidleyDeathDropRequested, "death finish publishes boss defeat and drops");
+        AssertTrue(state.BossDefeatPublished && runtime.Enemies.RidleyBehavior.RidleyDeathDropRequested, "death finish publishes boss defeat and drops");
         ushort random = runtime.System.RandomNumber;
-        dispatch.Invoke(runtime.Enemies, [body, state, runtime.Samus, (ushort)0, runtime.LevelData]);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
         AssertEqual(random, runtime.System.RandomNumber, "terminal return does not spawn another drop scatter");
         AssertEqual(ushort.MaxValue, state.FunctionTimer, "terminal return retains expired countdown");
         Console.WriteLine("Ridley death finish: native terminal return, deletion, defeat/drop publication and inert subsequent dispatch pass.");
@@ -131,31 +128,29 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
+        var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley!; var samus = runtime.Player.Samus!;
         body.Position = body.Position.WithWhole(new(211, 346));
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x400));
         state.FacingDirection = RidleyFacing.Right; state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
         samus.Position = samus.Position.WithWhole(new(198, 402)); samus.Pose = SamusPoseId.KnockbackLeftPose;
-        samus.RefreshCollisionRadii(bus);
-        var attack = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttack", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        attack.Invoke(runtime.Enemies, [body, state, samus, runtime.LevelData]);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        runtime.Enemies.RidleyBehavior.TickNorfairRidleyGroundAttack(body, state, samus, runtime.Room.LevelData);
         AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "native grab immediately enters carry movement");
         AssertEqual((ushort)31, state.FunctionTimer, "native setup falls through first carry countdown");
         AssertEqual((ushort)0xb6, state.Velocity.X.RawValue, "native same-update grab X acceleration");
         AssertEqual((ushort)0xfbfc, state.Velocity.Y.RawValue, "native same-update grab Y acceleration");
-        AssertTrue(samus.StationaryScriptControlLocked, "native grab installs command-zero alpha/beta pair");
+        AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
         typeof(SamusBombProjectileSystem).GetMethod("SetSharedCooldown", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(bombs, [(ushort)10]);
-        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = runtime.LevelData! }, samus, 0, 0, advancePowerBombHdma: false);
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = runtime.Room.LevelData! }, samus, 0, 0, advancePowerBombHdma: false);
         AssertEqual((ushort)10, bombs.CooldownTimer, "native locked alpha preserves cooldown");
-        var release = typeof(RoomEnemySystem).GetMethod("ReleaseNorfairRidleyGrab", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        release.Invoke(runtime.Enemies, [state, samus]);
-        AssertTrue(!samus.InputLocked && !samus.StationaryScriptControlLocked, "native release restores ordinary control");
-        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = runtime.LevelData! }, samus, 0, 0, advancePowerBombHdma: false);
+        runtime.Enemies.RidleyBehavior.ReleaseNorfairRidleyGrab(state, samus);
+        AssertTrue(!samus.InputLocked && !samus.ScriptLocks.StationaryScriptControlLocked, "native release restores ordinary control");
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = runtime.Room.LevelData! }, samus, 0, 0, advancePowerBombHdma: false);
         AssertEqual((ushort)9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.
@@ -164,9 +159,8 @@ internal static class RidleyFullMovieVerification
         state.FacingDirection = RidleyFacing.Right; state.HealthStage = 3; state.HitRoomBoundary = false;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
         samus.Position = samus.Position.WithWhole(new(156, 411)); samus.Pose = SamusPoseId.FacingLeftNormalPose;
-        samus.RefreshCollisionRadii(bus);
-        var lunge = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGrabApproach", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        lunge.Invoke(runtime.Enemies, [body, state, samus]);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        runtime.Enemies.RidleyBehavior.TickNorfairRidleyGrabApproach(body, state, samus);
         AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "lunge grab enters immediate carry");
         AssertEqual((ushort)0x2b2, state.Velocity.X.RawValue, "native lunge grab X acceleration");
         AssertEqual((ushort)0xfc25, state.Velocity.Y.RawValue, "native lunge grab reverses before carry acceleration");
@@ -176,19 +170,18 @@ internal static class RidleyFullMovieVerification
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x1de)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x419));
         state.FightMode = RidleyFightMode.Fighting; state.GrabState = 0; state.FunctionTimer = 0x29;
         samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.RefreshCollisionRadii(bus);
-        lunge.Invoke(runtime.Enemies, [body, state, samus]);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        runtime.Enemies.RidleyBehavior.TickNorfairRidleyGrabApproach(body, state, samus);
         AssertEqual(RidleyAiFunction.NorfairReleaseSamus, state.Function, "zero-health grab enters death movement");
         AssertEqual((ushort)0x1c6, state.Velocity.X.RawValue, "death entry immediately accelerates X toward death spot");
         AssertEqual((ushort)0xfbde, state.Velocity.Y.RawValue, "death entry immediately accelerates Y toward death spot");
         AssertEqual((ushort)0x29, state.FunctionTimer, "death entry retains existing general countdown");
-        var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var function in new[] { RidleyAiFunction.NorfairCarryRise, RidleyAiFunction.NorfairCarryRelease })
         {
             state.Function = function; state.FunctionTimer = 0;
             state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffca)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xfecb));
             state.Target = state.Target.WithX(208); body.Position = body.Position.WithWhole(new(212, 142));
-            dispatch.Invoke(runtime.Enemies, [body, state, samus, (ushort)0, runtime.LevelData]);
+            runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, samus, (ushort)0, runtime.Room.LevelData);
             AssertEqual((ushort)0xffca, state.Velocity.X.RawValue, "native expiry skips X acceleration");
             AssertEqual((ushort)0xfecb, state.Velocity.Y.RawValue, "native expiry skips Y acceleration");
             AssertEqual(function == RidleyAiFunction.NorfairCarryRise ? RidleyAiFunction.NorfairCarryRelease : RidleyAiFunction.NorfairSelectAttack, state.Function, "native expiry selects next carry phase");
@@ -204,14 +197,14 @@ internal static class RidleyFullMovieVerification
         foreach (bool defeated in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Hud.EnableMinimapAfterDoorEntry();
             runtime.System.LoadExploredMapBytes(new byte[Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea]);
             if (defeated) runtime.System.SetBossBits(AreaId.Norfair, BossBits.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-            var room = runtime.ActiveRoom!;
+            var room = runtime.Room.ActiveRoom!;
             AssertEqual(!defeated, runtime.Hud.MinimapDisabled, "only live Ridley disables the minimap");
             for (int row = 0; row < 2; row++)
                 AssertEqual(!defeated, runtime.System.IsMapTileExplored(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, checked((short)(row + 1)))),
@@ -245,7 +238,7 @@ internal static class RidleyFullMovieVerification
                 },
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.HorizontalSpeed.CalculateTotalSpeed(0x00054321);
             samus.HorizontalSpeed.BaseSpeed = branch == 3 ? (ushort)0 : (ushort)5;
@@ -270,8 +263,8 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
@@ -302,16 +295,16 @@ internal static class RidleyFullMovieVerification
             SamusPoseId.ScrewAttackRightPose, SamusPoseId.ScrewAttackLeftPose })
         {
             var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-            var samus = runtime.Samus!;
+            var samus = runtime.Player.Samus!;
             samus.InputLocked = false;
             samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(512, 400));
             samus.EquippedItems = (ushort)(SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack);
-            samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
             samus.PoseHistory.PreviousPose = pose;
-            ushort direction = samus.ReadPoseXDirection(bus);
+            ushort direction = samus.PoseMetadata.ReadPoseXDirection(bus);
             ushort spinMovement = SnesLittleEndian.Word(unchecked((byte)direction), (byte)SamusMovementType.SpinJumping);
             samus.PoseHistory.PreviousDirectionAndMovement = spinMovement;
             samus.PoseHistory.LastDifferentPose = SamusPoseId.RunningAimUpRightPose;
@@ -338,9 +331,9 @@ internal static class RidleyFullMovieVerification
                 EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
             };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x97ff);
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             var previous = FixedPosition<RoomPixels>.FromWords(128, 0, 401, 0xb7ff);
-            AssertTrue(samus.TryApplyMorphTransition(bus, level,
+            AssertTrue(samus.PoseTransitions.TryApplyMorphTransition(bus, level,
                 left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0),
                 "source6289 airborne morph accepted");
             AssertEqual((ushort)411, samus.Position.Y.Whole, "native morph center alignment");
@@ -350,8 +343,8 @@ internal static class RidleyFullMovieVerification
             AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "checkpoint consumed once");
 
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
-            samus.RefreshCollisionRadii(bus);
-            AssertTrue(samus.TryApplyMorphTransition(bus, level,
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            AssertTrue(samus.PoseTransitions.TryApplyMorphTransition(bus, level,
                 left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0),
                 "unmorph command seven accepted");
             AssertEqual(previous.WithY(previous.Y.WithWhole(samus.Position.Y.Whole)), samus.ApplyPreviousPositionWrites(previous),
@@ -367,18 +360,18 @@ internal static class RidleyFullMovieVerification
         foreach (SamusPoseId pose in new[] { SamusPoseId.FallingAimUpRightPose, SamusPoseId.FallingAimUpLeftPose })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
-            samus.RefreshCollisionRadii(bus);
-            AssertTrue(samus.TryApplyAerialLanding(bus, level, false, 0, 0), "aim-up landing fits");
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            AssertTrue(samus.PoseTransitions.TryApplyAerialLanding(bus, level, false, 0, 0), "aim-up landing fits");
             AssertEqual((ushort)1, samus.AnimationFrame, "native standing initializer skips raised-gun frame");
             AssertEqual((ushort)2, samus.AnimationFrameTimer, "native source3604 landing delay");
             samus.Pose = pose;
-            samus.RefreshCollisionRadii(bus);
-            samus.ApplyAerialLanding(bus, false);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseTransitions.ApplyAerialLanding(bus, false);
             AssertEqual((ushort)1, samus.AnimationFrame, "roomless landing shares native frame skip");
             SamusPoseId standing = pose == SamusPoseId.FallingAimUpRightPose
                 ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.StandingAimUpLeftPose;
             typeof(SamusState).GetProperty("PendingTransitionalPose")!.SetValue(samus, standing);
-            AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "landing completes through animation command");
+            AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "landing completes through animation command");
             AssertEqual((ushort)1, samus.AnimationFrame, "native landing completion retains raised-gun frame");
             AssertEqual((ushort)16, samus.AnimationFrameTimer, "native source3606 standing delay");
         }
@@ -389,25 +382,24 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var projectile = runtime.Enemies.EnemyProjectiles[16];
+        var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[16];
         projectile.Position = new(new(0x49, 0x8c00), new(0x54, 0xd900));
         projectile.Velocity = new(new SnesSignedEightEight(0xfb64), new SnesSignedEightEight(0xfe1b));
         projectile.Radius = new(6, 6);
-        var move = typeof(RoomEnemySystem).GetMethod("MoveProjectileAxis", BindingFlags.Static | BindingFlags.NonPublic)!;
-        AssertTrue(!(bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, true])!, "source1248 fireball crosses empty square-slope quadrant horizontally");
-        AssertTrue(!(bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, false])!, "source1248 fireball clears terrain vertically");
+        AssertTrue(!EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LevelData, true), "source1248 fireball crosses empty square-slope quadrant horizontally");
+        AssertTrue(!EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LevelData, false), "source1248 fireball clears terrain vertically");
         AssertEqual((ushort)0x44, projectile.Position.X.Whole, "native source1249 fireball X");
         AssertEqual((ushort)0xf000, projectile.Position.X.Fraction, "native source1249 fireball X fraction");
         AssertEqual((ushort)0x52, projectile.Position.Y.Whole, "native source1249 fireball Y");
         AssertEqual((ushort)0xf400, projectile.Position.Y.Fraction, "native source1249 fireball Y fraction");
         projectile.Position = projectile.Position.WithWholeX(60).WithFractionX(0).WithWholeY(84); projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0xff00));
-        AssertTrue((bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, true])!, "occupied top-left quarter stops horizontal motion");
+        AssertTrue(EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LevelData, true), "occupied top-left quarter stops horizontal motion");
         AssertEqual((ushort)62, projectile.Position.X.Whole, "native square reaction snaps to eight-pixel edge even when initially embedded");
         projectile.Position = projectile.Position.WithWholeX(52).WithWholeY(94).WithFractionY(0); projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0xff00));
-        AssertTrue((bool)move.Invoke(runtime.Enemies, [projectile, runtime.LevelData, false])!, "occupied top-left quarter stops vertical motion");
+        AssertTrue(EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LevelData, false), "occupied top-left quarter stops vertical motion");
         AssertEqual((ushort)94, projectile.Position.Y.Whole, "native square reaction snaps below occupied quarter");
         Console.WriteLine("Ridley fireball square slope: native source1248 trajectory and occupied horizontal/vertical quadrants pass.");
     }
@@ -416,26 +408,23 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRidleyFireball", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var afterburn = typeof(RoomEnemySystem).GetMethod("SpawnDirectionalAfterburn", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var collide = typeof(RoomEnemySystem).GetMethod("ResolveEnemyProjectileSamusCollision", BindingFlags.Static | BindingFlags.NonPublic)!;
         int slotIndex = 17;
         foreach (var sample in new[] { (AreaId.Ceres, (ushort)3), (AreaId.Norfair, (ushort)60), (AreaId.Tourian, (ushort)80) })
         {
-            var samus = runtime.Samus!;
+            var samus = runtime.Player.Samus!;
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(sample.Item1, 0);
-            spawn.Invoke(runtime.Enemies, [runtime.Enemies.Slots[0], false]);
-            var fireball = runtime.Enemies.EnemyProjectiles[slotIndex--];
+            runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.SlotTable.Slots[0], false);
+            var fireball = runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--];
             AssertEqual(sample.Item2, fireball.Damage, "native area initializer overrides fireball damage");
-            afterburn.Invoke(runtime.Enemies, [fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, new EightEightVector<RoomPixels>(0x0e00, 0)]);
-            AssertEqual(sample.Item2, runtime.Enemies.EnemyProjectiles[slotIndex--].Damage, "directional afterburn runs the same area initializer");
+            runtime.Enemies.RidleyProjectiles.SpawnDirectionalAfterburn(fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, new EightEightVector<RoomPixels>(0x0e00, 0));
+            AssertEqual(sample.Item2, runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--].Damage, "directional afterburn runs the same area initializer");
             samus.Position = samus.Position.WithWhole(fireball.Position.Whole);
             samus.Health = 700; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
-            samus.RefreshCollisionRadii(bus);
-            collide.Invoke(null, [fireball, samus]);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision(fireball, samus);
             AssertEqual((ushort)(700 - sample.Item2 / 4), samus.Health, "area damage passes through native Gravity reduction");
         }
         Console.WriteLine("Ridley fireball damage: default/Norfair/Tourian initializers, directional afterburn and suit reduction pass.");
@@ -445,37 +434,35 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var state = runtime.Enemies.Ridley!;
-        var body = runtime.Enemies.Slots[0];
+        var state = runtime.Enemies.RidleyEncounter.Ridley!;
+        var body = runtime.Enemies.SlotTable.Slots[0];
         state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.TailSegments[6].Position = new Position16<RoomPixels>(4, 118);
-        var impact = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttack", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        impact.Invoke(runtime.Enemies, [body, state, null, runtime.LevelData]);
-        var dust = runtime.Enemies.EnemyProjectiles[17];
+        runtime.Enemies.RidleyBehavior.TickNorfairRidleyGroundAttack(body, state, null, runtime.Room.LevelData);
+        var dust = runtime.Enemies.Projectiles.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, dust.Kind, "native tail impact allocates highest free slot");
         AssertEqual((ushort)4, dust.Position.X.Whole, "native tail impact dust X");
         AssertEqual((ushort)130, dust.Position.Y.Whole, "native tail impact dust Y includes twelve-pixel offset");
         AssertEqual(MiscDustProjectileDefinitions.InstructionList(9), dust.InstructionPointer, "native impact selects variant nine");
-        AssertTrue(runtime.Enemies.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.RidleyTailTerrainImpact && request.MaximumQueued == 6), "native impact queues library-two sound 76");
+        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.RidleyTailTerrainImpact && request.MaximumQueued == 6), "native impact queues library-two sound 76");
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
 
     internal static void VerifyRidleyScreenGate()
     {
-        var update = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyIntangibility", BindingFlags.Static | BindingFlags.NonPublic)!;
         var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
         var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = 3 };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
-        update.Invoke(null, [body, state, new Position16<RoomPixels>((ushort)0, (ushort)287)]);
+        RidleyBehavior.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>((ushort)0, (ushort)287));
         AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native above-camera Ridley disables collision");
         AssertEqual((ushort)3, state.IntangibilityTimer, "offscreen return preserves release timer");
         // At the next AI call Y257 is inside. EnemyMain already tested the old
         // collision bit; the cleared gate is consumed by the following update.
         body.Position = body.Position.WithWholeY(257);
-        update.Invoke(null, [body, state, new Position16<RoomPixels>((ushort)0, (ushort)287)]);
+        RidleyBehavior.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>((ushort)0, (ushort)287));
         AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
         AssertEqual((ushort)2, state.IntangibilityTimer, "onscreen AI resumes release timer");
         AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
@@ -489,16 +476,16 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         runtime.InitializeDebugGroundedSamus(79, 425, 16);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
         samus.Pose = SamusPoseId.SpringBallMovingLeftPose;
-        samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-        samus.SetAnimationFrameFromSpecialHandler(5, 3);
+        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.SetAnimationFrameFromSpecialHandler(5, 3);
         samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
         samus.HorizontalSpeed.BaseSpeed = 3; samus.HorizontalSpeed.BaseSubspeed = 0xc000;
         samus.HorizontalSpeed.AccelerationMode = 0;
@@ -514,7 +501,7 @@ internal static class RidleyFullMovieVerification
         // Original source 1983: stationary Spring Ball keeps command six even
         // while the hurt mover calculates a fresh fractional base speed.
         samus.Pose = SamusPoseId.SpringBallGroundRightPose;
-        samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
         samus.Position = new(new(202, 0x8000), new(425, ushort.MaxValue));
         samus.KnockbackActive = true; samus.KnockbackDirection = 2;
         samus.KnockbackXDirection = 1; samus.KnockbackTimer = 4;
@@ -529,7 +516,6 @@ internal static class RidleyFullMovieVerification
 
     internal static void VerifyRidleyTailOffsets()
     {
-        var tick = typeof(RoomEnemySystem).GetMethod("TickRidleyTailSegment", BindingFlags.Static | BindingFlags.NonPublic)!;
         var state = new RidleyEnemyState
         {
             TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray(),
@@ -541,19 +527,19 @@ internal static class RidleyFullMovieVerification
         var segment = state.TailSegments[0];
         segment.Active = true; segment.StaggerAngle = 2;
         segment.Offset = new Offset16<RoomPixels>(7, 11);
-        tick.Invoke(null, [state, 0]);
+        RidleyTail.TickRidleyTailSegment(state, 0);
         AssertEqual((ushort)4, segment.StaggerAngle, "native stagger advances before returning");
         AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
         segment.StaggerAngle = ushort.MaxValue; segment.Angle = 0x4000;
         segment.MovementDirection = 0x8000; segment.Distance = 0x0200;
-        tick.Invoke(null, [state, 0]);
+        RidleyTail.TickRidleyTailSegment(state, 0);
         AssertEqual((ushort)0x3ffe, segment.Angle, "native clockwise comparison decrements then restores one before storing");
         AssertEqual((short)-1, segment.Offset.X, "signed Mode 7 multiplication floors negative fraction");
         AssertEqual((short)1, segment.Offset.Y, "signed Mode 7 cosine product");
         state.TailWhipTargetClockwiseAngle = 0x4000;
         segment.Angle = 0x4000; segment.Offset = new Offset16<RoomPixels>(7, 11);
-        tick.Invoke(null, [state, 0]);
+        RidleyTail.TickRidleyTailSegment(state, 0);
         AssertTrue(!segment.Active, "root stops at whip target");
         AssertEqual((short)7, segment.Offset.X, "stop retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stop retains Y offset");
@@ -561,16 +547,15 @@ internal static class RidleyFullMovieVerification
         segment.Active = true;
         child.Active = true; child.StaggerAngle = ushort.MaxValue;
         child.Angle = 0x4000; child.MovementDirection = 0x8000; child.Distance = 0x0800;
-        tick.Invoke(null, [state, 1]);
+        RidleyTail.TickRidleyTailSegment(state, 1);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");
         AssertEqual((ushort)0x3fc0, child.Angle, "blocked child clamps to native clockwise limit");
-        var flip = typeof(RoomEnemySystem).GetMethod("MirrorRidleyTail", BindingFlags.Static | BindingFlags.NonPublic)!;
         foreach (var part in state.TailSegments)
         {
             part.Distance = 0x1200; part.TargetDistance = 0x0c00;
             part.Angle = 0x3ff8; part.Offset = new Offset16<RoomPixels>(-3, 13);
         }
-        flip.Invoke(null, [state]);
+        RidleyTail.MirrorRidleyTail(state);
         ushort[] nativeRest = [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
         for (int i = 0; i < state.TailSegments.Length; i++)
         {
@@ -586,8 +571,6 @@ internal static class RidleyFullMovieVerification
 
     internal static void VerifyRidleyCenterFacing()
     {
-        var method = typeof(RoomEnemySystem).GetMethod("SelectNorfairRidleyFacingInstruction",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
         (ushort X, RidleyFacing Facing, bool Turn)[] cases = [
             (0x004a, RidleyFacing.Right, false), // Original movie frame 734: already facing inward.
             (0x00c0, RidleyFacing.Right, true), (0x004a, RidleyFacing.Left, true), (0x00c0, RidleyFacing.Left, false),
@@ -600,7 +583,7 @@ internal static class RidleyFullMovieVerification
                 CurrentInstruction = NativeSnapshotMemory.RidleyRightFlyingSleep,
                 InstructionTimer = 7, Timer = 9 };
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
-            method.Invoke(null, [slot, state]);
+            RidleyBehavior.SelectNorfairRidleyFacingInstruction(slot, state);
             ushort expected = !sample.Turn ? NativeSnapshotMemory.RidleyRightFlyingSleep
                 : sample.Facing == RidleyFacing.Left ? RidleyInstructionProgramDefinitions.TurnFromLeftToRight
                 : RidleyInstructionProgramDefinitions.TurnFromRightToLeft;
@@ -608,9 +591,8 @@ internal static class RidleyFullMovieVerification
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.InstructionTimer, "turn timer changes only when native condition is met");
             AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.Timer, "loop counter is preserved when no turn is needed");
         }
-        var hover = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyHover", BindingFlags.Static | BindingFlags.NonPublic)!;
         var hoverState = new RidleyEnemyState { FunctionTimer = 0, Function = RidleyAiFunction.NorfairHover };
-        hover.Invoke(new RoomEnemySystem(), [new RoomEnemySlot(0), hoverState]);
+        RidleyBehavior.TickNorfairRidleyHover(new RoomEnemySlot(0), hoverState);
         AssertEqual(ushort.MaxValue, hoverState.FunctionTimer, "native hover decrements zero before selecting next attack");
         AssertEqual(RidleyAiFunction.NorfairSelectAttack, hoverState.Function, "negative hover timer exits before movement");
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
@@ -654,18 +636,18 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.InitializeAnimation(bus);
-        samus.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Position = samus.Position.WithWhole(new(512, 400));
         samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = 1; samus.SuperMissiles = 5;
-        samus.LoadSuitPalette(bus, runtime.Cgram);
+        samus.Presentation.LoadSuitPalette(bus, runtime.Cgram);
         Bgr555[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
         for (int color = 192; color < 208; color++) runtime.Cgram.SetColor(color, Bgr555.FromWord(0x1234));
         runtime.StepFrame((ushort)SnesButton.Select);
@@ -709,10 +691,10 @@ internal static class RidleyFullMovieVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.SourceRoom);
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         bool found = false;
         for (int y = 0; y < level.Size.Y && !found; y++)
         for (int x = 0; x < level.Size.X && !found; x++)
@@ -729,32 +711,32 @@ internal static class RidleyFullMovieVerification
         // acid callback was installed long before the recorded door collision.
         runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
         runtime.System.SetRandomNumber(0xd562);
-        typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.NmiFrameCounter))!.SetValue(runtime, (ushort)0xa4df);
-        var samus = runtime.Samus!;
+        runtime.Nmi.NmiFrameCounter = 0xa4df;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
         uint xFixed = samus.Kinematics.Position.X.RawValue, yFixed = samus.Kinematics.Position.Y.RawValue;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
         typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
         game.Step(0);
         AssertEqual((ushort)0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
-        AssertEqual((ushort)0xa4e0, runtime.NmiFrameCounter, "entry accepts exactly one NMI");
+        AssertEqual((ushort)0xa4e0, runtime.Nmi.NmiFrameCounter, "entry accepts exactly one NMI");
         AssertEqual(xFixed, samus.Kinematics.Position.X.RawValue, "entry keeps Samus X fixed");
         AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "entry keeps Samus Y fixed");
         game.Step(0);
         AssertEqual((ushort)0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
-        AssertEqual((ushort)0xa4e1, runtime.NmiFrameCounter, "sound wait accepts exactly one NMI");
+        AssertEqual((ushort)0xa4e1, runtime.Nmi.NmiFrameCounter, "sound wait accepts exactly one NMI");
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
-        var actor = runtime.Enemies.Slots[6];
+        var actor = runtime.Enemies.SlotTable.Slots[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.EnemyDefinitionPointer, "native source-room pipe bug");
         actor.CurrentInstruction = NativeSnapshotMemory.PipeBugBeforeFadeInstruction;
         actor.InstructionTimer = 1;
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;
         game.Step(0);
         AssertEqual((ushort)0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");
-        AssertEqual((ushort)0xa4e2, runtime.NmiFrameCounter, "fade accepts exactly one NMI per update");
+        AssertEqual((ushort)0xa4e2, runtime.Nmi.NmiFrameCounter, "fade accepts exactly one NMI per update");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, actor.CurrentInstruction, "fade advances the native enemy instruction");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
         AssertEqual((ushort)2, actor.InstructionTimer, "fade installs the native visual duration");
@@ -770,23 +752,23 @@ internal static class RidleyFullMovieVerification
         {
             game.Step(0);
             AssertEqual(nativeLoadingRandom[index], runtime.System.RandomNumber, $"native loading RNG update {173 + index}");
-            AssertEqual((ushort)(0xa4f1 + index), runtime.NmiFrameCounter, "loading accepts one NMI per update");
+            AssertEqual((ushort)(0xa4f1 + index), runtime.Nmi.NmiFrameCounter, "loading accepts one NMI per update");
             if (index == 5)
             {
                 AssertEqual(0x010e9000u, samus.Kinematics.Position.X.RawValue, "native placement rebases and advances Samus while loading tiles");
-                AssertEqual((ushort)0x00f8, runtime.Camera!.PixelPosition.X, "first loading IRQ moves camera four pixels");
+                AssertEqual((ushort)0x00f8, runtime.Room.Camera!.PixelPosition.X, "first loading IRQ moves camera four pixels");
             }
             if (index == 4)
             {
                 AssertEqual(0x00135800u, samus.Kinematics.Position.X.RawValue, "native scrolling setup moves Samus before destination placement");
                 AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "left scrolling setup preserves perpendicular coordinate");
-                AssertEqual((ushort)0x00fc, runtime.Camera!.PixelPosition.X, "native setup camera origin");
+                AssertEqual((ushort)0x00fc, runtime.Room.Camera!.PixelPosition.X, "native setup camera origin");
             }
         }
         game.Step(0); // The atomic destination loader must use the pre-setup source.
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
-        AssertEqual((byte)0, runtime.NmiFrameCounter8, "door end-drawing IRQ clears the adjacent byte counter");
+        AssertEqual((byte)0, runtime.Nmi.NmiFrameCounter8, "door end-drawing IRQ clears the adjacent byte counter");
         ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams);
         for (int color = 0; color < 16; color++)
             AssertEqual(beamPalette[color], runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
@@ -795,7 +777,7 @@ internal static class RidleyFullMovieVerification
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
         {
             game.Step(0);
-            AssertEqual((byte)0, runtime.NmiFrameCounter8, "every moving door IRQ renews the byte-counter reset");
+            AssertEqual((byte)0, runtime.Nmi.NmiFrameCounter8, "every moving door IRQ renews the byte-counter reset");
             scrollCalls++;
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
@@ -815,38 +797,38 @@ internal static class RidleyFullMovieVerification
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForMusicQueue && musicWaits++ < 32)
             game.Step(0);
         AssertEqual(DoorTransitionPhase.HandleTransition, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
-        ushort nmiBeforeNudge = runtime.NmiFrameCounter;
+        ushort nmiBeforeNudge = runtime.Nmi.NmiFrameCounter;
         ushort samusAnimation = samus.AnimationFrame;
-        var ridley = runtime.Enemies.Slots[0];
+        var ridley = runtime.Enemies.SlotTable.Slots[0];
         ushort bodyInstruction = ridley.CurrentInstruction;
         game.Step(0);
         AssertEqual(DoorTransitionPhase.BuildDestinationOam, game.DoorTransitionPhaseForVerification, "final nudge returns before first fade");
-        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.NmiFrameCounter, "final transition accepts exactly one NMI");
+        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.Nmi.NmiFrameCounter, "final transition accepts exactly one NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "final transition does not animate Samus");
         AssertEqual(bodyInstruction, ridley.CurrentInstruction, "final transition does not advance destination enemy instructions");
-        AssertEqual((byte)0, runtime.NmiFrameCounter8, "final door scanout resets the byte before IRQ ownership changes");
+        AssertEqual((byte)0, runtime.Nmi.NmiFrameCounter8, "final door scanout resets the byte before IRQ ownership changes");
         game.Step(0);
-        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 2)), runtime.NmiFrameCounter, "first fade accepts exactly one additional NMI");
+        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 2)), runtime.Nmi.NmiFrameCounter, "first fade accepts exactly one additional NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "destination fade does not animate Samus");
-        AssertEqual((byte)1, runtime.NmiFrameCounter8, "first destination drawing frame resumes the byte counter");
+        AssertEqual((byte)1, runtime.Nmi.NmiFrameCounter8, "first destination drawing frame resumes the byte counter");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, ridley.CurrentInstruction, "first fade runs native Ridley instruction list");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
         AssertEqual((ushort)12, ridley.InstructionTimer, "first native fade visual duration");
-        AssertEqual(RidleyAiFunction.WaitForDoorTransition, runtime.Enemies.Ridley!.Function, "native Ridley AI remains gated during fade visuals");
-        AssertEqual((ushort)0, runtime.Enemies.Ridley.FunctionTimer, "fade does not consume the reveal countdown");
+        AssertEqual(RidleyAiFunction.WaitForDoorTransition, runtime.Enemies.RidleyEncounter.Ridley!.Function, "native Ridley AI remains gated during fade visuals");
+        AssertEqual((ushort)0, runtime.Enemies.RidleyEncounter.Ridley.FunctionTimer, "fade does not consume the reveal countdown");
         game.Step(0);
         AssertEqual((ushort)11, ridley.InstructionTimer, "later fade updates continue enemy animation");
         int remainingFade = 0;
         while (game.GameState == SuperMetroidGameState.LoadingNextRoomB && remainingFade++ < 32)
         {
             game.Step(0);
-            AssertEqual(RidleyAiFunction.WaitForDoorTransition, runtime.Enemies.Ridley.Function, "reveal timer remains gated through the final fade dispatch");
+            AssertEqual(RidleyAiFunction.WaitForDoorTransition, runtime.Enemies.RidleyEncounter.Ridley.Function, "reveal timer remains gated through the final fade dispatch");
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "fade releases ordinary gameplay");
-        AssertTrue(!runtime.Enemies.EnemyDoorTransitionActive, "completed fade clears enemy gate");
+        AssertTrue(!runtime.Enemies.RoomStatus.EnemyDoorTransitionActive, "completed fade clears enemy gate");
         game.Step(0);
-        AssertEqual(RidleyAiFunction.InitialDelay, runtime.Enemies.Ridley.Function, "first gameplay update begins reveal");
-        AssertEqual((ushort)169, runtime.Enemies.Ridley.FunctionTimer, "native first gameplay update consumes one of 170 reveal ticks");
+        AssertEqual(RidleyAiFunction.InitialDelay, runtime.Enemies.RidleyEncounter.Ridley.Function, "first gameplay update begins reveal");
+        AssertEqual((ushort)169, runtime.Enemies.RidleyEncounter.Ridley.FunctionTimer, "native first gameplay update consumes one of 170 reveal ticks");
         Console.WriteLine("Ridley door entry/loading/fade: native positions, RNG, one NMI per dispatch, stationary Samus animation and continuing enemy visuals agree.");
     }
 
@@ -913,7 +895,7 @@ internal static class RidleyFullMovieVerification
         var (bus, runtime, samus, game) = ImportNativeSnapshot(memory, ridleyMovie.InitialSaveRam);
         var previousHudSelection = typeof(HudState)
             .GetField("_previousSelectedItem", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var initialPlms = (Array)typeof(RoomPlmSystem).GetField("_slots", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.Plms)!;
+        Array initialPlms = runtime.Plms.SlotTable._slots;
         var checkedProjectileCompositions = new HashSet<(ushort Operand, ushort Direct, ushort Native)>();
         var audio = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         ushort[]? pendingLoadedOwners = null;
@@ -926,7 +908,7 @@ internal static class RidleyFullMovieVerification
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 if (color != SamusXrayRomData.Palette.VisorCgramIndex)
                     words.Add(runtime.Cgram.Colors[color].ToWord());
-            foreach (var actor in runtime.Enemies.Slots)
+            foreach (var actor in runtime.Enemies.SlotTable.Slots)
                 words.AddRange([(ushort)actor.EnemyDefinitionPointer, actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, actor.Health, actor.SpritemapPointer,
                     actor.CurrentInstruction, actor.InstructionTimer]);
@@ -934,8 +916,8 @@ internal static class RidleyFullMovieVerification
         }
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
         (ushort Top, ushort Bottom, ushort X, ushort Y) BodyRecord() =>
-            (samus.TopSpritemapIndex, samus.BottomSpritemapIndex,
-                samus.SpritemapPosition.X, samus.SpritemapPosition.Y);
+            (samus.Presentation.TopSpritemapIndex, samus.Presentation.BottomSpritemapIndex,
+                samus.Presentation.SpritemapPosition.X, samus.Presentation.SpritemapPosition.Y);
         var previousBodyRecord = BodyRecord();
         for (int frame = 0; frame <= length; frame++)
         {
@@ -983,10 +965,10 @@ internal static class RidleyFullMovieVerification
                 bool forcedBodyVisible = knockbackAtDraw || !invincibleAtDraw ||
                     W(NativeSnapshotMemory.SamusShineTimer) != 0;
                 bool nativeBodyVisible = forcedBodyVisible || (W(NativeSnapshotMemory.NmiCounter) & 1) == 0;
-                bool normalizedBodyVisible = forcedBodyVisible || (runtime.NmiFrameCounter & 1) == 0;
+                bool normalizedBodyVisible = forcedBodyVisible || (runtime.Nmi.NmiFrameCounter & 1) == 0;
                 if (frame != 0)
                 {
-                    AssertEqual(normalizedBodyVisible, runtime.LastSamusBodyDrawn,
+                    AssertEqual(normalizedBodyVisible, runtime.ActorDrawing.LastSamusBodyDrawn,
                         $"update {frame}: body visibility uses lag-free NMI phase");
                     if (nativeBodyVisible && normalizedBodyVisible) pairedBodyDraws++;
                     if (nativeBodyVisible != normalizedBodyVisible) phaseShiftedBodyDraws++;
@@ -1013,10 +995,10 @@ internal static class RidleyFullMovieVerification
                 // origin/indices. Compare newly published records when both draws execute.
                 if (frame == 0 || (nativeBodyVisible && normalizedBodyVisible))
                 {
-                    Check("Samus top spritemap", samus.TopSpritemapIndex, NativeSnapshotMemory.SamusTopSpritemap);
-                    Check("Samus bottom spritemap", samus.BottomSpritemapIndex, NativeSnapshotMemory.SamusBottomSpritemap);
-                    Check("Samus sprite X", samus.SpritemapPosition.X, NativeSnapshotMemory.SamusSpriteX);
-                    Check("Samus sprite Y", samus.SpritemapPosition.Y, NativeSnapshotMemory.SamusSpriteY);
+                    Check("Samus top spritemap", samus.Presentation.TopSpritemapIndex, NativeSnapshotMemory.SamusTopSpritemap);
+                    Check("Samus bottom spritemap", samus.Presentation.BottomSpritemapIndex, NativeSnapshotMemory.SamusBottomSpritemap);
+                    Check("Samus sprite X", samus.Presentation.SpritemapPosition.X, NativeSnapshotMemory.SamusSpriteX);
+                    Check("Samus sprite Y", samus.Presentation.SpritemapPosition.Y, NativeSnapshotMemory.SamusSpriteY);
                 }
                 if (frame != 0)
                 {
@@ -1028,7 +1010,7 @@ internal static class RidleyFullMovieVerification
                     // The normalized draw is observed through its outputs: the port OAM must hold the
                     // reference sprite (position and attributes), and the VRAM queue must hold
                     // exactly the reference tile transfer.
-                    var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, runtime.NmiFrameCounter);
+                    var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, runtime.Nmi.NmiFrameCounter);
                     if (cannon.SpriteWritten)
                         AssertTrue(ContainsMovieCannonSprite(runtime.Oam.LowTable, runtime.Oam.HighTable, cannon),
                             $"update {frame}: port OAM contains reference cannon sprite");
@@ -1049,7 +1031,7 @@ internal static class RidleyFullMovieVerification
                 Check("Cannon drawing mode", samus.ArmCannon.DrawingMode, NativeSnapshotMemory.CannonDrawingMode);
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);
                 CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
-                    runtime.Camera!.Scrolls.ReadStorage, NativeSnapshotMemory.ScrollStorage);
+                    runtime.Room.Camera!.Scrolls.ReadStorage, NativeSnapshotMemory.ScrollStorage);
                 for (int area = 0; area < Bank80SystemState.ExploredMapAreaCount; area++)
                     CheckBytes($"Explored map {area}", Bank80SystemState.ExploredMapBytesPerArea,
                         index => runtime.System.GetExploredMapByteRaw(area, index),
@@ -1060,15 +1042,15 @@ internal static class RidleyFullMovieVerification
             // gameplay state is never copied back into the production runtime.
             int excludedNmis = frame == 0 ? 0 : updates[frame - 1].GetProperty("excludedNmiAfter").GetInt32();
             ushort normalizedNmi = unchecked((ushort)(W(NativeSnapshotMemory.NmiCounter) - excludedNmis));
-            if (runtime.NmiFrameCounter != normalizedNmi)
-                mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.NmiFrameCounter:X4}");
+            if (runtime.Nmi.NmiFrameCounter != normalizedNmi)
+                mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.Nmi.NmiFrameCounter:X4}");
             // All excluded accepted upload NMIs in this movie occur while the door
             // IRQ repeatedly clears this byte. Its post-door phase therefore compares
             // directly, unlike the independently retained word counter above.
-            AssertEqual(memory[NativeSnapshotMemory.NmiCounterByte], runtime.NmiFrameCounter8,
+            AssertEqual(memory[NativeSnapshotMemory.NmiCounterByte], runtime.Nmi.NmiFrameCounter8,
                 $"update {frame}: byte NMI counter including native door IRQ reset");
             Check("Game state", (ushort)game.GameState, NativeSnapshotMemory.GameState);
-            Check("Enemy door gate", runtime.Enemies.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);
+            Check("Enemy door gate", runtime.Enemies.RoomStatus.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);
             // Native LoadDoorHeader publishes the destination room pointer before
             // loading its room/state data. The port keeps that identity in the pending
             // door while ActiveRoom still owns the source room's loaded data.
@@ -1076,24 +1058,24 @@ internal static class RidleyFullMovieVerification
                 DoorTransitionPhase.AlignSourceCamera or DoorTransitionPhase.FixDoorsMovingUp or
                 DoorTransitionPhase.SetupNewRoom or DoorTransitionPhase.SetupScrolling or
                 DoorTransitionPhase.PlaceSamusAndLoadTiles or DoorTransitionPhase.LoadMoreThingsAndOpenDoor
-                ? (runtime.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoomPointer
-                : runtime.ActiveRoom!.Pointer;
+                ? (runtime.RoomLoader.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoomPointer
+                : runtime.Room.ActiveRoom!.Pointer;
             Check("Selected room", selectedRoom, NativeSnapshotMemory.Room);
-            Check("Camera X", runtime.Camera!.PixelPosition.X, NativeSnapshotMemory.CameraX);
-            Check("Camera X fraction", runtime.Camera.Position.X.Fraction, NativeSnapshotMemory.CameraXFraction);
-            Check("Camera Y", runtime.Camera.PixelPosition.Y, NativeSnapshotMemory.CameraY);
-            Check("Camera Y fraction", runtime.Camera.Position.Y.Fraction, NativeSnapshotMemory.CameraYFraction);
+            Check("Camera X", runtime.Room.Camera!.PixelPosition.X, NativeSnapshotMemory.CameraX);
+            Check("Camera X fraction", runtime.Room.Camera.Position.X.Fraction, NativeSnapshotMemory.CameraXFraction);
+            Check("Camera Y", runtime.Room.Camera.PixelPosition.Y, NativeSnapshotMemory.CameraY);
+            Check("Camera Y fraction", runtime.Room.Camera.Position.Y.Fraction, NativeSnapshotMemory.CameraYFraction);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
-                Check("Ideal camera X", runtime.Camera.IdealPosition.X, NativeSnapshotMemory.IdealCameraX);
-                Check("Ideal camera Y", runtime.Camera.IdealPosition.Y, NativeSnapshotMemory.IdealCameraY);
-                Check("Camera speed X", runtime.Camera.Speed.X.WholeWord, NativeSnapshotMemory.CameraSpeedX);
-                Check("Camera speed X fraction", runtime.Camera.Speed.X.Fraction, NativeSnapshotMemory.CameraSpeedXFraction);
-                Check("Camera speed Y", runtime.Camera.Speed.Y.WholeWord, NativeSnapshotMemory.CameraSpeedY);
-                Check("Camera speed Y fraction", runtime.Camera.Speed.Y.Fraction, NativeSnapshotMemory.CameraSpeedYFraction);
+                Check("Ideal camera X", runtime.Room.Camera.IdealPosition.X, NativeSnapshotMemory.IdealCameraX);
+                Check("Ideal camera Y", runtime.Room.Camera.IdealPosition.Y, NativeSnapshotMemory.IdealCameraY);
+                Check("Camera speed X", runtime.Room.Camera.Speed.X.WholeWord, NativeSnapshotMemory.CameraSpeedX);
+                Check("Camera speed X fraction", runtime.Room.Camera.Speed.X.Fraction, NativeSnapshotMemory.CameraSpeedXFraction);
+                Check("Camera speed Y", runtime.Room.Camera.Speed.Y.WholeWord, NativeSnapshotMemory.CameraSpeedY);
+                Check("Camera speed Y fraction", runtime.Room.Camera.Speed.Y.Fraction, NativeSnapshotMemory.CameraSpeedYFraction);
                 // A fresh door camera defers its first sample to the runtime's frame-start
                 // fallback. Compare that effective sample instead of requiring storage.
-                var previous = runtime.Camera.PreviousSamusPoint ?? samus.Position;
+                var previous = runtime.Room.Camera.PreviousSamusPoint ?? samus.Position;
                 Check("Previous Samus X", previous.X.Whole, NativeSnapshotMemory.PreviousSamusX);
                 Check("Previous Samus X fraction", previous.X.Fraction, NativeSnapshotMemory.PreviousSamusXFraction);
                 Check("Previous Samus Y", previous.Y.Whole, NativeSnapshotMemory.PreviousSamusY);
@@ -1122,13 +1104,13 @@ internal static class RidleyFullMovieVerification
             Check("Samus Y", samus.Position.Y.Whole, NativeSnapshotMemory.Y);
             Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, NativeSnapshotMemory.YFraction);
             Check("Samus pose", (ushort)samus.Pose, NativeSnapshotMemory.Pose);
-            Check("PreviousDrawHeldInput", samus.PreviousDrawHeldInput, NativeSnapshotMemory.SamusFilteredHeld);
-            Check("PreviousDrawNewInput", samus.PreviousDrawNewInput, NativeSnapshotMemory.SamusFilteredNew);
-            Check("AutoJumpTimer", samus.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
+            Check("PreviousDrawHeldInput", samus.InputSnapshot.PreviousDrawHeldInput, NativeSnapshotMemory.SamusFilteredHeld);
+            Check("PreviousDrawNewInput", samus.InputSnapshot.PreviousDrawNewInput, NativeSnapshotMemory.SamusFilteredNew);
+            Check("AutoJumpTimer", samus.InputSnapshot.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
             Check("PreviousHealthForHurtCheck", samus.PreviousHealthForHurtCheck, NativeSnapshotMemory.SamusPreviousHealthForFlash);
-            AssertTrue(!samus.ShinesparkPoseInputLocked && !samus.CrystalFlashPoseInputLocked,
+            AssertTrue(!samus.InputSnapshot.ShinesparkPoseInputLocked && !samus.InputSnapshot.CrystalFlashPoseInputLocked,
                 "Movie now uses a special pose-input lock; map its handler explicitly");
-            Check("Samus input handler", samus.AutoJumpInputPending
+            Check("Samus input handler", samus.InputSnapshot.AutoJumpInputPending
                 ? NativeSnapshotMemory.SamusAutoJumpInputHandler : NativeSnapshotMemory.SamusNormalInputHandler,
                 NativeSnapshotMemory.SamusInputHandler);
 
@@ -1259,7 +1241,7 @@ internal static class RidleyFullMovieVerification
                     AssertEqual(NativeSnapshotMemory.HandleAnimTiles, W(NativeSnapshotMemory.DoorFunction), "deferred destination owners reach native completed-loading boundary");
                 Check("RNG", runtime.System.RandomNumber, NativeSnapshotMemory.Random);
             }
-            foreach (var actor in runtime.Enemies.Slots)
+            foreach (var actor in runtime.Enemies.SlotTable.Slots)
             {
                 if (deferLoadingOwners) continue;
                 int address = NativeSnapshotMemory.EnemyBase + actor.NativeIndex;
@@ -1289,11 +1271,11 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " ShakeTimer", actor.ShakeTimer, address + 42);
                 Check(owner + " FrameCounter", actor.FrameCounter, address + 44);
             }
-            if (!deferLoadingOwners && runtime.Enemies.Ridley is { } ridleyState &&
+            if (!deferLoadingOwners && runtime.Enemies.RidleyEncounter.Ridley is { } ridleyState &&
                 W(NativeSnapshotMemory.EnemyBase) == (ushort)EnemyDefinitionId.Ridley)
             {
                 bool expectedGate = (W(NativeSnapshotMemory.EnemyBase + 14) & 0x0400) != 0;
-                if (runtime.Enemies.Slots[0].Properties.HasAny(EnemyProperties.IgnoreSamusCollision) != expectedGate)
+                if (runtime.Enemies.SlotTable.Slots[0].Properties.HasAny(EnemyProperties.IgnoreSamusCollision) != expectedGate)
                     mismatches.Add($"Ridley interaction gate: native={expectedGate}");
                 Check("Ridley AI function", (ushort)ridleyState.Function, NativeSnapshotMemory.RidleyFunction);
                 Check("Ridley AI timer", ridleyState.FunctionTimer, NativeSnapshotMemory.RidleyFunctionTimer);
@@ -1359,7 +1341,7 @@ internal static class RidleyFullMovieVerification
                     if (!active || W(NativeSnapshotMemory.PlmHeaders + offset) == 0) continue;
                     ushort instruction = slot.InstructionPointer;
                     ushort preInstruction = slot.PreInstruction == 0 ? NativeSnapshotMemory.PlmDefaultPreInstruction : slot.PreInstruction;
-                    var greyDoor = runtime.Plms.GreyDoors.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
+                    var greyDoor = runtime.Plms.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
                     AssertTrue(greyDoor.Header != PlmHeaderId.None,
                         $"Movie PLM {(int)slot.HeaderPointer:X4} needs a family-variable coverage mapping");
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.PlmFamilyVariable + offset);
@@ -1396,7 +1378,7 @@ internal static class RidleyFullMovieVerification
                     // InitialList overwrites it before installing the condition callback;
                     // all subsequent live links are checked through the semantic phase.
                 }
-                var activeLevel = runtime.LevelData ?? throw new InvalidDataException("Missing active collision data.");
+                var activeLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active collision data.");
                 for (int block = 0; block < activeLevel.Size.X * activeLevel.Size.Y; block++)
                 {
                     Check($"Room block {block}", activeLevel.ForegroundEntries.Span[block], NativeSnapshotMemory.Level + block * 2);
@@ -1428,12 +1410,12 @@ internal static class RidleyFullMovieVerification
                     }
                 }
                 Check("Projectile cooldown", runtime.BombProjectiles.CooldownTimer, NativeSnapshotMemory.ProjectileCooldown);
-                Check("Beam charge", runtime.Projectiles.FlareCounter, NativeSnapshotMemory.BeamCharge);
-                Check("ProjectileCounter", runtime.Projectiles.ProjectileCounter, NativeSnapshotMemory.ProjectileCount);
-                Check("PreviousBeamChargeCounter", runtime.Projectiles.PreviousBeamChargeCounter, NativeSnapshotMemory.PreviousCharge);
-                Check("ProjectileInvincibilityTimer", runtime.Projectiles.ProjectileInvincibilityTimer, NativeSnapshotMemory.ProjectileInteractionImmunity);
-                Check("ChargedShotGlowTimer", runtime.Projectiles.ChargedShotGlowTimer, NativeSnapshotMemory.ChargedShotGlow);
-                Check("SamusChargePaletteIndex", runtime.Projectiles.SamusChargePaletteIndex, NativeSnapshotMemory.ChargePaletteIndex);
+                Check("Beam charge", runtime.Projectiles.Charge.FlareCounter, NativeSnapshotMemory.BeamCharge);
+                Check("ProjectileCounter", runtime.Projectiles.SlotTable.ProjectileCounter, NativeSnapshotMemory.ProjectileCount);
+                Check("PreviousBeamChargeCounter", runtime.Projectiles.Charge.PreviousBeamChargeCounter, NativeSnapshotMemory.PreviousCharge);
+                Check("ProjectileInvincibilityTimer", runtime.Projectiles.Firing.ProjectileInvincibilityTimer, NativeSnapshotMemory.ProjectileInteractionImmunity);
+                Check("ChargedShotGlowTimer", runtime.Projectiles.Charge.ChargedShotGlowTimer, NativeSnapshotMemory.ChargedShotGlow);
+                Check("SamusChargePaletteIndex", runtime.Projectiles.Charge.SamusChargePaletteIndex, NativeSnapshotMemory.ChargePaletteIndex);
                 Check("BombCounter", runtime.BombProjectiles.BombCounter, NativeSnapshotMemory.BombCount);
                 // This movie never places a bomb. Check every physical bomb slot and
                 // both activation owners so that absence is verified, not assumed from
@@ -1494,7 +1476,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), NativeSnapshotMemory.ProjectileSpritemap + index);
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
-            foreach (var projectile in runtime.Enemies.EnemyProjectiles)
+            foreach (var projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
             {
                 int index = projectile.SlotIndex * 2;
                 string owner = $"Enemy projectile {projectile.SlotIndex}";
@@ -1585,10 +1567,10 @@ internal static class RidleyFullMovieVerification
             }
             if (mismatches.Count != 0)
             {
-                RoomLevelData level = runtime.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
+                RoomLevelData level = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
                 Console.Error.WriteLine($"Pose history: port={(int)samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{(int)samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Liquid diagnostic: Y={samus.Position.Y.Whole:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={(int)samus.Pose:X2}, radius={samus.Kinematics.Radius.Y}");
-                Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.DebugGrappleItemSelected}, charge={runtime.Projectiles.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.Controller1.Current:X4}, new={runtime.Controller1.NewlyPressed:X4}, spawn={runtime.Projectiles.LastFiredProjectileSnapshot}");
+                Console.Error.WriteLine($"Shot diagnostic: locked={samus.InputLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.Player.DebugGrappleItemSelected}, charge={runtime.Projectiles.Charge.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer}, held={runtime.Controller1.Current:X4}, new={runtime.Controller1.NewlyPressed:X4}, spawn={runtime.Projectiles.LastFiredProjectileSnapshot}");
                 Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4}+{samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4}");
                 for (int block = 0; block < level.Size.X * level.Size.Y; block++)
                 {

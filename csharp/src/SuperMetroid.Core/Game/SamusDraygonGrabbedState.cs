@@ -66,8 +66,8 @@ public sealed class SamusDraygonGrabbedState
         samus.Pose = draygonFacingRight
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
             : SamusPoseId.DraygonGrabbedNeutralLeftPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
 
         IsActive = true;
         MovementHandlerReplaced = false;
@@ -175,13 +175,13 @@ public sealed class SamusDraygonGrabbedState
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
-        bool facingLeft = samus.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
         samus.Pose = facingLeft
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
-        samus.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
         if (samus.Pose != samus.PoseHistory.PreviousPose)
-            samus.InitializeAnimation(bus, initialFrame: 0);
+            samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         // Death calls this even when Samus was never grabbed. Installing normal
         // movement interrupts a spark without resetting its independent boost/palette.
         samus.Shinespark.RelinquishMovementHandler();
@@ -225,7 +225,7 @@ public sealed class SamusDraygonGrabbedState
 
     private static void EnsureGrabbedPose(SamusState samus)
     {
-        if (!SamusState.IsDraygonGrabbedPose(samus.Pose))
+        if (!SamusPoseMetadata.IsDraygonGrabbedPose(samus.Pose))
         {
             throw new InvalidOperationException(
                 $"Draygon movement requires pose $BA-$BE/$EC-$F0, not ${(int)samus.Pose:X2}.");

@@ -32,21 +32,21 @@ internal static class MaridiaElevatubePlmVerification
         RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnMaridiaElevatube(level),
+        AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
             "native door setup allocates the elevatube PLM");
         var guarded = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int blockIndex = level.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
         int heardAtFrame = -1;
-        for (int frame = 0; frame < 24 && plms.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
         {
             plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0)
                 AssertEqual((ushort)0x8180,
                     level.GetCollisionBlockByIndex(blockIndex).LevelWord,
                     "first elevatube handler pass draws its physical block");
-            if (plms.SoundRequests.Any(request =>
+            if (plms.Sounds.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,
                         MaridiaElevatubePlmDefinitions.SoundId)))
@@ -54,7 +54,7 @@ internal static class MaridiaElevatubePlmVerification
         }
         AssertEqual(16, heardAtFrame,
             "elevatube sound follows the native sixteen-frame hold");
-        AssertEqual(0, plms.ActiveCount,
+        AssertEqual(0, plms.SlotTable.ActiveCount,
             "elevatube PLM deletes after the sound instruction");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "elevatube program and draw execute without their source ROM bytes");

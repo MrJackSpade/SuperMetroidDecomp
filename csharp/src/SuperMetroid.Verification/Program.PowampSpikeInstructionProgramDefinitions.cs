@@ -41,13 +41,7 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
         var guard = NewPowampSpikeInstructionReadGuard(rom);
         var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", instanceFlags)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnPowampSpikeBurst", instanceFlags)!;
-        MethodInfo beginDeletion = typeof(RoomEnemySystem).GetMethod(
-            "BeginPowampSpikeDeletion", staticFlags)!;
+        enemies.BindFixtureBus(guard);
 
         var body = new RoomEnemySlot(0)
         {
@@ -55,9 +49,9 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
-        spawn.Invoke(enemies, [body]);
+        enemies.PowampBehavior.SpawnPowampSpikeBurst(body);
 
-        RoomEnemyProjectileSlot[] spikes = enemies.EnemyProjectiles
+        RoomEnemyProjectileSlot[] spikes = enemies.Projectiles.EnemyProjectiles
             .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.PowampSpike)
             .ToArray();
         AssertEqual(8, spikes.Length,
@@ -79,7 +73,7 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
                 "Powamp spike animation remains active until room collision deletes it");
         }
 
-        beginDeletion.Invoke(null, [spikes[0]]);
+        PowampBehavior.BeginPowampSpikeDeletion(spikes[0]);
         AssertEqual(PowampSpikeInstructionProgramDefinitions.Delete,
             spikes[0].InstructionPointer,
             "production collision handoff installs the named private delete list");
@@ -128,7 +122,7 @@ internal static class PowampSpikeInstructionProgramDefinitionsVerification
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 if (projectile.IsActive && projectile.InstructionTimer != 0)
                 {
                     ushort operand = (ushort)(projectile.InstructionPointer - 2);

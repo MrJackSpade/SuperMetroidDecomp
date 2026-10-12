@@ -14,7 +14,7 @@ internal static class GoldenTorizoRoomSetupVerification
     {
         foreach (SuperMetroidGame game in new[] { native, installed })
         {
-            game.RuntimeForVerification!.Samus!.Position = game.RuntimeForVerification!.Samus!.Position.WithWhole(new(0x0180, 0x0150));
+            game.RuntimeForVerification!.Player.Samus!.Position = game.RuntimeForVerification!.Player.Samus!.Position.WithWhole(new(0x0180, 0x0150));
         }
         for (int frame = 0; frame < 450; frame++)
         {
@@ -38,7 +38,7 @@ internal static class GoldenTorizoRoomSetupVerification
         PrimeGoldenTorizoAwakenedRoom(native, installed);
         foreach (SuperMetroidGame game in new[] { native, installed })
         {
-            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
+            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.SlotTable.Slots.Single(
                 slot => slot.EnemyDefinitionPointer ==
                     EnemyDefinitionId.GoldenTorizo);
             AssertTrue(boss.SpritemapPointer !=

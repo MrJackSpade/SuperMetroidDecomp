@@ -45,10 +45,10 @@ internal static void VerifyTypedNativeWords()
     // Facing is an ordinary discriminator, not a flag set. The typed view must recognize
     // verified values four/eight while retaining an unknown byte for debugger inspection.
     var poseBus = new TestAddressSpace();
-    AssertTrue(SamusState.IsFacingLeft(poseBus, SamusPoseId.FacingLeftNormalPose), "typed left-facing pose query");
-    AssertEqual(SamusFacingDirection.Right, SamusState.ReadFacingDirection(poseBus, SamusPoseId.FacingRightNormalPose),
+    AssertTrue(SamusPoseMetadata.IsFacingLeft(poseBus, SamusPoseId.FacingLeftNormalPose), "typed left-facing pose query");
+    AssertEqual(SamusFacingDirection.Right, SamusPoseMetadata.ReadFacingDirection(poseBus, SamusPoseId.FacingRightNormalPose),
         "typed right-facing pose query");
-    AssertEqual(41, (byte)SamusState.ReadFacingDirection(poseBus, (SamusPoseId)0xfe),
+    AssertEqual(41, (byte)SamusPoseMetadata.ReadFacingDirection(poseBus, (SamusPoseId)0xfe),
         "typed facing query preserves compiled unnamed adjacent-code byte");
 
     // Fixed-bank pointer arithmetic must wrap only the low word. A host addition would

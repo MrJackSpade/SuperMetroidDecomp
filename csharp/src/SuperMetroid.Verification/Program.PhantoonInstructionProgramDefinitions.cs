@@ -44,13 +44,10 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         var guard = NewPhantoonInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
         RoomEnemySystem enemies = CreatePhantoonInstructionSystem(guard);
-        RoomEnemySlot body = enemies.Slots[0];
-        RoomEnemySlot eye = enemies.Slots[1];
-        RoomEnemySlot tentacles = enemies.Slots[2];
-        RoomEnemySlot mouth = enemies.Slots[3];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemySlot eye = enemies.SlotTable.Slots[1];
+        RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];
+        RoomEnemySlot mouth = enemies.SlotTable.Slots[3];
 
         foreach (ushort entry in new ushort[]
                  {
@@ -59,14 +56,13 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
                      PhantoonInstructionProgramDefinitions.EyeHitboxBody,
                  })
         {
-            RunPhantoonInstructionProgram(rom, executedOperands, process, enemies, body, entry, calls: 2);
+            RunPhantoonInstructionProgram(rom, executedOperands, enemies, body, entry, calls: 2);
             AssertEqual(unchecked((ushort)(entry + 4)), body.CurrentInstruction,
                 $"Phantoon body program $A7:{entry:X4} reaches terminal sleep");
         }
 
         RunPhantoonInstructionProgram(
-            rom, executedOperands, process,
-            enemies,
+            rom, executedOperands, enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeOpen,
             calls: 4);
@@ -75,18 +71,16 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         AssertEqual(PhantoonInstructionProgramDefinitions.EyeHitboxBody,
             body.CurrentInstruction,
             "Phantoon open-eye callback installs the eye-only body hitbox");
-        AssertTrue(enemies.Phantoon!.LastMaterializationSound.HasValue,
+        AssertTrue(enemies.PhantoonBehavior.Phantoon!.LastMaterializationSound.HasValue,
             "Phantoon open-eye callback queues its materialization sound");
 
         RunPhantoonInstructionProgram(
-            rom, executedOperands, process,
-            enemies,
+            rom, executedOperands, enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeClosed,
             calls: 2);
         RunPhantoonInstructionProgram(
-            rom, executedOperands, process,
-            enemies,
+            rom, executedOperands, enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeCloseAndPickNewPattern,
             calls: 3);
@@ -94,8 +88,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             eye.CurrentInstruction,
             "Phantoon close-and-pick program branches into the closed-eye frame");
         RunPhantoonInstructionProgram(
-            rom, executedOperands, process,
-            enemies,
+            rom, executedOperands, enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeClose,
             calls: 3);
@@ -103,8 +96,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             eye.CurrentInstruction,
             "Phantoon close program branches into the closed-eye frame");
         RunPhantoonInstructionProgram(
-            rom, executedOperands, process,
-            enemies,
+            rom, executedOperands, enemies,
             eye,
             PhantoonInstructionProgramDefinitions.EyeballCentered,
             calls: 2);
@@ -121,14 +113,13 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
                      PhantoonInstructionProgramDefinitions.EyeLookingUpLeft,
                  })
         {
-            RunPhantoonInstructionProgram(rom, executedOperands, process, enemies, eye, entry, calls: 2);
+            RunPhantoonInstructionProgram(rom, executedOperands, enemies, eye, entry, calls: 2);
             AssertEqual(unchecked((ushort)(entry + 4)), eye.CurrentInstruction,
                 $"Phantoon eye-direction program $A7:{entry:X4} reaches terminal sleep");
         }
 
         RunPhantoonInstructionProgram(
-            rom, executedOperands, process,
-            enemies,
+            rom, executedOperands, enemies,
             tentacles,
             PhantoonInstructionProgramDefinitions.InitialTentacles,
             calls: 5);
@@ -137,10 +128,9 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             tentacles.CurrentInstruction,
             "Phantoon tentacle program loops to its first frame");
 
-        int flamesBefore = enemies.EnemyProjectiles.Count(projectile => projectile.IsActive);
+        int flamesBefore = enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
         RunPhantoonInstructionProgram(
-            rom, executedOperands, process,
-            enemies,
+            rom, executedOperands, enemies,
             mouth,
             PhantoonInstructionProgramDefinitions.MouthFollowUp,
             calls: 3);
@@ -149,11 +139,10 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             mouth.CurrentInstruction,
             "Phantoon mouth flame program falls through into its initial frame");
         AssertEqual(flamesBefore + 1,
-            enemies.EnemyProjectiles.Count(projectile => projectile.IsActive),
+            enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
             "Phantoon mouth callback spawns one casual flame");
         RunPhantoonInstructionProgram(
-            rom, executedOperands, process,
-            enemies,
+            rom, executedOperands, enemies,
             mouth,
             PhantoonInstructionProgramDefinitions.InitialMouth,
             calls: 2);
@@ -208,13 +197,13 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
-        RoomEnemySlot body = enemies.Slots[0];
-        RoomEnemySlot eye = enemies.Slots[1];
-        RoomEnemySlot tentacles = enemies.Slots[2];
-        RoomEnemySlot mouth = enemies.Slots[3];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemySlot eye = enemies.SlotTable.Slots[1];
+        RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];
+        RoomEnemySlot mouth = enemies.SlotTable.Slots[3];
         body.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
         eye.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonEye;
         tentacles.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonTentacles;
@@ -228,14 +217,13 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             Tentacles = tentacles,
             Mouth = mouth,
         };
-        typeof(RoomEnemySystem).GetField("<Phantoon>k__BackingField", flags)!.SetValue(enemies, state);
+        enemies.PhantoonBehavior.Phantoon = state;
         return enemies;
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon instruction program")]
     private static void RunPhantoonInstructionProgram(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
-        MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
         ushort entry,
@@ -246,9 +234,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         {
             slot.InstructionTimer = 1;
             ushort previousSprite = slot.SpritemapPointer;
-            process.Invoke(
-                enemies,
-                [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+            EnemyInstructionRunner.Process(enemies, [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
             ushort record = unchecked((ushort)(slot.CurrentInstruction - 4));
             ushort nativeWord = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa70000 | record);
             if ((nativeWord & 0x8000) == 0)

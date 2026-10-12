@@ -28,18 +28,17 @@ internal static class CompiledProjectileMathVerification
         }
         T Reader<T>(Type type, string name) where T : Delegate => type
             .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<T>();
-        var enemy = Reader<Func<ushort, byte, ushort>>(typeof(RoomEnemySystem), "MultiplyCartridgeSinCos");
+        var enemy = new Func<ushort, byte, ushort>(EnemyMath.MultiplyCartridgeSinCos);
         var baby = Reader<Func<ushort, byte, ushort>>(typeof(BabyMetroidCutsceneState), "CalculateVelocityComponent");
         var rainbow = Reader<Func<ushort, SnesAngle, ushort>>(typeof(MotherBrainRainbowBeamSamusMovement), "CalculateYVelocity");
-        var fly = Reader<Func<int, short>>(typeof(RoomEnemySystem), "ReadSignedSineCosine");
-        var glass = Reader<Func<int, ushort>>(typeof(RoomEnemySystem), "ReadSignedSineSample");
-        var eye = Reader<Func<int, short>>(typeof(RoomEnemySystem), "ReadEyeDoorAcceleration");
-        var rio = Reader<Func<byte, ushort>>(typeof(RoomEnemySystem), "ReadRioSignedSineCosineSample");
-        var shaktool = Reader<Func<int, ushort>>(typeof(RoomEnemySystem), "ReadShaktoolCommonSineSample");
-        var phantoon = Reader<Func<ushort, ushort, int>>(typeof(RoomEnemySystem), "ReadPhantoonFlameComponent");
-        var arc = Reader<Action<RoomEnemyProjectileSlot, ushort>>(typeof(RoomEnemySystem), "MoveNoobTubeProjectileHorizontallyAlongArc");
-        var crocomire = Reader<Func<byte, EightEightVector<RoomPixels>>>(
-            typeof(RoomEnemySystem), "CalculateCrocomireProjectileVelocity");
+        var fly = new Func<int, short>(FliesBehavior.ReadSignedSineCosine);
+        var glass = new Func<int, ushort>(MotherBrainBehavior.ReadSignedSineSample);
+        var eye = new Func<int, short>(EyeDoorBehavior.ReadEyeDoorAcceleration);
+        var rio = new Func<byte, ushort>(RioBehavior.ReadRioSignedSineCosineSample);
+        var shaktool = new Func<int, ushort>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
+        var phantoon = new Func<ushort, ushort, int>(PhantoonBehavior.ReadPhantoonFlameComponent);
+        var arc = new Action<RoomEnemyProjectileSlot, ushort>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
+        var crocomire = new Func<byte, EightEightVector<RoomPixels>>(CrocomireBehavior.CalculateCrocomireProjectileVelocity);
         var echo = Reader<Func<SnesAngle, byte, Offset16<RoomPixels>>>(
             typeof(SamusShinesparkState), "ProjectileSinLookup");
 

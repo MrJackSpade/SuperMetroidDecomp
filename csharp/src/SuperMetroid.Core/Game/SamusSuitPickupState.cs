@@ -107,7 +107,7 @@ public sealed class SamusSuitPickupState
         // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the native departing-echo
         // side effect and publishes the immediate palette restore only when boost was live.
-        samus.HorizontalSpeed.CancelRunningMomentum(samus.ReadFacingDirection(bus));
+        samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
         samus.HorizontalSpeed.ExtraRunSpeed = 0;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         samus.HorizontalSpeed.BaseSpeed = 0;
@@ -127,8 +127,8 @@ public sealed class SamusSuitPickupState
         samus.Pose = otherSuitAlreadyEquipped
             ? SamusPoseId.ForwardFacingSuitedPose
             : SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         // Entry's Samus command $15 publishes history before locking gameplay.
         samus.CommitPoseHistory(bus);
         samus.InputLocked = true;
@@ -294,12 +294,12 @@ public sealed class SamusSuitPickupState
         samus.EquippedItems |= mask;
         samus.CollectedItems |= mask;
         samus.Pose = SamusPoseId.ForwardFacingSuitedPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory(bus);
-        samus.LoadSuitPalette(bus, cgram);
+        samus.Presentation.LoadSuitPalette(bus, cgram);
         Substate++;
     }
 

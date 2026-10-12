@@ -20,22 +20,20 @@ internal static class PhantoonDeathExplosionsVerification
         foreach (bool full in new[] { false, true })
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .SetValue(enemies, NewPhantoonDeathReadGuard(rom));
-            var body = enemies.Slots[0];
-            var tentacles = enemies.Slots[2];
+            enemies.BindFixtureBus(NewPhantoonDeathReadGuard(rom));
+            var body = enemies.SlotTable.Slots[0];
+            var tentacles = enemies.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
-            var step = typeof(RoomEnemySystem).GetMethod("RunPhantoonDyingExplosions", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(enemies);
+            Action<RoomEnemySlot, PhantoonEnemyState> step = enemies.PhantoonBehavior.RunPhantoonDyingExplosions;
             body.Position = body.Position.WithWhole(new(origin, origin));
             body.VariableE = 15;
             body.VariableF = (ushort)PhantoonAiFunction.DyingExplosions;
-            if (full) foreach (var projectile in enemies.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
+            if (full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Kind = RoomEnemyProjectileKind.MiscDustExplosion;
             int index = 0, passes = 0, timer = 15, requests = 0;
             for (int frame = 0; passes < 3; frame++)
             {
                 AssertTrue(frame < 1024, "Death schedule reaches native handoff");
-                if (!full) foreach (var projectile in enemies.EnemyProjectiles) projectile.Clear();
+                if (!full) foreach (var projectile in enemies.Projectiles.EnemyProjectiles) projectile.Clear();
                 bool due = --timer <= 0;
                 int current = index;
                 byte type = rom.ReadCartridgeByte(0xa7da1f + current * 4);
@@ -57,7 +55,7 @@ internal static class PhantoonDeathExplosionsVerification
                     AssertEqual((ushort?)(type == 0x1d ? 0x24 : 0x2b), state.LastCombatSoundEffect, "Death sound choice survives pool exhaustion");
                     if (!full)
                     {
-                        var explosion = enemies.EnemyProjectiles.Single(p => p.IsActive);
+                        var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1d + current * 4))), explosion.Position.X.Whole, "Real death explosion wrapped world X");
                         AssertEqual(unchecked((ushort)(origin + (sbyte)rom.ReadCartridgeByte(0xa7da1e + current * 4))), explosion.Position.Y.Whole, "Real death explosion wrapped world Y");
                         int listAddress = 0x86e42c + type * 2;

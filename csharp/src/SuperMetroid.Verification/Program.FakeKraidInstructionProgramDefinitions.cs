@@ -163,7 +163,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
 
             AssertEqual(2, state.SpawnedSpitCount,
                 $"Fake Kraid $A6:{program:X4} spawns its projectile pair");
-            AssertEqual((ushort?)0x0016, enemies.LastFakeKraidSoundEffect,
+            AssertEqual((ushort?)0x0016, enemies.FakeKraidBehavior.LastFakeKraidSoundEffect,
                 $"Fake Kraid $A6:{program:X4} publishes its cry");
         }
 
@@ -174,12 +174,11 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             out FakeKraidEnemyState state)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeFakeKraid", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
+            Action<RoomEnemySlot, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
-            slot = enemies.Slots[0];
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.MiniKraid;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
@@ -199,12 +198,10 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             RoomLevelData level,
             int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

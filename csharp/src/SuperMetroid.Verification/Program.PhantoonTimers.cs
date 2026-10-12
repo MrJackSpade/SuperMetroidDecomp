@@ -15,14 +15,13 @@ internal static class PhantoonTimersVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd63 + i * 2)), PhantoonTimerDefinitions.RainHiding[i], "Native rain timer");
         }
         var enemies = new RoomEnemySystem();
-        var body = enemies.Slots[0];
-        var eye = enemies.Slots[1];
-        var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = enemies.Slots[2], Mouth = enemies.Slots[3] };
-        T Call<T>(string name) where T : Delegate => typeof(RoomEnemySystem).GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)!.CreateDelegate<T>(enemies);
-        var open = Call<Action<PhantoonEnemyState>>("BeginPhantoonEyeTracking");
-        var second = Call<Action<PhantoonEnemyState>>("PickPhantoonSecondRoundPattern");
-        var first = Call<Action<RoomEnemySlot, PhantoonEnemyState>>("RunPhantoonPickFirstRoundPattern");
-        var rain = Call<Action<RoomEnemySlot, PhantoonEnemyState>>("RunPhantoonFlameRainFadeOut");
+        var body = enemies.SlotTable.Slots[0];
+        var eye = enemies.SlotTable.Slots[1];
+        var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = enemies.SlotTable.Slots[2], Mouth = enemies.SlotTable.Slots[3] };
+        var open = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.BeginPhantoonEyeTracking);
+        var second = new Action<PhantoonEnemyState>(enemies.PhantoonBehavior.PickPhantoonSecondRoundPattern);
+        var first = new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.RunPhantoonPickFirstRoundPattern);
+        var rain = new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.RunPhantoonFlameRainFadeOut);
         ushort randomValue = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return randomValue; });
@@ -43,13 +42,11 @@ internal static class PhantoonTimersVerification
             AssertEqual(priorCalls + 3, calls, "Each selection consumes exactly one RNG call");
         }
         // $A7:D5A6 indexes the eye-closed timers with the 16-bit NMI_FrameCounter.
-        FieldInfo nmiCounter = typeof(RoomEnemySystem).GetField("_enemyFrameNmiFrameCounter",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (int nmi = 0; nmi < 256; nmi++)
         {
             body.VariableE = 1;
             int priorCalls = calls;
-            nmiCounter.SetValue(enemies, (ushort)nmi);
+            enemies.FrameContext._enemyFrameNmiFrameCounter = (ushort)nmi;
             first(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cd53 + ((nmi >> 1) & 3) * 2)), eye.VariableA, "Real first-round NMI selector uses four entries");
             AssertEqual(priorCalls + 1, calls, "First-round direction preserves RNG consumption");

@@ -14,10 +14,10 @@ internal static class RetailCeresQuakeTests
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-            runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+            runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            runtime.Enemies.CeresStatus = CeresQuakeFixture.EscapeStatus;
+            runtime.Enemies.RidleyEncounter.CeresStatus = CeresQuakeFixture.EscapeStatus;
             var offsets = new HashSet<RoomShakeFrameResult>();
             int shaking = 0;
             for (int tick = 0; tick < 240; tick++)
@@ -27,7 +27,7 @@ internal static class RetailCeresQuakeTests
                 runtime.StepFrame(0);
                 // HandleRoomShaking publishes the default (zero) delta on frames it does not
                 // shake, so a non-default delta is a frame that displaced the backgrounds.
-                var shake = runtime.Enemies.LastRoomShake;
+                var shake = runtime.Enemies.Earthquake.LastRoomShake;
                 if (shake != default) { shaking++; offsets.Add(shake); }
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);

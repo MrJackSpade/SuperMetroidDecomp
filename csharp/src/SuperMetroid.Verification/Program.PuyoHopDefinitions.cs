@@ -8,9 +8,8 @@ internal static class PuyoHopDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Puyo hops")]
     internal static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
     {
-        var calculate = typeof(RoomEnemySystem).GetMethod("CalculateInitialPuyoHopSpeed", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<PuyoEnemyState>>();
-        var state = new PuyoEnemyState(new RoomEnemySystem().Slots[0]);
+        Action<PuyoEnemyState> calculate = PuyoBehavior.CalculateInitialPuyoHopSpeed;
+        var state = new PuyoEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
         for (ushort index = 0; index < 56; index += 8)
         {
             var hop = PuyoHopDefinitions.FromByteIndex(index);

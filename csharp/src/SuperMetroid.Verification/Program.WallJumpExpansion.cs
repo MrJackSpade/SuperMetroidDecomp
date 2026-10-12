@@ -18,10 +18,10 @@ internal static class WallJumpExpansionVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(left ? (ushort)119 : (ushort)137, 127)),
             };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1000);
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             ushort beforeX = samus.Position.X.Whole;
-            samus.ApplyWallJumpTrigger(bus, room);
+            samus.PoseTransitions.ApplyWallJumpTrigger(bus, room);
             AssertEqual(left ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose,
                 samus.Pose, "walljump expansion selects facing-preserving pose");
             AssertEqual(beforeX, samus.Position.X.Whole, "vertical expansion preserves X");
@@ -29,9 +29,9 @@ internal static class WallJumpExpansionVerification
             AssertEqual(ceiling ? 0 : 0x1000, samus.Kinematics.Position.Y.Fraction,
                 "walljump collision clamps fractional Y; air preserves it");
             // $91:FDAE keeps the spin radius until alpha's SetSamusRadius next frame.
-            AssertEqual(SamusState.ReadPoseYRadius(left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose),
+            AssertEqual(SamusPoseMetadata.ReadPoseYRadius(left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose),
                 samus.Kinematics.Radius.Y, "walljump keeps the spin radius through its frame");
-            AssertEqual(19, SamusState.ReadPoseYRadius(samus.Pose), "walljump expanded collision radius");
+            AssertEqual(19, SamusPoseMetadata.ReadPoseYRadius(samus.Pose), "walljump expanded collision radius");
         }
     }
 }

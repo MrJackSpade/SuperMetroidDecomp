@@ -24,8 +24,8 @@ internal sealed class ShutterBombArcScenario
     internal int RollAt { get; }
     internal int Duration { get; }
     internal SuperMetroidRuntime Runtime { get; }
-    internal SamusState Samus => Runtime.Samus!;
-    internal RoomEnemySlot Platform => Runtime.Enemies.Slots[SlotIndex];
+    internal SamusState Samus => Runtime.Player.Samus!;
+    internal RoomEnemySlot Platform => Runtime.Enemies.SlotTable.Slots[SlotIndex];
 
     /// <param name="runtime">A new invincible runtime bound to installed presentation assets.</param>
     /// <param name="bus">Address space used to initialize Samus collision geometry and animation.</param>
@@ -38,17 +38,17 @@ internal sealed class ShutterBombArcScenario
     {
         (SlotIndex, Approach, Interval, RollAt, Duration) = (slotIndex, approach, interval, rollAt, duration);
         Runtime = runtime;
-        Runtime.InitializeHud(HudSnapshot.CeresDebug);
-        Runtime.InitializeStartingCeresRoom();
-        Runtime.InitializeCeresStartSamus();
+        Runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        Runtime.RoomLoader.InitializeStartingCeresRoom();
+        Runtime.RoomLoader.InitializeCeresStartSamus();
         Runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
         var samus = Samus;
         var platform = Platform;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole - (approach ? Toward * 32 : 0)), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
         Runtime.StepFrame(0, new RuntimeFrameRequest());
     }
@@ -64,7 +64,7 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Controller word for <paramref name="frame"/>: periodic bombs, an approach, then roll off and back.</summary>
     internal ushort Input(int frame)
     {
-        ushort input = frame < 220 && frame % Interval == 0 ? Runtime.ControllerBindings.Shoot : (ushort)0;
+        ushort input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings.Shoot : (ushort)0;
         int direction = Approach && frame < 12 ? Toward : 0;
         if (frame >= RollAt && frame < RollAt + Duration) direction = -Toward;
         if (frame >= RollAt + Duration && frame < RollAt + Duration * 2) direction = Toward;

@@ -22,14 +22,10 @@ internal static class RidleyCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewRidleyCollisionNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
-        MethodInfo ceresWalker = typeof(RoomEnemySystem).GetMethod(
-            "ExtendedSpritemapOverlapsRectangle", BindingFlags.Static | BindingFlags.NonPublic)!;
         var compiled = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
+        compiled.BindFixtureBus(denied);
         var nativeSlot = new RoomEnemySlot(0);
-        RoomEnemySlot compiledSlot = compiled.Slots[0];
+        RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         compiledSlot.Definition =
             default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank };
         // The reference slot is read by the independent test-side cartridge
@@ -112,7 +108,7 @@ internal static class RidleyCollisionDefinitionsVerification
                         [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, (ushort)0];
                         bool nativeHit = NativeCallback(frame, new Position16<RoomPixels>(originX, originY), new Position16<RoomPixels>(xs[xi], ys[yi]),
                             new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, out ushort nativeCallback);
-                        bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
+                        bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                         AssertEqual(nativeHit, compiledHit,
                             $"Ridley $A6:{frame:X4} overlap {xi},{yi}, shot={shot}");
                         AssertEqual(nativeCallback,
@@ -125,10 +121,8 @@ internal static class RidleyCollisionDefinitionsVerification
                             // component/list data without invoking an unrelated callback.
                             bool expectedCeres = NativeCeresOverlap(frame, new Position16<RoomPixels>(originX, originY),
                                 new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
-                            object?[] ceresArguments =
-                                [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY)];
-                            bool actualCeres = (bool)ceresWalker.Invoke(
-                                null, ceresArguments)!;
+                            bool actualCeres = CeresRidleyBehavior.ExtendedSpritemapOverlapsRectangle(
+                                compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
                             AssertEqual(expectedCeres, actualCeres,
                                 $"Ceres private Ridley projectile overlap $A6:{frame:X4}");
                         }

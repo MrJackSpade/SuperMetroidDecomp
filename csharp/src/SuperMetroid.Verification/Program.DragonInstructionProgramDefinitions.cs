@@ -106,13 +106,10 @@ internal static class DragonInstructionProgramDefinitionsVerification
             out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDragon", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            MethodInfo install = typeof(RoomEnemySystem).GetMethod(
-                "InstallDragonInstructionList", flags)!;
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.DragonBehavior.InitializeDragon;
 
-            slot = enemies.Slots[0];
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = selector is DragonAnimationSelector.WingsFacingLeft or
@@ -122,17 +119,16 @@ internal static class DragonInstructionProgramDefinitionsVerification
             state.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
             state.RequestedInstructionListIndex = selector;
             state.AnimationFinished = false;
-            install.Invoke(null, [slot, state]);
+            DragonBehavior.InstallDragonInstructionList(slot, state);
             return enemies;
         }
 
         static void RunDragonProgram(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

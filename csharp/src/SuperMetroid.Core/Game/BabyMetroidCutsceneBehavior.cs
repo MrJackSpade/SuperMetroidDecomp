@@ -1,0 +1,322 @@
+using SuperMetroid.Core.Audio;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>The Baby Metroid cutscene species owner: its per-room state, AI routines and the interactions it registers.</summary>
+internal sealed class BabyMetroidCutsceneBehavior
+{
+    private readonly IEnemyDispatch _dispatch;
+    private readonly EnemyRoomBinding _room;
+    private readonly EnemyAudioQueue _audio;
+    private readonly EnemySlotTable _slotTable;
+    private readonly EnemyPresentation _presentation;
+    private readonly EnemyFrameContext _frameContext;
+    private readonly EnemyProjectileEngine _projectiles;
+
+    private readonly MotherBrainEncounter _motherBrainEncounter;
+
+    internal BabyMetroidCutsceneBehavior(BabyMetroidCutsceneBehaviorDependencies dependencies)
+    {
+        _motherBrainEncounter = dependencies.MotherBrainEncounter;
+        _dispatch = dependencies.Dispatch;
+        _room = dependencies.Room;
+        _audio = dependencies.Audio;
+        _slotTable = dependencies.SlotTable;
+        _presentation = dependencies.Presentation;
+        _frameContext = dependencies.FrameContext;
+        _projectiles = dependencies.Projectiles;
+    }
+
+    /// <summary>Executes the cutscene Baby Metroid's private animation instructions.</summary>
+    private static bool TryProcessBabyMetroidCutsceneInstruction(RoomEnemySlot slot, ushort word, ref ushort cursor)
+    {
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.BabyMetroidCutscene ||
+            !Enum.IsDefined((BabyMetroidInstruction)word))
+            return false;
+
+        RunMotherBrainBabyInstruction((BabyMetroidInstruction)word, ref cursor);
+        return true;
+    }
+
+    /// <summary>Ports <c>$A9:BE1B-$BE27</c> through the generic one-part allocator.</summary>
+    internal void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
+    {
+        if (state.BabyMetroidSlot is { EnemyDefinitionPointer: not 0 })
+        {
+            throw new InvalidOperationException(
+                "Mother Brain attempted to allocate the cutscene Baby more than once.");
+        }
+
+        // `$A0:9275` searches from native slot zero for the first consecutive free run.
+        // The Baby header declares one part, so the first zero ID is the exact result.
+        int slotIndex = Array.FindIndex(_slotTable._slots, slot => slot.EnemyDefinitionPointer == 0);
+        if (slotIndex < 0)
+            return; // Generic SpawnEnemy returns $FFFF and X=$0800 when the pool is full.
+
+        RoomEnemyPopulationRecord population =
+            MotherBrainBabyMetroidDefinitions.SpawnPopulation;
+        if (population.DefinitionPointer != EnemyDefinitionId.BabyMetroidCutscene)
+        {
+            throw new InvalidDataException(
+                "Mother Brain Baby spawn record " +
+                $"names enemy ${(int)population.DefinitionPointer:X4}, not $ECBF.");
+        }
+
+        RoomEnemySlot babySlot = _slotTable._slots[slotIndex];
+        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.Bus!, population.DefinitionPointer);
+        _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
+        _dispatch.RunInitializationAi(babySlot);
+
+        // SpawnEnemy installs the canonical empty map after init when property $2000 is set.
+        // The actor's list is still live and produces its first visible map on its first
+        // scheduled turn; the active-index array was frozen before this allocation.
+        babySlot.SpritemapPointer = babySlot.Properties.HasAny(EnemyProperties.ProcessInstructions)
+            ? (ushort)0x804d
+            : (ushort)0;
+        _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
+        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
+    }
+
+    /// <summary>Ports Baby initialization <c>$A9:C710-$C776</c>.</summary>
+    private void InitializeMotherBrainBabyMetroid(RoomEnemySlot slot)
+    {
+        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
+            "The cutscene Baby was initialized without Mother Brain's physical records.");
+        if (state.RainbowBeamSequence is null)
+        {
+            throw new InvalidDataException(
+                "The cutscene Baby was initialized before the final rainbow sequence.");
+        }
+
+        var baby = new BabyMetroidCutsceneState();
+        baby.Initialize(slot.Position, slot.Properties);
+        state.BabyMetroidSlot = slot;
+        state.BabyMetroid = baby;
+        state.BabyAppliedInstructionList = baby.InstructionList;
+
+        CopyBabyMetroidActorToPhysicalSlot(slot, baby);
+        slot.CurrentInstruction = baby.InstructionList;
+        slot.InstructionTimer = baby.InstructionTimer;
+        slot.Timer = 0;
+
+        // The writer receives byte index $01E2 and count $000F. Color zero is deliberately
+        // skipped at source `$94D2+2`, preserving the room's transparent backdrop entry.
+        LoadBabyMetroidCutsceneInitialPalette();
+    }
+
+    internal void LoadBabyMetroidCutsceneInitialPalette()
+    {
+        var colors = _room.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
+            "Baby Metroid cutscene requires installed colors.");
+        for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
+            _presentation.BossPalettes.BabyMetroidCutscene.Write(color, colors.InitialColor(color));
+    }
+
+    /// <summary>Runs one physical Baby main-AI call at <c>$A9:C779</c>.</summary>
+    internal void RunMotherBrainBabyMetroidMain(
+        RoomEnemySlot slot,
+        SamusState? samus,
+        Position16<RoomPixels> camera)
+    {
+        MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
+            "The cutscene Baby lost Mother Brain's encounter state.");
+        BabyMetroidCutsceneState baby = state.BabyMetroid ??
+            throw new InvalidOperationException("The physical Baby has no cutscene state.");
+        if (!ReferenceEquals(slot, state.BabyMetroidSlot))
+        {
+            throw new InvalidDataException(
+                $"Baby state names slot {state.BabyMetroidSlot?.SlotIndex}, but dispatcher " +
+                $"ran slot {slot.SlotIndex}.");
+        }
+
+        MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence ??
+            throw new InvalidOperationException("The cutscene Baby lost the rainbow sequence.");
+        SamusState target = samus ?? throw new InvalidOperationException(
+            "The cutscene Baby requires the live Samus actor.");
+
+        slot.ShakeTimer = 0;
+        if (state.PendingBabyCryCount != 0 &&
+            baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
+                BabyMetroidCutscenePhase.IdleUntilNoHealth)
+        {
+            // `$A9:C7B7` clears the complete shared word and queues only one `$72`, even
+            // when several rings incremented it before this later enemy slot ran.
+            state.PendingBabyCryCount = 0;
+            state.LastSoundEffect = 0x0072;
+        }
+        BabyMetroidCutsceneStepResult step = baby.Step(
+            _room.Bus!,
+            target,
+            sequence,
+            state.Head!.Position.Whole,
+            layer1: camera,
+            enemyFrameCounter: slot.FrameCounter,
+            randomNumber: _room.Random.Read());
+        state.LastBabyMetroidStep = step;
+        // Both outcomes of the native heal helper call the sound helper after the
+        // energy write. Use the phase that ran, including its final full-health call.
+        if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
+            unchecked((short)(target.Health - MotherBrainHealthSounds.MinimumEnergy)) >= 0 &&
+            (_frameContext._randomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
+            _audio.QueueEnemySound(MotherBrainHealthSounds.IncrementalEnergy, maximumQueued: 3);
+
+        // `$A9:C879` writes the body enemy's instruction words from this later Baby slot.
+        // The reusable sequence retains the requested list, but the physical body already
+        // completed its AI/instruction pass earlier this frame; install the list here so it
+        // begins on the next increasing-slot enemy pass exactly like the cross-WRAM write.
+        if (step.BodyStumbleRequested)
+        {
+            ushort bodyInstruction = sequence.RequestedBodyInstructionList;
+            if (bodyInstruction == 0)
+            {
+                throw new InvalidDataException(
+                    "Baby requested Mother Brain body movement without an instruction list.");
+            }
+            MotherBrainBehavior.SetMotherBrainInstructionList(state.Body, bodyInstruction);
+        }
+
+        // Cross-enemy writes happen during the later Baby slot and become visible in the
+        // body record immediately, though body AI cannot execute them until the next frame.
+        state.Function = MotherBrainBehavior.MapLiveMotherBrainRainbowFunction(sequence.Phase);
+
+        if (baby.InstructionList != state.BabyAppliedInstructionList)
+        {
+            MotherBrainBehavior.SetMotherBrainInstructionList(slot, baby.InstructionList);
+            state.BabyAppliedInstructionList = baby.InstructionList;
+        }
+        CopyBabyMetroidActorToPhysicalSlot(slot, baby);
+        ApplyBabyMetroidFrameEffects(state, step);
+    }
+
+    private static void CopyBabyMetroidActorToPhysicalSlot(
+        RoomEnemySlot slot,
+        BabyMetroidCutsceneState baby)
+    {
+        slot.Position = baby.Position;
+        slot.Properties = baby.Properties;
+        slot.PaletteIndex = baby.Palette;
+        slot.VramTilesIndex = baby.GraphicsOffset;
+        slot.Health = baby.Health;
+    }
+
+    internal void ApplyBabyMetroidFrameEffects(
+        MotherBrainEnemyState state,
+        BabyMetroidCutsceneStepResult step)
+    {
+        if (step.FatalBlowStarted)
+        {
+            _audio.QueueEnemySound(SoundEffectLibrary3Sounds.BabyMetroidDeathCry, maximumQueued: 6);
+            SuperMetroid.Core.Assets.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation._cgram!);
+            state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
+        }
+        if (step.SamusThemeStarted)
+        {
+            state.RequestMusic(MusicCommand.LoadData(MotherBrainBabyMetroidDefinitions.SamusThemeMusicData),
+                MusicCommandDelay.EightFrames);
+            state.RequestMusic(MusicCommand.SelectTrack(MotherBrainBabyMetroidDefinitions.SamusThemeMusicTrack),
+                MusicCommandDelay.EightFrames);
+        }
+        if (step.LatchSoundQueued)
+            state.LastSoundEffectLibrary1 = 0x0040;
+        if (step.AmbientCrySoundQueued)
+            state.LastSoundEffect = 0x0052;
+
+        foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
+            _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.ProjectileParameter);
+
+        if (step.DeathExplosion is { } explosion)
+        {
+            _projectiles.SpawnRoomGraphicsDustExplosion(explosion.Position, explosion.ProjectileParameter);
+            // $A9:CDF4 queues the explosion through QueueSound_Lib3_Max3.
+            state.LastSoundEffectLibrary3 = explosion.SoundEffect;
+        }
+
+        if (step.BabyPaletteTransfer is { } palette)
+            LoadBabyMetroidCutsceneFadePalette(palette);
+
+        if (step.AttackTileTransfer is { } attackTiles)
+            _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(attackTiles);
+
+        if (step.BackgroundPaletteTransfer is { } roomPalette)
+            LoadMotherBrainRecoveryLights(roomPalette);
+    }
+
+    internal void LoadMotherBrainRecoveryLights(
+        MotherBrainBackgroundPaletteTransferRequest request)
+    {
+        if (request.PaletteIndex >= MotherBrainRoomColorRomData.RecoveryLightsFrames ||
+            request.SourceAddress != (uint)MotherBrainRoomColorRomData.RecoveryLightsSource(
+                request.PaletteIndex) ||
+            request.FirstDestinationColorIndex !=
+                MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort) ||
+            request.SecondDestinationColorIndex !=
+                MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort) ||
+            request.ColorsPerDestination !=
+                MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination)
+            throw new InvalidDataException(
+                $"Mother Brain recovery-light request {request.PaletteIndex} has a non-native transfer layout.");
+
+        (_presentation.MotherBrainRoomColors ?? throw new InvalidOperationException(
+            "Mother Brain recovery requires installed room colors."))
+            .ApplyRecoveryLights(_presentation._cgram!, request.PaletteIndex);
+    }
+
+    internal void LoadBabyMetroidCutsceneFadePalette(
+        BabyMetroidPaletteTransferRequest palette)
+    {
+        int expectedSource = BabyMetroidCutsceneColorRomData.FadeSource(
+            palette.PaletteIndex);
+        if (palette.SourceAddress != expectedSource ||
+            palette.DestinationColorIndex !=
+                BabyMetroidCutsceneColorRomData.DestinationByteIndex ||
+            palette.ColorCount != BabyMetroidCutsceneColorRomData.FadeColorCount)
+            throw new InvalidDataException(
+                $"Cutscene Baby fade {palette.PaletteIndex} has a non-native transfer layout.");
+
+        var colors = _room.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
+            "Baby Metroid fade requires installed colors.");
+        for (int color = 0; color < palette.ColorCount; color++)
+            _presentation.BossPalettes.BabyMetroidCutscene.Write(color,
+                colors.FadeColor(palette.PaletteIndex, color));
+    }
+
+    /// <summary>Baby private opcodes `$CFB4/$CFCA` are same-bank direct gotos.</summary>
+    private static void RunMotherBrainBabyInstruction(
+        BabyMetroidInstruction opcode,
+        ref ushort cursor)
+    {
+        cursor = opcode switch
+        {
+            BabyMetroidInstruction.GotoInitial => BabyMetroidCutsceneState.InitialInstructionList,
+            BabyMetroidInstruction.GotoDrainingMotherBrain => BabyMetroidCutsceneState.DrainingMotherBrainInstructionList,
+            _ => throw new InvalidOperationException($"Undefined BabyMetroidInstruction {opcode}."),
+        };
+    }
+
+    internal void RegisterBabyMetroidCutsceneInitializationAi(EnemyAiTable table)
+    {
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_BabyMetroidCutscene, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene, (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeMotherBrainBabyMetroid(slot);
+        });
+    }
+
+    internal void RegisterBabyMetroidCutsceneMainAi(EnemyAiTable table)
+    {
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_BabyMetroidCutscene, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroidCutscene, (slot, frame, nmiFrameCounter8) =>
+        {
+            RunMotherBrainBabyMetroidMain(slot, frame.Samus, frame.Camera);
+        });
+    }
+
+    internal static void RegisterBabyMetroidCutsceneOwnedInstructions(EnemyAiTable table)
+    {
+        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+        {
+            yieldInterpreter = false;
+            return TryProcessBabyMetroidCutsceneInstruction(slot, word, ref cursor);
+        });
+    }
+}

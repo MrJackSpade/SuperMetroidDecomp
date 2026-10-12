@@ -136,14 +136,14 @@ public sealed class SamusBombProjectileSystem
         // as the HUD producer, but must still run the existing projectile slots below.
         // Command-zero alpha calls HandleProjectile directly, skipping the HUD
         // dispatcher that owns cooldown and new bomb placement.
-        if (!samus.StationaryScriptControlLocked && !SamusState.IsForwardFacingPose(samus.Pose))
+        if (!samus.ScriptLocks.StationaryScriptControlLocked && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose))
             StepCooldown(samus.Xray.TimeIsFrozen);
 
         int? placedSlot = null;
         bool bombSpreadStarted = false;
         bool beamChargeConsumed = false;
         var soundRequests = new List<SamusSoundRequest>();
-        if (!samus.StationaryScriptControlLocked && SamusState.IsStableBallPose(samus.Pose))
+        if (!samus.ScriptLocks.StationaryScriptControlLocked && SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
             BombSpreadAdmission spread = HandleBombSpreadInput(samus, controllerInput);
             bombSpreadStarted = spread == BombSpreadAdmission.Spawned;
@@ -318,7 +318,7 @@ public sealed class SamusBombProjectileSystem
     {
         if (gameState != (ushort)Frontend.SuperMetroidGameState.MainGameplay)
             return;
-        if (samus.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+        if (samus.PoseMetadata.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             if (SamusSpinSoundCommand.Select(bus, samus) is { } spinSound)
                 samus.LiquidPhysics.QueueMovementSound(spinSound, maximumQueued: 9);
@@ -881,7 +881,7 @@ public sealed class SamusBombProjectileSystem
         if (block.Bts == RoomBlockBehaviorValues.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
-            _ = roomPlms?.TryNotifyCollectibleProjectileHit(block.Index, projectileType);
+            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index, projectileType);
             return;
         }
 
@@ -894,7 +894,7 @@ public sealed class SamusBombProjectileSystem
             block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
             if (roomPlms is null ||
-                !roomPlms.TryNotifyResidentProjectileHit(block.Index, projectileType))
+                !roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.Index} has no active PLM owner.");
@@ -916,7 +916,7 @@ public sealed class SamusBombProjectileSystem
                 throw new InvalidOperationException(
                     $"Bombed blue-door cap at ({x},{y}) requires a room PLM owner.");
             }
-            roomPlms.TrySpawnBlueDoorOpening(
+            roomPlms.DoorPlms.TrySpawnBlueDoorOpening(
                 level,
                 block.Index,
                 block.Bts,
@@ -967,7 +967,7 @@ public sealed class SamusBombProjectileSystem
 
             // Spawn is synchronous: accepted BTS 0..7 applies CEDA's temporary type-$8
             // or type-$0 word before the caller proceeds to its next border/cross member.
-            roomPlms.TrySpawnBombReactionBlock(
+            roomPlms.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 block.Index,
                 block.Bts,
@@ -987,7 +987,7 @@ public sealed class SamusBombProjectileSystem
                     throw new InvalidOperationException(
                         $"Bombed downward gate trigger at ({x},{y}) requires a room PLM owner.");
                 }
-                roomPlms.TrySpawnDownwardGateTrigger(
+                roomPlms.Gates.TrySpawnDownwardGateTrigger(
                     level,
                     block.Index,
                     block.Bts,
@@ -1024,7 +1024,7 @@ public sealed class SamusBombProjectileSystem
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
-            roomPlms.TrySpawnProjectileShotBlock(
+            roomPlms.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 block.Index,
                 block.Bts,
@@ -1042,7 +1042,7 @@ public sealed class SamusBombProjectileSystem
                     "requires a room PLM owner.");
             }
 
-            roomPlms.TrySpawnBombedSpecialBlock(
+            roomPlms.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 block.Index,
                 block.Bts,
@@ -1162,7 +1162,7 @@ public sealed class SamusBombProjectileSystem
                 : unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
                     ? (byte)1
                     : (byte)3;
-            samus.PublishBombJumpDirection(publishedDirection);
+            samus.PoseMetadata.PublishBombJumpDirection(publishedDirection);
         }
 
         return publishedDirection;

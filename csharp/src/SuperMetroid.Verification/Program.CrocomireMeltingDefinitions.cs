@@ -176,26 +176,19 @@ internal static class CrocomireMeltingDefinitionsVerification
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var artwork = RepositoryInstallation.EnemyTiles;
+        var artwork = InstalledFixtures.EnemyTiles;
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            var state = new CrocomireEnemyState(enemies.Slots[0]);
+            var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
             var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
             var vram = new SnesVram();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
-            typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-            typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
-            var initialize = typeof(RoomEnemySystem).GetMethod(
-                "InitializeCrocomireMeltingGraphics", flags)!
-                .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
-            var upload = typeof(RoomEnemySystem).GetMethod(
-                "UploadNextCrocomireMeltingGraphicsSlice", flags)!
-                .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
-            var complete = typeof(RoomEnemySystem).GetMethod(
-                "CompleteCrocomireMeltingDissolve", flags)!
-                .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
+            enemies.BindFixtureBus(NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+            enemies.Presentation._vram = vram;
+            enemies.CrocomireBehavior.CrocomireDeath = death;
+            Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
+            Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.UploadNextCrocomireMeltingGraphicsSlice;
+            Action<CrocomireEnemyState> complete = enemies.CrocomireBehavior.CompleteCrocomireMeltingDissolve;
 
             initialize(state);
             AssertEqual(pass.MaximumAdjustedDestinationY, death.MaximumAdjustedDestinationY,
@@ -257,14 +250,10 @@ internal static class CrocomireMeltingDefinitionsVerification
             TargetHeightOrSkeletonTileIndex = 48,
         };
         death.MutableMeltingGraphics.Fill(0xff);
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewCrocomireMeltingDefinitionReadGuard(rom));
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
-        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
-        var erase = typeof(RoomEnemySystem).GetMethod(
-            "EraseNextCrocomireMeltingColumn",
-            flags)!.CreateDelegate<Func<bool>>(enemies);
+        enemies.BindFixtureBus(NewCrocomireMeltingDefinitionReadGuard(rom));
+        enemies.Presentation._vram = new SnesVram();
+        enemies.CrocomireBehavior.CrocomireDeath = death;
+        Func<bool> erase = enemies.CrocomireBehavior.EraseNextCrocomireMeltingColumn;
 
         var expectedGraphics = Enumerable.Repeat((byte)0xff,
             CrocomireDeathState.MeltingGraphicsByteCount).ToArray();
@@ -307,19 +296,14 @@ internal static class CrocomireMeltingDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        var state = new CrocomireEnemyState(enemies.Slots[0]);
+        var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
-        var initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeCrocomireMeltingGraphics", flags)!
-            .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
-        var upload = typeof(RoomEnemySystem).GetMethod(
-            "UploadNextCrocomireMeltingGraphicsSlice", flags)!
-            .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
+        enemies.BindFixtureBus(NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+        enemies.Presentation._vram = vram;
+        enemies.CrocomireBehavior.CrocomireDeath = death;
+        Action<CrocomireEnemyState> initialize = enemies.CrocomireBehavior.InitializeCrocomireMeltingGraphics;
+        Action<CrocomireEnemyState> upload = enemies.CrocomireBehavior.UploadNextCrocomireMeltingGraphicsSlice;
 
         initialize(state);
         AssertEqual(pass.TransferStartOffset, death.MeltingTableOffset,
@@ -351,22 +335,19 @@ internal static class CrocomireMeltingDefinitionsVerification
         int sourceAddress = (int)source;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        var state = new CrocomireEnemyState(enemies.Slots[0]);
+        var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState();
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
+        enemies.BindFixtureBus(NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+        enemies.Presentation._vram = vram;
+        enemies.CrocomireBehavior.CrocomireDeath = death;
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
-        string loader = source switch
+        Action<CrocomireEnemyState> initialize = source switch
         {
-            CrocomireMeltingTilemapAddress.FirstTilemap => "LoadFirstCrocomireMeltingTilemap",
-            CrocomireMeltingTilemapAddress.SecondTilemap => "LoadSecondCrocomireMeltingTilemap",
+            CrocomireMeltingTilemapAddress.FirstTilemap => enemies.CrocomireBehavior.LoadFirstCrocomireMeltingTilemap,
+            CrocomireMeltingTilemapAddress.SecondTilemap => enemies.CrocomireBehavior.LoadSecondCrocomireMeltingTilemap,
             _ => throw new ArgumentOutOfRangeException(nameof(source)),
         };
-        var initialize = typeof(RoomEnemySystem).GetMethod(loader, flags)!
-            .CreateDelegate<Action<CrocomireEnemyState>>(enemies);
 
         initialize(state);
         AssertEqual(bodyInstructionList, state.Body.CurrentInstruction,

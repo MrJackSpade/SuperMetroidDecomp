@@ -33,10 +33,10 @@ internal static class EndingExplosionSlotOrderVerification
         // byte slots 2 and 0. The native descending draw must give the complete
         // afterglow first access to OAM, ahead of both 53-entry starfields.
         AssertEqual(37, expected.LastFinalizedSpriteCount, "retail afterglow component count");
-        var actual = ending.CaptureRenderSnapshot().Memory;
+        var actual = ending.Presentation.CaptureRenderSnapshot().Memory;
         AssertTrue(actual.Oam[..(37 * 4)].SequenceEqual(expected.LowTable[..(37 * 4)]),
             "native slot order preserves all 37 afterglow pieces before starfield OAM overflow");
-        var snapshot = ending.CaptureRenderSnapshot();
+        var snapshot = ending.Presentation.CaptureRenderSnapshot();
         var background = snapshot.Layers.ToArray().OfType<Mode7RenderLayer>().Single();
         AssertTrue(Enumerable.Range(0, actual.ModeledSpriteCount).All(index =>
             (actual.Oam[index * 4 + 3] & 0x30) == 0), "live flyaway actors use native priority zero");
@@ -44,7 +44,7 @@ internal static class EndingExplosionSlotOrderVerification
         RenderLayer[] order = [fixedWhite, new ObjRenderLayer(FixedColor: fixedWhite), background];
         var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(actual, order,
             snapshot.ObjectSelection, snapshot.Brightness));
-        var actualPixels = ending.Render();
+        var actualPixels = ending.Presentation.Render();
 
         AssertTrue(actualPixels.AsSpan().SequenceEqual(nativePixels),
             "live getaway ship occludes priority-zero afterglow pixels");

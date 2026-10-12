@@ -29,12 +29,12 @@ internal static class MetroidBombPlacementVerification
         var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        var target = enemies.Slots[0];
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        var target = enemies.SlotTable.Slots[0];
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
-        enemies.ResolveOrdinarySamusContact(samus, 0);
+        enemies.Collision.ResolveOrdinarySamusContact(samus, 0);
         var state = enemies.MetroidStates[0]!;
         AssertEqual(MetroidAiFunction.AttachedToSamus, state.Function, "real touch attaches Metroid to morphed Samus");
         var bombs = CreateBombFixture();
@@ -46,7 +46,7 @@ internal static class MetroidBombPlacementVerification
             bombs.StepFrame(new SamusTerrain { Bus = bus, Level = assets.LevelData }, samus, input, input);
             if (firstExplosion < 0 && bombs.Slots.Any(b => b.Type != 0 && b.BombTimer == 0)) firstExplosion = frame;
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
-            enemies.ResolveOrdinaryBombHits(bombs, shots, samus);
+            enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus);
             if (state.Function == MetroidAiFunction.PowerBombEscape && detached < 0) detached = frame;
             if (detached >= 0) break;
         }
@@ -77,12 +77,12 @@ internal static class MetroidBombPlacementVerification
         // Use the dry-floor setup from the full-alpha native capture, not the
         // former submerged fixture or a hand-positioned already-exploding bomb.
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room.Pointer, new Position16<RoomPixels>(0, 0));
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         for (int y = 0; y < level.Size.Y; y++)
         for (int x = 0; x < level.Size.X; x++)
         {
@@ -91,23 +91,23 @@ internal static class MetroidBombPlacementVerification
             level.SetBehavior(index, 0);
         }
         runtime.InitializeDebugGroundedSamus(128, 100, 10);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.Health = samus.MaxHealth = 999;
         samus.Position = samus.Position.WithWhole(new(128, 153));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        samus.SetAnimationFrameFromSpecialHandler(0, 1);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.SetAnimationFrameFromSpecialHandler(0, 1);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
             (ushort)(SnesLittleEndian.Word((byte)SamusFacingDirection.Right, (byte)SamusMovementType.MorphBallGround));
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
         samus.PoseHistory.LastDifferentPose = 0;
-        var target = runtime.Enemies.Slots[0];
-        foreach (var other in runtime.Enemies.Slots.Skip(1)) other.Clear();
+        var target = runtime.Enemies.SlotTable.Slots[0];
+        foreach (var other in runtime.Enemies.SlotTable.Slots.Skip(1)) other.Clear();
         target.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 145));
         runtime.Controller1.Latch(0);
         var state = runtime.Enemies.MetroidStates[0]!;

@@ -22,7 +22,7 @@ internal static class SparkCrashAlignmentVerification
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(700, 35)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1234);
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             var finish = typeof(SamusShinesparkState).GetMethod("FinishCrash",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
             finish.Invoke(samus.Shinespark, [samus, (ushort)5, null]);

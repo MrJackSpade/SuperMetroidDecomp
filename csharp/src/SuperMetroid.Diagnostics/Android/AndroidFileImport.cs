@@ -14,23 +14,13 @@ internal static class AndroidFileImport
         if (slot == DebuggerStateFormat.AutomaticSlot)
             return "The auto slot is reserved for door transitions. Choose a numbered slot (0-9) to import a state.";
         var installation = new SuperMetroid.AssetExtraction.GameInstallation(root);
+        var maps = installation.LoadMaps();
+        var projectiles = installation.LoadProjectiles();
         var contentIdentity = SuperMetroid.AssetExtraction.GameContentIdentity.Create(
             installation.LoadAudio(),
-            installation.LoadMaps(),
-            installation.LoadProjectiles(),
-            SuperMetroid.AssetExtraction.RoomPresentationIdentity.Create(
-                installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
-                installation.LoadRoomMetatiles(), installation.LoadRoomBackgroundTilemaps(),
-                installation.LoadRoomSkyTilemaps(), installation.LoadRoomVisualLayouts())
-                .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.SamusBodyDirectoryName,
-                    installation.LoadSamusBodyArt().ContentIdentity))
-                .Concat(SuperMetroid.AssetExtraction.RoomPlmPresentationIdentity.Load(installation))
-                .Concat(SuperMetroid.AssetExtraction.GameplayPresentationIdentity.Load(installation))
-                .Concat(SuperMetroid.AssetExtraction.EndingPresentationIdentity.Load(installation))
-                .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.IntroCinematicDirectoryName,
-                    installation.LoadIntroCinematicArt().ContentIdentity))
-                .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.EnemyTileDirectoryName,
-                    installation.LoadEnemyTiles().ContentIdentity)));
+            maps,
+            projectiles,
+            SuperMetroid.AssetExtraction.InstalledArtworkIdentity.Create(installation.LoadGameArtwork(maps, projectiles)));
         return ImportStateCore(
             root,
             source,

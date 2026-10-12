@@ -102,12 +102,9 @@ internal static class DeadTourianCorpseDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewDeadTourianCorpseDefinitionReadGuard(rom));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadTourianCorpse", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewDeadTourianCorpseDefinitionReadGuard(rom));
+        Action<RoomEnemySlot> initialize = enemies.DeadTourianBehavior.InitializeDeadTourianCorpse;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = enemyDefinition;
         slot.Parameter1 = checked((ushort)(variantIndex * 2));
 

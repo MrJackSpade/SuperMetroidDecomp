@@ -20,12 +20,10 @@ internal static class RidleyMissedLungeVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
-        var move = typeof(RoomEnemySystem).GetMethod("IntegrateRidleyMovement", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, bool>>(enemies);
-        var slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
+        Action<RoomEnemySlot, RidleyEnemyState, bool> move = enemies.CeresRidleyBehavior.IntegrateRidleyMovement;
+        var slot = enemies.SlotTable.Slots[0];
         slot.Health = 1000;
         slot.Position = slot.Position.WithWhole(new(160, 400));
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
@@ -102,7 +100,7 @@ internal static class RidleyMissedLungeVerification
         var bomb = new SamusPowerBombExplosionState();
         bomb.Arm();
         bomb.Spawn(new(200, 400));
-        typeof(RoomEnemySystem).GetField("_audioPowerBomb", flags)!.SetValue(enemies, bomb);
+        enemies.Audio.PowerBomb = bomb;
         ResetLunge(160, 400);
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairReturnToArena, state.Function, "bomb selects native dodge instead of ordinary retreat");

@@ -21,30 +21,30 @@ public static class SuperMetroidRuntimeFrameRenderer
     public static Rgba32[] Render(SuperMetroidRuntime runtime)
     {
         Ensure.NotNull(runtime);
-        if (runtime.ActiveDoor is null)
+        if (runtime.Room.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before rendering gameplay.");
         // X-ray needs layer/palette identity until the final color-math operation.
         // Both retained GPU packets and immediate software rendering consume that
         // capture; a post-composition tint cannot implement its native windows.
-        if (runtime.Enemies.Phantoon is not null || runtime.Enemies.MotherBrain is not null || runtime.RoomLayer3Fx.Type is RoomFxType.Fireflea or RoomFxType.Spores || runtime.Samus?.Xray.IsActive == true || runtime.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish })
+        if (runtime.Enemies.PhantoonBehavior.Phantoon is not null || runtime.Enemies.MotherBrainEncounter.MotherBrain is not null || runtime.RoomLayer3Fx.Type is RoomFxType.Fireflea or RoomFxType.Spores || runtime.Player.Samus?.Xray.IsActive == true || runtime.Player.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish })
             return SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!);
 
-        GameplayPpuRenderSnapshot displayedPpu = runtime.DisplayedGameplayPpu;
+        GameplayPpuRenderSnapshot displayedPpu = runtime.Display.DisplayedGameplayPpu;
         RoomShakeFrameResult shake = displayedPpu.RoomShake;
         // Room shake is added to the latched BG1/BG2 scroll registers.
         Position16<RoomPixels> bg1Scroll = displayedPpu.Bg1Scroll + shake.Bg1;
         Position16<Bg2Pixels> bg2Scroll = displayedPpu.Bg2Scroll + shake.Bg2;
-        RoomLayer3FxRenderSnapshot? displayedRoomFx = runtime.DisplayedRoomLayer3Fx;
+        RoomLayer3FxRenderSnapshot? displayedRoomFx = runtime.Display.DisplayedRoomLayer3Fx;
 
         Rgba32[] frame;
-        if (runtime.Enemies.CeresRidley is { Mode7Active: true } getaway)
+        if (runtime.Enemies.RidleyEncounter.CeresRidley is { Mode7Active: true } getaway)
         {
             // Ceres room main $A6:AAAF temporarily replaces ordinary mode-nine BG1/BG2
             // below the HUD with the rotating Ridley/Baby Mode-7 map. OAM stays live, so
             // Samus and the timer retain the usual gameplay compositor and priority rules.
             frame = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(runtime.Vram, runtime.Cgram, runtime.DisplayedOam, new Mode7RenderRegisters { MatrixA = unchecked((short)getaway.Mode7MatrixA), MatrixB = unchecked((short)getaway.Mode7MatrixB), MatrixC = unchecked((short)getaway.Mode7MatrixC), MatrixD = unchecked((short)getaway.Mode7MatrixD), Center = getaway.Mode7Center.AsSignedRegister(), Scroll = new Offset16<Mode7Pixels>(unchecked((short)(getaway.Mode7Offset.X + shake.Bg1.X)), unchecked((short)(getaway.Mode7Offset.Y + shake.Bg1.Y))) }, new CeresGetawayFloor { Bg2Scroll = bg2Scroll, Bg2CharacterBaseWord = 0x6000 }, outputBuffer: runtime.GameplayFrameBuffer);
         }
-        else if (runtime.ActiveDoor.UsesCeresElevatorMode7)
+        else if (runtime.Room.ActiveDoor.UsesCeresElevatorMode7)
         {
             // DoorCode_CeresElevatorShaft `$8F:E4E0` installs the identity transform, but
             // room main `$89:ACC3` then replaces A/B/C/D from its rotation table throughout
@@ -52,7 +52,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             // Samus's OAM origin is calculated through the paired inverse transform in
             // `$8B:8A52`; feeding identity to BG1 here made the visible platforms diverge
             // from both her sprite and the deliberately unrotated physical collision map.
-            SamusMode7Transform mode7 = runtime.DisplayedSamusMode7Transform
+            SamusMode7Transform mode7 = runtime.Display.DisplayedSamusMode7Transform
                 ?? throw new InvalidOperationException(
                     "The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
             frame = SnesGameplayFrameRenderer.RenderHudMode7AndObjs(runtime.Vram, runtime.Cgram, runtime.DisplayedOam, new Mode7RenderRegisters { MatrixA = unchecked((short)mode7.MatrixA), MatrixB = unchecked((short)mode7.MatrixB), MatrixC = unchecked((short)mode7.MatrixC), MatrixD = unchecked((short)mode7.MatrixA), Center = mode7.Center.AsMode7Register(), Scroll = new Offset16<Mode7Pixels>(unchecked((short)bg1Scroll.X), unchecked((short)bg1Scroll.Y)) }, outputBuffer: runtime.GameplayFrameBuffer);
@@ -65,17 +65,17 @@ public static class SuperMetroidRuntimeFrameRenderer
             // the compositor: it is the literal PPU register value selected by the room.
             // Other translated ordinary-room setup routines retain power-on base zero.
             bool usesCeresRidleyCharacterBase =
-                runtime.ActiveRoom?.State.SetupCallback ==
+                runtime.Room.ActiveRoom?.State.SetupCallback ==
                     RoomSetupCallback.SetCeresRidleyBgCharacterBaseAndSpawnHaze;
             ushort bgCharacterBaseWord = usesCeresRidleyCharacterBase
                 ? (ushort)0x6000
                 : (ushort)0;
-            bool crocomireOwnsBg2 = runtime.Enemies.Crocomire is not null;
-            KraidEnemyState? kraid = runtime.Enemies.Kraid;
+            bool crocomireOwnsBg2 = runtime.Enemies.CrocomireBehavior.Crocomire is not null;
+            KraidEnemyState? kraid = runtime.Enemies.KraidBehavior.Kraid;
             bool kraidOwnsBg2 = kraid is { OwnsBg2Tilemap: true };
-            ScrollingSkyState? scrollingSky = runtime.ScrollingSky;
+            ScrollingSkyState? scrollingSky = runtime.Room.ScrollingSky;
             ushort[]? skyHorizontalScrolls = scrollingSky is { HorizontalHdmaConfigured: true } ? scrollingSky.BuildGameplayHorizontalScrolls(
-                runtime.Camera?.PixelPosition.Y
+                runtime.Room.Camera?.PixelPosition.Y
                     ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")) : null;
             if (skyHorizontalScrolls is not null && shake.Bg2.X != 0)
             {
@@ -101,9 +101,9 @@ public static class SuperMetroidRuntimeFrameRenderer
                     bg2Scroll.Y)
                 : null;
             // Crocomire's melting table spans every PPU scanline; gameplay reads lines 0..191 of it.
-            ushort[]? horizontalScrolls = runtime.Enemies.Phantoon?.Wave.DisplayedScrolls ?? lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls;
+            ushort[]? horizontalScrolls = runtime.Enemies.PhantoonBehavior.Phantoon?.Wave.DisplayedScrolls ?? lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls;
             ushort[]? verticalScrolls = crocomireOwnsBg2
-                ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
+                ? runtime.Enemies.CrocomireBehavior.CrocomireDeath is { MeltingHdmaActive: true } melting
                     ? melting.Bg2ScrollByScanline.Take(Bg2HdmaScrollTables.GameplayLines).ToArray() : null
                 : lavaAcidBg2VerticalScrolls;
             var registers = new OrdinaryGameplayRegisters(
@@ -112,12 +112,12 @@ public static class SuperMetroidRuntimeFrameRenderer
                     kraidOwnsBg2
                         ? AddShake(kraid!.Bg2Scroll.X, shake.Bg2.X)
                         : crocomireOwnsBg2
-                        ? AddShake(runtime.Enemies.CrocomireBg2Scroll.X, shake.Bg2.X)
+                        ? AddShake(runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll.X, shake.Bg2.X)
                         : bg2Scroll.X,
                     kraidOwnsBg2
                         ? AddShake(kraid!.Bg2Scroll.Y, shake.Bg2.Y)
                         : crocomireOwnsBg2
-                        ? AddShake(runtime.Enemies.CrocomireBg2Scroll.Y, shake.Bg2.Y)
+                        ? AddShake(runtime.Enemies.CrocomireBehavior.CrocomireBg2Scroll.Y, shake.Bg2.Y)
                         : scrollingSky is not null
                             ? AddShake(scrollingSky.VerticalScroll, shake.Bg2.Y)
                             : runtime.TourianStatues.Enabled
@@ -125,7 +125,7 @@ public static class SuperMetroidRuntimeFrameRenderer
                                 : bg2Scroll.Y),
                 kraidOwnsBg2
                     ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)
-                    : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? new Extent16<TilemapCells>(32, 32)
+                    : runtime.Enemies.MotherBrainEncounter.MotherBrain is { HasBg2ScrollOverride: true } ? new Extent16<TilemapCells>(32, 32)
                     : scrollingSky?.HorizontalHdmaConfigured != true && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue
                         ? new Extent16<TilemapCells>(64, 32)
                         : new Extent16<TilemapCells>(32, 64),
@@ -134,25 +134,25 @@ public static class SuperMetroidRuntimeFrameRenderer
                     : GameplayVramLayout.Bg2TilemapWord,
                 Bg1CharacterWord: bgCharacterBaseWord,
                 Bg2CharacterWord: bgCharacterBaseWord,
-                HudCharacterWord: runtime.GameplayHudCharacterBaseWord,
-                MainScreenLayers: runtime.DoorTransitionMainScreenLayers ??
+                HudCharacterWord: runtime.Display.GameplayHudCharacterBaseWord,
+                MainScreenLayers: runtime.Room.DoorTransitionMainScreenLayers ??
                     (SnesMainScreenLayers.Bg1 |
                      SnesMainScreenLayers.Bg2 |
                      SnesMainScreenLayers.Obj),
-                Bg2FirstScanline: runtime.DisplayedGameplayPpu.Bg2FirstScanline,
-                Bg2EndScanline: runtime.DisplayedGameplayPpu.Bg2EndScanline);
+                Bg2FirstScanline: runtime.Display.DisplayedGameplayPpu.Bg2FirstScanline,
+                Bg2EndScanline: runtime.Display.DisplayedGameplayPpu.Bg2EndScanline);
             frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 runtime.Vram,
                 runtime.Cgram,
                 runtime.DisplayedOam,
                 new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(horizontalScrolls, verticalScrolls),
-                    runtime.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrain?.RisingHdmaActive == true
+                    runtime.Room.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrainEncounter.MotherBrain?.RisingHdmaActive == true
                     ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default),
                 outputBuffer: runtime.GameplayFrameBuffer);
         }
 
-        bool doorIrqOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;
-        if (!doorIrqOwnsDisplay && runtime.DisplayedRoomLayer3Fx is { } layer3Fx)
+        bool doorIrqOwnsDisplay = runtime.Room.DoorTransitionMainScreenLayers is not null;
+        if (!doorIrqOwnsDisplay && runtime.Display.DisplayedRoomLayer3Fx is { } layer3Fx)
             SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, runtime.Vram, runtime.Cgram, layer3Fx);
 
         // These are the three setup routines that explicitly call FXType_2C_CeresHaze.
@@ -162,10 +162,10 @@ public static class SuperMetroidRuntimeFrameRenderer
         {
             // The HDMA object retains its spawn-time channel while the boss bit changes.
             SnesGameplayFrameRenderer.ApplyCeresHaze(frame, runtime.CeresHaze.IsRed,
-                runtime.CeresHaze.Intensity, runtime.MapPresentation?.RoomFxPaletteBlends);
+                runtime.CeresHaze.Intensity, runtime.Artwork.MapPresentation?.RoomFxPaletteBlends);
         }
 
-        if (!doorIrqOwnsDisplay && runtime.DisplayedMorphBallEyeBeam is { } eyeBeam)
+        if (!doorIrqOwnsDisplay && runtime.Display.DisplayedMorphBallEyeBeam is { } eyeBeam)
         {
             SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(
                 frame,

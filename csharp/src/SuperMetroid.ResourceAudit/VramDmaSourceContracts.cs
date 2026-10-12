@@ -21,7 +21,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/GrappleTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleBeamTilePatterns.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/SnesPlanarTileEncoder.cs"),
-        new("csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.ProjectilePresentation.cs"),
+        new("csharp/src/SuperMetroid.Core/Runtime/RuntimeArtwork.cs"),
         new("csharp/src/SuperMetroid.Core/Assets/GrappleTileDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlas.cs"),
         new("csharp/src/SuperMetroid.Core/Assets/ProjectileTrailAtlasDefinitions.cs"),
@@ -57,7 +57,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs"),
-        new("csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs"),
+        new("csharp/src/SuperMetroid.Core/Game/DeadTourianBehavior.cs"),
         new("csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTileMechanicsDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillMechanicsDefinitions.cs"),
@@ -75,8 +75,6 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.AssetExtraction/SamusBodyArtworkFiles.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/RoomSkyTilemapArtworkFiles.cs"),
         new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.cs"),
-        new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.Validation.cs"),
-        new("csharp/src/SuperMetroid.AssetExtraction/GameAssetInstaller.Components.cs"),
         // Format 85 requires both bounded invalid-selection beam sheets.
         new("csharp/src/SuperMetroid.AssetExtraction/GameInstallation.cs"),
     ];

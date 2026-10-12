@@ -46,10 +46,7 @@ internal static class GameplayBasePalettesVerification
             runtime.Cgram.SetColor(128, new Bgr555(0, 0, 0));
             runtime.Cgram.SetColor(208, new Bgr555(0, 0, 0));
             // Exercise the production room-load restore, not just the catalog helpers.
-            MethodInfo restore = typeof(SuperMetroidRuntime).GetMethod("LoadGameplaySpritePalettes",
-                BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new InvalidOperationException(
-                    "Runtime room-entry palette restore was not found.");
-            restore.Invoke(runtime, null);
+            runtime.RoomLoader.LoadGameplaySpritePalettes();
             for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
             {
                 AssertEqual(baseline.CommonSprites[color], runtime.Cgram.Colors[128 + color],
@@ -75,7 +72,7 @@ internal static class GameplayBasePalettesVerification
                 "edited starting color reaches live CGRAM");
             AssertTrue(editedRuntime.Cgram.Colors[1] != runtime.Cgram.Colors[1],
                 "edited starting color differs from stock");
-            restore.Invoke(editedRuntime, null);
+            editedRuntime.RoomLoader.LoadGameplaySpritePalettes();
             AssertEqual(edited.CommonSprites[1], editedRuntime.Cgram.Colors[129],
                 "edited shared sprite color reaches room-entry CGRAM");
 

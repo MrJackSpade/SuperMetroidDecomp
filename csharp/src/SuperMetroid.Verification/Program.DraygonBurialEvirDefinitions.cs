@@ -41,20 +41,14 @@ internal static class DraygonBurialEvirDefinitionsVerification
 
         var guarded = NewDraygonBurialEvirReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnDraygonDeathEvir",
-            instanceFlags)!;
-        MethodInfo move = typeof(RoomEnemySystem).GetMethod(
-            "MoveDraygonDeathEvirs",
-            instanceFlags)!;
+        enemies.BindFixtureBus(guarded);
 
         for (int entry = 5; entry >= 0; entry--)
         {
             RoomSpriteObjectKind kind = entry >= 3
                 ? RoomSpriteObjectKind.DraygonIntroEvir
                 : RoomSpriteObjectKind.DraygonDeathEvirFacingRight;
-            spawn.Invoke(enemies, [entry, kind]);
+            enemies.DraygonBehavior.SpawnDraygonDeathEvir(entry, kind);
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[
                 spriteSlotCount - 1 - (5 - entry)];
             DraygonBurialEvirDefinition definition =
@@ -69,7 +63,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
                 $"Draygon burial Evir {entry} palette");
         }
 
-        move.Invoke(enemies, null);
+        enemies.DraygonBehavior.MoveDraygonDeathEvirs();
         for (int entry = 5; entry >= 0; entry--)
         {
             RoomSpriteObjectSlot sprite = enemies.RoomSpriteObjects[

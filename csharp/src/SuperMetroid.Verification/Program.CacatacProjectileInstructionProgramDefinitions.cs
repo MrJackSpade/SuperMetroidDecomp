@@ -39,35 +39,31 @@ internal static class CacatacProjectileInstructionProgramDefinitionsVerification
 
         var guard = NewCacatacProjectileInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnCacatacSpike", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        RoomEnemySlot source = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemySlot, ushort> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(0x1234, 0x5678));
 
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {
-            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+            foreach (RoomEnemyProjectileSlot projectile in enemies.Projectiles.EnemyProjectiles)
                 projectile.Clear();
 
             spawn(source, (ushort)direction);
-            RoomEnemyProjectileSlot actual = enemies.EnemyProjectiles.Single(
+            RoomEnemyProjectileSlot actual = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             ushort program = CacatacProjectileDefinitions.InstructionList(direction);
             AssertEqual(program, actual.InstructionPointer,
                 $"Cacatac spike {direction} begins at its named program");
 
-            object?[] arguments = [actual, null, Position16<RoomPixels>.Zero];
-            process.Invoke(enemies, arguments);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(actual, (SamusState?)null, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(program + 4)), actual.InstructionPointer,
                 $"Cacatac spike {direction} installs its live spritemap");
             AssertEqual(unchecked((ushort)(program + 2)),
                 actual.PresentationOperandAddress,
                 $"Cacatac spike {direction} selects its installed cartridge frame");
 
-            process.Invoke(enemies, arguments);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(actual, (SamusState?)null, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(program + 4)), actual.InstructionPointer,
                 $"Cacatac spike {direction} sleeps at its terminal instruction");
             AssertEqual((ushort)0, actual.InstructionTimer,

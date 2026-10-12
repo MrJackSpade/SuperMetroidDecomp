@@ -50,13 +50,10 @@ internal static class DeadTorizoCorpseDefinitionsVerification
             "dead Torizo corpse wrap offset");
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewDeadTorizoCorpseDefinitionReadGuard(rom));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadTorizo", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        enemies.BindFixtureBus(NewDeadTorizoCorpseDefinitionReadGuard(rom));
+        Action<RoomEnemySlot> initialize = enemies.DeadTorizoBehavior.InitializeDeadTorizo;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
         initialize(slot);
 

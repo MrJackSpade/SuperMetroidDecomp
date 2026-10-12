@@ -42,7 +42,7 @@ internal static class MotherBrainGlassPlmProgramVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         bool eventSet = false;
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => eventSet, SetEvent = eventNumber =>
+        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => eventSet, SetEvent = eventNumber =>
             {
                 AssertEqual(EventNumber.MotherBrainGlassDestroyed, eventNumber,
                     "glass completion sets the native break event");
@@ -58,21 +58,21 @@ internal static class MotherBrainGlassPlmProgramVerification
         plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0xd215, plms.MotherBrainGlassInstructionPointer,
             "zero head hits loop at the first glass stage");
-        AssertTrue(!eventSet && plms.MotherBrainGlassProjectileRequests.Count == 0,
+        AssertTrue(!eventSet && plms.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count == 0,
             "unhit glass emits neither event nor shards");
 
         // Head-shot AI can increment the native room argument before a PLM
         // pass. Advance it through the final $12 threshold, then let each
         // one-frame draw and each authored burst execute in production order.
         for (int shot = 0; shot < 18; shot++)
-            plms.IncrementMotherBrainGlassRoomArgument();
+            plms.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();
         int emitted = 0;
-        for (int frame = 0; frame < 128 && plms.HasActiveHeader(PlmHeaderId.MotherBrainGlass); frame++)
+        for (int frame = 0; frame < 128 && plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.MotherBrainGlass); frame++)
         {
             plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            emitted += plms.MotherBrainGlassProjectileRequests.Count;
+            emitted += plms.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count;
         }
-        AssertTrue(eventSet && !plms.HasActiveHeader(PlmHeaderId.MotherBrainGlass),
+        AssertTrue(eventSet && !plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.MotherBrainGlass),
             $"all glass stages end by setting the event and deleting the PLM; " +
             $"pointer=${plms.MotherBrainGlassInstructionPointer:X4}, " +
             $"timer={plms.MotherBrainGlassInstructionTimer}");

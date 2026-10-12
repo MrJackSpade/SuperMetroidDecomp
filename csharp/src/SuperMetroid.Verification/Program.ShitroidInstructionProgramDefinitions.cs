@@ -44,20 +44,16 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | address), selector,
                 $"Shitroid native visual operand $A9:{address:X4}");
         }
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort randomNumber = 0;
         var guard = NewShitroidInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-        Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = new SnesCgram();
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => randomNumber);
-        var initialize = type.GetMethod("InitializeShitroid", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        var initialize = new Action<RoomEnemySlot, ushort>(enemies.ShitroidBehavior.InitializeShitroid);
 
-        RoomEnemySlot shitroid = enemies.Slots[0];
+        RoomEnemySlot shitroid = enemies.SlotTable.Slots[0];
         shitroid.EnemyDefinitionPointer = EnemyDefinitionId.BabyMetroid;
         shitroid.Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 };
         initialize(shitroid, 0);
@@ -65,35 +61,33 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
             shitroid.CurrentInstruction,
             "real Shitroid initializer installs compiled normal program");
 
-        object?[] processArguments =
-            [shitroid, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.FinishDraining, callCount: 2);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Instructions = enemies.Instructions }, shitroid, ShitroidInstructionProgramDefinitions.FinishDraining, callCount: 2);
         AssertEqual(ShitroidInstructionProgramDefinitions.Normal,
             shitroid.CurrentInstruction,
             "finish-draining program falls through to normal program");
 
-        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.Normal, callCount: 5);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Instructions = enemies.Instructions }, shitroid, ShitroidInstructionProgramDefinitions.Normal, callCount: 5);
         AssertEqual(unchecked((ushort)(ShitroidInstructionProgramDefinitions.Normal + 4)),
             shitroid.CurrentInstruction,
             "normal callback loops and installs its first repeated frame");
 
-        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.LatchedOn, callCount: 5);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Instructions = enemies.Instructions }, shitroid, ShitroidInstructionProgramDefinitions.LatchedOn, callCount: 5);
         AssertEqual(unchecked((ushort)(ShitroidInstructionProgramDefinitions.LatchedOn + 4)),
             shitroid.CurrentInstruction,
             "latched callback loops and installs its first repeated frame");
 
         randomNumber = 0;
-        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.Remorse, callCount: 9);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Instructions = enemies.Instructions }, shitroid, ShitroidInstructionProgramDefinitions.Remorse, callCount: 9);
         AssertEqual(unchecked((ushort)(ShitroidInstructionProgramDefinitions.Remorse + 4)),
             shitroid.CurrentInstruction,
             "clear-high-bit remorse branch follows its compiled loop target");
 
         randomNumber = 0x8000;
-        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.Remorse, callCount: 21);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Instructions = enemies.Instructions }, shitroid, ShitroidInstructionProgramDefinitions.Remorse, callCount: 21);
         AssertEqual(unchecked((ushort)(ShitroidInstructionProgramDefinitions.Remorse + 4)),
             shitroid.CurrentInstruction,
             "set-high-bit remorse path plays every trailing frame and loops");
-        AssertEqual((ushort?)0x0052, enemies.LastShitroidSoundEffectLibrary2,
+        AssertEqual((ushort?)0x0052, enemies.ShitroidBehavior.LastShitroidSoundEffectLibrary2,
             "set-high-bit remorse branch publishes native Shitroid cry");
 
         AssertEqual(0, guard.ObservedWords.Count,
@@ -134,7 +128,7 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             shitroid.InstructionTimer = 1;
-            interpreter.Process.Invoke(interpreter.Enemies, interpreter.ProcessArguments);
+            interpreter.Instructions.ProcessInstructions(shitroid, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             if (shitroid.InstructionTimer != 0)
             {
                 ushort operand = unchecked((ushort)(shitroid.CurrentInstruction - 2));

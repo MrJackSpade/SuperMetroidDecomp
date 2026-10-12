@@ -24,23 +24,19 @@ internal static class GunshipMotionDefinitionsVerification
         Suite(nameof(VerifyGunshipHoverTimerAlgorithm), () => VerifyGunshipHoverTimerAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverDeltaSelection), () => VerifyGunshipHoverDeltaSelection(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var brakeMethod = typeof(RoomEnemySystem).GetMethod("BouncePostCeresGunship", flags)!;
-        var bobMethod = typeof(RoomEnemySystem).GetMethod("StepGunshipBob", flags)!;
 
         for (ushort frame = 0; frame < 17; frame++)
         {
             short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2a622 + frame * 2)));
 
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies,
-                new GunshipMotionFixtureGuard(rom));
-            var applyBrake = brakeMethod.CreateDelegate<Action<RoomEnemySlot, SamusState>>(enemies);
-            RoomEnemySlot top = enemies.Slots[0];
+            enemies.BindFixtureBus(new GunshipMotionFixtureGuard(rom));
+            var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
+            RoomEnemySlot top = enemies.SlotTable.Slots[0];
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
             top.VariableE = frame;
-            enemies.Slots[1].Position = enemies.Slots[1].Position.WithWholeY(0x2100);
-            enemies.Slots[2].Position = enemies.Slots[2].Position.WithWholeY(0x2200);
+            enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
+            enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
 
             applyBrake(top, samus);
@@ -49,9 +45,9 @@ internal static class GunshipMotionDefinitionsVerification
                 $"gunship production brake Samus Y {frame}");
             AssertEqual(unchecked((ushort)(0x2000 + expected)), top.Position.Y.Whole,
                 $"gunship production brake top Y {frame}");
-            AssertEqual(unchecked((ushort)(0x2100 + expected)), enemies.Slots[1].Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(0x2100 + expected)), enemies.SlotTable.Slots[1].Position.Y.Whole,
                 $"gunship production brake bottom Y {frame}");
-            AssertEqual(unchecked((ushort)(0x2200 + expected)), enemies.Slots[2].Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(0x2200 + expected)), enemies.SlotTable.Slots[2].Position.Y.Whole,
                 $"gunship production brake pad Y {frame}");
         }
 
@@ -62,16 +58,14 @@ internal static class GunshipMotionDefinitionsVerification
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies,
-                new GunshipMotionFixtureGuard(rom));
-            var stepBob = bobMethod.CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            RoomEnemySlot top = enemies.Slots[0];
+            enemies.BindFixtureBus(new GunshipMotionFixtureGuard(rom));
+            var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
+            RoomEnemySlot top = enemies.SlotTable.Slots[0];
             top.VariableC = phase;
             top.VariableD = 1;
             top.Position = top.Position.WithWholeY(0x2000);
-            enemies.Slots[1].Position = enemies.Slots[1].Position.WithWholeY(0x2100);
-            enemies.Slots[2].Position = enemies.Slots[2].Position.WithWholeY(0x2200);
+            enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
+            enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
 
             stepBob(top);
 
@@ -81,9 +75,9 @@ internal static class GunshipMotionDefinitionsVerification
                 $"gunship production bob phase {phase}");
             AssertEqual(unchecked((ushort)(0x2000 + expectedDelta)), top.Position.Y.Whole,
                 $"gunship production bob top Y {phase}");
-            AssertEqual(unchecked((ushort)(0x2100 + expectedDelta)), enemies.Slots[1].Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(0x2100 + expectedDelta)), enemies.SlotTable.Slots[1].Position.Y.Whole,
                 $"gunship production bob bottom Y {phase}");
-            AssertEqual(unchecked((ushort)(0x2200 + expectedDelta)), enemies.Slots[2].Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(0x2200 + expectedDelta)), enemies.SlotTable.Slots[2].Position.Y.Whole,
                 $"gunship production bob pad Y {phase}");
         }
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
@@ -367,6 +369,69 @@ public sealed record GameInstallation(string Root)
 
     /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
     public AreaMapPresentationCatalog LoadMaps() => AreaMapPresentationCatalog.Load(MapDirectory, MapOverrideDirectory);
+
+    /// <summary>
+    /// Loads every installed presentation catalog the frontend binds. Hosts pass the maps and projectile
+    /// presentation they already hold for content identity and save persistence.
+    /// </summary>
+    public GameArtwork LoadGameArtwork(AreaMapPresentationCatalog maps, InstalledProjectilePresentation projectiles)
+    {
+        Ensure.NotNull(maps);
+        Ensure.NotNull(projectiles);
+        return new GameArtwork
+        {
+            MapPresentation = maps,
+            GameplayBasePalettes = LoadGameplayBasePalettes(),
+            StandardObjectArt = LoadStandardObjects(),
+            IntroCinematicArt = LoadIntroCinematicArt(),
+            SamusBodyArt = LoadSamusBodyArt(),
+            EndingMode7Art = LoadEndingMode7Art(),
+            EndingObjectArt = LoadEndingObjectArt(),
+            EndingPaletteArt = LoadEndingPalettes(),
+            RoomCharacterArt = LoadRoomCharacters(),
+            RoomPaletteArt = LoadRoomPalettes(),
+            RoomMetatileArt = LoadRoomMetatiles(),
+            RoomVisualLayouts = LoadRoomVisualLayouts(),
+            RoomPlmShotBlockVisuals = LoadRoomPlmShotBlockVisuals(),
+            RoomPlmGrappleBlockVisuals = LoadRoomPlmGrappleBlockVisuals(),
+            RoomPlmStationVisuals = LoadRoomPlmStationVisuals(),
+            RoomPlmBlueDoorVisuals = LoadRoomPlmBlueDoorVisuals(),
+            RoomPlmColoredDoorVisuals = LoadRoomPlmColoredDoorVisuals(),
+            RoomPlmGreyDoorVisuals = LoadRoomPlmGreyDoorVisuals(),
+            RoomPlmEyeDoorVisuals = LoadRoomPlmEyeDoorVisuals(),
+            RoomPlmMotherBrainGlassVisuals = LoadRoomPlmMotherBrainGlassVisuals(),
+            RoomPlmNoobTubeVisuals = LoadRoomPlmNoobTubeVisuals(),
+            RoomPlmDownwardGateVisuals = LoadRoomPlmDownwardGateVisuals(),
+            RoomPlmElevatorPlatformVisuals = LoadRoomPlmElevatorPlatformVisuals(),
+            RoomPlmEscapeGateVisuals = LoadRoomPlmEscapeGateVisuals(),
+            RoomPlmBombTorizoHandVisuals = LoadRoomPlmBombTorizoHandVisuals(),
+            RoomPlmDraygonCannonVisuals = LoadRoomPlmDraygonCannonVisuals(),
+            RoomPlmChozoStatueVisuals = LoadRoomPlmChozoStatueVisuals(),
+            RoomPlmLinkedRestoreVisuals = LoadRoomPlmLinkedRestoreVisuals(),
+            RoomPlmTourianAccessVisuals = LoadRoomPlmTourianAccessVisuals(),
+            RoomPlmSpeedBoosterVisuals = LoadRoomPlmSpeedBoosterVisuals(),
+            RoomPlmMaridiaElevatubeVisuals = LoadRoomPlmMaridiaElevatubeVisuals(),
+            RoomPlmSporeSpawnCeilingVisuals = LoadRoomPlmSporeSpawnCeilingVisuals(),
+            RoomPlmSamusEaterVisuals = LoadRoomPlmSamusEaterVisuals(),
+            RoomPlmBotwoonWallVisuals = LoadRoomPlmBotwoonWallVisuals(),
+            RoomPlmKraidVisuals = LoadRoomPlmKraidVisuals(),
+            RoomPlmCrocomireVisuals = LoadRoomPlmCrocomireVisuals(),
+            RoomPlmMotherBrainFakeDeathVisuals = LoadRoomPlmMotherBrainFakeDeathVisuals(),
+            RoomPlmCollectibleVisuals = LoadRoomPlmCollectibleVisuals(),
+            RoomPlmDynamicCollectibleArt = LoadRoomPlmDynamicCollectibleArt(),
+            XrayRevealVisuals = LoadXrayRevealVisuals(),
+            RoomBackgroundTilemapArt = LoadRoomBackgroundTilemaps(),
+            RoomSkyTilemapArt = LoadRoomSkyTilemaps(),
+            ProjectileCompositions = projectiles.Catalog,
+            ProjectileFrameBindings = projectiles.FrameBindings,
+            BeamArtwork = projectiles.BeamTiles,
+            EnemyTileArtwork = LoadEnemyTiles(),
+            TrailArtwork = projectiles.Trails,
+            ChargeFlarePlacement = projectiles.FlarePlacement,
+            ChargeFlareCompositions = projectiles.FlareCompositions,
+            GrappleArtwork = projectiles.GrappleTiles,
+        };
+    }
 }
 
 /// <summary>Shared on-disk layout used by the desktop host, Android host, and installation CLI.</summary>

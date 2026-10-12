@@ -24,17 +24,17 @@ internal static class DoorEntryEnemySoundVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0x948c);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));
         samus.InputLocked = true;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        var body = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64]!;
         body.Position = body.Position.WithWhole(new(128, 128));
         state.Function = KiHunterEnemyFunction.NoOp;
@@ -44,8 +44,8 @@ internal static class DoorEntryEnemySoundVerification
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
-        var level = runtime.LevelData!;
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
+        var level = runtime.Room.LevelData!;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
         for (int x = 0; x < level.Size.X && !selected; x++)

@@ -22,62 +22,12 @@ internal static class MotherBrainTankBackgroundVerification
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
-        var maps = RepositoryInstallation.Maps;
-        game.BindMapPresentation(maps);
-        game.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
-        game.BindStandardObjectArt(installation.LoadStandardObjects());
-        game.BindIntroCinematicArt(RepositoryInstallation.IntroArtwork);
-        game.BindSamusBodyArt(RepositoryInstallation.SamusBody);
-        game.BindEndingMode7Art(installation.LoadEndingMode7Art());
-        game.BindEndingObjectArt(installation.LoadEndingObjectArt());
-        game.BindEndingPaletteArt(installation.LoadEndingPalettes());
-        game.BindRoomCharacterArt(installation.LoadRoomCharacters());
-        game.BindRoomPaletteArt(installation.LoadRoomPalettes());
-        game.BindRoomMetatileArt(installation.LoadRoomMetatiles());
-        game.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
-        game.BindRoomPlmShotBlockVisuals(installation.LoadRoomPlmShotBlockVisuals());
-        game.BindRoomPlmGrappleBlockVisuals(installation.LoadRoomPlmGrappleBlockVisuals());
-        game.BindRoomPlmStationVisuals(installation.LoadRoomPlmStationVisuals());
-        game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
-        game.BindRoomPlmColoredDoorVisuals(installation.LoadRoomPlmColoredDoorVisuals());
-        game.BindRoomPlmGreyDoorVisuals(installation.LoadRoomPlmGreyDoorVisuals());
-        game.BindRoomPlmEyeDoorVisuals(installation.LoadRoomPlmEyeDoorVisuals());
-        game.BindRoomPlmMotherBrainGlassVisuals(installation.LoadRoomPlmMotherBrainGlassVisuals());
-        game.BindRoomPlmNoobTubeVisuals(installation.LoadRoomPlmNoobTubeVisuals());
-        game.BindRoomPlmDownwardGateVisuals(installation.LoadRoomPlmDownwardGateVisuals());
-        game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
-        game.BindRoomPlmEscapeGateVisuals(installation.LoadRoomPlmEscapeGateVisuals());
-        game.BindRoomPlmBombTorizoHandVisuals(installation.LoadRoomPlmBombTorizoHandVisuals());
-        game.BindRoomPlmDraygonCannonVisuals(installation.LoadRoomPlmDraygonCannonVisuals());
-        game.BindRoomPlmChozoStatueVisuals(installation.LoadRoomPlmChozoStatueVisuals());
-        game.BindRoomPlmLinkedRestoreVisuals(installation.LoadRoomPlmLinkedRestoreVisuals());
-        game.BindRoomPlmTourianAccessVisuals(installation.LoadRoomPlmTourianAccessVisuals());
-        game.BindRoomPlmSpeedBoosterVisuals(installation.LoadRoomPlmSpeedBoosterVisuals());
-        game.BindRoomPlmMaridiaElevatubeVisuals(installation.LoadRoomPlmMaridiaElevatubeVisuals());
-        game.BindRoomPlmSporeSpawnCeilingVisuals(installation.LoadRoomPlmSporeSpawnCeilingVisuals());
-        game.BindRoomPlmSamusEaterVisuals(installation.LoadRoomPlmSamusEaterVisuals());
-        game.BindRoomPlmBotwoonWallVisuals(installation.LoadRoomPlmBotwoonWallVisuals());
-        game.BindRoomPlmKraidVisuals(installation.LoadRoomPlmKraidVisuals());
-        game.BindRoomPlmCrocomireVisuals(installation.LoadRoomPlmCrocomireVisuals());
-        game.BindRoomPlmMotherBrainFakeDeathVisuals(installation.LoadRoomPlmMotherBrainFakeDeathVisuals());
-        game.BindRoomPlmCollectibleVisuals(installation.LoadRoomPlmCollectibleVisuals());
-        game.BindRoomPlmDynamicCollectibleArt(installation.LoadRoomPlmDynamicCollectibleArt());
-        game.BindXrayRevealVisuals(installation.LoadXrayRevealVisuals());
-        game.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
-        game.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
-        var projectiles=RepositoryInstallation.Projectiles;
-        game.BindProjectileCompositions(projectiles.Catalog);
-        game.BindProjectileFrameBindings(projectiles.FrameBindings);
-        game.BindBeamArtwork(projectiles.BeamTiles);
-        game.BindEnemyTileArtwork(RepositoryInstallation.EnemyTiles);
-        game.BindTrailArtwork(projectiles.Trails);
-        game.BindChargeFlarePlacement(projectiles.FlarePlacement);
-        game.BindChargeFlareCompositions(projectiles.FlareCompositions);
-        game.BindGrappleArtwork(projectiles.GrappleTiles);
+        var projectiles=InstalledFixtures.Projectiles;
+        InstalledFixtures.BindGame(game);
         typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
         var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         var expectedVram = new SnesVram();
         LibraryBackgroundLoader.Execute(installation.OpenRuntimeAddressSpace(), expectedVram, 0xe48a, 0, new LibraryBackgroundArtwork { TilemapArt = installation.LoadRoomBackgroundTilemaps() });
@@ -89,10 +39,9 @@ internal static class MotherBrainTankBackgroundVerification
             "Mother Brain initialization must preserve both pages of the actual pipe-room background");
         for (int index = 0; index < 0x800; index++)
             AssertEqual((ushort)0x0338, ReadStaged(index), "Initializer prepares all enemy BG2 staging words");
-        var state = runtime.Enemies.MotherBrain!;
+        var state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
         AssertEqual((ushort)0x800, state.EnemyBg2TilemapSize, "Native default transfer size is bytes, not words");
-        typeof(RoomEnemySystem).GetMethod("SetupMotherBrainPhaseTwoGraphics", flags)!
-            .Invoke(runtime.Enemies, [state]);
+        runtime.Enemies.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(state);
         var blank = Enumerable.Repeat((ushort)0x0338, 0x400).ToArray();
         expectedVram.ExecuteWordTransfer(blank, 0x4800, 1);
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
@@ -102,8 +51,7 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue(artwork.MotherBrainBodyBg2Frames!.TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-        typeof(RoomEnemySystem).GetMethod("ApplyInstalledEnemyBg2Frame", flags)!
-            .Invoke(runtime.Enemies, [state.Body, (ushort)0xa252]);
+        runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, (ushort)0xa252);
         foreach (var write in writes.Span)
         {
             expectedVram.ExecuteWordTransfer(write.Tiles.Span, (ushort)(0x4800 + write.DestinationWord), 1);

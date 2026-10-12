@@ -32,8 +32,11 @@ internal static class CeresEnginePaletteBindingVerification
         int destination = CeresCinematicLightPaletteFxProgramMechanicsDefinitions.GunshipEngineColorIndex / sizeof(ushort);
         ushort[] nativeColors = [0x7fff, 0]; // Pinned $8D:C880/$C886, not runtime ROM reads.
         var game = new SuperMetroidGame(SuperMetroidAddressSpace.CreateWithoutCartridge());
-        game.BindMapPresentation(stock);
-        game.BindIntroCinematicArt(artwork);
+        game.BindArtwork(game.Artwork with
+        {
+            MapPresentation = stock,
+            IntroCinematicArt = artwork,
+        });
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
             .SetValue(game, SuperMetroidGameState.CeresGoesBoom);
 
@@ -73,8 +76,11 @@ internal static class CeresEnginePaletteBindingVerification
                 new JsonArray(new JsonObject { ["red"] = 0, ["green"] = 31, ["blue"] = 0 }));
             File.WriteAllText(Path.Combine(edits, RoomPaletteFxPresentationFormat.FileName), document.ToJsonString());
             AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(installation.MapDirectory, edits);
-            restored.BindMapPresentation(edited);
-            restored.BindIntroCinematicArt(artwork);
+            restored.BindArtwork(restored.Artwork with
+            {
+                MapPresentation = edited,
+                IntroCinematicArt = artwork,
+            });
             CeresDestructionCinematicState restoredScene = Scene(restored);
             ushort[] replacementColors = [31, 31 << 5];
             for (int frame = 0; frame < 4; frame++)

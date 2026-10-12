@@ -40,18 +40,12 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
                 $"KiHunter acid-spit mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("KiHunter fixture requires installed projectile sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewKiHunterAcidSpitInstructionGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnKiHunterAcidSpit", flags)!;
-        MethodInfo move = typeof(RoomEnemySystem).GetMethod(
-            "RunKiHunterAcidMovement", BindingFlags.NonPublic | BindingFlags.Static)!;
+        enemies.BindFixtureBus(guard);
 
         var body = new RoomEnemySlot(0)
         {
@@ -59,8 +53,8 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
-        spawn.Invoke(enemies, [body, false]);
-        spawn.Invoke(enemies, [body, true]);
+        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, false);
+        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, true);
 
         RoomEnemyProjectileSlot left = Find(RoomEnemyProjectileKind.KiHunterAcidSpitLeft);
         RoomEnemyProjectileSlot right = Find(RoomEnemyProjectileKind.KiHunterAcidSpitRight);
@@ -79,7 +73,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
         left.Position = left.Position.WithWhole(new(64, 63));
         left.Radius = new(2, 2);
         left.Velocity = left.Velocity.WithY(new SnesSignedEightEight(0x0100));
-        move.Invoke(enemies, [left, level]);
+        KiHunterBehavior.RunKiHunterAcidMovement(left, level);
         AssertEqual(KiHunterAcidSpitInstructionProgramDefinitions.HitFloor,
             left.InstructionPointer,
             "real solid-floor collision installs the named acid-splash program");
@@ -135,7 +129,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
             "splash, shared shot deletion, and nineteen native selectors with zero live reads pass.");
 
         RoomEnemyProjectileSlot Find(RoomEnemyProjectileKind kind) =>
-            enemies.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
+            enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
 
         void VerifyIntroduction(
             RoomEnemyProjectileSlot projectile,
@@ -159,7 +153,7 @@ internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 if (projectile.IsActive && projectile.InstructionTimer != 0)
                 {
                     ushort operand = unchecked((ushort)(projectile.InstructionPointer - 2));

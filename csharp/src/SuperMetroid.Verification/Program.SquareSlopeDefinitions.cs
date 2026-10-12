@@ -27,7 +27,7 @@ internal static class SquareSlopeDefinitionsVerification
             AssertThrows<IndexOutOfRangeException>(() => SquareSlopeDefinitions.ReadSamusQuadrant(invalid),
                 $"Samus square quadrant rejects {invalid}");
 
-        var missile = typeof(SamusProjectileSystem).GetMethod("MissileSlopePointReaction", BindingFlags.NonPublic | BindingFlags.Static)!
+        var missile = typeof(ProjectileMotion).GetMethod("MissileSlopePointReaction", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
         var bus = NewSlopeHeightNoReadBus();
         var projectile = new SamusProjectileSlot(0);

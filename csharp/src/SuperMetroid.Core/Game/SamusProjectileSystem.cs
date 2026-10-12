@@ -18,11 +18,64 @@ namespace SuperMetroid.Core.Game;
 /// model and bank-$93 interpreter are intentionally general enough for the remaining beam
 /// and missile families, but unsupported producers are rejected before allocating a slot.
 /// </remarks>
-public sealed partial class SamusProjectileSystem
+public sealed class SamusProjectileSystem
 {
-    /// <summary>Installed timed-frame sprite choices; null retains the cartridge diagnostic path.</summary>
-    [field: NonSerialized]
-    public Assets.ProjectileFrameBindingCatalog? FrameBindings { get; set; }
+    /// <summary>The <see cref="BeamChargeState"/> owner of this SamusProjectileSystem.</summary>
+    internal BeamChargeState Charge { get; }
+
+    /// <summary>The <see cref="ProjectileSlotTable"/> owner of this SamusProjectileSystem.</summary>
+    internal ProjectileSlotTable SlotTable { get; }
+
+    /// <summary>The <see cref="ProjectileEarthquakes"/> owner of this SamusProjectileSystem.</summary>
+    internal ProjectileEarthquakes Earthquakes { get; }
+
+    /// <summary>The <see cref="ChainsawWindow"/> owner of this SamusProjectileSystem.</summary>
+    internal ChainsawWindow Chainsaw { get; }
+
+    /// <summary>The <see cref="ProjectileImpactAudio"/> owner of this SamusProjectileSystem.</summary>
+    internal ProjectileImpactAudio ImpactAudio { get; }
+
+    /// <summary>The <see cref="ShinesparkEchoProjectile"/> owner of this SamusProjectileSystem.</summary>
+    internal ShinesparkEchoProjectile Shinespark { get; }
+
+    /// <summary>The <see cref="BeamCombos"/> owner of this SamusProjectileSystem.</summary>
+    internal BeamCombos Combos { get; }
+
+    /// <summary>The <see cref="ProjectileAnimation"/> owner of this SamusProjectileSystem.</summary>
+    internal ProjectileAnimation Animation { get; }
+
+    /// <summary>The <see cref="BeamFiring"/> owner of this SamusProjectileSystem.</summary>
+    internal BeamFiring Firing { get; }
+
+    /// <summary>The <see cref="ProjectileMotion"/> owner of this SamusProjectileSystem.</summary>
+    internal ProjectileMotion Motion { get; }
+
+    /// <summary>The <see cref="ProjectileTerrainCollision"/> owner of this SamusProjectileSystem.</summary>
+    internal ProjectileTerrainCollision TerrainCollision { get; }
+
+    /// <summary>The <see cref="ProjectileEnemyImpacts"/> owner of this SamusProjectileSystem.</summary>
+    internal ProjectileEnemyImpacts EnemyImpacts { get; }
+
+    /// <summary>The <see cref="ProjectileTrails"/> owner of this SamusProjectileSystem.</summary>
+    internal ProjectileTrails Trails { get; }
+
+    /// <summary>Creates the five projectile slots, eighteen trail slots and the owners that run them.</summary>
+    public SamusProjectileSystem()
+    {
+        Charge = new BeamChargeState();
+        SlotTable = new ProjectileSlotTable();
+        Earthquakes = new ProjectileEarthquakes();
+        ImpactAudio = new ProjectileImpactAudio();
+        Animation = new ProjectileAnimation(Charge, SlotTable);
+        TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio);
+        EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision);
+        Trails = new ProjectileTrails(SlotTable);
+        Chainsaw = new ChainsawWindow(Animation);
+        Shinespark = new ShinesparkEchoProjectile(Animation, SlotTable);
+        Combos = new BeamCombos(Animation, Charge, SlotTable, Trails);
+        Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision);
+        Motion = new ProjectileMotion(Animation, SlotTable, TerrainCollision, Trails);
+    }
     /// <summary>Native ordinary-projectile capacity; bombs occupy the other five slots.</summary>
     public const int SlotCount = 5;
 
@@ -31,69 +84,15 @@ public sealed partial class SamusProjectileSystem
     /// Because every parallel array is word-indexed, that is eighteen independent slots.
     /// </summary>
     public const int TrailSlotCount = 18;
-    // `$93:83FF` is only the pointer-table entry that names the beam-explosion DATA
-    // record (`$8679`). KillProjectileInner does not install that address. Its assembly
-    // reads the instruction-list pointer stored two bytes into the data record, at
-    // `$93:867B`. Treating `$83FF` itself as the list made the interpreter consume data
-    // tables as eight-byte animation records: the first bogus "spritemap" was the real
-    // list pointer, producing unrelated OBJ fragments, and no delete opcode was reached.
-
-    private readonly SamusProjectileSlot[] _slots =
-        Enumerable.Range(0, SlotCount).Select(index => new SamusProjectileSlot(index)).ToArray();
-    private readonly SamusProjectileTrailSlot[] _trailSlots =
-        Enumerable.Range(0, TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 
     /// <summary>The slots in native low-to-high byte-index order: $00, $02, ... $08.</summary>
-    public IReadOnlyList<SamusProjectileSlot> Slots => _slots;
-
-    /// <summary>WRAM <c>$0CCE</c>; maintained separately from free-slot scans by the ROM.</summary>
-    public ushort ProjectileCounter { get; private set; }
-
-    /// <summary>WRAM <c>$0CD0</c>; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
-    public ushort FlareCounter { get; private set; }
-
-    /// <summary>WRAM <c>$0DC2</c>; sampled before the current charge-input update.</summary>
-    public ushort PreviousBeamChargeCounter { get; private set; }
-
-    /// <summary>
-    /// WRAM <c>$0B18</c>. Ordinary charged shots use values four through zero for three
-    /// white frames and a fourth-call suit restore. Hyper Beam uses `$8014` through `$8000`
-    /// for ten ROM palettes held two calls each before the same restore path.
-    /// </summary>
-    public ushort ChargedShotGlowTimer { get; private set; }
+    public IReadOnlyList<SamusProjectileSlot> Slots => SlotTable._slots;
 
     /// <summary>The most recent `$91:D743` charged-shot palette sub-handler result.</summary>
     public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
 
     /// <summary>Nested `$91:D83F` result when inactive charging falls through to visor handling.</summary>
     public SamusVisorPaletteStepResult LastVisorPaletteStep { get; private set; }
-
-    /// <summary>
-    /// WRAM <c>$0B62</c>, a byte offset into the active six-word charge-palette list.
-    /// Native values are exactly 0, 2, 4, 6, 8, and 10; the sixth call wraps to zero.
-    /// </summary>
-    public ushort SamusChargePaletteIndex { get; private set; }
-
-    /// <summary>
-    /// WRAM <c>$18AC</c>; humanoid shots temporarily suppress Samus/projectile
-    /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
-    /// </summary>
-    public ushort ProjectileInvincibilityTimer { get; private set; }
-
-    /// <summary>Decrements the projectile-owned word of native DecrementSamusTimers.</summary>
-    public void DecrementInteractionTimer()
-    {
-        if (ProjectileInvincibilityTimer != 0)
-            ProjectileInvincibilityTimer--;
-    }
-
-    /// <summary>Last impact's quake request; runtime requests also write the shared room owner immediately.</summary>
-    public ushort EarthquakeType { get; private set; }
-    /// <summary>Duration of the most recent Super Missile impact quake request, not a ticking countdown; cleared by <see cref="ResetForRoomTransition"/> and published immediately to the shared room earthquake owner when bound.</summary>
-    public ushort EarthquakeTimer { get; private set; }
-
-    private readonly ushort[] _flareFrames = new ushort[3];
-    private readonly ushort[] _flareTimers = new ushort[3];
 
     /// <summary>The last alpha-pass result, retained for debugger watches and verification.</summary>
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
@@ -225,7 +224,7 @@ public sealed partial class SamusProjectileSystem
         Ensure.NotNull(samus);
         LastVisorPaletteStep = default;
 
-        ushort timerBefore = ChargedShotGlowTimer;
+        ushort timerBefore = Charge.ChargedShotGlowTimer;
         if (timerBefore == 0)
         {
             // `$91:D748-$D793` admits the continuously cycling charge palette only while
@@ -234,33 +233,33 @@ public sealed partial class SamusProjectileSystem
             // so Hyper's `$8000` sentinel follows cartridge behavior too.
             bool chargePaletteActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
-                FlareCounter != 0 &&
-                unchecked((short)(FlareCounter - 0x003c)) >= 0;
+                Charge.FlareCounter != 0 &&
+                unchecked((short)(Charge.FlareCounter - 0x003c)) >= 0;
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;
-                ushort suitOffset = GetSuitPaletteOffset(samus.EquippedItems);
+                ushort suitOffset = ProjectileAnimation.GetSuitPaletteOffset(samus.EquippedItems);
 
                 // The installed path compiles the two pointer levels for bounded native
                 // offsets. Restored non-catalog offsets still execute both indirect reads.
                 ushort palettePointer = 0;
-                bool catalogued = samus.ChargeColors is not null &&
+                bool catalogued = samus.Presentation.ChargeColors is not null &&
                     (pseudoScrew
                         ? SamusChargePalettePointerDefinitions.TryPseudoScrew(
-                            suitOffset, SamusChargePaletteIndex, out palettePointer)
+                            suitOffset, Charge.SamusChargePaletteIndex, out palettePointer)
                         : SamusChargePalettePointerDefinitions.TryChargedBeam(
-                            suitOffset, SamusChargePaletteIndex, out palettePointer));
+                            suitOffset, Charge.SamusChargePaletteIndex, out palettePointer));
                 if (!catalogued)
                     throw new InvalidDataException(
-                        $"Charge palette offset {SamusChargePaletteIndex} is not compiled.");
-                int paletteIndex = SamusChargePaletteIndex / 2;
-                (samus.ChargeColors ?? throw new InvalidOperationException(
+                        $"Charge palette offset {Charge.SamusChargePaletteIndex} is not compiled.");
+                int paletteIndex = Charge.SamusChargePaletteIndex / 2;
+                (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
                     "Charge palette requires installed colors."))
                     .ApplyCharge(cgram, pseudoScrew, suitOffset / 2, paletteIndex);
 
-                SamusChargePaletteIndex = SamusChargePaletteIndex >= 10
+                Charge.SamusChargePaletteIndex = Charge.SamusChargePaletteIndex >= 10
                     ? (ushort)0
-                    : unchecked((ushort)(SamusChargePaletteIndex + 2));
+                    : unchecked((ushort)(Charge.SamusChargePaletteIndex + 2));
                 LastBeamChargePaletteStep = new(
                     pseudoScrew
                         ? SamusBeamChargePaletteAction.PseudoScrewCycle
@@ -271,7 +270,7 @@ public sealed partial class SamusProjectileSystem
             // `$91:D7B0` resets the sequence whenever charge is below threshold or grapple
             // owns its function pointer. This guarantees the next eligible call starts at
             // palette zero rather than resuming a partially completed cycle.
-            SamusChargePaletteIndex = 0;
+            Charge.SamusChargePaletteIndex = 0;
             LastVisorPaletteStep = samus.VisorPalette.Update(
                 bus,
                 cgram,
@@ -287,10 +286,10 @@ public sealed partial class SamusProjectileSystem
             // `$91:D799` decrements before its BEQ. Starting at four therefore produces
             // white on timers 3, 2, and 1. Timer 1 -> 0 takes carry-set `$D7AE`, causing
             // outer `$D717` to restore the complete suit palette on the fourth call.
-            ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
-            if (ChargedShotGlowTimer == 0)
+            Charge.ChargedShotGlowTimer = unchecked((ushort)(Charge.ChargedShotGlowTimer - 1));
+            if (Charge.ChargedShotGlowTimer == 0)
             {
-                ushort normalPointer = LoadNormalSuitPalette(cgram, samus);
+                ushort normalPointer = ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
                 LastBeamChargePaletteStep = new(
                     SamusBeamChargePaletteAction.RestoredNormalSuit);
                 return LastBeamChargePaletteStep;
@@ -310,36 +309,36 @@ public sealed partial class SamusProjectileSystem
         // Hyper's sign bit selects this branch but is not part of the table index. Odd
         // values are pure hold calls; even low-five-bit values 20..2 select palette 0..9.
         // Each selected ROM palette consequently remains visible for exactly two calls.
-        if ((ChargedShotGlowTimer & 1) != 0)
+        if ((Charge.ChargedShotGlowTimer & 1) != 0)
         {
-            ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
+            Charge.ChargedShotGlowTimer = unchecked((ushort)(Charge.ChargedShotGlowTimer - 1));
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.HyperHold);
             return LastBeamChargePaletteStep;
         }
 
-        ushort tableOffset = unchecked((ushort)(ChargedShotGlowTimer & 0x001e));
+        ushort tableOffset = unchecked((ushort)(Charge.ChargedShotGlowTimer & 0x001e));
         if (tableOffset == 0)
         {
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
             // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
-            ChargedShotGlowTimer = 0;
-            ushort normalPointer = LoadNormalSuitPalette(cgram, samus);
+            Charge.ChargedShotGlowTimer = 0;
+            ushort normalPointer = ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.RestoredNormalSuit);
             return LastBeamChargePaletteStep;
         }
 
         ushort hyperPointer = 0;
-        bool cataloguedHyper = samus.ChargeColors is not null &&
+        bool cataloguedHyper = samus.Presentation.ChargeColors is not null &&
             SamusChargePalettePointerDefinitions.TryHyperShot(tableOffset, out hyperPointer);
         if (!cataloguedHyper)
             throw new InvalidDataException($"Hyper Beam palette offset {tableOffset} is not compiled.");
         int hyperPaletteIndex = (0x14 - tableOffset) / 2;
-        (samus.ChargeColors ?? throw new InvalidOperationException(
+        (samus.Presentation.ChargeColors ?? throw new InvalidOperationException(
             "Hyper Beam palette requires installed colors."))
             .ApplyHyper(cgram, hyperPaletteIndex);
-        ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
+        Charge.ChargedShotGlowTimer = unchecked((ushort)(Charge.ChargedShotGlowTimer - 1));
         LastBeamChargePaletteStep = new(
             SamusBeamChargePaletteAction.HyperPalette);
         return LastBeamChargePaletteStep;
@@ -384,7 +383,7 @@ public sealed partial class SamusProjectileSystem
         // nothing: held/released Shoot must leave the charge word untouched.
         // Existing projectiles still advance below. Pose input can leave spin
         // first, making the normal producer eligible on the following alpha.
-        SamusHudHandler hudHandler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(terrain.Bus));
+        SamusHudHandler hudHandler = SamusHudDefinitions.MovementHandler(samus.PoseMetadata.ReadMovementType(terrain.Bus));
         bool preservesJumpHandlerCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
             hudHandler == SamusHudHandler.Jump;
         // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.
@@ -396,8 +395,8 @@ public sealed partial class SamusProjectileSystem
         bool preservesPostureCharge = hudHandler == SamusHudHandler.Transition &&
             !SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose,
                 grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive);
-        if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusState.IsForwardFacingPose(samus.Pose) &&
-            !SamusState.IsStableBallPose(samus.Pose))
+        if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
+            !SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
             // $90:DDC8 calls the normal beam handler when selected X-ray's Run
             // action is released. Holding Run owns this dispatch even if setup is
@@ -407,7 +406,7 @@ public sealed partial class SamusProjectileSystem
                 (buttons.ControllerInput & (ushort)SnesButton.B) == 0;
             if (samus.SelectedHudItem is 0 or 3 || xrayBeamFallback)
             {
-                (firedSlot, queuedSound, queuedSoundMaximum) = HandleBeamInput(
+                (firedSlot, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(
                     terrain.Bus,
                     terrain.Level,
                     samus,
@@ -419,7 +418,7 @@ public sealed partial class SamusProjectileSystem
             }
             else if (samus.SelectedHudItem is 1 or 2)
             {
-                (firedSlot, queuedSound) = TryFireMissile(
+                (firedSlot, queuedSound) = Firing.TryFireMissile(
                     terrain.Bus,
                     samus,
                     buttons.ControllerNewInput,
@@ -434,7 +433,7 @@ public sealed partial class SamusProjectileSystem
         // installing ordinary movement. A muzzle born against a solid door can therefore
         // already be an explosion before the descending alpha-pass loop begins below.
         bool collisionStartedExplosion = firedSlot is { } initialCollisionSlot &&
-            _slots[initialCollisionSlot].PackedType.IsFamily(
+            SlotTable._slots[initialCollisionSlot].PackedType.IsFamily(
                 SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
         bool persistentMemoryCorrupted = false;
@@ -451,13 +450,13 @@ public sealed partial class SamusProjectileSystem
         // the newly published freeze flag before HandleProjectile, not only at entry.
         for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileSlot slot = _slots[slotIndex];
+            SamusProjectileSlot slot = SlotTable._slots[slotIndex];
             if (slot.InstructionPointer == 0)
                 continue;
 
             if (slot.PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho)
             {
-                StepShinesparkEcho(samus, slot, layer1);
+                Shinespark.StepShinesparkEcho(samus, slot, layer1);
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
@@ -467,12 +466,12 @@ public sealed partial class SamusProjectileSystem
             {
                 ushort comboSound = 0;
                 if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward)
-                    comboSound = StepIceCombo(terrain.Bus, samus, slot, sharedProjectiles, layer1);
+                    comboSound = Combos.StepIceCombo(terrain.Bus, samus, slot, sharedProjectiles, layer1);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.WaveCombo)
-                    comboSound = StepWaveCombo(terrain.Bus, samus, slot, sharedProjectiles);
+                    comboSound = Combos.StepWaveCombo(terrain.Bus, samus, slot, sharedProjectiles);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.PlasmaCombo)
-                    StepPlasmaCombo(samus, slot, sharedProjectiles, layer1);
-                else comboSound = StepSpazerCombo(terrain.Bus, samus, slot, sharedProjectiles, layer1.Y);
+                    Combos.StepPlasmaCombo(samus, slot, sharedProjectiles, layer1);
+                else comboSound = Combos.StepSpazerCombo(terrain.Bus, samus, slot, sharedProjectiles, layer1.Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound != 0)
                     (comboSounds ??= []).Add(new SamusSoundRequest(
@@ -481,7 +480,7 @@ public sealed partial class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)
             {
-                collisionStartedExplosion |= RunNoWaveBeamPreInstruction(
+                collisionStartedExplosion |= Motion.RunNoWaveBeamPreInstruction(
                     terrain.Bus,
                     terrain.Level,
                     slot,
@@ -493,15 +492,15 @@ public sealed partial class SamusProjectileSystem
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail or
                 SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
             {
-                RunWaveBeamPreInstruction(terrain.Bus, terrain.Level, slot, layer1, terrain.Plms);
+                Motion.RunWaveBeamPreInstruction(terrain.Bus, terrain.Level, slot, layer1, terrain.Plms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
             {
-                RunHyperBeamPreInstruction(terrain.Level, slot, layer1, terrain.Plms);
+                Motion.RunHyperBeamPreInstruction(terrain.Level, slot, layer1, terrain.Plms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
             {
-                collisionStartedExplosion |= RunMissilePreInstruction(
+                collisionStartedExplosion |= Motion.RunMissilePreInstruction(
                     terrain.Bus,
                     terrain.Level,
                     slot,
@@ -511,7 +510,7 @@ public sealed partial class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissile)
             {
-                collisionStartedExplosion |= RunSuperMissilePreInstruction(
+                collisionStartedExplosion |= Motion.RunSuperMissilePreInstruction(
                     terrain.Bus,
                     terrain.Level,
                     samus,
@@ -522,15 +521,15 @@ public sealed partial class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissileLink)
             {
-                RunSuperMissileLinkPreInstruction(slot);
+                Motion.RunSuperMissileLinkPreInstruction(slot);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
             {
-                persistentMemoryCorrupted |= RunSpacetimePaletteCopyTail(terrain.Bus, slot);
+                persistentMemoryCorrupted |= BeamCombos.RunSpacetimePaletteCopyTail(terrain.Bus, slot);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb)
             {
-                RunChainsawWindowStoreThenPowerBombPreInstruction(
+                Chainsaw.RunChainsawWindowStoreThenPowerBombPreInstruction(
                     terrain.Level,
                     samus,
                     slot,
@@ -566,7 +565,7 @@ public sealed partial class SamusProjectileSystem
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
             // explosion's first bank-$93 record is selected in this same handler pass.
             if (slot.InstructionPointer != 0)
-                projectileDeleted |= RunProjectileInstructionHandler(slot);
+                projectileDeleted |= Animation.RunProjectileInstructionHandler(slot);
         }
 
         LastFrameResult = new SamusProjectileFrameResult(
@@ -596,7 +595,7 @@ public sealed partial class SamusProjectileSystem
         Ensure.NotNull(oam);
         Ensure.NotNull(samus);
 
-        if (FlareCounter == 0)
+        if (Charge.FlareCounter == 0)
             return;
 
         if (samus.HyperBeam != 0)
@@ -606,46 +605,46 @@ public sealed partial class SamusProjectileSystem
             // flare (WRAM offsets four, two, zero), so preserve that reverse OAM order.
             for (int component = 2; component >= 0; component--)
             {
-                _flareTimers[component] = unchecked((ushort)(_flareTimers[component] - 1));
-                if (_flareTimers[component] == 0 || (_flareTimers[component] & 0x8000) != 0)
+                Charge._flareTimers[component] = unchecked((ushort)(Charge._flareTimers[component] - 1));
+                if (Charge._flareTimers[component] == 0 || (Charge._flareTimers[component] & 0x8000) != 0)
                 {
-                    bool finalFrame = _flareFrames[component] == 1;
-                    _flareFrames[component] = unchecked((ushort)(_flareFrames[component] - 1));
+                    bool finalFrame = Charge._flareFrames[component] == 1;
+                    Charge._flareFrames[component] = unchecked((ushort)(Charge._flareFrames[component] - 1));
                     if (finalFrame)
                     {
                         // The fast-spark component at native offset four owns the global
                         // completion signal. Other zero frames merely stop rearming.
                         if (component == 2)
-                            FlareCounter = 0;
+                            Charge.FlareCounter = 0;
                     }
                     else
                     {
-                        _flareTimers[component] = 3;
+                        Charge._flareTimers[component] = 3;
                     }
                 }
 
-                DrawFlareComponent(bus, oam, samus, layer1, component, mode7Transform, new ChargeFlareArtwork { Placement = placement, Compositions = compositions });
+                Animation.DrawFlareComponent(bus, oam, samus, layer1, component, mode7Transform, new ChargeFlareArtwork { Placement = placement, Compositions = compositions });
             }
             return;
         }
 
         // Calls 1..14 initialize/retain the hidden animation state. Call 15 begins drawing
         // the central flare; calls 30+ additionally draw both orbiting spark components.
-        if (FlareCounter == 1)
+        if (Charge.FlareCounter == 1)
         {
-            _flareFrames[0] = _flareFrames[1] = _flareFrames[2] = 0;
-            _flareTimers[0] = 3;
-            _flareTimers[1] = 5;
-            _flareTimers[2] = 4;
+            Charge._flareFrames[0] = Charge._flareFrames[1] = Charge._flareFrames[2] = 0;
+            Charge._flareTimers[0] = 3;
+            Charge._flareTimers[1] = 5;
+            Charge._flareTimers[2] = 4;
         }
-        if (FlareCounter < 15)
+        if (Charge.FlareCounter < 15)
             return;
 
-        int componentCount = FlareCounter < 30 ? 1 : 3;
+        int componentCount = Charge.FlareCounter < 30 ? 1 : 3;
         for (int component = 0; component < componentCount; component++)
         {
-            AdvanceFlareComponent(component);
-            DrawFlareComponent(bus, oam, samus, layer1, component, mode7Transform, new ChargeFlareArtwork { Placement = placement, Compositions = compositions });
+            Animation.AdvanceFlareComponent(component);
+            Animation.DrawFlareComponent(bus, oam, samus, layer1, component, mode7Transform, new ChargeFlareArtwork { Placement = placement, Compositions = compositions });
         }
     }
 
@@ -662,7 +661,7 @@ public sealed partial class SamusProjectileSystem
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileSlot slot = _slots[slotIndex];
+            SamusProjectileSlot slot = SlotTable._slots[slotIndex];
             if (!slot.IsActive ||
                 slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.PowerBomb)
                 continue;
@@ -689,7 +688,7 @@ public sealed partial class SamusProjectileSystem
             // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if ((slot.SpritemapPointer & 0x8000) != 0)
-                DrawSlot(oam, slot, layer1, horizontalMargin: null, compositions);
+                ProjectileAnimation.DrawSlot(oam, slot, layer1, horizontalMargin: null, compositions);
         }
     }
 
@@ -720,9 +719,9 @@ public sealed partial class SamusProjectileSystem
         // is also handled first. Preserve that order because overlapping 8x8 OBJs reveal it.
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileTrailSlot slot = _trailSlots[slotIndex];
-            HandleTrailSideAndDraw(bus, oam, slot, layer1, timeIsFrozen, isLeft: true, artwork);
-            HandleTrailSideAndDraw(bus, oam, slot, layer1, timeIsFrozen, isLeft: false, artwork);
+            SamusProjectileTrailSlot slot = SlotTable._trailSlots[slotIndex];
+            ProjectileTrails.HandleTrailSideAndDraw(bus, oam, slot, layer1, timeIsFrozen, isLeft: true, artwork);
+            ProjectileTrails.HandleTrailSideAndDraw(bus, oam, slot, layer1, timeIsFrozen, isLeft: false, artwork);
         }
     }
 
@@ -740,14 +739,14 @@ public sealed partial class SamusProjectileSystem
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
-            SamusProjectileSlot slot = _slots[slotIndex];
+            SamusProjectileSlot slot = SlotTable._slots[slotIndex];
             SamusProjectileFamily family = slot.PackedType.Family;
             if (!slot.IsActive || family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            DrawSlot(oam, slot, layer1, horizontalMargin: 48, compositions);
+            ProjectileAnimation.DrawSlot(oam, slot, layer1, horizontalMargin: 48, compositions);
         }
     }
 
@@ -759,14 +758,14 @@ public sealed partial class SamusProjectileSystem
     public void Reset(SamusState? samus = null)
     {
         ResetForRoomTransition(samus);
-        FlareCounter = 0;
-        PreviousBeamChargeCounter = 0;
-        ChargedShotGlowTimer = 0;
-        Array.Clear(_flareFrames);
-        Array.Clear(_flareTimers);
+        Charge.FlareCounter = 0;
+        Charge.PreviousBeamChargeCounter = 0;
+        Charge.ChargedShotGlowTimer = 0;
+        Array.Clear(Charge._flareFrames);
+        Array.Clear(Charge._flareTimers);
         LastBeamChargePaletteStep = default;
         LastVisorPaletteStep = default;
-        SamusChargePaletteIndex = 0;
+        Charge.SamusChargePaletteIndex = 0;
     }
 
     /// <summary>
@@ -782,15 +781,15 @@ public sealed partial class SamusProjectileSystem
             samus.HorizontalSpeed.ResetSpeedEchoPositionsForRoomTransition();
             samus.Shinespark.ResetProjectileEchoStorage();
         }
-        ComboState = 0;
-        foreach (SamusProjectileSlot slot in _slots)
+        Combos.ComboState = 0;
+        foreach (SamusProjectileSlot slot in SlotTable._slots)
             slot.ClearForProjectileDataReset();
-        foreach (SamusProjectileTrailSlot trail in _trailSlots)
+        foreach (SamusProjectileTrailSlot trail in SlotTable._trailSlots)
             trail.ClearFields();
-        ProjectileCounter = 0;
-        ProjectileInvincibilityTimer = 0;
-        EarthquakeType = 0;
-        EarthquakeTimer = 0;
+        SlotTable.ProjectileCounter = 0;
+        Firing.ProjectileInvincibilityTimer = 0;
+        Earthquakes.EarthquakeType = 0;
+        Earthquakes.EarthquakeTimer = 0;
         LastFrameResult = default;
         LastFiredProjectileSnapshot = null;
     }

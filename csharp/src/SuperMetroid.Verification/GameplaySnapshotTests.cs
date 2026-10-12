@@ -61,14 +61,14 @@ internal static class GameplaySnapshotTestsVerification
 
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime),
             "Mode-7 shaft cannot silently capture as ordinary tiles");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
-        runtime.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0, true);
         Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime);
         LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
         AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(captured)),

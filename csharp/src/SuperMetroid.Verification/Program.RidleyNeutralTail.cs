@@ -5,8 +5,7 @@ internal static class RidleyNeutralTailVerification
 {
     internal static void VerifyRidleyPowerBombNeutralTail()
     {
-        var prepare = typeof(RoomEnemySystem).GetMethod("PrepareNorfairRidleyCombatFrame", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<RidleyEnemyState, SamusBombProjectileSystem>>();
+        Action<RidleyEnemyState, SamusBombProjectileSystem> prepare = RidleyBehavior.PrepareNorfairRidleyCombatFrame;
         // $A6:BD2C reads $0CEE, which laying a power bomb arms at once.
         var armed = new SamusBombProjectileSystem();
         armed.PowerBombExplosion.Arm();

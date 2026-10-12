@@ -95,27 +95,22 @@ internal static class YellowPipeBugInstructionProgramDefinitionsVerification
         RoomEnemySystem CreateSystem(ushort program, out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod(
-                "InitializeYellowPipeBug", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            MethodInfo install = typeof(RoomEnemySystem).GetMethod(
-                "InstallPipeBugInstruction", flags)!;
-            slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.PipeBugsBehavior.InitializeYellowPipeBug;
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Geega;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
             initialize(slot);
-            install.Invoke(null, [slot, program]);
+            PipeBugsBehavior.InstallPipeBugInstruction(slot, program);
             return enemies;
         }
 
         static void RunProgram(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

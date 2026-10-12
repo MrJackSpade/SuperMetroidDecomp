@@ -27,11 +27,11 @@ internal static class BabyMetroidDeathExplosionSoundVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain!;
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
         var step = new BabyMetroidCutsceneStepResult(
             BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
             BodyStumbleRequested: false, LatchSoundQueued: false, ReleaseDustClouds: [],
@@ -39,8 +39,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             DeathExplosion: new BabyMetroidDeathExplosionRequest(new(0x0080, 0x0080), 3, 0x0013),
             BabyPaletteTransfer: null, AttackTileTransfer: null, BackgroundPaletteTransfer: null);
 
-        typeof(RoomEnemySystem).GetMethod("ApplyBabyMetroidFrameEffects", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [state, step]);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects(state, step);
         AssertEqual((ushort?)0x0013, state.LastSoundEffectLibrary3, "the explosion queues library-three $13");
         AssertEqual((ushort?)null, state.LastSoundEffect, "and nothing in library two");
 
@@ -54,8 +53,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             EscapeDoorExplosion = new MotherBrainEscapeDoorExplosionRequest(new(0x0080, 0x0080), 0x0003, 0x0024),
         };
         state.LastSoundEffectLibrary3 = null;
-        typeof(RoomEnemySystem).GetMethod("ApplyLiveMotherBrainDeath", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [state, new MotherBrainRainbowBeamAttackSequence(), death]);
+        runtime.Enemies.MotherBrainBehavior.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);
         AssertEqual((ushort?)null, state.LastSoundEffectLibrary3, "neither sound goes to library three");
         AssertSequenceEqual(
             new[]
@@ -63,7 +61,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
                 new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x10), 3),
                 new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x24), 3),
             },
-            runtime.Enemies.SoundRequests, "the rot dust and door explosion queue in library two with Max3");
+            runtime.Enemies.Audio.SoundRequests, "the rot dust and door explosion queue in library two with Max3");
         Console.WriteLine("  Escape explosion sounds: Baby Metroid's in library three, Mother Brain's dust and door in library two.");
     }
 

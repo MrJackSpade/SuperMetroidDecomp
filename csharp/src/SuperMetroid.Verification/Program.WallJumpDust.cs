@@ -28,16 +28,16 @@ internal static class WallJumpDustVerification
             samus.Pose = grapple
                 ? facingRight ? SamusPoseId.GrappleWallContactRightPose : SamusPoseId.GrappleWallContactLeftPose
                 : facingRight ? SamusPoseId.SpinJumpRightPose : SamusPoseId.SpinJumpLeftPose;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             var liquid = samus.LiquidPhysics;
             liquid.FxYPosition = medium is 1 or 3 ? (ushort)100 : medium == 4 ? (ushort)114 : ushort.MaxValue;
             liquid.LavaAcidYPosition = medium == 2 ? (ushort)100 : ushort.MaxValue;
             liquid.LiquidOptions = medium == 3 ? (ushort)4 : (ushort)0;
             liquid.AtmosphericEffects.SetSlot(3, 1, 2, 7, new(33, 44));
             liquid.AtmosphericEffects.SetSlot(2, 1, 1, 9, new(55, 66));
-            if (grapple) samus.ApplyGrappleWallJump(bus);
-            else samus.ApplyWallJumpTrigger(bus);
+            if (grapple) samus.PoseTransitions.ApplyGrappleWallJump(bus);
+            else samus.PoseTransitions.ApplyWallJumpTrigger(bus);
 
             bool suppressed = medium is 1 or 2;
             var dust = liquid.AtmosphericEffects.Slots[3];

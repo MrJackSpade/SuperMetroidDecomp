@@ -184,9 +184,9 @@ internal static class BombBlockProgramsVerification
             {
                 native.Plms.Step(rom, native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                AssertEqual(native.Plms.ActiveCount, compiled.Plms.ActiveCount,
+                AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"bomb BTS {behavior}/{producer} active count, frame {frame}");
-                AssertEqual(native.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
+                AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"bomb BTS {behavior}/{producer} sound count, frame {frame}");
                 for (int block = 0; block < 64; block++)
                 {
@@ -201,7 +201,7 @@ internal static class BombBlockProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"bomb BTS {behavior}/{producer} never rereads compiled control bytes");
-            AssertEqual(0, compiled.Plms.ActiveCount,
+            AssertEqual(0, compiled.Plms.SlotTable.ActiveCount,
                 $"bomb BTS {behavior}/{producer} completes its native timeline");
         }
 
@@ -241,7 +241,7 @@ internal static class BombBlockProgramsVerification
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
-            var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
+            var plms = new RoomPlmSystem { Drawing = { ShotBlockVisuals = visuals } };
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
             plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });

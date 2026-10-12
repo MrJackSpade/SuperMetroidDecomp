@@ -32,32 +32,29 @@ internal static class HorizontalShutterInstructionProgramDefinitionsVerification
         var guard = NewHorizontalShutterInstructionProgramGuard(rom);
         var enemies = new RoomEnemySystem();
         Type enemySystemType = typeof(RoomEnemySystem);
-        enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
-        MethodInfo initialize = enemySystemType.GetMethod(
-            "InitializeHorizontalShutter", flags)!;
-        MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.ShutterHorizShootable;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = 0x0100;
         slot.ExtraProperties = 0x0101;
         slot.Parameter1 = 0x1002;
         slot.Parameter2 = 24;
-        initialize.Invoke(enemies, [slot, null]);
+        enemies.ShuttersBehavior.InitializeHorizontalShutter(slot, null);
         AssertEqual(HorizontalShutterInstructionProgramDefinitions.Stationary,
             slot.CurrentInstruction,
             "horizontal-shutter real initializer program");
 
         object?[] processArguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        process.Invoke(enemies, processArguments);
+        EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(
                 HorizontalShutterInstructionProgramDefinitions.Stationary + 4)),
             slot.CurrentInstruction,
             "horizontal-shutter timed frame advances to terminal sleep");
         AssertEqual((ushort)1, slot.InstructionTimer,
             "horizontal-shutter stationary frame duration");
-        process.Invoke(enemies, processArguments);
+        EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(
                 HorizontalShutterInstructionProgramDefinitions.Stationary + 4)),
             slot.CurrentInstruction,

@@ -98,16 +98,16 @@ public static class GitHubErrorReporterSmokeTest
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
         var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: colors);
         var samus = new SamusState { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
-        typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.Samus))!.SetValue(runtime, samus);
+        runtime.Player.Samus = samus;
         typeof(SamusDrainedState).GetProperty(nameof(samus.Drained.GetUpHandler))!
             .SetValue(samus.Drained, DrainedGetUpHandler.UnableToStand);
-        samus.SetAnimationFrameFromSpecialHandler(8, 1);
+        samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidYPosition = 100;
         var game = new SuperMetroidGame(bus);
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
         string before = game.CaptureGameplayFailureContext();
-        samus.SetAnimationFrameFromSpecialHandler(18, 1);
+        samus.Presentation.SetAnimationFrameFromSpecialHandler(18, 1);
         string after = game.CaptureGameplayFailureContext();
         Require(before.Contains("animationFrame=8;") && !before.Contains("animationFrame=18;"),
             "Before-frame snapshot changed with mutable Samus state.");

@@ -115,8 +115,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, CacatacEnemyState state) =
                 CreateSystem(upsideUp);
             state.Function = CacatacEnemyFunction.Stopped;
-            typeof(RoomEnemySystem).GetMethod("SetCacatacInstructionList", flags)!
-                .Invoke(null, [slot, program]);
+            CacatacBehavior.SetCacatacInstructionList(slot, program);
             RunFrames(enemies, slot, 53);
 
             ushort idle = upsideUp
@@ -126,10 +125,10 @@ internal static class CacatacInstructionProgramDefinitionsVerification
                 $"Cacatac {(upsideUp ? "upright" : "inverted")} attack returns to idle");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function,
                 $"Cacatac {(upsideUp ? "upright" : "inverted")} attack resumes patrol");
-            AssertEqual((ushort)0x0034, enemies.LastCacatacSoundEffect!.Value,
+            AssertEqual((ushort)0x0034, enemies.CacatacBehavior.LastCacatacSoundEffect!.Value,
                 $"Cacatac {(upsideUp ? "upright" : "inverted")} attack queues sound");
 
-            ushort[] actualDirections = enemies.EnemyProjectiles
+            ushort[] actualDirections = enemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
                 .Select(projectile => projectile.Variable0)
                 .Order()
@@ -148,10 +147,9 @@ internal static class CacatacInstructionProgramDefinitionsVerification
             bool upsideUp)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeCacatac", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.CacatacBehavior.InitializeCacatac;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Cacatac;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = upsideUp ? (ushort)0x0100 : (ushort)0;
@@ -161,12 +159,10 @@ internal static class CacatacInstructionProgramDefinitionsVerification
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

@@ -18,7 +18,7 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
     /// </summary>
     public void PublishPrefix(SuperMetroidRuntime runtime)
     {
-        if (runtime.IsAttractDemo)
+        if (runtime.AttractDemo.IsAttractDemo)
             return;
         var room = runtime.RoomLayer3Fx.SoundRequests;
         while (roomSounds < room.Count)
@@ -40,7 +40,7 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
             var request = music[paletteMusic++];
             audio.QueueMusicDelayed(request.Command, request.Delay);
         }
-        if (runtime.Samus is not { } samus)
+        if (runtime.Player.Samus is not { } samus)
             return;
         // The early beta/echo pass can run before this frame refreshes the HUD.
         // Consume the request so the next frontend frame cannot replay the old flag.
@@ -65,16 +65,16 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         PublishPrefix(runtime);
         return audio.QueueSoundAndGetAccumulator(
             SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6,
-            soundSuppressed: runtime.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
+            soundSuppressed: runtime.AttractDemo.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
 
     /// <summary>Publishes the admitted Samus beta health check after earlier prefix producers.</summary>
     public void CheckLowHealth(SuperMetroidRuntime runtime)
     {
         PublishPrefix(runtime);
-        if (runtime.Samus is not { } samus) throw new InvalidOperationException("Health check requires Samus.");
+        if (runtime.Player.Samus is not { } samus) throw new InvalidOperationException("Health check requires Samus.");
         samus.HealthWarning.Update(samus.Health, audio,
-            soundSuppressed: runtime.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
+            soundSuppressed: runtime.AttractDemo.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
     /// <summary>The audio calls one gameplay frame of <paramref name="runtime"/> makes through this publication.</summary>
     public RuntimeFrameAudio GameplayFrameAudio(SuperMetroidRuntime runtime) =>

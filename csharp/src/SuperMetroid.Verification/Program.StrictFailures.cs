@@ -36,17 +36,8 @@ internal static void VerifyStrictFailureBoundaries()
 
     var enemies = new RoomEnemySystem();
     AssertThrows<InvalidOperationException>(
-        () => enemies.RequireRandomNumber(),
-        "missing enemy RNG reader is rejected");
-    AssertThrows<InvalidOperationException>(
-        () => enemies.RequireAreaBossDefeated(),
-        "missing enemy boss-state reader is rejected");
-    AssertThrows<InvalidOperationException>(
-        () => enemies.RequireEvent(EventNumber.MotherBrainGlassDestroyed),
-        "missing enemy event-state reader is rejected");
-    AssertThrows<InvalidOperationException>(
-        () => enemies.RequireSetAreaBossDefeated(),
-        "missing enemy boss-state writer is rejected");
+        () => _ = enemies.Room.Services,
+        "enemy AI services are rejected before Load installs them");
 
     Console.WriteLine(
         "  Strict failures: bindings, brightness, PLM coverage, and enemy services reject bad state loudly.");

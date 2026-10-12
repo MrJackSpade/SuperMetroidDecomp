@@ -27,17 +27,15 @@ internal static class RidleyShotHealthStageVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xb32e);
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = true;
-        RoomEnemySlot ridley = runtime.Enemies.Slots[0];
+        RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
         AssertEqual(EnemyDefinitionId.Ridley, ridley.EnemyDefinitionPointer, "slot zero is Norfair Ridley");
-        var state = (RidleyEnemyState)typeof(RoomEnemySystem)
-            .GetMethod("RequireNorfairRidley", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [ridley])!;
+        var state = (RidleyEnemyState)runtime.Enemies.RidleyEncounter.RequireNorfairRidley(ridley);
 
         // Native update 56046: Ridley on frame $E983, both Super Missile slots on his body.
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
@@ -48,7 +46,7 @@ internal static class RidleyShotHealthStageVerification
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthStage = 0;
-        runtime.Enemies.PrepareEnemyProcessingList(ridley.Position.Whole);
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(ridley.Position.Whole);
         foreach (int index in new[] { 0, 1 })
         {
             SamusProjectileSlot shot = runtime.Projectiles.Slots[index];
@@ -57,7 +55,7 @@ internal static class RidleyShotHealthStageVerification
             shot.Radius = new(8, 8);
             shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         }
-        runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: ridley.NativeIndex);
 
         AssertTrue(ridley.Health < 9000, "the hits cross 9000");

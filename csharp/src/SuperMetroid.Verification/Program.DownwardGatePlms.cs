@@ -93,7 +93,7 @@ internal static class DownwardGatePlmsVerification
             RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
                 DownwardGateTriggerBehavior.BlueLeft);
 
-        AssertEqual(2, plms.ActiveCount, "gate and shot-block records retain separate PLM slots");
+        AssertEqual(2, plms.SlotTable.ActiveCount, "gate and shot-block records retain separate PLM slots");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(39, slots[0].NativeSlotIndex, "gate receives the first highest native slot");
         AssertEqual(PlmHeaderId.DownwardGate, slots[0].HeaderPointer,
@@ -115,7 +115,7 @@ internal static class DownwardGatePlmsVerification
             level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
             "argument zero installs retail blue-left BTS $46");
 
-        DownwardGateProjectileRequest request = plms.TakeDownwardGateProjectileRequests().Single();
+        DownwardGateProjectileRequest request = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, request.Operation,
             "closed gate setup publishes one spawn");
         AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateClosed,
@@ -126,8 +126,8 @@ internal static class DownwardGatePlmsVerification
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem();
         enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
-        enemies.ApplyDownwardGateProjectileRequest(request, level.Size.X);
-        RoomEnemyProjectileSlot actor = enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
+        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(request, level.Size.X);
+        RoomEnemyProjectileSlot actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
             "bank-$86 pool owns the closed gate actor");
         AssertEqual((ushort)(gateBlockIndex * 2), actor.Variable0,
@@ -148,22 +148,22 @@ internal static class DownwardGatePlmsVerification
         AssertEqual((ushort)0xc0ff,
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).LevelWord,
             "compiled initial gate draw installs the second solid column word");
-        AssertTrue(plms.TrySpawnDownwardGateTrigger(
+        AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(
                 level,
                 gateBlockIndex - 1,
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts,
                 0x0004),
             "power beam reaches the sleeping blue gate");
         StepDownwardGatePlm(plms, bus, level, streamer);
-        DownwardGateProjectileRequest wake = plms.TakeDownwardGateProjectileRequests().Single();
+        DownwardGateProjectileRequest wake = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
             "closed gate publishes a wake request");
-        AssertTrue(plms.SoundRequests.Any(sound =>
+        AssertTrue(plms.Sounds.SoundRequests.Any(sound =>
                 sound.SoundEffect == SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library3,
                     DownwardGatePlmRomData.MovementSound)),
             "opening gate queues its cartridge movement sound");
-        enemies.ApplyDownwardGateProjectileRequest(wake, level.Size.X);
+        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(wake, level.Size.X);
 
         // Run the PLM and bank-$86 actor together until the open-state coroutine sleeps.
         // This exercises all four 16-pixel movement segments and the list's final goto.
@@ -182,7 +182,7 @@ internal static class DownwardGatePlmsVerification
         AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggered,
             openedGate.PreInstruction, "open gate sleeps under shot-only callback");
 
-        AssertTrue(plms.TrySpawnDownwardGateTrigger(
+        AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(
                 level,
                 gateBlockIndex - 1,
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts,
@@ -192,15 +192,15 @@ internal static class DownwardGatePlmsVerification
         // the downward-moving actor, exactly as list $BC13 specifies.
         for (int frame = 0; frame < 17; frame++)
             StepDownwardGatePlm(plms, bus, level, streamer);
-        DownwardGateProjectileRequest close = plms.TakeDownwardGateProjectileRequests().Single();
+        DownwardGateProjectileRequest close = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, close.Operation,
             "open gate publishes a moving close actor");
         AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateMoving,
             close.DefinitionPointer, "close request uses definition $E64B");
-        enemies.ApplyDownwardGateProjectileRequest(close, level.Size.X);
+        enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close, level.Size.X);
         for (int frame = 0; frame < 80; frame++)
             enemies.StepEnemyProjectiles(level, samus: null);
-        RoomEnemyProjectileSlot closedActor = enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
+        RoomEnemyProjectileSlot closedActor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual((ushort)96, closedActor.Position.Y.Whole,
             "moving gate travels four tiles down and remains parked closed");
     }
@@ -217,7 +217,7 @@ internal static class DownwardGatePlmsVerification
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Bts;
-        AssertTrue(plms.TrySpawnDownwardGateTrigger(level, triggerBlockIndex, bts, projectile),
+        AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(level, triggerBlockIndex, bts, projectile),
             $"{trigger} is claimed by the gate dispatcher");
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -271,8 +271,8 @@ internal static class DownwardGatePlmsVerification
             new byte[roomWidth * 16],
             blockDefinitions: blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        var plms = new RoomPlmSystem { DownwardGateVisuals = visuals };
-        int parsed = plms.LoadRoomPopulation(new PlmRoom(NewDownwardGateHeaderReadGuard(bus), level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        var plms = new RoomPlmSystem { Drawing = { DownwardGateVisuals = visuals } };
+        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(NewDownwardGateHeaderReadGuard(bus), level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }

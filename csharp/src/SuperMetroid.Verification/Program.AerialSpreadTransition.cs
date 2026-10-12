@@ -32,7 +32,7 @@ internal static class AerialSpreadTransitionVerification
             {
                 uint previousY = new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
                 runtime.StepFrame(scenario.Input(frame));
-                AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.FlareCounter, "aerial charge mirror");
+                AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.Charge.FlareCounter, "aerial charge mirror");
                 if (wallRoute)
                     VerifyWallSpreadFrame(runtime, left, timingCase, scenario.Delay, frame, previousY);
                 else
@@ -46,7 +46,7 @@ internal static class AerialSpreadTransitionVerification
 
     private static void VerifyTurnaroundSpreadFrame(SuperMetroidRuntime runtime, bool left, int delay, int frame)
     {
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         bool releasedSpread = delay == 6 && frame >= 105;
         if (frame < 125 || delay != 6)
             AssertEqual((ushort)(releasedSpread ? 5 : 0), runtime.BombProjectiles.BombCounter,
@@ -63,7 +63,7 @@ internal static class AerialSpreadTransitionVerification
 
     private static void VerifyWallSpreadFrame(SuperMetroidRuntime runtime, bool left, int timingCase, int delay, int frame, uint previousY)
     {
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         if (frame == 89)
             AssertEqual(left ? SamusPoseId.WallJumpRightPose : SamusPoseId.WallJumpLeftPose,
                 samus.Pose, "real input must earn a walljump, including negative controls");

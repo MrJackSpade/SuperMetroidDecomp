@@ -64,9 +64,9 @@ internal static class GreenHillGateGlitchVerification
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GreenHillZone);
         RoomPlmSlotSnapshot gate = runtime.Plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -79,7 +79,7 @@ internal static class GreenHillGateGlitchVerification
         runtime.StepFrame(0);
         gate = runtime.Plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        RoomEnemyProjectileSlot gateActor = runtime.Enemies.EnemyProjectiles.Single(projectile =>
+        RoomEnemyProjectileSlot gateActor = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive &&
             projectile.Kind == RoomEnemyProjectileKind.DownwardGateClosed);
         ushort closedGateY = gateActor.Position.Y.Whole;
@@ -88,7 +88,7 @@ internal static class GreenHillGateGlitchVerification
             checked((ushort)startX),
             desiredScreenY: 171,
             minimumFloorBlockY: 60);
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingLeftGunExtendedPose;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
@@ -104,8 +104,8 @@ internal static class GreenHillGateGlitchVerification
         samus.HorizontalSpeed.SpeedBoostCounter =
             SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
 
         int openFrame = -1;
         for (int frame = 0; frame < 21; frame++)
@@ -137,7 +137,7 @@ internal static class GreenHillGateGlitchVerification
         {
             for (int frame = 0; frame < 8; frame++)
                 runtime.StepFrame((ushort)(SnesButton.Left | SnesButton.A | SnesButton.X));
-            gateActor = runtime.Enemies.EnemyProjectiles.Single(projectile =>
+            gateActor = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
                 projectile.IsActive &&
                 projectile.Kind is RoomEnemyProjectileKind.DownwardGateClosed or
                     RoomEnemyProjectileKind.DownwardGateMoving);

@@ -39,7 +39,7 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
                 $"Golden Torizo Super Missile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = new CartridgeReadGuard(rom)
@@ -48,21 +48,15 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordCount,
                 GoldenTorizoSuperMissileInstructionProgramDefinitions.PresentationWordAddress);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnGoldenTorizoSuperMissile", flags)!;
-        MethodInfo runFlight = typeof(RoomEnemySystem).GetMethod(
-            "RunGoldenTorizoSuperMissileFlight", BindingFlags.NonPublic | BindingFlags.Static)!;
 
         foreach (bool facingRight in new[] { false, true })
         {
             RoomEnemySystem enemies = CreateSystem(guard);
-            RoomEnemySlot torizo = enemies.Slots[0];
+            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;
-            spawn.Invoke(enemies, [torizo]);
-            RoomEnemyProjectileSlot missile = enemies.EnemyProjectiles[^1];
+            enemies.BombTorizoBehavior.SpawnGoldenTorizoSuperMissile(torizo);
+            RoomEnemyProjectileSlot missile = enemies.Projectiles.EnemyProjectiles[^1];
             ushort initial = facingRight
                 ? GoldenTorizoSuperMissileInstructionProgramDefinitions.RightInitial
                 : GoldenTorizoSuperMissileInstructionProgramDefinitions.LeftInitial;
@@ -120,14 +114,14 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
             wallWords,
             new byte[wallWords.Length]);
         RoomEnemySystem impactEnemies = CreateSystem(guard);
-        RoomEnemySlot impactTorizo = impactEnemies.Slots[0];
+        RoomEnemySlot impactTorizo = impactEnemies.SlotTable.Slots[0];
         impactTorizo.Position = impactTorizo.Position.WithWhole(new(1000, 500));
         impactTorizo.Parameter1 = 0x8000;
-        spawn.Invoke(impactEnemies, [impactTorizo]);
-        RoomEnemyProjectileSlot impact = impactEnemies.EnemyProjectiles[^1];
+        impactEnemies.BombTorizoBehavior.SpawnGoldenTorizoSuperMissile(impactTorizo);
+        RoomEnemyProjectileSlot impact = impactEnemies.Projectiles.EnemyProjectiles[^1];
         impact.Position = impact.Position.WithWholeX(156).WithWholeY(128).WithFractionX(0);
         impact.Velocity = new(new SnesSignedEightEight(256), new SnesSignedEightEight(0));
-        runFlight.Invoke(impactEnemies, [impact, wallRoom]);
+        BombTorizoBehavior.RunGoldenTorizoSuperMissileFlight(impact, wallRoom);
         AssertEqual(GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact,
             impact.InstructionPointer,
             "Golden Torizo Super Missile wall collision selects compiled impact");
@@ -202,13 +196,13 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile, SamusState? samus)
         {
-            process.Invoke(system, [projectile, samus, Position16<RoomPixels>.Zero]);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
         RoomEnemySystem CreateSystem(ISnesAddressSpace bus)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+            enemies.BindFixtureBus(bus);
             return enemies;
         }
     }

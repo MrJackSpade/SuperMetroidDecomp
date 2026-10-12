@@ -47,24 +47,19 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby population definition");
 
         var guarded = NewMotherBrainBabyPopulationReadGuard(rom);
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
-        typeof(RoomEnemySystem).GetField("_cgram", instanceFlags)!
-            .SetValue(enemies, new SnesCgram());
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+        enemies.BindFixtureBus(guarded);
+        enemies.Presentation._cgram = new SnesCgram();
 
-        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
         var state = new MotherBrainEnemyState(body)
         {
             RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(),
         };
-        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", instanceFlags)!
-            .SetValue(enemies, state);
+        enemies.MotherBrainEncounter.MotherBrain = state;
 
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainBabyMetroid",
-            instanceFlags)!;
-        spawn.Invoke(enemies, [state]);
+        enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
 
         RoomEnemySlot baby = state.BabyMetroidSlot ??
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
@@ -76,22 +71,20 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby retained population snapshot");
         AssertTrue(state.BabyMetroid is not null,
             "Mother Brain Baby initialization created cutscene state");
-        AssertEqual(2, enemies.EnemyCount,
+        AssertEqual(2, enemies.SlotTable.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");
-        AssertEqual(2 * 0x40, enemies.FirstFreeEnemyIndex,
+        AssertEqual(2 * 0x40, enemies.SlotTable.FirstFreeEnemyIndex,
             "Mother Brain Baby published next native enemy index");
 
         try
         {
-            spawn.Invoke(enemies, [state]);
+            enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
             throw new InvalidDataException(
                 "Mother Brain Baby accepted a duplicate physical allocation.");
         }
-        catch (TargetInvocationException exception)
-            when (exception.InnerException is InvalidOperationException)
+        catch (InvalidOperationException)
         {
-            // The production guard must reject the second actor, rather than merely
-            // failing later for an unrelated reflected-call error.
+            // The production guard must reject the second actor.
         }
 
         Console.WriteLine(

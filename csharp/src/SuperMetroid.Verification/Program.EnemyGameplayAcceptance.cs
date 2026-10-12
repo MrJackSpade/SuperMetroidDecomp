@@ -78,20 +78,20 @@ internal static class EnemyGameplayAcceptanceVerification
             .ThenBy(candidate => candidate.EnemyPopulationPointer).First();
         RoomEnemyPopulationDefinition population = RoomEnemyPopulationDefinitions.Get(state.EnemyPopulationPointer);
         (RoomEnemySystem baseline, SnesVram beforeVram, SnesCgram beforeColors) = Load(stock);
-        AssertEqual(population.Records.Length, baseline.EnemyCount, "compiled population publishes its exact count");
-        AssertEqual(population.Records.Length * RoomEnemySystem.NativeSlotSize, baseline.FirstFreeEnemyIndex,
+        AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
+        AssertEqual(population.Records.Length * RoomEnemySystem.NativeSlotSize, baseline.SlotTable.FirstFreeEnemyIndex,
             "compiled population publishes its physical first-free offset");
-        AssertEqual(population.DeathQuota, baseline.DeathQuota, "compiled population publishes its authored death quota");
+        AssertEqual(population.DeathQuota, baseline.PopulationLoader.DeathQuota, "compiled population publishes its authored death quota");
         for (int index = 0; index < population.Records.Length; index++)
         {
-            RoomEnemySlot slot = baseline.Slots[index];
+            RoomEnemySlot slot = baseline.SlotTable.Slots[index];
             AssertEqual(index * RoomEnemySystem.NativeSlotSize, slot.NativeIndex, "linked population physical slot order");
             AssertEqual(population.Records.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
             AssertEqual(RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer), slot.Definition, "linked slot uses compiled header");
             AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");
             if ((index & 1) != 0)
             {
-                RoomEnemySlot body = baseline.Slots[index - 1];
+                RoomEnemySlot body = baseline.SlotTable.Slots[index - 1];
                 AssertEqual(body.Position.X.Whole, slot.Position.X.Whole, "wing initializer retains its preceding body's X");
                 AssertEqual(body.Position.Y.Whole, slot.Position.Y.Whole, "wing initializer retains its preceding body's Y");
                 AssertEqual(body.VramTilesIndex, slot.VramTilesIndex, "wing initializer retains its preceding body's tile binding");
@@ -136,12 +136,12 @@ internal static class EnemyGameplayAcceptanceVerification
         AssertEqual(stockHash, Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
             Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer))))), "enemy replacement leaves stock untouched");
         foreach (PropertyInfo property in typeof(RoomEnemySlot).GetProperties(BindingFlags.Instance | BindingFlags.Public))
-        for (int index = 0; index < baseline.Slots.Count; index++)
-            AssertEqual(property.GetValue(baseline.Slots[index]), property.GetValue(changed.Slots[index]),
+        for (int index = 0; index < baseline.SlotTable.Slots.Count; index++)
+            AssertEqual(property.GetValue(baseline.SlotTable.Slots[index]), property.GetValue(changed.SlotTable.Slots[index]),
                 $"enemy artwork cannot change slot {index} {property.Name}");
-        AssertEqual(baseline.DeathQuota, changed.DeathQuota, "enemy artwork cannot change death quota");
-        AssertEqual(baseline.FirstFreeEnemyIndex, changed.FirstFreeEnemyIndex, "enemy artwork cannot change slot allocation");
-        AssertEqual(baseline.BossId, changed.BossId, "enemy artwork cannot change boss selection");
+        AssertEqual(baseline.PopulationLoader.DeathQuota, changed.PopulationLoader.DeathQuota, "enemy artwork cannot change death quota");
+        AssertEqual(baseline.SlotTable.FirstFreeEnemyIndex, changed.SlotTable.FirstFreeEnemyIndex, "enemy artwork cannot change slot allocation");
+        AssertEqual(baseline.RoomStatus.BossId, changed.RoomStatus.BossId, "enemy artwork cannot change boss selection");
         Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at $A1:{population.Pointer:X4} " +
             "initialize with RAM-only memory; PNG edits change VRAM, not any slot field or quota.");
 

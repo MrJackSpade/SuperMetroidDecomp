@@ -14,18 +14,18 @@ internal static class RetailSaveCaptureTests
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.CrateriaSaveStation, new Position16<RoomPixels>(0, 0));
-        var station = runtime.Plms.Stations.Single(s => s.Kind == StationKind.Save);
-        var level = runtime.LevelData!;
-        var samus = runtime.Samus!;
+        var station = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);
+        var level = runtime.Room.LevelData!;
+        var samus = runtime.Player.Samus!;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.AnimationFrame = 0;
-        samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
         samus.Position = samus.Position.WithWhole(new((ushort)(station.BlockIndex % level.Size.X * 16 + 13), (ushort)(station.BlockIndex / level.Size.X * 16 - samus.Kinematics.Radius.Y)));
-        samus.InputLocked = false; samus.PrimeGraphics(bus);
-        if (!runtime.Plms.TryNotifyStationCollision(station.BlockIndex, new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor),
+        samus.InputLocked = false; samus.Presentation.PrimeGraphics(bus);
+        if (!runtime.Plms.Stations.TryNotifyStationCollision(station.BlockIndex, new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor),
             samus.Pose, horizontal: false, movingPositive: true, roomWidthInBlocks: level.Size.X))
             throw new InvalidOperationException("Save fixture could not trigger resident station.");
         bool confirmation = false, electricity = false, completion = false, finished = false;
@@ -40,12 +40,12 @@ internal static class RetailSaveCaptureTests
             pressedLastFrame = press;
             confirmation |= runtime.MessageBox.IsActive && runtime.MessageBox.MessageId == GameplayMessageIds.SaveConfirmation;
             completion |= runtime.MessageBox.IsActive && runtime.MessageBox.MessageId == GameplayMessageIds.SaveCompleted;
-            if (!electricity && runtime.Enemies.EnemyProjectiles.Any(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.SaveStationElectricity))
+            if (!electricity && runtime.Enemies.Projectiles.EnemyProjectiles.Any(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.SaveStationElectricity))
             {
-                if (runtime.Enemies.EnemyProjectiles.Any(p => p.IsActive && p.Kind != RoomEnemyProjectileKind.SaveStationElectricity))
+                if (runtime.Enemies.Projectiles.EnemyProjectiles.Any(p => p.IsActive && p.Kind != RoomEnemyProjectileKind.SaveStationElectricity))
                     throw new InvalidOperationException("Unrelated projectile contaminates electricity visibility assertion.");
                 var oam = new OamBuffer(); oam.BeginFrame();
-                runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Camera!.PixelPosition);
+                runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Room.Camera!.PixelPosition);
                 oam.FinalizeFrame();
                 electricity = SnesObjRenderer.RenderResolved(oam, runtime.Vram, runtime.Cgram,
                     GameplayRenderDefinitions.ObjectSelection).Pixels.Any(p => p.A != 0 && (p.R != 0 || p.G != 0 || p.B != 0));
@@ -54,7 +54,7 @@ internal static class RetailSaveCaptureTests
             var packet = new RenderFrameSnapshot(new(frames + 1, 1, (ushort)frames), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: save animation frame {frames}");
-            var current = runtime.Plms.Stations.Single(s => s.Kind == StationKind.Save);
+            var current = runtime.Plms.StationSnapshots.Single(s => s.Kind == StationKind.Save);
             if (completion && current.SaveStationLockedOut && current.SavePhase == SaveStationPhase.Idle && !samus.InputLocked)
             { finished = true; break; }
         }

@@ -33,12 +33,12 @@ internal static class YardTrajectoriesVerification
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             var random = new Bank80SystemState();
             enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
-            var actor = enemies.Slots[focus];
+            var actor = enemies.SlotTable.Slots[focus];
             var state = enemies.YardStates[focus]!;
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) };
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             int largest = 0;
             for (int frame = 0; frame < 1200; frame++)
             {
@@ -67,7 +67,7 @@ internal static class YardTrajectoriesVerification
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
-            var actor = enemies.Slots[0];
+            var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0]!;
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));
             state.Direction = direction;
@@ -77,7 +77,7 @@ internal static class YardTrajectoriesVerification
             state.AirborneVelocity = state.AirborneVelocity.WithWholeY(1);
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) };
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(128, 128), TimeIsFrozen = false, Samus = samus, Level = floor });
             AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,

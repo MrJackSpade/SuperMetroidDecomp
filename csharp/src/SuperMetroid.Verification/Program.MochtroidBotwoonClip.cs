@@ -63,17 +63,17 @@ internal static class MochtroidBotwoonClipVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BotwoonHallway);
 
-        RoomLevelData level = runtime.LevelData ??
+        RoomLevelData level = runtime.Room.LevelData ??
             throw new InvalidDataException("Botwoon Hallway level data was not loaded.");
         AssertEqual(64, level.Size.X, "Botwoon Hallway retail width");
         AssertEqual(16, level.Size.Y, "Botwoon Hallway retail height");
 
-        SamusState samus = runtime.Samus ??
+        SamusState samus = runtime.Player.Samus ??
             throw new InvalidDataException("Botwoon Hallway did not initialize Samus.");
         samus.Position = samus.Position.WithWhole(expected.Samus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
@@ -91,15 +91,15 @@ internal static class MochtroidBotwoonClipVerification
         samus.EquippedBeams = samus.CollectedBeams = (ushort)SamusBeamFlags.Ice;
         samus.Health = samus.MaxHealth = 1499;
         samus.InvincibilityTimer = 120;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
 
-        RoomEnemySlot mochtroid = runtime.Enemies.Slots.Single(
+        RoomEnemySlot mochtroid = runtime.Enemies.SlotTable.Slots.Single(
             slot => slot.NativeIndex == expected.EnemyNativeIndex);
         AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.EnemyDefinitionPointer,
             $"{expected.Case} fixture selects retail Mochtroid slot");
-        foreach (RoomEnemySlot slot in runtime.Enemies.Slots.Where(
+        foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots.Where(
                      slot => slot.NativeIndex != expected.EnemyNativeIndex))
         {
             slot.Clear();

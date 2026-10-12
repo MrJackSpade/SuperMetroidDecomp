@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -24,24 +23,23 @@ internal static class MotherBrainRoomColorsVerification
         var native = CreateEnemy(rom, nativeCgram, extracted);
         var installed = CreateEnemy(NewPaletteReadForbiddenBus(), installedCgram,
             original.MotherBrainRoomColors);
-        Method("LoadMotherBrainRoomEntryColors").Invoke(native, null);
-        Method("LoadMotherBrainRoomEntryColors").Invoke(installed, null);
+        native.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
+        installed.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors, extracted));
-        var nativeState = new MotherBrainEnemyState(native.Slots[0])
+        var nativeState = new MotherBrainEnemyState(native.SlotTable.Slots[0])
         {
             RoomPaletteInstructionPointer = MotherBrainRoomPaletteProgramDefinitions.FlashStart,
         };
-        var installedState = new MotherBrainEnemyState(installed.Slots[0])
+        var installedState = new MotherBrainEnemyState(installed.SlotTable.Slots[0])
         {
             RoomPaletteInstructionPointer = MotherBrainRoomPaletteProgramDefinitions.FlashStart,
         };
-        MethodInfo run = Method("RunMotherBrainRoomPalette");
         for (int frame = 0; frame < 48; frame++)
         {
-            run.Invoke(native, [nativeState]);
-            run.Invoke(installed, [installedState]);
+            native.MotherBrainBehavior.RunMotherBrainRoomPalette(nativeState);
+            installed.MotherBrainBehavior.RunMotherBrainRoomPalette(installedState);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Mother Brain room flash matches full native CGRAM on frame {frame}");
             AssertEqual(nativeState.RoomPaletteInstructionPointer,
@@ -51,8 +49,8 @@ internal static class MotherBrainRoomColorsVerification
                 installedState.RoomPaletteInstructionTimer,
                 "room-flash presentation leaves bytecode timer unchanged");
         }
-        Method("StopMotherBrainRoomPalette").Invoke(native, [nativeState]);
-        Method("StopMotherBrainRoomPalette").Invoke(installed, [installedState]);
+        native.MotherBrainBehavior.StopMotherBrainRoomPalette(nativeState);
+        installed.MotherBrainBehavior.StopMotherBrainRoomPalette(installedState);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed final grey room colors match all native CGRAM words");
         AssertEqual(nativeState.RoomPaletteInstructionPointer,
@@ -61,8 +59,8 @@ internal static class MotherBrainRoomColorsVerification
 
         Seed(nativeCgram);
         Seed(installedCgram);
-        Method("SetupMotherBrainPhaseTwoGraphics").Invoke(native, [nativeState]);
-        Method("SetupMotherBrainPhaseTwoGraphics").Invoke(installed, [installedState]);
+        native.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(nativeState);
+        installed.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(installedState);
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed phase-two attack/rear-leg colors match full native CGRAM");
         AssertEqual(nativeState.Function, installedState.Function,
@@ -93,16 +91,16 @@ internal static class MotherBrainRoomColorsVerification
             "Mother Brain room-color override changes selected-content identity");
         var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
         {
-            MapPresentation = edited,
+            Artwork = { MapPresentation = edited },
         };
-        AssertTrue(ReferenceEquals(runtime.Enemies.MotherBrainRoomColors,
+        AssertTrue(ReferenceEquals(runtime.Enemies.Presentation.MotherBrainRoomColors,
             edited.MotherBrainRoomColors),
             "installed Mother Brain room colors reach the production enemy binding");
-        AssertEdited("RunMotherBrainRoomPalette", original, edited,
+        AssertEdited(nameof(MotherBrainBehavior.RunMotherBrainRoomPalette), behavior => behavior.RunMotherBrainRoomPalette, original, edited,
             MotherBrainRoomColorRomData.FirstColor, 1, flash: true);
-        AssertEdited("StopMotherBrainRoomPalette", original, edited,
+        AssertEdited(nameof(MotherBrainBehavior.StopMotherBrainRoomPalette), behavior => behavior.StopMotherBrainRoomPalette, original, edited,
             MotherBrainRoomColorRomData.SecondColor, 2);
-        AssertEdited("SetupMotherBrainPhaseTwoGraphics", original, edited,
+        AssertEdited(nameof(MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics), behavior => behavior.SetupMotherBrainPhaseTwoGraphics, original, edited,
             MotherBrainRoomColorRomData.PhaseTwoAttackColor, 2);
         AssertRoomEntryEdited(original, edited);
         AssertRecoveryLightsEdited(original, edited);
@@ -195,22 +193,21 @@ internal static class MotherBrainRoomColorsVerification
         Seed(installedCgram);
         var native = CreateEnemy(rom, nativeCgram, extracted);
         var runtime = CreateEnemy(NewPaletteReadForbiddenBus(), installedCgram, installed);
-        MethodInfo apply = Method("LoadMotherBrainRecoveryLights");
         for (ushort frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
         {
             var request = RecoveryRequest(frame);
-            apply.Invoke(native, [request]);
-            apply.Invoke(runtime, [request]);
+            native.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
+            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"installed Mother Brain recovery-light frame {frame} matches full native CGRAM");
         }
         var invalid = RecoveryRequest(0) with { SourceAddress = 0 };
         try
         {
-            apply.Invoke(runtime, [invalid]);
+            runtime.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(invalid);
             throw new InvalidOperationException("Malformed Mother Brain recovery-light source was accepted.");
         }
-        catch (TargetInvocationException error) when (error.InnerException is InvalidDataException)
+        catch (InvalidDataException)
         {
             // Reject malformed requests before touching installed colors or the bus.
         }
@@ -226,10 +223,9 @@ internal static class MotherBrainRoomColorsVerification
             original.MotherBrainRoomColors);
         var replacement = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
             edited.MotherBrainRoomColors);
-        MethodInfo apply = Method("LoadMotherBrainRecoveryLights");
         var request = RecoveryRequest(0);
-        apply.Invoke(stock, [request]);
-        apply.Invoke(replacement, [request]);
+        stock.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
+        replacement.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
         AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsFirstColor] !=
             editedCgram.Colors[MotherBrainRoomColorRomData.RecoveryLightsFirstColor],
             "first recovery-light slice edit reaches live CGRAM");
@@ -257,8 +253,8 @@ internal static class MotherBrainRoomColorsVerification
             original.MotherBrainRoomColors);
         var editedEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
             edited.MotherBrainRoomColors);
-        Method("LoadMotherBrainRoomEntryColors").Invoke(stockEnemy, null);
-        Method("LoadMotherBrainRoomEntryColors").Invoke(editedEnemy, null);
+        stockEnemy.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
+        editedEnemy.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
         AssertTrue(stockCgram.Colors[MotherBrainRoomColorRomData.InitialGlassShardColor] !=
             editedCgram.Colors[MotherBrainRoomColorRomData.InitialGlassShardColor],
             "room-entry glass edit reaches the production color copy");
@@ -271,7 +267,8 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void AssertEdited(string methodName, AreaMapPresentationCatalog original,
+    private static void AssertEdited(string methodName, Func<MotherBrainBehavior, Action<MotherBrainEnemyState>> select,
+        AreaMapPresentationCatalog original,
         AreaMapPresentationCatalog edited, int expectedFirstColor, int expectedDifferences,
         bool flash = false)
     {
@@ -281,8 +278,8 @@ internal static class MotherBrainRoomColorsVerification
             original.MotherBrainRoomColors);
         var editedEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
             edited.MotherBrainRoomColors);
-        var stockState = new MotherBrainEnemyState(stockEnemy.Slots[0]);
-        var editedState = new MotherBrainEnemyState(editedEnemy.Slots[0]);
+        var stockState = new MotherBrainEnemyState(stockEnemy.SlotTable.Slots[0]);
+        var editedState = new MotherBrainEnemyState(editedEnemy.SlotTable.Slots[0]);
         if (flash)
         {
             stockState.RoomPaletteInstructionPointer =
@@ -290,9 +287,8 @@ internal static class MotherBrainRoomColorsVerification
             editedState.RoomPaletteInstructionPointer =
                 MotherBrainRoomPaletteProgramDefinitions.FlashStart;
         }
-        MethodInfo method = Method(methodName);
-        method.Invoke(stockEnemy, [stockState]);
-        method.Invoke(editedEnemy, [editedState]);
+        select(stockEnemy.MotherBrainBehavior)(stockState);
+        select(editedEnemy.MotherBrainBehavior)(editedState);
         AssertTrue(stockCgram.Colors[expectedFirstColor] !=
             editedCgram.Colors[expectedFirstColor],
             $"edited {methodName} color reaches live CGRAM");
@@ -312,16 +308,13 @@ internal static class MotherBrainRoomColorsVerification
     private static RoomEnemySystem CreateEnemy(ISnesAddressSpace bus, SnesCgram cgram,
         MotherBrainRoomColorPresentation? colors)
     {
-        var enemies = new RoomEnemySystem { MotherBrainRoomColors = colors };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
+        var enemies = new RoomEnemySystem { Presentation = { MotherBrainRoomColors = colors } };
+        enemies.BindFixtureBus(bus);
+        enemies.Presentation._cgram = cgram;
+        enemies.Presentation._vram = new SnesVram();
         return enemies;
     }
 
-    private static MethodInfo Method(string name) => typeof(RoomEnemySystem).GetMethod(name,
-        BindingFlags.Instance | BindingFlags.NonPublic)!;
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void Seed(SnesCgram cgram)

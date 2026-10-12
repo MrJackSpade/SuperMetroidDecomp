@@ -35,15 +35,9 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
             address => $"Production read compiled Fune/Namihe mechanics byte ${address:X6}.");
         var observedVisuals = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        var spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnFuneNamiheFireball",
-            flags)!.CreateDelegate<Action<RoomEnemySlot, bool, RoomEnemyProjectileKind>>(
-                enemies);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            flags)!;
-        RoomEnemySlot source = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemySlot, bool, RoomEnemyProjectileKind> spawn = enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball;
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(0x0120, 0x0080));
         source.Parameter2 = 0;
 
@@ -58,11 +52,11 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
                 : (ushort)1;
             foreach (bool movingRight in new[] { false, true })
             {
-                foreach (RoomEnemyProjectileSlot candidate in enemies.EnemyProjectiles)
+                foreach (RoomEnemyProjectileSlot candidate in enemies.Projectiles.EnemyProjectiles)
                     candidate.Clear();
 
                 spawn(source, movingRight, kind);
-                RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles.Single(
+                RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
                     candidate => candidate.Kind == kind);
                 ushort program = movingRight
                     ? FuneNamiheFireballInstructionProgramDefinitions.Right
@@ -70,11 +64,10 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
                 AssertEqual(program, projectile.InstructionPointer,
                     $"{kind} {(movingRight ? "right" : "left")} selects named program");
 
-                object?[] arguments = [projectile, null, Position16<RoomPixels>.Zero];
                 for (int frame = 0; frame < 4; frame++)
                 {
                     projectile.InstructionTimer = 1;
-                    process.Invoke(enemies, arguments);
+                    enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, (SamusState?)null, Position16<RoomPixels>.Zero);
                     AssertEqual((ushort)(program + 2 + 4 * (frame % 3)), projectile.PresentationOperandAddress,
                         "Fune/Namihe fireball frame order including loop restart");
                     AssertEqual((ushort)5, projectile.InstructionTimer,

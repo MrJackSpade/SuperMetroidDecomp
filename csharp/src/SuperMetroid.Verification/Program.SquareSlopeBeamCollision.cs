@@ -39,11 +39,11 @@ internal static class SquareSlopeBeamCollisionVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        RoomLevelData level = runtime.LevelData!;
+        RoomLevelData level = runtime.Room.LevelData!;
         const int SlopeColumn = 40, BeamRow = 30, WallColumn = 44;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
@@ -55,13 +55,13 @@ internal static class SquareSlopeBeamCollisionVerification
             level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0, type).Raw);
             level.SetBehavior(index, type == RoomCollisionType.Slope ? slopeBts : (byte)0);
         }
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
 

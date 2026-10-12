@@ -18,19 +18,17 @@ internal static class MotherBrainTubeDescentVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
-        var enemies = new RoomEnemySystem { MotherBrainRoomColors = RepositoryInstallation.Maps.MotherBrainRoomColors };
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        var state = new MotherBrainEnemyState(enemies.Slots[0]) { Head = enemies.Slots[1] };
-        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
-        var tube = enemies.Slots[2];
+        var enemies = new RoomEnemySystem { Presentation = { MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors } };
+        enemies.Presentation._cgram = new SnesCgram();
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = enemies.SlotTable.Slots[1] };
+        enemies.MotherBrainEncounter.MotherBrain = state;
+        var tube = enemies.SlotTable.Slots[2];
         tube.Parameter1 = 8;
         tube.Parameter2 = 0;
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
-        typeof(RoomEnemySystem).GetMethod("InitializeMotherBrainFallingTube",
-            BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [tube]);
-        var step = typeof(RoomEnemySystem).GetMethod("RunMotherBrainFallingTubeMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
+        MotherBrainBehavior.InitializeMotherBrainFallingTube(tube);
+        Action<RoomEnemySlot> step = enemies.MotherBrainBehavior.RunMotherBrainFallingTubeMain;
         uint expectedPosition = SnesSixteenSixteen.FromWhole((uint)tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;
         ushort previousHeadY = state.Head.Position.Y.Whole;
@@ -57,7 +55,7 @@ internal static class MotherBrainTubeDescentVerification
             "Trajectory includes continuous descent both before hiding and before landing");
         AssertTrue(tube.Properties.HasAny(EnemyProperties.Deleted), "Landing deletes the main tube");
         AssertEqual(MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3, state.Function, "Landing starts room rebuild");
-        AssertEqual((ushort)0x20, enemies.EarthquakeTimer, "Landing retains native earthquake duration");
+        AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer, "Landing retains native earthquake duration");
         Console.WriteLine($"Mother Brain tube descent: {frame + 1} exact trajectory frames, hide threshold and landing passed.");
         return 0;
     }

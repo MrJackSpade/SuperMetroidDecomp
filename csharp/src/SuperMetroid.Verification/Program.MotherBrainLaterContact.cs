@@ -19,18 +19,17 @@ internal static class MotherBrainLaterContactVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)(_ => { });
-        var body = enemies.Slots[0];
+        var body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
         body.Definition = RoomEnemyDefinitionCatalog.Get(body.EnemyDefinitionPointer);
-        var state = new MotherBrainEnemyState(body) { Head = enemies.Slots[1], Form = 2, HitboxesEnabled = 7 };
+        var state = new MotherBrainEnemyState(body) { Head = enemies.SlotTable.Slots[1], Form = 2, HitboxesEnabled = 7 };
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckSegment1 = new(250, 80);
         state.NeckSegment2 = state.NeckSegment3 = new(500, 500);
-        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
-        var main = typeof(RoomEnemySystem).GetMethod("RunMotherBrainBodyMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState?, byte, SamusBombProjectileSystem?>>(enemies);
+        enemies.MotherBrainEncounter.MotherBrain = state;
+        Action<RoomEnemySlot, SamusState?, SamusBombProjectileSystem?> main = enemies.MotherBrainBehavior.RunMotherBrainBodyMain;
         foreach (string contact in new[] { "body", "neck", "no-damage side", "post-dispatch position" })
         {
             body.Position = body.Position.WithWhole(new(128, 128));
@@ -42,7 +41,7 @@ internal static class MotherBrainLaterContactVerification
             if (contact == "neck") { samus.Position = samus.Position.WithWhole(new(250, 80)); expectedX = 16; }
             if (contact == "no-damage side") { samus.Position = samus.Position.WithWholeX(152); expectedX = 26; }
             if (contact == "post-dispatch position") { samus.Position = samus.Position.WithWhole(new(89, 279)); }
-            main(body, samus, 0, null);
+            main(body, samus, null);
             AssertEqual((ushort)(contact == "no-damage side" ? 500 : 500 - body.Definition.Damage),
                 samus.Health, $"Later-phase {contact} applies native contact damage");
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
@@ -56,7 +55,7 @@ internal static class MotherBrainLaterContactVerification
         body.Radius = new(16, 16);
         body.SpritemapPointer = 1;
         body.Health = 1000;
-        var interactive = (List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!;
+        var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
         interactive.Add(body.NativeIndex);
         foreach (ushort type in new ushort[] { 0x8000, 0x8100 })
         {
@@ -66,11 +65,11 @@ internal static class MotherBrainLaterContactVerification
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
             shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
             shot.PreInstruction = type == 0x8100 ? SamusProjectilePreInstruction.Missile : SamusProjectilePreInstruction.NoWaveBeam;
-            AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), new SamusState()),
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), new SamusState()),
                 "Mother Brain body accepts the projectile collision callback");
             AssertEqual((ushort)1000, body.Health, "Body projectile callback retains body health");
             AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "Body blocks the beam or missile");
-            AssertEqual((ushort?)0x3d, enemies.LastEnemyProjectileDudSoundEffect, "Body emits native dud sound");
+            AssertEqual((ushort?)0x3d, enemies.Projectiles.LastEnemyProjectileDudSoundEffect, "Body emits native dud sound");
         }
         AssertEqual(2, enemies.RoomSpriteObjects.Count(slot => slot.Kind == RoomSpriteObjectKind.EnemyProjectileDud),
             "Both beam and missile callbacks create their dud sprite");

@@ -92,12 +92,12 @@ public sealed class CeresElevatorShaftRoomMainState
             // cartridge x-direction metadata, refreshes pose radii/animation, seeds the
             // 60-frame state-$20 hold, then installs SamusCode_00's input lock. The hold is
             // owned by the frontend dispatcher; everything Samus-visible remains here.
-            bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
+            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection(bus) == 4;
             samus.Pose = facingLeft
                 ? SamusPoseId.FacingLeftNormalPose
                 : SamusPoseId.FacingRightNormalPose;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             samus.InputLocked = true;
             DepartureRequested = true;
             DepartureRequestedThisFrame = true;

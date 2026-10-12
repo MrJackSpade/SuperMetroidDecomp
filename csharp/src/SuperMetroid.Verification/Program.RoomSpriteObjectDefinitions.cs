@@ -22,12 +22,9 @@ internal static class RoomSpriteObjectDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewRoomSpriteObjectDefinitionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", flags)!
-            .CreateDelegate<Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind,
-                ushort, RoomSpriteObjectSlot?>>();
-        var step = typeof(RoomEnemySystem).GetMethod("StepRoomSpriteObjects", flags)!
-            .CreateDelegate<Action<RoomEnemySystem>>();
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
+            (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
+        Action<RoomEnemySystem> step = owner => owner.SpriteObjects.StepRoomSpriteObjects();
 
         for (int index = 0;
              index < RoomSpriteObjectInstructionProgramDefinitionsTooling.MechanicsWordCount;
@@ -49,7 +46,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
                 $"room sprite object selector ${objectNumber:X2}");
 
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             RoomSpriteObjectSlot? slot = spawn(
                 enemies,
                 new(unchecked((ushort)(0x1000 + objectNumber)), unchecked((ushort)(0x2000 + objectNumber))),

@@ -146,7 +146,7 @@ internal static class SamusSuitColorsVerification
 
         var guard = NewSuitColorReadGuard(bus);
         var cgram = new SnesCgram();
-        var samus = new SamusState { SuitColors = edited.SamusSuitColors };
+        var samus = new SamusState { Presentation = { SuitColors = edited.SamusSuitColors } };
         ushort[] equipment =
         [
             0,
@@ -156,7 +156,7 @@ internal static class SamusSuitColorsVerification
         for (int suit = 0; suit < equipment.Length; suit++)
         {
             samus.EquippedItems = equipment[suit];
-            samus.LoadSuitPalette(guard, cgram);
+            samus.Presentation.LoadSuitPalette(guard, cgram);
             AssertEqual(edited.SamusSuitColors.Resolve(offsets[suit], 1),
                 cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
                 $"edited suit {suit} reaches live Samus CGRAM");
@@ -193,11 +193,11 @@ internal static class SamusSuitColorsVerification
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
             "Screw Attack recovery preserves edited Varia color");
 
-        var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
         fixtureAssets.Bind(runtime);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         AssertEqual(edited.SamusSuitColors.Resolve(0, 1),
             runtime.Cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
             "installed production Ceres entry uses edited Power Suit color");

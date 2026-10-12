@@ -2,7 +2,7 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 
-internal static partial class AssetTools
+internal static class ShutterNativeArc
 {
     /// <summary>
     /// Regenerates issue #347's native comparison inputs from the reproduced case: the frame-117
@@ -10,7 +10,7 @@ internal static partial class AssetTools
     /// </summary>
     internal static int ExportShutterBombArc()
     {
-        var bus = LoadRepositoryRom();
+        var bus = RepositoryRom.Load();
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
         var arc = new List<string>();
         string directory = ShutterBombArcScenario.FixtureDirectory;
@@ -39,7 +39,7 @@ internal static partial class AssetTools
     /// <summary>Prints the reproduced case's per-frame Samus and shutter state for native comparison.</summary>
     internal static int TraceShutterBombArc()
     {
-        var bus = LoadRepositoryRom();
+        var bus = RepositoryRom.Load();
         var scenario = ShutterBombArcScenario.Reproduced(RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true), bus);
         var shutter = scenario.Runtime.Enemies.VerticalShutterStates[0]!;
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
@@ -59,7 +59,7 @@ internal static partial class AssetTools
     /// </summary>
     internal static int SweepShutterMorphApproaches()
     {
-        var bus = LoadRepositoryRom();
+        var bus = RepositoryRom.Load();
         int cases = 0, worstGap = 0;
         foreach (int slotIndex in new[] { 0, 1 })
         foreach (bool approach in new[] { false, true })
@@ -94,10 +94,10 @@ internal static partial class AssetTools
     private static void ExportShutterBombArcSeed(SuperMetroidRuntime runtime, string path)
     {
         var ram = new byte[0x20000];
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         var k = samus.Kinematics;
         var speed = samus.HorizontalSpeed;
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         Word(0x7A5, level.Size.X);
         Word(0x7A7, level.Size.Y);
         for (int i = 0; i < level.Size.X * level.Size.Y; i++)
@@ -119,13 +119,13 @@ internal static partial class AssetTools
         Word(0xB42, speed.ExtraRunSpeed); Word(0xB44, speed.ExtraRunSubspeed);
         Word(0xB46, speed.BaseSpeed); Word(0xB48, speed.BaseSubspeed); Word(0xB4A, speed.AccelerationMode);
         Word(0x195E, 0xFFFF); Word(0x1962, 0xFFFF);
-        Word(0x5B6, runtime.NmiFrameCounter);
+        Word(0x5B6, runtime.Nmi.NmiFrameCounter);
         // Retain both solid platforms, even though only slot zero is moving here.
         Word(0x17A6, 4); Word(0x17EC, 0); Word(0x17EE, 64); Word(0x17F0, 0xFFFF);
         for (int i = 0; i < 2; i++)
         {
             int offset = i * 64;
-            var slot = runtime.Enemies.Slots[i];
+            var slot = runtime.Enemies.SlotTable.Slots[i];
             Word(0xF78 + offset, (ushort)slot.EnemyDefinitionPointer);
             Word(0xF8E + offset, slot.SpritemapPointer);
             ram[0xFA6 + offset] = slot.Definition.Bank;

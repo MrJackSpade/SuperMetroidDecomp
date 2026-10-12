@@ -22,22 +22,17 @@ internal static class MotherBrainDoorFragmentDefinitionsVerification
                 definition.Velocity.Y.SignedRawValue, $"Mother Brain door fragment Y velocity {parameter}");
         }
 
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainDoorFragment",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = NewMotherBrainDoorFragmentReadGuard(rom);
         for (ushort parameter = 0; parameter < 8; parameter++)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
-            spawn.Invoke(enemies, [parameter]);
+            enemies.BindFixtureBus(guarded);
+            enemies.MotherBrainBehavior.SpawnMotherBrainDoorFragment(parameter);
 
             MotherBrainDoorFragmentDefinition definition =
                 MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
             RoomEnemyProjectileSlot fragment =
-                enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
+                enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, fragment.Kind,
                 $"production Mother Brain door fragment kind {parameter}");
             AssertEqual(unchecked((ushort)(MotherBrainDeathRomData.DoorX + definition.Offset.X)),

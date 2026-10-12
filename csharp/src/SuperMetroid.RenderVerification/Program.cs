@@ -56,7 +56,7 @@ internal static class Program
             // spores check corrupts and restores stock files, so it runs on a private copy.
             if (args is ["--installed-spores"])
             {
-                using var copy = RepositoryInstallation.CreatePrivateCopy();
+                using var copy = InstalledFixtures.CreatePrivateCopy();
                 InstalledSporesTests.Run(copy.Root, Path.GetFullPath("Super Metroid.smc"), Path.GetFullPath("standalone-assets/raw"));
                 return;
             }
@@ -107,7 +107,7 @@ internal static class Program
                     long sequence = 0;
                     MinimapBlinkAudit.Run("Super Metroid.smc", runtime =>
                     {
-                        var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.NmiFrameCounter),
+                        var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Nmi.NmiFrameCounter),
                             GameplayDisplayCapture.TryCaptureFrame(runtime)!);
                         var pixels = renderer.RenderForReadback(packet);
                         PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime), pixels,

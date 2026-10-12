@@ -27,9 +27,9 @@ public static class SamusSpecialSuperPalette
             ? SamusPaletteRomData.FullBodyCycles.SpeedBoostPalettePointer(suitOffset)
             : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
         if ((flags & 1) == 0)
-            SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.SuitColors);
+            SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
         else
-            (samus.FullBodyCycleColors ?? throw new InvalidOperationException(
+            (samus.Presentation.FullBodyCycleColors ?? throw new InvalidOperationException(
                 "Metroid-attachment palette requires installed Samus full-body cycle colors."))
                 .Apply(cgram, palettePointer);
         samus.SpecialSuperPaletteFlags = unchecked((ushort)(flags + 1));

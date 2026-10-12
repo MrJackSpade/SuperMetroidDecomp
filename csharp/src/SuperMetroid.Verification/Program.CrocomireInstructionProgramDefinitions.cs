@@ -61,16 +61,13 @@ internal static class CrocomireInstructionProgramDefinitionsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0440, 0x0078)),
         };
         PrepareRetailSamusFixture(samus);
-        samus.RefreshCollisionRadii(rom);
-        samus.InitializeAnimation(rom);
+        samus.PoseMetadata.RefreshCollisionRadii(rom);
+        samus.Presentation.InitializeAnimation(rom);
 
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.Load(new RoomEnemyLoadRequest(guard, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsMiniBossDefeated = () => false, SetMiniBossDefeated = () => { } }, RoomScroll = new FixtureRoomScroll(assets.Scrolls.SetStorage) }) { Level = assets.LevelData, Samus = samus, Camera = new(0x0400, 0) });
 
-        RoomEnemySlot body = enemies.Slots[0];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         object?[] arguments =
             [body, samus, assets.LevelData, new Position16<RoomPixels>((ushort)0x0400, (ushort)0), (ushort)0];
 
@@ -86,7 +83,7 @@ internal static class CrocomireInstructionProgramDefinitionsVerification
                 CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             body.CurrentInstruction = unchecked((ushort)(presentation - 2));
             body.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, body, executedOperands);
             AssertEqual(presentation, unchecked((ushort)(body.CurrentInstruction - 2)),
                 $"Crocomire presentation handoff $A4:{presentation:X4}");

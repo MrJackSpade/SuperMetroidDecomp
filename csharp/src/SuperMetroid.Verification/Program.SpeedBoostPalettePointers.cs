@@ -45,7 +45,7 @@ internal static class SpeedBoostPalettePointersVerification
             {
                 EquippedItems = equipment[selection],
                 SpecialSuperPaletteFlags = 1,
-                FullBodyCycleColors = cycleColors,
+                Presentation = { FullBodyCycleColors = cycleColors },
             };
             var installedColors = new SnesCgram();
             AssertTrue(SamusSpecialSuperPalette.Update(installedColors, samus),

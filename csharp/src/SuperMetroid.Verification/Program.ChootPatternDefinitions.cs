@@ -20,9 +20,7 @@ internal static class ChootPatternDefinitionsVerification
     internal static void VerifyChootPatternDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
-        var initializeMethod = typeof(RoomEnemySystem).GetMethod("InitializeChoot", flags)!;
-        var fallMethod = typeof(RoomEnemySystem).GetMethod("RunChootFall", flags)!;
-        var runFall = fallMethod.CreateDelegate<Action<RoomEnemySlot, ChootEnemyState>>();
+        var runFall = new Action<RoomEnemySlot, ChootEnemyState>(ChootBehavior.RunChootFall);
         int[] frameCounts = [74, 74, 74, 94, 134];
 
         for (ushort patternIndex = 0; patternIndex < 5; patternIndex++)
@@ -59,10 +57,9 @@ internal static class ChootPatternDefinitionsVerification
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
                 var enemies = new RoomEnemySystem();
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                    enemies, NewChootPatternReadGuard(rom));
-                var initialize = initializeMethod.CreateDelegate<Action<RoomEnemySlot>>(enemies);
-                RoomEnemySlot slot = enemies.Slots[0];
+                enemies.BindFixtureBus(NewChootPatternReadGuard(rom));
+                var initialize = new Action<RoomEnemySlot>(enemies.ChootBehavior.InitializeChoot);
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Position = slot.Position.WithWhole(new(0x3456, 0x789a));
                 slot.Parameter1 = (ushort)((patternIndex << 8) | loopCount);
                 initialize(slot);
@@ -82,10 +79,9 @@ internal static class ChootPatternDefinitionsVerification
             }
 
             var fallEnemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                fallEnemies, NewChootPatternReadGuard(rom));
-            var initializeFall = initializeMethod.CreateDelegate<Action<RoomEnemySlot>>(fallEnemies);
-            RoomEnemySlot fallSlot = fallEnemies.Slots[0];
+            fallEnemies.BindFixtureBus(NewChootPatternReadGuard(rom));
+            var initializeFall = new Action<RoomEnemySlot>(fallEnemies.ChootBehavior.InitializeChoot);
+            RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
             fallSlot.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
             fallSlot.Parameter1 = (ushort)((patternIndex << 8) | 2);
             initializeFall(fallSlot);

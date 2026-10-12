@@ -25,7 +25,6 @@ internal static class EscapeEtecoonDefinitionsVerification
         const int preInstructionTable = 0xb3e724;
         const int instructionTable = 0xb3e72a;
         const int speedTable = 0xb3e730;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (int role = 0; role < 3; role++)
         {
@@ -55,18 +54,15 @@ internal static class EscapeEtecoonDefinitionsVerification
             "escape Etecoon wrapping restored selector");
 
         var guarded = NewEscapeEtecoonDefinitionGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeEscapeEtecoon",
-            instanceFlags)!;
         for (ushort parameter = 0; parameter < 6; parameter++)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
             slot.Position = slot.Position.WithWhole(new(0xaaaa, 0xbbbb));
-            initialize.Invoke(enemies, [slot]);
+            enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(slot);
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
@@ -100,7 +96,6 @@ internal static class EscapeEtecoonDefinitionsVerification
     internal static void VerifyEscapeEtecoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < EscapeEtecoonInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -113,9 +108,8 @@ internal static class EscapeEtecoonDefinitionsVerification
         }
 
         var guard = NewEscapeEtecoonDefinitionGuard(rom);
-        RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem(guard, flags);
-        RoomEnemySlot etecoon = enemies.Slots[0];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem(guard);
+        RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         var selectedPresentation = new HashSet<ushort>();
         ushort[] programs =
         [
@@ -129,7 +123,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         foreach (ushort program in programs)
         {
             etecoon.CurrentInstruction = program;
-            RunForcedEscapeEtecoonInstructions(process, enemies, etecoon, 7, rom, selectedPresentation);
+            RunForcedEscapeEtecoonInstructions(enemies, etecoon, 7, rom, selectedPresentation);
         }
 
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
@@ -137,7 +131,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         ushort xBeforeGratitude = etecoon.Position.X.Whole;
         etecoon.CurrentInstruction =
             EscapeEtecoonInstructionProgramDefinitions.ExpressGratitudeThenEscape;
-        RunForcedEscapeEtecoonInstructions(process, enemies, etecoon, 40, rom, selectedPresentation);
+        RunForcedEscapeEtecoonInstructions(enemies, etecoon, 40, rom, selectedPresentation);
         AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
         AssertEqual(EscapeEtecoonPreInstruction.EscapeRight, state.PreInstruction,
@@ -180,23 +174,20 @@ internal static class EscapeEtecoonDefinitionsVerification
     }
 
     private static RoomEnemySystem CreateEscapeEtecoonProgramSystem(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+        ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
-        RoomEnemySlot etecoon = enemies.Slots[0];
+        RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         etecoon.EnemyDefinitionPointer = EnemyDefinitionId.EtecoonEscape;
         etecoon.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
         etecoon.Parameter1 = 0;
-        typeof(RoomEnemySystem).GetMethod("InitializeEscapeEtecoon", flags)!
-            .Invoke(enemies, [etecoon]);
+        enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon);
         return enemies;
     }
 
     private static void RunForcedEscapeEtecoonInstructions(
-        MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot etecoon,
         int steps,
@@ -208,7 +199,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         for (int step = 0; step < steps; step++)
         {
             etecoon.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             ushort operand = unchecked((ushort)(etecoon.CurrentInstruction - 2));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | operand)),
                 etecoon.SpritemapPointer, "escape-Etecoon actual installed native visual selector");

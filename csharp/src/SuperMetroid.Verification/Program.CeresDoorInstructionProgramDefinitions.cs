@@ -184,10 +184,10 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
             out RoomEnemySlot slot,
             out SamusState samus)
         {
-            var enemies = new RoomEnemySystem { CeresStatus = ceresStatus };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            var enemies = new RoomEnemySystem { RidleyEncounter = { CeresStatus = ceresStatus } };
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().IsAreaBossDefeated = isBossDefeated;
-            slot = enemies.Slots[0];
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer =
                 EnemyDefinitionId.CeresDoor;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
@@ -214,12 +214,10 @@ internal static class CeresDoorInstructionProgramDefinitionsVerification
             SamusState samus,
             int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

@@ -23,12 +23,12 @@ internal static class BotwoonPositionHistoryVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Botwoon);
 
-        RoomEnemySlot head = runtime.Enemies.Slots.Single(slot =>
+        RoomEnemySlot head = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon);
         BotwoonEnemyState state = runtime.Enemies.Botwoon
             ?? throw new InvalidOperationException("Botwoon's room did not initialize its state.");
@@ -44,9 +44,7 @@ internal static class BotwoonPositionHistoryVerification
             "InitAI_Botwoon hides the head from collision with property $0400");
         head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         head.Health = 0;
-        typeof(RoomEnemySystem).GetMethod("ResolveBotwoonCombatAfterCommon",
-                BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [head]);
+        runtime.Enemies.BotwoonBehavior.ResolveBotwoonCombatAfterCommon(head);
         AssertTrue(head.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) &&
             !head.Properties.HasAny(EnemyProperties.SolidToSamus),
             "a lethal hit makes the head intangible with property $0400");

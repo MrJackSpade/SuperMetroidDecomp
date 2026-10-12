@@ -56,12 +56,10 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         var guard = NewPuyoInstructionReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = type.GetMethod("InitializePuyo", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.PuyoBehavior.InitializePuyo);
 
-        RoomEnemySlot puyo = enemies.Slots[0];
+        RoomEnemySlot puyo = enemies.SlotTable.Slots[0];
         puyo.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
         puyo.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         initialize(puyo);
@@ -74,7 +72,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         foreach (ushort program in PuyoGroundedInstructionPrograms)
         {
             puyo.CurrentInstruction = program;
-            ExecutePuyoInstructionCalls(enemies, process, processArguments, puyo, 5);
+            ExecutePuyoInstructionCalls(enemies, processArguments, puyo, 5);
             AssertEqual(unchecked((ushort)(program + 4)),
                 puyo.CurrentInstruction,
                 $"Puyo grounded program $A2:{program:X4} completes goto and repeats");
@@ -83,7 +81,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         foreach (ushort program in PuyoAirborneInstructionPrograms)
         {
             puyo.CurrentInstruction = program;
-            ExecutePuyoInstructionCalls(enemies, process, processArguments, puyo, 2);
+            ExecutePuyoInstructionCalls(enemies, processArguments, puyo, 2);
             AssertEqual(unchecked((ushort)(program + 4)),
                 puyo.CurrentInstruction,
                 $"Puyo airborne pose $A2:{program:X4} reaches terminal sleep");
@@ -117,7 +115,6 @@ internal static class PuyoInstructionProgramDefinitionsVerification
 
     internal static void ExecutePuyoInstructionCalls(
         RoomEnemySystem enemies,
-        MethodInfo process,
         object?[] arguments,
         RoomEnemySlot slot,
         int calls)
@@ -125,7 +122,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         for (int call = 0; call < calls; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

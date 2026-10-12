@@ -93,8 +93,8 @@ internal static class BossDisplayBindingsVerification
         AssertAnimationValues(baseline.Enemies, edited.Enemies, context);
         AssertSameBytes(baseline.Memory.WorkRam, edited.Memory.WorkRam, context + " preserves all WRAM");
         AssertSameBytes(baseline.Memory.SaveRam, edited.Memory.SaveRam, context + " preserves all SRAM");
-        AssertTrue(baseline.Enemies.SoundRequests.SequenceEqual(edited.Enemies.SoundRequests), context + " preserves audio callbacks");
-        AssertTrue(baseline.Enemies.MusicRequests.SequenceEqual(edited.Enemies.MusicRequests), context + " preserves music callbacks");
+        AssertTrue(baseline.Enemies.Audio.SoundRequests.SequenceEqual(edited.Enemies.Audio.SoundRequests), context + " preserves audio callbacks");
+        AssertTrue(baseline.Enemies.Audio.MusicRequests.SequenceEqual(edited.Enemies.Audio.MusicRequests), context + " preserves music callbacks");
     }
 
     [VerificationCommand("--boss-display-bindings")]

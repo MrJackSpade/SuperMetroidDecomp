@@ -27,10 +27,9 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
             BombTorizoStatueFragmentDefinition expected =
                 BombTorizoStatueFragmentDefinitions.ForParameter(parameter);
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-                .SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             RoomEnemyProjectileSlot projectile =
-                enemies.SpawnBombTorizoStatueBreakingProjectile(
+                enemies.BombTorizoBehavior.SpawnBombTorizoStatueBreakingProjectile(
                     new BombTorizoStatueProjectileRequest(
                         BombTorizoStatueFragmentDefinitions.ProjectileDefinition,
                         parameter,

@@ -40,18 +40,9 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
 
         var guard = NewSkreeMetareeParticleInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
-        var spawnSkreeBurst = typeof(RoomEnemySystem).GetMethod(
-                "SpawnSkreeParticleBurst",
-                instanceFlags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var spawnMetareeBurst = typeof(RoomEnemySystem).GetMethod(
-                "SpawnMetareeParticleBurst",
-                instanceFlags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
+        enemies.BindFixtureBus(guard);
+        var spawnSkreeBurst = new Action<RoomEnemySlot>(enemies.Projectiles.SpawnSkreeParticleBurst);
+        var spawnMetareeBurst = new Action<RoomEnemySlot>(enemies.Projectiles.SpawnMetareeParticleBurst);
         var source = new RoomEnemySlot(0)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
@@ -62,7 +53,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
         var selectedCompositions = new HashSet<ushort>();
 
         spawnSkreeBurst(source);
-        RoomEnemyProjectileSlot[] skree = enemies.EnemyProjectiles
+        RoomEnemyProjectileSlot[] skree = enemies.Projectiles.EnemyProjectiles
             .Where(projectile => projectile.IsActive)
             .ToArray();
         AssertEqual(4, skree.Length, "Skree burst allocates all four native particles");
@@ -85,7 +76,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
             SkreeMetareeParticleInstructionProgramDefinitions.Skree);
 
         spawnMetareeBurst(source);
-        RoomEnemyProjectileSlot[] metaree = enemies.EnemyProjectiles
+        RoomEnemyProjectileSlot[] metaree = enemies.Projectiles.EnemyProjectiles
             .Where(projectile => projectile.IsActive)
             .ToArray();
         AssertEqual(4, metaree.Length, "Metaree burst allocates all four native particles");
@@ -178,7 +169,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
         }
     }
 

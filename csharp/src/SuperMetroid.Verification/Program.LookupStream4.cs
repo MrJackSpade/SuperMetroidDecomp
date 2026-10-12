@@ -605,12 +605,11 @@ internal static class LookupStream4Verification
             if (edit is -1 or 0 or 143)
             {
                 const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-                var enemies = new RoomEnemySystem { CeresRidleyColors = selected };
+                var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = selected } };
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
-                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-                var update = typeof(RoomEnemySystem).GetMethod("UpdateCeresSelfDestructPalette", flags)!
-                    .CreateDelegate<Action<RidleyEnemyState, ushort>>(enemies);
+                enemies.Presentation._cgram = cgram;
+                Action<RidleyEnemyState, ushort> update = enemies.CeresRidleyBehavior.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
                 for (ushort nmi = 0; nmi < 64; nmi++)
                 {
@@ -1215,8 +1214,7 @@ internal static class LookupStream4Verification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf7f + (link - 1) * 0x36)), RidleyTailDefinitions.RestDistance(link), "Native shrink threshold equals initialized rest geometry");
         foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => RidleyTailDefinitions.RestDistance(invalid), "Shared rest geometry preserves bounded array selection");
-        var update = typeof(RoomEnemySystem).GetMethod("UpdateRidleyTailDistances", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RidleyEnemyState>>();
+        Action<RidleyEnemyState> update = RidleyTail.UpdateRidleyTailDistances;
         foreach (int delta in new[] { -1, 0, 1 })
         {
             var state = new RidleyEnemyState
@@ -1262,14 +1260,13 @@ internal static class LookupStream4Verification
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => CeresMode7TransferDefinitions.BabyFrameForPhase(invalid), "Baby transfer phase preserves bounded selection");
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
-        var enemies = new RoomEnemySystem { CeresRidleyMode7Colors = colors };
+        var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = colors } };
         var vram = new SnesVram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
-        var tick = typeof(RoomEnemySystem).GetMethod("TickCeresRidleyMode7Getaway", flags)!
-            .CreateDelegate<Action<RidleyEnemyState, SamusState?, ushort>>(enemies);
+        enemies.Presentation._vram = vram;
+        enemies.Presentation._cgram = new SnesCgram();
+        enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        Action<RidleyEnemyState, SamusState?, ushort> tick = enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway;
         var state = new RidleyEnemyState { Mode7TableByteIndex = 2 };
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
@@ -1637,16 +1634,15 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for room sprite dispatch")]
     internal static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
     {
-        var spriteSpawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?>>();
-        FieldInfo spriteBus = typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spriteSpawn =
+            (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
         for (ushort objectNumber = 0; objectNumber < 62; objectNumber++)
         {
             var kind = (RoomSpriteObjectKind)objectNumber;
             ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * objectNumber));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem();
-            spriteBus.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
+            enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
             RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, 0x0600);
             AssertTrue(spawned is not null, "room sprite native case allocates real slot");
             AssertEqual(entry, spawned!.InstructionPointer, "room sprite actual initial program");
@@ -1759,11 +1755,9 @@ internal static class LookupStream4Verification
         }
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
-        var canGrab = typeof(RoomEnemySystem).GetMethod("SamusMovementUsesRidleyGrab", instance)!
-            .CreateDelegate<Func<SamusState?, bool>>(enemies);
-        var release = typeof(RoomEnemySystem).GetMethod("ReleaseNorfairRidleyGrab", instance)!
-            .CreateDelegate<Action<RidleyEnemyState, SamusState?>>(enemies);
+        enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        Func<SamusState?, bool> canGrab = enemies.RidleyBehavior.SamusMovementUsesRidleyGrab;
+        Action<RidleyEnemyState, SamusState?> release = enemies.RidleyBehavior.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
             var samus = new SamusState { Pose = (SamusPoseId)pose };
@@ -1785,8 +1779,7 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for tail angles")]
     private static void VerifyLookupStream4TailAngles(ISnesAddressSpace rom)
     {
-        var create = typeof(RoomEnemySystem).GetMethod("CreateInitialRidleyTailSegments", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RidleyTailSegment[]>>();
+        Func<RidleyTailSegment[]> create = RidleyTail.CreateInitialRidleyTailSegments;
         var segments = create();
         AssertEqual(7, segments.Length, "Tail initialization retains seven links");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6d2fe), RidleyTailDefinitions.IdealInterSegmentAngle, "Tail separation matches the native initializer immediate");
@@ -1824,8 +1817,7 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for tail terrain")]
     private static void VerifyLookupStream4TailTerrain(ISnesAddressSpace rom)
     {
-        var touches = typeof(RoomEnemySystem).GetMethod("RidleyTailTouchesTerrain", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RidleyEnemyState, RoomLevelData?, bool>>();
+        Func<RidleyEnemyState, RoomLevelData?, bool> touches = RidleyTail.RidleyTailTouchesTerrain;
         for (int solidRow = 0; solidRow < 2; solidRow++)
         {
             ushort[] blocks = new ushort[2];
@@ -2190,43 +2182,42 @@ internal static class LookupStream4Verification
     private static void VerifyLookupStream4ProgramConsumers(ISnesAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var process = typeof(RoomEnemySystem).GetMethod("ProcessEnemyProjectileInstructions", flags)!;
 
         var electricityGuard = NewSaveStationElectricityInstructionReadGuard(rom);
         var electricitySystem = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(electricitySystem, electricityGuard);
-        electricitySystem.SpawnSaveStationElectricity(42, 16);
-        var electricity = electricitySystem.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
+        electricitySystem.BindFixtureBus(electricityGuard);
+        electricitySystem.Projectiles.SpawnSaveStationElectricity(42, 16);
+        var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         for (int frame = 0; frame < 160; frame++)
         {
             electricity.InstructionTimer = 1;
-            process.Invoke(electricitySystem, [electricity, null, Position16<RoomPixels>.Zero]);
+            electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
             AssertEqual((ushort)(0xe68b + 4 * (frame % 8)), electricity.InstructionPointer, "stream4 electricity exact frame order");
             AssertEqual((ushort)1, electricity.InstructionTimer, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
         electricity.InstructionTimer = 1;
-        process.Invoke(electricitySystem, [electricity, null, Position16<RoomPixels>.Zero]);
+        electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
         foreach (bool metaree in new[] { false, true })
         {
             var guard = NewSkreeMetareeParticleInstructionReadGuard(rom);
             var system = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
-            var spawn = typeof(RoomEnemySystem).GetMethod(metaree ? "SpawnMetareeParticleBurst" : "SpawnSkreeParticleBurst", flags)!.CreateDelegate<Action<RoomEnemySlot>>(system);
+            system.BindFixtureBus(guard);
+            Action<RoomEnemySlot> spawn = metaree ? system.Projectiles.SpawnMetareeParticleBurst : system.Projectiles.SpawnSkreeParticleBurst;
             spawn(new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96))});
             ushort start = metaree ? (ushort)0x8ac5 : (ushort)0x8abd;
             int active = 0;
-            foreach (var particle in system.EnemyProjectiles)
+            foreach (var particle in system.Projectiles.EnemyProjectiles)
             {
                 if (!particle.IsActive) continue;
                 active++;
                 for (int loop = 0; loop < 2; loop++)
                 {
                     particle.InstructionTimer = 1;
-                    process.Invoke(system, [particle, null, Position16<RoomPixels>.Zero]);
+                    system.Projectiles.ProcessEnemyProjectileInstructions(particle, null, Position16<RoomPixels>.Zero);
                     AssertEqual((ushort)(start + 4), particle.InstructionPointer, "stream4 debris goto-self loop pointer");
                     AssertEqual((ushort)16, particle.InstructionTimer, "stream4 debris sixteen-frame duration");
                     ushort nativeSprite = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x860000 | (start + 2));
@@ -2498,10 +2489,10 @@ internal static class LookupStream4Verification
         AssertEqual(250, DraygonInstructionProgramDefinitionsTooling.PresentationWordCount, "Native Draygon timed-record count");
         byte[] identities = new byte[500];
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,NewProjectileCompositionForbiddenBus());
+        enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
         var slot = new RoomEnemySlot(0) { EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody,
             Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 } };
-        var read = typeof(RoomEnemySystem).GetMethod("ReadEnemyVisualSelector",BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<Func<RoomEnemySlot,ushort,ushort>>();
+        var read = new Func<RoomEnemySlot,ushort,ushort>(EnemyInstructionInterpreter.ReadEnemyVisualSelector);
         for(int index=0;index<250;index++)
         {
             ushort address=DraygonInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
@@ -2567,12 +2558,12 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var actual=new SnesCgram(); var vram=new SnesVram();
-                typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,actual); typeof(RoomEnemySystem).GetField("_vram",flags)!.SetValue(enemies,vram);
-                typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,NewProjectileCompositionForbiddenBus());
-                typeof(RoomEnemySystem).GetMethod("InitializeDraygonBody",flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(enemies.Slots[0]);
+                enemies.Presentation._cgram = actual; enemies.Presentation._vram = vram;
+                enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
+                new Action<RoomEnemySlot>(enemies.DraygonBehavior.InitializeDraygonBody)(enemies.SlotTable.Slots[0]);
                 for(int color=0;color<256;color++)AssertEqual(color is >=144 and <169?Pack(document.Intro[color-144]):(ushort)0,actual.Colors[color],"Actual initializer full CGRAM copy");
-                AssertEqual(true,enemies.Draygon!.BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
-                AssertEqual(DraygonAiFunction.IntroInitialDelay,enemies.Draygon.Function,"Actual initializer phase");
+                AssertEqual(true,enemies.DraygonBehavior.Draygon!.BackgroundTilemapPrepared,"Actual initializer continues BG2 preparation");
+                AssertEqual(DraygonAiFunction.IntroInitialDelay,enemies.DraygonBehavior.Draygon.Function,"Actual initializer phase");
             }
         }
         ushort[] escape=Enumerable.Range(0,15).Select(index=>CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6f50e+index*2))).ToArray();
@@ -2637,9 +2628,9 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
-                typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram); typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,NewProjectileCompositionForbiddenBus());
-                var body=enemies.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=10};
-                var hurt=typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
+                enemies.Presentation._cgram = cgram; enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
+                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=10};
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
                     body.FlashTimer=timer; hurt(body,state,null);
@@ -2701,10 +2692,10 @@ internal static class LookupStream4Verification
             {
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
-                typeof(RoomEnemySystem).GetField("_cgram",flags)!.SetValue(enemies,cgram);
-                typeof(RoomEnemySystem).GetField("_bus",flags)!.SetValue(enemies,NewProjectileCompositionForbiddenBus());
-                var body=enemies.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=6};
-                var hurt=typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
+                enemies.Presentation._cgram = cgram;
+                enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
+                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=6};
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
                     body.FlashTimer=timer; hurt(body,state,null);
@@ -2757,11 +2748,11 @@ internal static class LookupStream4Verification
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
-                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewProjectileCompositionForbiddenBus());
-                RoomEnemySlot body = enemies.Slots[0]; var state = new DraygonEnemyState(body);
-                var update = typeof(RoomEnemySystem).GetMethod("UpdateDraygonHealthPalette",flags)!.CreateDelegate<Action<DraygonEnemyState>>(enemies);
-                var hurt = typeof(RoomEnemySystem).GetMethod("ApplyDraygonHurt",flags)!.CreateDelegate<Action<RoomEnemySlot,DraygonEnemyState,SamusState?>>(enemies);
+                enemies.Presentation._cgram = cgram;
+                enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
+                RoomEnemySlot body = enemies.SlotTable.Slots[0]; var state = new DraygonEnemyState(body);
+                Action<DraygonEnemyState> update = enemies.DraygonBehavior.UpdateDraygonHealthPalette;
+                Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
                     body.Health = (ushort)((7 - band) * 750); state.HealthPaletteTableByteIndex = ushort.MaxValue;
@@ -2897,14 +2888,14 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewProjectileCompositionForbiddenBus());
-                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+                enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
+                enemies.Presentation._cgram = cgram;
                 enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
-                RoomEnemySlot slot = enemies.Slots[0]; slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
-                typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
-                RidleyEnemyState state = enemies.Ridley!;
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
+                new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
+                RidleyEnemyState state = enemies.RidleyEncounter.Ridley!;
                 state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = 0;
-                var tick = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyArenaReveal", flags)!.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
+                Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {
                     tick(slot, state);
@@ -2994,12 +2985,12 @@ internal static class LookupStream4Verification
                 var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), NorfairRidleyColors = selected });
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var guard = NewProjectileCompositionForbiddenBus();
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+                enemies.BindFixtureBus(guard);
+                enemies.Presentation._cgram = cgram;
                 enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
-                RoomEnemySlot slot = enemies.Slots[0];
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
-                typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
+                new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
                         : color is >= 113 and <= 127 or >= 241 and <= 255 ? (ushort)0 : (ushort)0x1234,
@@ -3078,11 +3069,10 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem { TileArtwork = artwork };
                 var cgram = new SnesCgram();
                 var guard = NewBotwoonColorReadGuard(rom);
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-                var update = typeof(RoomEnemySystem).GetMethod("UpdateBotwoonHealthPalette", flags)!
-                    .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>(enemies);
-                RoomEnemySlot head = enemies.Slots[0];
+                enemies.BindFixtureBus(guard);
+                enemies.Presentation._cgram = cgram;
+                Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
+                RoomEnemySlot head = enemies.SlotTable.Slots[0];
                 var state = new BotwoonEnemyState(head) { PaletteDestinationByteOffset = 0x1e0 };
                 for (int band = 0; band < 8; band++)
                 {
@@ -3166,14 +3156,13 @@ internal static class LookupStream4Verification
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
             var enemies = new RoomEnemySystem();
-            foreach (RoomEnemySlot slot in enemies.Slots) slot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
-            for (int index = 1; index <= freeSlots; index++) enemies.Slots[index].Clear();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
+            foreach (RoomEnemySlot slot in enemies.SlotTable.Slots) slot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
+            for (int index = 1; index <= freeSlots; index++) enemies.SlotTable.Slots[index].Clear();
+            enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(0x100 + 0x10 * randomCalls++));
-            var spawn = typeof(RoomEnemySystem).GetMethod("SpawnNorfairRidleyBreakupActors", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
-            RoomEnemySlot body = enemies.Slots[0];
+            Action<RoomEnemySlot, RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnNorfairRidleyBreakupActors;
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             var state = new RidleyEnemyState
             {
                 TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
@@ -3188,7 +3177,7 @@ internal static class LookupStream4Verification
             AssertEqual(freeSlots, randomCalls, "Breakup consumes RNG once per successfully allocated fragment only");
             for (int index = 0; index < freeSlots; index++)
             {
-                RoomEnemySlot fragment = enemies.Slots[index + 1];
+                RoomEnemySlot fragment = enemies.SlotTable.Slots[index + 1];
                 AssertEqual(expected[index], fragment.Parameter1, "Actual breakup slot order follows original native spawn calls");
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragment.VariableB, "Actual breakup maps each random draw to its original fragment");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + expected[index])), fragment.VariableF, "Actual breakup preserves each unresolved native lifetime");
@@ -3455,10 +3444,9 @@ internal static class LookupStream4Verification
             if (variation == 1) bodyRows[15][9] = bodyRows[15][9] with { Green = bodyRows[15][9].Green ^ 1 };
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Baby = babyRows, BodyFade = bodyRows })));
             var cgram = new SnesCgram();
-            var enemies = new RoomEnemySystem { CeresRidleyColors = selected };
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-            var advance = typeof(RoomEnemySystem).GetMethod("AdvanceCeresBabyDrawInstruction", flags)!
-                .CreateDelegate<Func<RidleyEnemyState, ushort>>(enemies);
+            var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = selected } };
+            enemies.Presentation._cgram = cgram;
+            Func<RidleyEnemyState, ushort> advance = enemies.CeresRidleyBehavior.AdvanceCeresBabyDrawInstruction;
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;
@@ -3546,9 +3534,9 @@ internal static class LookupStream4Verification
             if (edit >= 0) rows[edit / 15][edit % 15] = Change(rows[edit / 15][edit % 15], channel);
             var selected = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorCatalog.Write(zoomDocument with { ZoomRows = rows })));
             var cgram = new SnesCgram();
-            var enemies = new RoomEnemySystem { CeresRidleyMode7Colors = selected };
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-            var apply = typeof(RoomEnemySystem).GetMethod("UpdateCeresRidleyMode7Palette", flags)!.CreateDelegate<Action<ushort>>(enemies);
+            var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = selected } };
+            enemies.Presentation._cgram = cgram;
+            Action<ushort> apply = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;
             for (int row = 0; row < 9; row++)
             {
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
@@ -3650,11 +3638,11 @@ internal static class LookupStream4Verification
             if (variation == 0) rows[1][5] = Change(rows[1][5], 2);
             if (variation == 1) body[15][9] = Change(body[15][9], 1);
             var selected = CeresRidleyColorCatalog.Load(new MemoryStream(CeresRidleyColorCatalog.Write(document with { Health = rows, BodyFade = body })));
-            var enemies = new RoomEnemySystem { CeresRidleyColors = selected };
+            var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = selected } };
             var cgram = new SnesCgram();
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-            var norfair = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyHealthPalette", flags)!.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
-            var ceres = typeof(RoomEnemySystem).GetMethod("UpdateCeresRidleyHealthPalette", flags)!.CreateDelegate<Action<RidleyEnemyState>>(enemies);
+            enemies.Presentation._cgram = cgram;
+            Action<RoomEnemySlot, RidleyEnemyState> norfair = enemies.RidleyBehavior.UpdateNorfairRidleyHealthPalette;
+            Action<RidleyEnemyState> ceres = enemies.CeresRidleyBehavior.UpdateCeresRidleyHealthPalette;
             void Fill() { for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234)); }
             void Check(int row)
             {
@@ -3667,8 +3655,8 @@ internal static class LookupStream4Verification
             }
             foreach (ushort health in new ushort[] { 9000, 8999, 5400, 5399, 1800, 1799 })
             {
-                Fill(); enemies.Slots[0].Health = health;
-                var state = new RidleyEnemyState(); norfair(enemies.Slots[0], state);
+                Fill(); enemies.SlotTable.Slots[0].Health = health;
+                var state = new RidleyEnemyState(); norfair(enemies.SlotTable.Slots[0], state);
                 int row = health >= 9000 ? -1 : health >= 5400 ? 0 : health >= 1800 ? 1 : 2;
                 AssertEqual((ushort)(row + 1), state.HealthStage, "Norfair health stage remains exact"); Check(row);
             }

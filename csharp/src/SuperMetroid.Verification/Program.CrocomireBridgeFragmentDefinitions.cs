@@ -37,21 +37,17 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var death = new CrocomireDeathState();
-        var state = new CrocomireEnemyState(enemies.Slots[0]);
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewCrocomireBridgeFragmentReadGuard(rom));
+        var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
+        enemies.BindFixtureBus(NewCrocomireBridgeFragmentReadGuard(rom));
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
-        typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
-        var spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnNextCrocomireBridgeFragment", flags)!
-            .CreateDelegate<Action>(enemies);
+        enemies.CrocomireBehavior.CrocomireDeath = death;
+        Action spawn = enemies.CrocomireBehavior.SpawnNextCrocomireBridgeFragment;
 
         for (ushort fragment = 0; fragment < 11; fragment++)
         {
             spawn();
-            RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[17 - fragment];
+            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[17 - fragment];
             AssertEqual(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, projectile.Kind,
                 $"Crocomire bridge fragment {fragment} kind");
             AssertEqual(CrocomireBridgeFragmentDefinitions.XPosition((ushort)(fragment * 2)),

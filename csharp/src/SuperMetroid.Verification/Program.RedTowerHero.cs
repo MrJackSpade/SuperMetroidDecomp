@@ -24,27 +24,27 @@ internal static class RedTowerHeroVerification
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedTower);
-            var level = runtime.LevelData!;
-            var samus = runtime.Samus!;
+            var level = runtime.Room.LevelData!;
+            var samus = runtime.Player.Samus!;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
             samus.Position = samus.Position.WithWhole(new(116, 587));
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
 
             // Preserve every retail enemy and terrain block. Activate the upper
             // Rippers before settling the lower viewport; otherwise their initial
             // offscreen positions intercept this shot regardless of the lower wait.
             for (int frame = 0; frame < 120; frame++)
             {
-                runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 160));
+                runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 160));
                 runtime.StepFrame((ushort)SnesButton.Up);
             }
-            runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 450));
+            runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 450));
             for (int frame = 0; frame < 120; frame++) runtime.StepFrame((ushort)SnesButton.Up);
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlock(new(7, 10)).CollisionType,
                 "Red Tower top target is still intact before firing");
@@ -53,10 +53,10 @@ internal static class RedTowerHeroVerification
             for (int frame = 0; frame < 100; frame++)
             {
                 ushort input = frame == 0
-                    ? (ushort)((ushort)SnesButton.Up | runtime.ControllerBindings.Shoot)
+                    ? (ushort)((ushort)SnesButton.Up | runtime.Options.ControllerBindings.Shoot)
                     : (ushort)SnesButton.Up;
                 if (followShot && frame > 0 && runtime.Projectiles!.Slots[0].IsActive)
-                    runtime.Camera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].Position.Y.Whole - 160)));
+                    runtime.Room.Camera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].Position.Y.Whole - 160)));
                 runtime.StepFrame(input);
                 var shot = runtime.Projectiles!.Slots[0];
                 if (frame == 0)

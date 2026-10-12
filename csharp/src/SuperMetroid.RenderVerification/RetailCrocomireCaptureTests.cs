@@ -11,15 +11,15 @@ internal static class RetailCrocomireCaptureTests
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-        var boss = runtime.Enemies.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
-        var death = runtime.Enemies.CrocomireDeath!;
+        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
+        var boss = runtime.Enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
+        var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath!;
         // Before either melting object is spawned, BG2 must use the actor's ordinary
         // scroll register. Comparing two renderers alone missed this shared defect.
         for (int tick = 0; tick < 60; tick++)

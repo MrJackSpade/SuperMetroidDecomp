@@ -140,13 +140,9 @@ internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
             out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod(
-                "InitializeBrinstarPipeBug", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            MethodInfo install = typeof(RoomEnemySystem).GetMethod(
-                "SelectBrinstarPipeBugAnimation", flags)!;
-            slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.PipeBugsBehavior.InitializeBrinstarPipeBug;
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = strong
                 ? EnemyDefinitionId.Zebbo
                 : EnemyDefinitionId.Zeb;
@@ -158,17 +154,16 @@ internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
                 ? PipeBugAnimationSelector.Shooting
                 : PipeBugAnimationSelector.None;
             state.AnimationState = selector;
-            install.Invoke(null, [slot, state]);
+            PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state);
             return enemies;
         }
 
         static void RunProgram(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

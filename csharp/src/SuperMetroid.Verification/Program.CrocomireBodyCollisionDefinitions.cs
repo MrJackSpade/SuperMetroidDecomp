@@ -30,12 +30,10 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCrocomireTongueNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
         var compiled = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
+        compiled.BindFixtureBus(denied);
         var nativeSlot = new RoomEnemySlot(0);
-        RoomEnemySlot compiledSlot = compiled.Slots[0];
+        RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         nativeSlot.Definition = compiledSlot.Definition =
             default(RoomEnemyDefinition) with
             { Bank = CrocomireBodyCollisionDefinitions.Bank };
@@ -86,7 +84,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 object?[] compiledArguments =
                     [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)8, (ushort)8), shot, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
-                bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
+                bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                 AssertEqual((ushort)nativeArguments[^1]!,

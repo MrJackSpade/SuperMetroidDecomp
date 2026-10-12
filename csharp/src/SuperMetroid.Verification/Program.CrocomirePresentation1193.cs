@@ -21,77 +21,28 @@ internal static class CrocomirePresentation1193Verification
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
-        var maps = RepositoryInstallation.Maps;
-        game.BindMapPresentation(maps);
-        game.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
-        game.BindStandardObjectArt(installation.LoadStandardObjects());
-        game.BindIntroCinematicArt(RepositoryInstallation.IntroArtwork);
-        game.BindSamusBodyArt(RepositoryInstallation.SamusBody);
-        game.BindEndingMode7Art(installation.LoadEndingMode7Art());
-        game.BindEndingObjectArt(installation.LoadEndingObjectArt());
-        game.BindEndingPaletteArt(installation.LoadEndingPalettes());
-        game.BindRoomCharacterArt(installation.LoadRoomCharacters());
-        game.BindRoomPaletteArt(installation.LoadRoomPalettes());
-        game.BindRoomMetatileArt(installation.LoadRoomMetatiles());
-        game.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
-        game.BindRoomPlmShotBlockVisuals(installation.LoadRoomPlmShotBlockVisuals());
-        game.BindRoomPlmGrappleBlockVisuals(installation.LoadRoomPlmGrappleBlockVisuals());
-        game.BindRoomPlmStationVisuals(installation.LoadRoomPlmStationVisuals());
-        game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
-        game.BindRoomPlmColoredDoorVisuals(installation.LoadRoomPlmColoredDoorVisuals());
-        game.BindRoomPlmGreyDoorVisuals(installation.LoadRoomPlmGreyDoorVisuals());
-        game.BindRoomPlmEyeDoorVisuals(installation.LoadRoomPlmEyeDoorVisuals());
-        game.BindRoomPlmMotherBrainGlassVisuals(installation.LoadRoomPlmMotherBrainGlassVisuals());
-        game.BindRoomPlmNoobTubeVisuals(installation.LoadRoomPlmNoobTubeVisuals());
-        game.BindRoomPlmDownwardGateVisuals(installation.LoadRoomPlmDownwardGateVisuals());
-        game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
-        game.BindRoomPlmEscapeGateVisuals(installation.LoadRoomPlmEscapeGateVisuals());
-        game.BindRoomPlmBombTorizoHandVisuals(installation.LoadRoomPlmBombTorizoHandVisuals());
-        game.BindRoomPlmDraygonCannonVisuals(installation.LoadRoomPlmDraygonCannonVisuals());
-        game.BindRoomPlmChozoStatueVisuals(installation.LoadRoomPlmChozoStatueVisuals());
-        game.BindRoomPlmLinkedRestoreVisuals(installation.LoadRoomPlmLinkedRestoreVisuals());
-        game.BindRoomPlmTourianAccessVisuals(installation.LoadRoomPlmTourianAccessVisuals());
-        game.BindRoomPlmSpeedBoosterVisuals(installation.LoadRoomPlmSpeedBoosterVisuals());
-        game.BindRoomPlmMaridiaElevatubeVisuals(installation.LoadRoomPlmMaridiaElevatubeVisuals());
-        game.BindRoomPlmSporeSpawnCeilingVisuals(installation.LoadRoomPlmSporeSpawnCeilingVisuals());
-        game.BindRoomPlmSamusEaterVisuals(installation.LoadRoomPlmSamusEaterVisuals());
-        game.BindRoomPlmBotwoonWallVisuals(installation.LoadRoomPlmBotwoonWallVisuals());
-        game.BindRoomPlmKraidVisuals(installation.LoadRoomPlmKraidVisuals());
-        game.BindRoomPlmCrocomireVisuals(installation.LoadRoomPlmCrocomireVisuals());
-        game.BindRoomPlmMotherBrainFakeDeathVisuals(installation.LoadRoomPlmMotherBrainFakeDeathVisuals());
-        game.BindRoomPlmCollectibleVisuals(installation.LoadRoomPlmCollectibleVisuals());
-        game.BindRoomPlmDynamicCollectibleArt(installation.LoadRoomPlmDynamicCollectibleArt());
-        game.BindXrayRevealVisuals(installation.LoadXrayRevealVisuals());
-        game.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
-        game.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
-        var projectiles=RepositoryInstallation.Projectiles;
-        game.BindProjectileCompositions(projectiles.Catalog);
-        game.BindProjectileFrameBindings(projectiles.FrameBindings);
-        game.BindBeamArtwork(projectiles.BeamTiles);
-        game.BindEnemyTileArtwork(RepositoryInstallation.EnemyTiles);
-        game.BindTrailArtwork(projectiles.Trails);
-        game.BindChargeFlarePlacement(projectiles.FlarePlacement);
-        game.BindChargeFlareCompositions(projectiles.FlareCompositions);
-        game.BindGrappleArtwork(projectiles.GrappleTiles);
+        var maps = InstalledFixtures.Maps;
+        var projectiles=InstalledFixtures.Projectiles;
+        InstalledFixtures.BindGame(game);
         typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
         var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(0xa98d);
-        var boss = runtime.Enemies.Crocomire!;
-        var death = runtime.Enemies.CrocomireDeath!;
-        var samus = runtime.Samus!;
+        var boss = runtime.Enemies.CrocomireBehavior.Crocomire!;
+        var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath!;
+        var samus = runtime.Player.Samus!;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Health = samus.MaxHealth = 999;
         samus.Position = samus.Position.WithWhole(new(600, 120));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         samus.InputLocked = false;
-        runtime.Camera!.SetPosition(new Position16<RoomPixels>(512, 0));
+        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(512, 0));
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game, SuperMetroidGameState.MainGameplay);
-        AssertEqual(RoomMainCallback.CrocomireRoomShaking, runtime.ActiveRoom!.State.MainCallback,
+        AssertEqual(RoomMainCallback.CrocomireRoomShaking, runtime.Room.ActiveRoom!.State.MainCallback,
             "Actual Crocomire room selects native shaking callback");
         if (!spikes)
         {
@@ -138,7 +89,7 @@ internal static class CrocomirePresentation1193Verification
                     $"Comeback frame {frame} applies current enemy rumble to foreground scroll");
                 if (frame != 0)
                 {
-                    AssertEqual(previousScroll, runtime.DisplayedGameplayPpu.Bg1Scroll.Y,
+                    AssertEqual(previousScroll, runtime.Display.DisplayedGameplayPpu.Bg1Scroll.Y,
                         "Rumble becomes visible at the following accepted NMI");
                     var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
                     AssertEqual(previousScroll, layer.Registers.Bg1Scroll.Y,
@@ -150,8 +101,8 @@ internal static class CrocomirePresentation1193Verification
         if (spikes)
         {
             VerifyCrocomireSpikeCompatibility(runtime, bus, maps.RoomFxAnimatedTiles);
-            runtime.RoomSpikes.LoadRoom(bus, runtime.ActiveRoom.State.FxPointer,
-                runtime.ActiveDoor!.Pointer, runtime.ActiveRoom.AreaIndex);
+            runtime.RoomSpikes.LoadRoom(bus, runtime.Room.ActiveRoom.State.FxPointer,
+                runtime.Room.ActiveDoor!.Pointer, runtime.Room.ActiveRoom.AreaIndex);
             typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SuspendedSubsystems))!
                 .SetValue(samus.Xray, XraySuspendedSubsystems.AnimatedTiles);
             game.Step(0);
@@ -169,26 +120,25 @@ internal static class CrocomirePresentation1193Verification
         }
         else
         {
-            var roomMain = typeof(SuperMetroidRuntime).GetMethod("RunCrocomireComebackRoomMain", flags)!;
             var scroll = runtime.BackgroundScroll;
             scroll.Layer1Position = scroll.Layer1Position.WithY(100);
             scroll.Bg1Offset = scroll.Bg1Offset.WithY(3);
             scroll.CalculateScrollsAndUpdates();
             ushort bg2 = scroll.Bg2Scroll.Y;
             death.RumbleYOffset = unchecked((ushort)-4);
-            roomMain.Invoke(runtime, null);
+            runtime.RoomMains.RunCrocomireComebackRoomMain();
             AssertEqual((ushort)99, scroll.Bg1Scroll.Y, "Native rumble includes BG1's ordinary Y offset");
             AssertEqual(bg2, scroll.Bg2Scroll.Y, "Hidden-wall rumble leaves BG2 unchanged");
             AssertEqual((ushort)100, scroll.Layer1Position.Y, "Rumble does not move the camera or streaming origin");
             boss.Body.Properties = boss.Body.Properties.With(EnemyProperties.Invisible);
             scroll.CalculateScrollsAndUpdates();
-            roomMain.Invoke(runtime, null);
+            runtime.RoomMains.RunCrocomireComebackRoomMain();
             AssertEqual((ushort)103, scroll.Bg1Scroll.Y, "Invisible body suppresses the native room callback");
             boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
             boss.DeathSequenceIndex = CrocomireDeathPhase.BreakSpikeWall;
             death.RumbleYOffset = 0x8080;
             scroll.CalculateScrollsAndUpdates();
-            roomMain.Invoke(runtime, null);
+            runtime.RoomMains.RunCrocomireComebackRoomMain();
             AssertEqual((ushort)103, scroll.Bg1Scroll.Y, "Leaving phase 40 restores ordinary scroll and excludes the terminator word");
         }
         Console.WriteLine(spikes ? "Crocomire spike cadence and NMI artwork verified." : "Crocomire comeback scroll and NMI ordering verified.");

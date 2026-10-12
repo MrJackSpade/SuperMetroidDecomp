@@ -44,7 +44,7 @@ internal static class NormalSuitPalettePointersVerification
             {
                 EquippedItems = equipment[selection],
                 SpecialSuperPaletteFlags = 2,
-                SuitColors = suitColors,
+                Presentation = { SuitColors = suitColors },
             };
             var installedColors = new SnesCgram();
             AssertTrue(SamusSpecialSuperPalette.Update(installedColors, samus),

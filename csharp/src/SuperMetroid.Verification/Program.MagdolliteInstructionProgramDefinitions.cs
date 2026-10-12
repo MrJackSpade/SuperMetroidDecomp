@@ -121,10 +121,10 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             state.ThrowOrigin = slot.Position.Whole;
             Install(slot, program);
             RunFrames(enemies, slot, 80);
-            AssertEqual((ushort)0x0061, enemies.LastMagdolliteSoundEffect!.Value,
+            AssertEqual((ushort)0x0061, enemies.MagdolliteBehavior.LastMagdolliteSoundEffect!.Value,
                 $"Magdollite {direction} throw sound");
             AssertEqual(3,
-                enemies.EnemyProjectiles.Count(projectile =>
+                enemies.Projectiles.EnemyProjectiles.Count(projectile =>
                     projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite),
                 $"Magdollite {direction} throw projectile count");
             AssertTrue(!state.AnimationBusy,
@@ -139,9 +139,9 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             RunFrames(enemies, head, 80);
             AssertTrue(!state.AnimationBusy,
                 $"Magdollite {direction} submerge releases animation wait");
-            AssertTrue(!enemies.Slots[1].Properties.HasAny(EnemyProperties.Invisible),
+            AssertTrue(!enemies.SlotTable.Slots[1].Properties.HasAny(EnemyProperties.Invisible),
                 $"Magdollite {direction} submerge reveals pillar");
-            AssertTrue(!enemies.Slots[2].Properties.HasAny(EnemyProperties.Invisible),
+            AssertTrue(!enemies.SlotTable.Slots[2].Properties.HasAny(EnemyProperties.Invisible),
                 $"Magdollite {direction} submerge reveals hand");
         }
 
@@ -149,17 +149,17 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot head, MagdolliteEnemyState state) =
                 CreateSystem(MagdollitePart.Head);
-            enemies.Slots[1].Properties =
-                enemies.Slots[1].Properties.Without(EnemyProperties.Invisible);
-            enemies.Slots[2].Properties =
-                enemies.Slots[2].Properties.Without(EnemyProperties.Invisible);
+            enemies.SlotTable.Slots[1].Properties =
+                enemies.SlotTable.Slots[1].Properties.Without(EnemyProperties.Invisible);
+            enemies.SlotTable.Slots[2].Properties =
+                enemies.SlotTable.Slots[2].Properties.Without(EnemyProperties.Invisible);
             Install(head, program);
             RunFrames(enemies, head, 80);
             AssertTrue(!state.AnimationBusy,
                 $"Magdollite {direction} emerge releases animation wait");
-            AssertTrue(enemies.Slots[1].Properties.HasAny(EnemyProperties.Invisible),
+            AssertTrue(enemies.SlotTable.Slots[1].Properties.HasAny(EnemyProperties.Invisible),
                 $"Magdollite {direction} emerge hides pillar");
-            AssertTrue(enemies.Slots[2].Properties.HasAny(EnemyProperties.Invisible),
+            AssertTrue(enemies.SlotTable.Slots[2].Properties.HasAny(EnemyProperties.Invisible),
                 $"Magdollite {direction} emerge hides hand");
         }
 
@@ -176,12 +176,11 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             MagdollitePart selectedPart)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeMagdollite", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
             for (int index = 0; index < 3; index++)
             {
-                RoomEnemySlot member = enemies.Slots[index];
+                RoomEnemySlot member = enemies.SlotTable.Slots[index];
                 member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
                 member.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
                 member.Parameter1 = (ushort)index;
@@ -190,7 +189,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
                 initialize(member, null);
             }
 
-            RoomEnemySlot selected = enemies.Slots[(int)selectedPart];
+            RoomEnemySlot selected = enemies.SlotTable.Slots[(int)selectedPart];
             return (enemies, selected, enemies.MagdolliteStates[(int)selectedPart]!);
         }
 
@@ -203,11 +202,9 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

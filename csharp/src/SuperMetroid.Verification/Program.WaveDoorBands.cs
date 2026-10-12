@@ -32,9 +32,9 @@ internal static class WaveDoorBandsVerification
                 behaviors[target - 16] = behaviors[target];
                 level = CreateRoom(new(16, 32), words, behaviors);
             }
-            typeof(SamusProjectileSystem).GetMethod("ScanHorizontalWaveShotReactions", BindingFlags.Static | BindingFlags.NonPublic)!
+            typeof(ProjectileTerrainCollision).GetMethod("ScanHorizontalWaveShotReactions", BindingFlags.Static | BindingFlags.NonPublic)!
                 .Invoke(null, [level, shot, plms]);
-            AssertEqual(inside ? ((y & 15) == 0 && y > 0 ? 2 : 1) : 0, plms.ActiveCount,
+            AssertEqual(inside ? ((y & 15) == 0 && y > 0 ? 2 : 1) : 0, plms.SlotTable.ActiveCount,
                 $"Wave door reaction at Y={y}, left={left}: XBA tests the original high byte");
         }
         Console.WriteLine("PASS horizontal Wave door reactions across pixel/screen/sign boundaries (24 cases).");

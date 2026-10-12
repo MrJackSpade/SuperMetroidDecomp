@@ -28,11 +28,10 @@ internal static class RidleyPogoDefinitionsVerification
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         int reads = 0, advances = 0;
         ushort seed = 0;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidleyPogoVelocity", flags)!
-            .CreateDelegate<Action<RidleyEnemyState>>(enemies);
+        Action<RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyPogoVelocity;
         var state = new RidleyEnemyState();
         ushort[] healthStages = [0, 1, 2, 3, 4, 0xffff];
         ushort[] velocities = [0, 0x7fff, 0x8000, 0xffff];
@@ -68,14 +67,12 @@ internal static class RidleyPogoDefinitionsVerification
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         int reads = 0, advances = 0;
         ushort seed = 0;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
+        enemies.BindFixtureBus(rom);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
-        var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
-        var attack = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttackMoveToHeight", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
-        var slot = enemies.Slots[0];
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?> attack = enemies.RidleyBehavior.TickNorfairRidleyGroundAttackMoveToHeight;
+        var slot = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             seed = (ushort)raw;

@@ -26,7 +26,6 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
     internal static void VerifyEscapeDachoraInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < EscapeDachoraInstructionProgramDefinitions.MechanicsWordCount;
              index++)
@@ -40,28 +39,27 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
 
         var executedOperands = new HashSet<ushort>();
         var guard = NewEscapeDachoraInstructionReadGuard(rom);
-        RoomEnemySystem enemies = CreateEscapeDachoraProgramSystem(guard, flags);
-        RoomEnemySlot dachora = enemies.Slots[0];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        RoomEnemySystem enemies = CreateEscapeDachoraProgramSystem(guard);
+        RoomEnemySlot dachora = enemies.SlotTable.Slots[0];
 
         ushort initialX = dachora.Position.X.Whole;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningAroundLowTide;
-        RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 70);
+        RunForcedEscapeDachoraInstructions(rom, executedOperands, enemies, dachora, 70);
         AssertTrue(dachora.Position.X.Whole != initialX,
             "escape Dachora low-tide pacing runs movement callbacks");
 
         initialX = dachora.Position.X.Whole;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningAroundHighTide;
-        RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 70);
+        RunForcedEscapeDachoraInstructions(rom, executedOperands, enemies, dachora, 70);
         AssertTrue(dachora.Position.X.Whole != initialX,
             "escape Dachora high-tide pacing runs movement callbacks");
 
         initialX = dachora.Position.X.Whole;
         dachora.CurrentInstruction =
             EscapeDachoraInstructionProgramDefinitions.RunningForEscape;
-        RunForcedEscapeDachoraInstructions(rom, executedOperands, process, enemies, dachora, 30);
+        RunForcedEscapeDachoraInstructions(rom, executedOperands, enemies, dachora, 30);
         AssertTrue(unchecked((short)(dachora.Position.X.Whole - initialX)) > 0,
             "escape Dachora departure moves right through its accelerating callbacks");
         AssertTrue(dachora.CurrentInstruction is
@@ -108,25 +106,22 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
     }
 
     internal static RoomEnemySystem CreateEscapeDachoraProgramSystem(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+        ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
-        RoomEnemySlot dachora = enemies.Slots[0];
+        RoomEnemySlot dachora = enemies.SlotTable.Slots[0];
         dachora.EnemyDefinitionPointer = EnemyDefinitionId.DachoraEscape;
         dachora.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
         dachora.Position = dachora.Position.WithWhole(new(0x0100, 0x00c8));
-        typeof(RoomEnemySystem).GetMethod("InitializeEscapeDachora", flags)!
-            .Invoke(enemies, [dachora]);
+        enemies.EscapeAnimalsBehavior.InitializeEscapeDachora(dachora);
         return enemies;
     }
 
     private static void RunForcedEscapeDachoraInstructions(
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
-        MethodInfo process,
         RoomEnemySystem enemies,
         RoomEnemySlot dachora,
         int steps)
@@ -136,7 +131,7 @@ internal static class EscapeDachoraInstructionProgramDefinitionsVerification
         for (int step = 0; step < steps; step++)
         {
             dachora.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, dachora, executedOperands);
         }
     }

@@ -23,11 +23,11 @@ internal static class PillarFirstEntryVerification
 
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(source);
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         int doorX = -1, doorY = -1;
         byte behavior = 0;
         for (int y = 0; y < level.Size.Y && doorX < 0; y++)
@@ -43,24 +43,24 @@ internal static class PillarFirstEntryVerification
         AssertTrue(doorX >= 0, "Pillar Room incoming retail door exists");
         runtime.LoadCartridgeRoomForDebug(source,
             new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.EquippedItems = samus.CollectedItems = (ushort)(SamusEquipmentFlags.ScrewAttack |
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |
             SamusEquipmentFlags.SpaceJump);
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        runtime.RunNmi(0, true);
-        runtime.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.Room.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
         for (int frame = 0; transition.IsActive && frame < 400; frame++)
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
         AssertTrue(!transition.IsActive, "Pillar Room transition completes");
-        AssertEqual(destination, runtime.ActiveRoom!.Pointer, "Pillar Room entered through retail door");
+        AssertEqual(destination, runtime.Room.ActiveRoom!.Pointer, "Pillar Room entered through retail door");
         AssertEqual(2, runtime.Enemies.NuclearWaffleStates.Count(state => state is not null),
             "both Puromi actors survive normal destination initialization");
 
@@ -71,7 +71,7 @@ internal static class PillarFirstEntryVerification
             ushort input = (ushort)SnesButton.Right;
             if (frame % 20 is >= 3 and < 18) input |= (ushort)SnesButton.A;
             runtime.StepFrame(input);
-            var heads = runtime.Enemies.Slots.Take(2).ToArray();
+            var heads = runtime.Enemies.SlotTable.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();
             if (frame % 8 != 0) continue;
             var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
@@ -87,8 +87,8 @@ internal static class PillarFirstEntryVerification
             var background = SoftwareLayeredSnapshotRenderer.Render(withoutObjects);
             for (int actor = 0; actor < 2; actor++)
             {
-                int x = heads[actor].Position.X.Whole - runtime.Camera.PixelPosition.X;
-                int y = heads[actor].Position.Y.Whole - runtime.Camera.PixelPosition.Y;
+                int x = heads[actor].Position.X.Whole - runtime.Room.Camera.PixelPosition.X;
+                int y = heads[actor].Position.Y.Whole - runtime.Room.Camera.PixelPosition.Y;
                 if (x < 8 || x >= 248 || y < 40 || y >= 216) continue;
                 if (Math.Abs((int)samus.Position.X.Whole - heads[actor].Position.X.Whole) < 32 &&
                     Math.Abs((int)samus.Position.Y.Whole - heads[actor].Position.Y.Whole) < 40) continue;

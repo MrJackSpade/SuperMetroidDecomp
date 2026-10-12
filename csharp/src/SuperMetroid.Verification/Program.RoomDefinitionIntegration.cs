@@ -36,26 +36,26 @@ internal static class RoomDefinitionIntegrationVerification
 
         AssertEqual(expectedViewport, actualViewport,
             "guarded post-Ceres room entry retains initial viewport work");
-        AssertEqual(expected.ActiveLoadStation, actual.ActiveLoadStation,
+        AssertEqual(expected.Room.ActiveLoadStation, actual.Room.ActiveLoadStation,
             "guarded post-Ceres room entry retains compiled station placement");
-        AssertEqual(expected.ActiveDoor, actual.ActiveDoor,
+        AssertEqual(expected.Room.ActiveDoor, actual.Room.ActiveDoor,
             "guarded post-Ceres room entry retains compiled incoming door");
-        AssertEqual(expected.ActiveRoom, actual.ActiveRoom,
+        AssertEqual(expected.Room.ActiveRoom, actual.Room.ActiveRoom,
             "guarded post-Ceres room entry retains compiled header, selection, and state");
-        AssertTrue(expected.Camera!.Scrolls.Storage.SequenceEqual(
-                actual.Camera!.Scrolls.Storage),
+        AssertTrue(expected.Room.Camera!.Scrolls.Storage.SequenceEqual(
+                actual.Room.Camera!.Scrolls.Storage),
             "guarded post-Ceres room entry retains compiled scroll constraints");
-        AssertEqual((expected.Camera.PixelPosition.X, expected.Camera.PixelPosition.Y),
-            (actual.Camera.PixelPosition.X, actual.Camera.PixelPosition.Y),
+        AssertEqual((expected.Room.Camera.PixelPosition.X, expected.Room.Camera.PixelPosition.Y),
+            (actual.Room.Camera.PixelPosition.X, actual.Room.Camera.PixelPosition.Y),
             "guarded post-Ceres room entry retains camera placement");
-        AssertEqual((expected.Samus!.Kinematics.Position.X.RawValue, expected.Samus.Kinematics.Position.Y.RawValue),
-            (actual.Samus!.Kinematics.Position.X.RawValue, actual.Samus.Kinematics.Position.Y.RawValue),
+        AssertEqual((expected.Player.Samus!.Kinematics.Position.X.RawValue, expected.Player.Samus.Kinematics.Position.Y.RawValue),
+            (actual.Player.Samus!.Kinematics.Position.X.RawValue, actual.Player.Samus.Kinematics.Position.Y.RawValue),
             "guarded post-Ceres room entry retains Samus placement");
 
-        ushort initialCameraY = actual.Camera.PixelPosition.Y;
+        ushort initialCameraY = actual.Room.Camera.PixelPosition.Y;
         int frames = 0;
         bool cameraMoved = false;
-        while (actual.Enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
+        while (actual.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
                frames < PostCeresLandingMaximumFrames)
         {
             RuntimeFrameResult expectedFrame = expected.StepFrame(0);
@@ -63,28 +63,28 @@ internal static class RoomDefinitionIntegrationVerification
             AssertEqual(expectedFrame, actualFrame,
                 $"guarded post-Ceres frame result {frames}");
             AssertEqual(
-                (expected.Camera.PixelPosition.X, expected.Camera.Position.X.Fraction,
-                    expected.Camera.PixelPosition.Y, expected.Camera.Position.Y.Fraction,
-                    expected.Camera.IdealPosition.X, expected.Camera.IdealPosition.Y),
-                (actual.Camera.PixelPosition.X, actual.Camera.Position.X.Fraction,
-                    actual.Camera.PixelPosition.Y, actual.Camera.Position.Y.Fraction,
-                    actual.Camera.IdealPosition.X, actual.Camera.IdealPosition.Y),
+                (expected.Room.Camera.PixelPosition.X, expected.Room.Camera.Position.X.Fraction,
+                    expected.Room.Camera.PixelPosition.Y, expected.Room.Camera.Position.Y.Fraction,
+                    expected.Room.Camera.IdealPosition.X, expected.Room.Camera.IdealPosition.Y),
+                (actual.Room.Camera.PixelPosition.X, actual.Room.Camera.Position.X.Fraction,
+                    actual.Room.Camera.PixelPosition.Y, actual.Room.Camera.Position.Y.Fraction,
+                    actual.Room.Camera.IdealPosition.X, actual.Room.Camera.IdealPosition.Y),
                 $"guarded post-Ceres camera trajectory frame {frames}");
             AssertEqual(
-                (expected.Samus!.Kinematics.Position.X.RawValue, expected.Samus.Kinematics.Position.Y.RawValue),
-                (actual.Samus!.Kinematics.Position.X.RawValue, actual.Samus.Kinematics.Position.Y.RawValue),
+                (expected.Player.Samus!.Kinematics.Position.X.RawValue, expected.Player.Samus.Kinematics.Position.Y.RawValue),
+                (actual.Player.Samus!.Kinematics.Position.X.RawValue, actual.Player.Samus.Kinematics.Position.Y.RawValue),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
-            AssertEqual(expected.Enemies.LastGunshipEvent,
-                actual.Enemies.LastGunshipEvent,
+            AssertEqual(expected.Enemies.GunshipBehavior.LastGunshipEvent,
+                actual.Enemies.GunshipBehavior.LastGunshipEvent,
                 $"guarded post-Ceres gunship boundary frame {frames}");
-            cameraMoved |= actual.Camera.PixelPosition.Y != initialCameraY;
+            cameraMoved |= actual.Room.Camera.PixelPosition.Y != initialCameraY;
             frames++;
         }
 
         AssertTrue(cameraMoved,
             "post-Ceres production trajectory moves the camera through Landing Site");
         AssertEqual(GunshipFrameEvent.LandingCompleted,
-            actual.Enemies.LastGunshipEvent,
+            actual.Enemies.GunshipBehavior.LastGunshipEvent,
             "guarded post-Ceres production trajectory reaches landing completion");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production entry and camera trajectory perform no compiled-definition ROM reads");
@@ -97,11 +97,11 @@ internal static class RoomDefinitionIntegrationVerification
     private static InitialViewportResult InitializePostCeresLanding(
         SuperMetroidRuntime runtime)
     {
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
-        return runtime.InitializePostCeresZebesRoom();
+        return runtime.RoomLoader.InitializePostCeresZebesRoom();
     }
 
     private static HashSet<int> BuildCompiledRoomDefinitionAddressSet(

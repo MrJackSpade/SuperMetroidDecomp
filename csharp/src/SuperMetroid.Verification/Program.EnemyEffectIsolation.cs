@@ -33,7 +33,7 @@ internal static class EnemyEffectIsolationVerification
             AssertTrue(!baseline.Vram.ImageEquals(edited.Vram), "authored melt map reaches VRAM");
 
             byte[] tail = baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..].ToArray();
-            baseline.Call("InitializeCrocomireMeltingGraphics"); edited.Call("InitializeCrocomireMeltingGraphics");
+            baseline.Call(c => c.InitializeCrocomireMeltingGraphics); edited.Call(c => c.InitializeCrocomireMeltingGraphics);
             AssertCrocomireEffectMechanics(baseline, edited, "melt graphics replacement");
             AssertTrue(!baseline.Effect.MeltingGraphics.SequenceEqual(edited.Effect.MeltingGraphics), "authored melt pixels reach scratch");
             AssertTrue(tail.AsSpan().SequenceEqual(baseline.Effect.MeltingGraphics[CrocomireMeltingArtwork.UsedByteCount(pass)..]),
@@ -41,7 +41,7 @@ internal static class EnemyEffectIsolationVerification
             ushort phase = (ushort)baseline.Actor.DeathSequenceIndex;
             for (int record = 0; record <= pass.Uploads.Length; record++)
             {
-                baseline.Call("UploadNextCrocomireMeltingGraphicsSlice"); edited.Call("UploadNextCrocomireMeltingGraphicsSlice");
+                baseline.Call(c => c.UploadNextCrocomireMeltingGraphicsSlice); edited.Call(c => c.UploadNextCrocomireMeltingGraphicsSlice);
                 AssertCrocomireEffectMechanics(baseline, edited, "melt upload " + record);
                 AssertEqual((ushort)(phase + (record == pass.Uploads.Length ? 2 : 0)), (ushort)baseline.Actor.DeathSequenceIndex,
                     "only the native transfer terminator advances the phase");
@@ -54,7 +54,7 @@ internal static class EnemyEffectIsolationVerification
                 }
             }
 
-            baseline.Call("BeginCrocomireMelting"); edited.Call("BeginCrocomireMelting");
+            baseline.Call(c => c.BeginCrocomireMelting); edited.Call(c => c.BeginCrocomireMelting);
             phase = (ushort)baseline.Actor.DeathSequenceIndex;
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
@@ -75,7 +75,7 @@ internal static class EnemyEffectIsolationVerification
                         baseline.Effect.MeltingColumnHeights[CrocomireMeltingDefinitions.SelectColumn(column)], "exact erased-column height");
             }
             AssertEqual(pass.NextHeaderOffset, baseline.Effect.MeltingTableOffset, "exact next-pass header");
-            baseline.Call("FinishCrocomireMeltingPass"); edited.Call("FinishCrocomireMeltingPass");
+            baseline.Call(c => c.FinishCrocomireMeltingPass); edited.Call(c => c.FinishCrocomireMeltingPass);
             AssertCrocomireEffectMechanics(baseline, edited, "finished melt pass");
             AssertTrue(baseline.Effect.Bg2WorkingTilemap.SequenceEqual(edited.Effect.Bg2WorkingTilemap), "both visual variants clear the completed melt tilemap");
             AssertTrue(baseline.Vram.Bytes.Slice(EnemyBg2FrameLayout.VramBase * 2, 2048)
@@ -155,10 +155,9 @@ internal static class EnemyEffectIsolationVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, memory);
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        return typeof(RoomEnemySystem).GetMethod("ApplyMotherBrainRainbowTileTransfer", flags)!
-            .CreateDelegate<Action<MotherBrainSpriteTileTransferRequest>>(enemies);
+        enemies.BindFixtureBus(memory);
+        enemies.Presentation._vram = vram;
+        return new Action<MotherBrainSpriteTileTransferRequest>(enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer);
     }
 
     [VerificationCommand("--enemy-effect-isolation")]

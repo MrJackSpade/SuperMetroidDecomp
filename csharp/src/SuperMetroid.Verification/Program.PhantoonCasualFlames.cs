@@ -30,10 +30,9 @@ internal static class PhantoonCasualFlamesVerification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + i * 2)), compiled[i], "Native casual flame schedule word");
         }
         var enemies = new RoomEnemySystem();
-        var body = enemies.Slots[0];
-        var mouth = enemies.Slots[3];
-        var step = typeof(RoomEnemySystem).GetMethod("StepPhantoonCasualFlameSchedule", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
+        var body = enemies.SlotTable.Slots[0];
+        var mouth = enemies.SlotTable.Slots[3];
+        Action<RoomEnemySlot> step = enemies.PhantoonBehavior.StepPhantoonCasualFlameSchedule;
         ushort random = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return random; });

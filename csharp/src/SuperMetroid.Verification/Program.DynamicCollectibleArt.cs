@@ -119,9 +119,9 @@ internal static class DynamicCollectibleArtVerification
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new byte[0x400 * 8]);
         var vram = new SnesVram();
-        var plms = new RoomPlmSystem { DynamicCollectibleArt = art };
-        plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        CollectiblePlmSnapshot item = plms.Collectibles.Single();
+        var plms = new RoomPlmSystem { Drawing = { DynamicCollectibleArt = art } };
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        CollectiblePlmSnapshot item = plms.CollectiblePlms.Collectibles.Single();
         byte[] tiles = vram.Bytes.Slice(0x3e00 * 2, 0x100).ToArray();
         ushort firstWord = BinaryPrimitives.ReadUInt16LittleEndian(
             level.BlockDefinitions.Span.Slice(0x0470));

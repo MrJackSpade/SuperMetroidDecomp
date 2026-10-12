@@ -34,7 +34,7 @@ internal static class OperationContractsVerification
             "main AI's frame exposes only the nine values main AI reads");
         AssertEqual(typeof(IEnemyAiFrame), typeof(RoomEnemySystem).GetMethod("RunMainAi", instance)!.GetParameters()[1].ParameterType,
             "main AI accepts its narrow frame, not the enemy pass's whole frame");
-        AssertEqual(typeof(IEnemyAiFrame), typeof(RoomEnemySystem).GetMethod("RunCommonGrappleAi", instance)!.GetParameters()[1].ParameterType,
+        AssertEqual(typeof(IEnemyAiFrame), typeof(GrappleBehavior).GetMethod(nameof(GrappleBehavior.RunCommonGrappleAi), instance)!.GetParameters()[1].ParameterType,
             "the common grapple wrapper accepts main AI's frame");
 
         // The grapple wrapper hands main AI the enemy's frame without projectiles, Mode 7, bombs or a VRAM queue.
@@ -51,8 +51,7 @@ internal static class OperationContractsVerification
             SharedProjectiles = new SamusBombProjectileSystem(),
             VramWriteQueue = new VramWriteQueue(),
         };
-        Type wrapperType = typeof(RoomEnemySystem).GetNestedType("GrappleWrappedAiFrame", BindingFlags.NonPublic)!;
-        var masked = (IEnemyAiFrame)Activator.CreateInstance(wrapperType, BindingFlags.Instance | BindingFlags.Public, null, [frame], null)!;
+        var masked = new GrappleBehavior.GrappleWrappedAiFrame(frame);
         AssertTrue(masked.Camera == frame.Camera && ReferenceEquals(masked.Samus, samus) &&
             masked.NewlyPressedControllerInput == frame.NewlyPressedControllerInput && masked.ControllerInput == frame.ControllerInput &&
             ReferenceEquals(masked.Level, frame.Level), "the grapple wrapper passes the enemy's camera, Samus, input and room");
@@ -67,7 +66,7 @@ internal static class OperationContractsVerification
             typeof(SamusBlockCollision).GetMethod("ScanVerticalTerrain", shared)!.GetParameters()[2].ParameterType,
             "the vertical terrain scan takes its probe, not the whole vertical move");
         AssertEqual(typeof(IAreaBossFlagReader),
-            typeof(RoomPlmSystem).GetMethod("TryRunRoomPopulationSetup", instance)!.GetParameters()[1].ParameterType,
+            typeof(PlmPopulationLoader).GetMethod("TryRunRoomPopulationSetup", instance)!.GetParameters()[1].ParameterType,
             "PLM setup reads boss flags without being able to set them");
 
         // Concrete contexts validate required values at construction.
@@ -83,7 +82,7 @@ internal static class OperationContractsVerification
         AssertThrows<ArgumentNullException>(() => _ = new PlmRoom(bus, level, streamer, null!, new Bank80SystemState(), AreaId.Crateria),
             "a PLM room requires its VRAM");
         var services = (RoomPlmServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomPlmServices));
-        AssertThrows<ArgumentNullException>(() => new RoomPlmSystem().LoadRoomPopulation(
+        AssertThrows<ArgumentNullException>(() => new RoomPlmSystem().PopulationLoader.LoadRoomPopulation(
                 new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria),
                 new RoomPlmPopulationDefinition(0, []), services),
             "a PLM load rejects services missing their required Samus access");

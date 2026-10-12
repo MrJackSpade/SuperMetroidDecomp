@@ -23,14 +23,14 @@ internal static class TourianStatueXrayFreezeVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(0xa66a);
         AssertTrue(runtime.TourianStatues.Enabled, "the statue room runs the statue sequence");
-        runtime.Samus!.InputLocked = true;
+        runtime.Player.Samus!.InputLocked = true;
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var objects = (System.Collections.IList)typeof(TourianStatueSequence)
@@ -43,13 +43,13 @@ internal static class TourianStatueXrayFreezeVerification
         var suspended = typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SuspendedSubsystems))!;
 
         runtime.StepFrame(0);
-        suspended.SetValue(runtime.Samus.Xray, XraySuspendedSubsystems.All);
+        suspended.SetValue(runtime.Player.Samus.Xray, XraySuspendedSubsystems.All);
         string frozen = Snapshot();
         for (int frame = 0; frame < 20; frame++)
             runtime.StepFrame(0);
         AssertEqual(frozen, Snapshot(), "the X-ray scope freezes every statue program");
 
-        suspended.SetValue(runtime.Samus.Xray, XraySuspendedSubsystems.None);
+        suspended.SetValue(runtime.Player.Samus.Xray, XraySuspendedSubsystems.None);
         runtime.StepFrame(0);
         AssertTrue(frozen != Snapshot(), "the statues resume once the scope re-enables animated tiles");
         Console.WriteLine("Tourian statue X-ray freeze: the scope suspends the statues' animated-tile programs.");

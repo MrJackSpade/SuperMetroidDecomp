@@ -38,17 +38,13 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
                 $"Stoke-projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewStokeProjectileInstructionReadGuard(rom);
         var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnStokeProjectile", flags)!;
+        enemies.BindFixtureBus(guard);
 
         var source = new RoomEnemySlot(0)
         {
@@ -56,10 +52,10 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
             VramTilesIndex = 0x0200,
             PaletteIndex = 0x0c00,
         };
-        spawn.Invoke(enemies, [source, (ushort)0]);
-        spawn.Invoke(enemies, [source, (ushort)1]);
+        enemies.StokeBehavior.SpawnStokeProjectile(source, (ushort)0);
+        enemies.StokeBehavior.SpawnStokeProjectile(source, (ushort)1);
 
-        RoomEnemyProjectileSlot[] projectiles = enemies.EnemyProjectiles
+        RoomEnemyProjectileSlot[] projectiles = enemies.Projectiles.EnemyProjectiles
             .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.StokeProjectile)
             .ToArray();
         AssertEqual(2, projectiles.Length,
@@ -127,7 +123,7 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 if (projectile.IsActive)
                 {

@@ -20,10 +20,10 @@ internal static class RetailElevatorReturnTests
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        var samus = runtime.Samus!;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        var samus = runtime.Player.Samus!;
         samus.CollectedItems |= (ushort)SamusEquipmentFlags.MorphBall;
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.MorphBall;
         samus.MaxMissiles = samus.Missiles = 5;
@@ -55,25 +55,25 @@ internal static class RetailElevatorReturnTests
             Compare(transition.Phase.ToString());
         }
         if (transition.IsActive || scrolling < 12 ||
-            runtime.ActiveRoom?.Pointer != RoomHeaderPointers.BlueBrinstarElevatorRoom)
+            runtime.Room.ActiveRoom?.Pointer != RoomHeaderPointers.BlueBrinstarElevatorRoom)
             throw new InvalidOperationException("Elevator fixture missed its vertical door transition.");
-        while (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive && arrivalFrames < 1200)
+        while (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive && arrivalFrames < 1200)
         {
             runtime.StepFrame(0);
             arrivalFrames++;
-            cameraPositions.Add(runtime.Camera!.PixelPosition.Y);
-            var actor = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
+            cameraPositions.Add(runtime.Room.Camera!.PixelPosition.Y);
+            var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
             actorPositions.Add(actor.Position.Y.Whole);
             Compare("return");
         }
-        if (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive || samus.InputLocked ||
+        if (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.InputLocked ||
             cameraPositions.Count < 2 || actorPositions.Count < 2)
             throw new InvalidOperationException("Elevator fixture missed camera/actor movement or control release.");
         for (int tick = 0; tick < 8; tick++) { runtime.StepFrame(0); Compare("settled"); }
         // Preserve the existing cartridge-derived regression endpoint, not a forced
         // screen origin: front-facing Samus selects the room's up-scroller target.
-        ushort expectedCameraY = unchecked((ushort)(samus.Position.Y.Whole - runtime.ActiveRoom!.UpScroller));
-        if (runtime.Camera!.PixelPosition.Y != expectedCameraY || runtime.Camera.IdealPosition.Y != expectedCameraY ||
+        ushort expectedCameraY = unchecked((ushort)(samus.Position.Y.Whole - runtime.Room.ActiveRoom!.UpScroller));
+        if (runtime.Room.Camera!.PixelPosition.Y != expectedCameraY || runtime.Room.Camera.IdealPosition.Y != expectedCameraY ||
             runtime.BackgroundScroll.Layer1Position.Y != expectedCameraY ||
             runtime.BackgroundScroll.Bg1Scroll.Y != unchecked((ushort)(expectedCameraY + runtime.BackgroundScroll.Bg1Offset.Y)))
             throw new InvalidOperationException("Settled elevator camera and BG1 disagree with the room up-scroller target.");

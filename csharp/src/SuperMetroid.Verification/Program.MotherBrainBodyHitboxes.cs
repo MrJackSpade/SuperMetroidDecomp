@@ -22,11 +22,11 @@ internal static class MotherBrainBodyHitboxesVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot body = state.Body;
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException("Mother Brain has no head enemy.");
@@ -41,19 +41,19 @@ internal static class MotherBrainBodyHitboxesVerification
         body.SpritemapPointer = 0xa174;
         head.Position = head.Position.WithWhole(new(0x0058, 0x0021));
         head.Health = 0x8020;
-        runtime.Enemies.PrepareEnemyProcessingList(new(0x0000, 0x0000));
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x9018; shot.Damage = 1000; shot.Direction = 7;
         shot.Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.Radius = new(0x1c, 8);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
-        runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus!);
         AssertTrue((shot.Direction & 0x0010) != 0, "the beam stops on the body's arm rectangle");
         AssertEqual((ushort)0x8020, head.Health, "a body hit is a dud and never damages the head");
 
         // Lowered clear of that rectangle (and above the torso's), the same beam passes.
         shot.Direction = 7;
         shot.Position = shot.Position.WithWholeY(0x0080);
-        runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus!);
         AssertTrue((shot.Direction & 0x0010) == 0, "a beam clear of every body rectangle passes");
         Console.WriteLine("Mother Brain body hitboxes: shots resolve against the body's extended frame rectangles.");
     }

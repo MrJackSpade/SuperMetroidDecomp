@@ -41,14 +41,9 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
         var guard = NewMochtroidInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = type.GetMethod("InitializeMochtroid", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo install = type.GetMethod(
-            "SetMochtroidInstructionList",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
-        RoomEnemySlot mochtroid = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.MochtroidBehavior.InitializeMochtroid);
+        RoomEnemySlot mochtroid = enemies.SlotTable.Slots[0];
         mochtroid.EnemyDefinitionPointer = EnemyDefinitionId.Mochtroid;
         mochtroid.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
         initialize(mochtroid);
@@ -57,17 +52,16 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
             mochtroid.CurrentInstruction,
             "real Mochtroid initializer installs compiled free-flight loop");
 
-        ExecuteMochtroidProgram(enemies, process, mochtroid, callCount: 5);
+        ExecuteMochtroidProgram(enemies, mochtroid, callCount: 5);
         AssertEqual(unchecked((ushort)(MochtroidInstructionProgramDefinitions.FreeFlight + 4)),
             mochtroid.CurrentInstruction,
             "Mochtroid free-flight program loops to its second frame");
 
-        install.Invoke(null,
-            [mochtroid, state, MochtroidInstructionProgramDefinitions.Attached]);
+        MochtroidBehavior.SetMochtroidInstructionList(mochtroid, state, MochtroidInstructionProgramDefinitions.Attached);
         AssertEqual(MochtroidInstructionProgramDefinitions.Attached,
             state.InstalledInstructionList,
             "production Mochtroid list switch installs attached loop");
-        ExecuteMochtroidProgram(enemies, process, mochtroid, callCount: 5);
+        ExecuteMochtroidProgram(enemies, mochtroid, callCount: 5);
         AssertEqual(unchecked((ushort)(MochtroidInstructionProgramDefinitions.Attached + 4)),
             mochtroid.CurrentInstruction,
             "Mochtroid attached program loops to its second frame");
@@ -108,7 +102,6 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
 
     private static void ExecuteMochtroidProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot mochtroid,
         int callCount)
     {
@@ -117,7 +110,7 @@ internal static class MochtroidInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             mochtroid.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

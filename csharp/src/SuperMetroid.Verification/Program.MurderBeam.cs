@@ -80,7 +80,7 @@ internal static class MurderBeamVerification
         AssertTrue(!shot.IsActive, "zero-list Murder Beam is not animated or drawn");
         AssertTrue(shot.HasEnemyCollisionPayload,
             "zero-list Murder Beam remains visible to bank-$A0 enemy collision");
-        AssertEqual((ushort)1, projectiles.ProjectileCounter,
+        AssertEqual((ushort)1, projectiles.SlotTable.ProjectileCounter,
             "Murder Beam retains its ordinary projectile allocation");
 
         for (int frame = 0; frame < 16; frame++)
@@ -94,7 +94,7 @@ internal static class MurderBeamVerification
         AssertEqual((ushort)123, shot.Position.Y.Whole, "persistent Murder Beam remains fixed in world Y");
 
         EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
-        RoomEnemySlot target = combat.System.Slots[0];
+        RoomEnemySlot target = combat.System.SlotTable.Slots[0];
         target.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
         target.Definition = default(RoomEnemyDefinition) with
         {
@@ -108,7 +108,7 @@ internal static class MurderBeamVerification
         target.SpritemapPointer = 0x8000;
         combat.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = combat.Level });
 
-        AssertEqual(1, combat.System.ResolveOrdinaryProjectileHits(
+        AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combat.Bus, projectiles, shared, samus),
             "invisible Murder Beam point overlaps an ordinary enemy");
         AssertEqual((ushort)800, target.Health,
@@ -119,7 +119,7 @@ internal static class MurderBeamVerification
             "Murder Beam remains zero-list after enemy impact");
 
         target.InvincibilityTimer = 0;
-        AssertEqual(1, combat.System.ResolveOrdinaryProjectileHits(
+        AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combat.Bus, projectiles, shared, samus),
             "persistent Murder Beam can damage again after invincibility");
         AssertEqual((ushort)600, target.Health,
@@ -128,7 +128,7 @@ internal static class MurderBeamVerification
         target.InvincibilityTimer = 0;
         target.FrozenTimer = 0;
         target.Health = 100;
-        AssertEqual(1, combat.System.ResolveOrdinaryProjectileHits(
+        AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combat.Bus, projectiles, shared, samus),
             "lethal Murder Beam contact reaches Ice substitution");
         AssertEqual((ushort)100, target.Health,
@@ -177,7 +177,7 @@ internal static class MurderBeamVerification
             projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = newlyPressed }, new(0, 0), shared);
         }
         AssertEqual(SamusProjectileRomData.Beams.FullyChargedCounter,
-            projectiles.FlareCounter, "pre-pause beam charge reaches charged threshold");
+            projectiles.Charge.FlareCounter, "pre-pause beam charge reaches charged threshold");
     }
 
     private static void VerifyUnsafeMurderBeamDirection(

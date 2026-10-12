@@ -167,8 +167,8 @@ internal static class TourianAccessVisualsVerification
         definitions[0x0058 * 8] = 0x58;
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: definitions);
-        var plms = new RoomPlmSystem { TourianAccessVisuals = edited };
-        AssertTrue(plms.TrySpawnTourianAccess(level, clear),
+        var plms = new RoomPlmSystem { Drawing = { TourianAccessVisuals = edited } };
+        AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear),
             $"Tourian {(clear ? "clear" : "crumble")} real PLM allocates");
         var bus = NewTourianAccessSourceGuard(rom);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();

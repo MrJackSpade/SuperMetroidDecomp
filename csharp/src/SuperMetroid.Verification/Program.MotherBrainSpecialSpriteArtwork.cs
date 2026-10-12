@@ -35,22 +35,16 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         SeedMotherBrainCorpseCartridgeSentinel(source);
         var enemies = new RoomEnemySystem();
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            new MutableCartridgeReadGuard(source));
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
-            "ApplyMotherBrainRainbowTileTransfer", flags)!;
+        enemies.BindFixtureBus(new MutableCartridgeReadGuard(source));
+        enemies.Presentation._vram = vram;
 
-        transfer.Invoke(enemies, [new MotherBrainSpriteTileTransferRequest(0, 1,
-            MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)]);
+        enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
+            MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000));
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
             "Mother Brain corpse tile transfer reads mutable WRAM");
         // #549 removed the cartridge fallback: an unbound cartridge source is refused.
-        var refused = AssertThrows<TargetInvocationException>(() => transfer.Invoke(enemies,
-            [new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7001)]),
+        AssertThrows<InvalidDataException>(() => enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7001)),
             "Mother Brain refuses a cartridge-source transfer with no installed artwork binding");
-        AssertTrue(refused.InnerException is InvalidDataException,
-            "Mother Brain cartridge-source refusal names the missing installed artwork");
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
@@ -171,13 +165,10 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            NewMotherBrainLegTransferReadGuard(
+        enemies.BindFixtureBus(NewMotherBrainLegTransferReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")));
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessMotherBrainSpriteTileTransfer", flags)!;
-        var state = new MotherBrainEnemyState(enemies.Slots[0]);
+        enemies.Presentation._vram = vram;
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
         for (int page = 0; page < MotherBrainLegTileTransferDefinitions.PageCount; page++)
         {
@@ -195,7 +186,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 5),
                 $"Mother Brain leg transfer {page} destination");
 
-            bool completed = (bool)process.Invoke(enemies, [state])!;
+            bool completed = (bool)enemies.MotherBrainBehavior.ProcessMotherBrainSpriteTileTransfer(state);
             AssertEqual(page + 1 == MotherBrainLegTileTransferDefinitions.PageCount,
                 completed, $"Mother Brain leg transfer {page} completion frame");
             ushort expectedPointer = completed ? (ushort)0 : unchecked((ushort)(
@@ -219,10 +210,9 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             MotherBrainLegTileTransferDefinitions.NativeListPointer + 1));
         try
         {
-            process.Invoke(enemies, [state]);
+            enemies.MotherBrainBehavior.ProcessMotherBrainSpriteTileTransfer(state);
         }
-        catch (TargetInvocationException error) when
-            (error.InnerException is InvalidDataException)
+        catch (InvalidDataException)
         {
             return;
         }
@@ -235,19 +225,16 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
-            "ApplyMotherBrainRainbowTileTransfer", flags)!;
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var enemies = new RoomEnemySystem
         {
             TileArtwork = stock,
-            EscapeTimerArtwork = EscapeTimerTileAtlas.Load(new MemoryStream(
-                EscapeTimerTileAtlasExtractor.Extract(rom))),
+            Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(new MemoryStream(
+                EscapeTimerTileAtlasExtractor.Extract(rom))) },
         };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            NewMotherBrainTimerArtworkReadGuard(bus));
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
+        enemies.BindFixtureBus(NewMotherBrainTimerArtworkReadGuard(bus));
+        enemies.Presentation._vram = vram;
 
         MotherBrainSpriteTileTransferRequest[] timerRequests =
         [
@@ -260,28 +247,27 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         ];
         foreach (MotherBrainSpriteTileTransferRequest request in timerRequests)
         {
-            transfer.Invoke(enemies, [request]);
+            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
             byte[] native = ReadNativeMotherBrainTransferSource(rom, request);
             AssertTrue(vram.Bytes.Slice(request.VramDestination * 2, request.Size)
                 .SequenceEqual(native),
                 "installed Mother Brain timer page matches cartridge without visual ROM reads");
         }
 
-        enemies.EscapeTimerArtwork = null;
-        AssertMotherBrainInstalledTransferRejected(transfer, enemies, timerRequests[0],
+        enemies.Presentation.EscapeTimerArtwork = null;
+        AssertMotherBrainInstalledTransferRejected(enemies, timerRequests[0],
             "missing installed timer art does not fall back to ROM");
-        AssertMotherBrainInstalledTransferRejected(transfer, enemies,
+        AssertMotherBrainInstalledTransferRejected(enemies,
             timerRequests[0] with { Size = 1 },
             "malformed installed timer record does not fall back to ROM");
-        AssertMotherBrainInstalledTransferRejected(transfer, enemies,
+        AssertMotherBrainInstalledTransferRejected(enemies,
             new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7000),
             "uncatalogued cartridge source does not fall back to ROM");
 
         WorkRamByteTable corpseTiles = new EnemyScratchMemory(bus).MotherBrainCorpseTiles;
         corpseTiles[0] = 0x5a;
-        transfer.Invoke(enemies,
-            [new MotherBrainSpriteTileTransferRequest(0, 1,
-                MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)]);
+        enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
+                MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000));
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
             "installed Mother Brain still copies mutable corpse WRAM to VRAM");
     }
@@ -292,15 +278,13 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         RomDataReader.ReadFixedBank(rom, checked((int)request.SourceAddress), request.Size);
 
     private static void AssertMotherBrainInstalledTransferRejected(
-        MethodInfo method, RoomEnemySystem enemies,
-        MotherBrainSpriteTileTransferRequest request, string label)
+        RoomEnemySystem enemies, MotherBrainSpriteTileTransferRequest request, string label)
     {
         try
         {
-            method.Invoke(enemies, [request]);
+            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
         }
-        catch (TargetInvocationException error) when
-            (error.InnerException is InvalidDataException)
+        catch (InvalidDataException)
         {
             return;
         }
@@ -331,10 +315,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
-            "ApplyMotherBrainRainbowTileTransfer", flags)!;
+        enemies.BindFixtureBus(bus);
+        enemies.Presentation._vram = vram;
         for (int page = 0; page < sheet.PageCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(
@@ -344,7 +326,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                     page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),
                 unchecked((ushort)(sheet.FirstDestinationWord +
                     page * MotherBrainSpecialSpriteSheetDefinition.DestinationWordStride)));
-            transfer.Invoke(enemies, [request]);
+            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
         }
         return vram;
     }

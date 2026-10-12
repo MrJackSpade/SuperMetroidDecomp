@@ -127,19 +127,17 @@ internal static class GunshipInstructionProgramDefinitionsVerification
             string assertion)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = enemyDefinition;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.CurrentInstruction = program;
             slot.InstructionTimer = 1;
 
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
 
             AssertEqual(expectedCursor, slot.CurrentInstruction, assertion + " cursor");
             AssertEqual(expectedTimer, slot.InstructionTimer, assertion + " timer");
@@ -150,33 +148,30 @@ internal static class GunshipInstructionProgramDefinitionsVerification
         static void VerifyInitializers()
         {
             var enemies = new RoomEnemySystem();
-            RoomEnemySlot top = enemies.Slots[0];
+            RoomEnemySlot top = enemies.SlotTable.Slots[0];
             top.EnemyDefinitionPointer = EnemyDefinitionId.ShipTop;
             top.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             top.Position = top.Position.WithWholeY(0x0200);
-            typeof(RoomEnemySystem).GetMethod("InitializeGunshipTop", flags)!
-                .Invoke(enemies, [top]);
+            enemies.GunshipBehavior.InitializeGunshipTop(top);
             AssertEqual(GunshipInstructionProgramDefinitions.TopHull, top.CurrentInstruction,
                 "real gunship-top initializer installs compiled top program");
 
-            RoomEnemySlot bottom = enemies.Slots[1];
+            RoomEnemySlot bottom = enemies.SlotTable.Slots[1];
             bottom.EnemyDefinitionPointer = EnemyDefinitionId.ShipBottomEntrance;
             bottom.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             bottom.Position = bottom.Position.WithWholeY(0x0200);
             bottom.Parameter2 = 0;
             top.VramTilesIndex = 0x1234;
-            typeof(RoomEnemySystem).GetMethod("InitializeGunshipBottom", flags)!
-                .Invoke(enemies, [bottom]);
+            enemies.GunshipBehavior.InitializeGunshipBottom(bottom);
             AssertEqual(GunshipInstructionProgramDefinitions.BottomHull,
                 bottom.CurrentInstruction,
                 "real gunship-bottom initializer installs compiled bottom program");
 
-            RoomEnemySlot pad = enemies.Slots[2];
+            RoomEnemySlot pad = enemies.SlotTable.Slots[2];
             pad.EnemyDefinitionPointer = EnemyDefinitionId.ShipBottomEntrance;
             pad.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             pad.Parameter2 = 1;
-            typeof(RoomEnemySystem).GetMethod("InitializeGunshipBottom", flags)!
-                .Invoke(enemies, [pad]);
+            enemies.GunshipBehavior.InitializeGunshipBottom(pad);
             AssertEqual(GunshipInstructionProgramDefinitions.BottomEntrancePad,
                 pad.CurrentInstruction,
                 "real entrance-pad initializer installs compiled closed program");

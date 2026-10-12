@@ -13,10 +13,9 @@ internal static class KraidNailBounceVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
-        var tick = typeof(RoomEnemySystem).GetMethod("TickKraidNailFlight", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RoomLevelData>>(enemies);
-        var nail = enemies.Slots[6];
+        enemies.BindFixtureBus(rom);
+        Action<RoomEnemySlot, RoomLevelData> tick = enemies.KraidBehavior.TickKraidNailFlight;
+        var nail = enemies.SlotTable.Slots[6];
         nail.Radius = new(4, 4);
         for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
         {
@@ -34,7 +33,7 @@ internal static class KraidNailBounceVerification
         for (int row = 0; row < 32; row++) wallWords[row * 32 + 9] = 0x8000;
         var wallRoom = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(wallWords, new byte[wallWords.Length], new ushort[wallWords.Length]), new byte[8]);
         // A wall hit must skip the contour lookup entirely, not bounce twice.
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
         for (int fraction = 0; fraction <= ushort.MaxValue; fraction++)
         {
             nail.Position = FixedPosition<RoomPixels>.FromWhole(new(140, 128));

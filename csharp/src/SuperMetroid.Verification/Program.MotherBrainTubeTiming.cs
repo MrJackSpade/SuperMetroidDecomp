@@ -23,22 +23,21 @@ internal static class MotherBrainTubeTimingVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
-        var collapse = typeof(RoomEnemySystem).GetMethod("RunMotherBrainTubeCollapse", BindingFlags.Instance | BindingFlags.NonPublic)!;
         const EnemyDefinitionId fallingTube = EnemyDefinitionId.MotherBrainTubes;
-        int Tubes() => runtime.Enemies.Slots.Count(slot => slot.EnemyDefinitionPointer == fallingTube);
+        int Tubes() => runtime.Enemies.SlotTable.Slots.Count(slot => slot.EnemyDefinitionPointer == fallingTube);
 
         state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots;
         int firstSpawn = -1, secondSpawn = -1;
         for (int frame = 0; frame < 200 && secondSpawn < 0; frame++)
         {
             int before = Tubes();
-            collapse.Invoke(runtime.Enemies, [state]);
+            runtime.Enemies.MotherBrainBehavior.RunMotherBrainTubeCollapse(state);
             if (Tubes() > before)
             {
                 if (firstSpawn < 0) firstSpawn = frame;

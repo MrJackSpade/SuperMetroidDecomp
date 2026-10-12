@@ -55,12 +55,12 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveTubeCracks,
-            "n00b-tube cracks", "InitializeN00bTubeCracks", null));
+            "n00b-tube cracks", (enemies, _) => enemies.ChozoStatueBehavior.InitializeN00bTubeCracks(), null));
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveWreckedShip,
-            "Wrecked Ship Chozo", "InitializeChozoStatue",
+            "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
             ChozoStatueInstructionProgramDefinitions.WreckedShipInitial));
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)2, colors.ResolveLowerNorfair,
-            "Lower Norfair Chozo", "InitializeChozoStatue",
+            "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
             ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial));
 
         File.WriteAllBytes(overrideFile, [0]);
@@ -91,16 +91,15 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         }
 
         void VerifyLive(ushort variant, Func<int, Bgr555> resolve, string name,
-            string initializer, ushort? expectedInstruction)
+            Action<RoomEnemySystem, RoomEnemySlot> initialize, ushort? expectedInstruction)
         {
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem { TileArtwork = edited };
-            type.GetField("_bus", flags)!.SetValue(enemies, guarded);
-            type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
-            RoomEnemySlot statue = enemies.Slots[0];
+            enemies.BindFixtureBus(guarded);
+            enemies.Presentation._cgram = cgram;
+            RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.Parameter2 = variant;
-            type.GetMethod(initializer, flags)!.Invoke(enemies,
-                expectedInstruction is null ? null : [statue]);
+            initialize(enemies, statue);
             for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
                 AssertEqual(resolve(color),
                     cgram.Colors[ChozoAndTubeColorRomData.Destination + color],

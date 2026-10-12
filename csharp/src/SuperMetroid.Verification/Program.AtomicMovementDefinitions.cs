@@ -139,12 +139,9 @@ internal static class AtomicMovementDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewAtomicInstructionReadGuard(new TestAddressSpace()));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeAtomic", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewAtomicInstructionReadGuard(new TestAddressSpace()));
+        Action<RoomEnemySlot> initialize = enemies.AtomicBehavior.InitializeAtomic;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
         for (ushort selector = 0; selector < 4; selector++)
         {
@@ -181,14 +178,11 @@ internal static class AtomicMovementDefinitionsVerification
             AtomicInstructionProgramDefinitions.DownLeft,
             AtomicInstructionProgramDefinitions.DownRight,
         ];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (ushort entry in entries)
         {
             var programSystem = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                programSystem,
-                programGuard);
-            RoomEnemySlot programSlot = programSystem.Slots[0];
+            programSystem.BindFixtureBus(programGuard);
+            RoomEnemySlot programSlot = programSystem.SlotTable.Slots[0];
             programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Atomic;
             programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             programSlot.CurrentInstruction = entry;
@@ -199,7 +193,7 @@ internal static class AtomicMovementDefinitionsVerification
             // The six eight-frame entries total 48 frames; the margin proves the terminal
             // goto restarts the production stream rather than merely reaching its target.
             for (int frame = 0; frame < 60; frame++)
-                process.Invoke(programSystem, arguments);
+                EnemyInstructionRunner.Process(programSystem, arguments);
         }
 
         AssertEqual(0, programGuard.ForbiddenReadAttempts,

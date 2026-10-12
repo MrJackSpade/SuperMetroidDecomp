@@ -217,12 +217,10 @@ internal static class CrocomireBodyVisualsVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = art };
             var vram = new SnesVram();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-            typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-            var queues = (List<ushort>[])typeof(RoomEnemySystem)
-                .GetField("_drawQueues", flags)!.GetValue(enemies)!;
-            queues[0].Add(0);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(bus);
+            enemies.Presentation._vram = vram;
+            enemies.Drawing.Enqueue(0, 0);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
             slot.Definition = default(RoomEnemyDefinition) with
                 { Bank = CrocomireBodyVisualDefinitions.Bank };
@@ -234,7 +232,7 @@ internal static class CrocomireBodyVisualsVerification
             slot.SpritemapPointer = pointer;
             slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();
-            enemies.DrawLayers(oam, new(0, 0), 0, 0);
+            enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 0);
             return (oam, vram.Bytes.ToArray());
         }
     }

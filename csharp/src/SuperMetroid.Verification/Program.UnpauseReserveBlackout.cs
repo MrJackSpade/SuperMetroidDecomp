@@ -32,19 +32,19 @@ internal static class UnpauseReserveBlackoutVerification
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime) Create()
         {
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-            runtime.Samus!.InputLocked = false;
+            runtime.Player.Samus!.InputLocked = false;
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
             typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-            typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+            typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
             return (game, runtime);
         }
 
         var (unpausing, unpausingRuntime) = Create();
-        SamusState samus = unpausingRuntime.Samus!;
+        SamusState samus = unpausingRuntime.Player.Samus!;
         samus.Health = 0;
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
         samus.ReserveTankMode = 1;

@@ -160,6 +160,39 @@ public static class SoundEffectLibrary2Sounds
     /// <c>Handle_Earthquake_SoundEffect</c> at <c>$88:B21D</c>.
     /// </summary>
     public static readonly SoundEffectId Earthquake = new(SoundEffectLibrary.Library2, 0x46); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Torizo instruction PlayShotTorizoSFX queues library-two $27 (Max6).</summary>
+    public static readonly SoundEffectId ShotTorizo = new(SoundEffectLibrary.Library2, 0x27); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Torizo instruction PlayTorizoFootstepsSFX queues library-two $4B (Max6).</summary>
+    public static readonly SoundEffectId TorizoFootsteps = new(SoundEffectLibrary.Library2, 0x4b); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Golden Torizo instruction QueueEggReleasedSFX queues library-two $34 (Max6).</summary>
+    public static readonly SoundEffectId GoldenTorizoEggReleased = new(SoundEffectLibrary.Library2, 0x34); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Golden Torizo instruction QueueLaserSFX queues library-two $67 (Max6).</summary>
+    public static readonly SoundEffectId GoldenTorizoLaser = new(SoundEffectLibrary.Library2, 0x67); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>Torizo instruction QueueSonicBoomSFX queues library-two $48 (Max6).</summary>
+    public static readonly SoundEffectId TorizoSonicBoom = new(SoundEffectLibrary.Library2, 0x48); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$A6:AABD queues library-two $4E (Max6) on the first entry of Ceres Ridley's getaway table.</summary>
+    public static readonly SoundEffectId CeresRidleyGetaway = new(SoundEffectLibrary.Library2, 0x4e); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>The Ceres falling tile queues library-two $6D (Max6) when it lands and bursts into dust.</summary>
+    public static readonly SoundEffectId CeresFallingTileImpact = new(SoundEffectLibrary.Library2, 0x6d); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$A2:A75C queues library-two $4D (Max6) each time the idling gunship's engine timer reloads.</summary>
+    public static readonly SoundEffectId GunshipEngine = new(SoundEffectLibrary.Library2, 0x4d); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$A3:C70F queues library-two $5B (Max6) on the frame Skree releases its dive.</summary>
+    public static readonly SoundEffectId SkreeDive = new(SoundEffectLibrary.Library2, 0x5b); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$A3:C771 queues library-two $5C (Max6) when a diving Skree hits the floor and burrows.</summary>
+    public static readonly SoundEffectId SkreeBurrow = new(SoundEffectLibrary.Library2, 0x5c); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>A dead Sidehopper or Tourian monster queues library-two $10 (Max3) every eighth dust burst.</summary>
+    public static readonly SoundEffectId DeadMonsterDust = new(SoundEffectLibrary.Library2, 0x10); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 }
 
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
@@ -207,4 +240,10 @@ public static class SoundEffectLibrary3Sounds
 
     /// <summary>Samus taking periodic damage from room heat, lava, or acid.</summary>
     public static readonly SoundEffectId EnvironmentalDamage = new(SoundEffectLibrary.Library3, 0x2d); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$A6:BFC9 queues library-three $24 (Max6) when the Ceres Baby Metroid cries.</summary>
+    public static readonly SoundEffectId CeresBabyCry = new(SoundEffectLibrary.Library3, 0x24); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>SolidVerticalCollision_WallJumpTriggered queues library-three $05 (Max6) as the wall jump starts.</summary>
+    public static readonly SoundEffectId WallJump = new(SoundEffectLibrary.Library3, 0x05); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 }

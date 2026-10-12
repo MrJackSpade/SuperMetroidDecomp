@@ -15,8 +15,6 @@ internal static class WorkRobotVisualsVerification
     {
         var selectedFrames = new HashSet<ushort>();
         var guard = NewWorkRobotInstructionReadGuard(rom, forbidPresentation: true);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (int index = 0;
              index < WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount;
              index++)
@@ -54,8 +52,7 @@ internal static class WorkRobotVisualsVerification
             robot.EnemyDefinitionPointer = definition;
             robot.CurrentInstruction = unchecked((ushort)(operand - 2));
             robot.InstructionTimer = 1;
-            process.Invoke(enemies,
-                [robot, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+            enemies.Instructions.ProcessInstructions(robot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             AssertEqual(installedPointer, robot.SpritemapPointer,
                 $"installed Work Robot instruction {index} selects native frame");
         }

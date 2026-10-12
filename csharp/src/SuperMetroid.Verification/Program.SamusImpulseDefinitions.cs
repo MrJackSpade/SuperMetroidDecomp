@@ -54,7 +54,7 @@ internal static class SamusImpulseDefinitionsVerification
         foreach (ushort input in new ushort[] { 0, (ushort)SnesButton.Left, (ushort)SnesButton.Right })
         {
             var hurt = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-            hurt.RefreshCollisionRadii(poseOnly);
+            hurt.PoseMetadata.RefreshCollisionRadii(poseOnly);
             hurt.EquippedItems = (ushort)(((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) |
                 ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) |
                 ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));

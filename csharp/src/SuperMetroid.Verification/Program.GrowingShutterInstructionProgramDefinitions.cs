@@ -34,14 +34,11 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
         var guard = NewGrowingShutterInstructionProgramGuard(rom);
         var enemies = new RoomEnemySystem();
         Type enemySystemType = typeof(RoomEnemySystem);
-        enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = enemySystemType.GetMethod("InitializeGrowingShutter", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var finishSection = enemySystemType.GetMethod("FinishGrowingShutterSection", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, GrowingShutterEnemyState, ushort, bool>>();
-        MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.ShuttersBehavior.InitializeGrowingShutter);
+        var finishSection = new Action<RoomEnemySlot, GrowingShutterEnemyState, ushort, bool>(ShuttersBehavior.FinishGrowingShutterSection);
 
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.ShutterGrowing;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = 0;
@@ -61,12 +58,12 @@ internal static class GrowingShutterInstructionProgramDefinitionsVerification
                 GrowingShutterInstructionProgramDefinitions.ProgramEntryPoint(programIndex);
             AssertEqual(entry, slot.CurrentInstruction,
                 $"growing-shutter stage {programIndex} installs compiled program identity");
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
                 $"growing-shutter stage {programIndex} advances to terminal sleep");
             AssertEqual((ushort)1, slot.InstructionTimer,
                 $"growing-shutter stage {programIndex} frame duration");
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
                 $"growing-shutter stage {programIndex} terminal sleep remains installed");
 

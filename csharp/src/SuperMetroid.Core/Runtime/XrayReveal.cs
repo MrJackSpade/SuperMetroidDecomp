@@ -1,0 +1,84 @@
+﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.Core.Runtime;
+
+/// <summary>
+/// X-ray reveal presentation: the revealed BG1 tilemap and its transfer.
+/// </summary>
+internal sealed class XrayReveal
+{
+    private readonly BackgroundScrollState _backgroundScroll;
+    private readonly SamusFrameState _player;
+    private readonly RoomPlmSystem _plms;
+    private readonly ActiveRoomState _room;
+    private readonly Bank80SystemState _system;
+    private readonly SnesVram _vram;
+    private readonly ISnesAddressSpace _addressSpace;
+
+    internal XrayReveal(BackgroundScrollState backgroundScroll, SamusFrameState player, RoomPlmSystem plms, ActiveRoomState room, Bank80SystemState system, SnesVram vram, ISnesAddressSpace addressSpace)
+    {
+        _backgroundScroll = backgroundScroll;
+        _player = player;
+        _plms = plms;
+        _room = room;
+        _system = system;
+        _vram = vram;
+        _addressSpace = addressSpace;
+    }
+    /// <summary>Installed X-ray art, rebound by the host after debugger-state restore.</summary>
+    [field: NonSerialized]
+    public XrayRevealVisualCatalog? XrayRevealVisuals { get; set; }
+
+    /// <summary>
+    /// Setup call four's reveal construction (<c>$91:CB8E</c>), run before the setup stage
+    /// advances. WRAM owns these buffers, so state saves retain the exact captured map and
+    /// rendering never reruns game logic to synthesize a replacement.
+    /// </summary>
+    internal void BuildXrayRevealTilemap()
+    {
+        var room = _room.ActiveRoom ?? throw new InvalidOperationException("X-ray setup has no room.");
+        var level = _room.LevelData ?? throw new InvalidOperationException("X-ray setup has no level data.");
+        // The builder reads only BG1 tilemap words. Feed the two captured pages,
+        // not current VRAM: each page was read on a different setup call.
+        var captured = new SnesVram();
+        var xrayMemory = new XrayMemory(RuntimeMemory.RequireBus(_addressSpace));
+        new GameplayVram(captured).Bg1Tilemap.Write(xrayMemory.SavedBg1.ToArray());
+        Position16<RoomPixels> layer1 = _backgroundScroll.Layer1Position;
+        Position16<RoomPixels> bg1Scroll = layer1 + _backgroundScroll.Bg1Offset;
+        var map = XrayRevealTilemap.Build(level, captured, bg1Scroll, layer1,
+            (byte)room.AreaIndex, XrayRevealVisuals);
+        XrayRevealOverlays.Apply(level, map, _plms.CollectiblePlms.Collectibles, _system,
+            room.State.XrayPointer, layer1, XrayRevealVisuals);
+        WorkRamWordTable reveal = xrayMemory.RevealTilemap;
+        for (int i = 0; i < map.Length; i++) reveal[i] = map[i];
+    }
+
+    /// <summary>Completes the previous setup call's VRAM read after NMI's video writes.</summary>
+    internal void TransferXrayBg1Read()
+    {
+        if (_player.Samus?.Xray is not { IsActive: true } xray) return;
+        // SetupStage already names the NEXT main-thread call. Calls two and three enqueue
+        // reads; the following NMI performs them before call four consumes the captured
+        // pages. In particular, queued writes must win first.
+        (int SourceScreen, int SavedScreen)? read = xray.SetupStage switch
+        {
+            XraySetupStage.ReadBg1FirstScreen => (1, 1),
+            XraySetupStage.BuildRevealReadBg2FirstScreen => (0, 0),
+            XraySetupStage.Complete or XraySetupStage.FreezeTimeBackupBg2Registers or
+                XraySetupStage.ReadBg1SecondScreen or XraySetupStage.ReadBg2SecondScreen or
+                XraySetupStage.TransferRevealFirstScreen or XraySetupStage.InitializeTransferRevealSecondScreen or
+                XraySetupStage.BackdropColor => null,
+            _ => throw new InvalidOperationException($"Undefined X-ray setup stage {xray.SetupStage}."),
+        };
+        if (read is not (int sourceScreen, int savedScreen)) return;
+        WorkRamWordTable saved = new XrayMemory(RuntimeMemory.RequireBus(_addressSpace)).SavedBg1;
+        VramRegion bg1 = new GameplayVram(_vram).Bg1Tilemap;
+        int firstWord = savedScreen * XrayTilemapLayout.ScreenWords;
+        int sourceWord = sourceScreen * XrayTilemapLayout.ScreenWords;
+        for (int i = 0; i < XrayTilemapLayout.ScreenWords; i++)
+            saved[firstWord + i] = bg1.ReadWord(sourceWord + i);
+    }
+}

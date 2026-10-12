@@ -23,7 +23,7 @@ internal static class LookupTourianSpawnVerification
         }
         AssertEqual(4, expected.Count, "Four native calls before RTS");
 
-        var sequence = new TourianStatueSequence();
+        var sequence = RepositoryInstallation.CreateRuntime(RepositoryInstallation.Installation.OpenRuntimeAddressSpace()).TourianStatues;
         typeof(TourianStatueSequence).GetMethod("SpawnAnimatedObjects", BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(sequence, null);
         var objects = ((IEnumerable)typeof(TourianStatueSequence)

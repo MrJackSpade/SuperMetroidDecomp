@@ -74,27 +74,23 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsVerification
         // The brain list runs in the draw-time processor ($A9:92AF), not on the head enemy.
         // $A9:C447 installs a list with timer one without drawing, so its first frame shows
         // for exactly its duration; frames the processor installs on a draw show one longer.
-        MethodInfo advanceBrain = typeof(RoomEnemySystem).GetMethod(
-            "AdvanceMotherBrainBrainInstructions", flags)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
-        FieldInfo motherBrainField = typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!;
         (RoomEnemySystem Enemies, MotherBrainEnemyState State) CreateBrain(ushort start)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, NewMotherBrainHeadInstructionReadGuard(rom));
+            enemies.BindFixtureBus(NewMotherBrainHeadInstructionReadGuard(rom));
             var head = new RoomEnemySlot(1)
             {
                 EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead,
                 Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 },
             };
             var state = new MotherBrainEnemyState(new RoomEnemySlot(0)) { Head = head };
-            motherBrainField.SetValue(enemies, state);
+            enemies.MotherBrainEncounter.MotherBrain = state;
             state.BrainInstructionPointer = start;
             state.BrainInstructionTimer = 1;
             return (enemies, state);
         }
         ushort? Draw(RoomEnemySystem enemies, MotherBrainEnemyState state) =>
-            (ushort?)advanceBrain.Invoke(enemies, [state]);
+            (ushort?)enemies.MotherBrainBehavior.AdvanceMotherBrainBrainInstructions(state);
 
         foreach ((ushort start, ushort duration, ushort spritemap) in new[]
         {

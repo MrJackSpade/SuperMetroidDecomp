@@ -20,29 +20,27 @@ internal static class PhantoonPatternsVerification
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
-        var busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
-        var rainMethod = typeof(RoomEnemySystem).GetMethod("RunPhantoonHiddenFlameRain", flags)!;
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, NewPhantoonPatternReadGuard(rom));
+            enemies.BindFixtureBus(NewPhantoonPatternReadGuard(rom));
             ushort random = SnesLittleEndian.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { calls++; return random; }));
-            var body = enemies.Slots[0];
-            var eye = enemies.Slots[1];
+            var body = enemies.SlotTable.Slots[0];
+            var eye = enemies.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
             body.VariableE = 1;
             eye.VariableC = 123;
-            rainMethod.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(enemies)(body, state);
+            new Action<RoomEnemySlot, PhantoonEnemyState>(enemies.PhantoonBehavior.RunPhantoonHiddenFlameRain)(body, state);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + pattern * 8)), body.VariableA, "Real rain cursor handoff");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + pattern * 8)), body.Position.X.Whole, "Real rain body placement X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + pattern * 8)), body.Position.Y.Whole, "Real rain body placement Y");
             AssertEqual((ushort)0, eye.VariableC, "Real rain direction reset");
             AssertEqual((ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain, body.VariableF, "Real rain phase handoff");
             AssertEqual(1, calls, "Rain consumes one RNG word");
-            var flames = enemies.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.Velocity.X.RawValue).ToArray();
+            var flames = enemies.Projectiles.EnemyProjectiles.Where(p => p.IsActive).OrderBy(p => p.Velocity.X.RawValue).ToArray();
             AssertEqual(8, flames.Length, "Actual rain population");
             for (int i = 0; i < 8; i++)
             {
@@ -65,11 +63,10 @@ internal static class PhantoonPatternsVerification
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem();
-        busField.SetValue(eyeEnemies, NewPhantoonPatternReadGuard(rom));
-        var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>();
-        RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
-        RoomEnemySlot trackingEye = eyeEnemies.Slots[1];
+        eyeEnemies.BindFixtureBus(NewPhantoonPatternReadGuard(rom));
+        Action<RoomEnemySlot, RoomEnemySlot, SamusState> pointEye = PhantoonBehavior.PointPhantoonEyeAtSamus;
+        RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
+        RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
         eyeBody.Position = eyeBody.Position.WithWhole(new(0x4000, 0x4000));
         foreach ((short x, short y, ushort direction) in eyeTargets)
         {
@@ -85,10 +82,9 @@ internal static class PhantoonPatternsVerification
             () => PhantoonPatternDefinitions.EyeInstruction(9),
             "Phantoon eye direction beyond authored table");
         var shotEnemies = new RoomEnemySystem();
-        var shotBody = shotEnemies.Slots[0];
-        var shotState = new PhantoonEnemyState(shotBody) { Eye = shotEnemies.Slots[1], Tentacles = shotEnemies.Slots[2], Mouth = shotEnemies.Slots[3] };
-        var shot = typeof(RoomEnemySystem).GetMethod("ResolvePhantoonShotReaction", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, ushort, ushort>>(shotEnemies);
+        var shotBody = shotEnemies.SlotTable.Slots[0];
+        var shotState = new PhantoonEnemyState(shotBody) { Eye = shotEnemies.SlotTable.Slots[1], Tentacles = shotEnemies.SlotTable.Slots[2], Mouth = shotEnemies.SlotTable.Slots[3] };
+        Action<RoomEnemySlot, PhantoonEnemyState, ushort, ushort> shot = shotEnemies.PhantoonBehavior.ResolvePhantoonShotReaction;
         ushort shotRandom = 0;
         int shotCalls = 0;
         shotEnemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { shotCalls++; return shotRandom; }));

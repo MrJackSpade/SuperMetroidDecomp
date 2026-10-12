@@ -38,28 +38,20 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
                 $"Spore Spawn projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewSporeSpawnProjectileInstructionReadGuard(rom);
         var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         var samus = new SamusState();
-        typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
-            enemies,
-            samus);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        var spawnSpawner = typeof(RoomEnemySystem).GetMethod(
-            "SpawnSporeSpawnSpawner", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
-        var spawnStalk = typeof(RoomEnemySystem).GetMethod(
-            "SpawnSporeSpawnStalk", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
+        enemies.DeathsAndDrops._samusForEnemyDrops = samus;
+        Action<RoomEnemySlot, ushort> spawnSpawner = enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner;
+        Action<RoomEnemySlot, ushort> spawnStalk = enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk;
 
-        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(128, 256));
         spawnSpawner(body, 0);
         RoomEnemyProjectileSlot spawner = Single(RoomEnemyProjectileKind.SporeSpawnSpawner);
@@ -130,7 +122,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
             "installed sprite frames match native OAM with zero live operand reads.");
 
         RoomEnemyProjectileSlot Single(RoomEnemyProjectileKind kind) =>
-            enemies.EnemyProjectiles.First(projectile => projectile.Kind == kind);
+            enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.Kind == kind);
 
         void Run(RoomEnemyProjectileSlot projectile, int frames, ReadOnlySpan<ushort> nativeOperands)
         {
@@ -138,7 +130,7 @@ internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerificat
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 if (projectile.IsActive && projectile.InstructionTimer != 0)
                 {

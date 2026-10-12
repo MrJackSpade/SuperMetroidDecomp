@@ -47,9 +47,7 @@ internal static class DraygonInstructionProgramDefinitionsVerification
         ];
         var enemies = new RoomEnemySystem();
         var guard = NewDraygonInstructionReadGuard();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
+        enemies.BindFixtureBus(guard);
         foreach (EnemyDefinitionId enemyDefinition in definitions)
         {
             var slot = new RoomEnemySlot(0)
@@ -65,17 +63,17 @@ internal static class DraygonInstructionProgramDefinitionsVerification
                     DraygonInstructionProgramDefinitionsTooling.MechanicsWord(index);
                 AssertEqual(
                     word.Value,
-                    (ushort)readMechanics.Invoke(enemies, [slot, word.Address])!,
+                    (ushort)EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, word.Address),
                     $"Draygon definition ${(int)enemyDefinition:X4} owns $A5:{word.Address:X4}");
             }
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "all four Draygon definitions avoid cartridge mechanics reads");
 
-        RoomEnemySlot body = enemies.Slots[0];
-        RoomEnemySlot eye = enemies.Slots[1];
-        RoomEnemySlot tail = enemies.Slots[2];
-        RoomEnemySlot arms = enemies.Slots[3];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemySlot eye = enemies.SlotTable.Slots[1];
+        RoomEnemySlot tail = enemies.SlotTable.Slots[2];
+        RoomEnemySlot arms = enemies.SlotTable.Slots[3];
         body.EnemyDefinitionPointer = definitions[0];
         eye.EnemyDefinitionPointer = definitions[1];
         tail.EnemyDefinitionPointer = definitions[2];
@@ -87,18 +85,10 @@ internal static class DraygonInstructionProgramDefinitionsVerification
             Arms = arms,
             RoomLoadingIrqCommand = 0,
         };
-        typeof(RoomEnemySystem).GetField("<Draygon>k__BackingField", instanceFlags)!.SetValue(enemies, state);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "TryProcessDraygonInstruction", instanceFlags)!;
-
-        object?[] resetArguments =
-        [
-            body,
-            null,
-            (ushort)DraygonInstruction.Draygon_SetInstList_Body_Eye_Tail_Arms,
-            DraygonInstructionProgramDefinitions.BodyFacingLeftReset,
-        ];
-        AssertTrue((bool)process.Invoke(enemies, resetArguments)!,
+        enemies.DraygonBehavior.Draygon = state;
+        ushort resetCursor = DraygonInstructionProgramDefinitions.BodyFacingLeftReset;
+        AssertTrue(enemies.DraygonBehavior.TryProcessDraygonInstruction(
+                body, null, (ushort)DraygonInstruction.Draygon_SetInstList_Body_Eye_Tail_Arms, ref resetCursor),
             "Draygon four-list reset command is translated");
         AssertEqual(DraygonInstructionProgramDefinitions.BodyFacingLeftIdle,
             body.CurrentInstruction, "Draygon reset installs body list");
@@ -108,21 +98,17 @@ internal static class DraygonInstructionProgramDefinitionsVerification
             "Draygon reset installs internal tail idle list");
         AssertEqual(DraygonInstructionProgramDefinitions.ArmsFacingLeftIdle,
             arms.CurrentInstruction, "Draygon reset installs arms list");
-        AssertEqual(0x97c5, (ushort)resetArguments[3]!,
+        AssertEqual(0x97c5, resetCursor,
             "Draygon reset consumes all four list operands atomically");
 
-        object?[] duplicateIrqArguments =
-        [
-            body,
-            null,
-            (ushort)DraygonInstruction.Draygon_RoomLoadingInterruptCmd_BeginHUDDrawDuplicate,
-            (ushort)0x9c8a,
-        ];
-        AssertTrue((bool)process.Invoke(enemies, duplicateIrqArguments)!,
+        ushort duplicateIrqCursor = 0x9c8a;
+        AssertTrue(enemies.DraygonBehavior.TryProcessDraygonInstruction(
+                body, null, (ushort)DraygonInstruction.Draygon_RoomLoadingInterruptCmd_BeginHUDDrawDuplicate,
+                ref duplicateIrqCursor),
             "right-facing duplicate HUD IRQ command is translated");
         AssertEqual(0x000c, state.RoomLoadingIrqCommand,
             "duplicate HUD IRQ command publishes the native room-loading command");
-        AssertEqual(0x9c8c, (ushort)duplicateIrqArguments[3]!,
+        AssertEqual(0x9c8c, duplicateIrqCursor,
             "duplicate HUD IRQ command advances one instruction word");
 
         AssertThrows<InvalidDataException>(

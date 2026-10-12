@@ -60,9 +60,7 @@ internal static class EnemyDropChanceDefinitionsVerification
             MaxHealth = 99,
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
-        typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(fixture.System, SuperMetroidAddressSpace.CreateWithoutCartridge());
+        fixture.System.BindFixtureBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
         var projectile = new RoomEnemyProjectileSlot(1);
 
         for (int record = 0; record < EnemyDropChanceDefinitions.RecordCount; record++)
@@ -71,7 +69,7 @@ internal static class EnemyDropChanceDefinitionsVerification
                 EnemyDropChanceDefinitions.FirstPointer +
                 record * EnemyDropChanceDefinitions.RecordSize));
             projectile.ItemDropChancesPointerOverride = pointer;
-            EnemyPickupKind selected = fixture.System.SelectRandomEnemyDrop(projectile);
+            EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile);
             AssertTrue(Enum.IsDefined(selected),
                 $"production enemy drop record ${pointer:X4} returns a defined kind");
         }
@@ -79,11 +77,11 @@ internal static class EnemyDropChanceDefinitionsVerification
         projectile.ItemDropChancesPointerOverride = unchecked((ushort)(
             EnemyDropChanceDefinitions.FirstPointer + 1));
         AssertThrows<InvalidDataException>(
-            () => fixture.System.SelectRandomEnemyDrop(projectile),
+            () => fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
             "production enemy drop rejects an unaligned restored probability pointer");
         projectile.ItemDropChancesPointerOverride = 0x8000;
         AssertThrows<InvalidDataException>(
-            () => fixture.System.SelectRandomEnemyDrop(projectile),
+            () => fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
             "production enemy drop rejects an external restored probability pointer");
         Console.WriteLine(
             "Enemy drop chance definitions: all 118 native records match ROM and execute " +

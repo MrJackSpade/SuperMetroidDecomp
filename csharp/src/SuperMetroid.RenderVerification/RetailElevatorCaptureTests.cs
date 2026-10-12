@@ -11,8 +11,8 @@ internal static class RetailElevatorCaptureTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
-        var legacy = RepositoryInstallation.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
-        var captured = RepositoryInstallation.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var legacy = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var captured = InstalledFixtures.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
         var padPositions = new HashSet<ushort>();
         bool fade = false, arriving = false, landed = false;
         int samples = 0, releasedFrames = 0;
@@ -28,9 +28,9 @@ internal static class RetailElevatorCaptureTests
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !expected.AudioCommands.SequenceEqual(actual.Frame.AudioCommands))
                 throw new InvalidOperationException($"Elevator frontend capture diverged at {tick}.");
-            var arrival = legacy.RuntimeForVerification?.CeresElevatorArrival;
+            var arrival = legacy.RuntimeForVerification?.Room.CeresElevatorArrival;
             if (arrival is null) continue;
-            var capturedArrival = captured.RuntimeForVerification?.CeresElevatorArrival;
+            var capturedArrival = captured.RuntimeForVerification?.Room.CeresElevatorArrival;
             if (capturedArrival is null || arrival.PadPosition.Y != capturedArrival.PadPosition.Y ||
                 arrival.PlatformPosition.Y != capturedArrival.PlatformPosition.Y || arrival.IsComplete != capturedArrival.IsComplete)
                 throw new InvalidOperationException("Elevator publication changed arrival state.");
@@ -43,7 +43,7 @@ internal static class RetailElevatorCaptureTests
                 $"{device.Kind}: Ceres elevator {tick}, pad Y={arrival.PadPosition.Y}, complete={arrival.IsComplete}");
             samples++;
             if (arrival.IsComplete && expected.GameState == SuperMetroidGameState.MainGameplay &&
-                legacy.RuntimeForVerification!.Samus is { InputLocked: false })
+                legacy.RuntimeForVerification!.Player.Samus is { InputLocked: false })
             {
                 if (++releasedFrames == 60) break;
             }

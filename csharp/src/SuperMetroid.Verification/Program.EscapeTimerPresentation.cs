@@ -89,7 +89,7 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileRomData.FirstSourceAddress, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,
             EscapeTimerTileRomData.SecondSourceAddress, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.SecondDestinationWord));
-        restoredQueueRuntime.MapPresentation = original;
+        restoredQueueRuntime.Artwork.MapPresentation = original;
         AssertEqual(VramAssetId.EscapeTimerFirstTiles, restoredQueueRuntime.VramWrites.Entries[0].AssetId,
             "content rebind upgrades pending first timer transfer");
         AssertEqual(VramAssetId.EscapeTimerSecondTiles, restoredQueueRuntime.VramWrites.Entries[1].AssetId,

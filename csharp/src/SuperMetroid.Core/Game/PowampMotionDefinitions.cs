@@ -27,7 +27,7 @@ public static class PowampMotionDefinitions
     /// <summary>$86:D21A/D22A, PowampSpike_VelocityTable_X/Y: eight clockwise compass directions beginning up.</summary>
     public const int SpikeDirectionCount = 8;
 
-    /// <summary>$86:D21A, PowampSpike_VelocityTable_X: signed 8.8 acceleration, zero vertically and ±$20 laterally.</summary>
+    /// <summary>$86:D21A, PowampSpike_VelocityTable_X: signed 8.8 acceleration, zero vertically and Â±$20 laterally.</summary>
     public static short SpikeXAcceleration(int direction)
     {
         if ((uint)direction >= SpikeDirectionCount)

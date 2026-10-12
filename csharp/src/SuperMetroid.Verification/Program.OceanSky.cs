@@ -22,28 +22,28 @@ internal static class OceanSkyVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, camera: new Position16<RoomPixels>(128, 768));
         // Capture consumes the accepted NMI's register snapshot, not the room's
         // mutable scroll state. Draining only VRAM left the BG2 scanline window at
         // its zero-initialized 0..0 range, so both page layouts rendered no sky.
-        runtime.RunNmi(0, mainLoopRequestedNmi: true);
+        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
-        Console.WriteLine($"Ocean room: main={runtime.ActiveRoom!.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.ScrollingSky is not null}");
+        Console.WriteLine($"Ocean room: main={runtime.Room.ActiveRoom!.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");
 
         AssertEqual(32, ordinary.Registers.Bg2MapSize.X, "Ocean setup $88:A800 writes BG2SC=$4A: 32 tiles wide");
         AssertEqual(64, ordinary.Registers.Bg2MapSize.Y, "Ocean setup uses two vertically stacked BG2 pages");
-        AssertTrue(runtime.ScrollingSky is not null, "Ocean main installs scrolling-sky row streaming");
+        AssertTrue(runtime.Room.ScrollingSky is not null, "Ocean main installs scrolling-sky row streaming");
         var writes = new VramWriteQueue();
         // Travel down in one-tile increments. After the first screen, every visible row
         // has passed through the same circular queue used by the room's real main routine.
         for (ushort cameraY = 0; cameraY <= 768; cameraY += 8)
         {
-            runtime.ScrollingSky!.ProcessFrame(cameraY, false, writes, runtime.ActiveRoom.State.MainCallback);
-            writes.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus), runtime);
+            runtime.Room.ScrollingSky!.ProcessFrame(cameraY, false, writes, runtime.Room.ActiveRoom.State.MainCallback);
+            writes.DrainTo(runtime.Vram, ReferenceMutableMemory.From(bus), runtime.Artwork);
             if (cameraY < 256) continue;
             for (int line = 32; line < 224; line += 8)
             {
@@ -77,14 +77,14 @@ internal static class OceanSkyVerification
         AssertEqual(224, bgOnly.Registers.Bg2EndScanline, "accepted ocean NMI exposes the full gameplay height");
         AssertTrue(!background.SequenceEqual(wrongPixels), "fixture exposes the old horizontal-page interpretation visibly");
 
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 128), (ushort)(runtime.Camera.PixelPosition.Y + 128)));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 128), (ushort)(runtime.Room.Camera.PixelPosition.Y + 128)));
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         runtime.StepFrame(0);
-        ushort upper = unchecked((ushort)((runtime.Camera.PixelPosition.Y & 0x7F8) - 16));
+        ushort upper = unchecked((ushort)((runtime.Room.Camera.PixelPosition.Y & 0x7F8) - 16));
         int sourcePointer = 0x88ADA6 + (SnesLittleEndian.HighByte(upper)) * 2;
         int sourceWord = bus.ReadCartridgeWord(sourcePointer);
         int expectedSource = 0x8A0000 | (SnesAddressMath.OffsetInBank(sourceWord + (SnesLittleEndian.LowByte(upper)) * 8));

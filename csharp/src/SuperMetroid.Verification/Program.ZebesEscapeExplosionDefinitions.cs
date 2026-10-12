@@ -18,14 +18,12 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         }
 
         var guarded = NewZebesEscapeExplosionReadGuard(rom);
-        FieldInfo busField = typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (ushort choice = 0; choice < 16; choice++)
         for (ushort inherited = 0; inherited < 8; inherited++)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
-            enemies.SpawnEscapeExplosion(new(0x1234, 0x5678), choice, inherited);
+            enemies.BindFixtureBus(guarded);
+            enemies.EscapeExplosionsBehavior.SpawnEscapeExplosion(new(0x1234, 0x5678), choice, inherited);
 
             int selectedIndex = choice < 8 ? choice : inherited;
             ZebesEscapeExplosionDefinition expected =
@@ -39,7 +37,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
                 $"production escape Y choice {choice}, inherited {inherited}");
 
             bool queuesSound = choice < 8 && expected.SoundEffect != 0;
-            AssertEqual(queuesSound ? 1 : 0, enemies.SoundRequests.Count,
+            AssertEqual(queuesSound ? 1 : 0, enemies.Audio.SoundRequests.Count,
                 $"production escape sound count choice {choice}, inherited {inherited}");
             if (queuesSound)
             {
@@ -48,7 +46,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
                             SoundEffectLibrary.Library2,
                             expected.SoundEffect),
                         6),
-                    enemies.SoundRequests.Single(),
+                    enemies.Audio.SoundRequests.Single(),
                     $"production escape sound choice {choice}, inherited {inherited}");
             }
         }

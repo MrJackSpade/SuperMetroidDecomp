@@ -38,17 +38,15 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
                 $"save-station electricity mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewSaveStationElectricityInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
 
-        enemies.SpawnSaveStationElectricity(plmBlockIndex: 42, roomWidthInBlocks: 16);
-        RoomEnemyProjectileSlot electricity = enemies.EnemyProjectiles.Single(
+        enemies.Projectiles.SpawnSaveStationElectricity(plmBlockIndex: 42, roomWidthInBlocks: 16);
+        RoomEnemyProjectileSlot electricity = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         AssertEqual(SaveStationElectricityInstructionProgramDefinitions.Initial,
             electricity.InstructionPointer,
@@ -82,8 +80,8 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
             "save-station electricity exits its twentieth cycle through private deletion");
 
         RoomEnemySystem shotSystem = NewSystem();
-        shotSystem.SpawnSaveStationElectricity(plmBlockIndex: 42, roomWidthInBlocks: 16);
-        RoomEnemyProjectileSlot shot = shotSystem.EnemyProjectiles.Single(
+        shotSystem.Projectiles.SpawnSaveStationElectricity(plmBlockIndex: 42, roomWidthInBlocks: 16);
+        RoomEnemyProjectileSlot shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         shot.InstructionTimer = 1;
@@ -129,7 +127,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
+            system.BindFixtureBus(guard);
             return system;
         }
 
@@ -141,7 +139,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }

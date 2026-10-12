@@ -38,14 +38,10 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
                 $"downward-gate projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewDownwardGateProjectileInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo move = typeof(RoomEnemySystem).GetMethod(
-            "RunDownwardGateProjectileMovement", flags)!;
 
         RoomEnemySystem closingSystem = NewSystem();
         RoomEnemyProjectileSlot closing = Spawn(
@@ -86,7 +82,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
         AssertEqual(DownwardGateProjectileInstructionProgramDefinitions.ClosedSleep,
             opening.InstructionPointer,
             "closed gate displays its parked frame and sleeps");
-        openingSystem.ApplyDownwardGateProjectileRequest(
+        openingSystem.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(
             new DownwardGateProjectileRequest(
                 DownwardGateProjectileOperation.Wake,
                 0,
@@ -158,7 +154,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
+            system.BindFixtureBus(guard);
             return system;
         }
 
@@ -166,18 +162,18 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
             RoomEnemySystem system,
             RoomEnemyProjectileKind kind)
         {
-            system.ApplyDownwardGateProjectileRequest(
+            system.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(
                 new DownwardGateProjectileRequest(
                     DownwardGateProjectileOperation.Spawn,
                     (ushort)kind,
                     42),
                 roomWidthInBlocks: 16);
-            return system.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
+            return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 
@@ -188,7 +184,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
         {
             for (int frame = 0; frame < count; frame++)
             {
-                move.Invoke(null, [projectile]);
+                DownwardGateBehavior.RunDownwardGateProjectileMovement(projectile);
                 if (projectile.IsActive)
                     Process(system, projectile);
             }

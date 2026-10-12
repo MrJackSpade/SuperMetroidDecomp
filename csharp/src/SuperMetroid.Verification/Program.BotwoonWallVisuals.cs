@@ -150,8 +150,8 @@ internal static class BotwoonWallVisualsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
-        var plms = new RoomPlmSystem { BotwoonWallVisuals = edited };
-        AssertTrue(plms.TrySpawnBotwoonWall(level,
+        var plms = new RoomPlmSystem { Drawing = { BotwoonWallVisuals = edited } };
+        AssertTrue(plms.BossRoomMutations.TrySpawnBotwoonWall(level,
                 PlmHeaderId.ClearBotwoonWall),
             "edited Botwoon wall-clear PLM allocates");
         var guard = NewBotwoonWallSourceGuard(new TestAddressSpace());
@@ -172,7 +172,7 @@ internal static class BotwoonWallVisualsVerification
                 blockIndex, 0).TopRow[0],
             "Botwoon wall edit survives background streaming");
         plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0, plms.ActiveCount,
+        AssertEqual(0, plms.SlotTable.ActiveCount,
             "edited Botwoon wall preserves native deletion timing");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "edited Botwoon wall draw reads no source bytes");

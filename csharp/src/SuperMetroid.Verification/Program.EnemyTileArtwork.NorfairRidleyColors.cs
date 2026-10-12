@@ -195,14 +195,13 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemy, source);
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemy, cgram);
+            enemy.BindFixtureBus(source);
+            enemy.Presentation._cgram = cgram;
             enemy.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
-            RoomEnemySlot slot = enemy.Slots[0];
+            RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
-            typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!
-                .Invoke(enemy, [slot]);
-            RidleyEnemyState state = enemy.Ridley ??
+            enemy.RidleyBehavior.InitializeNorfairRidley(slot);
+            RidleyEnemyState state = enemy.RidleyEncounter.Ridley ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.Function = RidleyAiFunction.WaitBeforeLiftoff;
             state.FunctionTimer = 0;
@@ -212,8 +211,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         static void Tick(RoomEnemySystem enemy, RoomEnemySlot slot, RidleyEnemyState state)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyArenaReveal", flags)!
-                .Invoke(enemy, [slot, state]);
+            enemy.RidleyBehavior.TickNorfairRidleyArenaReveal(slot, state);
         }
     }
 }

@@ -26,19 +26,15 @@ internal static class HibashiDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewHibashiDefinitionGuard(new TestAddressSpace()));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeHibashi", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var applyFrame = typeof(RoomEnemySystem).GetMethod("ApplyHibashiActivityFrame", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, int>>(enemies);
+        enemies.BindFixtureBus(NewHibashiDefinitionGuard(new TestAddressSpace()));
+        Action<RoomEnemySlot> initialize = enemies.HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemySlot, int> applyFrame = enemies.HibashiBehavior.ApplyHibashiActivityFrame;
 
-        RoomEnemySlot graphics = enemies.Slots[0];
+        RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
         graphics.Parameter2 = 0;
         graphics.Position = graphics.Position.WithWholeY(0x0200);
         initialize(graphics);
-        RoomEnemySlot hitbox = enemies.Slots[1];
+        RoomEnemySlot hitbox = enemies.SlotTable.Slots[1];
         hitbox.Parameter2 = 1;
         hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
         initialize(hitbox);
@@ -57,7 +53,7 @@ internal static class HibashiDefinitionsVerification
                 $"Hibashi production Y position {frameIndex}");
             AssertEqual(frame.YRadius, hitbox.Radius.Y,
                 $"Hibashi production Y radius {frameIndex}");
-            AssertEqual(frameIndex, enemies.LastHibashiActivityFrameIndex!.Value,
+            AssertEqual(frameIndex, enemies.HibashiBehavior.LastHibashiActivityFrameIndex!.Value,
                 $"Hibashi production frame publication {frameIndex}");
             AssertEqual(frameIndex == 0 ? (ushort)8 : (ushort)0, hitbox.Radius.X,
                 $"Hibashi production X radius {frameIndex}");
@@ -85,21 +81,17 @@ internal static class HibashiDefinitionsVerification
         var executedOperands = new HashSet<ushort>();
         var programGuard = NewHibashiProgramGuard(rom);
         var programSystem = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            programSystem,
-            programGuard);
-        var initializeProgram = typeof(RoomEnemySystem).GetMethod("InitializeHibashi", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(programSystem);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+        programSystem.BindFixtureBus(programGuard);
+        Action<RoomEnemySlot> initializeProgram = programSystem.HibashiBehavior.InitializeHibashi;
 
-        RoomEnemySlot programGraphics = programSystem.Slots[0];
+        RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
         programGraphics.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
         programGraphics.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programGraphics.Parameter2 = 0;
         programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
-        RoomEnemySlot programHitbox = programSystem.Slots[1];
+        RoomEnemySlot programHitbox = programSystem.SlotTable.Slots[1];
         programHitbox.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
         programHitbox.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programHitbox.Parameter2 = 1;
@@ -116,13 +108,13 @@ internal static class HibashiDefinitionsVerification
         for (int frame = 0; frame < 70; frame++)
         {
             ushort previousGraphicsSprite = programGraphics.SpritemapPointer;
-            process.Invoke(programSystem, graphicsArguments);
+            EnemyInstructionRunner.Process(programSystem, graphicsArguments);
             if (programGraphics.CurrentInstruction == 0x8da7)
                 AssertEqual(previousGraphicsSprite, programGraphics.SpritemapPointer,
                     "Hibashi terminal callback retains the last graphics sprite");
             else
                 VerifyExecutedEnemySelector(rom, programGraphics, executedOperands);
-            process.Invoke(programSystem, hitboxArguments);
+            EnemyInstructionRunner.Process(programSystem, hitboxArguments);
             VerifyExecutedEnemySelector(rom, programHitbox, executedOperands);
         }
 
@@ -144,9 +136,9 @@ internal static class HibashiDefinitionsVerification
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Hibashi mechanics byte");
         AssertEqual(HibashiDefinitions.EruptionSoundEffect,
-            programSystem.LastHibashiSoundEffect!.Value,
+            programSystem.HibashiBehavior.LastHibashiSoundEffect!.Value,
             "Hibashi graphics program queues eruption sound");
-        AssertEqual(21, programSystem.LastHibashiActivityFrameIndex!.Value,
+        AssertEqual(21, programSystem.HibashiBehavior.LastHibashiActivityFrameIndex!.Value,
             "Hibashi graphics program executes final activity callback");
         AssertEqual((ushort)1, programSystem.HibashiStates[0]!.FinishedActivityFlag,
             "Hibashi graphics program publishes finished activity");

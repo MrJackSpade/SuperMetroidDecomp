@@ -38,12 +38,12 @@ internal sealed class IntroBabyDiscoveryState
         Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.Position = Samus.Position.WithWhole(new(0x0178, 0x0093));
         Samus.SelectedHudItem = 0;
-        Samus.RefreshCollisionRadii(bus);
+        Samus.PoseMetadata.RefreshCollisionRadii(bus);
         // $8B:AF95-$AF99: the flashback leaves Samus in pose two already, so her animation
         // keeps running rather than restarting.
-        Samus.SetAnimationFrameIfPoseChanged(bus);
+        Samus.Presentation.SetAnimationFrameIfPoseChanged(bus);
         Samus.CommitPoseHistory(bus);
-        Samus.PrimeGraphics(bus);
+        Samus.Presentation.PrimeGraphics(bus);
 
         // $8B:AFDF copies exactly $300 bytes into a room declared 32x16 blocks. The final
         // 128 foreground words and all BTS bytes retain the earlier zero initialization.
@@ -87,7 +87,7 @@ internal sealed class IntroBabyDiscoveryState
             demo.Step(bus, new DiscoveryDemoProgram(this, introCrossfadeTimer));
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
-            Samus.ClearPoseTransitionShotDirection();
+            Samus.PoseTransitions.ClearPoseTransitionShotDirection();
             SamusProjectileInheritance.ClearMovement(bus);
 
             // An end instruction read above already replaced the new-state handler, so this
@@ -96,7 +96,7 @@ internal sealed class IntroBabyDiscoveryState
             {
                 // The native intro-demo alpha publishes the current pose's collision radius
                 // before input/movement, rather than requiring pose setters to publish early.
-                Samus.RefreshCollisionRadii(bus);
+                Samus.PoseMetadata.RefreshCollisionRadii(bus);
                 IntroSamusDemoMovement.StepGroundedLeft(
                     bus,
                     Level,

@@ -22,10 +22,6 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyGlassProjectileLoopTargets), () => VerifyGlassProjectileLoopTargets(rom));
 
         var guard = NewMotherBrainGlassInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawnSparkle = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainGlassSparkle", flags)!;
         ushort[] selectorIndexes = [0, 1, 3, 6, 8, 9, 11, 14];
         ushort[] shardDurations = [4, 3, 2, 3, 4, 3, 2, 3];
 
@@ -40,11 +36,11 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
                 8,
             ]);
             RoomEnemySystem shardSystem = NewSystem(random);
-            shardSystem.SpawnMotherBrainGlassProjectile(new(
+            shardSystem.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(new(
                 (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
                 Parameter: 0,
                 PlmBlock: new(9, 5)));
-            RoomEnemyProjectileSlot shard = shardSystem.EnemyProjectiles.Single(
+            RoomEnemyProjectileSlot shard = shardSystem.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainGlassShard);
             ushort program = MotherBrainGlassInstructionProgramDefinitions
                 .ShardProgram(programIndex);
@@ -70,14 +66,14 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
 
         Queue<ushort> sparkleRandom = new([0, 8, 8, 16, 16]);
         RoomEnemySystem sparkleSystem = NewSystem(sparkleRandom);
-        sparkleSystem.SpawnMotherBrainGlassProjectile(new(
+        sparkleSystem.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(new(
             (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
             Parameter: 0,
             PlmBlock: new(9, 5)));
-        RoomEnemyProjectileSlot sparkleSource = sparkleSystem.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot sparkleSource = sparkleSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainGlassShard);
-        spawnSparkle.Invoke(sparkleSystem, [sparkleSource]);
-        RoomEnemyProjectileSlot sparkle = sparkleSystem.EnemyProjectiles.Single(
+        sparkleSystem.MotherBrainBehavior.SpawnMotherBrainGlassSparkle(sparkleSource);
+        RoomEnemyProjectileSlot sparkle = sparkleSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainGlassSparkle);
         AssertEqual(MotherBrainGlassInstructionProgramDefinitions.Sparkle,
             sparkle.InstructionPointer,
@@ -99,11 +95,11 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
 
         Queue<ushort> shotRandom = new([0, 8, 8]);
         RoomEnemySystem shotSystem = NewSystem(shotRandom);
-        shotSystem.SpawnMotherBrainGlassProjectile(new(
+        shotSystem.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(new(
             (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
             Parameter: 0,
             PlmBlock: new(9, 5)));
-        RoomEnemyProjectileSlot shot = shotSystem.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot shot = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainGlassShard);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         RunForcedTick(shotSystem, shot);
@@ -140,7 +136,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
         RoomEnemySystem NewSystem(Queue<ushort> random)
         {
             var system = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
+            system.BindFixtureBus(guard);
             system.VerificationServices().NextRandom = (Func<ushort>)(() =>
                     random.Count == 0 ? (ushort)0x4040 : random.Dequeue());
             return system;
@@ -149,7 +145,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
         void RunForcedTick(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }
 

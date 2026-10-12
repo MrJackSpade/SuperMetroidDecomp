@@ -25,16 +25,16 @@ internal static class CrateriaMainstreetEscapePassageVerification
         {
             var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
             if (crittersEscaped)
                 runtime.System.SetEvent(EventNumber.CrittersEscaped);
             runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.CrateriaMainstreet);
             runtime.StepFrame(0);
             runtime.StepFrame(0);
-            return runtime.LevelData!;
+            return runtime.Room.LevelData!;
         }
 
         ushort Word(RoomLevelData level, int x) =>

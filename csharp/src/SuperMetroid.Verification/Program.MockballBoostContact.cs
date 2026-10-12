@@ -28,7 +28,7 @@ internal static class MockballBoostContactVerification
                 EquippedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),
             };
             var fixture = CreateEnemyDropFixture(samus, [1]);
-            samus.RefreshCollisionRadii(fixture.Bus);
+            samus.PoseMetadata.RefreshCollisionRadii(fixture.Bus);
             ushort[] blocks = new ushort[32 * 8];
             for (int x = 0; x < 32; x++) blocks[4 * 32 + x] = 0x8000;
             var floor = CreateRoom(new(32, 8), blocks, new byte[blocks.Length]);
@@ -36,7 +36,7 @@ internal static class MockballBoostContactVerification
             speed.HasRunningMomentum = true;
             speed.ExtraRunSpeed = 7;
             speed.SpeedBoostCounter = 0x0401;
-            var enemy = fixture.System.Slots[0];
+            var enemy = fixture.System.SlotTable.Slots[0];
             enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
             enemy.Definition = default(RoomEnemyDefinition) with
             {
@@ -52,10 +52,8 @@ internal static class MockballBoostContactVerification
                 enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
                 enemy.Health = 1000;
                 samus.InvincibilityTimer = 1; // Non-attacking control cannot hurt Samus.
-                typeof(RoomEnemySystem).GetMethod("DetermineWhichEnemiesToProcess",
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                    .Invoke(fixture.System, new object[] { Position16<RoomPixels>.Zero });
-                fixture.System.ResolveOrdinarySamusContact(samus, 0, floor);
+                fixture.System.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
+                fixture.System.Collision.ResolveOrdinarySamusContact(samus, 0, floor);
                 AssertEqual(500, enemy.Health, $"pose {(int)pose:X2} mockball frame {frame} inflicts native 500 boost damage");
                 AssertEqual(SamusContactDamageIndex.SpeedBooster, speed.ContactDamageIndex, "moving ball republishes Speed Booster contact attack");
                 AssertEqual(7, speed.ExtraRunSpeed, "moving ball retains boost momentum");

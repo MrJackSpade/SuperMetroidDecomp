@@ -25,16 +25,15 @@ internal static class MotherBrainInheritedExplosionIndexVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
 
         state.BodySubFunctionTimer = 2;
-        typeof(RoomEnemySystem).GetMethod("StartLiveMotherBrainRainbowBeam", flags)!
-            .Invoke(runtime.Enemies, [state, runtime.Samus!, null]);
+        runtime.Enemies.MotherBrainBehavior.StartLiveMotherBrainRainbowBeam(state, runtime.Player.Samus!, null);
         MotherBrainRainbowBeamAttackSequence sequence = state.RainbowBeamSequence!;
         AssertEqual((ushort)2, sequence.DeathAndEscapeExplosionIndex, "the sequence inherits word $0FF2");
 

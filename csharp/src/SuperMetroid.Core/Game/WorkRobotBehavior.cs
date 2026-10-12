@@ -1,0 +1,545 @@
+﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>The work robot species owner: its per-room state, AI routines and the interactions it registers.</summary>
+internal sealed class WorkRobotBehavior : IEnemySpecies
+{
+    private readonly EnemyRoomBinding _room;
+    private readonly EnemyTerrain _terrain;
+    private readonly EnemyProjectileEngine _projectiles;
+    private readonly EnemyPresentation _presentation;
+
+    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
+    {
+        _room = room;
+        _terrain = terrain;
+        _projectiles = projectiles;
+        _presentation = presentation;
+    }
+
+    private const ushort WorkRobotFacingLeftVelocity = 0xfe00;
+    private const ushort WorkRobotFacingRightVelocity = 0x0200;
+    private const int WorkRobotStepPixels = 4;
+    private const ushort WorkRobotFootstepSound = 0x0068;
+
+    internal readonly WorkRobotEnemyState?[] _workRobotStates =
+        new WorkRobotEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    internal ushort _workRobotPaletteAnimationTimer;
+    internal ushort _workRobotPaletteAnimationTableOffset;
+    internal ushort _workRobotPaletteAnimationPaletteIndex;
+
+    /// <summary>
+    /// Most recent library-two sound requested by robot feet ($68) or a robot laser ($67).
+    /// It is cleared at the beginning of every enemy frame, like the other audio seams.
+    /// </summary>
+    public ushort? LastWorkRobotSoundEffect { get; private set; }
+
+    internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionPointer) =>
+        definitionPointer is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
+
+    /// <summary>Ports <c>InitAI_Robot</c> at $A8:CB77.</summary>
+    private void InitializeWorkRobot(RoomEnemySlot slot)
+    {
+        var state = new WorkRobotEnemyState(slot);
+        _workRobotStates[slot.SlotIndex] = state;
+
+        bool areaBossDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
+        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || !areaBossDefeated)
+        {
+            InitializeWorkRobotNoPower(slot, state);
+            return;
+        }
+
+        state.Powered = true;
+
+        // ORA #$A000 installs the common instruction bit and unknown-but-observable bit
+        // $8000. Population records already carry process-off-screen $0800 in retail rooms.
+        slot.Properties = slot.Properties.With(
+            EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
+        slot.InstructionTimer = 4;
+        slot.Timer = 0;
+        slot.CurrentInstruction = WorkRobotInstructionProgramDefinitions.Initial;
+        state.LaserXVelocity = WorkRobotFacingLeftVelocity;
+        state.LaserCooldown = 0;
+
+        // The graphics-drawn hook is global. Every powered initialization resets its shared
+        // clock/table and remembers this actor's OBJ palette exactly as $A8:CB83-$CBCB does.
+        _workRobotPaletteAnimationTimer = 1;
+        _workRobotPaletteAnimationTableOffset = 0;
+        _workRobotPaletteAnimationPaletteIndex = slot.PaletteIndex;
+    }
+
+    /// <summary>Ports <c>InitAI_RobotNoPower</c> at $A8:CBCC.</summary>
+    internal void InitializeWorkRobotNoPower(RoomEnemySlot slot, WorkRobotEnemyState state)
+    {
+        state.Powered = false;
+
+        // The native range check accidentally accepts parameter three even though the
+        // pointer table has only three entries. Retain rather than sanitize that bug:
+        // retail populations use zero/one, while a corrupt value three observes the
+        // compiled first code word at $CC36 just as the cartridge would.
+        if (unchecked((short)slot.Parameter1) < 0 || slot.Parameter1 >= 4)
+            slot.Parameter1 = 0;
+        slot.CurrentInstruction =
+            WorkRobotInitializationDefinitions.GetInitialInstruction(slot.Parameter1);
+        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
+        slot.InstructionTimer = 1;
+        slot.Timer = 0;
+
+        // This global write disables an earlier robot's palette hook too. Mixed powered and
+        // unpowered sets are unusual, but retaining the shared timer makes order observable.
+        _workRobotPaletteAnimationTimer = 0;
+        state.YSubvelocity = 0;
+        state.YVelocity = 1;
+
+        // $A8:CC1C writes four colors to active palette RAM through a stale global palette
+        // index. Room fade immediately overwrites them, and no retail deactivated robot can
+        // select its own palette there. The deliberately ineffective writes are documented
+        // rather than synthesized into CGRAM, matching the visible cartridge result.
+    }
+
+    /// <summary>Ports the gravity-only <c>MainAI_Robot</c> at $A8:CC36.</summary>
+    private void RunWorkRobotMain(
+        RoomEnemySlot slot,
+        WorkRobotEnemyState state,
+        RoomLevelData? level)
+    {
+        if (level is null)
+            throw new InvalidOperationException("Work Robot gravity requires room collision data.");
+
+        int displacement = YardEnemyBehavior.ComposeSignedFixed(state.YVelocity, state.YSubvelocity);
+        if (_terrain.MoveEnemyVertically(level, slot, displacement))
+            return;
+
+        // Enemy instruction processing will decrement the timer later in this same frame.
+        // Incrementing here cancels that tick, freezing the current art while airborne.
+        slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer + 1));
+        uint subvelocity = (uint)state.YSubvelocity + 0x8000;
+        state.YSubvelocity = unchecked((ushort)subvelocity);
+        state.YVelocity = unchecked((ushort)(state.YVelocity + (SnesSixteenSixteen.WholeOf(subvelocity))));
+    }
+
+    /// <summary>
+    /// Handles all eighteen custom Work Robot opcodes. <paramref name="cursor"/> points at
+    /// the opcode on entry and is rewritten to native Y (already advanced or redirected).
+    /// </summary>
+    private bool TryProcessWorkRobotInstruction(
+        RoomEnemySlot slot,
+        SamusState? samus,
+        RoomLevelData? level,
+        ushort opcode,
+        ref ushort cursor,
+        Position16<RoomPixels> camera)
+    {
+        if (!IsWorkRobotDefinition(slot.EnemyDefinitionPointer))
+            return false;
+
+        WorkRobotEnemyState state = RequireWorkRobotState(slot);
+        ushort next = unchecked((ushort)(cursor + 2));
+        if (!Enum.IsDefined((WorkRobotInstruction)opcode))
+            return false;
+        WorkRobotInstruction instruction = (WorkRobotInstruction)opcode;
+        switch (instruction)
+        {
+            case WorkRobotInstruction.FacingLeft_MoveForward_HandleWallOrFall:
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallInstruction = WorkRobotInstructionProgramDefinitions.ApproachingFallLeft, FallLaserVelocity = WorkRobotFacingRightVelocity });
+                return true;
+            case WorkRobotInstruction.FacingLeft_MoveForward_HandleHittingWall:
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallInstruction = 0, FallLaserVelocity = 0 });
+                return true;
+            case WorkRobotInstruction.FacingLeft_MoveBackward_HandleWallOrFall:
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallInstruction = WorkRobotInstructionProgramDefinitions.ApproachingFallRight, FallLaserVelocity = WorkRobotFacingLeftVelocity });
+                return true;
+            case WorkRobotInstruction.FacingLeft_MoveBackward_HandleHittingWall:
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallInstruction = 0, FallLaserVelocity = 0 });
+                return true;
+            case WorkRobotInstruction.SetInstListTo_FacingRight_WalkingForwards:
+                cursor = WorkRobotInstructionProgramDefinitions.FacingRightWalkingForwards;
+                return true;
+            case WorkRobotInstruction.FacingRight_MoveForward_HandleWallOrFall:
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingRightHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallInstruction = WorkRobotInstructionProgramDefinitions.ApproachingFallRight, FallLaserVelocity = WorkRobotFacingLeftVelocity });
+                return true;
+            case WorkRobotInstruction.FacingRight_MoveForward_HandleHittingWall:
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingRightHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallInstruction = 0, FallLaserVelocity = 0 });
+                return true;
+            case WorkRobotInstruction.FacingRight_MoveBackward_HandleWallOrFall:
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallInstruction = WorkRobotInstructionProgramDefinitions.ApproachingFallLeft, FallLaserVelocity = WorkRobotFacingRightVelocity });
+                return true;
+            case WorkRobotInstruction.FacingRight_MoveBackward_HandleHittingWall:
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallInstruction = 0, FallLaserVelocity = 0 });
+                return true;
+            case WorkRobotInstruction.PlaySFXIfOnScreen:
+                if (IsWorkRobotOriginStrictlyOnScreen(slot, camera))
+                    LastWorkRobotSoundEffect = WorkRobotFootstepSound;
+                cursor = next;
+                return true;
+            case WorkRobotInstruction.Goto_FacingLeft_WalkingForwards:
+                cursor = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards;
+                return true;
+            case WorkRobotInstruction.TryShootingLaserUpRight:
+                cursor = TryFireWorkRobotLaser(
+                    slot, state, next, WorkRobotLaser.UpRight,
+                    WorkRobotInstructionProgramDefinitions.FacingRightShotLaserUpRight,
+                    camera);
+                return true;
+            case WorkRobotInstruction.TryShootingLaserUpLeft:
+                cursor = TryFireWorkRobotLaser(
+                    slot, state, next, WorkRobotLaser.UpLeft,
+                    WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserUpLeft,
+                    camera);
+                return true;
+            case WorkRobotInstruction.TryShootingLaserRight:
+                cursor = TryFireWorkRobotLaser(
+                    slot, state, next, WorkRobotLaser.Horizontal,
+                    WorkRobotInstructionProgramDefinitions.FacingRightShotLaserRight,
+                    camera);
+                return true;
+            case WorkRobotInstruction.TryShootingLaserLeft:
+                cursor = TryFireWorkRobotLaser(
+                    slot, state, next, WorkRobotLaser.Horizontal,
+                    WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserLeft,
+                    camera);
+                return true;
+            case WorkRobotInstruction.TryShootingLaserDownRight:
+                cursor = TryFireWorkRobotLaser(
+                    slot, state, next, WorkRobotLaser.DownRight,
+                    WorkRobotInstructionProgramDefinitions.FacingRightShotLaserDownRight,
+                    camera);
+                return true;
+            case WorkRobotInstruction.TryShootingLaserDownLeft:
+                cursor = TryFireWorkRobotLaser(
+                    slot, state, next, WorkRobotLaser.DownLeft,
+                    WorkRobotInstructionProgramDefinitions.FacingLeftShotLaserDownLeft,
+                    camera);
+                return true;
+            case WorkRobotInstruction.DecrementLaserCooldown:
+                DecrementWorkRobotLaserCooldown(state);
+                cursor = next;
+                return true;
+            default:
+                throw new InvalidOperationException($"Undefined WorkRobotInstruction {instruction}.");
+        }
+    }
+
+    private ushort MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState? samus, RoomLevelData? level, ushort nextCursor, WorkRobotMoveStep step)
+    {
+        if (level is null)
+            throw new InvalidOperationException("Work Robot movement instruction requires room collision data.");
+
+        DecrementWorkRobotLaserCooldown(state);
+        state.LaserXVelocity = step.FacingLaserVelocity;
+        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
+                level,
+                slot,
+                SnesSixteenSixteen.FromWhole(step.HorizontalPixels)))
+        {
+            state.LaserCooldown = unchecked((ushort)(state.LaserCooldown + 8));
+            return step.WallInstruction;
+        }
+
+        if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(slot, samus))
+        {
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)step.HorizontalPixels), 0));
+        }
+
+        if (!step.CheckLedge)
+            return nextCursor;
+
+        // The ROM moves only whole X/Y words for this temporary foot probe. In particular,
+        // MoveEnemyDown's collision-produced Y subposition survives after Y is restored.
+        state.BackupPosition = slot.Position.Whole;
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+            slot.Position.X.Whole + step.LedgeProbeDirection * slot.Radius.X * 2)));
+        bool floorFound = _terrain.MoveEnemyVertically(level, slot, 1 << 16);
+        slot.Position = slot.Position.WithWhole(state.BackupPosition);
+        if (floorFound)
+            return nextCursor;
+
+        state.LaserCooldown = unchecked((ushort)(state.LaserCooldown + 8));
+        state.LaserXVelocity = step.FallLaserVelocity;
+        return step.FallInstruction;
+    }
+
+    private static bool IsWorkRobotOriginStrictlyOnScreen(
+        RoomEnemySlot robot,
+        Position16<RoomPixels> camera) =>
+        unchecked((short)(robot.Position.X.Whole - camera.X)) > 0 &&
+        unchecked((short)(camera.X + 256 - robot.Position.X.Whole)) >= 0 &&
+        unchecked((short)(robot.Position.Y.Whole - camera.Y)) > 0 &&
+        unchecked((short)(camera.Y + 224 - robot.Position.Y.Whole)) >= 0;
+
+    private ushort TryFireWorkRobotLaser(
+        RoomEnemySlot robot,
+        WorkRobotEnemyState state,
+        ushort nextCursor,
+        WorkRobotLaser projectileDefinition,
+        ushort firingInstruction,
+        Position16<RoomPixels> camera)
+    {
+        if (state.LaserCooldown != 0)
+        {
+            DecrementWorkRobotLaserCooldown(state);
+            return nextCursor;
+        }
+
+        Func<ushort> readRandomNumber = _room.Random.Read;
+        state.LaserCooldown = unchecked((ushort)((readRandomNumber() & 0x001f) + 0x0010));
+        SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
+        return firingInstruction;
+    }
+
+    private static void DecrementWorkRobotLaserCooldown(WorkRobotEnemyState state)
+    {
+        if (state.LaserCooldown != 0)
+            state.LaserCooldown = unchecked((ushort)(state.LaserCooldown - 1));
+    }
+
+    /// <summary>
+    /// Ports custom touch $A8:D174. Work Robots are moving solids: body contact publishes a
+    /// four-pixel external push away from their center and deliberately deals no touch damage.
+    /// </summary>
+    private static void ResolveWorkRobotTouch(RoomEnemySlot robot, SamusState samus)
+    {
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(
+            robot.Position.X.Whole < samus.Position.X.Whole ? (short)4 : (short)-4, 0));
+    }
+
+    /// <summary>
+    /// Ports the private tail of powered shot AI $A8:D192 after common shot handling. The
+    /// indestructible vulnerability table leaves health unchanged, but the accepted impact
+    /// still chooses an ahead/behind recoil list and delays the next laser by 64 frames.
+    /// </summary>
+    private void ResolveWorkRobotShotAfterCommon(RoomEnemySlot robot, SamusState? samus)
+    {
+        if (robot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || robot.Health == 0)
+            return;
+        if (!_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
+            return;
+        if (samus is null)
+            throw new InvalidOperationException("Work Robot shot recoil requires the active Samus actor.");
+
+        WorkRobotEnemyState state = RequireWorkRobotState(robot);
+        bool facingLeft = unchecked((short)state.LaserXVelocity) < 0;
+        if (facingLeft)
+        {
+            robot.CurrentInstruction = samus.Position.X.Whole < robot.Position.X.Whole
+                ? WorkRobotInstructionProgramDefinitions.FacingLeftShotSamusAhead
+                : WorkRobotInstructionProgramDefinitions.FacingLeftShotSamusBehind;
+        }
+        else
+        {
+            robot.CurrentInstruction = samus.Position.X.Whole >= robot.Position.X.Whole
+                ? WorkRobotInstructionProgramDefinitions.FacingRightShotSamusAhead
+                : WorkRobotInstructionProgramDefinitions.FacingRightShotSamusBehind;
+        }
+        robot.InstructionTimer = 1;
+        state.LaserCooldown = unchecked((ushort)(state.LaserCooldown + 0x0040));
+    }
+
+    /// <summary>Ports the global graphics-drawn palette hook at $A8:CC67.</summary>
+    internal void StepWorkRobotPaletteAnimation()
+    {
+        if (_workRobotPaletteAnimationTimer == 0)
+            return;
+        _workRobotPaletteAnimationTimer = unchecked((ushort)(
+            _workRobotPaletteAnimationTimer - 1));
+        if (_workRobotPaletteAnimationTimer != 0)
+            return;
+
+        _workRobotPaletteAnimationTableOffset =
+            WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(
+                _workRobotPaletteAnimationTableOffset);
+        int record = _workRobotPaletteAnimationTableOffset /
+            WorkRobotPaletteTimingDefinitions.RecordByteCount;
+
+        int destination = 128 +
+            ((_workRobotPaletteAnimationPaletteIndex >> 9) & 7) * 16 +
+            WorkRobotPaletteRomData.FirstAnimatedColor;
+        (_room.Artwork?.WorkRobotPaletteCycle ?? throw new InvalidDataException(
+            "Work Robot palette animation requires installed artwork."))
+            .ApplyFrame(_presentation._cgram!, record, destination);
+        _workRobotPaletteAnimationTimer =
+            WorkRobotPaletteTimingDefinitions.DurationForByteOffset(
+                _workRobotPaletteAnimationTableOffset);
+        _workRobotPaletteAnimationTableOffset = unchecked((ushort)(
+            _workRobotPaletteAnimationTableOffset + 10));
+    }
+
+    private WorkRobotEnemyState RequireWorkRobotState(RoomEnemySlot slot) =>
+        _workRobotStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} has no initialized Work Robot state.");
+
+    internal void RegisterWorkRobotBombReactions(EnemyAiTable table)
+    {
+        // Powered Work Robot returns until Phantoon is dead. Bank $A0 has already marked the bomb, so callback
+        // rejection belongs here rather than in collision admission.
+        table.AddBombCommon(new EnemyBombReaction(c => IsWorkRobotDefinition(c.Enemy.EnemyDefinitionPointer) &&
+                                                       c.SelectedShotAi is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot)
+        {
+            Rejects = c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Robot &&
+                           c.SelectedShotAi == EnemyInteractionCallback.WorkRobotShot &&
+                           !_room.Services.Bosses.IsDefeated(BossBits.AreaBoss),
+            AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+        });
+    }
+
+    internal static void RegisterWorkRobotProjectiles(EnemyProjectileHandlerTable table)
+    {
+        table.RegisterPreInstruction(context =>
+        {
+            RunWorkRobotLaserPreInstruction(context.Projectile, context.Level);
+        }, EnemyProjectilePreInstruction.WreckedShipRobotLaser);
+    }
+
+    internal void RegisterWorkRobotInitializationAi(EnemyAiTable table)
+    {
+
+        EnemyInitializationAiHandler shared74 = (slot, level, samus, controllerInput, cameraX) =>
+        {
+            InitializeWorkRobot(slot);
+        };
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_Robot, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Robot, shared74);
+
+        table.RegisterInitialization(EnemyAiRoutine.InitAI_RobotNoPower, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower, shared74);
+    }
+
+    internal void RegisterWorkRobotMainAi(EnemyAiTable table)
+    {
+
+        table.RegisterMain(EnemyAiRoutine.MainAI_Robot, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Robot, (slot, frame, nmiFrameCounter8) =>
+        {
+            RunWorkRobotMain(slot, RequireWorkRobotState(slot), frame.Level);
+        });
+    }
+
+    internal void RegisterWorkRobotOwnedInstructions(EnemyAiTable table)
+    {
+        table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
+        {
+            yieldInterpreter = false;
+            return TryProcessWorkRobotInstruction(slot, context.Samus, context.Level, word, ref cursor, context.Camera);
+        });
+    }
+
+    internal void RegisterWorkRobotShotReactions(EnemyAiTable table)
+    {
+        table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
+                                                     EnemyCollision.ShotAi(enemy) is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot)
+        {
+            AfterCommon = (c, _) => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+        });
+    }
+
+    internal static void RegisterWorkRobotTouch(EnemyAiTable table)
+    {
+        table.AddTouch(slot => IsWorkRobotDefinition(slot.EnemyDefinitionPointer) &&
+                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.WorkRobotTouch,
+            context => ResolveWorkRobotTouch(context.Slot, context.Samus));
+    }
+    private const ushort WorkRobotLaserSound = 0x0067;
+
+    /// <summary>
+    /// Allocates one of bank $86's five Work Robot laser definitions. Horizontal left/right
+    /// share $D2B4; the sign in the owner's laser velocity supplies the sixth direction.
+    /// </summary>
+    internal void SpawnWorkRobotLaser(
+        RoomEnemySlot robot,
+        WorkRobotEnemyState state,
+        WorkRobotLaser definition,
+        Position16<RoomPixels> camera)
+    {
+        RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
+        if (projectile is null)
+            return;
+
+        // SpawnEnemyProjectileY_ParameterA_XGraphics installs the complete seven-word
+        // definition before entering the family initializer. Keeping that division here is
+        // important: the five records do not share radii or damage, and the common helper
+        // also supplies the native $8000 pre-draw map sentinel and all three property bits.
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            projectile,
+            (RoomEnemyProjectileKind)definition,
+            unchecked((ushort)(robot.VramTilesIndex | robot.PaletteIndex)));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(state.LaserXVelocity));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition switch
+        {
+            WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
+                unchecked((ushort)-0x0080),
+            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => 0x0080,
+            WorkRobotLaser.Horizontal => 0,
+            _ => throw new InvalidOperationException(
+                $"Undefined Work Robot laser definition {definition}."),
+        }));
+
+        // All five initializers place the muzzle four pixels in the signed facing direction
+        // and sixteen pixels above the robot. The temporary graphics word comes from the
+        // owner; pre-instruction $D3BF clears it before the first draw, matching the ROM's
+        // use of palette/tile bits embedded directly in the bank-$8D laser spritemaps.
+        projectile.Position = new(new(unchecked((ushort)(robot.Position.X.Whole +
+            (unchecked((short)state.LaserXVelocity) < 0 ? -4 : 4))), 0), new(unchecked((ushort)(robot.Position.Y.Whole - 16)), 0));
+        // $86:D326 clears the graphics word in the down-left/right initializer itself.
+        // Upward and horizontal variants retain the owner's word until common
+        // pre-instruction $D3BF clears it on their first projectile pass.
+        if (definition is
+            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight)
+            projectile.GraphicsIndex = 0;
+
+        // Preserve the original $86:D35B viewport bug. Its final Y comparison omits
+        // `CMP Layer1YPosition`, so lasers only request sound while their owner's absolute
+        // top edge is above scanline 224, even when a lower room row is on screen.
+        bool horizontallyVisible =
+            unchecked((short)(robot.Position.X.Whole + robot.Radius.X - camera.X)) >= 0 &&
+            unchecked((short)(robot.Position.X.Whole - robot.Radius.X - 0x0101 - camera.X)) < 0;
+        bool verticallyVisible =
+            unchecked((short)(robot.Position.Y.Whole + robot.Radius.Y - camera.Y)) >= 0 &&
+            unchecked((short)(robot.Position.Y.Whole - robot.Radius.Y - 0x00e0)) < 0;
+        if (horizontallyVisible && verticallyVisible)
+            LastWorkRobotSoundEffect = WorkRobotLaserSound;
+    }
+
+    /// <summary>Ports pre-instruction $86:D3BF: X collision, then Y collision, else move.</summary>
+    internal static void RunWorkRobotLaserPreInstruction(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level)
+    {
+        projectile.GraphicsIndex = 0;
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true) ||
+            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        {
+            projectile.Clear();
+        }
+    }
+
+    /// <inheritdoc/>
+    public void ResetForRoomLoad(IRoomEnemyLoad request)
+    {
+        LastWorkRobotSoundEffect = null;
+        Array.Clear(_workRobotStates);
+        _workRobotPaletteAnimationTimer = 0;
+        _workRobotPaletteAnimationTableOffset = 0;
+        _workRobotPaletteAnimationPaletteIndex = 0;
+    }
+
+    /// <inheritdoc/>
+    public void BeginEnemyFrame(RoomEnemyFrame frame)
+    {
+        LastWorkRobotSoundEffect = null;
+    }
+
+    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
+    internal void QueueLegacySounds(EnemyAudioQueue audio)
+    {
+        audio.QueueLegacySound(LastWorkRobotSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+    }
+
+
+    internal static void RegisterUnpoweredWorkRobotMainAi(EnemyAiTable table)
+    {
+        table.RegisterMain(EnemyAiRoutine.RTL_A8CC66, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower, (slot, frame, nmiFrameCounter8) =>
+        { });
+    }
+}

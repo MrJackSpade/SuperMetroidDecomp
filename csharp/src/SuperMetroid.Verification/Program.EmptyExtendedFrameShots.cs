@@ -25,12 +25,12 @@ internal static class EmptyExtendedFrameShotsVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xa521);
-        RoomEnemySlot pirate = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PirateGreenWalking);
-        SamusState samus = runtime.Samus!;
+        RoomEnemySlot pirate = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PirateGreenWalking);
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = true;
 
         // Native update 37306: the pirate at ($1F4,$A0) on $804F, the charged beam at ($1F2,$A3).
@@ -38,14 +38,14 @@ internal static class EmptyExtendedFrameShotsVerification
         pirate.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;
         pirate.InstructionTimer = 0x7fff;
         ushort health = pirate.Health;
-        runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x9010; shot.Damage = 60; shot.Direction = 7;
         shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
         shot.Radius = new(8, 8);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
-        int hits = runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        int hits = runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: pirate.NativeIndex);
 
         AssertEqual(0, hits, "the empty extended frame takes no projectile hit");

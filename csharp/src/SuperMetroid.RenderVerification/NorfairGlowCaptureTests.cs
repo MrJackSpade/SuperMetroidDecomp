@@ -11,10 +11,10 @@ internal static class NorfairGlowCaptureTests
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NorfairGlowFixture.Cathedral, new Position16<RoomPixels>(0, 0));
-        runtime.Samus!.InputLocked = true;
+        runtime.Player.Samus!.InputLocked = true;
         LayeredRenderSnapshot? original = null;
         SuperMetroid.Core.Assets.Rgba32[]? initialPixels = null;
         int maximumChanged = 0;

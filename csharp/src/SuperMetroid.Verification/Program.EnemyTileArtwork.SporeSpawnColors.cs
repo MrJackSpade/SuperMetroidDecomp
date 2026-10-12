@@ -83,15 +83,15 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guarded);
-        type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
+        enemies.BindFixtureBus(guarded);
+        enemies.Presentation._cgram = cgram;
         enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
-        RoomEnemySlot body = enemies.Slots[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
-        type.GetMethod("InitializeSporeSpawn", flags)!.Invoke(enemies, [body]);
+        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
         SporeSpawnEnemyState state = enemies.SporeSpawn ??
             throw new InvalidDataException("Live Spore Spawn initializer did not install state.");
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
@@ -105,23 +105,21 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         AssertEqual(SporeSpawnInstructionProgramDefinitions.InitialAlive,
             body.CurrentInstruction, "Spore Spawn retains native living instruction");
 
-        MethodInfo loadHealth = type.GetMethod("LoadSporeSpawnHealthPalette", flags)!;
         for (int frame = 0; frame < SporeSpawnColorRomData.HealthFrameCount; frame++)
         {
-            loadHealth.Invoke(enemies, [(ushort)(frame * SporeSpawnColorRomData.FrameByteCount)]);
+            enemies.SporeSpawnBehavior.LoadSporeSpawnHealthPalette((ushort)(frame * SporeSpawnColorRomData.FrameByteCount));
             for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
                 AssertEqual(colors.ResolveHealth(frame, color),
                     cgram.Colors[SporeSpawnColorRomData.SpriteDestination + color],
                     $"live Spore Spawn health frame {frame} color {color}");
         }
 
-        MethodInfo loadDeath = type.GetMethod("LoadSporeSpawnDeathPalette", flags)!;
         for (int frame = 0; frame < SporeSpawnColorRomData.DeathSceneFrameCount; frame++)
         {
             ushort offset = (ushort)(frame * SporeSpawnColorRomData.FrameByteCount);
-            loadDeath.Invoke(enemies, [offset, true]);
+            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(offset, true);
             CheckDeath(frame, targetOnly: true);
-            loadDeath.Invoke(enemies, [offset, false]);
+            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(offset, false);
             CheckDeath(frame, targetOnly: false);
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,

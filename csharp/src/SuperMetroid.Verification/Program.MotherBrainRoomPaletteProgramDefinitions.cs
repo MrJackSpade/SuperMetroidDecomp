@@ -37,15 +37,13 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsVerification
         var guard = NewMotherBrainRoomPaletteReadGuard(rom);
         var enemies = new RoomEnemySystem
         {
-            MotherBrainRoomColors = MotherBrainRoomColorPresentation.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom))),
+            Presentation = { MotherBrainRoomColors = MotherBrainRoomColorPresentation.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom))) },
         };
         var output = new SnesCgram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, output);
-        MethodInfo run = typeof(RoomEnemySystem).GetMethod(
-            "RunMotherBrainRoomPalette", flags)!;
-        var state = new MotherBrainEnemyState(enemies.Slots[0])
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = output;
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0])
         {
             RoomPaletteInstructionPointer =
                 MotherBrainRoomPaletteProgramDefinitions.FlashStart,
@@ -75,7 +73,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsVerification
                 expected.SetColor(0x53 + color, Bgr555.FromWord(checked((ushort)(second))));
                 expected.SetColor(0x73 + color, Bgr555.FromWord(checked((ushort)(second))));
             }
-            run.Invoke(enemies, [state]);
+            enemies.MotherBrainBehavior.RunMotherBrainRoomPalette(state);
             AssertEqual(nativePointer, state.RoomPaletteInstructionPointer, "native room flash pointer and loop");
             AssertEqual(nativeTimer, state.RoomPaletteInstructionTimer, "native room flash two-tick cadence");
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(output)), "native room flash full CGRAM and mirrored colors");

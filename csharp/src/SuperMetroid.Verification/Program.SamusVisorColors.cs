@@ -148,8 +148,8 @@ internal static class SamusVisorColorsVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
         };
-        samus.RefreshCollisionRadii(rom);
-        samus.InitializeAnimation(rom);
+        samus.PoseMetadata.RefreshCollisionRadii(rom);
+        samus.Presentation.InitializeAnimation(rom);
         AssertTrue(samus.Xray.TryBegin(rom, samus, SamusMovementType.Standing, new XrayBeginConditions()),
             "stock X-ray setup is accepted");
         return samus;
@@ -175,14 +175,14 @@ internal static class SamusVisorColorsVerification
             "visor color override changes installed content identity");
         var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
         {
-            MapPresentation = edited,
+            Artwork = { MapPresentation = edited },
         };
         fixtureAssets.Bind(runtime);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        SamusState runtimeSamus = runtime.Samus ??
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        SamusState runtimeSamus = runtime.Player.Samus ??
             throw new InvalidOperationException("Ceres initialization did not construct Samus.");
         AssertTrue(ReferenceEquals(edited.SamusVisorColors, runtimeSamus.VisorPalette.PresentationColors) &&
             ReferenceEquals(edited.SamusVisorColors, runtimeSamus.Xray.PresentationColors),

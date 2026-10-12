@@ -37,17 +37,25 @@ internal static class SolutionLoader
             throw new InvalidOperationException("Workspace load failed:\n" + string.Join('\n', failures));
 
         var compiled = new List<(Project, Compilation)>();
+        var compileErrors = new List<string>();
         foreach (var project in workspace.CurrentSolution.Projects)
         {
             var compilation = await project.GetCompilationAsync()
                 ?? throw new InvalidOperationException($"{project.Name} produced no compilation.");
-            // Symbol binding is only trustworthy for code that compiles.
+            // Symbol binding is only trustworthy for code that compiles. Every project's errors are
+            // reported together, so one load shows everything that must be fixed.
             var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToList();
             if (errors.Count > 0)
-                throw new InvalidOperationException($"{project.Name} has {errors.Count} compile errors; first: {errors[0]}");
+            {
+                compileErrors.AddRange(errors.Select(error => $"{project.Name}: {error}"));
+                continue;
+            }
             compiled.Add((project, compilation));
             Console.WriteLine($"Compiled {project.Name}");
         }
+        if (compileErrors.Count > 0)
+            throw new InvalidOperationException(
+                $"{compileErrors.Count} compile errors:\n" + string.Join('\n', compileErrors.Distinct(StringComparer.Ordinal)));
         return new LoadedSolution(Path.GetDirectoryName(solutionDirectory)!, compiled);
     }
 }

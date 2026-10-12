@@ -24,12 +24,12 @@ internal static class GoldenTorizoAttackChoiceVerification
         const ushort chozoOrbsFacingLeft = 0xcb41;
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GoldenTorizo);
-        var samus = runtime.Samus!;
-        RoomEnemySlot torizo = runtime.Enemies.Slots.Single(slot =>
+        var samus = runtime.Player.Samus!;
+        RoomEnemySlot torizo = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
 
         // Native inputs at the movie's landing: (X >> 1) + carry + $05B6 has bit 3 clear,
@@ -38,7 +38,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         samus.Missiles = 187;
         torizo.CurrentInstruction = landedFacingLeft;
         torizo.InstructionTimer = 1;
-        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, NmiFrameCounter8 = 0x2d, NmiFrameCounter = 0xefd8 });
+        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.Room.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, NmiFrameCounter8 = 0x2d, NmiFrameCounter = 0xefd8 });
         AssertTrue(torizo.CurrentInstruction is > sonicBoomsFacingLeft and
                 < 0xcc57,
             $"NMI_FrameCounter selects the sonic-boom list, not chozo orbs (${chozoOrbsFacingLeft:X4}); " +

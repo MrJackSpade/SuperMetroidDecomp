@@ -144,7 +144,7 @@ internal static class CrystalFlashColorsVerification
                 SuperMissiles = 10,
                 PowerBombs = 10,
             };
-            started.RefreshCollisionRadii(rom);
+            started.PoseMetadata.RefreshCollisionRadii(rom);
             started.HorizontalSpeed.SpecialPaletteTimer = 0;
             AssertTrue(started.CrystalFlash.TryBegin(rom, started, controllerInput: 0,
                 skipInputCheck: true), "start real Crystal Flash palette owner");

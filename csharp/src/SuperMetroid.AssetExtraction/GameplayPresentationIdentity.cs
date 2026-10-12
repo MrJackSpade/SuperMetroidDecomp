@@ -21,12 +21,4 @@ public static class GameplayPresentationIdentity
             [GameInstallationLayout.StandardObjectDirectoryName] = commonSprites.ContentIdentity,
             [GameInstallationLayout.XrayRevealVisualDirectoryName] = xray.ContentIdentity,
         };
-
-    /// <summary>Loads the same selected domains for installed diagnostic-artifact import.</summary>
-    public static IReadOnlyDictionary<string, string> Load(GameInstallation installation)
-    {
-        Ensure.NotNull(installation);
-        return Create(installation.LoadGameplayBasePalettes(), installation.LoadStandardObjects(),
-            installation.LoadXrayRevealVisuals());
-    }
 }

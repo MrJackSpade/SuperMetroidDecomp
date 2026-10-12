@@ -69,8 +69,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: false));
         Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: true));
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
         for (int index = 0;
              index < WallSpacePirateInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -80,8 +78,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             var (enemies, slot, _, samus) = CreateSystem();
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
             slot.InstructionTimer = 1;
-            process.Invoke(enemies,
-                [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0]);
+            EnemyInstructionRunner.Process(enemies, [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
                 slot.SpritemapPointer,
                 $"production execution selects wall Pirate frame $B2:{address:X4}");
@@ -128,7 +125,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 $"wall Pirate {(movingRight ? "right" : "left")} attack jump handoff");
             AssertEqual(1, state.SpawnedLaserCount,
                 $"wall Pirate {(movingRight ? "right" : "left")} laser count");
-            AssertEqual((ushort)0x0066, enemies.LastSpacePirateSoundEffect!.Value,
+            AssertEqual((ushort)0x0066, enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect!.Value,
                 $"wall Pirate {(movingRight ? "right" : "left")} jump sound");
         }
 
@@ -178,9 +175,9 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             WallSpacePirateEnemyState State, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWall;
             slot.Definition = default(RoomEnemyDefinition) with
             {
@@ -190,8 +187,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Radius = new(8, 16);
             slot.Parameter2 = 0x0080;
-            typeof(RoomEnemySystem).GetMethod("InitializeWallSpacePirate", flags)!
-                .Invoke(enemies, [slot]);
+            enemies.WallSpacePirateBehavior.InitializeWallSpacePirate(slot);
             var samus = new SamusState
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
@@ -206,12 +202,10 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             RoomLevelData level,
             int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, samus, level, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

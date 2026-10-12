@@ -51,7 +51,7 @@ public sealed record RoomEnemyFrame : IEnemyAiFrame
     /// <summary>Current independent sixteen-bit NMI clock; null uses the standalone enemy-pass clock.</summary>
     public ushort? NmiFrameCounter { get; init; } = null;
 
-    /// <summary>True when <see cref="RoomEnemySystem.PrepareEnemyProcessingList"/> already ran at the native pre-Samus boundary; false prepares the lists here for standalone callers.</summary>
+    /// <summary>True when <see cref="EnemyProcessingWindow.PrepareEnemyProcessingList"/> already ran at the native pre-Samus boundary; false prepares the lists here for standalone callers.</summary>
     public bool ProcessingListPrepared { get; init; } = false;
 
     /// <summary>The camera's frame-start Samus checkpoint under the live previous-position words that Draygon and Yapping Maw cap; null when no camera owns them.</summary>

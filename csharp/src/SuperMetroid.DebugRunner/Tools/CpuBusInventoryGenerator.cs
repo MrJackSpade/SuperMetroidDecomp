@@ -1,13 +1,13 @@
 using SuperMetroid.Core.Hardware;
 
-internal static partial class AssetTools
+internal static class CpuBusInventoryGenerator
 {
     /// <summary>
     /// Regenerates <c>docs/cpu-bus-inventory.json</c> from the production CPU-bus catalogs (#629),
     /// refusing to write an inventory whose catalogs break the identity or alias rules.
     /// Run from the repository root.
     /// </summary>
-    private static int GenerateCpuBusInventory()
+    internal static int GenerateCpuBusInventory()
     {
         string root = Directory.GetCurrentDirectory();
         IReadOnlyList<CpuBusCatalogEntry> entries = CpuBusCatalogInventory.Enumerate(CpuBusCatalogInventory.ProductionAssemblies);

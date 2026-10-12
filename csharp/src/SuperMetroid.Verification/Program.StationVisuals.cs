@@ -49,8 +49,8 @@ internal static class StationVisualsVerification
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), definitions);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            var plms = new RoomPlmSystem { StationVisuals = visuals };
-            plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+            var plms = new RoomPlmSystem { Drawing = { StationVisuals = visuals } };
+            plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(plms.TilemapUpdates.Count > 0,
                 "station frame publishes an immediate PLM redraw");

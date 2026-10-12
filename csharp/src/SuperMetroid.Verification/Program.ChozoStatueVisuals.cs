@@ -68,8 +68,8 @@ internal static class ChozoStatueVisualsVerification
                     new ushort[width * 16], new byte[width * 16],
                     blockDefinitions: blockDefinitions);
                 BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-                var plms = new RoomPlmSystem { ChozoStatueVisuals = selected };
-                AssertTrue(plms.TrySpawnChozoStatuePlm(level,
+                var plms = new RoomPlmSystem { Drawing = { ChozoStatueVisuals = selected } };
+                AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(header, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                     $"Chozo actor ${(int)header:X4} spawns in a bounded test room");
                 plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -89,7 +89,7 @@ internal static class ChozoStatueVisualsVerification
                 new ushort[width * 16], new byte[width * 16],
                 blockDefinitions: blockDefinitions);
             var crumblePlms = new RoomPlmSystem();
-            AssertTrue(crumblePlms.TrySpawnChozoStatuePlm(crumbleLevel,
+            AssertTrue(crumblePlms.ChozoStatue.TrySpawnChozoStatuePlm(crumbleLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
                     new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                 "Chozo crumble plug spawns in a bounded test room");
@@ -109,7 +109,7 @@ internal static class ChozoStatueVisualsVerification
                 new ushort[width * 16], new byte[width * 16],
                 blockDefinitions: blockDefinitions);
             var wreckedHandPlms = new RoomPlmSystem();
-            AssertTrue(wreckedHandPlms.TrySpawnChozoStatuePlm(wreckedHandLevel,
+            AssertTrue(wreckedHandPlms.ChozoStatue.TrySpawnChozoStatuePlm(wreckedHandLevel,
                 new ChozoStatuePlmRequest(PlmHeaderId.WreckedShipChozoHand,
                     new Position16<RoomBlocks>(3, 4), IsHardcoded: false)),
                 "Wrecked Ship hand spawns from its compiled header");

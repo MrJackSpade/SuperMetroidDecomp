@@ -1,0 +1,70 @@
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>
+/// Debugger-facing projection of Fake Kraid's ordinary enemy words and its deliberately
+/// aliased bank-$7E:7800 scratch area. “Mini-Kraid” is the name used by the item-drop and
+/// projectile routines; both names refer to definition <c>$E0FF</c>.
+/// </summary>
+public sealed class FakeKraidEnemyState
+{
+    private readonly RoomEnemySlot _slot;
+
+    internal FakeKraidEnemyState(RoomEnemySlot slot) => _slot = slot;
+
+    /// <summary>Signed whole-pixel walk delta in native variable B.</summary>
+    public short WalkDelta
+    {
+        get => unchecked((short)_slot.VariableB);
+        internal set => _slot.VariableB = unchecked((ushort)value);
+    }
+
+    /// <summary>Signed four-pixel facing marker in native variable C.</summary>
+    public short FacingDelta
+    {
+        get => unchecked((short)_slot.VariableC);
+        internal set => _slot.VariableC = unchecked((ushort)value);
+    }
+
+    /// <summary>Frames/steps remaining before the next forced walk reversal.</summary>
+    public ushort WalkStepTimer
+    {
+        get => _slot.VariableD;
+        internal set => _slot.VariableD = value;
+    }
+
+    /// <summary>Number of animation decision points before the next spit attack.</summary>
+    public ushort SpitDecisionTimer
+    {
+        get => _slot.VariableE;
+        internal set => _slot.VariableE = value;
+    }
+
+    /// <summary>
+    /// Three independent spike clocks stored at scratch words three through five. Main AI
+    /// visits exactly one clock per frame in the native order 0, 1, 2, 0...
+    /// </summary>
+    public ushort[] SpikeTimers { get; } = new ushort[3];
+
+    /// <summary>Byte offset zero/two/four selecting the spike clock visited this frame.</summary>
+    public ushort SpikeTimerByteOffset { get; internal set; }
+
+    /// <summary>Most recently selected spike row, or <c>null</c> before the first spawn.</summary>
+    public int? LastSpikeRow { get; internal set; }
+
+    /// <summary>Number of spike projectiles successfully allocated by this actor.</summary>
+    public int SpawnedSpikeCount { get; internal set; }
+
+    /// <summary>Number of spit projectiles successfully allocated by this actor.</summary>
+    public int SpawnedSpitCount { get; internal set; }
+}
+
+/// <summary>
+/// The specialized <c>Enemy_ItemDrop_MiniKraid</c> tail publishes this request after the
+/// type-three death explosion. Pickup selection remains owned by the common drop subsystem;
+/// retaining the exact origin and table pointer prevents the enemy-specific event from being
+/// silently lost while that shared system is translated.
+/// </summary>
+public readonly record struct FakeKraidDropRequest();

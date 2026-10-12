@@ -19,8 +19,6 @@ internal static class CeresSteamCollisionDefinitionsVerification
         EnemyTileArtworkCatalog stock)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
         int selected = 0;
         foreach (CeresSteamVariant variant in new[]
                  {
@@ -30,20 +28,19 @@ internal static class CeresSteamCollisionDefinitionsVerification
         {
             var denied = NewCeresSteamCollisionNoReadBus();
             var enemies = new RoomEnemySystem { TileArtwork = stock };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);
+            enemies.BindFixtureBus(denied);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
             slot.Definition = default(RoomEnemyDefinition) with
             { Bank = CeresSteamCollisionDefinitions.Bank };
             slot.Parameter1 = (ushort)variant;
-            typeof(RoomEnemySystem).GetMethod("InitializeCeresSteam", flags)!
-                .Invoke(enemies, [slot]);
+            enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < 90; frame++)
             {
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
                 if ((slot.SpritemapPointer & 0x8000) == 0)
                     continue;
                 AssertTrue(stock.ExtendedFrames!.TryGetDisplay(
@@ -68,12 +65,10 @@ internal static class CeresSteamCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCeresSteamCollisionNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
         var compiled = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(compiled, denied);
+        compiled.BindFixtureBus(denied);
         var nativeSlot = new RoomEnemySlot(0);
-        RoomEnemySlot compiledSlot = compiled.Slots[0];
+        RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         compiledSlot.Definition =
             default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank };
 
@@ -127,7 +122,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                     object?[] compiledArguments =
                         [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
-                    bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
+                    bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                     AssertEqual(nativeHit, compiledHit,
                         $"Ceres steam $A6:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                     AssertEqual(nativeCallback,

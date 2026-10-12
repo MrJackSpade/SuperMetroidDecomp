@@ -60,7 +60,7 @@ internal static class EnemyArtworkStaticContractChecks
         Require(before.UnresolvedCount == 15 && before.Consumers.Count == 15, "all identified boundaries are retained before adaptation");
         Require(after.Classifications.Count == 9 && after.UnresolvedCount == 6 && after.MissingCount == 0 && after.Consumers.Count == 15,
             "valid identities/lengths qualify while invalid known selectors remain findings");
-        const string construction = "csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.Construction.cs";
+        const string construction = "csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.cs";
         var stale = trees.Select(tree => tree.FilePath == construction ? CSharpSyntaxTree.ParseText(
             tree.GetText().ToString().Replace("sheet.Transfer.Length != definition.ByteCount", "false", StringComparison.Ordinal),
                 path: tree.FilePath) : tree);

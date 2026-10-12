@@ -13,8 +13,6 @@ internal static class WorkRobotInitialSelectionVerification
             int address = EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + 2 * selector;
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
         }
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeWorkRobotNoPower", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (ushort parameter = 0; parameter < 4; parameter++)
         {
             ushort expected = NativeWord(parameter);
@@ -22,7 +20,7 @@ internal static class WorkRobotInitialSelectionVerification
                 $"Work Robot original selection {parameter}, including adjacent opcode");
             var system = new RoomEnemySystem();
             var slot = new RoomEnemySlot(0) { Parameter1 = parameter };
-            initialize.Invoke(system, [slot, new WorkRobotEnemyState(slot)]);
+            system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, new WorkRobotEnemyState(slot));
             AssertEqual(expected, slot.CurrentInstruction,
                 $"Work Robot production selection {parameter} without cartridge access");
         }

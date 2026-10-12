@@ -166,7 +166,7 @@ public sealed class SamusXrayState
             return false;
         }
 
-        SamusMovementType currentMovementType = samus.ReadMovementType(bus);
+        SamusMovementType currentMovementType = samus.PoseMetadata.ReadMovementType(bus);
         if (ClassifyAllowedMovement(previousMovementType) == XrayPosture.Disallowed)
             return false;
 
@@ -174,7 +174,7 @@ public sealed class SamusXrayState
         if (posture == XrayPosture.Disallowed)
             return false;
 
-        bool facingLeft = samus.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
         SamusPoseId targetPose = posture == XrayPosture.Crouching
             ? facingLeft ? SamusPoseId.XrayingCrouchingLeftPose : SamusPoseId.XrayingCrouchingRightPose
             : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
@@ -235,20 +235,20 @@ public sealed class SamusXrayState
     private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
 
         // Special prospective-pose command five immediately overrides the freshly selected
         // delay with frame two/timer `$3F`, installs the dedicated handler pair, starts the
         // visor palette, clears beam-flare state, and queues activation sound nine.
-        samus.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 0x003f);
+        samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 0x003f);
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
         // `$91:EEA6` installs both X-Ray handler pointers, so an interrupted Flash's RTS
         // pose-input pointer is gone as well as its movement pointer. Keeping the host lock
         // would make Samus immobile again when X-Ray teardown restores ordinary input.
-        samus.CrystalFlashPoseInputLocked = false;
+        samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // The same routine replaces the shared movement/palette handlers and clears
         // `$0A68` even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishMovementHandler();
@@ -337,10 +337,10 @@ public sealed class SamusXrayState
         Ensure.NotNull(samus);
         EnsureActive();
 
-        SamusMovementType movementType = samus.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
         if (movementType != SamusMovementType.TurningOnGround)
         {
-            bool facingLeft = samus.IsFacingLeft(bus);
+            bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
             ushort turnBinding = facingLeft
                 ? (ushort)SnesButton.Right
                 : (ushort)SnesButton.Left;
@@ -368,7 +368,7 @@ public sealed class SamusXrayState
         if (samus.AnimationFrame != 2 || samus.AnimationFrameTimer != 1)
             return default;
 
-        bool nowFacingLeft = samus.IsFacingLeft(bus);
+        bool nowFacingLeft = samus.PoseMetadata.IsFacingLeft(bus);
         SamusPoseId completedPose = nowFacingLeft
             ? samus.Pose == SamusPoseId.TurningRightToLeftPose
                 ? SamusPoseId.XrayingStandingLeftPose
@@ -390,10 +390,10 @@ public sealed class SamusXrayState
         Ensure.NotNull(samus);
         EnsureActive();
 
-        if (samus.ReadMovementType(bus) == SamusMovementType.TurningOnGround)
+        if (samus.PoseMetadata.ReadMovementType(bus) == SamusMovementType.TurningOnGround)
             return null;
 
-        bool facingLeft = samus.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
         ushort frame = facingLeft
             ? Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameFour ? (ushort)4 :
               Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameThree ? (ushort)3 :
@@ -403,7 +403,7 @@ public sealed class SamusXrayState
               Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameTwo ? (ushort)1 :
               Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameThree ? (ushort)2 :
               Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameFour ? (ushort)3 : (ushort)4;
-        samus.SetAnimationFrameFromSpecialHandler(frame, timer: 15);
+        samus.Presentation.SetAnimationFrameFromSpecialHandler(frame, timer: 15);
         return frame;
     }
 
@@ -657,17 +657,17 @@ public sealed class SamusXrayState
         // `$91:E2AD` intentionally classifies turning type `$0E` as standing. Releasing
         // X-ray during a crouched turn therefore stands Samus up—the documented retail
         // X-ray stand-up glitch—and the radius difference moves her center upward.
-        SamusMovementType movementType = samus.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
         bool crouching = movementType == SamusMovementType.Crouching;
-        bool facingLeft = samus.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
         ushort oldRadius = samus.Kinematics.Radius.Y;
         SamusPoseId targetPose = crouching
             ? facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose
             : facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
 
         samus.Pose = targetPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
         // Teardown owns a direct native history shift, including the crouched-
         // turn stand-up glitch. It does not consume an ordinary input slot.
@@ -679,7 +679,7 @@ public sealed class SamusXrayState
         // an active spark to own the movement word while the old visor HDMA reaches this
         // teardown; replacing that spark while retaining `$0B3E` is the Blue Suit result.
         samus.Shinespark.RelinquishMovementHandler();
-        samus.ShinesparkPoseInputLocked = false;
+        samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         TimeIsFrozen = false;
         SuspendedSubsystems = XraySuspendedSubsystems.None;
         IsActive = false;
@@ -701,8 +701,8 @@ public sealed class SamusXrayState
         SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         // Both branches of the frozen X-ray input handler publish history after
         // initializing their pose; ordinary gameplay transition dispatch is bypassed.
         samus.CommitPoseHistory(bus);

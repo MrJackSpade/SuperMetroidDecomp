@@ -59,8 +59,8 @@ internal static class MaridiaElevatubeVisualsVerification
             RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
                 blockDefinitions: new byte[0x400 * 8]);
             level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
-            var plms = new RoomPlmSystem { MaridiaElevatubeVisuals = edited };
-            AssertTrue(plms.TrySpawnMaridiaElevatube(level),
+            var plms = new RoomPlmSystem { Drawing = { MaridiaElevatubeVisuals = edited } };
+            AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
                 "production door setup spawns the elevatube PLM");
             var guard = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -81,10 +81,10 @@ internal static class MaridiaElevatubeVisualsVerification
                     blockIndex, 0).TopRow[0],
                 "edited elevatube survives later camera streaming");
             int heardAtFrame = -1;
-            for (int frame = 1; frame < 24 && plms.ActiveCount != 0; frame++)
+            for (int frame = 1; frame < 24 && plms.SlotTable.ActiveCount != 0; frame++)
             {
                 plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                if (plms.SoundRequests.Any(request =>
+                if (plms.Sounds.SoundRequests.Any(request =>
                         request.SoundEffect == SoundEffectId.FromCartridge(
                             SoundEffectLibrary.Library2,
                             MaridiaElevatubePlmDefinitions.SoundId)))
@@ -92,7 +92,7 @@ internal static class MaridiaElevatubeVisualsVerification
             }
             AssertEqual(16, heardAtFrame,
                 "edited art leaves native sixteen-frame sound timing intact");
-            AssertEqual(0, plms.ActiveCount,
+            AssertEqual(0, plms.SlotTable.ActiveCount,
                 "edited art leaves native PLM deletion intact");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 "edited elevatube reads no compiled source bytes");

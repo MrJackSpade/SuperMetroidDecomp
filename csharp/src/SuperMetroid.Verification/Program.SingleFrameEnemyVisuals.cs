@@ -41,8 +41,6 @@ internal static class SingleFrameEnemyVisualsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = merged }),
         };
-        MethodInfo draw = typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var (definition, operand, count) in new[]
         {
             (SingleFrameEnemyVisualDefinitions.Kzan, KzanInstructionProgramDefinitionsTooling.PresentationWord, 4),
@@ -54,7 +52,7 @@ internal static class SingleFrameEnemyVisualsVerification
                 definition.Name + " inherits installed stock");
             AssertEqual(count, parts.Length, definition.Name + " native sprite count");
             var actual = new OamBuffer();
-            draw.Invoke(enemies, [actual, new EnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<OamPixels>((ushort)128, (ushort)112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true }]);
+            enemies.Presentation.DrawEnemySpritemap(actual, new EnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<OamPixels>((ushort)128, (ushort)112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, new EnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
             CompareOam(expected, actual, definition.Name);

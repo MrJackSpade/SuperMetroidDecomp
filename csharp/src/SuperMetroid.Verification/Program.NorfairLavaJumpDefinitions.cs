@@ -21,17 +21,14 @@ internal static class NorfairLavaJumpDefinitionsVerification
         ushort nextRandom = 0;
         int advances = 0;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, NewNorfairLavaJumpReadGuard(rom));
+        enemies.BindFixtureBus(NewNorfairLavaJumpReadGuard(rom));
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() =>
             {
                 advances++;
                 return nextRandom;
             });
-        var runMain = typeof(RoomEnemySystem).GetMethod(
-                "RunNorfairLavaJumpingEnemyMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, NorfairLavaJumpingEnemyState>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        Action<RoomEnemySlot, NorfairLavaJumpingEnemyState> runMain = enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new NorfairLavaJumpingEnemyState(slot);
 
         for (int random = 0; random <= ushort.MaxValue; random++)
@@ -49,7 +46,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
                 state.Function, $"Norfair lava jumper production handoff {random:X4}");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"Norfair lava jumper off-screen processing {random:X4}");
-            AssertEqual((ushort?)0x000d, enemies.LastNorfairLavaJumpingEnemySoundEffect,
+            AssertEqual((ushort?)0x000d, enemies.NorfairLavaJumpingEnemyBehavior.LastNorfairLavaJumpingEnemySoundEffect,
                 $"Norfair lava jumper sound {random:X4}");
             AssertEqual(1, advances, $"Norfair lava jumper RNG advance {random:X4}");
         }

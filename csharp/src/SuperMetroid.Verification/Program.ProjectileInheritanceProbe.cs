@@ -23,7 +23,7 @@ internal static class ProjectileInheritanceProbeVerification
     // The original initialized-WRAM reproduction is retained alongside live producers.
     internal static void ProbeProjectileVelocityInheritance()
     {
-        var initialize = typeof(SamusProjectileSystem)
+        var initialize = typeof(BeamFiring)
             .GetMethod("InitializePowerBeamVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
         var memory = new TestAddressSpace();
@@ -122,11 +122,11 @@ internal static class ProjectileInheritanceProbeVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
         {
@@ -135,16 +135,16 @@ internal static class ProjectileInheritanceProbeVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.SelectedHudItem = weapon;
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         for (int frame = 0; frame < 20; frame++) runtime.StepFrame((ushort)SnesButton.Right);
         var records = new ProjectileInheritanceRecordsAccess(bus);
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);
@@ -157,21 +157,21 @@ internal static class ProjectileInheritanceProbeVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(stateStream);
         // The host rebinds nonserialized presentation assets after debugger restore.
         BindRetailRuntimeFixture(restored);
-        runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.ControllerBindings.Shoot));
-        restored.StepFrame((ushort)((ushort)SnesButton.Right | restored.ControllerBindings.Shoot));
+        runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.Options.ControllerBindings.Shoot));
+        restored.StepFrame((ushort)((ushort)SnesButton.Right | restored.Options.ControllerBindings.Shoot));
         var shot = runtime.Projectiles!.Slots.First(slot => slot.IsActive);
         AssertEqual(expected, shot.Velocity.X.SignedRawValue,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
         AssertEqual(expected, restored.Projectiles!.Slots.First(slot => slot.IsActive).Velocity.X.SignedRawValue,
             "Debugger graph round trip retains native WRAM inheritance for resumed launch");
-        AssertEqual(runtime.Camera!.Speed.Y.Fraction, records.CameraYSubspeed,
+        AssertEqual(runtime.Room.Camera!.Speed.Y.Fraction, records.CameraYSubspeed,
             "Runtime publishes camera Y subspeed into the native shared record");
         byte[] beforeFreeze = records.CaptureDistanceRecords();
-        runtime.GameplayTimeFrozen = true;
+        runtime.Freeze.GameplayTimeFrozen = true;
         runtime.StepFrame(0);
         AssertTrue(beforeFreeze.AsSpan().SequenceEqual(records.CaptureDistanceRecords()),
             "Frozen gameplay skips the projectile alpha and preserves directional records");
-        runtime.GameplayTimeFrozen = false;
+        runtime.Freeze.GameplayTimeFrozen = false;
         samus.InputLocked = true;
         runtime.StepFrame(0);
         AssertTrue(records.CaptureDistanceRecords().All(value => value == 0),

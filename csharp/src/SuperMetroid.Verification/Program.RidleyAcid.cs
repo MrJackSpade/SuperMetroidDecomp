@@ -19,14 +19,14 @@ internal static class RidleyAcidVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xb32e);
         var fx = runtime.RoomLayer3Fx;
         AssertEqual(RoomFxType.Acid, fx.Type, "final Ridley room authors acid, not lava");
         AssertEqual((ushort)528, fx.BaseYPosition, "acid starts below the arena");
-        var state = runtime.Enemies.Ridley!;
+        var state = runtime.Enemies.RidleyEncounter.Ridley!;
         // The shared Ridley state has no Ceres Baby program in Norfair. The
         // global actor-draw seam must not invoke Ceres's private graphics hook.
         var expectedEmptyOam = new OamBuffer();
@@ -34,8 +34,8 @@ internal static class RidleyAcidVerification
         expectedEmptyOam.FinalizeFrame();
         var ridleyOam = new OamBuffer();
         ridleyOam.BeginFrame();
-        runtime.Enemies.DrawCeresRidleyImmediateBabyAndDoor(ridleyOam, new(0, 256));
-        runtime.Enemies.DrawCeresRidleyPostEnemyHook(ridleyOam, new(0, 256));
+        runtime.Enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(ridleyOam, new(0, 256));
+        runtime.Enemies.CeresRidleyBehavior.DrawCeresRidleyPostEnemyHook(ridleyOam, new(0, 256));
         ridleyOam.FinalizeFrame();
         AssertTrue(ridleyOam.ImageEquals(expectedEmptyOam),
             "Norfair Ridley does not draw the Ceres Baby or arena-door overlay");
@@ -47,7 +47,7 @@ internal static class RidleyAcidVerification
         state.FunctionTimer = 0;
         state.FadePaletteOffset = 0;
         for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Samus, Level = runtime.LevelData });
+            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
         AssertEqual((ushort)440, fx.TargetYPosition, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.PackedYVelocity, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.Timer, "native reveal writes rise delay once");
@@ -56,7 +56,7 @@ internal static class RidleyAcidVerification
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
         state.FunctionTimer = 0;
-        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Samus, Level = runtime.LevelData });
+        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
         AssertEqual((ushort)528, fx.TargetYPosition, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.PackedYVelocity, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.Timer, "native death writes drain delay once");

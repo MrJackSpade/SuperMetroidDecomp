@@ -24,13 +24,13 @@ internal static class CompiledScrollPlmProgramsVerification
         const int width = 64;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x8230), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x8230), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "retail scroll-only population loads from compiled placement");
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(guarded,
             size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.RedBoundary);
         scrolls.SetStorage(0, RoomScrollState.RedBoundary);
-        AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(new(8, 13))),
+        AssertTrue(plms.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(8, 13))),
             "retail scroll trigger wakes at its authored coordinate");
         plms.Step(guarded, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(0),

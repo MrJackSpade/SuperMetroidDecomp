@@ -240,7 +240,10 @@ internal static class SpacetimeBeamVerification
                 restartBus,
                 new SuperMetroidGameOptions { SkipOpeningCinematic = skipOpening },
                 renderGameplayFrames: false);
-            game.BindMapPresentation(RetailPresentationFixture());
+            game.BindArtwork(game.Artwork with
+            {
+                MapPresentation = RetailPresentationFixture(),
+            });
             return game;
         }
 
@@ -275,15 +278,15 @@ internal static class SpacetimeBeamVerification
         Until(() => skippedGame.RuntimeForVerification is not null,
             () => skippedGame.Step(0), 200, "SpaceTime Ceres restart");
         SuperMetroidRuntime runtime = skippedGame.RuntimeForVerification!;
-        AssertEqual(AreaId.Ceres, runtime.ActiveRoom!.AreaIndex,
+        AssertEqual(AreaId.Ceres, runtime.Room.ActiveRoom!.AreaIndex,
             "SpaceTime save restarts at Ceres");
-        AssertEqual((ushort)0x100e, runtime.Samus!.EquippedBeams,
+        AssertEqual((ushort)0x100e, runtime.Player.Samus!.EquippedBeams,
             "SpaceTime Ceres restart retains equipped beams");
-        AssertEqual((ushort)0, runtime.Samus.MaxMissiles,
+        AssertEqual((ushort)0, runtime.Player.Samus.MaxMissiles,
             "SpaceTime Ceres restart loses Missiles after the intro flashback");
-        AssertEqual((ushort)7, runtime.Samus.SuperMissiles,
+        AssertEqual((ushort)7, runtime.Player.Samus.SuperMissiles,
             "SpaceTime Ceres restart retains Super Missiles");
-        AssertEqual((ushort)3, runtime.Samus.PowerBombs,
+        AssertEqual((ushort)3, runtime.Player.Samus.PowerBombs,
             "SpaceTime Ceres restart retains Power Bombs");
         AssertTrue(Enumerable.Range(0, Bank80SystemState.EventByteCount).All(
                 index => runtime.System.GetEventByteRaw(index) == 0),
@@ -306,7 +309,7 @@ internal static class SpacetimeBeamVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
-        var artwork = RepositoryInstallation.Projectiles.BeamTiles;
+        var artwork = InstalledFixtures.Projectiles.BeamTiles;
         byte[] nativeTiles = ReadRetailSpacetimeGraphicsOracle(bus);
         AssertTrue(artwork.TryResolve(SpacetimeBeamGraphicsDefinitions.TileSource, 256, out _),
             "legacy SpaceTime graphics queue resolves through installed artwork");

@@ -14,13 +14,12 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(high, KiHunterMotionDefinitions.GravityWhole, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
-        T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem).GetMethod(name, flags)!.CreateDelegate<T>();
-        var orbit = Method<Action<RoomEnemySlot, KiHunterEnemyState>>("RunDetachedKiHunterWingOrbit");
-        var delta = Method<Func<ushort, bool, ushort>>("ReadKiHunterQuadraticAngleDelta");
-        var cosine = Method<Func<ushort, ushort, int>>("ReadEightBitCosineProduct");
-        var sine = Method<Func<ushort, ushort, int>>("ReadEightBitNegativeSineProduct");
-        var gravity = (SnesSignedSixteenSixteen)typeof(RoomEnemySystem).GetProperty("KiHunterGravity", flags)!.GetValue(null)!;
-        var slot = new RoomEnemySystem().Slots[0];
+        var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
+        var delta = new Func<ushort, bool, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var cosine = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitCosineProduct);
+        var sine = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitNegativeSineProduct);
+        var gravity = KiHunterBehavior.KiHunterGravity;
+        var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var state = new KiHunterEnemyState(slot);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

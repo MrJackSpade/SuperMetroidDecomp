@@ -12,19 +12,16 @@ internal static class CacatacProjectileDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewCacatacProjectileReadGuard(rom));
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnCacatacSpike", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
-        RoomEnemySlot source = enemies.Slots[0];
+        enemies.BindFixtureBus(NewCacatacProjectileReadGuard(rom));
+        Action<RoomEnemySlot, ushort> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = new(new(0x1234, 0x5678), new(0x9abc, 0xdef0));
         source.PaletteIndex = 0x0c00;
         source.VramTilesIndex = 0x0123;
 
         foreach (CacatacSpikeDirection direction in Enum.GetValues<CacatacSpikeDirection>())
         {
-            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+            foreach (RoomEnemyProjectileSlot projectile in enemies.Projectiles.EnemyProjectiles)
                 projectile.Clear();
 
             ushort raw = (ushort)direction;
@@ -43,7 +40,7 @@ internal static class CacatacProjectileDefinitionsVerification
             AssertEqual(expectedPositive, speeds.Positive, $"compiled Cacatac positive speed {direction}");
 
             spawn(source, raw);
-            RoomEnemyProjectileSlot actual = enemies.EnemyProjectiles.Single(
+            RoomEnemyProjectileSlot actual = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             AssertEqual(native, actual.InstructionPointer, $"spawned Cacatac instruction {direction}");
             AssertEqual(expectedNegative, actual.Velocity.Y.RawValue, $"spawned Cacatac negative speed {direction}");

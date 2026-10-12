@@ -12,7 +12,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
         Suite(nameof(VerifyGlassShardXPlacement), () => VerifyGlassShardXPlacement(rom));
         Suite(nameof(VerifyGlassShardYPlacement), () => VerifyGlassShardYPlacement(rom));
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
         var guarded = NewMotherBrainGlassShardReadGuard(rom);
 
         Suite(nameof(VerifyGlassShardProgramSelection), () => VerifyGlassShardProgramSelection(rom));
@@ -26,15 +25,15 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             {
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
                 var enemies = new RoomEnemySystem();
-                busField.SetValue(enemies, guarded);
+                enemies.BindFixtureBus(guarded);
                 enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => random.Dequeue()));
-                enemies.SpawnMotherBrainGlassProjectile(new(
+                enemies.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(new(
                     (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
                     parameter,
                     PlmBlock: new(0x20, 0x08)));
 
                 RoomEnemyProjectileSlot shard =
-                    enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
+                    enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
                 AssertEqual(MotherBrainGlassShardDefinitions.InstructionPointer(animationIndex),
                     shard.InstructionPointer,
                     $"production Mother Brain glass-shard instruction {parameter}/{animationIndex}");

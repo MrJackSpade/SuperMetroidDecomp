@@ -25,21 +25,15 @@ internal static class MagdollitePhaseDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewMagdollitePhaseGuard(new TestAddressSpace()));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeMagdollite", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
-        var rise = typeof(RoomEnemySystem).GetMethod("RunMagdolliteBodyRising", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?>>(enemies);
-        var fall = typeof(RoomEnemySystem).GetMethod("RunMagdolliteBodyFalling", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, MagdolliteEnemyState>>(enemies);
-        var trackRise = typeof(RoomEnemySystem).GetMethod("RunMagdolliteOverlayTrackingRise", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?>>(enemies);
+        enemies.BindFixtureBus(NewMagdollitePhaseGuard(new TestAddressSpace()));
+        Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
+        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
+        Action<RoomEnemySlot, MagdolliteEnemyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
+        Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> trackRise = enemies.MagdolliteBehavior.RunMagdolliteOverlayTrackingRise;
 
         for (int index = 0; index < 3; index++)
         {
-            RoomEnemySlot slot = enemies.Slots[index];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
             slot.Parameter1 = (ushort)index;
             slot.Parameter2 = 0;
@@ -47,9 +41,9 @@ internal static class MagdollitePhaseDefinitionsVerification
             initialize(slot, null);
         }
 
-        RoomEnemySlot head = enemies.Slots[0];
-        RoomEnemySlot body = enemies.Slots[1];
-        RoomEnemySlot overlay = enemies.Slots[2];
+        RoomEnemySlot head = enemies.SlotTable.Slots[0];
+        RoomEnemySlot body = enemies.SlotTable.Slots[1];
+        RoomEnemySlot overlay = enemies.SlotTable.Slots[2];
         MagdolliteEnemyState headState = enemies.MagdolliteStates[0]!;
         MagdolliteEnemyState bodyState = enemies.MagdolliteStates[1]!;
         MagdolliteEnemyState overlayState = enemies.MagdolliteStates[2]!;

@@ -278,7 +278,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
         breakableFiringPlms);
     AssertTrue(breakableConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
         "BTS-one grapple firing connects through PLM setup");
-    AssertEqual(1, breakableFiringPlms.ActiveCount,
+    AssertEqual(1, breakableFiringPlms.SlotTable.ActiveCount,
         "BTS-one acquisition installs one independent room PLM");
     AssertEqual(0, breakableFiringLevel.GetCollisionBlock(new(3, 3)).Behavior,
         "BTS-one acquisition synchronously clears low BTS byte");
@@ -408,7 +408,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
             $"grapple endpoint type ${(collisionWord >> 12):X1} cancellation topology");
         AssertEqual(!expectedCancellation, endpointReaction.Fired,
             $"grapple endpoint type ${(collisionWord >> 12):X1} live-beam topology");
-        AssertEqual(expectedPlms, endpointPlms.ActiveCount,
+        AssertEqual(expectedPlms, endpointPlms.SlotTable.ActiveCount,
             $"grapple endpoint type ${(collisionWord >> 12):X1} shared PLM side effect");
     }
 
@@ -618,7 +618,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(SamusPoseId.GrappleSwingRightPose, samus.Pose, "grapple connection pose");
     AssertEqual(
         SamusMovementType.Grappling,
-        samus.ReadMovementType(bus),
+        samus.PoseMetadata.ReadMovementType(bus),
         "grapple movement type from pose record");
     AssertEqual(200, samus.Grapple.BeamStart.X, "initial grapple beam-start X");
     AssertEqual(154, samus.Grapple.BeamStart.Y, "initial grapple beam-start Y");

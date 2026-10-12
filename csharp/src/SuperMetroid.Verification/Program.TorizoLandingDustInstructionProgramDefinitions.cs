@@ -38,25 +38,21 @@ internal static class TorizoLandingDustInstructionProgramDefinitionsVerification
                 $"Torizo landing-dust mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewTorizoLandingDustInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        var spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnBombTorizoLandingDust", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, bool>>(enemies);
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemySlot, bool> spawn = enemies.BombTorizoBehavior.SpawnBombTorizoLandingDust;
 
-        RoomEnemySlot torizo = enemies.Slots[0];
+        RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(300, 120));
         spawn(torizo, true);
         spawn(torizo, false);
-        RoomEnemyProjectileSlot right = enemies.EnemyProjectiles.First(
+        RoomEnemyProjectileSlot right = enemies.Projectiles.EnemyProjectiles.First(
             projectile => projectile.Kind == RoomEnemyProjectileKind.BombTorizoRightFootDust);
-        RoomEnemyProjectileSlot left = enemies.EnemyProjectiles.First(
+        RoomEnemyProjectileSlot left = enemies.Projectiles.EnemyProjectiles.First(
             projectile => projectile.Kind == RoomEnemyProjectileKind.BombTorizoLeftFootDust);
 
         AssertEqual((ushort)324, right.Position.X.Whole, "right-foot dust producer X position");
@@ -119,7 +115,7 @@ internal static class TorizoLandingDustInstructionProgramDefinitionsVerification
             for (int step = 0; step < steps; step++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }

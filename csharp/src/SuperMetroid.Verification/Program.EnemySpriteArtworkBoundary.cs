@@ -32,10 +32,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         EnemyProjectileSpritemapCatalog projectileArtwork = artwork.ProjectileSpritemaps!;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, memory);
-        MethodInfo drawEnemy = typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap", flags)!;
-        MethodInfo drawProjectile = typeof(RoomEnemySystem).GetMethod("DrawEnemyProjectilePass", flags)!;
-        MethodInfo drawSpriteObjects = typeof(RoomEnemySystem).GetMethod("DrawRoomSpriteObjects", flags)!;
+        enemies.BindFixtureBus(memory);
         int enemyCases = 0, projectileCases = 0, spriteObjectCases = 0;
 
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
@@ -44,7 +41,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         {
             var expected = new OamBuffer(); var actual = new OamBuffer();
             DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
-            drawEnemy.Invoke(enemies, [actual, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<OamPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 }]);
+            enemies.Presentation.DrawEnemySpritemap(actual, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<OamPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
 
@@ -55,14 +52,14 @@ internal static class EnemySpriteArtworkBoundaryVerification
             sprite.Position = sprite.Position.WithWhole(new(x, y));
             sprite.GraphicsIndex = 0x0a04;
             actual = new OamBuffer(); expected = new OamBuffer();
-            drawSpriteObjects.Invoke(enemies, [actual, Position16<RoomPixels>.Zero]);
+            enemies.SpriteObjects.DrawRoomSpriteObjects(actual, Position16<RoomPixels>.Zero);
             DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 4 });
             Equal(expected, actual, $"room sprite object {frame.Name}");
             sprite.Clear();
             spriteObjectCases++;
         }
 
-        RoomEnemyProjectileSlot roomSlot = enemies.EnemyProjectiles[17];
+        RoomEnemyProjectileSlot roomSlot = enemies.Projectiles.EnemyProjectiles[17];
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameDefinitions.All)
         foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (255, 252), (0, ushort.MaxValue) })
         {
@@ -74,7 +71,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             roomSlot.Position = roomSlot.Position.WithWhole(new(x, y)); roomSlot.GraphicsIndex = 0x0a04;
             var expected = new OamBuffer(); var actual = new OamBuffer();
             DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(x, y), 0x0a04, (SnesLittleEndian.HighByteInPlace(y)) == 0);
-            drawProjectile.Invoke(enemies, [actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false]);
+            enemies.Projectiles.DrawEnemyProjectilePass(actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
             Equal(expected, actual, $"room projectile {frame.Name}");
 
             projectileCases++;
@@ -89,7 +86,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             roomSlot.Position = roomSlot.Position.WithWhole(new(128, 96));
             roomSlot.GraphicsIndex = 0x0a04; roomSlot.SpritemapPointer = pointer;
             var actual = new OamBuffer(); var expected = new OamBuffer();
-            drawProjectile.Invoke(enemies, [actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false]);
+            enemies.Projectiles.DrawEnemyProjectilePass(actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false);
             DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(128, 96), 0x0a04, true);
             Equal(expected, actual, $"direct projectile {name}");
         }

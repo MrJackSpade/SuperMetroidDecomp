@@ -21,17 +21,15 @@ internal static class PhantoonFlameSpawnsVerification
         foreach (ushort parameter in parameters)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .SetValue(enemies, NewPhantoonFlameSpawnReadGuard(rom));
-            var spawn = typeof(RoomEnemySystem).GetMethod("SpawnPhantoonDestroyableFlame", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .CreateDelegate<Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool>>(enemies);
-            var body = enemies.Slots[0];
+            enemies.BindFixtureBus(NewPhantoonFlameSpawnReadGuard(rom));
+            Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool> spawn = enemies.PhantoonBehavior.SpawnPhantoonDestroyableFlame;
+            var body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = ClosedNativeWords.Decode<PhantoonFlameSpawnType>(
                 SnesLittleEndian.HighByte(parameter), "Phantoon flame spawn type");
             int index = SnesLittleEndian.LowByte(parameter);
             AssertTrue(spawn(body, type, (byte)parameter), "Real Phantoon flame allocation succeeds");
-            var flame = enemies.EnemyProjectiles.Single(p => p.IsActive);
+            var flame = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             ushort angle = type switch
             {
                 PhantoonFlameSpawnType.Enraged => rom.ReadCartridgeByte(0x8698b4 + index),

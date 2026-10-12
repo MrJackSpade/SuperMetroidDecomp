@@ -39,16 +39,12 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
                 $"enemy-pickup mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewEnemyPickupInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo begin = typeof(RoomEnemySystem).GetMethod(
-            "BeginEnemyPickup", staticFlags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", instanceFlags)!;
+        enemies.BindFixtureBus(guard);
 
         (EnemyPickupKind Kind, ushort Initial, int FrameCount, ushort Branch, ushort Sleep)[]
             programs =
@@ -76,7 +72,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
             {
                 Kind = RoomEnemyProjectileKind.EnemyDeathPickup,
             };
-            begin.Invoke(null, [pickup, program.Kind]);
+            EnemyDeathsAndDrops.BeginEnemyPickup(pickup, program.Kind);
             AssertEqual(program.Initial, pickup.InstructionPointer,
                 $"real {program.Kind} pickup initializer selects its named program");
 
@@ -111,7 +107,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
         {
             Kind = RoomEnemyProjectileKind.EnemyDeathExplosion,
         };
-        begin.Invoke(null, [convertedDeath, EnemyPickupKind.SmallEnergy]);
+        EnemyDeathsAndDrops.BeginEnemyPickup(convertedDeath, EnemyPickupKind.SmallEnergy);
         convertedDeath.InstructionTimer = 1;
         Process(convertedDeath);
         AssertEqual(
@@ -156,7 +152,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
 
         void Process(RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }

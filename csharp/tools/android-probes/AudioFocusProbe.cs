@@ -1,5 +1,7 @@
+using Android.App;
 using Android.Content;
 using Android.Media;
+using Android.OS;
 
 namespace SuperMetroid.Android;
 
@@ -7,24 +9,37 @@ namespace SuperMetroid.Android;
 /// Opt-in diagnostic build only. Creates a second real AudioManager client while
 /// the game Activity retains window focus; never plays audio or accesses a microphone.
 /// </summary>
-public sealed partial class MainActivity
+internal sealed class AudioFocusProbe(Activity activity, Func<AudioFocusProbe.HostState> host)
 {
-    private bool focusProbeActive;
-    partial void ObserveAudioFocus(string change) => ProbeLog($"callback={change} focused={focused} resumed={resumed} canRun={CanRun}");
-    private void ProbeLog(string text) => File.AppendAllText(Path.Combine(FilesDir!.AbsolutePath, "audio-focus-probe.log"), $"{DateTimeOffset.UtcNow:O} {text}\n");
+    /// <summary>The Activity's focus, lifecycle and audio services at the moment the probe reads them.</summary>
+    internal readonly record struct HostState(bool Focused, bool Resumed, bool CanRun, AudioManager? AudioManager, Handler? Handler);
 
-    protected override void OnNewIntent(Intent? intent)
+    private bool focusProbeActive;
+
+    /// <summary>Logs one audio-focus callback the game's own focus listener received.</summary>
+    internal void Observe(string change)
     {
-        base.OnNewIntent(intent);
+        HostState state = host();
+        Log($"callback={change} focused={state.Focused} resumed={state.Resumed} canRun={state.CanRun}");
+    }
+
+    /// <summary>Starts a probe when the single-top intent names one.</summary>
+    internal void OnNewIntent(Intent? intent)
+    {
         if (intent?.GetStringExtra("audio-focus-probe") is not { } mode) return;
         // Delivering a single-top intent temporarily pauses the Activity. Let its
         // normal resume/window-focus callbacks finish before testing audio alone.
-        hostHandler!.PostDelayed(() => RunAudioFocusProbe(mode), 750);
+        Handler handler = host().Handler ?? throw new InvalidOperationException("Audio probe requires the host handler.");
+        handler.PostDelayed(() => Run(mode), 750);
     }
 
-    private void RunAudioFocusProbe(string mode)
+    private void Log(string text) =>
+        File.AppendAllText(Path.Combine(activity.FilesDir!.AbsolutePath, "audio-focus-probe.log"), $"{DateTimeOffset.UtcNow:O} {text}\n");
+
+    private void Run(string mode)
     {
-        if (focusProbeActive || audioManager is null || hostHandler is null || !CanRun)
+        HostState state = host();
+        if (focusProbeActive || state.AudioManager is not { } audioManager || state.Handler is not { } hostHandler || !state.CanRun)
             throw new InvalidOperationException("Audio probe requires an active foreground game and no existing probe.");
         AudioFocus gain = mode switch
         {
@@ -40,13 +55,15 @@ public sealed partial class MainActivity
             .SetOnAudioFocusChangeListener(listener, hostHandler)!.Build()!;
         focusProbeActive = true;
         var result = audioManager.RequestAudioFocus(request);
-        ProbeLog($"requested={mode} result={result} focused={focused} resumed={resumed}");
+        Log($"requested={mode} result={result} focused={state.Focused} resumed={state.Resumed}");
+        string timingLog = Path.Combine(activity.FilesDir!.AbsolutePath, "timing.log");
         string? heldTiming = null;
-        hostHandler.PostDelayed(() => heldTiming = File.ReadLines(Path.Combine(FilesDir!.AbsolutePath, "timing.log")).Last(), 1000);
-        hostHandler.PostDelayed(() => ProbeLog($"heldTimingUnchanged={heldTiming == File.ReadLines(Path.Combine(FilesDir!.AbsolutePath, "timing.log")).Last()} canRun={CanRun}"), 2500);
+        hostHandler.PostDelayed(() => heldTiming = File.ReadLines(timingLog).Last(), 1000);
+        hostHandler.PostDelayed(() => Log($"heldTimingUnchanged={heldTiming == File.ReadLines(timingLog).Last()} canRun={host().CanRun}"), 2500);
         hostHandler.PostDelayed(() =>
         {
-            ProbeLog($"release={mode} focused={focused} resumed={resumed} canRun={CanRun}");
+            HostState released = host();
+            Log($"release={mode} focused={released.Focused} resumed={released.Resumed} canRun={released.CanRun}");
             audioManager.AbandonAudioFocusRequest(request);
             request.Dispose();
             listener.Dispose();

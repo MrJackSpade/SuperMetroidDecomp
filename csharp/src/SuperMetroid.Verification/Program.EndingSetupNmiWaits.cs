@@ -27,9 +27,9 @@ internal static class EndingSetupNmiWaitsVerification
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime", flags)!.Invoke(game, [false]);
         var runtime = (SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime", flags)!.GetValue(game)!;
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         typeof(SuperMetroidGame).GetMethod("BeginZebesEscapeFade", flags)!.Invoke(game, null);
         while (game.GameState == SuperMetroidGameState.SamusEscapesFromZebes)
             game.Step(0);

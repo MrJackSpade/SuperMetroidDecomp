@@ -38,23 +38,18 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
                 $"Torizo explosion mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewTorizoExplosionInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
 
         var lowRandom = new Queue<ushort>(
             [0xc000, 7, 9, 0x0000, 1, 2, 0x8000, 3, 4]);
         RoomEnemySystem lowEnemies = CreateSystem(guard, lowRandom);
         RoomEnemySlot lowTorizo = CreateTorizo(lowEnemies);
         lowTorizo.Parameter1 = 0x8000;
-        typeof(RoomEnemySystem).GetMethod(
-            "SpawnBombTorizoLowHealthExplosion", flags)!.Invoke(
-                lowEnemies,
-                [lowTorizo, (ushort)0]);
-        RoomEnemyProjectileSlot low = lowEnemies.EnemyProjectiles[^1];
+        lowEnemies.BombTorizoBehavior.SpawnBombTorizoLowHealthExplosion(lowTorizo, (ushort)0);
+        RoomEnemyProjectileSlot low = lowEnemies.Projectiles.EnemyProjectiles[^1];
         AssertEqual(TorizoExplosionInstructionProgramDefinitions.LowHealthInitial,
             low.InstructionPointer, "low-health explosion selects compiled program");
         AssertEqual((ushort)1012, low.Variable0, "low-health explosion retained X center");
@@ -62,7 +57,7 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
 
         for (int frame = 1; frame <= 36; frame++)
         {
-            process.Invoke(lowEnemies, [low, null, Position16<RoomPixels>.Zero]);
+            lowEnemies.Projectiles.ProcessEnemyProjectileInstructions(low, null, Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, low, spriteArtwork, executedOperands);
             AssertTrue(low.IsActive,
                 $"low-health explosion remains active through frame {frame}");
@@ -94,7 +89,7 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
                     "low-health explosion final cycle timer");
             }
         }
-        process.Invoke(lowEnemies, [low, null, Position16<RoomPixels>.Zero]);
+        lowEnemies.Projectiles.ProcessEnemyProjectileInstructions(low, null, Position16<RoomPixels>.Zero);
         Suite(nameof(VerifyExecutedProjectileFrame), () => VerifyExecutedProjectileFrame(rom, low, spriteArtwork, executedOperands));
         AssertTrue(!low.IsActive,
             "low-health explosion deletes after three exact twelve-frame cycles");
@@ -171,16 +166,15 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
                 $"Torizo death {scenario} branch sample fixture");
             RoomEnemySystem enemies = CreateSystem(guard, random);
             RoomEnemySlot torizo = CreateTorizo(enemies);
-            typeof(RoomEnemySystem).GetMethod(
-                "SpawnBombTorizoDeathExplosion", flags)!.Invoke(enemies, [torizo]);
-            RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
+            enemies.BombTorizoBehavior.SpawnBombTorizoDeathExplosion(torizo);
+            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
             AssertEqual(TorizoExplosionInstructionProgramDefinitions.DeathInitial,
                 projectile.InstructionPointer,
                 $"Torizo death {scenario} selects compiled program");
 
             for (int frame = 1; frame <= visibleFrames; frame++)
             {
-                process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
                 AssertTrue(projectile.IsActive,
                     $"Torizo death {scenario} remains active through frame {frame}");
@@ -203,7 +197,7 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
                         $"Torizo death {scenario} final cycle timer");
                 }
             }
-            process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             AssertTrue(!projectile.IsActive,
                 $"Torizo death {scenario} deletes after its second complete cycle");
@@ -214,14 +208,14 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
         RoomEnemySystem CreateSystem(ISnesAddressSpace bus, Queue<ushort> random)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+            enemies.BindFixtureBus(bus);
             enemies.VerificationServices().NextRandom = (Func<ushort>)random.Dequeue;
             return enemies;
         }
 
         static RoomEnemySlot CreateTorizo(RoomEnemySystem enemies)
         {
-            RoomEnemySlot torizo = enemies.Slots[0];
+            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             return torizo;
         }

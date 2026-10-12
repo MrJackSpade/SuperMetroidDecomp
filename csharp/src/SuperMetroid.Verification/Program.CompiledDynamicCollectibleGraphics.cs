@@ -27,8 +27,8 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new byte[0x400 * 8]);
         var vram = new SnesVram();
         var plms = new RoomPlmSystem();
-        plms.LoadRoomPopulation(new PlmRoom(guarded, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        AssertTrue(plms.Collectibles.Any(item =>
+        plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        AssertTrue(plms.CollectiblePlms.Collectibles.Any(item =>
                 item.Kind == InWorldCollectibleKind.Bombs),
             "retail Bombs item remains allocated after compiled graphics upload");
         ReadOnlySpan<byte> expected =

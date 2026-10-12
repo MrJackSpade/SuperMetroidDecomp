@@ -19,8 +19,8 @@ internal static class RetailLoadAppearanceTests
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, save);
         }
-        var legacy = RepositoryInstallation.CreateGame(left);
-        var captured = RepositoryInstallation.CreateGame(right);
+        var legacy = InstalledFixtures.CreateGame(left);
+        var captured = InstalledFixtures.CreateGame(right);
         bool sawMap = false, sawAppearance = false, completed = false;
         int samples = 0;
         for (int tick = 0; tick < 2400; tick++)
@@ -49,8 +49,8 @@ internal static class RetailLoadAppearanceTests
             if (sawAppearance && legacy.RuntimeForVerification is { } runtime && !runtime.SamusLoadAppearanceActive &&
                 legacy.GameState == SuperMetroidGameState.MainGameplay)
             {
-                if (runtime.Samus!.InputLocked || captured.RuntimeForVerification!.SamusLoadAppearanceActive ||
-                    captured.RuntimeForVerification!.Samus!.InputLocked)
+                if (runtime.Player.Samus!.InputLocked || captured.RuntimeForVerification!.SamusLoadAppearanceActive ||
+                    captured.RuntimeForVerification!.Player.Samus!.InputLocked)
                     throw new InvalidOperationException("Load appearance did not release both owners.");
                 completed = true; break;
             }

@@ -25,7 +25,6 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     internal static void VerifyNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertEqual(65, NorfairRioInstructionProgramDefinitions.MechanicsWordCount,
             "Norfair Rio compiled mechanics word count");
         AssertEqual(34, NorfairRioInstructionProgramDefinitions.PresentationWordCount,
@@ -42,7 +41,6 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         }
 
         var guard = NewNorfairRioInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         (ushort Entry, int Calls, ushort Final, ushort Offset, bool Signal, string Name)[]
             programs =
         [
@@ -83,11 +81,10 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
                   string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, NorfairRioEnemyState state) =
-                NewNorfairRioInstructionSystem(guard, flags, entry);
+                NewNorfairRioInstructionSystem(guard, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             RunNorfairRioInstructionFrames(
-                process,
                 enemies,
                 arguments,
                 slot,
@@ -100,7 +97,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
                 $"Norfair Rio {name} animation signal");
         }
 
-        Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections(guard, flags));
+        Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections(guard));
 
         AssertEqual(0, guard.ObservedWords.Count,
             "Norfair Rio presentation selectors are compiled, not ROM reads");
@@ -139,28 +136,24 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
     }
 
     private static void VerifyNorfairRioInitializerSelections(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+        ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeNorfairRio",
-            flags)!;
+        enemies.BindFixtureBus(bus);
 
-        RoomEnemySlot parent = enemies.Slots[0];
+        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
-        initialize.Invoke(enemies, [parent]);
+        enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
         AssertEqual(NorfairRioInstructionProgramDefinitions.Idle,
             parent.CurrentInstruction,
             "Norfair Rio parent initializer selects idle");
 
-        RoomEnemySlot follower = enemies.Slots[1];
+        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         follower.Parameter1 = 0x8000;
-        initialize.Invoke(enemies, [follower]);
+        enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
         AssertEqual(NorfairRioInstructionProgramDefinitions.FlamesAscending,
             follower.CurrentInstruction,
             "Norfair Rio follower initializer selects ascending flames");
@@ -171,27 +164,23 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot Slot,
         NorfairRioEnemyState State) NewNorfairRioInstructionSystem(
             ISnesAddressSpace bus,
-            BindingFlags flags,
             ushort entry,
             EnemyTileArtworkCatalog? art = null)
     {
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Geruta;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.CurrentInstruction = entry;
         slot.InstructionTimer = 1;
         var state = new NorfairRioEnemyState(slot);
-        var states = (NorfairRioEnemyState?[])typeof(RoomEnemySystem)
-            .GetField("_norfairRioStates", flags)!
-            .GetValue(enemies)!;
+        var states = (NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates;
         states[0] = state;
         return (enemies, slot, state);
     }
 
     internal static void RunNorfairRioInstructionFrames(
-        MethodInfo process,
         RoomEnemySystem enemies,
         object?[] arguments,
         RoomEnemySlot slot,
@@ -200,7 +189,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         for (int call = 0; call < count; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

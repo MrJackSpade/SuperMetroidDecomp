@@ -40,11 +40,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
         var observedInstalledOperands = new HashSet<ushort>();
         var guard = NewWorkRobotLaserInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", instanceFlags)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnWorkRobotLaser", instanceFlags)!;
+        enemies.BindFixtureBus(guard);
 
         var robot = new RoomEnemySlot(0)
         {
@@ -66,10 +62,10 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
         foreach ((WorkRobotLaser definition, ushort xVelocity) in definitions)
         {
             state.LaserXVelocity = xVelocity;
-            spawn.Invoke(enemies, [robot, state, definition, Position16<RoomPixels>.Zero]);
+            enemies.WorkRobotBehavior.SpawnWorkRobotLaser(robot, state, definition, Position16<RoomPixels>.Zero);
         }
 
-        RoomEnemyProjectileSlot[] lasers = enemies.EnemyProjectiles
+        RoomEnemyProjectileSlot[] lasers = enemies.Projectiles.EnemyProjectiles
             .Where(projectile => WorkRobotLaserInstructionProgramDefinitions.Owns(projectile.Kind))
             .ToArray();
         AssertEqual(5, lasers.Length,
@@ -138,7 +134,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
                 if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | nativeCursor) == (ushort)EnemyProjectileInstruction.GotoY)
                     nativeCursor = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | ((ushort)(nativeCursor + 2)));
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 if (projectile.IsActive)
                 {
                     ushort expectedOperand = (ushort)(nativeCursor + 2);

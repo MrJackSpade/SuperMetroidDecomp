@@ -34,7 +34,9 @@ internal sealed class PlmProgramSource
             .OrderBy(path => path, StringComparer.Ordinal)
             .SelectMany(path => CSharpSyntaxTree.ParseText(File.ReadAllText(path), path: path)
                 .GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
-                .Where(type => type.Identifier.Text is "RoomPlmSystem" or "RoomPlmProgramDefinitions" &&
+                // The PLM engine and its family owners (doors, collectibles, stations, scrolls, ...).
+                .Where(type => (type.Identifier.Text is "RoomPlmSystem" or "RoomPlmProgramDefinitions" or "PlmPopulationLoader" or "PlmBlockDrawing" ||
+                                type.Identifier.Text.EndsWith("Plms", StringComparison.Ordinal)) &&
                     type.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ==
                         "SuperMetroid.Core.Rooms")
                 .SelectMany(type => type.Members.OfType<MethodDeclarationSyntax>())).ToArray();

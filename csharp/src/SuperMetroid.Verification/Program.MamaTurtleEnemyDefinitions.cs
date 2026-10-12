@@ -44,20 +44,20 @@ internal static class MamaTurtleEnemyDefinitionsVerification
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.Load(new RoomEnemyLoadRequest(guard, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0)) { Level = assets.LevelData, Samus = new SamusState() });
 
-        AssertEqual(5, enemies.EnemyCount, "Mama Turtle retail population count");
+        AssertEqual(5, enemies.SlotTable.EnemyCount, "Mama Turtle retail population count");
         AssertEqual(EnemyDefinitionId.MamaTurtle,
-            enemies.Slots[0].EnemyDefinitionPointer, "Mama Turtle parent header identity");
+            enemies.SlotTable.Slots[0].EnemyDefinitionPointer, "Mama Turtle parent header identity");
         AssertEqual(EnemyDefinitionId.BabyTurtle,
-            enemies.Slots[1].EnemyDefinitionPointer, "Baby Turtle header identity");
+            enemies.SlotTable.Slots[1].EnemyDefinitionPointer, "Baby Turtle header identity");
         AssertEqual(EnemyDefinitionsVerification.ReadNativeEnemyDefinition(rom, EnemyDefinitionId.MamaTurtle),
-            enemies.Slots[0].Definition, "Mama Turtle loaded definition");
+            enemies.SlotTable.Slots[0].Definition, "Mama Turtle loaded definition");
         for (int slot = 1; slot < 5; slot++)
         {
             AssertEqual(EnemyDefinitionsVerification.ReadNativeEnemyDefinition(rom, EnemyDefinitionId.BabyTurtle),
-                enemies.Slots[slot].Definition, $"Baby Turtle loaded definition slot {slot}");
+                enemies.SlotTable.Slots[slot].Definition, $"Baby Turtle loaded definition slot {slot}");
         }
 
         Console.WriteLine(

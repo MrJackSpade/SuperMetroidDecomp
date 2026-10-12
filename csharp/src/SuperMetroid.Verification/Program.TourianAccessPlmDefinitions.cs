@@ -37,9 +37,9 @@ internal static class TourianAccessPlmDefinitionsVerification
             var plms = new RoomPlmSystem();
 
             AssertTrue(
-                plms.TrySpawnTourianAccess(level, clear),
+                plms.Tourian.TrySpawnTourianAccess(level, clear),
                 $"Tourian access {(clear ? "clear" : "crumble")} actor allocates");
-            AssertEqual(1, plms.ActiveCount, "Tourian access spawn occupies one PLM slot");
+            AssertEqual(1, plms.SlotTable.ActiveCount, "Tourian access spawn occupies one PLM slot");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(39, slot.NativeSlotIndex, "Tourian access uses the highest free native slot");
             AssertEqual(definition.HeaderPointer, slot.HeaderPointer, "Tourian access header identity");

@@ -21,7 +21,7 @@ internal readonly record struct DoorCameraAlignmentState(
         DoorDirection direction,
         Position16<RoomPixels> camera)
     {
-        bool alignsX = SuperMetroidRuntime.DoorTransitionAlignsX(direction);
+        bool alignsX = RoomLoader.DoorTransitionAlignsX(direction);
         ushort coordinate = alignsX ? camera.X : camera.Y;
         byte lowByte = unchecked((byte)coordinate);
         if (lowByte == 0)

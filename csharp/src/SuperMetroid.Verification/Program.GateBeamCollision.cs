@@ -23,15 +23,15 @@ internal static class GateBeamCollisionVerification
         Suite(nameof(VerifyHorizontalWaveDoorBands), () => VerifyHorizontalWaveDoorBands());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(140, 360)),
             PoseId = SamusPoseId.NormalJumpAimDiagonalUpLeftPose };
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         var plms = runtime.Plms;
-        for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
+        for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         ushort input = (ushort)SnesButton.X;
@@ -69,10 +69,10 @@ internal static class GateBeamCollisionVerification
             var shot = new SamusProjectileSlot(0) { Position = new(new(33, 0), new(33, 0)),
                 Radius = new(17, 17), Velocity = new(-1, -1) };
             string method = $"Scan{(horizontal ? "Horizontal" : "Vertical")}{(wave ? "Wave" : "")}ShotReactions";
-            object? result = typeof(SamusProjectileSystem).GetMethod(method,
+            object? result = typeof(ProjectileTerrainCollision).GetMethod(method,
                 System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
                 .Invoke(null, [level, shot, plms]);
-            AssertEqual(full ? 40 : 1, plms.ActiveCount, "Gate setup terminates span after first allocation");
+            AssertEqual(full ? 40 : 1, plms.SlotTable.ActiveCount, "Gate setup terminates span after first allocation");
             if (!wave) AssertEqual(!full, (bool)result!, "Only executed gate setup overrides earlier air reaction");
             AssertEqual((ushort)0xc000, level.GetCollisionBlockByIndex(first).LevelWord, "Gate scan does not mutate terrain");
         }

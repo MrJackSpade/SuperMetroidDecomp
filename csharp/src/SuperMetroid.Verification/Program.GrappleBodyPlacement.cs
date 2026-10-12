@@ -41,7 +41,7 @@ internal static class GrappleBodyPlacementVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             var g = samus.Grapple;
-            g.SwingFrames = replaceArt ? edited : installed ? RepositoryInstallation.Projectiles.GrappleTiles.SwingFrames : stock;
+            g.SwingFrames = replaceArt ? edited : installed ? InstalledFixtures.Projectiles.GrappleTiles.SwingFrames : stock;
             samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
             g.Anchor = g.Anchor.WithX((ushort)raw); g.Anchor = g.Anchor.WithY(unchecked((ushort)~raw));
             g.RopeLength = (ushort)(raw & 127);
@@ -81,9 +81,9 @@ internal static class GrappleBodyPlacementVerification
                 AssertEqual((native.AnimationFrame + 11) & 31, changed.AnimationFrame, "Edited frame reaches actual pendulum updater");
                 AssertEqual(native.AnimationFrameTimer, changed.AnimationFrameTimer, "Visual mapping cannot change swing timing");
                 ushort displayed = changed.AnimationFrame;
-                changed.SetGrappleSwingAnimationFrame(native.AnimationFrame);
+                changed.Presentation.SetGrappleSwingAnimationFrame(native.AnimationFrame);
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Entire swing simulation state matches except displayed frame");
-                changed.SetGrappleSwingAnimationFrame(displayed);
+                changed.Presentation.SetGrappleSwingAnimationFrame(displayed);
             }
         }
         Console.WriteLine("Grapple body placement: 524288 extracted/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");

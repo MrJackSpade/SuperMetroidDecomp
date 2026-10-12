@@ -24,9 +24,9 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
         var fx = runtime.RoomLayer3Fx;
         AssertEqual(RoomFxType.Acid, fx.Type, "Mother Brain's room has acid");
@@ -38,14 +38,13 @@ internal static class MotherBrainTubeHdmaDeletionVerification
         AssertEqual((ushort)0xadb9, runtime.System.RandomNumber, "the live acid object swaps the RNG bytes");
 
         // The real main-tube landing raises the deletion of HDMA objects 0-3.
-        typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainFallingTube", flags)!
-            .Invoke(runtime.Enemies, [MotherBrainFallingTubePopulationDefinitions.Main]);
-        RoomEnemySlot tube = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes);
+        runtime.Enemies.MotherBrainBehavior.SpawnMotherBrainFallingTube(MotherBrainFallingTubePopulationDefinitions.Main);
+        RoomEnemySlot tube = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes);
         tube.VariableA = (ushort)MotherBrainTubeFunction.MainTube_Falling;
         tube.VariableC = 0;
         tube.Position = tube.Position.WithWholeY(0x00fc); // the head follows at Y-$38 = $C4, the landing height
-        typeof(RoomEnemySystem).GetMethod("RunMotherBrainFallingTubeMain", flags)!.Invoke(runtime.Enemies, [tube]);
-        AssertTrue(runtime.Enemies.MotherBrainDeletedHdmaObjects, "the main tube's landing deletes HDMA objects 0-3");
+        runtime.Enemies.MotherBrainBehavior.RunMotherBrainFallingTubeMain(tube);
+        AssertTrue(runtime.Enemies.MotherBrainEncounter.MotherBrainDeletedHdmaObjects, "the main tube's landing deletes HDMA objects 0-3");
 
         fx.DeleteLiquidHdmaObjects();
         runtime.System.SetRandomNumber(0xb9ad);

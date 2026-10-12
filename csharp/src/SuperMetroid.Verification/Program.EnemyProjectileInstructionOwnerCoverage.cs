@@ -21,10 +21,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         var forbiddenBus = NewEnemyProjectileMechanicsFallbackForbiddenBus();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, forbiddenBus);
-        MethodInfo read = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyProjectileInstructionMechanicsWord",
-            staticFlags)!;
+        enemies.BindFixtureBus(forbiddenBus);
 
         int definitionCount = 0;
         int entryCount = 0;
@@ -54,15 +51,15 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
 
                 try
                 {
-                    checksum += (ushort)read.Invoke(null, [projectile, address])!;
+                    checksum += EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(projectile, address);
                     entryCount++;
                 }
-                catch (TargetInvocationException exception) when (exception.InnerException is not null)
+                catch (Exception exception)
                 {
                     throw new InvalidOperationException(
                         $"Projectile {kind} {role} entry $86:{address:X4} has no compiled " +
                         "mechanics owner.",
-                        exception.InnerException);
+                        exception);
                 }
             }
         }
@@ -80,12 +77,10 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
         {
             Kind = RoomEnemyProjectileKind.None,
         };
-        TargetInvocationException unknownException = AssertThrows<TargetInvocationException>(
-            () => read.Invoke(null, [unknown, (ushort)0xffff]),
+        InvalidDataException unknownException = AssertThrows<InvalidDataException>(
+            () => EnemyProjectileEngine.ReadEnemyProjectileInstructionMechanicsWord(unknown, 0xffff),
             "uncatalogued projectile mechanics fail explicitly");
-        AssertTrue(unknownException.InnerException is InvalidDataException,
-            "uncatalogued projectile mechanics surface an InvalidDataException");
-        AssertTrue(unknownException.InnerException!.Message.Contains("uncompiled", StringComparison.Ordinal),
+        AssertTrue(unknownException.Message.Contains("uncompiled", StringComparison.Ordinal),
             "uncatalogued projectile mechanics identify the missing compiled owner");
         AssertEqual(0, forbiddenBus.ForbiddenReadAttempts,
             "uncatalogued projectile mechanics fail without probing cartridge data");

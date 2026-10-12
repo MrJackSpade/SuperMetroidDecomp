@@ -19,7 +19,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
             var expected = new SnesCgram();
             var actual = new SnesCgram();
             var enemies = CreateFakeDeathPaletteEnemy(installed, actual);
-            var state = new MotherBrainEnemyState(enemies.Slots[0])
+            var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0])
             {
                 Function = toGrey
                     ? MotherBrainBodyFunction.FakeDeathDescentFadeToGray
@@ -27,9 +27,9 @@ internal static class MotherBrainFakeDeathPaletteVerification
                 TubeCollapseFunction = MotherBrainTubeCollapseFunction.Finished,
                 FakeDeathExplosionTimer = 100,
             };
-            MethodInfo step = typeof(RoomEnemySystem).GetMethod(
-                toGrey ? "RunMotherBrainFadeToGray" : "TransitionMotherBrainFromGray",
-                BindingFlags.Instance | BindingFlags.NonPublic)!;
+            Action<MotherBrainEnemyState> step = toGrey
+                ? enemies.MotherBrainBehavior.RunMotherBrainFadeToGray
+                : enemies.MotherBrainBehavior.TransitionMotherBrainFromGray;
             int table = toGrey ? MotherBrainFakeDeathPaletteRomData.ToGreyPointerTable :
                 MotherBrainFakeDeathPaletteRomData.FromGreyPointerTable;
             for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.GreyFrameCount; frame++)
@@ -41,7 +41,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
                     MotherBrainFakeDeathPaletteRomData.ColorCount,
                     MotherBrainFakeDeathPaletteRomData.BrainColor);
                 state.FunctionTimer = 0;
-                step.Invoke(enemies, [state]);
+                step(state);
                 AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                     $"installed Mother Brain fake-death {(toGrey ? "descent" : "ascent")} frame {frame} matches full native CGRAM");
                 AssertEqual((ushort)(frame + 1), toGrey ? state.GrayFadeIndex : state.GrayTransitionCounter,
@@ -52,7 +52,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
 
             // The ninth selection is the native zero-terminator, not an editable color.
             state.FunctionTimer = 0;
-            step.Invoke(enemies, [state]);
+            step(state);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)),
                 "fake-death grey terminator leaves every CGRAM word unchanged");
             AssertEqual(toGrey ? MotherBrainBodyFunction.FakeDeathDescentCollapseTubes :
@@ -64,11 +64,10 @@ internal static class MotherBrainFakeDeathPaletteVerification
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(
         MotherBrainRainbowPalettePresentation colors, SnesCgram cgram)
     {
-        var enemies = new RoomEnemySystem { MotherBrainRainbowColors = colors };
+        var enemies = new RoomEnemySystem { Presentation = { MotherBrainRainbowColors = colors } };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            NewPaletteReadForbiddenBus());
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
+        enemies.BindFixtureBus(NewPaletteReadForbiddenBus());
+        enemies.Presentation._cgram = cgram;
         return enemies;
     }
 
@@ -78,7 +77,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
     {
         var cgram = new SnesCgram();
         var enemies = CreateFakeDeathPaletteEnemy(colors, cgram);
-        var state = new MotherBrainEnemyState(enemies.Slots[0])
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0])
         {
             Function = toGrey
                 ? MotherBrainBodyFunction.FakeDeathDescentFadeToGray
@@ -86,9 +85,10 @@ internal static class MotherBrainFakeDeathPaletteVerification
             TubeCollapseFunction = MotherBrainTubeCollapseFunction.Finished,
             FakeDeathExplosionTimer = 100,
         };
-        typeof(RoomEnemySystem).GetMethod(
-            toGrey ? "RunMotherBrainFadeToGray" : "TransitionMotherBrainFromGray",
-            BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(enemies, [state]);
+        Action<MotherBrainEnemyState> step = toGrey
+            ? enemies.MotherBrainBehavior.RunMotherBrainFadeToGray
+            : enemies.MotherBrainBehavior.TransitionMotherBrainFromGray;
+        step(state);
         return (cgram.Colors.ToArray(), state.FunctionTimer, state.Function);
     }
 }

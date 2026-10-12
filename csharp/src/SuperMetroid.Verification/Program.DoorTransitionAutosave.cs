@@ -38,9 +38,9 @@ internal static class DoorTransitionAutosaveVerification
         {
             var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
@@ -78,7 +78,7 @@ internal static class DoorTransitionAutosaveVerification
             var loaded = store.Load(DebuggerStateFormat.AutomaticSlot);
             AssertEqual(SuperMetroidGameState.MainGameplay, loaded.Game.GameState, "auto resumes after destination fade");
             AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "auto captures completed transition frame");
-            RepositoryInstallation.BindGame(loaded.Game);
+            InstalledFixtures.BindGame(loaded.Game);
             var restoredAudio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer);
             for (int frame = 0; frame < 6; frame++)
             {
@@ -92,7 +92,7 @@ internal static class DoorTransitionAutosaveVerification
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
                 AssertSameBytes(bus.WorkRam, loaded.AddressSpace.WorkRam, "restored continuation WRAM");
                 AssertSameBytes(bus.SaveRam, loaded.AddressSpace.SaveRam, "restored continuation SRAM");
-                AssertEqual(runtime.Samus!.Position.X.Whole, loaded.Game.RuntimeForVerification!.Samus!.Position.X.Whole, "restored Samus movement");
+                AssertEqual(runtime.Player.Samus!.Position.X.Whole, loaded.Game.RuntimeForVerification!.Player.Samus!.Position.X.Whole, "restored Samus movement");
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.RuntimeForVerification!.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.AsSpan().SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
@@ -147,7 +147,7 @@ internal static class DoorTransitionAutosaveVerification
             void PrepareDoor(ushort source, ushort destination)
             {
                 runtime.LoadCartridgeRoomForDebug(source);
-                var level = runtime.LevelData!;
+                var level = runtime.Room.LevelData!;
                 for (int y = 0; y < level.Size.Y; y++)
                 for (int x = 0; x < level.Size.X; x++)
                 {
@@ -156,13 +156,13 @@ internal static class DoorTransitionAutosaveVerification
                     var door = level.ResolveDoorCollision(bus, block.Behavior, SamusPoseId.FacingRightNormalPose, false);
                     if (door.Door?.DestinationRoomPointer != destination) continue;
                     runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
-                    var samus = runtime.Samus!;
+                    var samus = runtime.Player.Samus!;
                     samus.InputLocked = false;
                     samus.PoseId = SamusPoseId.FacingRightNormalPose;
                     samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
-                    samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
-                    runtime.LevelData!.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
-                    typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+                    samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
+                    runtime.Room.LevelData!.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
+                    typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
                     typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.HitDoorBlock);
                     return;
                 }

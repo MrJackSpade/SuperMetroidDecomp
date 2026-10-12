@@ -36,22 +36,16 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
                 $"Phantoon projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewPhantoonProjectileInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawnStarting = typeof(RoomEnemySystem).GetMethod(
-            "SpawnPhantoonStartingFlame", flags)!;
-        MethodInfo spawnDestroyable = typeof(RoomEnemySystem).GetMethod(
-            "SpawnPhantoonDestroyableFlame", flags)!;
 
         RoomEnemySystem startingSystem = NewSystem();
-        RoomEnemySlot startingOwner = startingSystem.Slots[0];
+        RoomEnemySlot startingOwner = startingSystem.SlotTable.Slots[0];
         startingOwner.Position = startingOwner.Position.WithWhole(new(128, 96));
-        spawnStarting.Invoke(startingSystem, [startingOwner, (byte)0]);
-        RoomEnemyProjectileSlot starting = startingSystem.EnemyProjectiles.Single(
+        startingSystem.PhantoonBehavior.SpawnPhantoonStartingFlame(startingOwner, (byte)0);
+        RoomEnemyProjectileSlot starting = startingSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame);
         AssertEqual(PhantoonProjectileInstructionProgramDefinitions.StartingFlame,
             starting.InstructionPointer, "real Phantoon starting-flame producer");
@@ -158,20 +152,19 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x0080);
-            typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
-                enemies, new SamusState { Health = 99, MaxHealth = 99 });
+            enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
             return enemies;
         }
 
         RoomEnemyProjectileSlot SpawnDestroyable(RoomEnemySystem enemies, ushort parameter)
         {
-            RoomEnemySlot body = enemies.Slots[0];
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(128, 96));
             // Native parameter word: spawn type in the high byte, index in the low byte.
-            spawnDestroyable.Invoke(enemies, [body, (PhantoonFlameSpawnType)(SnesLittleEndian.HighByte(parameter)), (byte)parameter]);
-            return enemies.EnemyProjectiles.Single(projectile => projectile.Kind ==
+            enemies.PhantoonBehavior.SpawnPhantoonDestroyableFlame(body, (PhantoonFlameSpawnType)(SnesLittleEndian.HighByte(parameter)), (byte)parameter);
+            return enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame);
         }
 
@@ -191,7 +184,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
             }
         }

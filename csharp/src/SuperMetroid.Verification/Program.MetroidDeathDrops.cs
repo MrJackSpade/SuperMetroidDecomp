@@ -31,13 +31,13 @@ internal static class MetroidDeathDropsVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.TourianMetroids1);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = true;
-        RoomEnemySlot metroid = runtime.Enemies.Slots.First(slot =>
+        RoomEnemySlot metroid = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid);
         // The shot pass rejects the empty spritemap sentinel; install the frame the movie's
         // Metroid showed when it was shot ($F137).
@@ -45,17 +45,17 @@ internal static class MetroidDeathDropsVerification
         // A frozen Metroid takes the frozen branch of its shot AI; one missile finishes it.
         metroid.FrozenTimer = 100;
         metroid.Health = 1;
-        runtime.Enemies.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0100; shot.Damage = 100; shot.Direction = (ushort)(alreadyMarked ? 0x12 : 0x02);
         shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
-        runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus);
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus);
         AssertEqual((ushort)0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
 
-        var projectiles = runtime.Enemies.EnemyProjectiles;
+        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         int explosion = projectiles.Count - 1;
         while (explosion >= 0 && projectiles[explosion].Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
             explosion--;

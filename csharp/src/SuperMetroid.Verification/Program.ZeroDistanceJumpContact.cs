@@ -18,7 +18,7 @@ internal static class ZeroDistanceJumpContactVerification
                 Pose = left ? SamusPoseId.NeutralJumpTransitionLeftPose : SamusPoseId.NeutralJumpTransitionRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
             };
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x8000).WithFractionY(0xffff);
             samus.Kinematics.InteractiveEnemies =
             [
@@ -38,11 +38,11 @@ internal static class ZeroDistanceJumpContactVerification
         }
 
         var crouched = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-        crouched.RefreshCollisionRadii(bus);
+        crouched.PoseMetadata.RefreshCollisionRadii(bus);
         SamusKnockbackMovement.Start(bus, crouched, 0, new KnockbackLaunch { KnockbackXDirection = 1, KnockbackTimer = 5 }, level: level);
         AssertEqual(SamusPoseId.KnockbackLeftPose, crouched.Pose, "crouch contact installs hurt pose");
         AssertEqual(16, crouched.Kinematics.Radius.Y, "hurt commit retains live crouch radius");
-        crouched.RefreshCollisionRadii(bus);
+        crouched.PoseMetadata.RefreshCollisionRadii(bus);
         AssertEqual(21, crouched.Kinematics.Radius.Y, "next alpha publishes hurt radius");
     }
 }

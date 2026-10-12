@@ -38,14 +38,13 @@ internal static class EyeDoorSweatSpanUnderflowVerification
             Velocity = new(new SnesSignedEightEight(0xffc0), new SnesSignedEightEight(0x0200)),
         };
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
-        MethodInfo run = typeof(RoomEnemySystem).GetMethod("RunEyeDoorSweatPreInstruction", flags)!;
-        run.Invoke(null, [drop, level]);
+        EyeDoorBehavior.RunEyeDoorSweatPreInstruction(drop, level);
         AssertEqual((ushort)0x0058, drop.Position.X.Whole, "the block-aligned drop keeps its X");
         AssertEqual((ushort)0x0000, drop.Position.X.Fraction, "and loses its X fraction");
         AssertEqual((ushort)0x0022, drop.Position.Y.Whole, "while it still falls");
 
         // Off the block boundary the count is zero and the single row is air.
-        run.Invoke(null, [drop, level]);
+        EyeDoorBehavior.RunEyeDoorSweatPreInstruction(drop, level);
         AssertEqual((ushort)0x0057, drop.Position.X.Whole, "the next frame moves the drop left");
         AssertEqual((ushort)0xc000, drop.Position.X.Fraction, "by a quarter pixel");
         Console.WriteLine("  Eye-door sweat span: a radius-zero drop on a block boundary scans down to the floor.");

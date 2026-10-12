@@ -23,19 +23,17 @@ internal static class BabyMetroidInheritedFractionsVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
 
-        RoomEnemySlot free = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == 0);
+        RoomEnemySlot free = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == 0);
         free.Position = free.Position.WithFractionX(0x1400).WithFractionY(0x2800);
-        typeof(RoomEnemySystem).GetMethod("SpawnMotherBrainBabyMetroid",
-                BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [state]);
+        runtime.Enemies.BabyMetroidCutsceneBehavior.SpawnMotherBrainBabyMetroid(state);
 
         AssertTrue(ReferenceEquals(free, state.BabyMetroidSlot), "the Baby takes the first free slot");
         AssertEqual((ushort)0x0140, free.Position.X.Whole, "init writes the Baby's X");

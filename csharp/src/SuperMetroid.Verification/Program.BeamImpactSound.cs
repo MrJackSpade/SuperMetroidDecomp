@@ -24,11 +24,11 @@ internal static class BeamImpactSoundVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        RoomLevelData level = runtime.LevelData!;
+        RoomLevelData level = runtime.Room.LevelData!;
         // A floored corridor ending in a solid column at block 44, inside the settled view.
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 64; x++)
@@ -38,13 +38,13 @@ internal static class BeamImpactSoundVerification
                 y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
             level.SetBehavior(index, 0);
         }
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
 
@@ -56,7 +56,7 @@ internal static class BeamImpactSoundVerification
             runtime.StepFrame(0);
             if (!exploding && runtime.Projectiles.Slots[0].PackedType.IsFamily(SamusProjectileFamily.BeamExplosion))
             {
-                AssertTrue(runtime.Projectiles.ImpactSoundRequests.Contains(
+                AssertTrue(runtime.Projectiles.ImpactAudio.ImpactSoundRequests.Contains(
                         new SamusSoundRequest(SoundEffectLibrary2Sounds.BeamImpact, 6)),
                     "the frame a beam hits the wall queues library-two $0C with Max6");
                 Console.WriteLine("  Beam impact sound: a wall hit queues library-two $0C (Max6).");

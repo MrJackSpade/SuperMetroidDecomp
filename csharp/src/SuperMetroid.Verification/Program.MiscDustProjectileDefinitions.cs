@@ -18,11 +18,9 @@ internal static class MiscDustProjectileDefinitionsVerification
                 $"misc-dust instruction selector {index}");
 
             var enemies = CreateMiscDustEnemySystem(rom);
-            var spawn = typeof(RoomEnemySystem).GetMethod(
-                    "SpawnRoomGraphicsDustExplosion", flags)!
-                .CreateDelegate<Action<Position16<RoomPixels>, ushort>>(enemies);
+            var spawn = new Action<Position16<RoomPixels>, ushort>(enemies.Projectiles.SpawnRoomGraphicsDustExplosion);
             spawn(new(0x1234, 0x5678), index);
-            RoomEnemyProjectileSlot roomSlot = enemies.EnemyProjectiles.Single(slot => slot.IsActive);
+            RoomEnemyProjectileSlot roomSlot = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
             AssertEqual(native, roomSlot.InstructionPointer,
                 $"room-graphics misc-dust production selector {index}");
         }
@@ -46,9 +44,8 @@ internal static class MiscDustProjectileDefinitionsVerification
             var enemies = CreateMiscDustEnemySystem(rom);
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return 0xbeef; });
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeEyeDoorSmoke", flags)!
-                .CreateDelegate<Action<RoomEnemyProjectileSlot, ushort, Position16<RoomBlocks>>>(enemies);
-            RoomEnemyProjectileSlot smoke = enemies.EnemyProjectiles[0];
+            Action<RoomEnemyProjectileSlot, ushort, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
+            RoomEnemyProjectileSlot smoke = enemies.Projectiles.EnemyProjectiles[0];
             initialize(smoke, (ushort)((index << 8) | 10), new(7, 9));
             AssertEqual(MiscDustProjectileDefinitions.InstructionList(10), smoke.InstructionPointer,
                 $"eye-door smoke production instruction {index}");
@@ -62,17 +59,14 @@ internal static class MiscDustProjectileDefinitionsVerification
         }
 
         var ridley = CreateMiscDustEnemySystem(rom);
-        var spawnRidley = typeof(RoomEnemySystem).GetMethod("SpawnRidleyDust", flags)!
-            .CreateDelegate<Action<Position16<RoomPixels>, ushort>>(ridley);
+        Action<Position16<RoomPixels>, ushort> spawnRidley = ridley.RidleyBehavior.SpawnRidleyDust;
         spawnRidley(new(0x1234, 0x5678), ushort.MaxValue);
         AssertEqual(MiscDustProjectileDefinitions.InstructionList(29),
-            ridley.EnemyProjectiles.Single(slot => slot.IsActive).InstructionPointer,
+            ridley.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive).InstructionPointer,
             "Ridley production dust clamps oversized variants to native selector 29");
 
         var invalidRoom = CreateMiscDustEnemySystem(rom);
-        var spawnInvalidRoom = typeof(RoomEnemySystem).GetMethod(
-                "SpawnRoomGraphicsDustExplosion", flags)!
-            .CreateDelegate<Action<Position16<RoomPixels>, ushort>>(invalidRoom);
+        var spawnInvalidRoom = new Action<Position16<RoomPixels>, ushort>(invalidRoom.Projectiles.SpawnRoomGraphicsDustExplosion);
         AssertThrows<ArgumentOutOfRangeException>(
             () => spawnInvalidRoom(Position16<RoomPixels>.Zero, 30),
             "room-graphics selector beyond authored table");
@@ -90,8 +84,7 @@ internal static class MiscDustProjectileDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(enemies, NewMiscDustDefinitionReadGuard(source));
+        enemies.BindFixtureBus(NewMiscDustDefinitionReadGuard(source));
         return enemies;
     }
 

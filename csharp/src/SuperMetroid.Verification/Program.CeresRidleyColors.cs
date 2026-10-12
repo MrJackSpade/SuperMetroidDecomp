@@ -71,35 +71,31 @@ internal static class CeresRidleyColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Ridley palette edit changes installed identity");
-        var runtime = new SuperMetroidRuntime(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
-        AssertTrue(ReferenceEquals(edited.CeresRidleyColors, runtime.Enemies.CeresRidleyColors),
+        var runtime = new SuperMetroidRuntime(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
+        AssertTrue(ReferenceEquals(edited.CeresRidleyColors, runtime.Enemies.Presentation.CeresRidleyColors),
             "installed runtime binds Ceres Ridley colors to enemy owner");
-        runtime.MapPresentation = original;
-        AssertTrue(ReferenceEquals(original.CeresRidleyColors, runtime.Enemies.CeresRidleyColors),
+        runtime.Artwork.MapPresentation = original;
+        AssertTrue(ReferenceEquals(original.CeresRidleyColors, runtime.Enemies.Presentation.CeresRidleyColors),
             "runtime rebind drops previous Ceres Ridley colors");
         var guarded = NewCeresRidleyColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem
         {
-            CeresRidleyColors = edited.CeresRidleyColors,
+            Presentation = { CeresRidleyColors = edited.CeresRidleyColors },
             TileArtwork = fixtureAssets.EnemyTiles,
         };
         var cgram = new SnesCgram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        RoomEnemySlot slot = enemies.Slots[0];
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeCeresRidley", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
+        enemies.BindFixtureBus(guarded);
+        enemies.Presentation._cgram = cgram;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.InitializeCeresRidley;
         initialize(slot);
         CheckCgram(document.Start.Length, CeresRidleyPaletteRomData.StartCgramIndex,
             edited.CeresRidleyColors.ResolveStart, "Ceres Ridley initialization");
 
-        var eyeTick = typeof(RoomEnemySystem).GetMethod("TickCeresRidleyEyeFade", flags)!
-            .CreateDelegate<Action<RidleyEnemyState>>(enemies);
-        var bodyTick = typeof(RoomEnemySystem).GetMethod("TickCeresRidleyBodyFade", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
-        var healthTick = typeof(RoomEnemySystem).GetMethod("UpdateCeresRidleyHealthPalette", flags)!
-            .CreateDelegate<Action<RidleyEnemyState>>(enemies);
+        Action<RidleyEnemyState> eyeTick = enemies.CeresRidleyBehavior.TickCeresRidleyEyeFade;
+        Action<RoomEnemySlot, RidleyEnemyState> bodyTick = enemies.CeresRidleyBehavior.TickCeresRidleyBodyFade;
+        Action<RidleyEnemyState> healthTick = enemies.CeresRidleyBehavior.UpdateCeresRidleyHealthPalette;
         var state = new RidleyEnemyState { Function = RidleyAiFunction.FadeInEyes };
         for (ushort step = 0; step < CeresRidleyEyeFadeDefinitions.PaletteStepCount; step++)
         {
@@ -150,13 +146,12 @@ internal static class CeresRidleyColorsVerification
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
         Suite(nameof(VerifyCeresAlarmPalette), () => VerifyCeresAlarmPalette());
         slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
-        RidleyEnemyState activeRidley = enemies.Ridley ??
+        RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;
         activeRidley.FunctionTimer = 0;
         activeRidley.MovementAnimationEnabled = 0;
-        typeof(RoomEnemySystem).GetMethod("RunCeresRidleyMain", flags)!
-            .Invoke(enemies, [slot, null, null]);
+        enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null, null);
         AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,
             "Ceres Ridley retreat publishes the Mode-7 handoff");
         CheckCgram(CeresRidleyPaletteRomData.RetreatBgColorCount,
@@ -226,9 +221,9 @@ internal static class CeresRidleyColorsVerification
         {
             // Compare every callback, including the three skipped frame counters
             // between each alarm color upload. Only the authored RGB5 row is editable.
-            var nativeEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
-            var stockEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
-            var editedEnemy = new RoomEnemySystem { CeresRidleyColors = edited.CeresRidleyColors };
+            var nativeEnemy = new RoomEnemySystem { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
+            var stockEnemy = new RoomEnemySystem { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
+            var editedEnemy = new RoomEnemySystem { Presentation = { CeresRidleyColors = edited.CeresRidleyColors } };
             var nativeCgram = new SnesCgram();
             var stockCgram = new SnesCgram();
             var editedCgram = new SnesCgram();
@@ -240,14 +235,12 @@ internal static class CeresRidleyColorsVerification
                     (editedEnemy, guarded, editedCgram),
                 })
             {
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(owner, addressSpace);
-                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(owner, palette);
+                owner.BindFixtureBus(addressSpace);
+                owner.Presentation._cgram = palette;
             }
-            var callback = typeof(RoomEnemySystem)
-                .GetMethod("UpdateCeresSelfDestructPalette", flags)!;
-            var nativeTick = callback.CreateDelegate<Action<RidleyEnemyState, ushort>>(nativeEnemy);
-            var stockTick = callback.CreateDelegate<Action<RidleyEnemyState, ushort>>(stockEnemy);
-            var editedTick = callback.CreateDelegate<Action<RidleyEnemyState, ushort>>(editedEnemy);
+            var nativeTick = new Action<RidleyEnemyState, ushort>(nativeEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var stockTick = new Action<RidleyEnemyState, ushort>(stockEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var editedTick = new Action<RidleyEnemyState, ushort>(editedEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             var editedState = new RidleyEnemyState();
@@ -286,9 +279,9 @@ internal static class CeresRidleyColorsVerification
             // Drive the real Norfair palette callback at both sides of every
             // health threshold. The extracted stock catalog supplies full-CGRAM
             // parity; the guarded installed path proves no copied ROM colors are read.
-            var nativeEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
-            var stockEnemy = new RoomEnemySystem { CeresRidleyColors = original.CeresRidleyColors };
-            var editedEnemy = new RoomEnemySystem { CeresRidleyColors = edited.CeresRidleyColors };
+            var nativeEnemy = new RoomEnemySystem { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
+            var stockEnemy = new RoomEnemySystem { Presentation = { CeresRidleyColors = original.CeresRidleyColors } };
+            var editedEnemy = new RoomEnemySystem { Presentation = { CeresRidleyColors = edited.CeresRidleyColors } };
             var nativeCgram = new SnesCgram();
             var stockCgram = new SnesCgram();
             var editedCgram = new SnesCgram();
@@ -300,17 +293,15 @@ internal static class CeresRidleyColorsVerification
                     (editedEnemy, guarded, editedCgram),
                 })
             {
-                typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(owner, addressSpace);
-                typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(owner, palette);
+                owner.BindFixtureBus(addressSpace);
+                owner.Presentation._cgram = palette;
             }
-            var callback = typeof(RoomEnemySystem)
-                .GetMethod("UpdateNorfairRidleyHealthPalette", flags)!;
-            var nativeTick = callback.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(nativeEnemy);
-            var stockTick = callback.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(stockEnemy);
-            var editedTick = callback.CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(editedEnemy);
-            RoomEnemySlot nativeSlot = nativeEnemy.Slots[0];
-            RoomEnemySlot stockSlot = stockEnemy.Slots[0];
-            RoomEnemySlot editedSlot = editedEnemy.Slots[0];
+            var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);
+            var stockTick = new Action<RoomEnemySlot, RidleyEnemyState>(stockEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);
+            var editedTick = new Action<RoomEnemySlot, RidleyEnemyState>(editedEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);
+            RoomEnemySlot nativeSlot = nativeEnemy.SlotTable.Slots[0];
+            RoomEnemySlot stockSlot = stockEnemy.SlotTable.Slots[0];
+            RoomEnemySlot editedSlot = editedEnemy.SlotTable.Slots[0];
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             var editedState = new RidleyEnemyState();

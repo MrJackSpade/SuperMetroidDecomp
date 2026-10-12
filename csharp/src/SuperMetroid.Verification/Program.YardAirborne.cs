@@ -10,20 +10,20 @@ internal static class YardAirborneVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.StepFrame(0);
-        AssertEqual(0x00010000u, runtime.Samus!.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(0x00010000u, runtime.Player.Samus!.AbsoluteMovedLastFrameXFixed,
             "stationary native distance includes one pixel for the next Yard kick");
-        runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithFractionX(0xE000);
+        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);
-        AssertEqual(0x0001E000u, runtime.Samus.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(0x0001E000u, runtime.Player.Samus.AbsoluteMovedLastFrameXFixed,
             "Yard receives full fractional camera checkpoint displacement");
-        runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithFractionX(0xC000);
+        runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithFractionX(0xC000);
         runtime.StepFrame(0);
-        AssertEqual(0x0000E000u, runtime.Samus.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(0x0000E000u, runtime.Player.Samus.AbsoluteMovedLastFrameXFixed,
             "native integer-only direction test allows biased distance below one pixel");
     }
 
@@ -42,7 +42,7 @@ internal static class YardAirborneVerification
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
-            var actor = enemies.Slots[0];
+            var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0]!;
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));
             actor.InstructionTimer = ushort.MaxValue;
@@ -53,7 +53,7 @@ internal static class YardAirborneVerification
                 SnesSignedSixteenSixteen.FromRaw(unchecked((int)initialY)));
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
                 Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             uint x = 0x0200F000, y = 0x0200F000, vx = initialX, vy = initialY;
             for (int frame = 0; frame < 24; frame++)
             {

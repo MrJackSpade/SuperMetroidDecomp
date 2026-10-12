@@ -48,7 +48,7 @@ internal static class GrappleDoorsVerification
             var plms = new RoomPlmSystem();
             var result = SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X, plms);
             AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
-            AssertEqual(1, plms.ActiveCount, "grapple allocates one blue-door opening actor");
+            AssertEqual(1, plms.SlotTable.ActiveCount, "grapple allocates one blue-door opening actor");
             AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(origin).CollisionType,
                 "blue-door setup changes origin before animation");
             var streamer = level.CreateBackgroundStreamer();
@@ -56,7 +56,7 @@ internal static class GrappleDoorsVerification
             for (int frame = 0; frame < 19; frame++)
             {
                 plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
-                heardOpening |= plms.SoundRequests.Any(r => r == new PlmSoundRequest(
+                heardOpening |= plms.Sounds.SoundRequests.Any(r => r == new PlmSoundRequest(
                     SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
             }
             AssertTrue(heardOpening, "grapple-opened blue door emits its native opening sound");
@@ -72,7 +72,7 @@ internal static class GrappleDoorsVerification
     {
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Grapple.Phase = GrapplePhase.Firing;
-        samus.Grapple.FireDirection = samus.ReadShotDirection(bus);
+        samus.Grapple.FireDirection = samus.PoseMetadata.ReadShotDirection(bus);
     }
 
     [VerificationCommand("--grapple-doors")]

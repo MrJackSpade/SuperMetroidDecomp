@@ -1,0 +1,82 @@
+﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using static SuperMetroid.Core.Hardware.SnesAddressMath;
+
+namespace SuperMetroid.Core.Game;
+
+/// <summary>
+/// Enemy presentation state: the bound VRAM and CGRAM, boss and gradual palette effects, the
+/// host-installed color and artwork catalogs, and installed-spritemap drawing.
+/// </summary>
+internal sealed class EnemyPresentation
+{
+    /// <summary>Current host-owned escape-warning text, rebound after debugger restoration.</summary>
+    [field: NonSerialized]
+    internal EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
+
+    private readonly EnemyRoomBinding _room;
+
+    internal EnemyPresentation(EnemyRoomBinding room)
+    {
+        _room = room;
+    }
+
+    /// <summary>Host-owned authored damage colors, rebound after debugger-state restoration.</summary>
+    [field: NonSerialized]
+    public MotherBrainHealthPalettePresentation? MotherBrainHealthColors { get; set; }
+
+    /// <summary>Host-owned rainbow, drain and revival colors, rebound after debugger-state restoration.</summary>
+    [field: NonSerialized]
+    public MotherBrainRainbowPalettePresentation? MotherBrainRainbowColors { get; set; }
+
+    /// <summary>Host-owned fake-death room flash and phase-two setup colors.</summary>
+    [field: NonSerialized]
+    public MotherBrainRoomColorPresentation? MotherBrainRoomColors { get; set; }
+    /// <summary>The bound CGRAM's enemy and boss ranges.</summary>
+    internal EnemyPalettes BossPalettes => new(_cgram!);
+
+    /// <summary>The bound CGRAM's hardware banks and rows, for actors whose palette row is selected at run time.</summary>
+    internal CgramPalettes CgramRows => new(_cgram!);
+    internal SnesVram? _vram;
+    internal SnesCgram? _cgram;
+
+    /// <summary>
+    /// The shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
+    /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.
+    /// </summary>
+    public GradualColorChangeCounter GradualColorChange { get; private set; } = new();
+
+    /// <summary>Current host-owned timer artwork; rebound after debugger-state restoration.</summary>
+    [field: NonSerialized]
+    public EscapeTimerTileAtlas? EscapeTimerArtwork { get; set; }
+
+    /// <summary>Host-bound Ceres Ridley fade and retreat colors; rebound after state restore.</summary>
+    [field: NonSerialized]
+    public CeresRidleyColorCatalog? CeresRidleyColors { get; set; }
+
+    /// <summary>Host-bound Ceres Mode-7 zoom colors; rebound after state restore.</summary>
+    [field: NonSerialized]
+    public CeresRidleyMode7ColorCatalog? CeresRidleyMode7Colors { get; set; }
+
+    /// <summary>Installed standard BG3 characters shared with Kraid's death restoration.</summary>
+    [field: NonSerialized]
+    public HudTileAtlas? HudTileArtwork { get; set; }
+
+    internal void DrawEnemySpritemap(OamBuffer oam, EnemySpritemapDraw draw)
+    {
+        if (_room.Artwork?.Spritemaps?.TryGetDisplay(draw.Bank, draw.Pointer,
+                out EnemySpritemapParts installed) == true)
+        {
+            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(draw.Origin.X, draw.Origin.Y),
+                draw.PaletteBits, draw.BaseTileIndex, draw.ClipVerticalWrap, draw.OriginYIsOnScreen);
+            return;
+        }
+        // The common empty frame is compiled definition data, not missing artwork.
+        if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(draw.Bank, draw.Pointer))
+            return;
+        throw new InvalidDataException(
+            $"Enemy sprite ${draw.Bank:X2}:{draw.Pointer:X4} requires an installed display composition.");
+    }
+}

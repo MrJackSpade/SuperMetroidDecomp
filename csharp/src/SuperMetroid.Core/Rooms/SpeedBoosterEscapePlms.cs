@@ -1,0 +1,141 @@
+﻿using SuperMetroid.Core.Game;
+
+namespace SuperMetroid.Core.Rooms;
+
+/// <summary>The Speed Booster escape PLMs: rising lava/acid FX and the earthquake the escape triggers.</summary>
+internal sealed class SpeedBoosterEscapePlms
+{
+    private readonly PlmRoomBindings _bindings;
+
+    internal SpeedBoosterEscapePlms(PlmRoomBindings bindings)
+    {
+        _bindings = bindings;
+    }
+
+    /// <summary>
+    /// Runs setup $84:B89C. Event $15 suppresses this actor on subsequent room loads; an
+    /// unset event leaves the preallocated slot and its ROM-selected $B88A list untouched.
+    /// </summary>
+    internal void SetupSpeedBoosterEscapeSlot(PlmSlot slot)
+    {
+        if (_bindings.Events is null || _bindings.RoomFx is null || _bindings.Earthquake is null)
+        {
+            throw new InvalidOperationException(
+                "Speed Booster escape PLM requires event, room-FX, and earthquake owners.");
+        }
+
+        if (_bindings.Events.Has(EventNumber.OutranSpeedBoosterLavaquake))
+            PlmPopulationLoader.ClearSlot(slot);
+    }
+
+    /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
+    internal void RunSpeedBoosterEscapePreInstruction(PlmSlot slot)
+    {
+        if (slot.HeaderPointer != PlmHeaderId.SpeedBoosterEscape)
+            return;
+
+        RoomLayer3FxState fx = _bindings.RoomFx
+            ?? throw new InvalidOperationException(
+                "Resident Speed Booster escape PLM lost its room-FX owner.");
+        SamusState samus = _bindings.Samus?.Current
+            ?? throw new InvalidOperationException(
+                "Resident Speed Booster escape PLM has no live Samus owner.");
+
+        SpeedBoosterEscapePreInstruction preInstruction =
+            ClosedNativeWords.Decode<SpeedBoosterEscapePreInstruction>(
+                slot.PreInstruction, "Speed Booster escape pre-instruction");
+        switch (preInstruction)
+        {
+            case SpeedBoosterEscapePreInstruction.None:
+                return;
+
+            case SpeedBoosterEscapePreInstruction.WaitForSpeedBooster:
+                RunWaitForSpeedBooster(slot, samus, fx);
+                return;
+
+            case SpeedBoosterEscapePreInstruction.WaitForSamusLeft:
+                if (samus.Position.X.Whole > SpeedBoosterEscapePlmRomData.StartFxMotionSamusX)
+                    return;
+                fx.ApplyCartridgeMotionWrites(timer: 1);
+                WakeAtNextInstruction(slot);
+                return;
+
+            case SpeedBoosterEscapePreInstruction.AdvanceLava:
+                RunAdvanceLava(slot, samus, fx);
+                return;
+
+            default:
+                throw new InvalidOperationException(
+                    $"Undefined Speed Booster escape pre-instruction {preInstruction}.");
+        }
+    }
+
+    private void RunWaitForSpeedBooster(
+        PlmSlot slot,
+        SamusState samus,
+        RoomLayer3FxState fx)
+    {
+        if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
+        {
+            fx.ApplyCartridgeMotionWrites(
+                targetYPosition: ushort.MaxValue,
+                packedYVelocity: 0,
+                timer: 0);
+            (_bindings.Earthquake ?? throw new InvalidOperationException(
+                "Speed Booster escape PLM lost its earthquake owner.")).SetTimer(0);
+            PlmPopulationLoader.ClearSlot(slot);
+            return;
+        }
+
+        // BMI at $84:B80D treats any $8000-$FFFF target as disabled and deletes the actor.
+        if (unchecked((short)fx.TargetYPosition) < 0)
+        {
+            PlmPopulationLoader.ClearSlot(slot);
+            return;
+        }
+
+        fx.ApplyCartridgeMotionWrites(
+            packedYVelocity: SpeedBoosterEscapePlmRomData.InitialLavaquakeVelocity);
+        WakeAtNextInstruction(slot);
+    }
+
+    private void RunAdvanceLava(
+        PlmSlot slot,
+        SamusState samus,
+        RoomLayer3FxState fx)
+    {
+        SpeedBoosterEscapeStageDefinition? stage =
+            SpeedBoosterEscapeStageDefinitions.Resolve(slot.LoopTimer);
+        if (stage is null)
+        {
+            (_bindings.Events ?? throw new InvalidOperationException(
+                "Speed Booster escape PLM lost its event writer.")).Set(
+                    EventNumber.OutranSpeedBoosterLavaquake);
+            return;
+        }
+
+        // BCC at $84:B852 returns while Samus remains left-to-right beyond this stage.
+        if (stage.Value.TargetSamusX < samus.Position.X.Whole)
+            return;
+
+        fx.ApplyCartridgeMotionWrites(
+            baseYPosition: stage.Value.MaximumFxY < fx.BaseYPosition
+                ? stage.Value.MaximumFxY
+                : null,
+            packedYVelocity: stage.Value.PackedYVelocity);
+        slot.LoopTimer = unchecked((ushort)(
+            slot.LoopTimer + SpeedBoosterEscapeStageDefinitions.RecordByteCount));
+    }
+
+    /// <summary>
+    /// Both $B7EF and $B82A set instruction timer one, advance past the sleeping word, and
+    /// clear PLM_Timers. The ordinary handler then consumes the next install/sleep pair in
+    /// the same frame, preserving the native coroutine cadence.
+    /// </summary>
+    private static void WakeAtNextInstruction(PlmSlot slot)
+    {
+        slot.InstructionTimer = 1;
+        slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+        slot.LoopTimer = 0;
+    }
+}

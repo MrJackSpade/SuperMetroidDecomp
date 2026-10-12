@@ -30,38 +30,33 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, NewSporeSpawnProjectileReadGuard(rom));
-        var spawnStalk = typeof(RoomEnemySystem).GetMethod("SpawnSporeSpawnStalk", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
-        var spawnSpawner = typeof(RoomEnemySystem).GetMethod("SpawnSporeSpawnSpawner", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
-        var move = typeof(RoomEnemySystem).GetMethod(
-                "RunSporeSpawnSporePreInstruction", flags)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot>>();
-        RoomEnemySlot body = enemies.Slots[0];
+        enemies.BindFixtureBus(NewSporeSpawnProjectileReadGuard(rom));
+        Action<RoomEnemySlot, ushort> spawnStalk = enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk;
+        Action<RoomEnemySlot, ushort> spawnSpawner = enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner;
+        Action<RoomEnemyProjectileSlot> move = SporeSpawnBehavior.RunSporeSpawnSporePreInstruction;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));
         for (ushort index = 0; index < 4; index++)
         {
-            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+            foreach (RoomEnemyProjectileSlot projectile in enemies.Projectiles.EnemyProjectiles)
                 projectile.Clear();
             spawnStalk(body, index);
-            RoomEnemyProjectileSlot stalk = enemies.EnemyProjectiles.Single(p => p.IsActive);
+            RoomEnemyProjectileSlot stalk = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(body.Position.X.Whole, stalk.Position.X.Whole, $"Spore Spawn production stalk X {index}");
             AssertEqual(unchecked((ushort)(body.Position.Y.Whole + CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)))),
                 stalk.Position.Y.Whole, $"Spore Spawn production stalk Y {index}");
 
-            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles)
+            foreach (RoomEnemyProjectileSlot projectile in enemies.Projectiles.EnemyProjectiles)
                 projectile.Clear();
             spawnSpawner(body, index);
-            RoomEnemyProjectileSlot spawner = enemies.EnemyProjectiles.Single(p => p.IsActive);
+            RoomEnemyProjectileSlot spawner = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)), spawner.Position.X.Whole,
                 $"Spore Spawn production emitter X {index}");
             AssertEqual((ushort)520, spawner.Position.Y.Whole,
                 $"Spore Spawn production emitter Y {index}");
         }
 
-        RoomEnemyProjectileSlot spore = enemies.EnemyProjectiles[0];
+        RoomEnemyProjectileSlot spore = enemies.Projectiles.EnemyProjectiles[0];
         for (int offset = 0; offset < 256; offset++)
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {

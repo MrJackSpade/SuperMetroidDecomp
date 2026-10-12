@@ -35,11 +35,8 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         var installed = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed,
-            NewFrontendCartridgeReadGuard(rom));
-        var walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
-        RoomEnemySlot installedSlot = installed.Slots[0];
+        installed.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];
         installedSlot.Definition =
             default(RoomEnemyDefinition) with
             {
@@ -88,7 +85,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                 object?[] installedArguments =
                     [installedSlot, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>((ushort)2, (ushort)2), shot != 0, (ushort)0];
                 bool nativeFound = NativeCallback(root, targetX, targetY, shot != 0, out ushort nativeCallback);
-                bool installedFound = (bool)walker.Invoke(installed, installedArguments)!;
+                bool installedFound = ExtendedHitboxWalker.Find(installed, installedArguments);
                 AssertEqual(nativeFound, installedFound,
                     $"Spore Spawn frame {frame.Pointer:X4} native overlap at {x},{y}, shot={shot}");
                 AssertEqual(nativeCallback,

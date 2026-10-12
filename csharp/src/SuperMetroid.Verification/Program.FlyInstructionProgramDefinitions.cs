@@ -50,22 +50,19 @@ internal static class FlyInstructionProgramDefinitionsVerification
                  })
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeFly", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.FliesBehavior.InitializeFly;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = definition;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             initialize(slot);
             AssertEqual(FlyInstructionProgramDefinitions.Flight, slot.CurrentInstruction,
                 $"fly ${(int)definition:X4} initializer program");
 
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < 9; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
             AssertEqual(unchecked((ushort)(FlyInstructionProgramDefinitions.Flight + 4)),
                 slot.CurrentInstruction,
                 $"fly ${(int)definition:X4} completes native animation loop");

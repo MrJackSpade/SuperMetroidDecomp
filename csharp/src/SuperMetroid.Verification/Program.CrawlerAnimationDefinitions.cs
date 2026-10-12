@@ -44,17 +44,12 @@ internal static class CrawlerAnimationDefinitionsVerification
                 $"crawler surface selector {speciesOffset}/{orientation}");
         }
 
-        var initializeCrawlerMethod = typeof(RoomEnemySystem).GetMethod(
-            "InitializeCrawler", flags)!;
-        var initializeHZoomerMethod = typeof(RoomEnemySystem).GetMethod(
-            "InitializeHZoomer", flags)!;
         foreach ((CrawlerAnimationFamily family, _, ushort? speciesOffset) in initialTables)
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, NewCrawlerAnimationReadGuard(rom));
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(NewCrawlerAnimationReadGuard(rom));
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = orientation;
             if (family == CrawlerAnimationFamily.Viola)
             {
@@ -65,12 +60,11 @@ internal static class CrawlerAnimationDefinitionsVerification
             slot.Parameter1 = 0;
             if (family == CrawlerAnimationFamily.HZoomer)
             {
-                initializeHZoomerMethod.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
+                new Action<RoomEnemySlot>(enemies.CrawlersBehavior.InitializeHZoomer)(slot);
             }
             else
             {
-                initializeCrawlerMethod
-                    .CreateDelegate<Action<RoomEnemySlot, CrawlerAnimationFamily, ushort?>>(enemies)(
+                new Action<RoomEnemySlot, CrawlerAnimationFamily, ushort?>(enemies.CrawlersBehavior.InitializeCrawler)(
                         slot, family, speciesOffset);
             }
 
@@ -80,16 +74,12 @@ internal static class CrawlerAnimationDefinitionsVerification
                 $"crawler production initial selector {family}/{orientation}");
         }
 
-        var setVertical = typeof(RoomEnemySystem).GetMethod(
-                "SetCrawlerVerticalSurfaceInstruction", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, CrawlerEnemyState>>();
-        var setHorizontal = typeof(RoomEnemySystem).GetMethod(
-                "SetCrawlerHorizontalSurfaceInstruction", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, CrawlerEnemyState>>();
+        Action<RoomEnemySlot, CrawlerEnemyState> setVertical = CrawlersBehavior.SetCrawlerVerticalSurfaceInstruction;
+        Action<RoomEnemySlot, CrawlerEnemyState> setHorizontal = CrawlersBehavior.SetCrawlerHorizontalSurfaceInstruction;
         for (ushort speciesOffset = 0; speciesOffset <= 10; speciesOffset += 2)
         {
             var enemies = new RoomEnemySystem();
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter2 = speciesOffset;
             var state = new CrawlerEnemyState(slot);
 

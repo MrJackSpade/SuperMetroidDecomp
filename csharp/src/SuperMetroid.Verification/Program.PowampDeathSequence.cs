@@ -25,23 +25,21 @@ internal static class PowampDeathSequenceVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xd0b9);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo requireState = typeof(RoomEnemySystem).GetMethod("RequirePowampState", flags)!;
-        RoomEnemySlot body = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
-            !((PowampEnemyState)requireState.Invoke(runtime.Enemies, [slot])!).IsBalloon);
-        var state = (PowampEnemyState)requireState.Invoke(runtime.Enemies, [body])!;
+        RoomEnemySlot body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
+            !((PowampEnemyState)runtime.Enemies.PowampBehavior.RequirePowampState(slot)).IsBalloon);
+        var state = (PowampEnemyState)runtime.Enemies.PowampBehavior.RequirePowampState(body);
 
         body.Health = 0;
         state.Function = PowampEnemyFunction.DeathSequence;
         state.FunctionTimer = 1;
-        typeof(RoomEnemySystem).GetMethod("RunPowampMain", flags)!
-            .Invoke(runtime.Enemies, [body, state, runtime.LevelData]);
+        runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LevelData);
 
-        var projectiles = runtime.Enemies.EnemyProjectiles;
+        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         AssertEqual(8, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.PowampSpike), "the eight spikes fire");
         AssertEqual(1, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "EnemyDeath spawns the death explosion in the same frame");

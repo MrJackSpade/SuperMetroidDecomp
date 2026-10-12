@@ -23,21 +23,17 @@ internal static class LookupSmallGameTablesVerification
             "Crocomire bridge dust, Ceres debris columns, Rinka resource tokens and dead Tourian corpse layouts match every native word.");
     }
 
-    private static T InvokePrivateStatic<T>(Type owner, string method, params object[] arguments) =>
-        (T)owner.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, arguments)!;
 
     private static void VerifyMotherBrainFallingTubeBodies(ISnesAddressSpace rom)
     {
         for (int tube = 0; tube < 5; tube++)
         {
-            var body = InvokePrivateStatic<(ushort XRadius, ushort YRadius, ushort Floor)>(
-                typeof(RoomEnemySystem), "MotherBrainFallingTubeBody", tube);
+            var body = MotherBrainBehavior.MotherBrainFallingTubeBody(tube);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b5d + 2 * tube)), body.XRadius, $"Falling tube {tube} X radius");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b67 + 2 * tube)), body.YRadius, $"Falling tube {tube} Y radius");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b71 + 2 * tube)), body.Floor, $"Falling tube {tube} floor");
         }
-        AssertThrows<TargetInvocationException>(() => InvokePrivateStatic<(ushort, ushort, ushort)>(
-            typeof(RoomEnemySystem), "MotherBrainFallingTubeBody", 5), "Falling tube upper bound");
+        AssertThrows<InvalidDataException>(() => MotherBrainBehavior.MotherBrainFallingTubeBody(5), "Falling tube upper bound");
     }
 
     private static void VerifyMotherBrainBombBounceAccelerations(ISnesAddressSpace rom)
@@ -58,11 +54,11 @@ internal static class LookupSmallGameTablesVerification
             int call = 0xa48f35 + 20 * puff;
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call), $"Dust {puff} X operand opcode");
             AssertEqual((byte)0xa9, CrocomireBridgeDustPositionsRomByte(rom, call + 5), $"Dust {puff} Y operand opcode");
-            (ushort x, ushort y) = RoomEnemySystem.CrocomireBridgeDustPosition(puff);
+            (ushort x, ushort y) = CrocomireBehavior.CrocomireBridgeDustPosition(puff);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 1)), x, $"Crocomire bridge dust {puff} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((call + 6)), y, $"Crocomire bridge dust {puff} Y");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => RoomEnemySystem.CrocomireBridgeDustPosition(7), "Dust upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireBehavior.CrocomireBridgeDustPosition(7), "Dust upper bound");
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge dust positions")]
@@ -71,16 +67,16 @@ internal static class LookupSmallGameTablesVerification
     private static void VerifyCeresFallingDebrisColumns(ISnesAddressSpace rom)
     {
         for (int column = 0; column < 16; column++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe551 + 2 * column)), SuperMetroidRuntime.CeresFallingDebrisX(column),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8fe551 + 2 * column)), RoomMainRoutines.CeresFallingDebrisX(column),
                 $"Ceres falling debris column {column}");
-        AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroidRuntime.CeresFallingDebrisX(16), "Debris column bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => RoomMainRoutines.CeresFallingDebrisX(16), "Debris column bound");
     }
 
     private static void VerifyRinkaSpawnResources(ISnesAddressSpace rom)
     {
         for (int index = 0; index < 11; index++)
         {
-            var resource = InvokePrivateStatic<RinkaSpawnResource>(typeof(RoomEnemySystem), "RinkaSpawnResourceAt", index);
+            var resource = RinkaBehavior.RinkaSpawnResourceAt(index);
             int record = 0xa2b75b + 6 * index;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), resource.Position.X, $"Rinka spawn {index} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), resource.Position.Y, $"Rinka spawn {index} Y");
@@ -92,15 +88,13 @@ internal static class LookupSmallGameTablesVerification
     {
         const int bank = 0xa90000, workBuffer = 0x2000;
         int? tileSheetBase = null;
-        foreach ((string field, DeadTourianCorpseSpecies species) in new[]
+        foreach ((DeadTourianBehavior.DeadTourianCorpseProfile profile, DeadTourianCorpseSpecies species) in new[]
         {
-            ("DeadZoomerProfile", DeadTourianCorpseSpecies.Zoomer),
-            ("DeadRipperProfile", DeadTourianCorpseSpecies.Ripper),
-            ("DeadSkreeProfile", DeadTourianCorpseSpecies.Skree),
+            (DeadTourianBehavior.DeadZoomerProfile, DeadTourianCorpseSpecies.Zoomer),
+            (DeadTourianBehavior.DeadRipperProfile, DeadTourianCorpseSpecies.Ripper),
+            (DeadTourianBehavior.DeadSkreeProfile, DeadTourianCorpseSpecies.Skree),
         })
         {
-            var profile = (RoomEnemySystem.DeadTourianCorpseProfile)typeof(RoomEnemySystem)
-                .GetField(field, BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
             for (int variant = 0; variant < profile.Variants.Length; variant++)
             {
                 var layout = profile.Variants[variant];

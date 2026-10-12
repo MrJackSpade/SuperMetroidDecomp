@@ -4,6 +4,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Desktop;
+using System.Diagnostics;
 
 internal static partial class SwapchainTests
 {
@@ -150,4 +157,314 @@ internal static partial class SwapchainTests
     [LibraryImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool DestroyWindow(nint window);
+
+    internal static void VerifyBlockedDoor(D3D11RenderDevice device, D3D11FrameRenderer renderer,
+        SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context)
+    {
+        nint window = CreateWindowExW(0, "STATIC", "Hidden door backlog verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
+        if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        using var entered = new ManualResetEventSlim();
+        using var release = new ManualResetEventSlim();
+        D3D11RenderWorker? worker = null;
+        try
+        {
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, device.Kind, () =>
+            {
+                entered.Set();
+                if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Door consumer release missing.");
+            });
+            PumpUntil(() => worker.Ready.IsCompleted);
+            worker.Ready.GetAwaiter().GetResult();
+            long sequence = 1;
+            worker.Publish(new(new(sequence, 1, 0), GameplayDisplayCapture.TryCaptureFrame(runtime)!));
+            PumpUntil(() => entered.IsSet);
+            var clock = Stopwatch.StartNew();
+            RenderFrameSnapshot? latest = null;
+            RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
+                {
+                    latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), packet.Layers!, packet.BrightnessPasses);
+                    worker.Publish(latest);
+                });
+            PumpUntil(() => clock.ElapsedMilliseconds >= 250);
+            LatestRenderFrameMailbox mailbox = PrivateState.Field<LatestRenderFrameMailbox>(worker, "mailbox");
+            if (latest is null || worker.LastConsumedSequence != 0 || !mailbox.VerificationCounters.HasPendingFrame ||
+                worker.MailboxMetrics.Replaced != sequence - 2)
+                throw new InvalidOperationException("Door transition failed to advance under the held consumer with a bounded mailbox.");
+            release.Set();
+            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
+            RenderMailboxCounterView resumed = mailbox.VerificationCounters;
+            if (resumed.HasPendingFrame || resumed.Taken != 2)
+                throw new InvalidOperationException("Resumed door consumer did not skip superseded transition packets.");
+            PixelComparison.Verify(latest, SuperMetroidRuntimeFrameRenderer.Render(runtime),
+                renderer.RenderForReadback(latest), $"{device.Kind}: retained destination after blocked {context} door");
+            Console.WriteLine($"{device.Kind}: blocked {context} door completed; {sequence - 2} replaced frames, latest destination consumed.");
+        }
+        finally
+        {
+            release.Set();
+            if (worker is not null)
+            {
+                Task stop = worker.StopAsync(); PumpUntil(() => stop.IsCompleted); stop.GetAwaiter().GetResult();
+            }
+            if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+    }
+
+    private static void VerifyRecoveryFailure(D3D11DeviceKind kind, bool repeatDeviceLoss)
+    {
+        nint window = CreateWindowExW(0, "STATIC", "Hidden recovery failure verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
+        if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        D3D11RenderWorker? worker = null;
+        int attempts = 0;
+        try
+        {
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, kind, () =>
+            {
+                Interlocked.Increment(ref attempts);
+                if (repeatDeviceLoss) new SharpGen.Runtime.Result((int)DxgiDeviceLoss.DeviceRemoved).CheckError();
+                throw new InvalidDataException("Injected coverage failure must not be retried.");
+            });
+            PumpUntil(() => worker.Ready.IsCompleted);
+            worker.Ready.GetAwaiter().GetResult();
+            worker.Publish(new(new(1, 1, 0), new Rgba32(1, 2, 3)));
+            PumpUntil(() => worker.Completion.IsCompleted);
+            if (!worker.Completion.IsFaulted) throw new InvalidOperationException("Renderer failure was suppressed.");
+            int expected = repeatDeviceLoss ? D3D11RecoveryPolicy.MaximumConsecutiveRecreations + 1 : 1;
+            if (attempts != expected || worker.DeviceRecoveries != expected - 1)
+                throw new InvalidOperationException($"Recovery limit mismatch: {attempts} attempts, {worker.DeviceRecoveries} recreations.");
+            // Observe the original fault through the same health API used by the desktop.
+            Exception? observed = null;
+            try { worker.ThrowIfFaulted(); } catch (Exception error) { observed = error; }
+            if (repeatDeviceLoss ? observed?.HResult != (int)DxgiDeviceLoss.DeviceRemoved : observed is not InvalidDataException)
+                throw new InvalidOperationException("Renderer fault lost its original type/HRESULT.");
+            Console.WriteLine($"{kind}: repeated loss={repeatDeviceLoss}; {attempts} attempts then original failure surfaced.");
+        }
+        finally
+        {
+            if (worker is not null)
+            {
+                Task stop = worker.StopAsync(); PumpUntil(() => stop.IsCompleted);
+                _ = stop.Exception; // Expected terminal fault has already been asserted above.
+            }
+            if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+    }
+
+    internal static void RunSlowConsumerAudio(D3D11RenderDevice selection)
+    {
+        foreach (ushort room in new[] { SlowConsumerFixture.AlphaPowerBombRoom, SlowConsumerFixture.MaridiaTubeRoom })
+            foreach (bool blockConsumer in new[] { false, true })
+                RunSlowConsumerAudioRoom(selection, room, blockConsumer);
+    }
+
+    private static void RunSlowConsumerAudioRoom(D3D11RenderDevice selection, ushort room, bool blockConsumer)
+    {
+        byte[] rom = File.ReadAllBytes("Super Metroid.smc");
+        var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
+        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        var headless = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom), options);
+        // Compile the real desktop audio adapter into this diagnostic executable;
+        // do not substitute a second hand-written queue-to-PCM implementation.
+        using var legacyAudio = DesktopAccess.CreateAudioEngine();
+        using var capturedAudio = DesktopAccess.CreateAudioEngine();
+        using var headlessAudio = DesktopAccess.CreateAudioEngine();
+        long sequence = 0, pcmSamples = 0, nonzero = 0;
+        CapturedFrontendFrame Step(ushort input)
+        {
+            var expected = legacy.Step(input);
+            var actual = captured.StepCaptured(input, ++sequence, 1);
+            // No raster request, GPU publication, or reference render for this owner.
+            var undrawn = headless.StepCaptured(input, sequence, 1);
+            if (undrawn.UsedLegacyRaster || undrawn.Frame.GameState != actual.Frame.GameState ||
+                undrawn.Frame.Phase != actual.Frame.Phase || undrawn.Frame.FrameNumber != actual.Frame.FrameNumber ||
+                !undrawn.Frame.AudioCommands.SequenceEqual(actual.Frame.AudioCommands))
+                throw new InvalidOperationException($"Headless frame/command divergence at {sequence}.");
+            if (expected.GameState != actual.Frame.GameState || expected.Phase != actual.Frame.Phase ||
+                expected.FrameNumber != actual.Frame.FrameNumber ||
+                !expected.AudioCommands.SequenceEqual(actual.Frame.AudioCommands))
+                throw new InvalidOperationException($"Slow-consumer game/audio command divergence at {sequence}.");
+            var left = legacyAudio.RenderFrame(expected.AudioCommands);
+            var right = capturedAudio.RenderFrame(actual.Frame.AudioCommands);
+            var silentDisplay = headlessAudio.RenderFrame(undrawn.Frame.AudioCommands);
+            if (!right.SequenceEqual(silentDisplay)) throw new InvalidOperationException($"Headless PCM divergence at {sequence}.");
+            if (!left.SequenceEqual(right)) throw new InvalidOperationException($"PCM divergence at {sequence}.");
+            pcmSamples += right.Length;
+            foreach (short sample in right) if (sample != 0) nonzero++;
+            legacy.SetAudioAcknowledgements(legacyAudio.ReadAcknowledgements());
+            captured.SetAudioAcknowledgements(capturedAudio.ReadAcknowledgements());
+            headless.SetAudioAcknowledgements(headlessAudio.ReadAcknowledgements());
+            if (legacy.GameplaySamusX != captured.GameplaySamusX || legacy.GameplaySamusY != captured.GameplaySamusY ||
+                legacy.GameplaySamusPose != captured.GameplaySamusPose ||
+                headless.GameplaySamusX != captured.GameplaySamusX || headless.GameplaySamusY != captured.GameplaySamusY ||
+                headless.GameplaySamusPose != captured.GameplaySamusPose)
+                throw new InvalidOperationException($"Samus state divergence at {sequence}.");
+            return actual;
+        }
+        for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
+            Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
+        if (legacy.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Audio fixture failed startup.");
+        // Room-local pause slice, matching the portable capture fixture; no traversal.
+        foreach (var game in new[] { legacy, captured, headless })
+        {
+            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
+            game.RuntimeForVerification!.NmiHandler.RunNmi(0, true);
+        }
+        nint window = CreateWindowExW(0, "STATIC", "Hidden slow-consumer test", 0, 0, 0, 640, 480, 0, 0, 0, 0);
+        if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        using var entered = new ManualResetEventSlim(); using var release = new ManualResetEventSlim();
+        if (!blockConsumer) release.Set();
+        D3D11RenderWorker? worker = null;
+        try
+        {
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, selection.Kind, () =>
+            {
+                entered.Set();
+                if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Slow-consumer release missing.");
+            });
+            PumpUntil(() => worker.Ready.IsCompleted); worker.Ready.GetAwaiter().GetResult();
+            worker.Publish(Step(0).Snapshot!);
+            PumpUntil(() => entered.IsSet);
+            CompareRuntimeGraphs("before room slice");
+            var blockedTime = System.Diagnostics.Stopwatch.StartNew();
+            bool paused = false;
+            for (int tick = 0; tick < 160; tick++)
+            {
+                var actual = Step(tick is 10 or >= 100 and <= 105 ? (ushort)SnesButton.Start : (ushort)0);
+                worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Capture fell back to raster."));
+                paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
+                if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
+            }
+            var positions = new HashSet<(ushort?, ushort?)>();
+            var poses = new HashSet<SamusPoseId?>();
+            var roomBeforeMovement = legacy.GameplayActiveRoomIdentity;
+            // Bounded room-local inputs: held movement, single-tick direction taps,
+            // jump/shoot edges and explicit releases. No room traversal is intended.
+            for (int tick = 0; tick < 64; tick++)
+            {
+                ushort input = tick switch
+                {
+                    < 8 => (ushort)SnesButton.Right,
+                    10 or 12 => (ushort)SnesButton.Left,
+                    >= 16 and < 24 => (ushort)(SnesButton.Left | SnesButton.B),
+                    28 or 30 => (ushort)SnesButton.X,
+                    >= 40 and < 48 => (ushort)SnesButton.Right,
+                    _ => 0,
+                };
+                var actual = Step(input);
+                worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Movement capture fell back to raster."));
+                positions.Add((legacy.GameplaySamusX, legacy.GameplaySamusY));
+                poses.Add(legacy.GameplaySamusPose);
+                if (legacy.GameplayActiveRoomIdentity != roomBeforeMovement)
+                    throw new InvalidOperationException("Movement scheduling fixture crossed a room boundary.");
+                if (tick % 16 == 15) CompareRuntimeGraphs($"movement input tick {tick}");
+            }
+            if (positions.Count < 2 || poses.Count < 2)
+                throw new InvalidOperationException("Movement input fixture did not change position and pose.");
+            if (blockConsumer) PumpUntil(() => blockedTime.ElapsedMilliseconds >= 250);
+            if ((blockConsumer && release.IsSet) || !paused || nonzero == 0 || legacy.GameState != SuperMetroidGameState.MainGameplay)
+                throw new InvalidOperationException("Slow-consumer coverage incomplete.");
+            release.Set();
+            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
+            if (blockConsumer && worker.MailboxMetrics.Replaced < 223) throw new InvalidOperationException("Blocked visuals were not superseded as expected.");
+            CompareRuntimeGraphs("after GPU resumes");
+            Console.WriteLine($"{selection.Kind}: room {room:X4}, software/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause + 64 movement/input frames; {positions.Count} positions, {poses.Count} poses; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
+        }
+        finally
+        {
+            release.Set();
+            if (worker is not null) { var stop = worker.StopAsync(); PumpUntil(() => stop.IsCompleted); stop.GetAwaiter().GetResult(); }
+            if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+
+        void CompareRuntimeGraphs(string context)
+        {
+            // Reuse the exact-build debugger graph writer rather than a hand-picked
+            // list of gameplay properties. Private fields, arrays, aliases, cycles
+            // and delegates are included. No state is deserialized or normalized.
+            using var expected = new MemoryStream();
+            using var actual = new MemoryStream();
+            DebuggerObjectGraphSerializer.Serialize(expected, legacy.RuntimeForVerification!);
+            DebuggerObjectGraphSerializer.Serialize(actual, captured.RuntimeForVerification!);
+            using var undrawn = new MemoryStream();
+            DebuggerObjectGraphSerializer.Serialize(undrawn, headless.RuntimeForVerification!);
+            if (!expected.GetBuffer().AsSpan(0, checked((int)expected.Length))
+                .SequenceEqual(undrawn.GetBuffer().AsSpan(0, checked((int)undrawn.Length))))
+                throw new InvalidOperationException($"Headless runtime graph diverged: {context}.");
+            if (!expected.GetBuffer().AsSpan(0, checked((int)expected.Length))
+                .SequenceEqual(actual.GetBuffer().AsSpan(0, checked((int)actual.Length))))
+                throw new InvalidOperationException($"Exact runtime graph diverged: {context} (lengths {expected.Length}/{actual.Length}).");
+            Console.WriteLine($"  Exact runtime graph agrees: {context}, {expected.Length} bytes.");
+        }
+    }
+
+    private static void VerifySurfaceSuspension(D3D11DeviceKind kind)
+    {
+        // Exercise the real worker and swapchain without showing or minimizing the
+        // player's windows. Zero-width/height are the host's suspended-surface input.
+        nint window = CreateWindowExW(0, "STATIC", "Hidden surface suspension verification",
+            0, 0, 0, 640, 480, 0, 0, 0, 0);
+        if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        D3D11RenderWorker? worker = null;
+        try
+        {
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, kind);
+            PumpUntil(() => worker.Ready.IsCompleted);
+            worker.Ready.GetAwaiter().GetResult();
+            long sequence = 1, generation = 1;
+            worker.Publish(new(new(sequence, generation, 0), new Rgba32(23, 71, 127)));
+            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
+
+            foreach (var size in new Extent16<DisplayPixels>[] { new(0, 480), new(640, 0), new(0, 0) })
+            {
+                worker.Resize(size);
+                PumpUntil(() => { worker.ThrowIfFaulted(); return worker.IsSurfaceSuspended; });
+                long consumed = worker.LastConsumedSequence;
+                long submissions = worker.SubmittedUploadCalls;
+                long presentations = worker.PresentedFrames + worker.OccludedFrames;
+                long replacements = worker.MailboxMetrics.Replaced;
+                for (int i = 0; i < 32; i++)
+                    worker.Publish(new(new(++sequence, generation, 0), new Rgba32(127, 71, 23)));
+
+                // The acknowledgement prevents an arbitrary sleep from masking an
+                // unprocessed resize. Wait across multiple actual worker wake cycles.
+                var elapsed = Stopwatch.StartNew();
+                PumpUntil(() => { worker.ThrowIfFaulted(); return elapsed.ElapsedMilliseconds >= 250; });
+                if (worker.LastConsumedSequence != consumed || worker.SubmittedUploadCalls != submissions ||
+                    worker.PresentedFrames + worker.OccludedFrames != presentations ||
+                    !MailboxCounters(worker).HasPendingFrame || worker.MailboxMetrics.Replaced != replacements + 31)
+                    throw new InvalidOperationException("Suspended surface consumed/rendered frames or lost bounded latest-frame accounting.");
+
+                worker.AdvanceGeneration(++generation);
+                if (MailboxCounters(worker).HasPendingFrame)
+                    throw new InvalidOperationException("Generation change retained a queued pre-load frame while suspended.");
+                worker.Publish(new(new(++sequence, generation, 0), new Rgba32(43, 91, 173)));
+                worker.Resize(new Extent16<DisplayPixels>(641, 481));
+                PumpUntil(() => { worker.ThrowIfFaulted(); return !worker.IsSurfaceSuspended &&
+                    worker.LastConsumedSequence == sequence && worker.LastDrawnSize == new Extent16<DisplayPixels>(641, 481); });
+                RenderMailboxCounterView metrics = MailboxCounters(worker);
+                if (metrics.HasPendingFrame || metrics.Generation != generation ||
+                    metrics.Published != metrics.Taken + metrics.Replaced + metrics.Invalidated)
+                    throw new InvalidOperationException("Surface restore lost latest generation/mailbox accounting.");
+            }
+
+            worker.Resize(new Extent16<DisplayPixels>(0, 0));
+            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.IsSurfaceSuspended; });
+            worker.Publish(new(new(++sequence, generation, 0), new Rgba32(1, 2, 3)));
+            Task stop = worker.StopAsync();
+            PumpUntil(() => stop.IsCompleted);
+            stop.GetAwaiter().GetResult();
+            Console.WriteLine($"{kind}: zero width/height suspension, bounded publication, generation invalidation, latest-frame restore and suspended shutdown passed.");
+        }
+        finally
+        {
+            if (worker is not null)
+            {
+                Task stop = worker.StopAsync();
+                PumpUntil(() => stop.IsCompleted);
+                stop.GetAwaiter().GetResult();
+            }
+            if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+    }
 }

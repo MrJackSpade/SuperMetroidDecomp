@@ -6,6 +6,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using System.Buffers.Binary;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -19,7 +20,7 @@ namespace SuperMetroid.Core.Frontend;
 /// equipment-screen A press changes the same bits consumed by movement, rendering, and SRAM;
 /// there is no host-only copy that can diverge from gameplay.
 /// </remarks>
-internal sealed partial class PauseMenuState
+internal sealed class PauseMenuState
 {
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
@@ -748,6 +749,415 @@ internal sealed partial class PauseMenuState
 
     private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
+
+    private void HandleEquipmentInput(SnesButton pressed, byte nmiFrameCounter8)
+    {
+        PauseEquipmentCategory dispatchedCategory = selectedCategory;
+        if (dispatchedCategory == PauseEquipmentCategory.Reserves)
+        {
+            HandleReserveInput(pressed);
+            MoveEquipmentSelector(pressed);
+            UpdateReserveArrow(nmiFrameCounter8);
+            return;
+        }
+        MoveEquipmentSelector(pressed);
+        if ((pressed & SnesButton.A) == 0)
+            return;
+        if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == 0)
+            return;
+        if (selectedCategory == PauseEquipmentCategory.Reserves)
+            throw new NotSupportedException("Same-frame equipment toggle into reserve tables requires native out-of-table WRAM behavior.");
+
+        // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
+        // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use
+        // upstream C's 'Fixed var bug' category guard: it is absent from retail ROM.
+        ushort previousBeams = samus.EquippedBeams;
+        var target = PauseEquipmentCategories.Get(selectedCategory);
+        ushort mask = ReadCategoryMask(target, selectedItem);
+        bool wasEquipped = (GetEquippedBits(selectedCategory) & mask) != 0;
+        if (selectedCategory == PauseEquipmentCategory.Beams)
+            samus.EquippedBeams ^= mask;
+        else
+            samus.EquippedItems ^= mask;
+
+        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
+        UpdateEquipmentLabel(selectedCategory, selectedItem,
+            PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
+        if (dispatchedCategory == PauseEquipmentCategory.Beams)
+        {
+            SamusBeamFlags added = (SamusBeamFlags)(samus.EquippedBeams & ~previousBeams);
+            if ((added & SamusBeamFlags.Spazer) != 0 &&
+                (samus.EquippedBeams & (ushort)SamusBeamFlags.Plasma) != 0)
+            {
+                samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
+                UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
+                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
+            }
+            else if ((added & SamusBeamFlags.Plasma) != 0 &&
+                (samus.EquippedBeams & (ushort)SamusBeamFlags.Spazer) != 0)
+            {
+                samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);
+                UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.SpazerItem,
+                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
+            }
+        }
+        // Native patches only the chosen label, then refreshes the wireframe. Rebuilding
+        // all labels would erase the intentional overlong copy that displays VAR.
+        WriteSamusWireframe();
+        UploadEquipmentTilemap();
+    }
+
+    private void UpdateEquipmentLabel(PauseEquipmentCategory categoryIndex, int item, int wordCount, bool disabled)
+    {
+        var category = PauseEquipmentCategories.Get(categoryIndex);
+        if (categoryIndex == PauseEquipmentCategory.Beams &&
+            item == PauseEquipmentCategories.PlasmaItem && wordCount > category.LabelWordCount)
+            plasmaLabelOverrunActive = true;
+        (mapPresentation ?? throw new InvalidOperationException(
+            "Equipment labels require installed presentation assets."))
+            .PauseEquipmentLabels.ApplyLabel(
+                equipmentTilemap, categoryIndex, item, wordCount, disabled);
+    }
+
+    private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
+    {
+        if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeam != 0)
+            return false;
+        var category = PauseEquipmentCategories.Get(categoryIndex);
+        for (int item = start; item >= 0 && item < category.ItemCount; item += step)
+        {
+            if ((GetCollectedBits(categoryIndex) & ReadCategoryMask(category, item)) == 0)
+            {
+                // $82:B4B7 checks byte offset ten only AFTER an unsuccessful probe.
+                // Thus directly entering the final suit item can succeed, but scanning
+                // forward from an earlier missing item must not discover it.
+                if (categoryIndex == PauseEquipmentCategory.Suits && step > 0 &&
+                    item + step >= category.ItemCount - 1)
+                    return false;
+                continue;
+            }
+            selectedCategory = categoryIndex;
+            selectedItem = item;
+            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+            return true;
+        }
+        return false;
+    }
+
+    private bool TrySelectReserves()
+    {
+        if (samus.MaxReserveEnergy == 0) return false;
+        selectedCategory = PauseEquipmentCategory.Reserves;
+        selectedItem = 0;
+        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+        return true;
+    }
+
+    private void MoveEquipmentSelector(SnesButton pressed)
+    {
+        bool left = (pressed & SnesButton.Left) != 0, right = (pressed & SnesButton.Right) != 0;
+        bool up = (pressed & SnesButton.Up) != 0, down = (pressed & SnesButton.Down) != 0;
+        PauseEquipmentCategory beams = PauseEquipmentCategory.Beams, suits = PauseEquipmentCategory.Suits, boots = PauseEquipmentCategory.Boots;
+        switch (selectedCategory)
+        {
+            case PauseEquipmentCategory.Beams:
+                if (right)
+                {
+                    if (!TrySelectEquipment(suits, up ? 0 : PauseEquipmentCategories.BeamRightSuitItem, 1) && !up)
+                        TrySelectEquipment(boots, 0, 1);
+                }
+                else if (down) TrySelectEquipment(beams, selectedItem + 1, 1);
+                else if (up && !TrySelectEquipment(beams, selectedItem - 1, -1)) TrySelectReserves();
+                break;
+            case PauseEquipmentCategory.Suits:
+                if (left)
+                {
+                    if (down || !TrySelectReserves()) TrySelectEquipment(beams, 0, 1);
+                }
+                else if (up) TrySelectEquipment(suits, selectedItem - 1, -1);
+                else if (down && !TrySelectEquipment(suits, selectedItem + 1, 1)) TrySelectEquipment(boots, 0, 1);
+                break;
+            case PauseEquipmentCategory.Boots:
+                if (left)
+                {
+                    if (up || !TrySelectEquipment(beams, PauseEquipmentCategories.PlasmaItem, -1)) TrySelectReserves();
+                }
+                else if (down) TrySelectEquipment(boots, selectedItem + 1, 1);
+                else if (up && !TrySelectEquipment(boots, selectedItem - 1, -1))
+                    TrySelectEquipment(suits, PauseEquipmentCategories.Get(suits).ItemCount - 1, -1);
+                break;
+            case PauseEquipmentCategory.Reserves:
+                if (right)
+                {
+                    if (down || !TrySelectEquipment(suits, 0, 1)) TrySelectEquipment(boots, 0, 1);
+                }
+                else if (up)
+                {
+                    if (SelectedReserveItem != PauseReserveItem.Mode)
+                    {
+                        selectedItem--;
+                        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+                    }
+                }
+                else if (down)
+                {
+                    if (SelectedReserveItem == PauseReserveItem.Transfer ||
+                        samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode)
+                        TrySelectEquipment(beams, 0, 1);
+                    else
+                    {
+                        selectedItem++;
+                        if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, 0, 1);
+                        else audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+                    }
+                }
+                break;
+        }
+    }
+
+    /// <summary>Retains only HUD DMA accepted by NMI, not the pending WRAM tilemap.</summary>
+    public void SynchronizeAcceptedHud(SnesVram gameplayVram)
+    {
+        // Pause owns an isolated PPU image. Mirror the native mutable HUD range,
+        // leaving its static first row and deliberately cleared FX rows untouched.
+        new PauseVram(vram).AcceptedHudRows.Load(new PauseVram(gameplayVram).AcceptedHudRows);
+    }
+
+    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    {
+        AreaMapPresentationCatalog? previousCatalog = mapPresentation;
+        mapPresentation = catalog ?? throw new InvalidOperationException(
+            "Pause menu requires installed map presentation assets.");
+        mapArrows ??= new FileSelectMapAnimations(bus, catalog.Arrows);
+        mapArrows.BindPresentation(catalog.Arrows);
+        paletteAnimation.Bind(catalog.HighlightCycle);
+        catalog.PauseTiles.LoadTo(new PauseVram(vram).InterfaceCharacters);
+        catalog.Sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
+        // Live highlights and reserve-arrow colors belong to their animation
+        // owners. Replacing the static base must not reset their phase.
+        new CgramPalettes(cgram).LoadImageExcept(catalog.Palettes.Pause, FrontendPaletteLayout.MapHighlightCycle,
+            FrontendPaletteLayout.PauseReserveArrowColor6, FrontendPaletteLayout.PauseReserveArrowColor11);
+        catalog.Tiles.LoadTo(new PauseVram(vram).MapCharacters);
+        catalog.HudTiles.LoadTo(vram);
+        LoadPauseBackdrop();
+        RefreshPauseButtonArtwork();
+        // Refresh the authored base and rebuild the now-semantic inventory layer. The
+        // explicit overrun bit retains the retail Boots-to-Plasma VAR artifact without
+        // preserving stale pixels at a label's old editable destination.
+        bool labelsChanged = previousCatalog is null ||
+            previousCatalog.PauseEquipmentLabels.ContentIdentity != catalog.PauseEquipmentLabels.ContentIdentity;
+        if (labelsChanged)
+        {
+            catalog.PauseEquipmentBase.RebindBeforeInventoryRefreshInto(equipmentTilemap);
+            catalog.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
+                samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
+                samus.EquippedItems, samus.HyperBeam != 0);
+            if (plasmaLabelOverrunActive)
+                catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
+                    PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
+                    PauseEquipmentCategories.Get(PauseEquipmentCategory.Boots).LabelWordCount,
+                    disabled: false);
+        }
+        else catalog.PauseEquipmentBase.RebindBaseInto(
+            equipmentTilemap, previousCatalog!.PauseEquipmentLabels);
+        // Reapply only the wireframe patch, in its native footprint. The surrounding
+        // mutable labels include intentional cartridge overruns and must not be rebuilt.
+        WriteSamusWireframe();
+        // Reserve presentation has its own bounded footprints and can safely adopt the
+        // rebound content without reconstructing unrelated inventory labels.
+        if (samus.MaxReserveEnergy != 0)
+        {
+            WriteReserveLabels();
+            WriteReserveSupplyDigits();
+            // A rebind is not a tank dispatch: re-apply the owner's latched arrow state with the
+            // new palettes. Only a bind before anything has latched asks the owner.
+            if (reserveArrowLatched)
+                ReapplyLatchedReserveArrow();
+            else if (selectedCategory == PauseEquipmentCategory.Reserves)
+                UpdateReserveArrow(pauseNmiFrameCounter8);
+        }
+        if (ScreenMode != 0) UploadEquipmentTilemap();
+        // The serialized live button palette rows still own their overlay on
+        // the refreshed backdrop, including a Start/fade highlight.
+        // Do not rerun controls or rebuild equipment: that would erase native
+        // same-frame label overruns and change the state being restored.
+        new PauseVram(vram).ButtonRows.Load(
+            pauseButtonTilemap.AsSpan(PauseMenuLayout.ButtonRowsSourceOffset, PauseMenuLayout.ButtonRowsByteCount));
+        // Preserve the serialized scroll position and transition timing. Only refresh
+        // BG1 when it currently contains the map; the equipment page shares that VRAM.
+        if (ScreenMode == 0) LoadPauseMapTilemap();
+    }
+
+    private void LoadPauseBackdrop()
+    {
+        (mapPresentation ?? throw new InvalidOperationException(
+            "Pause backdrop requires installed presentation assets."))
+            .PauseBackdrops.LoadTo(new PauseVram(vram).Bg2Tilemap, area);
+    }
+
+    private void RefreshPauseButtonArtwork()
+    {
+        byte[] replacement = (mapPresentation ?? throw new InvalidOperationException(
+            "Pause buttons require installed presentation assets."))
+            .PauseBackdrops.CreateButtonTilemap();
+        // Only these palette bits are owned by the live menu. Carry them forward
+        // word-by-word (including restored historical states) rather than inferring
+        // a mode from ScreenMode, which lags the button highlight during fades.
+        foreach (var span in PauseMenuLayout.ButtonLabelSpans)
+        for (int index = 0; index < span.Count; index++)
+        {
+            int offset = (span.Word - PauseMenuLayout.ButtonSourceWordOrigin + index) * 2;
+            var previous = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(pauseButtonTilemap.AsSpan(offset)));
+            var current = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(replacement.AsSpan(offset)));
+            BinaryPrimitives.WriteUInt16LittleEndian(replacement.AsSpan(offset), current.WithPaletteIndex(previous.PaletteIndex).Raw);
+        }
+        replacement.CopyTo(pauseButtonTilemap, 0);
+    }
+
+    // The arrow state latched by its native owner: equipment setup lights it and tank
+    // dispatches update it; other categories leave it latched. Content rebinds re-apply this
+    // state with the new presentation rather than re-running the owner.
+    private bool reserveArrowLatched;
+    private bool reserveArrowLatchedEnabled;
+    private bool reserveArrowLatchedAnimated;
+    private byte reserveArrowLatchedFrame;
+
+    /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
+    private void UpdateReserveArrow(byte nmiFrameCounter8)
+    {
+        bool inTanks = selectedCategory == PauseEquipmentCategory.Reserves;
+        bool animated = inTanks && SelectedReserveItem == PauseReserveItem.Mode &&
+            samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode;
+        bool enabled = animated || inTanks && SelectedReserveItem == PauseReserveItem.Transfer;
+        SetReserveArrow(enabled, animated, nmiFrameCounter8);
+    }
+
+    private void SetReserveArrow(bool enabled, bool animated = false, byte nmiFrameCounter8 = 0)
+    {
+        PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
+            "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
+        presentation.ApplyArrowColors(cgram, animated, nmiFrameCounter8,
+            PauseReserveArrowRomData.Color6Index, PauseReserveArrowRomData.Color11Index);
+        presentation.ApplyArrowTilePalettes(equipmentTilemap, enabled);
+        reserveArrowLatched = true;
+        reserveArrowLatchedEnabled = enabled;
+        reserveArrowLatchedAnimated = animated;
+        reserveArrowLatchedFrame = nmiFrameCounter8;
+    }
+
+    /// <summary>Re-applies the latched arrow tiles and colors with the currently bound presentation.</summary>
+    private void ReapplyLatchedReserveArrow() =>
+        SetReserveArrow(reserveArrowLatchedEnabled, reserveArrowLatchedAnimated, reserveArrowLatchedFrame);
+
+    private void WriteReserveLabels()
+    {
+        // Absence of capacity leaves the original blank template intact. Restoring
+        // the template before rebuilding also removes labels if inventory is changed.
+        if (samus.MaxReserveEnergy == 0) return;
+        PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
+            "Reserve labels require installed presentation assets.")).PauseReserveUi;
+        presentation.ApplyLabel(equipmentTilemap, "Mode");
+        presentation.ApplyLabel(equipmentTilemap, "ReserveTank");
+        // Native setup retains the initial MANUAL label for the zero/uninitialized
+        // mode and patches its first four characters only after a nonzero mode exists.
+        if (samus.ReserveTankMode != 0)
+            presentation.ApplyLabel(equipmentTilemap,
+                samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode ? "Auto" : "Manual",
+                preserveAttributes: true);
+    }
+
+    // Retained at the simulation boundary so redraws cannot advance fill flicker.
+    private byte pauseNmiFrameCounter8;
+
+    /// <summary>Ports $82:B2AA's full/partial/empty strip and final cap.</summary>
+    private void DrawReserveTanks()
+    {
+        if (samus.MaxReserveEnergy == 0) return;
+        int tank = 0;
+        int full = samus.ReserveEnergy / PauseReserveTankRomData.EnergyPerTank;
+        int remainder = samus.ReserveEnergy % PauseReserveTankRomData.EnergyPerTank;
+        for (; tank < full; tank++) Draw(PauseReserveTankVisual.Full, tank);
+        if (remainder != 0)
+        {
+            int quotient = remainder / PauseReserveTankRomData.EnergyPerFillStep;
+            int tableOffset = quotient * sizeof(ushort);
+            if (tableOffset < PauseReserveTankRomData.FlickerDoubledQuotientLimit &&
+                remainder % PauseReserveTankRomData.EnergyPerFillStep != 0 &&
+                (pauseNmiFrameCounter8 & PauseReserveTankRomData.FlickerFrameMask) == 0)
+                tableOffset += sizeof(ushort);
+            if (samus.ReserveEnergy >= PauseReserveTankRomData.EnergyPerTank)
+                tableOffset += PauseReserveTankRomData.SecondTableOffset;
+            Draw(PauseReserveTankDefinitions.PartialMap(tableOffset / sizeof(ushort)), tank++);
+        }
+        for (; tank < samus.MaxReserveEnergy / PauseReserveTankRomData.EnergyPerTank; tank++)
+            Draw(PauseReserveTankVisual.Empty, tank);
+        Draw(PauseReserveTankVisual.EndCap, tank);
+
+        void Draw(PauseReserveTankVisual map, int index)
+        {
+            (mapPresentation ?? throw new InvalidOperationException(
+                "Reserve tanks require installed presentation assets."))
+                .PauseReserveTanks.Draw(oam, map, index);
+        }
+    }
+
+    // Native $0757 persists while the selector moves away. It is not a host
+    // task or timer: only the selected reserve-transfer subdispatcher ticks it.
+    private ushort reserveTransferSoundDelay;
+
+    /// <summary>The selected item while the reserve-tank category is selected.</summary>
+    private PauseReserveItem SelectedReserveItem => Enum.IsDefined((PauseReserveItem)selectedItem)
+        ? (PauseReserveItem)selectedItem
+        : throw new InvalidDataException($"Unsupported native reserve subdispatcher {selectedItem}.");
+
+    /// <summary>Runs the tank subdispatcher before its D-pad response, as at $82:AC70.</summary>
+    private void HandleReserveInput(SnesButton pressed)
+    {
+        switch (SelectedReserveItem)
+        {
+            case PauseReserveItem.Mode:
+                if ((pressed & SnesButton.A) == 0 || samus.MaxReserveEnergy == 0) return;
+                audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+                samus.ReserveTankMode = samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode
+                    ? PauseReserveTransferRomData.ManualMode : PauseReserveLabelRomData.AutoMode;
+                WriteReserveLabels();
+                return;
+            case PauseReserveItem.Transfer:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(PauseReserveItem)} {selectedItem}.");
+        }
+
+        if (reserveTransferSoundDelay == 0)
+        {
+            if ((pressed & SnesButton.A) == 0) return;
+            reserveTransferSoundDelay = unchecked((ushort)((samus.ReserveEnergy +
+                PauseReserveTransferRomData.SoundCadenceMask) & ~PauseReserveTransferRomData.SoundCadenceMask));
+        }
+        reserveTransferSoundDelay = unchecked((ushort)(reserveTransferSoundDelay - 1));
+        if ((reserveTransferSoundDelay & PauseReserveTransferRomData.SoundCadenceMask) ==
+            PauseReserveTransferRomData.SoundCadenceMask)
+            audio?.QueueSound(PauseReserveTransferRomData.RefillSound, PauseReserveTransferRomData.MaximumQueuedSounds);
+
+        ushort amount = PauseEquipmentRules.ReserveEnergyPerFrame;
+        samus.Health = unchecked((ushort)(samus.Health + amount));
+        if (unchecked((short)(samus.Health - samus.MaxHealth)) >= 0)
+            samus.Health = samus.MaxHealth;
+        else
+        {
+            samus.ReserveEnergy = unchecked((ushort)(samus.ReserveEnergy - amount));
+            if (unchecked((short)samus.ReserveEnergy) > 0) return;
+            if (samus.ReserveEnergy != 0)
+                samus.Health = unchecked((ushort)(samus.Health + samus.ReserveEnergy));
+        }
+
+        // Retail exhausts ALL reserves even when only a small top-up was needed.
+        // Preserve that behavior and clear both bytes of the packed selector.
+        samus.ReserveEnergy = 0;
+        reserveTransferSoundDelay = 0;
+        selectedCategory = PauseEquipmentCategory.Reserves;
+        selectedItem = PauseReserveTransferRomData.ModeItem;
+    }
 }
 
 internal enum PauseMenuTransition

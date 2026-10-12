@@ -24,14 +24,14 @@ internal static class ProjectileQuakeVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xa66a);
         var enemies = runtime.Enemies;
-        enemies.StepEnemyProjectiles(runtime.LevelData!, runtime.Samus!);
-        var actor = enemies.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);
-        foreach (var other in enemies.EnemyProjectiles)
+        enemies.StepEnemyProjectiles(runtime.Room.LevelData!, runtime.Player.Samus!);
+        var actor = enemies.Projectiles.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);
+        foreach (var other in enemies.Projectiles.EnemyProjectiles)
             if (other != actor) other.Kind = 0;
         ushort nativeSpritemap = NativeEnemyProjectileSpritemap(bus, actor);
         int cases = 0;
@@ -43,8 +43,8 @@ internal static class ProjectileQuakeVerification
         {
             actor.DrawPriority = priority;
             actor.Position = actor.Position.WithWhole(new(unchecked((ushort)position), unchecked((ushort)position)));
-            enemies.EarthquakeType = type;
-            enemies.EarthquakeTimer = timer;
+            enemies.Earthquake.EarthquakeType = type;
+            enemies.Earthquake.EarthquakeTimer = timer;
             short dx = 0, dy = 0;
             if (timer != 0 && type < 36 && !frozen)
             {
@@ -63,13 +63,13 @@ internal static class ProjectileQuakeVerification
             var actual = new OamBuffer();
             actual.BeginFrame();
             if (priority == EnemyProjectileDrawPriority.High)
-                enemies.DrawHighPriorityEnemyProjectiles(actual, new(0, 0), frozen);
-            else enemies.DrawLowPriorityEnemyProjectiles(actual, new(0, 0), frozen);
+                enemies.Projectiles.DrawHighPriorityEnemyProjectiles(actual, new(0, 0), frozen);
+            else enemies.Projectiles.DrawLowPriorityEnemyProjectiles(actual, new(0, 0), frozen);
             actual.FinalizeFrame();
             string quakeCase = $"type={type}, timer={timer}, priority={priority}, origin={position}";
             AssertSameBytes(expected.LowTable, actual.LowTable, $"native quake OAM low table: {quakeCase}");
             AssertSameBytes(expected.HighTable, actual.HighTable, $"native quake OAM high table: {quakeCase}");
-            AssertEqual(timer, enemies.EarthquakeTimer, "drawing leaves quake timer untouched");
+            AssertEqual(timer, enemies.Earthquake.EarthquakeTimer, "drawing leaves quake timer untouched");
             AssertEqual(unchecked((ushort)position), actor.Position.X.Whole, "drawing preserves world X");
             AssertEqual(unchecked((ushort)position), actor.Position.Y.Whole, "drawing preserves world Y");
             cases++;

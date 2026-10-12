@@ -40,7 +40,7 @@ internal static class PlmPopulationInputBoundaryVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new ushort[64], new byte[64], new ushort[64]), new byte[8]);
         var plms = new RoomPlmSystem();
         var streamer = level.CreateBackgroundStreamer();
-        AssertEqual(3, plms.LoadRoomPopulation(new PlmRoom(memory, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(memory, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "typed population runs the real sequential allocator using a RAM-only bus");
         AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(new[] { 39, 38 }),
             "extension deletion permits immediate highest-slot reuse in authored order");
@@ -49,10 +49,10 @@ internal static class PlmPopulationInputBoundaryVerification
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
         var scrolls = RoomScrollGrid.CreateImplicit(memory, new Extent16<RoomScreens>(2, 2), RoomScrollState.RedBoundary);
-        AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
+        AssertTrue(plms.Scrolls.TryNotifyScrollTouch(level.GetBlockIndex(new(3, 3))), "typed trigger wakes at its placement");
         plms.Step(memory, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(1), "decoded pairs mutate the intended live scroll cell");
-        AssertTrue(!plms.ScrollPlmTriggered(plms.ScrollPlms[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
+        AssertTrue(!plms.ScrollPlmTriggered(plms.Scrolls.Snapshots[0].BlockIndex), "decoded trigger returns to native sleep after its terminator");
 
         AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition(0x9000,
             [trigger with { ScrollProgram = new byte[] { 0, 2 } }]), "unterminated decoded pairs are rejected before allocation");

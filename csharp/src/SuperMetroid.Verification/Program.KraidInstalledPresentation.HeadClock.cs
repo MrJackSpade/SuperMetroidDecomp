@@ -59,14 +59,14 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertTrue(workingBody.AsSpan().SequenceEqual(baseline.State.BackgroundTilemapWords) &&
                     workingBody.AsSpan().SequenceEqual(changed.State.BackgroundTilemapWords),
                     "head DMA must not overwrite the WRAM body-map source");
-                AssertEqual(baseline.Enemies.LastKraidSoundEffect, changed.Enemies.LastKraidSoundEffect,
+                AssertEqual(baseline.Enemies.KraidBehavior.LastKraidSoundEffect, changed.Enemies.KraidBehavior.LastKraidSoundEffect,
                     "head art does not alter sound publication");
                 if (tick == nextEvent)
                 {
                     while (commands[cursor].Kind is KraidHeadInstructionKind.RoarSound or KraidHeadInstructionKind.DyingSound)
                     {
                         KraidHeadInstructionDefinition sound = commands[cursor++];
-                        AssertEqual((byte)sound.SoundId, baseline.Enemies.LastKraidSoundEffect!.Value.SoundEffect.Value,
+                        AssertEqual((byte)sound.SoundId, baseline.Enemies.KraidBehavior.LastKraidSoundEffect!.Value.SoundEffect.Value,
                             "sound callback fires at the exact head admission tick");
                         if (sound.Kind == KraidHeadInstructionKind.RoarSound) soundCount++;
                         callbacks++;
@@ -123,7 +123,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
     internal sealed class KraidHeadClockFixture
     {
         internal RoomEnemySystem Enemies { get; }
-        internal RoomEnemySlot Body => Enemies.Slots[0];
+        internal RoomEnemySlot Body => Enemies.SlotTable.Slots[0];
         internal KraidEnemyState State { get; }
         internal SnesVram Vram { get; } = new();
         internal SuperMetroid.Core.Hardware.SuperMetroidAddressSpace Memory { get; } =
@@ -138,13 +138,11 @@ internal static class KraidInstalledPresentationHeadClockVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             Enemies = new RoomEnemySystem { TileArtwork = art };
             State = BuildKraidWorkingMap(art);
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(Enemies, Memory);
-            typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(Enemies, Vram);
-            step = typeof(RoomEnemySystem).GetMethod("ProcessKraidHeadInstruction", flags)!
-                .CreateDelegate<Func<RoomEnemySlot, KraidEnemyState, ushort>>(Enemies);
+            Enemies.BindFixtureBus(Memory);
+            Enemies.Presentation._vram = Vram;
+            step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.ProcessKraidHeadInstruction);
             hit = Enemies.KraidMouthHitboxOverlapsShot;
-            transfer = typeof(RoomEnemySystem).GetMethod("TransferKraidHeadTilemap", flags)!
-                .CreateDelegate<Action<KraidEnemyState, ushort>>(Enemies);
+            transfer = new Action<KraidEnemyState, ushort>(Enemies.KraidBehavior.TransferKraidHeadTilemap);
             Body.Position = Body.Position.WithWhole(new(512, 512));
             byte[] sentinel = new byte[SnesVram.ByteCount]; Array.Fill(sentinel, (byte)0xcd); Vram.LoadBytes(0, sentinel);
         }

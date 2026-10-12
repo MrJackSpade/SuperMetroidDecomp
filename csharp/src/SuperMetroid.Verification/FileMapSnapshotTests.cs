@@ -76,8 +76,14 @@ internal static class FileMapSnapshotTestsVerification
         }
         var game = CreateRetailGameFixture(leftBus); var capturedGame = CreateRetailGameFixture(rightBus);
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
-        game.BindMapPresentation(presentation);
-        capturedGame.BindMapPresentation(presentation);
+        game.BindArtwork(game.Artwork with
+        {
+            MapPresentation = presentation,
+        });
+        capturedGame.BindArtwork(capturedGame.Artwork with
+        {
+            MapPresentation = presentation,
+        });
         bool sawMap = false;
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {

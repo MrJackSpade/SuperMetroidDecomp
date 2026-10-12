@@ -40,7 +40,7 @@ internal static class RuntimeCartridgeBoundaryVerification
                 .GetMethod("ExecuteNativeForVerification", BindingFlags.Static | BindingFlags.NonPublic) is null,
             "Core must not contain a native background byte decoder, even behind a diagnostic-only entry point");
         AssertEqual(typeof(SuperMetroid.Core.Rooms.RoomPlmPopulationDefinition),
-            typeof(SuperMetroid.Core.Rooms.RoomPlmSystem)
+            typeof(SuperMetroid.Core.Rooms.PlmPopulationLoader)
                 .GetMethod("LoadRoomPopulation")!.GetParameters()[1].ParameterType,
             "the sequential PLM allocator requires typed decoded placements, not a native pointer/read flag");
         foreach (string importOnlyType in new[]

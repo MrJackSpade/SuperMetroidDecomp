@@ -24,8 +24,8 @@ internal static class SamusBallBounceDefinitionsVerification
                 ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
                 : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-            samus.RefreshCollisionRadii(guard);
-            samus.InitializeAnimation(guard);
+            samus.PoseMetadata.RefreshCollisionRadii(guard);
+            samus.Presentation.InitializeAnimation(guard);
             for (int phase = 0; phase < 3; phase++)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
@@ -43,8 +43,8 @@ internal static class SamusBallBounceDefinitionsVerification
                 samus.HorizontalSpeed.BaseSubspeed = 0x8000;
                 samus.HorizontalSpeed.AccelerationMode = 2;
                 bool grounded = spring
-                    ? samus.ApplySpringBallLanding(guard, controllerInput: 0)
-                    : samus.ApplyMorphBallLanding(guard);
+                    ? samus.PoseTransitions.ApplySpringBallLanding(guard, controllerInput: 0)
+                    : samus.PoseTransitions.ApplyMorphBallLanding(guard);
                 bool first = phase == 0 && unchecked((short)(raw - 3)) >= 0;
                 bool rebound = first || phase == 1;
                 AssertEqual(!rebound, grounded, "Native rebound versus grounded return");

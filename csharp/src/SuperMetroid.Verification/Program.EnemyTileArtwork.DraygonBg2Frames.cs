@@ -188,11 +188,8 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         // denied. This checks the actual dispatch, not just a matching table.
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            NewFrontendCartridgeReadGuard(rom));
-        var walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
         slot.Definition = default(RoomEnemyDefinition) with
         {
@@ -204,7 +201,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             slot.SpritemapPointer = pointer;
             object?[] arguments =
                 [slot, new Position16<RoomPixels>((ushort)0x100, (ushort)0x100), new Extent16<RoomPixels>((ushort)0, (ushort)0), true, (ushort)0];
-            bool found = (bool)walker.Invoke(enemies, arguments)!;
+            bool found = ExtendedHitboxWalker.Find(enemies, arguments);
             AssertEqual(pointer != 0xa36b, found,
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");
             if (found)
@@ -226,12 +223,10 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        var queues = (List<ushort>[])typeof(RoomEnemySystem)
-            .GetField("_drawQueues", flags)!.GetValue(enemies)!;
-        queues[0].Add(0);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        enemies.Presentation._vram = vram;
+        enemies.Drawing.Enqueue(0, 0);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
         slot.Definition = default(RoomEnemyDefinition) with
         {
@@ -244,7 +239,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 EnemyExtraProperties.NewInstructionFrame);
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
-        enemies.DrawLayers(new OamBuffer(), new(0, 0), 0, 0);
+        enemies.Drawing.DrawLayers(new OamBuffer(), new(0, 0), 0, 0);
         return vram.Bytes.ToArray();
     }
 }

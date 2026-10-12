@@ -46,7 +46,7 @@ internal static class MechanicsWorkRamBoundaryVerification
                 level.GetCollisionBlockByIndex(origin).LevelWord, "active WRAM drives the exact physical output");
             AssertEqual(1, plms.TilemapUpdates.Count, "WRAM-backed draw publishes its visible update");
             plms.Step(memory, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(0, plms.ActiveCount, "WRAM-backed instruction resumes and deletes on the next pass");
+            AssertEqual(0, plms.SlotTable.ActiveCount, "WRAM-backed instruction resumes and deletes on the next pass");
         }
 
         var readSpeed = typeof(SamusHorizontalSpeedState)

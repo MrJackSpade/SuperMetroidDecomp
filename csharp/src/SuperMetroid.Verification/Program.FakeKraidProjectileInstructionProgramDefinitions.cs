@@ -39,16 +39,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
                 FakeKraidProjectileInstructionProgramDefinitions.PresentationWordAddress);
         var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
-        MethodInfo spawnSpit = typeof(RoomEnemySystem).GetMethod(
-            "SpawnFakeKraidSpit",
-            instanceFlags)!;
-        MethodInfo spawnSpike = typeof(RoomEnemySystem).GetMethod(
-            "SpawnFakeKraidSpike",
-            instanceFlags)!;
+        enemies.BindFixtureBus(guard);
 
         var source = new RoomEnemySlot(0)
         {
@@ -58,15 +49,13 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         };
         var state = new FakeKraidEnemyState(source);
 
-        AssertTrue((bool)spawnSpit.Invoke(
-                enemies,
-                [source, (short)12, new EightEightVector<RoomPixels>(0x0180, -0x0200)])!,
+        AssertTrue((bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source, (short)12, new EightEightVector<RoomPixels>(0x0180, -0x0200)),
             "real Fake Kraid spit producer allocates its projectile");
         source.VariableC = unchecked((ushort)-4);
-        AssertTrue((bool)spawnSpike.Invoke(enemies, [source, state, 0])!,
+        AssertTrue((bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, 0),
             "real Fake Kraid left-spike producer allocates its projectile");
         source.VariableC = 4;
-        AssertTrue((bool)spawnSpike.Invoke(enemies, [source, state, 1])!,
+        AssertTrue((bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, 1),
             "real Fake Kraid right-spike producer allocates its projectile");
 
         var cases = new[]
@@ -84,7 +73,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
 
         foreach (var testCase in cases)
         {
-            RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles.Single(
+            RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.Kind == testCase.Kind);
             AssertEqual(testCase.Initial, projectile.InstructionPointer,
                 $"{testCase.Kind} selects its named cartridge program");
@@ -144,7 +133,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             if (projectile.IsActive && projectile.InstructionTimer != 0)
             {
                 ushort operand = (ushort)(projectile.InstructionPointer - 2);

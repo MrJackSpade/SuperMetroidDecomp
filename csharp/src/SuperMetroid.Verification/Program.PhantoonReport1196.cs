@@ -23,17 +23,17 @@ internal static class PhantoonReport1196Verification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = CreatePhantoonInstructionSystem(bus);
-        var state = enemies.Phantoon!;
+        var state = enemies.PhantoonBehavior.Phantoon!;
         typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!.Invoke(enemies, null);
         state.Body.VariableE = 1;
-        typeof(RoomEnemySystem).GetMethod("RunPhantoonStartingFlameSpawner", flags)!.Invoke(enemies, [state.Body, state]);
+        enemies.PhantoonBehavior.RunPhantoonStartingFlameSpawner(state.Body, state);
         typeof(RoomEnemySystem).GetMethod("CollectLegacyEnemyAudioRequests", flags)!.Invoke(enemies, null);
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");
         var audio = new CartridgeAudioState();
         var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(bus, renderer.ReadAcknowledgements()));
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
-        foreach (var request in enemies.SoundRequests)
+        foreach (var request in enemies.Audio.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         var writes = new List<CartridgeAudioCommand>();
         for (int frame = 0; frame < 8; frame++)
@@ -46,7 +46,7 @@ internal static class PhantoonReport1196Verification
             "opening blue flame sends native sound 1D to library three");
         AssertEqual(0, writes.Count(command => command.InputPort == ApuPort.SoundLibrary2 && command.Value == 0x1d),
             "opening flame never sends materialization-library 1D");
-        AssertEqual(6, enemies.SoundRequests.Single().MaximumQueued, "opening flame uses native Max6");
+        AssertEqual(6, enemies.Audio.SoundRequests.Single().MaximumQueued, "opening flame uses native Max6");
         Suite(nameof(VerifyPhantoonFlameSound), () => VerifyPhantoonFlameSound());
         Console.WriteLine("Phantoon intro flame: actual spawn sends library 3 / 1D / Max6 through the production audio queue.");
     }
@@ -55,7 +55,7 @@ internal static class PhantoonReport1196Verification
     internal static void VerifyPhantoonDeathWaveInitialization()
     {
         var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());
-        var boss = enemies.Phantoon!;
+        var boss = enemies.PhantoonBehavior.Phantoon!;
         boss.Bg2Scroll = boss.Bg2Scroll.WithX(9);
         boss.Mouth!.VariableD = 3072;
         boss.Mouth.VariableF = 8;
@@ -68,10 +68,8 @@ internal static class PhantoonReport1196Verification
         wave.Step(boss);
         boss.Bg2Scroll = boss.Bg2Scroll.WithX(13);
         boss.Body.Health = 0;
-        typeof(RoomEnemySystem).GetMethod("ResolvePhantoonShotReaction", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(enemies, [boss.Body, boss, (ushort)0x0100, (ushort)100]);
-        typeof(RoomEnemySystem).GetMethod("BeginPhantoonWavyMosaicDeath", BindingFlags.Static | BindingFlags.NonPublic)!
-            .Invoke(null, [boss.Body, boss]);
+        enemies.PhantoonBehavior.ResolvePhantoonShotReaction(boss.Body, boss, (ushort)0x0100, (ushort)100);
+        PhantoonBehavior.BeginPhantoonWavyMosaicDeath(boss.Body, boss);
         wave.Step(boss);
         wave.LatchDisplay();
         AssertEqual(PhantoonWaveRomData.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");

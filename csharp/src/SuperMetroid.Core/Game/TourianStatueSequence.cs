@@ -12,6 +12,35 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class TourianStatueSequence
 {
+    private readonly ISnesAddressSpace _addressSpace;
+    private readonly SnesCgram _cgram;
+    private readonly RoomEnemySystem _enemies;
+    private readonly SamusFrameState _player;
+    private readonly RoomPlmSystem _plms;
+    private readonly ActiveRoomState _room;
+    private readonly RoomLayer3FxState _roomLayer3Fx;
+    private readonly RoomPaletteFxSystem _roomPaletteFx;
+    private readonly Bank80SystemState _system;
+    private readonly TesterTools _tester;
+    private readonly GameplayTimeFreeze _freeze;
+    private readonly VramWriteQueue _vramWrites;
+
+    internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies)
+    {
+        _addressSpace = dependencies.AddressSpace;
+        _cgram = dependencies.Cgram;
+        _enemies = dependencies.Enemies;
+        _player = dependencies.Player;
+        _plms = dependencies.Plms;
+        _room = dependencies.Room;
+        _roomLayer3Fx = dependencies.RoomLayer3Fx;
+        _roomPaletteFx = dependencies.RoomPaletteFx;
+        _system = dependencies.System;
+        _tester = dependencies.Tester;
+        _freeze = dependencies.Freeze;
+        _vramWrites = dependencies.VramWrites;
+    }
+
     private sealed class TileObject
     {
         public required TourianStatueAnimatedTileProgramDefinition Definition;
@@ -33,31 +62,30 @@ public sealed class TourianStatueSequence
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>Resets room-local animation, delay, and displayed descent state, enabling the four statue tile programs only for the statue-unlocking room setup.</summary>
-    /// <param name="runtime">Live room owner supplying setup, events, enemies, level data, PLMs, and camera scroll states; an enabled statue room must already have its level and camera initialized.</param>
     /// <remarks>
     /// A prior unlock event or host unlock option starts at the fully descended offset, clears the access obstruction through its PLM, and enables vertical scrolling.
     /// Otherwise the sequence starts raised and constrains scrolling until the authored release and descent finish. Disabled rooms retain no tile objects.
     /// </remarks>
-    public void Load(SuperMetroidRuntime runtime)
+    public void Load()
     {
         objects.Clear();
         delay = -2;
         descent = 0;
         DisplayedVerticalOffset = 0;
-        Enabled = runtime.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
+        Enabled = _room.ActiveRoom?.State.SetupCallback == RoomSetupCallback.RunStatueUnlockingAnimations;
         if (!Enabled) return;
         SpawnAnimatedObjects();
-        if (runtime.UnlockTourianEnabled || runtime.System.HasEvent(EventNumber.TourianUnlocked))
+        if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked))
         {
             descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
-            runtime.Enemies.TourianEntranceStatueVerticalOffset = VerticalOffset;
-            runtime.Plms.TrySpawnTourianAccess(runtime.LevelData!, clear: true);
-            EnableScrolling(runtime);
+            _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueVerticalOffset = VerticalOffset;
+            _plms.Tourian.TrySpawnTourianAccess(_room.LevelData!, clear: true);
+            EnableScrolling();
         }
         else
         {
-            runtime.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
-            runtime.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
+            _room.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Blue);
+            _room.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
         }
     }
 
@@ -86,11 +114,11 @@ public sealed class TourianStatueSequence
 
     /// <summary>Runs AnimtilesHandler in native spawn order, retaining bytecode durations and branches.</summary>
     [PpuLayoutBoundary("codec: animated-tile instruction CGRAM index operand")]
-    public void StepTiles(SuperMetroidRuntime runtime)
+    public void StepTiles()
     {
         if (!Enabled) return;
-        if (runtime.UnlockTourianEnabled) return;
-        var bus = runtime.AddressSpace;
+        if (_tester.UnlockTourianEnabled) return;
+        var bus = _addressSpace;
         foreach (TileObject tile in objects)
         {
             if (tile.Pointer == 0 || --tile.Timer != 0) continue;
@@ -105,7 +133,7 @@ public sealed class TourianStatueSequence
                     tile.Timer = code;
                     int sourceAddress = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
                         tile.Definition, unchecked((ushort)operand));
-                    runtime.VramWrites.Enqueue(
+                    _vramWrites.Enqueue(
                         tile.Definition.TransferByteCount,
                         sourceAddress,
                         tile.Definition.Destination);
@@ -121,50 +149,50 @@ public sealed class TourianStatueSequence
                         tile.Pointer = MechanicsWord(tile, operand);
                         continue;
                     case AnimatedTileInstruction.GotoIfEventSet:
-                        tile.Pointer = runtime.System.HasEventRaw(MechanicsWord(tile, operand))
+                        tile.Pointer = _system.HasEventRaw(MechanicsWord(tile, operand))
                             ? MechanicsWord(tile, operand + 2)
                             : (ushort)(operand + 4);
                         continue;
                     case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
                         ushort bossTest = MechanicsWord(tile, operand);
-                        tile.Pointer = runtime.System.HasAnyBossBits(
+                        tile.Pointer = _system.HasAnyBossBits(
                                 SnesLittleEndian.HighByte(bossTest), (BossBits)(SnesLittleEndian.LowByte(bossTest)))
                             ? MechanicsWord(tile, operand + 2)
                             : (ushort)(operand + 4);
                         continue;
                     case AnimatedTileInstruction.SetEvent:
-                        runtime.System.SetEventRaw(MechanicsWord(tile, operand));
+                        _system.SetEventRaw(MechanicsWord(tile, operand));
                         break;
                     case AnimatedTileInstruction.GotoIfTourianStatueBusy:
-                        tile.Pointer = (runtime.Enemies.TourianEntranceStatueAnimationState & TourianStatueRomData.Busy) != 0
+                        tile.Pointer = (_enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState & TourianStatueRomData.Busy) != 0
                             ? MechanicsWord(tile, operand)
                             : (ushort)(operand + 2);
                         continue;
                     case AnimatedTileInstruction.SetTourianStatueAnimationState:
-                        runtime.Enemies.TourianEntranceStatueAnimationState |= MechanicsWord(tile, operand);
+                        _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState |= MechanicsWord(tile, operand);
                         break;
                     case AnimatedTileInstruction.ResetTourianStatueAnimationState:
-                        runtime.Enemies.TourianEntranceStatueAnimationState &=
+                        _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState &=
                             (ushort)~MechanicsWord(tile, operand);
                         break;
                     case AnimatedTileInstruction.ClearThreePaletteColors:
                         ushort clearPaletteByteIndex = MechanicsWord(tile, operand);
                         // The colour index is animated-tile instruction data.
-                        new CgramPalettes(runtime.Cgram).All.Slice(clearPaletteByteIndex / 2, 3).Fill(Bgr555.Black);
+                        new CgramPalettes(_cgram).All.Slice(clearPaletteByteIndex / 2, 3).Fill(Bgr555.Black);
                         break;
                     case AnimatedTileInstruction.WriteEightTargetPaletteColors:
                         int greyDestination = MechanicsWord(tile, operand) / 2;
-                        (runtime.Enemies.TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
+                        (_enemies.TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
                             "Tourian statue animation requires installed grey colors."))
-                            .ApplyGrey(runtime.Cgram, greyDestination);
+                            .ApplyGrey(_cgram, greyDestination);
                         break;
                     case AnimatedTileInstruction.SpawnPaletteFxObject:
-                        runtime.RoomPaletteFx.SpawnDefinition(
-                            bus, MechanicsWord(tile, operand), runtime.Samus!.EquippedItems);
+                        _roomPaletteFx.SpawnDefinition(
+                            bus, MechanicsWord(tile, operand), _player.Samus!.EquippedItems);
                         break;
                     case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
                     case AnimatedTileInstruction.SpawnTourianStatueSoul:
-                        runtime.Enemies.SpawnTourianUnlockEffect(
+                        _enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(
                             MechanicsWord(tile, operand),
                             code == (ushort)AnimatedTileInstruction.SpawnTourianStatueSoul);
                         break;
@@ -178,46 +206,46 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>$88:DBD7/DC23/DC69/DCBA, including the authored delay and quarter-pixel descent.</summary>
-    public void StepDescent(SuperMetroidRuntime runtime)
+    public void StepDescent()
     {
         if (!Enabled) return;
-        runtime.Enemies.TourianStatueWaterY = runtime.RoomLayer3Fx.CurrentYPosition;
-        if (runtime.UnlockTourianEnabled || runtime.System.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(runtime); return; }
+        _enemies.TourianUnlockBehavior.TourianStatueWaterY = _roomLayer3Fx.CurrentYPosition;
+        if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
         if (delay == -2)
         {
-            if (!runtime.System.HasEvent(EventNumber.PhantoonStatueGrey) || !runtime.System.HasEvent(EventNumber.RidleyStatueGrey)
-                || !runtime.System.HasEvent(EventNumber.DraygonStatueGrey) || !runtime.System.HasEvent(EventNumber.KraidStatueGrey)) return;
-            runtime.Enemies.TourianEntranceStatueAnimationState |= TourianStatueRomData.AllReleased;
-            if ((runtime.Enemies.TourianEntranceStatueAnimationState & TourianStatueRomData.Busy) != 0) return;
+            if (!_system.HasEvent(EventNumber.PhantoonStatueGrey) || !_system.HasEvent(EventNumber.RidleyStatueGrey)
+                || !_system.HasEvent(EventNumber.DraygonStatueGrey) || !_system.HasEvent(EventNumber.KraidStatueGrey)) return;
+            _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState |= TourianStatueRomData.AllReleased;
+            if ((_enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState & TourianStatueRomData.Busy) != 0) return;
             delay = TourianStatueRomData.DescentDelay;
             return;
         }
-        runtime.Enemies.EarthquakeType = TourianStatueRomData.DescentEarthquakeType;
-        runtime.Enemies.EarthquakeTimer |= TourianStatueRomData.DescentEarthquakeTimer;
-        runtime.RoomLayer3Fx.PublishStatueEarthquakeSound(
-            runtime.System.RandomNumber, runtime.System.MainGameLoopCarry);
+        _enemies.Earthquake.EarthquakeType = TourianStatueRomData.DescentEarthquakeType;
+        _enemies.Earthquake.EarthquakeTimer |= TourianStatueRomData.DescentEarthquakeTimer;
+        _roomLayer3Fx.PublishStatueEarthquakeSound(
+            _system.RandomNumber, _system.MainGameLoopCarry);
         if (delay >= 0)
         {
-            if (--delay < 0) runtime.Enemies.SpawnTourianDescentDust();
+            if (--delay < 0) _enemies.TourianUnlockBehavior.SpawnTourianDescentDust();
             return;
         }
-        if (runtime.TimeIsFrozen) return;
+        if (_freeze.TimeIsFrozen) return;
         descent += TourianStatueRomData.DescentStep;
-        runtime.Enemies.TourianEntranceStatueVerticalOffset = VerticalOffset;
+        _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueVerticalOffset = VerticalOffset;
         // $88:DC90 compares the whole word against $FF10, which it first reaches
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueRomData.DescentDistance)
         {
-            runtime.Plms.TrySpawnTourianAccess(runtime.LevelData!, clear: false);
-            runtime.System.SetEvent(EventNumber.TourianUnlocked);
+            _plms.Tourian.TrySpawnTourianAccess(_room.LevelData!, clear: false);
+            _system.SetEvent(EventNumber.TourianUnlocked);
         }
     }
 
-    private static void EnableScrolling(SuperMetroidRuntime runtime)
+    private void EnableScrolling()
     {
-        runtime.Enemies.TourianEntranceStatueFinished = true;
-        runtime.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
-        runtime.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
+        _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueFinished = true;
+        _room.Camera!.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
+        _room.Camera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
     }
     private static ushort MechanicsWord(TileObject tile, int pointer)
     {

@@ -101,16 +101,11 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
             string description)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem)
-                .GetMethod("InitializeBlueBrinstarFaceBlock", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
-            var runMain = typeof(RoomEnemySystem)
-                .GetMethod("RunBlueBrinstarFaceBlockMain", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, BlueBrinstarFaceBlockEnemyState, SamusState?>>(enemies);
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot, SamusState?> initialize = enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock;
+            Action<RoomEnemySlot, BlueBrinstarFaceBlockEnemyState, SamusState?> runMain = enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain;
 
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.FaceBlock;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             slot.Parameter1 = 0x0040;
@@ -135,7 +130,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
             AssertEqual(terminal, slot.CurrentInstruction,
                 $"face-block {description} terminal sleep");
         }

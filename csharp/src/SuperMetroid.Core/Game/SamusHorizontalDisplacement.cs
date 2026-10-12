@@ -35,7 +35,7 @@ public readonly record struct SamusHorizontalDisplacement(int Displacement, Samu
     /// </summary>
     public static SamusHorizontalDisplacement ForPoseDirection(ISnesAddressSpace bus, SamusState samus, uint baseSpeed)
     {
-        byte direction = samus.ReadPoseXDirection(bus);
+        byte direction = samus.PoseMetadata.ReadPoseXDirection(bus);
         bool reversePoseDirection = samus.HorizontalSpeed.AccelerationMode is not (0 or 2);
         return Toward(reversePoseDirection ? direction == 8 : direction == 4, samus, baseSpeed);
     }

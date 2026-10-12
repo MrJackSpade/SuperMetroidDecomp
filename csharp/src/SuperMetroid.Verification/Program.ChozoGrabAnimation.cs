@@ -20,74 +20,24 @@ internal static class ChozoGrabAnimationVerification
         var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
-        game.BindMapPresentation(installation.LoadMaps());
-        game.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
-        game.BindStandardObjectArt(installation.LoadStandardObjects());
-        game.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
-        game.BindSamusBodyArt(installation.LoadSamusBodyArt());
-        game.BindEndingMode7Art(installation.LoadEndingMode7Art());
-        game.BindEndingObjectArt(installation.LoadEndingObjectArt());
-        game.BindEndingPaletteArt(installation.LoadEndingPalettes());
-        game.BindRoomCharacterArt(installation.LoadRoomCharacters());
-        game.BindRoomPaletteArt(installation.LoadRoomPalettes());
-        game.BindRoomMetatileArt(installation.LoadRoomMetatiles());
-        game.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
-        game.BindRoomPlmShotBlockVisuals(installation.LoadRoomPlmShotBlockVisuals());
-        game.BindRoomPlmGrappleBlockVisuals(installation.LoadRoomPlmGrappleBlockVisuals());
-        game.BindRoomPlmStationVisuals(installation.LoadRoomPlmStationVisuals());
-        game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
-        game.BindRoomPlmColoredDoorVisuals(installation.LoadRoomPlmColoredDoorVisuals());
-        game.BindRoomPlmGreyDoorVisuals(installation.LoadRoomPlmGreyDoorVisuals());
-        game.BindRoomPlmEyeDoorVisuals(installation.LoadRoomPlmEyeDoorVisuals());
-        game.BindRoomPlmMotherBrainGlassVisuals(installation.LoadRoomPlmMotherBrainGlassVisuals());
-        game.BindRoomPlmNoobTubeVisuals(installation.LoadRoomPlmNoobTubeVisuals());
-        game.BindRoomPlmDownwardGateVisuals(installation.LoadRoomPlmDownwardGateVisuals());
-        game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
-        game.BindRoomPlmEscapeGateVisuals(installation.LoadRoomPlmEscapeGateVisuals());
-        game.BindRoomPlmBombTorizoHandVisuals(installation.LoadRoomPlmBombTorizoHandVisuals());
-        game.BindRoomPlmDraygonCannonVisuals(installation.LoadRoomPlmDraygonCannonVisuals());
-        game.BindRoomPlmChozoStatueVisuals(installation.LoadRoomPlmChozoStatueVisuals());
-        game.BindRoomPlmLinkedRestoreVisuals(installation.LoadRoomPlmLinkedRestoreVisuals());
-        game.BindRoomPlmTourianAccessVisuals(installation.LoadRoomPlmTourianAccessVisuals());
-        game.BindRoomPlmSpeedBoosterVisuals(installation.LoadRoomPlmSpeedBoosterVisuals());
-        game.BindRoomPlmMaridiaElevatubeVisuals(installation.LoadRoomPlmMaridiaElevatubeVisuals());
-        game.BindRoomPlmSporeSpawnCeilingVisuals(installation.LoadRoomPlmSporeSpawnCeilingVisuals());
-        game.BindRoomPlmSamusEaterVisuals(installation.LoadRoomPlmSamusEaterVisuals());
-        game.BindRoomPlmBotwoonWallVisuals(installation.LoadRoomPlmBotwoonWallVisuals());
-        game.BindRoomPlmKraidVisuals(installation.LoadRoomPlmKraidVisuals());
-        game.BindRoomPlmCrocomireVisuals(installation.LoadRoomPlmCrocomireVisuals());
-        game.BindRoomPlmMotherBrainFakeDeathVisuals(installation.LoadRoomPlmMotherBrainFakeDeathVisuals());
-        game.BindRoomPlmCollectibleVisuals(installation.LoadRoomPlmCollectibleVisuals());
-        game.BindRoomPlmDynamicCollectibleArt(installation.LoadRoomPlmDynamicCollectibleArt());
-        game.BindXrayRevealVisuals(installation.LoadXrayRevealVisuals());
-        game.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
-        game.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
-        var projectiles=installation.LoadProjectiles();
-        game.BindProjectileCompositions(projectiles.Catalog);
-        game.BindProjectileFrameBindings(projectiles.FrameBindings);
-        game.BindBeamArtwork(projectiles.BeamTiles);
-        game.BindEnemyTileArtwork(installation.LoadEnemyTiles());
-        game.BindTrailArtwork(projectiles.Trails);
-        game.BindChargeFlarePlacement(projectiles.FlarePlacement);
-        game.BindChargeFlareCompositions(projectiles.FlareCompositions);
-        game.BindGrappleArtwork(projectiles.GrappleTiles);
+        InstalledFixtures.BindGame(game);
         typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
         var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.System.SetBossBits(AreaId.WreckedShip, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(0xc98e);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.CollectedItems = samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         samus.AnimationFrame = 2;
         typeof(SamusState).GetProperty(nameof(SamusState.AnimationFrameTimer))!.SetValue(samus, (ushort)3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));
         AssertEqual(ChozoStatuePlmRomData.WreckedShipHandBts.Value, block.Bts.Value,
             "fixture uses the retail statue hand block");
@@ -105,15 +55,15 @@ internal static class ChozoGrabAnimationVerification
             expectedExplosion.Arm();
             expectedExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
         }
-        runtime.Plms.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
-        AssertTrue(samus.StationaryScriptControlLocked && samus.InputLocked,
+        runtime.Plms.ChozoStatue.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
+        AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked && samus.InputLocked,
             "hand trigger installs native stationary handlers");
         AssertEqual((ushort)2, samus.AnimationFrame, "grab preserves captured ball frame");
         AssertEqual((ushort)3, samus.AnimationFrameTimer, "grab preserves captured ball timer");
         ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
         bool carried = false;
         int frames = 0;
-        while (samus.StationaryScriptControlLocked && frames < 2000)
+        while (samus.ScriptLocks.StationaryScriptControlLocked && frames < 2000)
         {
             runtime.StepFrame((ushort)SnesButton.Right);
             if (powerBomb)
@@ -131,7 +81,7 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.FixedColorBlue, actual.FixedColorBlue, "carried blast blue");
                 AssertEqual(expectedExplosion.Status, actual.Status, $"carried Power Bomb cleanup at frame {frames}");
             }
-            if (samus.StationaryScriptControlLocked)
+            if (samus.ScriptLocks.StationaryScriptControlLocked)
             {
                 AssertEqual((ushort)2, samus.AnimationFrame, "ball frame remains frozen while carried");
                 AssertEqual((ushort)3, samus.AnimationFrameTimer, "ball animation timer remains frozen while carried");
@@ -143,7 +93,7 @@ internal static class ChozoGrabAnimationVerification
             AssertTrue(!runtime.BombProjectiles.PowerBombExplosion.IsActive && runtime.BombProjectiles.PowerBombExplosion.Flag == 0,
                 "Power Bomb completes and releases its armed flag during the statue ride");
         AssertTrue(carried, "statue still moves Samus while animation is locked");
-        AssertTrue(!samus.StationaryScriptControlLocked && !samus.InputLocked && runtime.GroundedSamusMovementEnabled,
+        AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked && !samus.InputLocked && runtime.Player.GroundedSamusMovementEnabled,
             "native release restores handlers and movement");
         bool animationResumed = false;
         for (int frame = 0; frame < 12; frame++)

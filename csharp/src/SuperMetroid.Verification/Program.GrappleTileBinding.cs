@@ -15,11 +15,11 @@ internal static class GrappleTileBindingVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.RunNmi(0, true);
-        var samus = runtime.Samus!;
-        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 100), (ushort)(runtime.Camera.PixelPosition.Y + 100)));
-        samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.NmiHandler.RunNmi(0, true);
+        var samus = runtime.Player.Samus!;
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+        samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = 4;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
@@ -41,24 +41,36 @@ internal static class GrappleTileBindingVerification
             };
         AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId == VramAssetId.None), "Legacy fixture stores native sources before binding");
         byte[] legacy = SerializeGraph(game);
-        game.BindGrappleArtwork(stock);
+        game.BindArtwork(game.Artwork with
+        {
+            GrappleArtwork = stock,
+        });
         AssertTrue(runtime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Binding converts known legacy transfers in place");
         byte[] stockGraph = GraphDigest(game);
-        game.BindGrappleArtwork(edited);
+        game.BindArtwork(game.Artwork with
+        {
+            GrappleArtwork = edited,
+        });
         AssertTrue(stockGraph.SequenceEqual(GraphDigest(game)), "Changing Grapple PNG does not embed different image data in saved state");
-        game.BindGrappleArtwork(stock);
-        runtime.RunNmi(0, true);
+        game.BindArtwork(game.Artwork with
+        {
+            GrappleArtwork = stock,
+        });
+        runtime.NmiHandler.RunNmi(0, true);
         byte[] nativeVram = runtime.Vram.Bytes.ToArray();
         using var stream = new MemoryStream(legacy);
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
         var restoredRuntime = (SuperMetroidRuntime)runtimeField.GetValue(restored)!;
-        AssertTrue(restoredRuntime.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
+        AssertTrue(restoredRuntime.Artwork.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
         byte[] retained = restoredRuntime.Vram.Bytes.ToArray();
         BindRetailRuntimeFixture(restoredRuntime);
-        restored.BindGrappleArtwork(edited);
-        restoredRuntime.RunNmi(0, false);
+        restored.BindArtwork(restored.Artwork with
+        {
+            GrappleArtwork = edited,
+        });
+        restoredRuntime.NmiHandler.RunNmi(0, false);
         AssertTrue(retained.AsSpan().SequenceEqual(restoredRuntime.Vram.Bytes), "Grapple rebind preserves retained lag-frame VRAM");
-        restoredRuntime.RunNmi(0, true);
+        restoredRuntime.NmiHandler.RunNmi(0, true);
         nativeVram[GrappleTileDefinitions.PointDestination * 2] ^= 128;
         for (int tile = 0; tile < 4; tile++) nativeVram[GrappleTileDefinitions.SegmentDestination * 2 + tile * 32] ^= 128;
         AssertTrue(nativeVram.AsSpan().SequenceEqual(restoredRuntime.Vram.Bytes), "Legacy restored NMI resolves current Grapple PNG with exact edited-bit isolation");
@@ -66,19 +78,25 @@ internal static class GrappleTileBindingVerification
         AssertTrue(restoredRuntime.VramWrites.Entries.All(entry => entry.AssetId != VramAssetId.None), "Actual rebound actor queues typed Grapple resources");
         using var typedState = new MemoryStream(SerializeGraph(restored));
         var typedRestored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(typedState);
-        typedRestored.BindGrappleArtwork(stock);
+        typedRestored.BindArtwork(typedRestored.Artwork with
+        {
+            GrappleArtwork = stock,
+        });
         var typedRuntime = (SuperMetroidRuntime)runtimeField.GetValue(typedRestored)!;
         BindRetailRuntimeFixture(typedRuntime);
-        typedRestored.BindGrappleArtwork(stock);
-        typedRuntime.RunNmi(0, true);
-        AssertTrue(stock.Resolve(GrappleTileDefinitions.PointAssetFor(typedRuntime.Samus!.Grapple.PointAnimationFrame)).Span.SequenceEqual(
+        typedRestored.BindArtwork(typedRestored.Artwork with
+        {
+            GrappleArtwork = stock,
+        });
+        typedRuntime.NmiHandler.RunNmi(0, true);
+        AssertTrue(stock.Resolve(GrappleTileDefinitions.PointAssetFor(typedRuntime.Player.Samus!.Grapple.PointAnimationFrame)).Span.SequenceEqual(
             typedRuntime.Vram.Bytes.Slice(GrappleTileDefinitions.PointDestination * 2, 32)), "Typed pending state also resolves newly selected endpoint artwork");
-        AssertTrue(stock.Resolve(GrappleTileDefinitions.SegmentAssetFor(typedRuntime.Samus.Grapple.Angle.RawValue)).Span.SequenceEqual(
+        AssertTrue(stock.Resolve(GrappleTileDefinitions.SegmentAssetFor(typedRuntime.Player.Samus.Grapple.Angle.RawValue)).Span.SequenceEqual(
             typedRuntime.Vram.Bytes.Slice(GrappleTileDefinitions.SegmentDestination * 2, 128)), "Typed pending state also resolves newly selected rope artwork");
         static void Draw(SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, false });
+            target.ActorDrawing.DrawGameplayActors(false, false);
         }
     }
 }

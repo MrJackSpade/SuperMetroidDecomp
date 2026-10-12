@@ -109,13 +109,9 @@ internal static class YardTurnDefinitionsVerification
             string context)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies,
-                NewYardTurnReadGuard(rom));
-            var run = typeof(RoomEnemySystem)
-                .GetMethod("RunYardCrawlingMovement", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, YardEnemyState, RoomLevelData>>(enemies);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(NewYardTurnReadGuard(rom));
+            Action<RoomEnemySlot, YardEnemyState, RoomLevelData> run = enemies.YardBehavior.RunYardCrawlingMovement;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(0x0200, 0x0200));
             slot.Radius = new(8, 8);
             slot.CurrentInstruction = 0xffff;

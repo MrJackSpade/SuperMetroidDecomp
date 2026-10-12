@@ -66,7 +66,7 @@ internal static class GrappleFlarePlacementVerification
             var nativeBus = NewGrappleFiringReadGuard(rom, () => pose);
             var guarded = NewGrappleFlareReadGuard(nativeBus);
             var native = Seed(stock);
-            var selected = Seed(RepositoryInstallation.Projectiles.GrappleTiles.FlarePlacement);
+            var selected = Seed(InstalledFixtures.Projectiles.GrappleTiles.FlarePlacement);
             var changed = Seed(edited);
             SamusGrappleMovement.BeginFiring(nativeBus, native);
             SamusGrappleMovement.BeginFiring(guarded, selected);
@@ -116,25 +116,24 @@ internal static class GrappleFlarePlacementVerification
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
         var runtime = CreateRetailRuntimeFixture(rom);
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.RunNmi(0, true);
-        byte[] beforeBinding = GraphDigest(runtime.Samus!);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.NmiHandler.RunNmi(0, true);
+        byte[] beforeBinding = GraphDigest(runtime.Player.Samus!);
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
-        runtime.GrappleArtwork = GrappleTileAtlas.Load(new MemoryStream(GrappleTileExtractor.Extract(rom)), flarePlacement: edited, swingFrames: swingFrames);
-        AssertTrue(ReferenceEquals(edited, runtime.Samus!.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
-        AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Samus)), "Presentation binding is excluded from Samus saved graph");
-        runtime.Samus.Grapple.FlarePlacement = null;
-        runtime.Samus.Grapple.SwingFrames = null;
+        runtime.Artwork.GrappleArtwork = GrappleTileAtlas.Load(new MemoryStream(GrappleTileExtractor.Extract(rom)), flarePlacement: edited, swingFrames: swingFrames);
+        AssertTrue(ReferenceEquals(edited, runtime.Player.Samus!.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
+        AssertTrue(beforeBinding.SequenceEqual(GraphDigest(runtime.Player.Samus)), "Presentation binding is excluded from Samus saved graph");
+        runtime.Player.Samus.Grapple.FlarePlacement = null;
+        runtime.Player.Samus.Grapple.SwingFrames = null;
         runtime.StepFrame(0);
-        AssertTrue(ReferenceEquals(edited, runtime.Samus.Grapple.FlarePlacement), "Real gameplay frame rebinds missing/restored visual origins before producers");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
-        runtime.Samus.Grapple.FlarePlacement = null;
-        runtime.Samus.Grapple.SwingFrames = null;
-        typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime, new object?[] { false, false });
-        AssertTrue(ReferenceEquals(edited, runtime.Samus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
-        AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
+        AssertTrue(ReferenceEquals(edited, runtime.Player.Samus.Grapple.FlarePlacement), "Real gameplay frame rebinds missing/restored visual origins before producers");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
+        runtime.Player.Samus.Grapple.FlarePlacement = null;
+        runtime.Player.Samus.Grapple.SwingFrames = null;
+        runtime.ActorDrawing.DrawGameplayActors(false, false);
+        AssertTrue(ReferenceEquals(edited, runtime.Player.Samus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Player.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
     }
     private static CartridgeReadGuard NewGrappleFlareReadGuard(ISnesAddressSpace source) =>

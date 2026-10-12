@@ -1427,11 +1427,9 @@ internal static class EnemyExtendedFrameArtworkVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        var queues = (List<ushort>[])typeof(RoomEnemySystem)
-            .GetField("_drawQueues", flags)!.GetValue(enemies)!;
-        queues[0].Add(0);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        enemies.Drawing.Enqueue(0, 0);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         // A non-Ridley definition lets the focused OAM comparison isolate the
         // extended body from Ridley's separately drawn tail and wings.
         slot.EnemyDefinitionPointer = bank == EnemyExtendedFrameDefinitions.Bank
@@ -1446,7 +1444,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         slot.InstructionTimer = 7;
         slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();
-        enemies.DrawLayers(oam, new(0, 0), 0, 0);
+        enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 0);
         inspect?.Invoke(slot);
         return oam;
     }
@@ -1456,8 +1454,8 @@ internal static class EnemyExtendedFrameArtworkVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = PirateDefinitionForFrame(pointer);
         slot.Definition = default(RoomEnemyDefinition) with
         {
@@ -1473,11 +1471,9 @@ internal static class EnemyExtendedFrameArtworkVerification
             (hitbox.Left + hitbox.Right) / 2));
         ushort sampleY = unchecked((ushort)(slot.Position.Y.Whole + component.Offset.Y +
             (hitbox.Top + hitbox.Bottom) / 2));
-        MethodInfo collision = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
         object?[] arguments =
             [slot, new Position16<RoomPixels>(sampleX, sampleY), new Extent16<RoomPixels>((ushort)0, (ushort)0), false, (ushort)0];
-        AssertTrue((bool)collision.Invoke(enemies, arguments)!,
+        AssertTrue(ExtendedHitboxWalker.Find(enemies, arguments),
             "Space Pirate stock hitbox contains its sampled point");
         return (ushort)arguments[4]!;
     }

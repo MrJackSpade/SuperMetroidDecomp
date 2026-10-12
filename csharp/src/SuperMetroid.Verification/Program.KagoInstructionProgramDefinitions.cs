@@ -39,14 +39,10 @@ internal static class KagoInstructionProgramDefinitionsVerification
         var guard = NewKagoInstructionProgramGuard(rom);
         var enemies = new RoomEnemySystem();
         Type enemySystemType = typeof(RoomEnemySystem);
-        enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
-        var initialize = enemySystemType.GetMethod("InitializeKago", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;
-        MethodInfo resolveShot = enemySystemType.GetMethod(
-            "ResolveKagoShotAfterCommon", flags)!;
-        RoomEnemySlot slot = enemies.Slots[0];
+        var initialize = new Action<RoomEnemySlot>(enemies.KagoBehavior.InitializeKago);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Kago;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.Parameter1 = 10;
@@ -57,7 +53,7 @@ internal static class KagoInstructionProgramDefinitionsVerification
         object?[] processArguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int frame = 0; frame < 41; frame++)
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(KagoInstructionProgramDefinitions.Slow + 4)),
             slot.CurrentInstruction,
             "Kago slow program completes its native animation loop");
@@ -66,14 +62,14 @@ internal static class KagoInstructionProgramDefinitionsVerification
 
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException(
             "Kago initializer did not publish typed state.");
-        resolveShot.Invoke(enemies, [slot, state]);
+        enemies.KagoBehavior.ResolveKagoShotAfterCommon(slot, state);
         AssertTrue(state.UsesFastAnimation, "Kago real shot handoff selects fast animation");
         AssertEqual(KagoInstructionProgramDefinitions.Fast, slot.CurrentInstruction,
             "Kago shot program");
         AssertEqual(1, state.SpawnedBugCount,
             "Kago real shot handoff retains its projectile side effect");
         for (int frame = 0; frame < 13; frame++)
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(KagoInstructionProgramDefinitions.Fast + 4)),
             slot.CurrentInstruction,
             "Kago fast program completes its native animation loop");

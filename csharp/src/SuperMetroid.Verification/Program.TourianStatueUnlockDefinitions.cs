@@ -34,24 +34,20 @@ internal static class TourianStatueUnlockDefinitionsVerification
                 $"Tourian statue eye Y parameter {parameter}");
         }
 
-        FieldInfo busField = typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo cgramField = typeof(RoomEnemySystem).GetField(
-            "_cgram", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = NewTourianStatueEyeReadGuard(rom);
         for (ushort parameter = 0; parameter <= 6; parameter += 2)
         for (int soulValue = 0; soulValue < 2; soulValue++)
         {
             bool soul = soulValue != 0;
-            var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-            busField.SetValue(enemies, guarded);
-            cgramField.SetValue(enemies, new SnesCgram());
-            enemies.SpawnTourianUnlockEffect(parameter, soul);
+            var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            enemies.BindFixtureBus(guarded);
+            enemies.Presentation._cgram = new SnesCgram();
+            enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(parameter, soul);
 
             Position16<RoomPixels> expected =
                 TourianStatueUnlockDefinitions.EyePosition(parameter);
             RoomEnemyProjectileSlot projectile =
-                enemies.EnemyProjectiles.Single(candidate => candidate.IsActive);
+                enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(expected.X, projectile.Position.X.Whole,
                 $"production Tourian unlock X {parameter}/{soul}");
             AssertEqual(expected.Y, projectile.Position.Y.Whole,
@@ -146,22 +142,22 @@ internal static class TourianStatueUnlockDefinitionsVerification
                     }
                 });
         var runtime = CreateRetailRuntimeFixture(guarded, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         for (int area = 1; area <= 4; area++)
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(0xa66a);
         AssertTrue(runtime.TourianStatues.Enabled,
             "retail Tourian statue room enables the production sequence");
-        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime);
+        runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime.Artwork);
         forbidArtworkReads = true;
 
         int steps = 0;
         for (; steps < 3000 && !TourianStatueGreyEventsAreSet(runtime); steps++)
         {
-            runtime.TourianStatues.StepTiles(runtime);
-            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime);
+            runtime.TourianStatues.StepTiles();
+            runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guarded), runtime.Artwork);
         }
 
         AssertTrue(TourianStatueGreyEventsAreSet(runtime),

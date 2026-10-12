@@ -65,13 +65,13 @@ internal static class EndingCloudPlacementVerification
             oam.BeginFrame();
             foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
-            var actual = ending.CaptureRenderSnapshot();
+            var actual = ending.Presentation.CaptureRenderSnapshot();
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
             var expectedMemory = new PpuMemorySnapshot(actual.Memory.Vram, actual.Memory.Cgram,
                 oamBytes, oam.LastFinalizedSpriteCount);
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers,
                 actual.ObjectSelection, actual.Brightness));
-            var pixels = ending.Render();
+            var pixels = ending.Presentation.Render();
             if (frame == 19 || !pixels.AsSpan().SequenceEqual(expected))
             {
 
@@ -96,7 +96,7 @@ internal static class EndingCloudPlacementVerification
         }
         AssertEqual(EndingCreditsPhase.EscapeSceneA, ending.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();
-        var snapshot = ending.CaptureRenderSnapshot();
+        var snapshot = ending.Presentation.CaptureRenderSnapshot();
         var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
         var registers = snapshot.Layers.ToArray().OfType<Mode7RenderLayer>().First().Registers;
         var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), Scroll = new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y), WrapOutsideMap = registers.WrapOutsideMap });
@@ -134,7 +134,7 @@ internal static class EndingCloudPlacementVerification
                 main = new Rgba32(Add(main.R, background[i].R), Add(main.G, background[i].G), Add(main.B, background[i].B));
             expected[i] = main;
         }
-        var actual = ending.Render();
+        var actual = ending.Presentation.Render();
 
         if (checkWrapping)
         {

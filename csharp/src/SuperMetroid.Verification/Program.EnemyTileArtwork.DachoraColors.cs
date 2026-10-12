@@ -78,33 +78,30 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = cgram;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0x0200;
         slot.Position = slot.Position.WithWhole(new(96, 96));
         slot.Radius = new(8, 8);
         var state = new DachoraEnemyState(slot);
-        MethodInfo load = type.GetMethod("LoadDachoraPalette", flags)!;
-        load.Invoke(enemies, [slot, DachoraPalettePhase.Default, 0]);
+        enemies.DachoraBehavior.LoadDachoraPalette(slot, DachoraPalettePhase.Default, 0);
         CheckLive(DachoraPalettePhase.Default, 0);
 
         var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
-        MethodInfo accelerate = type.GetMethod("AccelerateDachora", flags)!;
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         {
             state.SpeedOrTimer = 8;
             state.Subspeed = 0;
             state.PaletteAnimationTimer = SnesLittleEndian.Word(1, unchecked((byte)frame));
-            accelerate.Invoke(enemies, [slot, state, empty]);
+            enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             CheckLive(DachoraPalettePhase.Speed, frame);
         }
 
-        MethodInfo shine = type.GetMethod("StepDachoraShinePalette", flags)!;
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         {
             state.PaletteAnimationTimer = SnesLittleEndian.Word(0, unchecked((byte)frame));
-            shine.Invoke(enemies, [slot, state]);
+            enemies.DachoraBehavior.StepDachoraShinePalette(slot, state);
             CheckLive(DachoraPalettePhase.Shine, frame);
             AssertEqual(SnesLittleEndian.Word(0, unchecked((byte)((frame + 1) % 4))),
                 state.PaletteAnimationTimer,

@@ -20,14 +20,13 @@ internal static class TorizoInitializationDefinitionsVerification
 
             var enemies = new RoomEnemySystem();
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+            enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+            enemies.Presentation._cgram = new SnesCgram();
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
-            var initializeWithInput = typeof(RoomEnemySystem).GetMethod("InitializeBombTorizo", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
+            Action<RoomEnemySlot, SamusState?, ushort> initializeWithInput = enemies.BombTorizoBehavior.InitializeBombTorizo;
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
-            var actor = enemies.Slots[0];
+            var actor = enemies.SlotTable.Slots[0];
             actor.EnemyDefinitionPointer = variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo;
             for (int properties = 0; properties <= ushort.MaxValue; properties++)
             {
@@ -51,7 +50,7 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)1, actor.InstructionTimer, "Initial instruction timer");
                 AssertEqual((ushort)0, actor.Timer, "Initial actor timer");
                 AssertEqual((ushort)0, actor.PaletteIndex, "Initial palette index");
-                var state = variant == 0 ? enemies.BombTorizo! : enemies.GoldenTorizo!;
+                var state = variant == 0 ? enemies.BombTorizo! : enemies.BombTorizoBehavior.GoldenTorizo!;
                 AssertEqual((ushort)0, state.Velocity.X.RawValue, "Initial horizontal velocity");
                 AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");
             }

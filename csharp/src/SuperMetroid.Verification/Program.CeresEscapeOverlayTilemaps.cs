@@ -32,15 +32,10 @@ internal static class CeresEscapeOverlayTilemapsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = new RoomEnemySystem { TileArtwork = stock };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed, guarded);
-        MethodInfo emergency = typeof(RoomEnemySystem).GetMethod(
-            "QueueCeresEmergencyText", flags)!;
-        MethodInfo japanese = typeof(RoomEnemySystem).GetMethod(
-            "QueueCeresTransferList", flags)!;
+        installed.BindFixtureBus(guarded);
         var installedQueue = new VramWriteQueue();
-        emergency.Invoke(installed, [installedQueue]);
-        japanese.Invoke(installed,
-            [CeresEscapeVramTransferDefinitions.JapaneseOverlay, installedQueue]);
+        installed.CeresRidleyBehavior.QueueCeresEmergencyText(installedQueue);
+        installed.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay, installedQueue);
         AssertEqual(5, installedQueue.Entries.Count,
             "Ceres production queues English title and four Japanese subtitle rows");
         var installedVram = new SnesVram();
@@ -94,9 +89,9 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertTrue(stockWords.Span[1..].SequenceEqual(editedWords.Span[1..]),
             "edited Ceres title leaves other tilemap bytes unchanged");
         var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(editedEnemies, guarded);
+        editedEnemies.BindFixtureBus(guarded);
         var editedQueue = new VramWriteQueue();
-        emergency.Invoke(editedEnemies, [editedQueue]);
+        editedEnemies.CeresRidleyBehavior.QueueCeresEmergencyText(editedQueue);
         var editedVram = new SnesVram();
         editedQueue.DrainTo(editedVram, ReferenceMutableMemory.From(guarded),
             new CeresEscapeOverlayProvider(edited));
@@ -120,12 +115,11 @@ internal static class CeresEscapeOverlayTilemapsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
         };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(missing, guarded);
-        ExpectMissing(() => emergency.Invoke(missing, [new VramWriteQueue()]),
+        missing.BindFixtureBus(guarded);
+        ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresEmergencyText(new VramWriteQueue()),
             "missing installed English title");
-        ExpectMissing(() => japanese.Invoke(missing,
-                [CeresEscapeVramTransferDefinitions.JapaneseOverlay,
-                    new VramWriteQueue()]),
+        ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay,
+                    new VramWriteQueue()),
             "missing installed Japanese subtitle rows");
         Console.WriteLine(
             "Ceres escape overlays: five editable tilemaps match native bytes and guarded " +
@@ -139,8 +133,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
                 throw new InvalidOperationException(
                     $"Ceres escape accepted {context}.");
             }
-            catch (TargetInvocationException error) when (
-                error.InnerException is InvalidDataException)
+            catch (InvalidDataException)
             {
                 // An installed session cannot silently use ROM tilemap bytes.
             }

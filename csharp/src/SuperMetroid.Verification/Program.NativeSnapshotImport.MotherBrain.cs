@@ -11,7 +11,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// </summary>
     internal static void ImportNativeMotherBrain(SuperMetroidRuntime runtime, Func<int, ushort> W)
     {
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain ?? throw new InvalidDataException(
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The native snapshot holds Mother Brain, but the room load did not create her.");
         state.Form = W(MotherBrainMemory.Form);
         state.Pose = (MotherBrainBodyPose)W(MotherBrainMemory.Pose);
@@ -90,8 +90,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         new(() => Enum.GetValues<MotherBrainRainbowBeamAttackPhase>()
             .Where(phase => phase != MotherBrainRainbowBeamAttackPhase.Inactive)
             .ToDictionary(
-                phase => (MotherBrainBodyFunction)PrivateState.InvokeStatic(typeof(RoomEnemySystem),
-                    "MapLiveMotherBrainRainbowFunction", phase)!,
+                phase => MotherBrainBehavior.MapLiveMotherBrainRainbowFunction(phase),
                 phase => phase));
 
     /// <summary>
@@ -102,7 +101,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
     private static void ImportNativeMotherBrainRainbowSequence(SuperMetroidRuntime runtime, MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackPhase phase, Func<int, ushort> W)
     {
-        var artwork = PrivateState.Property<SuperMetroid.Core.Assets.RoomCharacterAtlas>(runtime.Enemies, "MotherBrainCorpseArtwork");
+        var artwork = runtime.Enemies.Room.MotherBrainCorpseArtwork;
         var sequence = new MotherBrainRainbowBeamAttackSequence(artwork);
         void Set(string property, object value) => PrivateState.SetProperty(sequence, property, value);
         Set(nameof(sequence.Phase), phase);

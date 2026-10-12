@@ -92,16 +92,12 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
         };
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        type.GetField("_workRobotPaletteAnimationTimer", flags)!.SetValue(
-            enemies, (ushort)1);
-        type.GetField("_workRobotPaletteAnimationTableOffset", flags)!.SetValue(
-            enemies, (ushort)0);
-        type.GetField("_workRobotPaletteAnimationPaletteIndex", flags)!.SetValue(
-            enemies, (ushort)0);
-        var step = type.GetMethod("StepWorkRobotPaletteAnimation", flags)!
-            .CreateDelegate<Action>(enemies);
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = cgram;
+        enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer = (ushort)1;
+        enemies.WorkRobotBehavior._workRobotPaletteAnimationTableOffset = (ushort)0;
+        enemies.WorkRobotBehavior._workRobotPaletteAnimationPaletteIndex = (ushort)0;
+        var step = new Action(enemies.WorkRobotBehavior.StepWorkRobotPaletteAnimation);
 
         int[] loadCalls = [0, 64, 80, 96, 160, 176, 192];
         int nextLoad = 0;
@@ -117,15 +113,13 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             ushort expectedOffset = unchecked((ushort)(
                 (record + 1) * WorkRobotPaletteTimingDefinitions.RecordByteCount));
             AssertEqual(expectedOffset,
-                (ushort)type.GetField(
-                    "_workRobotPaletteAnimationTableOffset", flags)!.GetValue(enemies)!,
+                (ushort)enemies.WorkRobotBehavior._workRobotPaletteAnimationTableOffset,
                 $"production Work Robot palette load {nextLoad} advances record");
             AssertEqual(
                 WorkRobotPaletteTimingDefinitions.DurationForByteOffset(
                     unchecked((ushort)(record *
                         WorkRobotPaletteTimingDefinitions.RecordByteCount))),
-                (ushort)type.GetField(
-                    "_workRobotPaletteAnimationTimer", flags)!.GetValue(enemies)!,
+                (ushort)enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer,
                 $"production Work Robot palette load {nextLoad} timer");
             for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
             {

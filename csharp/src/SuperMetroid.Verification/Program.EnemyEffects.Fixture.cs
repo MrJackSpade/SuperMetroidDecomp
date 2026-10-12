@@ -23,17 +23,17 @@ internal static class EnemyEffectsFixtureVerification
         {
             if (art is not null)
                 Enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CrocomireMelting = art });
-            Actor = new CrocomireEnemyState(Enemies.Slots[0]) { Tongue = Enemies.Slots[1] };
+            Actor = new CrocomireEnemyState(Enemies.SlotTable.Slots[0]) { Tongue = Enemies.SlotTable.Slots[1] };
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
             Effect.AcidSmokeTimer = 1;
             Effect.MutableMeltingGraphics.Fill(0x39);
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);
-            Bind("_bus", Memory);
-            Bind("_vram", Vram);
-            Bind("<Crocomire>k__BackingField", Actor);
-            Bind("<CrocomireDeath>k__BackingField", Effect);
+            Enemies.BindFixtureBus(Memory);
+            Enemies.Presentation._vram = Vram;
+            Enemies.CrocomireBehavior.Crocomire = Actor;
+            Enemies.CrocomireBehavior.CrocomireDeath = Effect;
             Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
         }
 
@@ -47,11 +47,10 @@ internal static class EnemyEffectsFixtureVerification
                     ? CrocomireInstructionProgramDefinitions.MeltingTwoTopRow
                     : CrocomireInstructionProgramDefinitions.MeltingOneTopRow);
 
-        internal void Call(string method) => typeof(RoomEnemySystem).GetMethod(method, PrivateInstance)!
-            .CreateDelegate<Action<CrocomireEnemyState>>(Enemies)(Actor);
+        /// <summary>Runs one Crocomire melting step, selected from the fixture's Crocomire behavior, on its actor.</summary>
+        internal void Call(Func<CrocomireBehavior, Action<CrocomireEnemyState>> select) => select(Enemies.CrocomireBehavior)(Actor);
 
-        internal void Dissolve() => typeof(RoomEnemySystem).GetMethod("RunCrocomireMelting", PrivateInstance)!
-            .CreateDelegate<Action<CrocomireEnemyState, SamusState?>>(Enemies)(Actor, null);
+        internal void Dissolve() => new Action<CrocomireEnemyState, SamusState?>(Enemies.CrocomireBehavior.RunCrocomireMelting)(Actor, null);
     }
 
     internal static void AssertCrocomireEffectMechanics(CrocomireEffectFixture expected,
@@ -60,17 +59,17 @@ internal static class EnemyEffectsFixtureVerification
         AssertAnimationValues(expected.Actor, actual.Actor, context);
         AssertAnimationValues(expected.Effect, actual.Effect, context);
         AssertAnimationValues(expected.Enemies, actual.Enemies, context);
-        for (int slot = 0; slot < expected.Enemies.Slots.Count; slot++)
-            AssertAnimationValues(expected.Enemies.Slots[slot], actual.Enemies.Slots[slot], context);
+        for (int slot = 0; slot < expected.Enemies.SlotTable.Slots.Count; slot++)
+            AssertAnimationValues(expected.Enemies.SlotTable.Slots[slot], actual.Enemies.SlotTable.Slots[slot], context);
         for (int slot = 0; slot < expected.Enemies.RoomSpriteObjects.Count; slot++)
             AssertAnimationValues(expected.Enemies.RoomSpriteObjects[slot], actual.Enemies.RoomSpriteObjects[slot], context);
         AssertTrue(expected.Effect.MeltingColumnHeights.SequenceEqual(actual.Effect.MeltingColumnHeights), context + " erase schedule");
         AssertTrue(expected.Effect.Bg2ScrollByScanline.SequenceEqual(actual.Effect.Bg2ScrollByScanline), context + " HDMA geometry");
         AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
         AssertSameBytes(expected.Memory.SaveRam, actual.Memory.SaveRam, context + " SRAM");
-        AssertTrue(expected.Enemies.SoundRequests.SequenceEqual(actual.Enemies.SoundRequests), context + " audio");
-        AssertTrue(expected.Enemies.MusicRequests.SequenceEqual(actual.Enemies.MusicRequests), context + " music");
-        AssertTrue(expected.Enemies.CrocomirePlmRequests.SequenceEqual(actual.Enemies.CrocomirePlmRequests), context + " room changes");
+        AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");
+        AssertTrue(expected.Enemies.Audio.MusicRequests.SequenceEqual(actual.Enemies.Audio.MusicRequests), context + " music");
+        AssertTrue(expected.Enemies.CrocomireBehavior.CrocomirePlmRequests.SequenceEqual(actual.Enemies.CrocomireBehavior.CrocomirePlmRequests), context + " room changes");
     }
 
     // Decode authored bitplanes and write a genuine indexed PNG so fixtures exercise the

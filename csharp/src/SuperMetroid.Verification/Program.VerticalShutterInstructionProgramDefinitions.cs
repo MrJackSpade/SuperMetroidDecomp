@@ -33,10 +33,8 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
         var guard = NewVerticalShutterInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type enemySystemType = typeof(RoomEnemySystem);
-        enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = enemySystemType.GetMethod("InitializeVerticalShutter", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.ShuttersBehavior.InitializeVerticalShutter);
         object?[] processArguments =
             [null, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
@@ -46,7 +44,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
                      EnemyDefinitionId.ShutterDestroyable,
                  })
         {
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = definitionPointer;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.CurrentInstruction = 0;
@@ -56,15 +54,15 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
                 slot.CurrentInstruction,
                 $"vertical shutter ${(int)definitionPointer:X4} installs plain program");
             processArguments[0] = slot;
-            process.Invoke(enemies, processArguments);
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
             AssertEqual(unchecked((ushort)(
                     VerticalShutterInstructionProgramDefinitions.Plain + 4)),
                 slot.CurrentInstruction,
                 $"vertical shutter ${(int)definitionPointer:X4} reaches terminal sleep");
         }
 
-        RoomEnemySlot kamer = enemies.Slots[0];
+        RoomEnemySlot kamer = enemies.SlotTable.Slots[0];
         kamer.EnemyDefinitionPointer = EnemyDefinitionId.Kamer;
         kamer.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         kamer.CurrentInstruction = 0;
@@ -77,7 +75,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < 5; frame++)
         {
             kamer.InstructionTimer = 1;
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         }
         AssertEqual(unchecked((ushort)(
                 VerticalShutterInstructionProgramDefinitions.KamerPlatform + 4)),
@@ -194,9 +192,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
     }
     internal static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
-        var select = typeof(RoomEnemySystem).GetMethod("SelectInitialVerticalShutterFunction",
-            BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Func<VerticalShutterEnemyState, VerticalShutterFunction>>();
+        Func<VerticalShutterEnemyState, VerticalShutterFunction> select = ShuttersBehavior.SelectInitialVerticalShutterFunction;
         var state = new VerticalShutterEnemyState(new RoomEnemySlot(0))
         {
             Function = VerticalShutterFunction.Initial,
@@ -219,9 +215,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
 
     internal static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
-        var select = typeof(RoomEnemySystem).GetMethod("SelectInitialHorizontalShutterFunction",
-            BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<HorizontalShutterEnemyState>>();
+        Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterFunction;
         var state = new HorizontalShutterEnemyState(new RoomEnemySlot(0));
         for (ushort offset = 0; offset <= 8; offset += 2)
         {

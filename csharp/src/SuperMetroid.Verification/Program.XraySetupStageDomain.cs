@@ -40,8 +40,8 @@ internal static class XraySetupStageDomainVerification
         // Production stepping walks the same order.
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         AssertTrue(samus.Xray.TryBegin(bus, samus, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions()),
             "X-ray setup accepted");
         foreach (XraySetupStage expected in order)

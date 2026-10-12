@@ -119,8 +119,8 @@ internal static void VerifyHudStateAndBg3Rendering()
     // first four rows contain the visible HUD. The remaining rows must name blank
     // character $6F; zero names the orange `1` glyph and becomes visible above water/acid.
     var runtime = CreateRetailRuntimeFixture(bus);
-    runtime.InitializeHud(HudSnapshot.CeresDebug);
-    runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+    runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+    runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
     AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,
         runtime.Vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
         "gameplay BG3 first padding word uses cartridge blank character");

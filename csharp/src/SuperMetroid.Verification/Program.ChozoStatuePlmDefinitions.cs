@@ -74,7 +74,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
                 IsHardcoded: false);
 
             AssertTrue(
-                plms.TrySpawnChozoStatuePlm(level, request),
+                plms.ChozoStatue.TrySpawnChozoStatuePlm(level, request),
                 $"Chozo PLM ${(int)definition.HeaderPointer:X4} allocates");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(39, slot.NativeSlotIndex, "Chozo PLM uses highest free native slot");

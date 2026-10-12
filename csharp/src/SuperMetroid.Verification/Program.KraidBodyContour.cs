@@ -21,9 +21,9 @@ internal static class KraidBodyContourVerification
 {
     internal static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe()
     {
-        Type scratchType = typeof(RoomEnemySystem).GetNestedType(
+        Type scratchType = typeof(KraidBehavior).GetNestedType(
             "KraidCollisionScratch", BindingFlags.NonPublic)!;
-        Type shotType = typeof(RoomEnemySystem).GetNestedType(
+        Type shotType = typeof(KraidBehavior).GetNestedType(
             "KraidCollisionShot", BindingFlags.NonPublic)!;
         var body = Expression.Parameter(typeof(RoomEnemySlot), "body");
         var shot = Expression.Parameter(typeof(SamusProjectileSlot), "shot");
@@ -51,7 +51,7 @@ internal static class KraidBodyContourVerification
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
         var enemies = new RoomEnemySystem();
         var overlaps = CreateKraidBodyContourProbe();
-        var body = enemies.Slots[0];
+        var body = enemies.SlotTable.Slots[0];
         var shot = new SamusProjectileSystem().Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

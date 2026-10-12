@@ -50,12 +50,10 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
                 $"generic enemy-death mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewEnemyDeathInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
         (ushort Variant, ushort Initial, int CallsUntilTail, ushort Sound)[] programs =
         [
             (0, EnemyDeathInstructionProgramDefinitions.SmallExplosion, 7, 0x0009),
@@ -68,10 +66,9 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
         foreach (var program in programs)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x1234);
-            typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!
-                .SetValue(enemies, new SamusState { Health = 99, MaxHealth = 99 });
+            enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
 
             // A real header resolves the pickup's drop chances from ROM; a cleared header
             // ($0000) would make native read them from enemy WRAM, which this guard lacks.
@@ -80,8 +77,8 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
                 EnemyDefinitionPointer = EnemyDefinitionId.HZoomer,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0070)),
             };
-            enemies.StartGenericEnemyDeath(enemy, program.Variant);
-            RoomEnemyProjectileSlot death = enemies.EnemyProjectiles.Single(
+            enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, program.Variant);
+            RoomEnemyProjectileSlot death = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
             AssertEqual(program.Initial, death.InstructionPointer,
                 $"real death producer selects variant {program.Variant} named program");
@@ -104,7 +101,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
                 unchecked((ushort)(EnemyDeathInstructionProgramDefinitions.RespawnTail + 4)),
                 death.InstructionPointer,
                 $"death variant {program.Variant} converts to the shared blank tail exactly");
-            AssertEqual(program.Sound, enemies.LastEnemyDeathSoundEffectLibrary2!.Value,
+            AssertEqual(program.Sound, enemies.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2!.Value,
                 $"death variant {program.Variant} queues its authored sound");
 
             if (program.Variant is 3 or 4)
@@ -157,7 +154,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
 
         void Process(RoomEnemySystem system, RoomEnemyProjectileSlot projectile)
         {
-            process.Invoke(system, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            system.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
     }

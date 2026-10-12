@@ -40,8 +40,6 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
         }
 
         var guard = NewHZoomerInstructionGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeHZoomer", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         (CrawlerSurfaceOrientation Orientation, CrawlerEnemyFunction Function)[] cases =
         [
             (CrawlerSurfaceOrientation.UpsideRight,
@@ -57,19 +55,19 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
         foreach ((CrawlerSurfaceOrientation orientation, CrawlerEnemyFunction function) in cases)
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.HZoomer;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             slot.CurrentInstruction = (ushort)orientation;
             slot.Parameter1 = 0;
-            initialize.Invoke(enemies, [slot]);
+            enemies.CrawlersBehavior.InitializeHZoomer(slot);
 
             ushort entry = CrawlerAnimationDefinitions.InitialInstruction(
                 CrawlerAnimationFamily.HZoomer, orientation);
             AssertEqual(entry, slot.CurrentInstruction,
                 $"HZoomer real initializer selects {orientation}");
-            ExecuteHZoomerProgram(enemies, process, slot, callCount: 6);
+            ExecuteHZoomerProgram(enemies, slot, callCount: 6);
             AssertEqual(function, enemies.CrawlerStates[0]!.Function,
                 $"HZoomer {orientation} publishes native movement function");
             AssertEqual(unchecked((ushort)(entry + 8)), slot.CurrentInstruction,
@@ -106,7 +104,6 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
 
     private static void ExecuteHZoomerProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot slot,
         int callCount)
     {
@@ -115,7 +112,7 @@ internal static class HZoomerInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

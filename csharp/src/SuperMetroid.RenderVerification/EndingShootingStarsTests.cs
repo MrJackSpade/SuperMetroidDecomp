@@ -75,19 +75,19 @@ internal static class EndingShootingStarsTests
         {
             scene.Step();
             if (scene.Brightness == 0 || !seen.Add(scene.Phase)) continue;
-            var snapshot = scene.CaptureRenderSnapshot();
+            var snapshot = scene.Presentation.CaptureRenderSnapshot();
             Require(snapshot.Memory.ModeledSpriteCount > 0, "Post-credits owner emits star OAM");
             var empty = new OamBuffer(); empty.BeginFrame(); empty.FinalizeFrame();
             var emptyMemory = new PpuMemorySnapshot(snapshot.Memory.Vram, snapshot.Memory.Cgram, empty.CreateUploadPayload(), 0);
             var withoutStars = new LayeredRenderSnapshot(emptyMemory, snapshot.Layers.ToArray(), snapshot.ObjectSelection, snapshot.Brightness);
-            var pixels = scene.Render();
+            var pixels = scene.Presentation.Render();
             var noStars = SoftwareLayeredSnapshotRenderer.Render(withoutStars);
             bool hidden = scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus;
             Require(pixels.AsSpan().SequenceEqual(noStars) == hidden, "Stars are visible except behind the native text-only TM");
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), snapshot);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Post-credits stars CPU/GPU rendering");
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Star rendering is repeatable");
-            Require(scene.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(snapshot.Memory.Oam), "Capture does not advance star animation");
+            Require(scene.Presentation.CaptureRenderSnapshot().Memory.Oam.SequenceEqual(snapshot.Memory.Oam), "Capture does not advance star animation");
             if (hidden) break;
         }
         Require(seen.Contains(EndingCreditsPhase.PostCreditsFadeIn) && seen.Contains(EndingCreditsPhase.PostCreditsShootingStars) &&
@@ -100,7 +100,7 @@ internal static class EndingShootingStarsTests
         typeof(EndingCreditsState).GetProperty(nameof(scene.Phase))!.SetValue(scene, EndingCreditsPhase.PostCreditsLogo);
         typeof(EndingLogo).GetProperty(nameof(logo.PaletteStep))!.SetValue(logo, 16);
         typeof(EndingLogo).GetProperty(nameof(logo.CrossfadeStarted))!.SetValue(logo, true);
-        var final = scene.CaptureRenderSnapshot();
+        var final = scene.Presentation.CaptureRenderSnapshot();
         Require(final.Memory.ModeledSpriteCount > 0 && final.Layers.ToArray().OfType<ObjRenderLayer>().Any(), "Final logo/text retains the star plane after logo actors finish");
         Console.WriteLine($"{device.Kind}: 40 native star definitions, delay/trajectory/animation/reset, visible ending stars, phase masks and late-scene ownership passed.");
 

@@ -37,14 +37,14 @@ internal static class RoomArtworkRenderParityVerification
                     unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), landingDoor);
                 byte[] sky = RomDataReader.ReadFixedBank(sourceBus,
                     skyTransfer.SourceAddress, skyTransfer.ByteCount);
-                AssertTrue(native.ActiveDoor?.Pointer == landingDoor &&
-                    native.ScrollingSky is not null &&
+                AssertTrue(native.Room.ActiveDoor?.Pointer == landingDoor &&
+                    native.Room.ScrollingSky is not null &&
                     native.Vram.Bytes.Slice(skyTransfer.Destination * 2, sky.Length)
                         .SequenceEqual(sky),
                     "Landing Site frame contains its real door-selected sky page");
             }
             else
-                AssertTrue(native.ActiveRoomAssets!.RoomCharacters.Length >
+                AssertTrue(native.Room.ActiveRoomAssets!.RoomCharacters.Length >
                     RoomGraphicsLayout.CommonRoomElementCharacters.Offset * sizeof(ushort),
                     "Ceres parity exercises room characters overlapping the CRE VRAM region");
             AssertTrue(native.Vram.ImageEquals(installed.Vram),
@@ -61,11 +61,11 @@ internal static class RoomArtworkRenderParityVerification
 
             void VerifyVisibleOverrides()
             {
-                int characterSource = native.ActiveRoomAssets!.Tileset.CharacterAddress;
+                int characterSource = native.Room.ActiveRoomAssets!.Tileset.CharacterAddress;
                 string characterName = RoomCharacterAtlasFormat.SourceFileName(characterSource);
                 string stockCharacterPath = Path.Combine(installation.RoomCharacterDirectory,
                     characterName);
-                int tileCount = native.ActiveRoomAssets.RoomCharacters.Length /
+                int tileCount = native.Room.ActiveRoomAssets.RoomCharacters.Length /
                     RoomCharacterAtlasFormat.BytesPerTile;
                 int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
                 int rows = (tileCount + columns - 1) / columns;
@@ -123,10 +123,10 @@ internal static class RoomArtworkRenderParityVerification
 
             void AssertGameplayPlanesUnchanged(SuperMetroidRuntime changed, string artwork)
             {
-                AssertTrue(native.LevelData!.ForegroundEntries.Span.SequenceEqual(
-                        changed.LevelData!.ForegroundEntries.Span) &&
-                    native.LevelData.BehaviorBytes.Span.SequenceEqual(
-                        changed.LevelData.BehaviorBytes.Span),
+                AssertTrue(native.Room.LevelData!.ForegroundEntries.Span.SequenceEqual(
+                        changed.Room.LevelData!.ForegroundEntries.Span) &&
+                    native.Room.LevelData.BehaviorBytes.Span.SequenceEqual(
+                        changed.Room.LevelData.BehaviorBytes.Span),
                     $"{artwork} override does not change placement or collision BTS");
             }
 
@@ -136,15 +136,15 @@ internal static class RoomArtworkRenderParityVerification
                 var runtime = CreateRetailRuntimeFixture(bus);
                 if (installedArt)
                 {
-                    runtime.RoomCharacterArt = installation.LoadRoomCharacters();
-                    runtime.RoomMetatileArt = installation.LoadRoomMetatiles();
-                    runtime.RoomBackgroundTilemapArt = installation.LoadRoomBackgroundTilemaps();
-                    runtime.RoomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
+                    runtime.Artwork.RoomCharacterArt = installation.LoadRoomCharacters();
+                    runtime.Artwork.RoomMetatileArt = installation.LoadRoomMetatiles();
+                    runtime.Artwork.RoomBackgroundTilemapArt = installation.LoadRoomBackgroundTilemaps();
+                    runtime.Artwork.RoomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
                 }
-                runtime.InitializeHud(HudSnapshot.CeresDebug);
-                runtime.RunNmi(0, true);
-                runtime.InitializeStartingCeresRoom();
-                runtime.InitializeCeresStartSamus();
+                runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+                runtime.NmiHandler.RunNmi(0, true);
+                runtime.RoomLoader.InitializeStartingCeresRoom();
+                runtime.RoomLoader.InitializeCeresStartSamus();
                 ushort doorPointer = useRealLandingDoor
                     ? LandingSiteRomData.LandingCutsceneDoorPointer
                     : DoorPointers.ToCeresElevatorShaft;
@@ -152,7 +152,7 @@ internal static class RoomArtworkRenderParityVerification
                 AssertEqual(roomPointer, door.DestinationRoomPointer,
                     $"{name} parity uses its real entry door");
                 runtime.LoadCartridgeRoomThroughDoorForVerification(door);
-                runtime.RunNmi(0, true);
+                runtime.NmiHandler.RunNmi(0, true);
                 return runtime;
             }
         }

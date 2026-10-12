@@ -14,9 +14,9 @@ internal static class ProjectileTrailAtlasVerification
         var atlas = ProjectileTrailAtlas.Load(new MemoryStream(png));
         Suite(nameof(VerifyTrailAtlasBinding), () => VerifyTrailAtlasBinding(bus, png));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.RunNmi(0, true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.NmiHandler.RunNmi(0, true);
         byte[] native = runtime.Vram.Bytes.ToArray();
         atlas.LoadTo(runtime.Vram);
         AssertTrue(native.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Stock trail PNG preserves complete VRAM after production room/NMI setup");
@@ -62,28 +62,28 @@ internal static class ProjectileTrailAtlasVerification
         var atlas = ProjectileTrailAtlas.Load(stream);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailExtractor.Extract(bus)), atlas);
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         byte[] before = runtime.Vram.Bytes.ToArray();
-        runtime.TrailArtwork = catalog;
-        runtime.RunNmi(0, false);
+        runtime.Artwork.TrailArtwork = catalog;
+        runtime.NmiHandler.RunNmi(0, false);
         AssertTrue(before.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Trail rebind does not change retained lag-frame VRAM");
-        runtime.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0, true);
         Check(runtime);
         // Room initialization queues a new standard OBJ upload even after the first
         // host rebind is consumed. Its typed replacements must survive that upload.
-        runtime.InitializeStartingCeresRoom();
-        runtime.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.NmiHandler.RunNmi(0, true);
         Check(runtime);
-        runtime.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeStartingCeresRoom();
         using var saved = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
         saved.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
-        AssertTrue(restored.TrailArtwork is null, "State does not embed selected trail PNGs");
+        AssertTrue(restored.Artwork.TrailArtwork is null, "State does not embed selected trail PNGs");
         BindRetailRuntimeFixture(restored);
-        restored.TrailArtwork = catalog;
-        restored.RunNmi(0, true);
+        restored.Artwork.TrailArtwork = catalog;
+        restored.NmiHandler.RunNmi(0, true);
         Check(restored);
         void Check(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {

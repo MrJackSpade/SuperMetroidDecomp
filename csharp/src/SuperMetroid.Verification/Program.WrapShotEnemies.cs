@@ -22,18 +22,18 @@ internal static class WrapShotEnemiesVerification
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedTower);
-            var enemy = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer != 0 &&
+            var enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer != 0 &&
                 (((int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer))) == (int)EnemyAiRoutine.InitAI_Ripper);
-            foreach (var other in runtime.Enemies.Slots) if (!ReferenceEquals(other, enemy)) other.Clear();
+            foreach (var other in runtime.Enemies.SlotTable.Slots) if (!ReferenceEquals(other, enemy)) other.Clear();
             enemy.Properties |= (ushort)EnemyProperties.ProcessOffScreen;
             // Run the first real animation entry before freezing; a never-drawn
             // zero spritemap is intentionally ineligible for native shot hits.
             for (int warmup = 0; warmup < 32 && enemy.SpritemapPointer is 0 or 0x804d; warmup++)
-                runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new((ushort)Math.Max(0, enemy.Position.X.Whole - 128), (ushort)Math.Max(0, enemy.Position.Y.Whole - 128)), TimeIsFrozen = false, Level = runtime.LevelData });
+                runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new((ushort)Math.Max(0, enemy.Position.X.Whole - 128), (ushort)Math.Max(0, enemy.Position.Y.Whole - 128)), TimeIsFrozen = false, Level = runtime.Room.LevelData });
             AssertTrue(enemy.SpritemapPointer is not (0 or 0x804d), "Real enemy animation has published a collision-eligible spritemap");
             int target = left ? 0x123f : 0x0280;
             enemy.Position = enemy.Position.WithWhole(new((ushort)((target % 64) * 16 + 8), (ushort)((target / 64) * 16 + 8)));
@@ -41,7 +41,7 @@ internal static class WrapShotEnemiesVerification
             enemy.InvincibilityTimer = 0;
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = runtime.LevelData });
+            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = runtime.Room.LevelData });
             AssertTrue(runtime.Enemies.InteractiveEnemyIndexes.Contains(enemy.NativeIndex), "Remote control enemy is collision-eligible");
 
             var words = new ushort[64 * 128];
@@ -63,7 +63,7 @@ internal static class WrapShotEnemiesVerification
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
-                AssertEqual(0, runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
+                AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
             }
             AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).LevelWord, "Same shot actually triggers the remote tile");
             AssertEqual(health, enemy.Health, "Remote enemy health is unchanged");
@@ -73,7 +73,7 @@ internal static class WrapShotEnemiesVerification
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
             enemy.Position = enemy.Position.WithWhole(shots.Slots[0].Position.Whole);
-            AssertEqual(1, runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs), "World-space overlap reaches the same enemy collision dispatcher");
+            AssertEqual(1, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs), "World-space overlap reaches the same enemy collision dispatcher");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");
     }

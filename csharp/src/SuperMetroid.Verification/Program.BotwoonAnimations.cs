@@ -75,10 +75,8 @@ internal static class BotwoonAnimationsVerification
     /// <summary>The AI selects the typed program the cartridge would, and reinstalling one does not restart it.</summary>
     internal static void VerifyBotwoonAnimationSelection(SuperMetroidAddressSpace rom)
     {
-        var animateHead = typeof(RoomEnemySystem).GetMethod("AnimateBotwoonHeadFromMovement", BotwoonFlags)!
-            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
-        var aimHead = typeof(RoomEnemySystem).GetMethod("AimBotwoonAtSamus", BotwoonFlags)!
-            .CreateDelegate<Action<RoomEnemySystem, RoomEnemySlot, BotwoonEnemyState, SamusState>>();
+        Action<RoomEnemySlot, BotwoonEnemyState> animateHead = BotwoonBehavior.AnimateBotwoonHeadFromMovement;
+        Action<RoomEnemySystem, RoomEnemySlot, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0, a1, a2);
         (short X, short Y)[] octantVectors =
             [(0, -100), (100, -100), (100, 0), (100, 100), (0, 100), (-100, 100), (-100, 0), (-100, -100)];
         for (int octant = 0; octant < octantVectors.Length; octant++)
@@ -138,8 +136,7 @@ internal static class BotwoonAnimationsVerification
     internal static void VerifyBotwoonProjectileAnimations(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessEnemyProjectileInstructions", BotwoonFlags)!;
-        void Pass(RoomEnemyProjectileSlot projectile) => process.Invoke(enemies, [projectile, null, Position16<RoomPixels>.Zero]);
+        void Pass(RoomEnemyProjectileSlot projectile) => enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, null, Position16<RoomPixels>.Zero);
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
@@ -149,17 +146,15 @@ internal static class BotwoonAnimationsVerification
                 $"segment selector ${selector:X2}");
         }
 
-        var spawnSpit = typeof(RoomEnemySystem).GetMethod("SpawnBotwoonSpit", BotwoonFlags)!
-            .CreateDelegate<Action<RoomEnemySlot, byte, ushort>>(enemies);
-        spawnSpit(enemies.Slots[0], 0x40, 0x0180);
-        RoomEnemyProjectileSlot spit = enemies.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
+        Action<RoomEnemySlot, byte, ushort> spawnSpit = enemies.BotwoonBehavior.SpawnBotwoonSpit;
+        spawnSpit(enemies.SlotTable.Slots[0], 0x40, 0x0180);
+        RoomEnemyProjectileSlot spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonProjectileAnimation { Segment: null }, "the real spit producer starts the typed spit animation");
         AssertEqual((ushort)0, spit.InstructionPointer, "a typed spit keeps no native instruction pointer");
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
         // A changed selector restarts the segment; an unchanged one keeps running.
-        var animate = typeof(RoomEnemySystem).GetMethod("AnimateBotwoonBodySegment", BotwoonFlags)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot, byte>>(enemies);
+        Action<RoomEnemyProjectileSlot, byte> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new RoomEnemyProjectileSlot(1) { Kind = RoomEnemyProjectileKind.BotwoonBody, DirectionParameter = 0 };
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(0)));
         Pass(segment);
@@ -174,15 +169,13 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        var spawnBody = typeof(RoomEnemySystem).GetMethod("SpawnBotwoonBodySegment", BotwoonFlags)!
-            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState, ushort>>(enemies);
-        var runBody = typeof(RoomEnemySystem).GetMethod("RunBotwoonBodyPreInstruction", BotwoonFlags)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot, byte>>(enemies);
-        RoomEnemySlot head = enemies.Slots[0];
+        Action<RoomEnemySlot, BotwoonEnemyState, ushort> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
+        Action<RoomEnemyProjectileSlot, byte> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
+        RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState(head);
-        typeof(RoomEnemySystem).GetField("_botwoonState", BotwoonFlags)!.SetValue(enemies, state);
+        enemies.BotwoonBehavior._botwoonState = state;
         spawnBody(head, state, 2);
-        RoomEnemyProjectileSlot body = enemies.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
+        RoomEnemyProjectileSlot body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
         AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)body.Animation!).Segment,
             "the real body producer starts a non-tail segment hidden");
         body.Position = body.Position.WithWholeY(200);
@@ -200,10 +193,10 @@ internal static class BotwoonAnimationsVerification
     private static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State) NewBotwoonHead()
     {
         var enemies = new RoomEnemySystem();
-        RoomEnemySlot head = enemies.Slots[0];
+        RoomEnemySlot head = enemies.SlotTable.Slots[0];
         head.EnemyDefinitionPointer = EnemyDefinitionId.Botwoon;
         var state = new BotwoonEnemyState(head);
-        typeof(RoomEnemySystem).GetField("_botwoonState", BotwoonFlags)!.SetValue(enemies, state);
+        enemies.BotwoonBehavior._botwoonState = state;
         return (enemies, head, state);
     }
 
@@ -221,13 +214,12 @@ internal static class BotwoonAnimationsVerification
     private static void CompareBotwoonHead(SuperMetroidAddressSpace rom, ushort nativeList, RoomEnemySystem enemies,
         RoomEnemySlot head, BotwoonEnemyState state, string label, HashSet<ushort>? drawn = null)
     {
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", BotwoonFlags)!;
-        PropertyInfo sound = typeof(RoomEnemySystem).GetProperty(nameof(RoomEnemySystem.LastBotwoonSoundEffect))!;
+        PropertyInfo sound = typeof(BotwoonBehavior).GetProperty(nameof(BotwoonBehavior.LastBotwoonSoundEffect))!;
         var native = new NativeBotwoonHead(nativeList, head.InstructionTimer, head.Radius);
         for (int update = 0; update < 70; update++)
         {
-            sound.SetValue(enemies, null);
-            process.Invoke(enemies, [head, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+            sound.SetValue(enemies.BotwoonBehavior, null);
+            enemies.Instructions.ProcessInstructions(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
             AssertEqual(native.Timer, head.InstructionTimer, $"{at}: timer");
@@ -237,7 +229,7 @@ internal static class BotwoonAnimationsVerification
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
             AssertEqual(native.NewFrame, head.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
-            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : (ushort?)null, enemies.LastBotwoonSoundEffect, $"{at}: spit sound");
+            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : (ushort?)null, enemies.BotwoonBehavior.LastBotwoonSoundEffect, $"{at}: spit sound");
         }
     }
 

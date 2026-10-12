@@ -21,15 +21,13 @@ internal static class PhantoonPositionVerification
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
         // PAL thresholds used here previously allowed continued acceleration.
         var capEnemies = new RoomEnemySystem();
-        var capBody = capEnemies.Slots[0];
-        var capTentacles = capEnemies.Slots[2];
+        var capBody = capEnemies.SlotTable.Slots[0];
+        var capTentacles = capEnemies.SlotTable.Slots[2];
         var capState = new PhantoonEnemyState(capBody) { Tentacles = capTentacles };
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
         capTentacles.VariableC = 0xf800;
         capTentacles.VariableD = 0xfa00;
-        typeof(RoomEnemySystem).GetMethod("MovePhantoonInSwoop",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-            .Invoke(null, [capBody, capState, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, false]);
+        PhantoonBehavior.MovePhantoonInSwoop(capBody, capState, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, false);
         AssertEqual((ushort)0xf800, capTentacles.VariableC, "Native NTSC negative swoop X cap");
         AssertEqual((ushort)0xfa00, capTentacles.VariableD, "Native NTSC negative swoop Y cap");
         AssertEqual((ushort)120, capBody.Position.X.Whole, "Native capped swoop X displacement");
@@ -37,11 +35,11 @@ internal static class PhantoonPositionVerification
         foreach (ushort timer in new ushort[] { 2, 1, 0 })
         {
             var boundary = CreateRetailRuntimeFixture(bus);
-            boundary.InitializeHud(HudSnapshot.CeresDebug);
-            boundary.InitializeStartingCeresRoom();
-            boundary.InitializeCeresStartSamus();
+            boundary.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            boundary.RoomLoader.InitializeStartingCeresRoom();
+            boundary.RoomLoader.InitializeCeresStartSamus();
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomHeaderPointers.Phantoon);
-            var state = boundary.Enemies.Phantoon!;
+            var state = boundary.Enemies.PhantoonBehavior.Phantoon!;
             state.Body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
             state.Eye!.VariableA = timer;
             boundary.StepFrame(0);
@@ -49,23 +47,23 @@ internal static class PhantoonPositionVerification
                 state.Body.VariableF, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
         }
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xcd13);
-        AssertEqual((ushort)120, runtime.Enemies.Phantoon!.Body.VariableE,
+        AssertEqual((ushort)120, runtime.Enemies.PhantoonBehavior.Phantoon!.Body.VariableE,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.Position = samus.Position.WithWhole(new(40, 184));
         samus.InputLocked = true;
         var positions = new HashSet<(ushort X, ushort Y)>();
         for (int frame = 0; frame < 1400; frame++)
         {
-            var phantoon = runtime.Enemies.Phantoon!;
+            var phantoon = runtime.Enemies.PhantoonBehavior.Phantoon!;
             ushort displayedX = phantoon.Bg2Scroll.X;
             ushort displayedY = phantoon.Bg2Scroll.Y;
-            ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Camera!.PixelPosition.X);
-            ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Camera.PixelPosition.Y);
+            ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.Camera!.PixelPosition.X);
+            ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.Camera.PixelPosition.Y);
             runtime.StepFrame(0);
             AssertEqual(phantoon.Bg2Scroll, runtime.BackgroundScroll.Bg2Scroll,
                 $"Phantoon live BG2 handoff frame {frame}");

@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 /// Finite, source-selected production-owner fixtures for #541. These compare stock
 /// and edited presentation, not a playthrough or a search for cartridge access.
 /// </summary>
-internal sealed partial class InstalledSamusIsolationTests
+internal sealed class InstalledSamusIsolationTests
 {
     private readonly InstalledSamusArtworkFixture artwork;
     private readonly (SamusSuitColorCatalog Stock, SamusSuitColorCatalog Edited) suits;
@@ -76,16 +76,16 @@ internal sealed partial class InstalledSamusIsolationTests
             Crystal = edited ? tests.crystal.Edited : tests.crystal.Stock;
             Samus = new() { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
-                SuitColors = Suits, FullBodyCycleColors = Cycles };
-            Samus.TileTransfers.BindArtwork(Body);
+                Presentation = { SuitColors = Suits, FullBodyCycleColors = Cycles } };
+            Samus.Presentation.TileTransfers.BindArtwork(Body);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
-            Samus.RefreshCollisionRadii(Memory);
+            Samus.PoseMetadata.RefreshCollisionRadii(Memory);
             Samus.Position = Samus.Position.WithWholeY((ushort)(FloorY - Samus.Kinematics.Radius.Y));
-            Samus.InitializeAnimation(Memory);
+            Samus.Presentation.InitializeAnimation(Memory);
             Samus.CommitPoseHistory(Memory);
             if (medium == SamusLiquidMedium.Water) Samus.LiquidPhysics.ConfigureWater(0);
             else if (medium == SamusLiquidMedium.LavaOrAcid) Samus.LiquidPhysics.ConfigureLavaAcid(0);
-            Samus.LoadSuitPalette(Memory, Colors);
+            Samus.Presentation.LoadSuitPalette(Memory, Colors);
             var blocks = new ushort[RoomWidth * RoomHeight];
             for (int x = 0; x < RoomWidth; x++)
             {
@@ -147,11 +147,11 @@ internal sealed partial class InstalledSamusIsolationTests
             a.BeginFrame(); b.BeginFrame();
             ushort cameraX = (ushort)Math.Max(0, Stock.Samus.Position.X.Whole - 128);
             ushort cameraY = (ushort)Math.Max(0, Stock.Samus.Position.Y.Whole - 128);
-            bool visible = Stock.Samus.Draw(Stock.Memory, a, new(cameraX, cameraY), frame);
-            Require(visible == Edited.Samus.Draw(Edited.Memory, b, new(cameraX, cameraY), frame),
+            bool visible = Stock.Samus.Presentation.Draw(Stock.Memory, a, new(cameraX, cameraY), frame);
+            Require(visible == Edited.Samus.Presentation.Draw(Edited.Memory, b, new(cameraX, cameraY), frame),
                 context + ": visibility changed");
-            Stock.Samus.TileTransfers.TransferToVram(Stock.Memory, Stock.Tiles);
-            Edited.Samus.TileTransfers.TransferToVram(Edited.Memory, Edited.Tiles);
+            Stock.Samus.Presentation.TileTransfers.TransferToVram(Stock.Memory, Stock.Tiles);
+            Edited.Samus.Presentation.TileTransfers.TransferToVram(Edited.Memory, Edited.Tiles);
             beforeStock.RequireSame(new(Stock.Samus), context + ": stock draw mutated mechanics");
             beforeEdited.RequireSame(new(Edited.Samus), context + ": edited draw mutated mechanics");
             Check(context + " after draw");
@@ -166,7 +166,7 @@ internal sealed partial class InstalledSamusIsolationTests
 
     private static void CheckSnapshotSensitivity()
     {
-        var samus = RepositoryInstallation.CreateSamus();
+        var samus = InstalledFixtures.CreateSamus();
         var baseline = new SamusMechanicsSnapshot(samus);
         MustDiffer(() => samus.Position += new Offset16<RoomPixels>(1, 0), "whole position");
         samus = new(); baseline = new(samus);
@@ -194,4 +194,395 @@ internal sealed partial class InstalledSamusIsolationTests
 
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }
+
+    /// <summary>
+    /// The drained draw offsets have their own byte-indexed table. Exercise their
+    /// real animation-triggered falling owner rather than assigning a plausible pose.
+    /// </summary>
+    private void CheckDrained(bool left)
+    {
+        Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
+        string context = $"drained left={left}";
+        pair.Apply(context + " airborne setup", actor =>
+        {
+            actor.Samus.Position -= new Offset16<RoomPixels>(0, 80);
+            SamusAerialMovement.ConfigureEnvironmentGravity(actor.Memory, actor.Samus);
+            actor.Samus.Drained.LetFall(actor.Memory, actor.Samus);
+        });
+        bool fell = false;
+        int frames = 0;
+        while (pair.Stock.Samus.Drained.Phase != DrainedSamusPhase.OnFloor && frames < 180)
+        {
+            ushort frame = (ushort)frames++;
+            pair.Apply(context + $" fall {frame}", actor =>
+            {
+                if (actor.Samus.Drained.Phase == DrainedSamusPhase.Falling)
+                    actor.Samus.Drained.StepFalling(actor.Memory, actor.Level, actor.Samus, frame);
+                Animate(actor, frame);
+                actor.Samus.Drained.UpdatePalette(actor.Memory, actor.Colors, actor.Samus.EquippedItems, actor.Suits);
+            });
+            fell |= pair.Stock.Samus.Drained.Phase == DrainedSamusPhase.Falling;
+        }
+        Require(fell && pair.Stock.Samus.Drained.Phase == DrainedSamusPhase.OnFloor,
+            context + ": animation command must install falling and terrain collision must end it");
+        pair.Apply(context + " stand", actor => actor.Samus.Drained.PutStanding(actor.Memory, actor.Samus));
+        for (ushort frame = 0; frame < 24; frame++)
+            pair.Apply(context + $" standing {frame}", actor => Animate(actor, frame));
+        pair.Apply(context + " crouch", actor => actor.Samus.Drained.PutCrouchingOrFalling(actor.Memory, actor.Samus));
+        for (ushort frame = 0; frame < 24; frame++)
+            pair.Apply(context + $" crouching {frame}", actor => Animate(actor, frame));
+        pair.Apply(context + " release", actor => actor.Samus.Drained.Release(actor.Memory, actor.Samus));
+        CompleteAnimation(pair, left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
+            context + " released");
+        Require(pair.Stock.Samus.Drained.Phase == DrainedSamusPhase.Inactive,
+            context + ": compiled terminal animation must release the drained owner");
+        Console.WriteLine($"  {context}: {frames} matching fall calls plus stand/crouch/release animation; edited draw offsets stay cosmetic.");
+    }
+
+    private void CheckMovement()
+    {
+        foreach (SamusLiquidMedium medium in new[] { SamusLiquidMedium.Air,
+            SamusLiquidMedium.Water, SamusLiquidMedium.LavaOrAcid })
+        foreach (bool left in new[] { false, true })
+        {
+            Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
+                medium: medium);
+            string label = $"medium {medium}, facing {(left ? "left" : "right")}";
+            pair.Apply(label + " enter run", actor =>
+            {
+                if (left) actor.Samus.PoseTransitions.ApplyStandingLeftToRunningLeft(actor.Memory);
+                else actor.Samus.PoseTransitions.ApplyStandingRightToRunningRight(actor.Memory);
+            });
+            ushort initialX = pair.Stock.Samus.Position.X.Whole;
+            for (ushort frame = 0; frame < 24; frame++)
+                pair.Apply(label + $" run {frame}", actor =>
+                {
+                    actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
+                    GroundedMovementResult result = left
+                        ? SamusGroundedMovement.StepRunningLeft(actor.Memory, actor.Level, actor.Samus, frame,
+                            (ushort)(SnesButton.Left | SnesButton.B))
+                        : SamusGroundedMovement.StepRunningRight(actor.Memory, actor.Level, actor.Samus, frame,
+                            (ushort)(SnesButton.Right | SnesButton.B));
+                    Animate(actor, frame);
+                    return result;
+                });
+            Require(pair.Stock.Samus.Position.X.Whole != initialX, label + ": run fixture never moved");
+            pair.Apply(label + " turn admission", actor => actor.Samus.PoseTransitions.ApplyGroundedTurn(actor.Memory,
+                left ? SamusPoseId.TurningLeftToRightPose : SamusPoseId.TurningRightToLeftPose));
+            int turnFrames = 0;
+            while (pair.Stock.Samus.PoseMetadata.ReadMovementKind(pair.Stock.Memory) == SamusMovementType.TurningOnGround && turnFrames < 120)
+            {
+                ushort frame = (ushort)turnFrames++;
+                pair.Apply(label + $" turn {frame}", actor =>
+                {
+                    var result = SamusGroundedMovement.StepTurningOnGround(actor.Memory, actor.Level, actor.Samus, frame);
+                    Animate(actor, frame);
+                    return result;
+                });
+            }
+            Require(pair.Stock.Samus.Pose == (left ? SamusPoseId.FacingRightNormalPose : SamusPoseId.FacingLeftNormalPose),
+                label + ": authored turn did not complete");
+            CheckJump(medium, left, highJump: false);
+            CheckJump(medium, left, highJump: true);
+            CheckPosture(medium, left);
+            Pair hurt = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose, medium: medium);
+            Require(hurt.Apply(label + " hit admission", actor => SamusKnockbackMovement.Start(actor.Memory, actor.Samus, 0, new KnockbackLaunch { KnockbackXDirection = left ? (ushort)1 : (ushort)0 }, level: actor.Level)), label + ": hurt was not admitted");
+            for (ushort frame = 0; frame < 8; frame++)
+                hurt.Apply(label + $" knockback {frame}", actor =>
+                {
+                    actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
+                    var result = SamusKnockbackMovement.Step(actor.Memory, actor.Level, actor.Samus, frame);
+                    Animate(actor, frame);
+                    return result;
+                });
+        }
+    }
+
+    private void CheckJump(SamusLiquidMedium medium, bool left, bool highJump)
+    {
+        Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
+            equipment: highJump ? (ushort)SamusEquipmentFlags.HiJumpBoots : (ushort)0, medium: medium);
+        string label = $"jump medium {medium}, left={left}, high={highJump}";
+        ushort startY = pair.Stock.Samus.Position.Y.Whole, minimumY = startY;
+        pair.Apply(label + " admission", actor => actor.Samus.PoseTransitions.ApplyOrdinaryJumpTransition(actor.Memory,
+            left ? SamusPoseId.NeutralJumpTransitionLeftPose : SamusPoseId.NeutralJumpTransitionRightPose));
+        bool landed = false;
+        for (ushort frame = 0; frame < 240 && !landed; frame++)
+        {
+            AerialMovementResult result = pair.Apply(label + $" frame {frame}", actor =>
+            {
+                actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
+                var movement = SamusAerialMovement.StepNormalJump(actor.Memory, actor.Level, actor.Samus,
+                    (ushort)SnesButton.A, frame);
+                Animate(actor, frame);
+                if (movement.Landed) Require(actor.Samus.PoseTransitions.TryApplyAerialLanding(actor.Memory,
+                    actor.Level, wasSpinning: false, controllerInput: (ushort)SnesButton.A,
+                    nmiFrameCounter: frame), label + ": landing rejected");
+                return movement;
+            });
+            minimumY = Math.Min(minimumY, pair.Stock.Samus.Position.Y.Whole);
+            landed = result.Landed;
+        }
+        Require(landed && minimumY < startY, label + ": must rise and collide with the floor, not merely stay equal");
+    }
+
+    private void CheckPosture(SamusLiquidMedium medium, bool left)
+    {
+        Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
+            (ushort)SamusEquipmentFlags.MorphBall, medium);
+        string label = $"posture medium {medium}, left={left}";
+        Require(pair.Apply(label + " crouch", actor => actor.Samus.PoseTransitions.TryApplyPostureTransition(actor.Memory,
+            actor.Level, left ? SamusPoseId.CrouchingTransitionLeftPose : SamusPoseId.CrouchingTransitionRightPose, 0)),
+            label + ": crouch not admitted");
+        CompleteAnimation(pair, left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose, label + " crouching");
+        Require(pair.Apply(label + " morph", actor => actor.Samus.PoseTransitions.TryApplyMorphTransition(actor.Memory,
+            actor.Level, left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0)),
+            label + ": morph not admitted");
+        CompleteAnimation(pair, left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose, label + " morphing");
+        Require(pair.Apply(label + " unmorph", actor => actor.Samus.PoseTransitions.TryApplyMorphTransition(actor.Memory,
+            actor.Level, left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0)),
+            label + ": unmorph not admitted");
+        CompleteAnimation(pair, left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose, label + " unmorphing");
+    }
+
+    private void CheckPoseCollision()
+    {
+        foreach (bool blocked in new[] { false, true })
+        foreach (bool left in new[] { false, true })
+        {
+            Pair pair = Create(left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
+                lowCeiling: blocked);
+            bool accepted = pair.Apply($"expand pose left={left}, blocked={blocked}", actor =>
+                actor.Samus.PoseTransitions.TryApplyDirectCrouchToStandingTransition(actor.Memory, actor.Level,
+                    left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose, 0));
+            Require(accepted != blocked, "Synthetic ceiling did not exercise the expected eligibility decision");
+        }
+    }
+
+    private static void Animate(Actor actor, ushort frame)
+    {
+        actor.Samus.Presentation.AnimateNoFx(actor.Memory, new SamusAnimationStep { NmiFrameCounter = frame });
+        if (actor.Samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(actor.Memory)) actor.Samus.CommitPoseHistory(actor.Memory);
+    }
+
+    private static void CompleteAnimation(Pair pair, SamusPoseId target, string context)
+    {
+        for (ushort frame = 0; frame < 120 && pair.Stock.Samus.Pose != target; frame++)
+            pair.Apply(context + $" frame {frame}", actor =>
+            {
+                actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
+                Animate(actor, frame);
+            });
+        Require(pair.Stock.Samus.Pose == target, context + ": authored animation transition did not finish");
+    }
+
+    private const ushort FlashChord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+
+    private void CheckSpecialSequences()
+    {
+        foreach (bool left in new[] { false, true }) CheckCrystalFlash(left);
+        CheckStoredShine();
+        foreach (SamusPoseId pose in new[] { SamusPoseId.ShinesparkHorizontalRightPose,
+            SamusPoseId.ShinesparkHorizontalLeftPose, SamusPoseId.ShinesparkVerticalRightPose,
+            SamusPoseId.ShinesparkVerticalLeftPose, SamusPoseId.ShinesparkDiagonalRightPose,
+            SamusPoseId.ShinesparkDiagonalLeftPose }) CheckShinespark(pose);
+        foreach (SamusSuitPickupKind kind in Enum.GetValues<SamusSuitPickupKind>()) CheckSuitPickup(kind);
+        foreach (ushort suit in new[] { (ushort)0, (ushort)SamusEquipmentFlags.VariaSuit,
+            (ushort)SamusEquipmentFlags.GravitySuit })
+        foreach (SamusPoseId source in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.MorphBallGroundLeftPose,
+            SamusPoseId.SpinJumpRightPose }) CheckDeath(source, suit);
+        CheckReserve();
+        foreach (bool left in new[] { false, true }) CheckDrained(left);
+    }
+
+    private static SamusState PrepareFlash(SamusState samus)
+    {
+        samus.Health = 1; samus.MaxHealth = 1599;
+        samus.Missiles = 10; samus.SuperMissiles = 10; samus.PowerBombs = 10;
+        return samus;
+    }
+
+    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
+    private void CheckCrystalFlash(bool left)
+    {
+        Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
+        string context = $"Crystal Flash left={left}";
+        pair.Apply(context + " setup", actor => { PrepareFlash(actor.Samus); });
+        Require(!pair.Apply(context + " rejected chord", actor => actor.Samus.CrystalFlash.TryBegin(
+            actor.Memory, actor.Samus, (ushort)(FlashChord | (ushort)SnesButton.A))), "Extra Flash input must be rejected");
+        ushort initialY = pair.Stock.Samus.Position.Y.Whole;
+        Require(pair.Apply(context + " admission", actor => actor.Samus.CrystalFlash.TryBegin(
+            actor.Memory, actor.Samus, FlashChord)), "Flash was not admitted");
+        int frames = 0;
+        while (pair.Stock.Samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive && frames < 360)
+        {
+            ushort frame = (ushort)frames++;
+            pair.Apply(context + $" frame {frame}", actor =>
+            {
+                var result = actor.Samus.CrystalFlash.Step(actor.Memory, actor.Samus, frame);
+                Animate(actor, frame);
+                actor.Samus.CrystalFlash.UpdatePalette(actor.Memory, actor.Colors, actor.Samus, beams, actor.Crystal);
+                return result;
+            });
+            if (frames == 10) Require(pair.Stock.Samus.Position.Y.Whole == initialY - 20,
+                "Flash must complete its ten-call, twenty-pixel raise");
+            if (frames == 1)
+            {
+                foreach (Actor actor in new[] { pair.Stock, pair.Edited })
+                {
+                    for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
+                        Require(actor.Colors.Colors[SamusPaletteRomData.CrystalFlash.BodyCgramStart + color] ==
+                            actor.Crystal.ResolveBody(0, color), "Flash body colors were not applied");
+                    for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
+                        Require(actor.Colors.Colors[SamusPaletteRomData.CrystalFlash.BubbleCgramStart + color] ==
+                            actor.Crystal.ResolveBubble(0, color), "Flash bubble colors were not applied");
+                }
+            }
+        }
+        Require(pair.Stock.Samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive &&
+            pair.Stock.Samus.Missiles == 0 && pair.Stock.Samus.SuperMissiles == 0 && pair.Stock.Samus.PowerBombs == 0 &&
+            pair.Stock.Samus.Health == 1501 && !pair.Stock.Samus.InputSnapshot.CrystalFlashPoseInputLocked,
+            context + ": resource drain, pose release or completion did not occur");
+        Console.WriteLine($"  {context}: {frames} identical movement/animation/palette calls; all thirty ammo drains and release verified.");
+    }
+
+    private void CheckStoredShine()
+    {
+        Pair pair = Create();
+        Require(pair.Apply("stored shine admission", actor => actor.Samus.Shinespark.TryStoreFromSpeedBooster(
+            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter)),
+            "Stored shine was not admitted");
+        for (int frame = 0; frame < 180; frame++)
+            pair.Apply($"stored shine palette {frame}", actor => actor.Samus.Shinespark.UpdatePalette(
+                actor.Memory, actor.Colors, actor.Samus.EquippedItems, actor.Suits, actor.Cycles));
+        Require(pair.Stock.Samus.Shinespark.Phase == ShinesparkPhase.Inactive && pair.Stock.Samus.Shinespark.ShineTimer == 0,
+            "Edited stored-shine colors must retain the 180-call expiration");
+    }
+
+    private void CheckShinespark(SamusPoseId target)
+    {
+        bool left = ((int)target & 1) == 0;
+        Pair pair = Create(left ? SamusPoseId.ShinesparkWindupLeftPose : SamusPoseId.ShinesparkWindupRightPose);
+        string context = $"shinespark pose {(int)target:X2}";
+        pair.Apply(context + " admission", actor =>
+        {
+            Require(actor.Samus.Shinespark.TryStoreFromSpeedBooster(
+                SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter), "Spark charge rejected");
+            actor.Samus.Shinespark.BeginWindup(actor.Samus);
+        });
+        for (ushort frame = 0; frame < 29; frame++)
+            pair.Apply(context + $" windup {frame}", actor =>
+            {
+                var result = actor.Samus.Shinespark.Step(new SamusTerrain { Bus = actor.Memory, Level = actor.Level }, actor.Samus, new ShinesparkFrame { NmiFrameCounter = frame });
+                Animate(actor, frame);
+                return result;
+            });
+        Require(pair.Stock.Samus.Shinespark.Phase == ShinesparkPhase.Windup &&
+            pair.Stock.Samus.Shinespark.StartStopTimer == 1, "Spark windup duration changed");
+        pair.Apply(context + " launch", actor => actor.Samus.Shinespark.BeginDirectionalLaunch(actor.Memory, actor.Samus, target));
+        int frames = 0;
+        while (pair.Stock.Samus.Shinespark.Phase != ShinesparkPhase.Inactive && frames < 300)
+        {
+            ushort frame = (ushort)frames++;
+            pair.Apply(context + $" motion/crash {frame}", actor =>
+            {
+                var result = actor.Samus.Shinespark.Step(new SamusTerrain { Bus = actor.Memory, Level = actor.Level }, actor.Samus, new ShinesparkFrame { NmiFrameCounter = frame, GameTimeFrames = frame });
+                Animate(actor, frame);
+                actor.Samus.Shinespark.UpdatePalette(actor.Memory, actor.Colors, actor.Samus.EquippedItems, actor.Suits, actor.Cycles);
+                return result;
+            });
+        }
+        Require(pair.Stock.Samus.Shinespark.Phase == ShinesparkPhase.Inactive && pair.Stock.Samus.Health < 99,
+            context + ": actual movement/energy drain/crash/release was not completed");
+        Console.WriteLine($"  {context}: 29 windup calls and {frames} identical launch/crash/release calls.");
+    }
+
+    private void CheckSuitPickup(SamusSuitPickupKind kind)
+    {
+        Pair pair = Create();
+        var stock = new SamusSuitPickupState(); var edited = new SamusSuitPickupState();
+        stock.Begin(pair.Stock.Memory, pair.Stock.Samus, new(0, 240), kind);
+        edited.Begin(pair.Edited.Memory, pair.Edited.Samus, new(0, 240), kind);
+        int frames = 0;
+        while (stock.IsActive && frames < 300)
+        {
+            stock.Step(pair.Stock.Memory, pair.Stock.Samus, pair.Stock.Colors);
+            edited.Step(pair.Edited.Memory, pair.Edited.Samus, pair.Edited.Colors);
+            new SamusMechanicsSnapshot(stock).RequireSame(new(edited), $"{kind} suit state {frames}");
+            Require(stock.WindowTable.SequenceEqual(edited.WindowTable), $"{kind} suit window geometry changed");
+            pair.Check($"{kind} suit transformation {frames}");
+            pair.Draw($"{kind} suit transformation {frames++}");
+        }
+        Require(!stock.IsActive && !edited.IsActive && !pair.Stock.Samus.InputLocked,
+            $"{kind} suit transformation did not release control");
+        Require(pair.Stock.Samus.EquippedItems.HasAny(kind == SamusSuitPickupKind.Varia
+            ? SamusEquipmentFlags.VariaSuit : SamusEquipmentFlags.GravitySuit), "Suit was not granted");
+        Console.WriteLine($"  {kind} suit: {frames} identical stage/window/pose/control calls; edited suit colors applied.");
+    }
+
+    [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
+    private void CheckDeath(SamusPoseId source, ushort suit)
+    {
+        Pair pair = Create(source, suit);
+        string context = $"death source {(int)source:X2}, suit {suit:X4}";
+        pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Memory, actor.Samus, new(0, 240)), draw: false);
+        var stockQueue = new VramWriteQueue(); var editedQueue = new VramWriteQueue();
+        int frames = 0;
+        while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)
+        {
+            var stockStep = pair.Stock.Samus.DeathSequence.Step(pair.Stock.Memory, pair.Stock.Samus,
+                pair.Stock.Colors, stockQueue, pair.Stock.Body.DeathPalettes);
+            var editedStep = pair.Edited.Samus.DeathSequence.Step(pair.Edited.Memory, pair.Edited.Samus,
+                pair.Edited.Colors, editedQueue, pair.Edited.Body.DeathPalettes);
+            Require(stockStep == editedStep, context + ": death timing/publication changed");
+            Require(stockQueue.Entries.SequenceEqual(editedQueue.Entries), context + ": DMA cadence changed");
+            pair.Check(context + $" frame {frames}");
+            stockQueue.DrainTo(pair.Stock.Tiles, pair.Stock.Memory, new DeathAssets(pair.Stock.Body.DeathTiles));
+            editedQueue.DrainTo(pair.Edited.Tiles, pair.Edited.Memory, new DeathAssets(pair.Edited.Body.DeathTiles));
+            if (stockStep.DrawPose) pair.Draw(context + $" pose {frames}");
+            if (stockStep.DrawExplosion)
+            {
+                var before = new SamusMechanicsSnapshot(pair.Stock.Samus);
+                var a = new OamBuffer(); var b = new OamBuffer(); a.BeginFrame(); b.BeginFrame();
+                pair.Stock.Samus.DeathSequence.DrawExplosion(pair.Stock.Memory, a, pair.Stock.Body.Spritemaps);
+                pair.Edited.Samus.DeathSequence.DrawExplosion(pair.Edited.Memory, b, pair.Edited.Body.Spritemaps);
+                before.RequireSame(new(pair.Stock.Samus), context + ": death draw mutated state");
+                pair.Check(context + " explosion draw");
+                draws++;
+                if (!a.LowTable.SequenceEqual(b.LowTable)) changedOam++;
+                if (!pair.Stock.Tiles.ImageEquals(pair.Edited.Tiles)) changedTiles++;
+            }
+            frames++;
+        }
+        Require(frames == 211 && pair.Stock.Samus.DeathSequence.Phase == SamusDeathSequencePhase.Complete,
+            context + ": death must retain its exact 16+60+135 call lifetime");
+    }
+
+    private void CheckReserve()
+    {
+        Pair pair = Create();
+        pair.Apply("reserve setup", actor =>
+        { actor.Samus.Health = 0; actor.Samus.ReserveEnergy = 42; actor.Samus.ReserveTankMode = 1; });
+        var stock = new SamusReserveAutoRecoveryState(); var edited = new SamusReserveAutoRecoveryState();
+        stock.Begin(pair.Stock.Samus); edited.Begin(pair.Edited.Samus);
+        ushort initialFrame = pair.Stock.Samus.AnimationFrame;
+        for (ushort frame = 0; frame < 42; frame++)
+        {
+            Require(stock.StepAfterNmi(pair.Stock.Samus, frame) == edited.StepAfterNmi(pair.Edited.Samus, frame),
+                "Reserve refill or sound cadence changed");
+            new SamusMechanicsSnapshot(stock).RequireSame(new(edited), "reserve owner");
+            pair.Check($"reserve frame {frame}"); pair.Draw($"reserve frame {frame}");
+            Require(pair.Stock.Samus.AnimationFrame == initialFrame, "Reserve recovery must not advance Samus animation");
+        }
+        Require(!stock.IsActive && pair.Stock.Samus.Health == 42 && pair.Stock.Samus.ReserveEnergy == 0 &&
+            !pair.Stock.Samus.InputLocked, "Reserve recovery failed to refill and release");
+    }
+
+    private sealed class DeathAssets(SamusDeathTileAtlas tiles) : IVramAssetProvider, IInstalledArtworkTransferSource
+    {
+        public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
+            tiles.TryResolve(sourceAddress, byteCount, out data);
+        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
+            throw new InvalidOperationException("Death fixture received an unrelated typed asset " + asset);
+    }
 }

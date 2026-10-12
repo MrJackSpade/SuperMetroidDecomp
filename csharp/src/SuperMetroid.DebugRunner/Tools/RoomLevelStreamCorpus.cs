@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class AssetTools
+internal static class RoomLevelStreamCorpus
 {
     /// <summary>
     /// Development-only extraction of the native decompressed level allocations.
@@ -11,9 +11,9 @@ internal static partial class AssetTools
     /// replacement for the separately installed room-layout artwork.
     /// </summary>
     [CpuBusBoundary("codec: ROM compressed room visual-layout streams → decoded level-stream corpus file")]
-    private static void GenerateRoomLevelStreamCorpus()
+    internal static void GenerateRoomLevelStreamCorpus()
     {
-        var bus = LoadRepositoryRom();
+        var bus = RepositoryRom.Load();
         string path = Path.GetFullPath(
             "csharp/src/SuperMetroid.Core/Rooms/RoomLevelStreams.bin");
         using var file = new FileStream(path, FileMode.Create, FileAccess.Write);

@@ -99,7 +99,7 @@ internal static class PlmProgramAudit
     // Their setup/step source is guarded alongside the generic interpreter.
     private static string? TypedHeaderRoute(PlmHeaderId header)
     {
-        if (RoomPlmSystem.TryIdentifyPermanentCollectible(header, out _, out _))
+        if (CollectiblePlms.TryIdentifyPermanentCollectible(header, out _, out _))
             return "SetupCollectibleSlot / TryStepCollectible";
         return header switch
         {

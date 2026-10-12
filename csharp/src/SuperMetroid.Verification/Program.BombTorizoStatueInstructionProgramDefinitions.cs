@@ -41,17 +41,15 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
         }
 
         var guard = NewBombTorizoStatueInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
         for (int index = 0;
              index < BombTorizoStatueInstructionProgramDefinitions.ProgramCount;
              index++)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             ushort parameter = unchecked((ushort)(index * 2));
             RoomEnemyProjectileSlot fragment =
-                enemies.SpawnBombTorizoStatueBreakingProjectile(
+                enemies.BombTorizoBehavior.SpawnBombTorizoStatueBreakingProjectile(
                     new BombTorizoStatueProjectileRequest(
                         BombTorizoStatueFragmentDefinitions.ProjectileDefinition,
                         parameter,
@@ -66,13 +64,13 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
             int visibleFrames = initialDuration + 0x0070;
             for (int frame = 1; frame <= visibleFrames; frame++)
             {
-                process.Invoke(enemies, [fragment, null, Position16<RoomPixels>.Zero]);
-                AssertEqual(frame <= initialDuration ? 0 : 1, enemies.SoundRequests.Count,
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(fragment, null, Position16<RoomPixels>.Zero);
+                AssertEqual(frame <= initialDuration ? 0 : 1, enemies.Audio.SoundRequests.Count,
                     "shell sound occurs once at release, never during the initial wait or again while falling");
                 if (frame == initialDuration + 1)
                     AssertEqual(new EnemySoundRequest(SoundEffectId.FromCartridge(
                             SoundEffectLibrary.Library2, ReadNativeEnemyProjectileProgramByte(rom, unchecked((ushort)(program + 6)))), 6),
-                        enemies.SoundRequests[0], "shell release uses the cartridge sound byte and Max6 queue");
+                        enemies.Audio.SoundRequests[0], "shell release uses the cartridge sound byte and Max6 queue");
                 AssertEqual((ushort)(program + (frame <= initialDuration ? 2 : 13)), fragment.PresentationOperandAddress,
                     "statue fragment presents the native operand on the exact delay/falling tick" );
                 AssertTrue(fragment.IsActive,
@@ -89,7 +87,7 @@ internal static class BombTorizoStatueInstructionProgramDefinitionsVerification
                         $"Bomb Torizo statue fragment {index} advances to deletion");
                 }
             }
-            process.Invoke(enemies, [fragment, null, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(fragment, null, Position16<RoomPixels>.Zero);
             AssertTrue(!fragment.IsActive,
                 $"Bomb Torizo statue fragment {index} deletes after {visibleFrames} visible frames");
         }

@@ -1,0 +1,83 @@
+﻿namespace SuperMetroid.Core.Game;
+
+/// <summary>The input Samus's handlers see: the filtered held and new input of the previous draw, the auto-jump timer and pending jump, and the pose input locks for Shinespark and Crystal Flash.</summary>
+internal sealed class SamusInputSnapshot
+{
+    private readonly SamusState _samus;
+
+    internal SamusInputSnapshot(SamusState owner)
+    {
+        _samus = owner;
+    }
+    /// <summary>
+    /// Live WRAM $0A68: ordinary stored-shine countdown or Crystal Flash's palette
+    /// timer. A grab-interrupted Flash keeps the latter ticking indefinitely, so
+    /// native jump admission still sees a nonzero shine without a Stored phase.
+    /// </summary>
+    public ushort SharedShineTimer => _samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
+        ? _samus.CrystalFlash.SpecialPaletteTimer : _samus.Shinespark.ShineTimer;
+
+    /// <summary>
+    /// WRAM $0E00, joypad1_newinput_samusfilter: the Fire edge retained by $90:EAB3
+    /// after drawing Samus and projectiles. Missile admission and grapple's inactive function accept either
+    /// this previous-frame edge or the current NMI edge, allowing a press that first
+    /// exits a non-firing pose to fire on the next frame. Demo alpha replaces it with
+    /// the preceding scripted edge before running the normal HUD dispatcher.
+    /// </summary>
+    public ushort PreviousDrawNewInput { get; internal set; }
+
+    /// <summary>WRAM $0AF4: consecutive held-Jump history updated by $90:EAB3.</summary>
+    public ushort AutoJumpTimer { get; internal set; }
+
+    /// <summary>WRAM $0DFE: held input published by $90:EAB3 and main-loop tail $82:8AB0.</summary>
+    public ushort PreviousDrawHeldInput { get; internal set; }
+
+    /// <summary>PoseInputHandler currently selects the one-shot $90:E926 auto-jump handler.</summary>
+    public bool AutoJumpInputPending { get; internal set; }
+
+    /// <summary>
+    /// Shinespark launch installed the RTS pose-input handler ($91:FACA). This
+    /// survives an independently replaced movement handler until input is restored,
+    /// for example by normal landing's one-shot auto-jump handler ($91:F1EC).
+    /// </summary>
+    public bool ShinesparkPoseInputLocked { get; internal set; }
+
+    /// <summary>Crystal Flash's RTS input pointer survives grab/release until native input restoration.</summary>
+    public bool CrystalFlashPoseInputLocked { get; internal set; }
+
+    /// <summary>Local input substitution from $90:E926; does not alter the controller's real edge.</summary>
+    internal ushort ConsumeAutoJumpInput(ushort newlyPressed)
+    {
+        if (!AutoJumpInputPending) return newlyPressed;
+        ShinesparkPoseInputLocked = false;
+        CrystalFlashPoseInputLocked = false;
+        AutoJumpInputPending = false;
+        if (AutoJumpTimer != 0 && unchecked((short)(AutoJumpTimer - SamusAutoJumpDefinitions.TimerComparisonLimit)) < 0)
+        {
+            AutoJumpTimer = 0;
+            newlyPressed |= (ushort)SuperMetroid.Core.Input.SnesButton.A;
+        }
+        return newlyPressed;
+    }
+
+    /// <summary>$82:8AB0 publishes held input without advancing Samus's draw-time owners.</summary>
+    internal void PublishMainLoopHeldInput(ushort held) => PreviousDrawHeldInput = held;
+
+    /// <summary>Native $90:EAB3 increments only when Jump is held in both draw samples.</summary>
+    internal void SnapshotDrawInput(ushort held, ushort newlyPressed)
+    {
+        ushort jump = (ushort)SuperMetroid.Core.Input.SnesButton.A;
+        AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != 0
+            ? unchecked((ushort)(AutoJumpTimer + 1)) : (ushort)0;
+        PreviousDrawHeldInput = held;
+        PreviousDrawNewInput = newlyPressed;
+    }
+
+    /// <summary>Health-feedback tail of $90:EAB3, independent of knockback admission.</summary>
+    internal void UpdateHurtFlashFromHealthLoss()
+    {
+        if (unchecked((short)(_samus.Health - _samus.PreviousHealthForHurtCheck)) < 0 && _samus.HurtFlashCounter == 0)
+            _samus.HurtFlashCounter = 1;
+        _samus.PreviousHealthForHurtCheck = _samus.Health;
+    }
+}

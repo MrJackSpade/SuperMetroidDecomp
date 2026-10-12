@@ -14,28 +14,21 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
                 $"Mother Brain death explosion instruction {parameter}");
         }
 
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainDeathExplosion",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField(
-            "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo motherBrainField = typeof(RoomEnemySystem).GetField(
-            "<MotherBrain>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = NewMotherBrainDeathExplosionReadGuard(rom);
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
-            motherBrainField.SetValue(enemies, new MotherBrainEnemyState(body));
+            enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body);
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),
                 ProjectileParameter: parameter,
                 SoundEffect: 0);
-            spawn.Invoke(enemies, [request]);
+            enemies.MotherBrainBehavior.SpawnMotherBrainDeathExplosion(request);
 
             RoomEnemyProjectileSlot projectile =
-                enemies.EnemyProjectiles.Single(candidate => candidate.IsActive);
+                enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainDeathExplosion, projectile.Kind,
                 $"production Mother Brain death explosion kind {parameter}");
             AssertEqual(MotherBrainDeathExplosionDefinitions.InstructionList(parameter),

@@ -24,7 +24,7 @@ internal static class PoseProjectileOriginVerification
     internal static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
     {
         short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));
-        var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePosition", BindingFlags.NonPublic | BindingFlags.Static)!
+        var initialize = typeof(BeamFiring).GetMethod("InitializePosition", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusProjectileSlot>>();
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
@@ -52,7 +52,7 @@ internal static class PoseProjectileOriginVerification
         {
             guardedPose = samus.Pose = (SamusPoseId)pose;
             int art = SignedByteClasses[artIndex];
-            samus.TileTransfers.BindArtwork(artwork[artIndex]);
+            samus.Presentation.TileTransfers.BindArtwork(artwork[artIndex]);
             samus.Position = samus.Position.WithWholeX(unchecked((ushort)(pose * 251 + art)));
             samus.Position = samus.Position.WithWholeY(unchecked((ushort)~samus.Position.X.Whole));
             byte physicalY = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
@@ -62,7 +62,7 @@ internal static class PoseProjectileOriginVerification
             initialize(bus, samus, slot);
             AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
-            AssertEqual(unchecked((sbyte)art), samus.ReadGraphicsYOffset(bus), "Visual body offset remains replaceable");
+            AssertEqual(unchecked((sbyte)art), samus.PoseMetadata.ReadGraphicsYOffset(bus), "Visual body offset remains replaceable");
 
             var g = samus.Grapple;
             g.Phase = GrapplePhase.Inactive;

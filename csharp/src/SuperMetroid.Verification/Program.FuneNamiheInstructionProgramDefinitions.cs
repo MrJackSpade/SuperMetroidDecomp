@@ -64,7 +64,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot) = RunFuneNamiheProgram(
                 guarded,
                 program);
-            int activeProjectiles = enemies.EnemyProjectiles.Count(projectile => projectile.IsActive);
+            int activeProjectiles = enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
             AssertEqual(program.Active ? 1 : 0, activeProjectiles,
                 $"Fune/Namihe program $A8:{program.Entry:X4} projectile count");
 
@@ -72,10 +72,10 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
                 continue;
 
             RoomEnemyProjectileSlot projectile =
-                enemies.EnemyProjectiles.Single(candidate => candidate.IsActive);
+                enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.IsActive);
             AssertEqual(program.Right ? (ushort)1 : (ushort)0, projectile.DirectionParameter,
                 $"Fune/Namihe program $A8:{program.Entry:X4} projectile direction");
-            AssertEqual(FuneNamiheDefinitions.SpitSoundEffect, enemies.LastFuneNamiheSoundEffect,
+            AssertEqual(FuneNamiheDefinitions.SpitSoundEffect, enemies.FuneNamiheBehavior.LastFuneNamiheSoundEffect,
                 $"Fune/Namihe program $A8:{program.Entry:X4} sound callback");
             AssertEqual(
                 program.Namihe
@@ -214,7 +214,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = program.Namihe
             ? EnemyDefinitionId.Namihe
             : EnemyDefinitionId.Fune;
@@ -238,17 +238,14 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
                     : FuneNamiheEnemyFunction.FuneWaitForCooldown,
             VariantIndex = program.Namihe ? (ushort)1 : (ushort)0,
         };
-        var states = (FuneNamiheEnemyState?[])typeof(RoomEnemySystem)
-            .GetField("_funeNamiheStates", flags)!
-            .GetValue(enemies)!;
+        var states = (FuneNamiheEnemyState?[])enemies.FuneNamiheBehavior._funeNamiheStates;
         states[0] = state;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
 
         return (enemies, slot);
     }

@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Frontend;
 /// there is no host-authored video or timer that merely happens to end at the
 /// same gameplay room.
 /// </remarks>
-internal sealed partial class CeresDestructionCinematicState
+internal sealed class CeresDestructionCinematicState
 {
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
@@ -550,6 +550,369 @@ internal sealed partial class CeresDestructionCinematicState
             throw new InvalidDataException(
                 $"The {name} stream expanded to ${bytes.Length:X}, expected at least ${minimum:X}.");
         }
+    }
+
+    private void StepCeresActors()
+    {
+        explosionSpawnerFrame++;
+
+        // CF33 remains invisible for $80 frames, spawns five staggered small blasts,
+        // waits $50 BEFORE installing the repeating-blast pre-instruction, then runs
+        // it during the final $40-frame wait. The pre-instruction stops on departure;
+        // the instruction list still reaches its four terminal blasts afterward.
+        CeresExplosionSpawnEvents events = CeresExplosionDefinitions.EventsAtFrame(explosionSpawnerFrame,
+            Phase < CeresDestructionPhase.FlyingAwayFromExplosion, ref explosionRepeatCountdown);
+        if (events.Initial)
+        {
+            for (int index = 0; index < CeresExplosionDefinitions.InitialExplosionCount; index++)
+                SpawnCeresExplosion(
+                    CeresExplosionDefinitions.InitialActor,
+                    CeresExplosionDefinitions.InitialExplosion(index));
+        }
+        if (events.Repeating)
+        {
+            int offset = explosionOffsetIndex++ &
+                (CeresExplosionDefinitions.RepeatingExplosionCount - 1);
+            SpawnCeresExplosion(
+                CeresExplosionDefinitions.RepeatingActor,
+                CeresExplosionDefinitions.RepeatingExplosion(offset));
+        }
+        if (events.Final)
+        {
+            for (int index = 0; index < CeresExplosionDefinitions.FinalExplosionCount; index++)
+                SpawnCeresExplosion(
+                    CeresExplosionDefinitions.FinalWaveActor,
+                    CeresExplosionDefinitions.FinalExplosion(index));
+        }
+
+        for (int index = actors.Count - 1; index >= 0; index--)
+        {
+            IntroDiscoverySprite actor = actors[index];
+            if (index < CeresDestructionActorDefinitions.InitialActorCount)
+            {
+                CeresDestructionActorDefinition definition =
+                    CeresDestructionActorDefinitions.InitialActor(index);
+                if (actor.PreInstructionPointer != definition.ActivePreInstruction)
+                {
+                    throw new InvalidDataException(
+                        $"Ceres destruction actor {index} names invalid pre-instruction " +
+                        $"$8B:{actor.PreInstructionPointer:X4}.");
+                }
+                if (definition.WrapX)
+                    AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
+            }
+            else
+                MoveExplosion(actor);
+
+            actor.Step(instructionWord:
+                CeresDestructionSpriteInstructionDefinitions.ReadWord);
+            if (!actor.IsActive)
+            {
+                ceresActorSlots.Remove(actor);
+                actors.RemoveAt(index);
+            }
+        }
+    }
+
+    /// <summary>
+    /// `$8B:C345` queues these two Mode-7 transfers on the same dispatcher call that creates
+    /// the final explosion. In state $22 the upper 24 rows become the gunship viewed from the
+    /// front; state $25 has no gunship and clears them too. The lower 24 rows are always
+    /// cleared. Leaving the original Ceres screens in either half makes the station itself
+    /// flee the explosion and later attaches those stale tiles to the Zebes approach.
+    /// </summary>
+    private void LoadFinalExplosionMaps()
+    {
+        int upperSource = withSamus ? CeresDestructionRomData.Vram.ClearMapSourceOffset : 0;
+        var mode7 = new Mode7Vram(vram);
+        mode7.LoadMap(ceresTilemaps.AsSpan(upperSource, CeresDestructionRomData.Vram.MapHalfBytes));
+        mode7.LoadMap(
+            ceresTilemaps.AsSpan(
+                CeresDestructionRomData.Vram.ClearMapSourceOffset,
+                CeresDestructionRomData.Vram.MapHalfBytes),
+            cell: CeresDestructionRomData.Vram.ClearMapDestinationWord);
+    }
+
+    private void SpawnFinalCeresExplosion()
+    {
+        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - background.X.Whole));
+        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - background.Y.Whole));
+        // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
+        // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
+        stationExplosion.Spawn(new(x, y));
+        audio?.QueueSound(SuperMetroid.Core.Audio.SoundEffectLibrary1Sounds.PowerBombExplosion,
+            maximumQueued: 15);
+        var cinematicExplosion = new IntroDiscoverySprite(
+            new(x, y),
+            CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
+            CeresExplosionDefinitions.StationBlastActor.InstructionList);
+        cinematicExplosion.PreInstructionPointerForDiscovery(
+            CeresExplosionDefinitions.StationBlastActor.PreInstruction);
+        _ = TryAddCeresActor(cinematicExplosion);
+
+        LoadFinalExplosionMaps();
+    }
+
+    private void SpawnCeresExplosion(
+        CeresExplosionActorDefinition definition,
+        CeresExplosionPlacement placement)
+    {
+        var actor = new IntroDiscoverySprite(
+            new(unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX -
+                    unchecked((short)background.X.Whole) + placement.Offset.X)),
+                unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY -
+                    unchecked((short)background.Y.Whole) + placement.Offset.Y))),
+            CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
+            definition.InstructionList);
+        actor.PreInstructionPointerForDiscovery(definition.PreInstruction);
+
+        // The native initializer writes its stagger directly to the instruction timer.
+        // GeneralTimer is a different WRAM array used by decrement-and-goto opcodes; using
+        // it here would make all five blasts appear immediately despite distinct delays.
+        actor.DelayFirstInstruction(placement.DelayFrames);
+        _ = TryAddCeresActor(actor);
+    }
+
+    private bool TryAddCeresActor(IntroDiscoverySprite actor)
+    {
+        // Native allocation searches the highest free slot. The invisible spawner
+        // owns its slot until its final spawn instruction and deletion have run.
+        for (int slot = CeresDestructionRomData.Sprites.AsteroidSlot; slot >= 0; slot--)
+        {
+            if (slot == CeresDestructionRomData.Sprites.SpawnerSlot &&
+                explosionSpawnerFrame <= CeresExplosionDefinitions.SpawnerFinalFrame)
+                continue;
+            if (ceresActorSlots.ContainsValue(slot)) continue;
+            ceresActorSlots.Add(actor, slot);
+            actors.Add(actor);
+            return true;
+        }
+        // $8B:938A returns carry set when all slots are occupied. These cinematic
+        // callers intentionally do not branch on it: this is native capacity
+        // behavior, not an unsupported instruction or swallowed runtime failure.
+        return false;
+    }
+
+    private static void MoveExplosion(IntroDiscoverySprite actor)
+    {
+        actor.Position = new(
+            IntroCinematicMotion.AddSixteenSixteen(
+                actor.Position.X,
+                0,
+                CeresDestructionRomData.Motion.GunshipXSubvelocity),
+            IntroCinematicMotion.AddSixteenSixteen(
+                actor.Position.Y,
+                CeresDestructionRomData.Motion.GunshipYVelocity,
+                CeresDestructionRomData.Motion.GunshipYSubvelocity));
+    }
+
+    private void StepZebesActors(bool slidingAway)
+    {
+        for (int index = actors.Count - 1; index >= 0; index--)
+        {
+            IntroDiscoverySprite actor = actors[index];
+            if (slidingAway)
+            {
+                CeresDestructionActorDefinition definition = ReferenceEquals(actor, zebesPlanetActor)
+                    ? CeresDestructionActorDefinitions.ZebesActor(0)
+                    : ReferenceEquals(actor, zebesCompletionStarActor)
+                        ? CeresDestructionActorDefinitions.ZebesActor(4)
+                        : ReferenceEquals(actor, zebesTitleActor)
+                            ? CeresDestructionActorDefinitions.ZebesActor(5)
+                            : CeresDestructionActorDefinitions.ZebesActor(1);
+                if (definition.SlidePreInstruction == 0)
+                {
+                    throw new InvalidDataException(
+                        "PLANET ZEBES title actor remained active when scene sliding began.");
+                }
+                actor.PreInstructionPointerForDiscovery(definition.SlidePreInstruction);
+                // Zebes accelerates by $40 in 8.8; all four star sheets use $20. Star
+                // sheet five is the native completion owner at C8F2. Identify the actors
+                // by ownership, not their mutable list index: native actors delete as they
+                // cross -$80, so indexes necessarily shift during this loop.
+                ushort acceleration = definition.SlideAcceleration;
+                actor.GeneralTimer = unchecked((ushort)(actor.GeneralTimer + acceleration));
+                SubtractEightEightY(actor, actor.GeneralTimer);
+                if (unchecked((short)actor.WholePosition.Y) < -128)
+                {
+                    // `$8B:C885/$C8F2/$C95D/$C987` delete each object before its 8-bit
+                    // OAM Y coordinate can wrap below the screen. Only star sheet five
+                    // additionally installs CADF, handing the cinematic back to game load.
+                    if (definition.CompletesScene)
+                    {
+                        Phase = CeresDestructionPhase.Finished;
+                        return;
+                    }
+
+                    actor.Delete();
+                    actors.RemoveAt(index);
+                    continue;
+                }
+            }
+
+            actor.Step<ZebesTitleInstruction>(HandleZebesInstruction,
+                CeresDestructionSpriteInstructionDefinitions.ReadWord);
+            if (!actor.IsActive)
+                actors.RemoveAt(index);
+        }
+    }
+
+    private ushort HandleZebesInstruction(ZebesTitleInstruction opcode, ushort cursor)
+    {
+        switch (opcode)
+        {
+            case ZebesTitleInstruction.FadeInText:
+            case ZebesTitleInstruction.SpawnJapaneseTextIfNeeded:
+            case ZebesTitleInstruction.FadeOutText:
+                return cursor;
+
+            case ZebesTitleInstruction.StartFlyingToZebes:
+                // The title actor, not a host timer, publishes the camera flight exactly
+                // where its cartridge instruction list reaches C9C7.
+                background = new(background.X.WithWhole(CeresDestructionRomData.Motion.Mode7ExitX),
+                    background.Y.WithWhole(unchecked((ushort)-112)));
+                angle = CeresDestructionRomData.Motion.ApproachAngle;
+                zoom = CeresDestructionRomData.Motion.MinimumScale;
+                Phase = CeresDestructionPhase.FlyingTowardZebesA;
+                return cursor;
+
+            default:
+                throw new InvalidOperationException($"Undefined ZebesTitleInstruction {opcode}.");
+        }
+    }
+
+    private static void AddWrappedX(IntroDiscoverySprite actor, ushort fractionalDelta)
+    {
+        SnesFixedPosition x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
+        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole & CeresDestructionRomData.Rendering.WorldXMask)));
+    }
+
+    private static void SubtractEightEightY(IntroDiscoverySprite actor, ushort velocity)
+    {
+        // The bank-$8B pre-instructions use XBA to split an unsigned 8.8 velocity into
+        // whole/subposition words before a 16-bit subtraction with borrow.
+        uint fixedPosition = new SnesFixedPosition(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
+        uint fixedVelocity = SnesSixteenSixteen.FromEightEight((uint)velocity);
+        fixedPosition = unchecked(fixedPosition - fixedVelocity);
+        actor.Position = actor.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
+    }
+
+    // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    [NonSerialized] private Rgba32[]? objectLayerScratch;
+    // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    [NonSerialized] private Rgba32[]? frameBuffer;
+
+    public Rgba32[] Render()
+    {
+        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
+        OamBuffer oam = PrepareRenderOam();
+
+        if (usesMode7 && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
+        {
+            for (byte priority = 0; priority < 4; priority++)
+                CompositeObjPriority(pixels, oam, priority);
+        }
+        else if (usesMode7)
+        {
+            (short matrixA, short matrixB, short matrixC, short matrixD) = CalculateMatrix();
+            CompositeObjPriority(pixels, oam, 0);
+            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = matrixC, MatrixD = matrixD, Center = Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
+                    : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY), Scroll = background.Whole.AsSignedRegister() });
+            CompositeObjPriority(pixels, oam, 1);
+            CompositeObjPriority(pixels, oam, 2);
+            CompositeObjPriority(pixels, oam, 3);
+        }
+        else
+        {
+            // SetupPpu_4 selects BG1SC=$5C and BG1NBA=$06. The MOSAIC register changes
+            // sampling granularity, but not the underlying cartridge-authored tilemap;
+            // rendering the unmosaicked samples keeps this software path deterministic
+            // until the compositor gains a general post-BG mosaic stage.
+            SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = CeresDestructionRomData.Rendering.Mode1TilemapWord, CharacterBaseWord = CeresDestructionRomData.Rendering.Mode1CharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
+        }
+
+        if (CaptureStationExplosion() is { } blast)
+            SoftwareScanlineColorRenderer.Composite(pixels, blast);
+        MasterBrightnessFilter.Apply(pixels, brightness);
+        return pixels;
+    }
+
+    /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
+    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    {
+        OamBuffer oam = PrepareRenderOam();
+        RenderLayer[] layers;
+        if (usesMode7 && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
+        {
+            layers = [new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
+                new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
+        }
+        else if (usesMode7)
+        {
+            var (a, b, c, d) = CalculateMatrix();
+            var mode7 = new Mode7RenderRegisters(a, b, c, d,
+                Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
+                    : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY),
+                background.Whole.AsSignedRegister());
+            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7),
+                new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
+        }
+        else
+        {
+            // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
+            // is a cartridge-correctness change, not an implicit part of this extraction.
+            layers = [new Bg4BppRenderLayer(CeresDestructionRomData.Rendering.Mode1TilemapWord,
+                CeresDestructionRomData.Rendering.Mode1CharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null)];
+        }
+        if (CaptureStationExplosion() is { } blast)
+            layers = [.. layers, blast];
+        return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers,
+            MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
+    }
+
+    private ScanlineColorAddRenderLayer? CaptureStationExplosion() =>
+        SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, stationExplosion,
+            layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
+
+    private OamBuffer PrepareRenderOam()
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        // Same-priority OBJ overlap is decided by OAM order. Allocation order is
+        // not stable slot order after an earlier explosion dies and its slot is reused.
+        IEnumerable<IntroDiscoverySprite> drawActors = Phase <= CeresDestructionPhase.FadeOutCeres
+            ? actors.OrderByDescending(actor => ceresActorSlots[actor]) : actors;
+        foreach (IntroDiscoverySprite actor in drawActors)
+            actor.Draw(oam, installedArt: spriteArtwork);
+        oam.FinalizeFrame();
+        return oam;
+    }
+
+    private (short A, short B, short C, short D) CalculateMatrix()
+    {
+        short cosine = ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
+        short sine = ReadSine(angle.TableIndex);
+        short a = Scale(cosine, zoom);
+        short b = Scale(sine, zoom);
+        return (a, b, unchecked((short)-b), a);
+    }
+
+    private static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
+
+    private static short Scale(short component, ushort scalar) =>
+        unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
+
+    private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
+    {
+        Rgba32[] layer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
+        SnesObjRenderer.Render(layer, oam,
+            vram,
+            cgram,
+            obsel: 3,
+            priority: priority);
+        SnesLayerCompositor.Composite(pixels, layer);
     }
 }
 

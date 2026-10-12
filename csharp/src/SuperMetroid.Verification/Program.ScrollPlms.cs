@@ -24,9 +24,9 @@ internal static class ScrollPlmsVerification
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
         var plms = new RoomPlmSystem();
-        AssertEqual(5, plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(5, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "single loader parses the trigger and four synchronous extensions");
-        AssertEqual(1, plms.ScrollPlms.Count,
+        AssertEqual(1, plms.Scrolls.Snapshots.Count,
             "extension setup consumes no persistent PLM slot");
 
         int origin = level.GetBlockIndex(new(3, 3));
@@ -72,7 +72,7 @@ internal static class ScrollPlmsVerification
 
         // A direct touch wakes the resident object. Its next handler pass interprets the
         // room-owned bank-$8F bytecode, restores sleep/type-three state, and remains live.
-        AssertTrue(plms.TryNotifyScrollTouch(origin),
+        AssertTrue(plms.Scrolls.TryNotifyScrollTouch(origin),
             "direct special-air contact finds resident scroll owner");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
@@ -112,7 +112,7 @@ internal static class ScrollPlmsVerification
             Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
         };
-        ball.RefreshCollisionRadii(bus);
+        ball.PoseMetadata.RefreshCollisionRadii(bus);
         ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
         SamusMorphBallMovement.StepGrounded(
@@ -141,7 +141,7 @@ internal static class ScrollPlmsVerification
             EquippedItems = (ushort)SamusEquipmentFlags.Bombs,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
         };
-        bombJump.RefreshCollisionRadii(bus);
+        bombJump.PoseMetadata.RefreshCollisionRadii(bus);
         bombJump.Kinematics.YAcceleration = 0;
         bombJump.Kinematics.YSubacceleration = 0;
         bombJump.RequestMorphedBombJump(2);

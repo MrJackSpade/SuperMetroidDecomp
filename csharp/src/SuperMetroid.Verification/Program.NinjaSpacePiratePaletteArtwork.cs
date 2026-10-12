@@ -84,15 +84,14 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             var colors = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 colors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, colors);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(source);
+            enemies.Presentation._cgram = colors;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyNinja;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Parameter2 = 0x0080;
-            typeof(RoomEnemySystem).GetMethod("InitializeNinjaSpacePirate", flags)!
-                .Invoke(enemies, [slot]);
+            enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
             return (slot, colors);
         }
     }

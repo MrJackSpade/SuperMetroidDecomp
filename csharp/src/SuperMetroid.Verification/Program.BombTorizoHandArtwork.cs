@@ -69,7 +69,7 @@ internal static class BombTorizoHandArtworkVerification
         queue.Enqueue(checked((ushort)page.ByteCount), page.SourceAddress,
             VramDmaDestination.FromNative(BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord));
         runtime.Enemies.TileArtwork = edited;
-        queue.DrainTo(runtime.Vram, memory, runtime);
+        queue.DrainTo(runtime.Vram, memory, runtime.Artwork);
         AssertTrue(stock.TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> original),
             "stock debris page remains installed");
         AssertEqual((byte)(original.Span[0] ^ 0x80),

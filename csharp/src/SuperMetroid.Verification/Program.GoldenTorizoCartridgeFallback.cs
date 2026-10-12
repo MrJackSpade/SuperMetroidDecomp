@@ -20,15 +20,15 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.Enemies.TileArtwork = installation.LoadEnemyTiles();
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GoldenTorizo);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.Position = samus.Position.WithWhole(new(0x0180, 0x0150));
         samus.MaxHealth = 1499;
         samus.Health = 1499;
-        RoomEnemySlot boss = runtime.Enemies.Slots.Single(slot =>
+        RoomEnemySlot boss = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
         bool enteredCombat = false;
         for (int frame = 0; frame < 850; frame++)

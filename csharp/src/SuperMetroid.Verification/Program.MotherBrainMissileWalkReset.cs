@@ -25,11 +25,11 @@ internal static class MotherBrainMissileWalkResetVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException("Mother Brain has no head enemy.");
 
@@ -47,9 +47,7 @@ internal static class MotherBrainMissileWalkResetVerification
         shot.Type = 0x8100; shot.Damage = 100; shot.Direction = 8;
         shot.Position = shot.Position.WithWhole(head.Position.Whole);
         shot.Radius = new(8, 8);
-        typeof(RoomEnemySystem).GetMethod("ResolveMotherBrainLaterFormHeadShot", flags)!.Invoke(
-            runtime.Enemies,
-            [state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), (ushort)100]);
+        runtime.Enemies.MotherBrainBehavior.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), (ushort)100);
         AssertEqual((ushort)0, sequence.Phase3WalkCounter, "a missile zeroes the sequence-owned walk counter");
         AssertEqual((ushort)0, state.WalkCounter, "the encounter projection publishes the reset");
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");

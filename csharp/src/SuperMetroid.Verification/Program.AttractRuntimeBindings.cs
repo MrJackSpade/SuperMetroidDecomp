@@ -34,9 +34,12 @@ internal static class AttractRuntimeBindingsVerification
             "omitting installed palettes reproduces the attract runtime construction failure");
         var game = new SuperMetroidGame(memory, new SuperMetroidGameOptions
             { Invincibility = true, InfiniteAmmo = true, PreventEscapeTimeout = true });
-        game.BindGameplayBasePalettes(palettes);
-        game.BindEnemyTileArtwork(enemyArtwork);
-        game.BindStandardObjectArt(objects);
+        game.BindArtwork(game.Artwork with
+        {
+            GameplayBasePalettes = palettes,
+            EnemyTileArtwork = enemyArtwork,
+            StandardObjectArt = objects,
+        });
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var create = typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime", flags)!
             .CreateDelegate<Action<bool>>(game);
@@ -45,16 +48,16 @@ internal static class AttractRuntimeBindingsVerification
         create(true);
         var demo = (SuperMetroidRuntime)ownerField.GetValue(game)!;
         AssertTrue(demo.Cgram.Colors.SequenceEqual(palettes.Initial), "attract runtime loads all installed initial colors");
-        AssertTrue(ReferenceEquals(objects, demo.StandardObjectArt), "attract runtime binds installed standard objects");
+        AssertTrue(ReferenceEquals(objects, demo.Artwork.StandardObjectArt), "attract runtime binds installed standard objects");
         AssertTrue(ReferenceEquals(enemyArtwork, demo.Enemies.TileArtwork), "attract runtime binds installed enemy artwork");
         AssertEqual(incomingRandom, demo.System.RandomNumber, "attract runtime preserves frontend random state");
-        AssertTrue(!demo.PlayerInvincibilityEnabled && !demo.InfiniteAmmoEnabled && !demo.PreventEscapeTimeout,
+        AssertTrue(!demo.Options.PlayerInvincibilityEnabled && !demo.Options.InfiniteAmmoEnabled && !demo.Options.PreventEscapeTimeout,
             "attract runtime ignores host cheats");
         create(false);
         var selected = (SuperMetroidRuntime)ownerField.GetValue(game)!;
         AssertTrue(!ReferenceEquals(demo, selected), "selected play and attract playback own separate runtimes");
         AssertTrue(selected.Cgram.Colors.SequenceEqual(palettes.Initial), "selected runtime retains installed palette binding");
-        AssertTrue(selected.PlayerInvincibilityEnabled && selected.InfiniteAmmoEnabled && selected.PreventEscapeTimeout,
+        AssertTrue(selected.Options.PlayerInvincibilityEnabled && selected.Options.InfiniteAmmoEnabled && selected.Options.PreventEscapeTimeout,
             "selected runtime retains host options");
         Console.WriteLine("Attract runtime bindings: missing-palette failure reproduced; shared construction loads installed colors/artwork without ROM, preserves RNG, and isolates demo options.");
     }

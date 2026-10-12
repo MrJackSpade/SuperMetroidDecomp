@@ -27,13 +27,10 @@ internal static class SparkMovementDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewSparkMovementReadGuard(new TestAddressSpace()));
+        enemies.BindFixtureBus(NewSparkMovementReadGuard(new TestAddressSpace()));
         enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeSpark", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        Action<RoomEnemySlot> initialize = enemies.SparkBehavior.InitializeSpark;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
         for (ushort selector = 0; selector < 4; selector++)
         {
@@ -84,14 +81,11 @@ internal static class SparkMovementDefinitionsVerification
             (SparkInstructionProgramDefinitions.FlickerOut, 12),
             (SparkInstructionProgramDefinitions.Emitter, 16),
         ];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach ((ushort entry, int frames) in programs)
         {
             var programSystem = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                programSystem,
-                programGuard);
-            RoomEnemySlot programSlot = programSystem.Slots[0];
+            programSystem.BindFixtureBus(programGuard);
+            RoomEnemySlot programSlot = programSystem.SlotTable.Slots[0];
             programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Spark;
             programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             programSlot.CurrentInstruction = entry;
@@ -105,7 +99,7 @@ internal static class SparkMovementDefinitionsVerification
             for (int frame = 0; frame < frames; frame++)
             {
                 ushort previousSprite = programSlot.SpritemapPointer;
-                process.Invoke(programSystem, arguments);
+                EnemyInstructionRunner.Process(programSystem, arguments);
                 if (programSlot.CurrentInstruction == 0xe607)
                     AssertEqual(previousSprite, programSlot.SpritemapPointer,
                         "Spark terminal callback retains the last sprite");

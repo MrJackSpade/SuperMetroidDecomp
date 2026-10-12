@@ -181,9 +181,9 @@ internal static class ContactCrumbleProgramsVerification
             {
                 native.Plms.Step(rom, native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                AssertEqual(native.Plms.ActiveCount, compiled.Plms.ActiveCount,
+                AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"contact-crumble BTS {bts} active count, frame {frame}");
-                AssertEqual(native.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
+                AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
                     $"contact-crumble BTS {bts} sound count, frame {frame}");
                 for (int block = 0; block < 64; block++)
                 {
@@ -198,7 +198,7 @@ internal static class ContactCrumbleProgramsVerification
 
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"contact-crumble BTS {bts} never rereads compiled control bytes");
-            AssertEqual(0, compiled.Plms.ActiveCount,
+            AssertEqual(0, compiled.Plms.SlotTable.ActiveCount,
                 $"contact-crumble BTS {bts} completes its native timeline");
         }
 
@@ -237,8 +237,8 @@ internal static class ContactCrumbleProgramsVerification
             }
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
-            var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
-            AssertTrue(plms.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
+            var plms = new RoomPlmSystem { Drawing = { ShotBlockVisuals = visuals } };
+            AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                     new RoomBlockBehavior(0)),
                 "visual test installs the real contact-crumble PLM");
             var streamer = level.CreateBackgroundStreamer();
@@ -279,7 +279,7 @@ internal static class ContactCrumbleProgramsVerification
                 definitions[0xbc * 8 + tile * 2] = tileIndex;
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
             var plms = new RoomPlmSystem();
-            AssertTrue(plms.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
+            AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                     new RoomBlockBehavior(1)),
                 "restored-art test installs linked contact-crumble PLM");
             var streamer = level.CreateBackgroundStreamer();
@@ -318,7 +318,7 @@ internal static class ContactCrumbleProgramsVerification
         behaviors[blockIndex] = bts;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new ushort[words.Length]), new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
+        AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,
                 new RoomBlockBehavior(bts)),
             $"contact-crumble BTS {bts} installs its native program");
         return new ContactCrumbleFixture(level, level.CreateBackgroundStreamer(), plms);

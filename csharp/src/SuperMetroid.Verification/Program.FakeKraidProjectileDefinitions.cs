@@ -8,7 +8,6 @@ internal static class FakeKraidProjectileDefinitionsVerification
 {
     internal static void VerifyFakeKraidProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         Suite(nameof(VerifyFakeKraidSpitHorizontalVelocity), () => VerifyFakeKraidSpitHorizontalVelocity(rom));
         Suite(nameof(VerifyFakeKraidSpitVerticalVelocity), () => VerifyFakeKraidSpitVerticalVelocity(rom));
@@ -25,16 +24,10 @@ internal static class FakeKraidProjectileDefinitionsVerification
         var guarded = new CartridgeReadGuard(rom).Forbid(
             address => address is >= 0xa69a48 and < 0xa69a58 or >= 0x869e7d and < 0x869e83,
             address => $"Fake Kraid attempted migrated projectile-definition read ${address:X6}.");
-        MethodInfo spawnSpitPair = typeof(RoomEnemySystem).GetMethod(
-            "SpawnFakeKraidSpitPair",
-            instanceFlags)!;
-        MethodInfo spawnSpike = typeof(RoomEnemySystem).GetMethod(
-            "SpawnFakeKraidSpike",
-            instanceFlags)!;
 
         foreach (bool movingRight in new[] { false, true })
         {
-            var enemies = NewFakeKraidProjectileSystem(guarded, instanceFlags);
+            var enemies = NewFakeKraidProjectileSystem(guarded);
             var source = new RoomEnemySlot(0)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
@@ -42,11 +35,11 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 PaletteIndex = 0x0c00,
             };
             var state = new FakeKraidEnemyState(source);
-            spawnSpitPair.Invoke(enemies, [source, state, movingRight]);
+            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, state, movingRight);
             AssertEqual(2, state.SpawnedSpitCount,
                 $"Fake Kraid {(movingRight ? "right" : "left")} spit count");
 
-            RoomEnemyProjectileSlot[] spawned = enemies.EnemyProjectiles
+            RoomEnemyProjectileSlot[] spawned = enemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.IsActive)
                 .OrderByDescending(projectile => projectile.SlotIndex)
                 .ToArray();
@@ -72,7 +65,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
         foreach (short facingDelta in new short[] { -4, 4 })
         for (int row = 0; row < 3; row++)
         {
-            var enemies = NewFakeKraidProjectileSystem(guarded, instanceFlags);
+            var enemies = NewFakeKraidProjectileSystem(guarded);
             var source = new RoomEnemySlot(0)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
@@ -80,9 +73,9 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 PaletteIndex = 0x0c00,
             };
             var state = new FakeKraidEnemyState(source) { FacingDelta = facingDelta };
-            bool spawned = (bool)spawnSpike.Invoke(enemies, [source, state, row])!;
+            bool spawned = (bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
-            RoomEnemyProjectileSlot spike = enemies.EnemyProjectiles.Single(
+            RoomEnemyProjectileSlot spike = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.IsActive);
             RoomEnemyProjectileKind expectedKind = facingDelta < 0
                 ? RoomEnemyProjectileKind.FakeKraidSpikeLeft
@@ -121,11 +114,10 @@ internal static class FakeKraidProjectileDefinitionsVerification
     private static byte FakeKraidSpikeRowSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static RoomEnemySystem NewFakeKraidProjectileSystem(
-        ISnesAddressSpace bus,
-        BindingFlags instanceFlags)
+        ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         return enemies;
     }
 }

@@ -15,12 +15,12 @@ internal static class RetailRidleyEscapeTests
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-            runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+            runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
-            var samus = runtime.Samus!;
+            var samus = runtime.Player.Samus!;
             samus.InputLocked = false;
-            var ridley = runtime.Enemies.CeresRidley!;
+            var ridley = runtime.Enemies.RidleyEncounter.CeresRidley!;
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;
             var matrices = new HashSet<(ushort, ushort, ushort, ushort)>();
@@ -40,7 +40,7 @@ internal static class RetailRidleyEscapeTests
                     mixedFrames++;
                     matrices.Add((ridley.Mode7MatrixA, ridley.Mode7MatrixB, ridley.Mode7MatrixC, ridley.Mode7MatrixD));
                 }
-                finished = triggered && runtime.Enemies.CeresStatus == 2 && ridley.Mode7Finished &&
+                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == 2 && ridley.Mode7Finished &&
                     !ridley.Mode7Active && !samus.CeresRidleyEjection.IsActive;
                 // Capture every mixed-mode frame, every AI boundary and periodic startup
                 // frames. Completion is captured before leaving the room-local fixture.

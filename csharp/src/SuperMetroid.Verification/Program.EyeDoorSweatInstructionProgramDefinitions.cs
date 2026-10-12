@@ -48,14 +48,8 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress);
         var observedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
-        var runPreInstruction = typeof(RoomEnemySystem).GetMethod(
-                "RunEyeDoorSweatPreInstruction",
-                BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot, RoomLevelData>>();
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemyProjectileSlot, RoomLevelData> runPreInstruction = EyeDoorBehavior.RunEyeDoorSweatPreInstruction;
 
         const int roomWidth = 16;
         var foreground = new ushort[roomWidth * 16];
@@ -73,8 +67,8 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
             PlmBlockIndex: 4 * roomWidth + 7,
             DoorBit: 0);
 
-        enemies.SpawnEyeDoorProjectile(request, roomWidth, system);
-        RoomEnemyProjectileSlot sweat = enemies.EnemyProjectiles.Single(
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, roomWidth, system);
+        RoomEnemyProjectileSlot sweat = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
         AssertEqual(
             EyeDoorSweatInstructionProgramDefinitions.Initial,
@@ -104,8 +98,8 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
         AssertTrue(!sweat.IsActive,
             "Eye Door sweat impact program deletes after all three presentation frames");
 
-        enemies.SpawnEyeDoorProjectile(request, roomWidth, system);
-        RoomEnemyProjectileSlot shot = enemies.EnemyProjectiles.Single(
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, roomWidth, system);
+        RoomEnemyProjectileSlot shot = enemies.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat &&
                 projectile.IsActive);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
@@ -165,7 +159,7 @@ internal static class EyeDoorSweatInstructionProgramDefinitionsVerification
             for (int tick = 0; tick < count; tick++)
             {
                 projectile.InstructionTimer = 1;
-                process.Invoke(enemies, [projectile, samus, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, samus, Position16<RoomPixels>.Zero);
                 ObserveFrame(projectile);
             }
         }

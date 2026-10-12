@@ -22,8 +22,8 @@ internal static class ReportedEyeStateFixture
         // Room identity is fixture data; normal room loading owns its population,
         // graphics, HDMA initialization, and camera-dependent render snapshots.
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarEnergyTankRoom, new Position16<RoomPixels>(384, 512));
-        var body = runtime.Enemies.Slots[1];
-        var samus = runtime.Samus!;
+        var body = runtime.Enemies.SlotTable.Slots[1];
+        var samus = runtime.Player.Samus!;
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.InputLocked = true;
         samus.Position = samus.Position.WithWhole(new((ushort)(body.Position.X.Whole - 64), (ushort)(body.Position.Y.Whole - 32)));
@@ -36,7 +36,7 @@ internal static class ReportedEyeStateFixture
             var result = data.Game.StepCaptured(0, frame, data.Generation);
             data.Audio.RenderFrame(result.Frame.AudioCommands);
         }
-        if (runtime.DisplayedMorphBallEyeBeam is not { Phase: MorphBallEyeBeamPhase.Full })
+        if (runtime.Display.DisplayedMorphBallEyeBeam is not { Phase: MorphBallEyeBeamPhase.Full })
             throw new InvalidDataException("Reported room eye did not reach a fully published beam.");
         Console.WriteLine(data.SaveSlot(9));
         Console.WriteLine($"Reported eye seed: {root}");

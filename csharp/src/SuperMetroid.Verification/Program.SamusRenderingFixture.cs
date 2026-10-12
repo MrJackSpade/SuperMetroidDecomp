@@ -7,7 +7,7 @@ using static VerificationHelpersVerification;
 internal static class SamusRenderingFixtureVerification
 {
     private static readonly Lazy<SamusBodyArtworkCatalog> renderingFixtureStock =
-        new(() => RepositoryInstallation.SamusBody);
+        new(() => InstalledFixtures.SamusBody);
 
     private static readonly Dictionary<sbyte, SamusBodyArtworkCatalog> graphicsOffsetFixtures = [];
 
@@ -107,6 +107,6 @@ internal static class SamusRenderingFixtureVerification
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusRenderingRomData.Body.LandingVerticalOffsets + index))
                 landing[index] = bus.ReadByte(SamusRenderingRomData.Body.LandingVerticalOffsets + index);
-        samus.TileTransfers.BindArtwork(new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = topPointers, BottomPointers = bottomPointers, PosePointers = posePointers, GraphicsYOffsets = offsets, Frames = frames, Top = Groups(true, topPointers), Bottom = Groups(false, bottomPointers), Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusRenderingRomData.Body.PostureTransitionVerticalOffsets, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusRenderingRomData.Body.DrainedVerticalOffsets, stock.DrainedYOffsets.ToArray()) }));
+        samus.Presentation.TileTransfers.BindArtwork(new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = topPointers, BottomPointers = bottomPointers, PosePointers = posePointers, GraphicsYOffsets = offsets, Frames = frames, Top = Groups(true, topPointers), Bottom = Groups(false, bottomPointers), Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusRenderingRomData.Body.PostureTransitionVerticalOffsets, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusRenderingRomData.Body.DrainedVerticalOffsets, stock.DrainedYOffsets.ToArray()) }));
     }
 }

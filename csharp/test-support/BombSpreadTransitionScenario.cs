@@ -20,7 +20,7 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>Frames the timed release or morph is late; wall cases 10..13 are the 40..43 controls.</summary>
     internal int Delay { get; }
     internal SuperMetroidRuntime Runtime { get; }
-    internal SamusState Samus => Runtime.Samus!;
+    internal SamusState Samus => Runtime.Player.Samus!;
     internal int FrameCount => WallRoute ? 300 : 260;
 
     /// <summary>Timing cases per direction: ten delays, plus the wall route's late-success and two negative controls.</summary>
@@ -30,11 +30,11 @@ internal sealed class BombSpreadTransitionScenario
     {
         (Runtime, Left, TimingCase, WallRoute) = (runtime, left, timingCase, wallRoute);
         Delay = timingCase < 10 ? timingCase : timingCase + 30;
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         // Match the grounded technique clearing, extending it upward for the jump.
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
@@ -50,14 +50,14 @@ internal sealed class BombSpreadTransitionScenario
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
     }
 
     /// <summary>Controller word for <paramref name="frame"/>.</summary>
     internal ushort Input(int frame)
     {
-        var bindings = Runtime.ControllerBindings;
+        var bindings = Runtime.Options.ControllerBindings;
         ushort input = bindings.Shoot;
         if (!WallRoute)
         {

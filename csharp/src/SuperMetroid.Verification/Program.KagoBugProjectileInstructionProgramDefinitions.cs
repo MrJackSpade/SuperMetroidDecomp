@@ -40,24 +40,19 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
 
         var guard = NewKagoBugProjectileInstructionGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x0002);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x0080);
-        typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
-            enemies,
-            new SamusState { Health = 99, MaxHealth = 99 });
+        enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
 
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod("SpawnKagoBug", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        RoomEnemySlot source = enemies.Slots[0];
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(128, 112));
         source.VramTilesIndex = 0x0200;
         source.PaletteIndex = 0x0c00;
-        AssertTrue((bool)spawn.Invoke(enemies, [source])!,
+        AssertTrue((bool)enemies.KagoBehavior.SpawnKagoBug(source),
             "real Kago producer allocates its bug");
 
-        RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
             candidate => candidate.Kind == RoomEnemyProjectileKind.KagoBug);
         AssertEqual(KraidRockProjectileInstructionProgramDefinitions.SharedRockAndKagoBug,
             projectile.InstructionPointer,
@@ -108,7 +103,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
         RunForcedTicks(projectile, 1);
         AssertTrue(!projectile.IsActive,
             "Kago shot program requests its drop and reaches shared deletion");
-        AssertTrue(enemies.LastKagoBugDropRequest is not null,
+        AssertTrue(enemies.KagoBehavior.LastKagoBugDropRequest is not null,
             "Kago shot program emits its production drop request before deletion");
 
         AssertEqual(0, guard.ObservedWords.Count, "compiled Kago bug visuals require no cartridge reads");
@@ -150,7 +145,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
             for (int tick = 0; tick < count; tick++)
             {
                 target.InstructionTimer = 1;
-                process.Invoke(enemies, [target, new SamusState(), Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(target, new SamusState(), Position16<RoomPixels>.Zero);
             }
         }
     }

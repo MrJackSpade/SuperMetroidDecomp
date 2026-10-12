@@ -44,12 +44,10 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = DraygonColorCatalog.Load(colors) }),
         };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        var update = typeof(RoomEnemySystem).GetMethod(
-            "UpdateDraygonHealthPalette",
-            flags)!.CreateDelegate<Action<DraygonEnemyState>>(enemies);
-        var state = new DraygonEnemyState(enemies.Slots[0]);
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = new SnesCgram();
+        Action<DraygonEnemyState> update = enemies.DraygonBehavior.UpdateDraygonHealthPalette;
+        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
         ushort[] productionHealth =
             [6000, 5250, 5249, 4500, 4499, 3750, 3749, 3000, 2999,

@@ -316,7 +316,7 @@ internal static class SuperMetroidGameAccess
 {
     extension(SuperMetroidGame self)
     {
-        internal string? MapPresentationIdentity => PrivateState.Field<AreaMapPresentationCatalog?>(self, "mapPresentation")?.ContentIdentity;
+        internal string? MapPresentationIdentity => self.Artwork.MapPresentation?.ContentIdentity;
 
         internal ushort DispatcherRandomNumber => PrivateState.Property<Bank80SystemState>(self, "FrontendRandomOwner").RandomNumber;
 

@@ -52,11 +52,11 @@ internal static class SamusChargeColorsVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = (ushort)SamusBeamFlags.Charge,
-            ChargeColors = edited.SamusChargeColors,
+            Presentation = { ChargeColors = edited.SamusChargeColors },
         };
         var projectiles = new SamusProjectileSystem();
-        typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.FlareCounter))!
-            .SetValue(projectiles, (ushort)60);
+        typeof(BeamChargeState).GetProperty(nameof(BeamChargeState.FlareCounter))!
+            .SetValue(projectiles.Charge, (ushort)60);
         var cgram = new SnesCgram();
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)
@@ -67,7 +67,7 @@ internal static class SamusChargeColorsVerification
             for (int phase = 0; phase < SamusChargeColorFormat.PhasesPerSuit; phase++)
             {
                 // The live charge-palette index holds twice the phase this call applies.
-                int appliedPhase = projectiles.SamusChargePaletteIndex / 2;
+                int appliedPhase = projectiles.Charge.SamusChargePaletteIndex / 2;
                 var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
                 AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle :
                     SamusBeamChargePaletteAction.PseudoScrewCycle, step.Action,
@@ -80,14 +80,14 @@ internal static class SamusChargeColorsVerification
                         $"edited charge CGRAM {family}/{suit}/{phase}/{color}");
             }
         }
-        AssertEqual(0, projectiles.SamusChargePaletteIndex, "six charge phases wrap");
+        AssertEqual(0, projectiles.Charge.SamusChargePaletteIndex, "six charge phases wrap");
         samus.HyperBeam = 0x8000;
-        typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.ChargedShotGlowTimer))!
-            .SetValue(projectiles, (ushort)0x8014);
+        typeof(BeamChargeState).GetProperty(nameof(BeamChargeState.ChargedShotGlowTimer))!
+            .SetValue(projectiles.Charge, (ushort)0x8014);
         for (int call = 0; call < 20; call++)
         {
             Bgr555[] before = cgram.Colors.ToArray();
-            ushort glowTimerBefore = projectiles.ChargedShotGlowTimer;
+            ushort glowTimerBefore = projectiles.Charge.ChargedShotGlowTimer;
             var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
             if ((call & 1) != 0)
             {
@@ -563,9 +563,9 @@ internal static class SamusChargeColorsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose,
-            EquippedBeams = (ushort)SamusBeamFlags.Charge, ChargeColors = catalog };
+            EquippedBeams = (ushort)SamusBeamFlags.Charge, Presentation = { ChargeColors = catalog } };
         var projectiles = new SamusProjectileSystem();
-        typeof(SamusProjectileSystem).GetProperty(nameof(SamusProjectileSystem.FlareCounter))!.SetValue(projectiles, (ushort)60);
+        typeof(BeamChargeState).GetProperty(nameof(BeamChargeState.FlareCounter))!.SetValue(projectiles.Charge, (ushort)60);
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)
         for (int suit = 0; suit < 3; suit++)
@@ -574,7 +574,7 @@ internal static class SamusChargeColorsVerification
             samus.HorizontalSpeed.ContactDamageIndex = family == 0 ? SamusContactDamageIndex.None : SamusContactDamageIndex.PseudoScrew;
             for (int phase = 0; phase < 6; phase++)
             {
-                int appliedPhase = projectiles.SamusChargePaletteIndex / 2;
+                int appliedPhase = projectiles.Charge.SamusChargePaletteIndex / 2;
                 var step = projectiles.UpdateBeamChargePalette(guarded, cgram, samus);
                 AssertEqual(phase, appliedPhase, "Native charge phase order");
                 AssertEqual(family == 0 ? SamusBeamChargePaletteAction.ChargeCycle : SamusBeamChargePaletteAction.PseudoScrewCycle,
@@ -583,7 +583,7 @@ internal static class SamusChargeColorsVerification
                     AssertEqual(expected[family, suit, phase, color], cgram.Colors[192 + color], "Guarded runtime charge color");
             }
         }
-        AssertEqual(0, projectiles.SamusChargePaletteIndex, "Charge phase wraps after six calls");
+        AssertEqual(0, projectiles.Charge.SamusChargePaletteIndex, "Charge phase wraps after six calls");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Runtime charge uses no palette ROM reads");
         Console.WriteLine("Charge/death palettes: 1216 original colors, shared fade arithmetic, edits, identity, bounds and36 guarded charge calls pass.");
         return forbidden;

@@ -21,15 +21,14 @@ internal static class OverlappingEnemyShotsVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
-        var interactive = (List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!;
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBeetom", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
+        var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
+        Action<RoomEnemySlot, SamusState, ushort> initialize = enemies.BeetomBehavior.InitializeBeetom;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
         for (int index = 0; index < 3; index++)
         {
-            var enemy = enemies.Slots[index];
+            var enemy = enemies.SlotTable.Slots[index];
             enemy.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
             enemy.Definition = RoomEnemyDefinitionCatalog.Get(enemy.EnemyDefinitionPointer);
             enemy.Position = enemy.Position.WithWhole(new(128, 128));
@@ -53,18 +52,18 @@ internal static class OverlappingEnemyShotsVerification
         shot.InstructionTimer = 1;
         shot.PreInstruction = SamusProjectilePreInstruction.Missile;
 
-        AssertEqual(3, enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus),
+        AssertEqual(3, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus),
             "one missile reaches all three overlapping Beetoms in the same pass");
-        foreach (var enemy in enemies.Slots.Take(3))
+        foreach (var enemy in enemies.SlotTable.Slots.Take(3))
             AssertEqual(80, enemy.Health, "each overlapping Beetom takes native missile damage");
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "non-piercing shot is marked for deferred removal");
         AssertEqual((ushort)0x8100, shot.Type, "collision preserves payload until projectile processing");
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         shots.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         AssertEqual((ushort)0, shot.Type, "next projectile pass consumes the removal marker");
-        foreach (var enemy in enemies.Slots.Take(3))
+        foreach (var enemy in enemies.SlotTable.Slots.Take(3))
             enemy.InvincibilityTimer = enemy.FlashTimer = enemy.AiHandlerBits = 0;
-        AssertEqual(0, enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus),
+        AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus),
             "removed projectile cannot damage the stack on the next pass");
         Console.WriteLine("Overlapping Beetoms: all three receive one shot's damage; deferred removal prevents a later hit.");
     }

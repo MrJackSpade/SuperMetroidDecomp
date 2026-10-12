@@ -10,8 +10,6 @@ internal static class CeresSteamDefinitionsVerification
         const int instructionTable = 0xa6eff5;
         const int functionTable = 0xa6f001;
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeCeresSteam", flags)!;
 
         var guarded = NewCeresSteamDefinitionReadGuard(rom);
         for (int index = 0; index < 6; index++)
@@ -27,11 +25,11 @@ internal static class CeresSteamDefinitionsVerification
                 $"Ceres steam {variant} function");
 
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x001f);
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = (ushort)variant;
-            initialize.Invoke(enemies, [slot]);
+            enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
 
             AssertEqual(definition.InstructionList, slot.CurrentInstruction,
                 $"production Ceres steam {variant} instruction list");

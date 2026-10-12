@@ -33,13 +33,11 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
         var guard = NewElevatorInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        MethodInfo initialize = type.GetMethod("InitializeElevator", flags)!;
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
-        RoomEnemySlot elevator = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        RoomEnemySlot elevator = enemies.SlotTable.Slots[0];
         elevator.EnemyDefinitionPointer = EnemyDefinitionId.Elevator;
         elevator.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
-        initialize.Invoke(enemies, [elevator, null]);
+        enemies.ElevatorBehavior.InitializeElevator(elevator, null);
         AssertEqual(ElevatorInstructionProgramDefinitions.Loop,
             elevator.CurrentInstruction,
             "real elevator initializer installs compiled animation loop");
@@ -49,7 +47,7 @@ internal static class ElevatorInstructionProgramDefinitionsVerification
         for (int call = 0; call < 3; call++)
         {
             elevator.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
         AssertEqual((ushort)0x94da, elevator.CurrentInstruction,
             "elevator two-frame program loops to its second mechanics word");

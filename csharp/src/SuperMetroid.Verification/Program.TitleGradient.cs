@@ -23,7 +23,7 @@ internal static class TitleGradientVerification
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
  =>
-        RepositoryInstallation.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
+        InstalledFixtures.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
             titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
     internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {

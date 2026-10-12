@@ -51,9 +51,7 @@ internal static class MamaTurtleShellContourVerification
         var mama = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
         var state = new MamaTurtleEnemyState(mama) { AsleepFlag = 1 };
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
-        var runAsleep = typeof(RoomEnemySystem).GetMethod(
-                "RunMamaTurtleAsleep", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot, MamaTurtleEnemyState, SamusState>>();
+        Action<RoomEnemySlot, MamaTurtleEnemyState, SamusState> runAsleep = MamaTurtleBehavior.RunMamaTurtleAsleep;
 
         int productionCases = 0;
         for (short difference = -30; difference <= 30; difference++)

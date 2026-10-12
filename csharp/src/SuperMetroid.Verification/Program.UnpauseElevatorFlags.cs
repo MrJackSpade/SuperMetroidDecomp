@@ -27,21 +27,21 @@ internal static class UnpauseElevatorFlagsVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
 
-        runtime.Enemies.PublishElevatorDoorContact();
-        AssertEqual((ushort)1, runtime.Enemies.ElevatorFlags, "the elevator is armed before the pause");
+        runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
+        AssertEqual((ushort)1, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "the elevator is armed before the pause");
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.UnpausingB);
         game.Step(0);
 
         AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "state $11 hands off to the brightening state");
-        AssertEqual((ushort)0, runtime.Enemies.ElevatorFlags, "ResumeGameplay clears $0E16");
+        AssertEqual((ushort)0, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "ResumeGameplay clears $0E16");
         Console.WriteLine("  Unpause elevator flags: resuming gameplay disarms the elevator's pseudo-door.");
     }
 

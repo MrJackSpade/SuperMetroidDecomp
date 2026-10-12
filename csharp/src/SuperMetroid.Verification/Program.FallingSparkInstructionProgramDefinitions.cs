@@ -45,22 +45,15 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
                 FallingSparkInstructionProgramDefinitions.PresentationWordCount,
                 FallingSparkInstructionProgramDefinitions.PresentationWordAddress);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnFallingSpark", instanceFlags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions",
-            instanceFlags)!;
-        var beginFloorImpact = typeof(RoomEnemySystem).GetMethod(
-            "BeginFallingSparkFloorImpact",
-            BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemyProjectileSlot>>();
+        Action<RoomEnemySlot> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
+        Action<RoomEnemyProjectileSlot> beginFloorImpact = FallingSparksBehavior.BeginFallingSparkFloorImpact;
 
-        RoomEnemySlot source = enemies.Slots[0];
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(0x0120, 0x0060));
         spawn(source);
-        RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles.Single(
+        RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
             candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
         AssertEqual(
             FallingSparkInstructionProgramDefinitions.Falling,
@@ -68,11 +61,10 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
             "Falling Spark definition selects the named falling program");
 
         var observedOperands = new HashSet<ushort>();
-        object?[] arguments = [projectile, null, Position16<RoomPixels>.Zero];
         for (int frame = 0; frame < 4; frame++)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, (SamusState?)null, Position16<RoomPixels>.Zero);
             AssertEqual((ushort)(FallingSparkInstructionProgramDefinitions.Falling + 2 + (frame % 3) * 4),
                 projectile.PresentationOperandAddress, "falling spark frame order and loop restart");
             AssertEqual((ushort)3, projectile.InstructionTimer, "falling spark frame duration");
@@ -91,7 +83,7 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < 11; frame++)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, (SamusState?)null, Position16<RoomPixels>.Zero);
             AssertEqual((ushort)(FallingSparkInstructionProgramDefinitions.HitFloor + 2 + frame * 4),
                 projectile.PresentationOperandAddress, "falling spark impact blink frame order");
             AssertEqual((ushort)1, projectile.InstructionTimer, "falling spark impact frame duration");
@@ -102,7 +94,7 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
             projectile.InstructionPointer,
             "floor impact reaches the native terminal delete");
         projectile.InstructionTimer = 1;
-        process.Invoke(enemies, arguments);
+        enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, (SamusState?)null, Position16<RoomPixels>.Zero);
         AssertTrue(!projectile.IsActive,
             "floor impact deletes Falling Spark after all eleven blinking frames");
 

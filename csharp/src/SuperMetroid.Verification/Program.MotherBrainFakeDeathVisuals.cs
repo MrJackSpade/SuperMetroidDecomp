@@ -118,8 +118,8 @@ internal static class MotherBrainFakeDeathVisualsVerification
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);
         level.SetBlockDefinitionWord(0x0249 * 4, 0x0249);
-        var plms = new RoomPlmSystem { MotherBrainFakeDeathVisuals = visuals };
-        AssertTrue(plms.TrySpawnMotherBrainMutation(level, new(5, 3), header),
+        var plms = new RoomPlmSystem { Drawing = { MotherBrainFakeDeathVisuals = visuals } };
+        AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain visual header ${(int)header:X4} allocates");
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(guard, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(cameraX, 0), Bg1XOffset = 0 });

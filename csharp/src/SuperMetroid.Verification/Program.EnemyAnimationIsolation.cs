@@ -47,7 +47,7 @@ internal static class EnemyAnimationIsolationVerification
             AssertAnimationValues(stock.Enemies.BoyonStates[0]!, edited.Enemies.BoyonStates[0]!, $"Boyon frame {frame}");
             heights.Add(stock.Actor.Position.Y.Whole);
             nativeFrames.Add(stock.Actor.SpritemapPointer);
-            if (stock.Enemies.LastBoyonSoundEffect is not null) bounceSounds++;
+            if (stock.Enemies.BoyonBehavior.LastBoyonSoundEffect is not null) bounceSounds++;
             var before = stock.Draw(); var after = edited.Draw();
             AssertEditedAnimationDraw(edited, after, frame);
             if (!before.LowTable.SequenceEqual(after.LowTable) || !before.HighTable.SequenceEqual(after.HighTable)) differentDraws++;
@@ -78,7 +78,7 @@ internal static class EnemyAnimationIsolationVerification
             AssertAnimationValues(stock.Torizo!, edited.Torizo!, $"Golden Torizo attack frame {frame}");
             nativeFrames.Add(stock.Actor.SpritemapPointer);
             heights.Add(stock.Actor.Position.Y.Whole);
-            if (stock.Enemies.LastBombTorizoSoundEffect is not null) shotFrames.Add(frame);
+            if (stock.Enemies.BombTorizoBehavior.LastBombTorizoSoundEffect is not null) shotFrames.Add(frame);
             CompareTorizoHitWindows(stock, edited, frame, ref hitSamples, ref missSamples);
             var before = stock.Draw(); var after = edited.Draw();
             AssertEditedAnimationDraw(edited, after, frame);
@@ -106,8 +106,8 @@ internal static class EnemyAnimationIsolationVerification
             if (frame == deathPublicationFrame)
             {
                 AssertEqual(new BombTorizoMusicRequest(MusicCommand.SelectTrack(3), MusicCommandDelay.EightFrames),
-                    stock.Enemies.LastBombTorizoMusicRequest!.Value, "death publishes the actual return-music command at its compiled frame");
-                AssertTrue(stock.Enemies.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
+                    stock.Enemies.BombTorizoBehavior.LastBombTorizoMusicRequest!.Value, "death publishes the actual return-music command at its compiled frame");
+                AssertTrue(stock.Enemies.Projectiles.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
                     "death actually allocates pickups, rather than merely setting a debugger flag");
             }
             var before = stock.Draw(); var after = edited.Draw();
@@ -126,8 +126,6 @@ internal static class EnemyAnimationIsolationVerification
     private static void CompareTorizoHitWindows(EnemyAnimationFixture stock, EnemyAnimationFixture edited,
         int frame, ref int hits, ref int misses)
     {
-        MethodInfo collide = typeof(RoomEnemySystem).GetMethod("TryFindExtendedHitboxCallback",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (bool shot in new[] { false, true })
         for (int y = -64; y <= 32; y += 8)
         for (int x = -48; x <= 48; x += 8)
@@ -135,8 +133,8 @@ internal static class EnemyAnimationIsolationVerification
             object?[] before = [stock.Actor, new Position16<RoomPixels>(unchecked((ushort)(stock.Actor.Position.X.Whole + x)), unchecked((ushort)(stock.Actor.Position.Y.Whole + y))), new Extent16<RoomPixels>((ushort)2, (ushort)2), shot, (ushort)0];
             object?[] after = (object?[])before.Clone();
             after[0] = edited.Actor;
-            bool hit = (bool)collide.Invoke(stock.Enemies, before)!;
-            AssertEqual(hit, (bool)collide.Invoke(edited.Enemies, after)!, $"Torizo physical hit window frame {frame} at {x}/{y}");
+            bool hit = ExtendedHitboxWalker.Find(stock.Enemies, before);
+            AssertEqual(hit, ExtendedHitboxWalker.Find(edited.Enemies, after), $"Torizo physical hit window frame {frame} at {x}/{y}");
             AssertEqual(before[^1], after[^1], $"Torizo physical callback frame {frame} at {x}/{y}");
             if (hit) hits++; else misses++;
         }

@@ -122,12 +122,12 @@ internal static void VerifyRoomEnemyLoading()
     };
     enemies.Load(new RoomEnemyLoadRequest(bus, populationPointer, tilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0x9999)));
 
-    AssertEqual(1, enemies.EnemyCount, "enemy population count");
-    AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.FirstFreeEnemyIndex,
+    AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
+    AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
         "first free enemy keeps native byte offset");
-    AssertEqual(1, enemies.DeathQuota, "population terminator death quota");
-    AssertEqual(0, enemies.EnemiesKilled, "room load clears killed-enemy count");
-    AssertEqual(0x1234, enemies.BossId, "nonzero definition publishes room boss ID");
+    AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
+    AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
+    AssertEqual(0x1234, enemies.RoomStatus.BossId, "nonzero definition publishes room boss ID");
     AssertEqual(2, enemies.GraphicsSet.Count, "terminated enemy graphics-set count");
 
     RoomEnemyGraphicsSetEntry ordinaryGraphics = enemies.GraphicsSet[0];
@@ -144,7 +144,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x6160, cgram.Colors[(4 + 8) * 16],
         "special enemy palette destination and source");
 
-    RoomEnemySlot slot = enemies.Slots[0];
+    RoomEnemySlot slot = enemies.SlotTable.Slots[0];
     AssertEqual(0x0456, slot.Position.X.Whole, "population X position");
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(0x0600, slot.PaletteIndex, "graphics-set OBJ palette index");
@@ -187,11 +187,11 @@ internal static void VerifyRoomEnemyLoading()
         "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
     AssertTrue(new CgramPalettes(cgram).ImageEquals(new CgramPalettes(installedCgram)),
         "enemy tile overrides cannot alter native palettes");
-    AssertEqual(slot.Position.X.Whole, installedEnemies.Slots[0].Position.X.Whole,
+    AssertEqual(slot.Position.X.Whole, installedEnemies.SlotTable.Slots[0].Position.X.Whole,
         "enemy tile overrides do not alter population coordinates");
-    AssertEqual(slot.Definition.Health, installedEnemies.Slots[0].Definition.Health,
+    AssertEqual(slot.Definition.Health, installedEnemies.SlotTable.Slots[0].Definition.Health,
         "enemy tile overrides do not alter health");
-    AssertEqual(slot.Definition.Radius.X, installedEnemies.Slots[0].Definition.Radius.X,
+    AssertEqual(slot.Definition.Radius.X, installedEnemies.SlotTable.Slots[0].Definition.Radius.X,
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
         EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })
@@ -210,12 +210,12 @@ internal static void VerifyRoomEnemyLoading()
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
     enemies.Load(new RoomEnemyLoadRequest(bus, emptyPopulationPointer, 0xffff, vram, cgram, new StandaloneRoomEnemyServices(() => 0)));
 
-    AssertEqual(0, enemies.EnemyCount, "empty population clears enemy count");
+    AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
     AssertEqual(0, enemies.GraphicsSet.Count, "empty population skips graphics set");
-    AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.FirstFreeEnemyIndex,
+    AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
         "empty population preserves native first-free quirk");
-    AssertEqual(1, enemies.DeathQuota, "empty population preserves native death-quota quirk");
-    AssertEqual(0, enemies.BossId, "room load clears boss ID before empty population");
+    AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
+    AssertEqual(0, enemies.RoomStatus.BossId, "room load clears boss ID before empty population");
     AssertEqual(0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
 
@@ -307,7 +307,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     var enemies = new RoomEnemySystem();
     enemies.Load(new RoomEnemyLoadRequest(bus, populationPointer, 0xffff, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
 
-    RoomEnemyProjectileSlot eyeShot = enemies.EnemyProjectiles[17];
+    RoomEnemyProjectileSlot eyeShot = enemies.Projectiles.EnemyProjectiles[17];
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
@@ -335,7 +335,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.SpritemapPointer = 0;
     link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
-    int hits = enemies.ResolveEnemyProjectileSamusProjectileHits(
+    int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
         bus,
         shots,
         new SamusBombProjectileSystem());
@@ -354,7 +354,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
         "enemy-projectile collision leaves Super Missile link invisible");
     AssertTrue(link.PackedDirection.HasLowByteLifecycleState,
         "enemy-projectile collision marks Super Missile link lifecycle");
-    AssertEqual(0, shots.EarthquakeTimer,
+    AssertEqual(0, shots.Earthquakes.EarthquakeTimer,
         "enemy-projectile collision does not invent ordinary Super impact quake");
     AssertTrue(!eyeShot.BlocksSamusProjectiles,
         "destructible enemy projectile disables subsequent-frame shot collision");
@@ -442,7 +442,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes }),
     };
     enemies.Load(new RoomEnemyLoadRequest(bus, populationPointer, tilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0)));
-    RoomEnemySlot ripper = enemies.Slots[0];
+    RoomEnemySlot ripper = enemies.SlotTable.Slots[0];
     if (verifyXrayTimers)
     {
         if (nativeXrayTimerTrace is not null)
@@ -540,7 +540,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = 2;
     shakenOam.BeginFrame();
-    enemies.DrawLayers(shakenOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawLayers(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(89, shakenOam.GetEntry(0).X,
         "enemy shake frame-counter bit one clear adds one X pixel");
@@ -549,7 +549,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrameCounter = 2;
     ripper.ShakeTimer = 2;
     shakenOam.BeginFrame();
-    enemies.DrawLayers(shakenOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawLayers(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(87, shakenOam.GetEntry(0).X,
         "enemy shake frame-counter bit one set subtracts one X pixel");
@@ -561,7 +561,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         Health = 99,
         Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
     };
-    AssertTrue(enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0),
+    AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, controllerInput: 0),
         "Ripper radius contact reaches common touch AI");
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer, "Ripper contact invincibility clock");
@@ -598,12 +598,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 
     SamusProjectileSlot shot = projectiles.Slots[0];
     ArmProjectile(shot, ripper, type: 0x8000, damage: 20);
-    AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
+    AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
         "Ripper ineffective power-beam collision");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
     ArmProjectile(shot, ripper, type: 0x8002, damage: 20);
-    AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
+    AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
         "Ripper Ice Beam collision");
     AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
@@ -617,15 +617,15 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.InvincibilityTimer = 0;
     ripper.AiHandlerBits = 0;
     byte expectedHurtCry = unchecked((byte)ripper.Definition.HurtSoundEffect);
-    int criesBefore = enemies.SoundRequests.Count(request =>
+    int criesBefore = enemies.Audio.SoundRequests.Count(request =>
         request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
         request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3);
     for (int hit = 0; hit < 2; hit++)
     {
         ArmProjectile(shot, ripper, type: 0x0200, damage: 100);
-        AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
             $"Ripper Super Missile hit {hit + 1}");
-        AssertEqual(criesBefore + hit + 1, enemies.SoundRequests.Count(request =>
+        AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
             request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
             request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3),
             "common shot queues header low-byte cry for surviving and lethal hits");
@@ -633,12 +633,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
     AssertEqual(EnemyDefinitionId.None, ripper.EnemyDefinitionPointer,
         "Ripper generic death clears its common enemy record immediately");
-    RoomEnemyProjectileSlot ripperDeath = enemies.EnemyProjectiles[17];
+    RoomEnemyProjectileSlot ripperDeath = enemies.Projectiles.EnemyProjectiles[17];
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
     AssertEqual(definitionPointer, ripperDeath.EnemyHeaderPointer,
         "Ripper death actor retains its header for EEAF drop selection");
-    AssertEqual(1, enemies.EnemiesKilled, "Ripper death increments room kill count");
+    AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "Ripper death increments room kill count");
 
     Console.WriteLine(
         "  Ripper: ROM load, animation, 16.16 movement, wall reversal, contact, " +
@@ -742,7 +742,7 @@ internal static void VerifyCeresDoorBossBranch()
             areaBossReads++;
             return areaBossDefeated;
         } } }) { Samus = samus });
-    RoomEnemySlot door = enemies.Slots[0];
+    RoomEnemySlot door = enemies.SlotTable.Slots[0];
     door.CurrentInstruction = 0xf55e;
     door.InstructionTimer = 1;
 
@@ -843,11 +843,14 @@ internal static void VerifyCeresRidleyRoomEntry()
             {
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
-            }, Spritemaps = EnemySpritemapCatalog.Load(fixtureSpriteJson), CeresDoorVisual = CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual, CeresEscapeTiles = RepositoryInstallation.EnemyTiles.CeresEscapeTiles, CeresEscapeOverlayTilemaps = RepositoryInstallation.EnemyTiles.CeresEscapeOverlayTilemaps }),
-        CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
-        CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
-            SuperMetroid.AssetExtraction.CeresRidleyMode7ColorExtractor.Extract(bus))),
+            }, Spritemaps = EnemySpritemapCatalog.Load(fixtureSpriteJson), CeresDoorVisual = CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual, CeresEscapeTiles = InstalledFixtures.EnemyTiles.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.EnemyTiles.CeresEscapeOverlayTilemaps }),
+        Presentation =
+        {
+            CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
+            CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(
+                SuperMetroid.AssetExtraction.CeresRidleyMode7ColorExtractor.Extract(bus))),
+        },
     };
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus), writable: false))
@@ -859,8 +862,8 @@ internal static void VerifyCeresRidleyRoomEntry()
     int generatedRandomCalls = 0;
     enemies.Load(new RoomEnemyLoadRequest(bus, populationPointer, tilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true } }));
 
-    RoomEnemySlot ridley = enemies.Slots[0];
-    RidleyEnemyState state = enemies.CeresRidley
+    RoomEnemySlot ridley = enemies.SlotTable.Slots[0];
+    RidleyEnemyState state = enemies.RidleyEncounter.CeresRidley
         ?? throw new InvalidOperationException("Ceres Ridley did not allocate its extended state.");
     AssertEqual(0x00ba, ridley.Position.X.Whole, "Ceres Ridley init X");
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
@@ -879,29 +882,26 @@ internal static void VerifyCeresRidleyRoomEntry()
     // retail byte-index bug in its word table. Earthquake timer two therefore reads byte
     // $FC and displaces the door four pixels left.
     SeedCeresDoorQuakeOverlay(bus);
-    RoomEnemySlot overlayDoor = enemies.Slots[1];
+    RoomEnemySlot overlayDoor = enemies.SlotTable.Slots[1];
     overlayDoor.EnemyDefinitionPointer = ceresDoorDefinitionPointer;
     overlayDoor.VariableB = 1;
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
-    enemies.CeresStatus = 1; // Skip the unrelated private Baby list in this draw fixture.
-    typeof(RoomEnemySystem).GetField(
-        "_bus",
-        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-        .SetValue(enemies, NewCeresDoorQuakeReadGuard(bus));
+    enemies.RidleyEncounter.CeresStatus = 1; // Skip the unrelated private Baby list in this draw fixture.
+    enemies.BindFixtureBus(NewCeresDoorQuakeReadGuard(bus));
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {
-        enemies.EarthquakeTimer = timer;
+        enemies.Earthquake.EarthquakeTimer = timer;
         var doorOam = new OamBuffer();
         doorOam.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(doorOam, new(0, 0));
+        enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(doorOam, new(0, 0));
         doorOam.FinalizeFrame();
         AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).X,
             $"Ceres private door hook byte-indexed quake phase {timer}");
     }
     overlayDoor.EnemyDefinitionPointer = 0;
-    enemies.CeresStatus = 0;
-    enemies.EarthquakeTimer = 0;
+    enemies.RidleyEncounter.CeresStatus = 0;
+    enemies.Earthquake.EarthquakeTimer = 0;
 
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
@@ -944,7 +944,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley final body-fade row reaches OBJ palette one");
     AssertEqual(0, ridley.Properties & (ushort)EnemyProperties.IgnoreSamusCollision,
         "Ceres Ridley becomes tangible after body fade");
-    AssertTrue(enemies.MusicRequests.Contains(new EnemyMusicRequest(
+    AssertTrue(enemies.Audio.MusicRequests.Contains(new EnemyMusicRequest(
             MusicCommand.SelectTrack(5),
             MusicCommandDelay.EightFrames)),
         "Ceres Ridley final body fade queues battle/escape track five");
@@ -962,7 +962,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     while (state.Function != RidleyAiFunction.CeresHovering && battleEntryFrames < 1024)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-        observedRoarSound |= enemies.SoundRequests.Contains(
+        observedRoarSound |= enemies.Audio.SoundRequests.Contains(
             new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x59), MaximumQueued: 6));
         battleEntryFrames++;
     }
@@ -1070,7 +1070,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Slots[0].Position.X.Whole - projectiles.Slots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
-        AssertEqual(1, enemies.ResolveCeresRidleyProjectileHits(
+        AssertEqual(1, enemies.CeresRidleyBehavior.ResolveCeresRidleyProjectileHits(
             bus, projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
         observedNormalRidleyPalette |= state.CommonDrawPaletteIndex == 0x0e00;
@@ -1110,7 +1110,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int retreatFrames = 0;
     bool observedFakeRetreat = false;
     Bgr555? retreatBackgroundColor = null;
-    while (enemies.CeresStatus != 1 && retreatFrames < 1024)
+    while (enemies.RidleyEncounter.CeresStatus != 1 && retreatFrames < 1024)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         // $A6:A9E3 writes BG palette five as the retreat delay expires; the next frame's
@@ -1118,7 +1118,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         if (state.Function == RidleyAiFunction.CeresPublishEscapeHandoff)
             retreatBackgroundColor ??= cgram.Colors[0x51];
         // Room main follows enemy AI, so the handoff frame also takes getaway step zero.
-        enemies.RunCeresRidleyGetawayRoomMain(samus, 0);
+        enemies.CeresRidleyBehavior.RunCeresRidleyGetawayRoomMain(samus, 0);
         observedFakeRetreat |= state.Function is
             RidleyAiFunction.CeresFakeRetreatMoveToPosition or
             RidleyAiFunction.CeresFakeRetreatRising or
@@ -1129,12 +1129,12 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(observedFakeRetreat,
         "Ceres Ridley returns from current attack through fake retreat/Baby retrieval");
     AssertEqual(RidleyFightMode.NotFighting, state.FightMode, "Ceres Ridley retreat disables battle mode");
-    AssertEqual(1, enemies.CeresStatus, "Ceres Ridley publishes escape handoff status");
+    AssertEqual(1, enemies.RidleyEncounter.CeresStatus, "Ceres Ridley publishes escape handoff status");
     AssertEqual((ushort)RidleyAiFunction.CeresInactive, (ushort)state.Function,
         "Ceres Ridley installs null dispatcher after battle");
     AssertTrue(ridley.Properties.HasAny(EnemyProperties.Invisible),
         "Ceres Ridley ordinary actor yields to getaway presentation");
-    RoomEnemySlot[] mode7Walls = enemies.Slots
+    RoomEnemySlot[] mode7Walls = enemies.SlotTable.Slots
         .Where(slot => slot.EnemyDefinitionPointer == ceresDoorDefinitionPointer &&
             slot.Parameter1 is 5 or 6)
         .ToArray();
@@ -1155,15 +1155,15 @@ internal static void VerifyCeresRidleyRoomEntry()
             new byte[EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height],
             SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));
         timerPng.Position = 0;
-        enemies.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
+        enemies.Presentation.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
     }
-    AssertTrue(enemies.SoundRequests.Contains(
+    AssertTrue(enemies.Audio.SoundRequests.Contains(
             new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),
         "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     void GetawayFrame()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
-        enemies.RunCeresRidleyGetawayRoomMain(samus, 0);
+        enemies.CeresRidleyBehavior.RunCeresRidleyGetawayRoomMain(samus, 0);
     }
     ushort expectedX = 0xff80, expectedY = 0x20;
     for (ushort curveOffset = 0; curveOffset < 224; curveOffset += 2)
@@ -1239,22 +1239,22 @@ internal static void VerifyCeresRidleyRoomEntry()
     for (int frame = 0; frame < 127; frame++)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
-        AssertTrue(!enemies.CeresEscapeStartedThisFrame,
+        AssertTrue(!enemies.RoomStatus.CeresEscapeStartedThisFrame,
             $"Ceres escape does not publish early on hold frame {frame}");
     }
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
-    AssertTrue(!enemies.CeresEscapeStartedThisFrame,
+    AssertTrue(!enemies.RoomStatus.CeresEscapeStartedThisFrame,
         "Ceres escape does not skip the English warning after its 128-frame title hold");
     AssertEqual(10, state.FunctionTimer,
         "Ceres English warning enters the native typewriter phase");
 
     int typewriterFrames = 0;
-    while (!enemies.CeresEscapeStartedThisFrame && typewriterFrames < 512)
+    while (!enemies.RoomStatus.CeresEscapeStartedThisFrame && typewriterFrames < 512)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         typewriterFrames++;
     }
-    AssertTrue(enemies.CeresEscapeStartedThisFrame,
+    AssertTrue(enemies.RoomStatus.CeresEscapeStartedThisFrame,
         "Ceres escape starts only after the complete English warning is typed");
     AssertTrue(ceresBossDefeated,
         "$A6:C131 sets the area-boss bit within the escape-start enemy pass");
@@ -1266,7 +1266,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres warning renders the A in ACTIVATED on its second line");
     AssertEqual(0x3584, vram.ReadWord(0x5185),
         "Ceres warning renders the C in COLONY on its third line");
-    AssertEqual(2, enemies.CeresStatus,
+    AssertEqual(2, enemies.RidleyEncounter.CeresStatus,
         "Ceres escape publishes status two for door destruction");
     AssertEqual((ushort)RidleyAiFunction.CeresSelfDestructPaletteOnly, (ushort)state.Function,
         "Ceres escape retains the native palette-only actor function");

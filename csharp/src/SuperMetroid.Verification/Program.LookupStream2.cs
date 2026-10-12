@@ -135,14 +135,12 @@ internal static class LookupStream2Verification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var cgram = new SnesCgram();
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.Presentation._cgram = cgram;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0;
         var state = new WreckedShipGhostEnemyState(slot) { PhaseTimer = 2 };
-        var brightening = typeof(RoomEnemySystem).GetMethod("RunWreckedShipGhostBrightening", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState>>(enemies);
-        var fade = typeof(RoomEnemySystem).GetMethod("StepWreckedShipGhostPaletteTowardTarget", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, WreckedShipGhostEnemyState, int>>(enemies);
+        Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
+        Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
         var native = new ushort[16];
         for (int color = 0; color < native.Length; color++)
         {
@@ -1018,15 +1016,13 @@ internal static class LookupStream2Verification
             }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress } });
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
+        enemies.BindFixtureBus(rom);
         corpseTiles.Fill(0);
-        typeof(RoomEnemySystem).GetMethod("InitializeDeadTorizoGraphics", flags)!
-            .CreateDelegate<Action>(enemies)();
+        new Action(enemies.DeadTorizoBehavior.InitializeDeadTorizoGraphics)();
         Compare(expected, "Actual Dead Torizo installed-art crop");
 
-        var state = new DeadTorizoEnemyState(enemies.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0xe226, FinishFunction = 0, EntryCount = 96, YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
-        var moveRow = typeof(RoomEnemySystem).GetMethod("CopyOrMoveDeadTorizoPixelRow", flags)!
-            .CreateDelegate<Action<DeadTorizoEnemyState,ushort,bool>>(enemies);
+        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0xe226, FinishFunction = 0, EntryCount = 96, YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
+        Action<DeadTorizoEnemyState,ushort,bool> moveRow = enemies.DeadTorizoBehavior.CopyOrMoveDeadTorizoPixelRow;
         foreach (bool move in new[] { false, true })
         for (ushort y = 0; y < 96; y++)
         {
@@ -1073,11 +1069,9 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
-        var reset = typeof(RoomEnemySystem).GetMethod("ResetCrawlerVelocitiesFromProperties", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>();
-        var setYard = typeof(RoomEnemySystem).GetMethod("SetYardCrawlingVelocities", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, YardEnemyState, ushort>>();
-        var slot = new RoomEnemySystem().Slots[0];
+        Action<RoomEnemySlot> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
+        Action<RoomEnemySlot, YardEnemyState, ushort> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
+        var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var yard = new YardEnemyState(slot);
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
@@ -1266,17 +1260,15 @@ internal static class LookupStream2Verification
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 1);
-        var finish = typeof(RoomEnemySystem).GetMethod("FinishKraidGrowth", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
-        var align = typeof(RoomEnemySystem).GetMethod("AlignKraidPart", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, KraidPartState>>(enemies);
-        var body = enemies.Slots[0];
+        Action<RoomEnemySlot, KraidEnemyState> finish = enemies.KraidBehavior.FinishKraidGrowth;
+        Action<RoomEnemySlot, KraidPartState> align = enemies.KraidBehavior.AlignKraidPart;
+        var body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(200, 300));
-        for (int slot = 2; slot <= 4; slot++) enemies.Slots[slot].VariableB = 17;
+        for (int slot = 2; slot <= 4; slot++) enemies.SlotTable.Slots[slot].VariableB = 17;
         finish(body, state);
         for (int slot = 2; slot <= 4; slot++)
         {
-            var lint = enemies.Slots[slot];
+            var lint = enemies.SlotTable.Slots[slot];
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + (slot - 2) * 2));
             AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
             AssertEqual(expected, lint.VariableF, "Actual post-growth timer write");
@@ -1311,9 +1303,9 @@ internal static class LookupStream2Verification
             samus.Health = 50;
             samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
-            var projectile = fixture.System.EnemyProjectiles[0];
+            var projectile = fixture.System.Projectiles.EnemyProjectiles[0];
             projectile.ItemDropChancesPointerOverride = NativeDropChancePointer;
-            AssertEqual(expected, fixture.System.SelectRandomEnemyDrop(projectile),
+            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile),
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
@@ -1355,8 +1347,6 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeNorfairPipeBug", flags)!;
-        MethodInfo wait = typeof(RoomEnemySystem).GetMethod("RunNorfairPipeBugSamusWait", flags)!;
         for (int member = 0; member < 5; member++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugDefinitions.NorfairStaggerTarget(member),
@@ -1369,15 +1359,15 @@ internal static class LookupStream2Verification
             var enemies = new RoomEnemySystem();
             for (int member = 0; member < 5; member++)
             {
-                var slot = enemies.Slots[member];
+                var slot = enemies.SlotTable.Slots[member];
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Gamet;
                 slot.Position = slot.Position.WithWhole(new(128, 128)); slot.Parameter2 = 64;
-                initialize.Invoke(enemies, [slot]);
+                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 slot.InstructionTimer = (ushort)(member + 4);
                 slot.Timer = (ushort)(member + 8);
             }
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
-            wait.Invoke(enemies, [enemies.Slots[0], enemies.PipeBugStates[0]!, samus]);
+            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], enemies.PipeBugStates[0]!, samus);
             for (int member = 0; member < 5; member++)
             {
                 var state = enemies.PipeBugStates[member]!;
@@ -1388,10 +1378,10 @@ internal static class LookupStream2Verification
                 AssertEqual(PipeBugEnemyFunction.NorfairRise, state.Function, "Actual formation begins rising");
                 AssertEqual(samusX < 128 ? NorfairPipeBugInstructionProgramDefinitions.RisingLeft
                     : NorfairPipeBugInstructionProgramDefinitions.RisingRight,
-                    enemies.Slots[member].CurrentInstruction, "Actual formation selects facing");
-                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.Slots[member].InstructionTimer,
+                    enemies.SlotTable.Slots[member].CurrentInstruction, "Actual formation selects facing");
+                AssertEqual((ushort)(member == 0 ? 1 : member + 4), enemies.SlotTable.Slots[member].InstructionTimer,
                     "Only leader instruction timer resets");
-                AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.Slots[member].Timer,
+                AssertEqual((ushort)(member == 0 ? 0 : member + 8), enemies.SlotTable.Slots[member].Timer,
                     "Only leader loop counter resets");
             }
         }
@@ -1576,7 +1566,7 @@ internal static class LookupStream2Verification
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the following word");
-        var spawn = typeof(SamusProjectileSystem).GetMethod("SpawnTrail", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var spawn = typeof(ProjectileTrails).GetMethod("SpawnTrail", BindingFlags.NonPublic | BindingFlags.Instance)!;
         for (int selection = 0; selection < 64; selection++)
         {
             var projectiles = new SamusProjectileSystem();
@@ -1586,7 +1576,7 @@ internal static class LookupStream2Verification
                 InstructionPointer = 0x86e3,
                 Position = new(new(100, 0), new(200, 0)),
             };
-            spawn.Invoke(projectiles, [NewTrailSelectorGuard(start, end), projectile]);
+            spawn.Invoke(projectiles.Trails, [NewTrailSelectorGuard(start, end), projectile]);
             var trail = projectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
@@ -1699,10 +1689,8 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        var state = new DeadTorizoEnemyState(enemies.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
-        var build = typeof(RoomEnemySystem).GetMethod("BuildDeadTorizoVramTransfers",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .CreateDelegate<Action<DeadTorizoEnemyState>>(enemies);
+        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
+        Action<DeadTorizoEnemyState> build = enemies.DeadTorizoBehavior.BuildDeadTorizoVramTransfers;
         for (ushort phase = 0; phase < 2; phase++)
         {
             var rows = DeadTorizoVramTransferDefinitions.ForPhase(phase);
@@ -1741,11 +1729,9 @@ internal static class LookupStream2Verification
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
         var enemies = new RoomEnemySystem();
-        var slot = enemies.Slots[0];
+        var slot = enemies.SlotTable.Slots[0];
         var queue = new VramWriteQueue();
-        var append = typeof(RoomEnemySystem).GetMethod("QueueGunshipTakeoffTiles",
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot, VramWriteQueue>>(enemies);
+        var append = new Action<RoomEnemySlot, VramWriteQueue>(enemies.GunshipBehavior.QueueGunshipTakeoffTiles);
         int enumerated = 0;
         foreach (var transfer in transfers)
         {
@@ -1890,11 +1876,9 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
-        var spawn = typeof(RoomEnemySystem).GetMethod("SpawnWreckedShipGhost", methods)!
-            .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>>>();
-        var flicker = typeof(RoomEnemySystem).GetMethod("AdvanceWreckedShipGhostFlicker", methods)!
-            .CreateDelegate<Action<RoomEnemySlot, WreckedShipGhostEnemyState>>();
-        var slot = new RoomEnemySystem().Slots[0];
+        Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
+        Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
+        var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var state = new WreckedShipGhostEnemyState(slot);
         for (int index = 0; index < 9; index++)
         {
@@ -2215,16 +2199,16 @@ internal static class LookupStream2Verification
             ushort pointer = (ushort)(0x86db + direction * 12);
             AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
-            var system = new SamusProjectileSystem { FrameBindings = stock };
-            _ = system.RunProjectileInstructionHandler(shot);
+            var system = new SamusProjectileSystem { Animation = { FrameBindings = stock } };
+            _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
             string key = ProjectileFrameBindingFormat.FrameName(pointer);
             string original = document.Frames[key];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(ProjectileSpriteDefinitions.NativePointers[0]);
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
-            system.FrameBindings = edited;
-            _ = system.RunProjectileInstructionHandler(editedShot);
+            system.Animation.FrameBindings = edited;
+            _ = system.Animation.RunProjectileInstructionHandler(editedShot);
             AssertEqual(ProjectileSpriteDefinitions.NativePointers[0], editedShot.SpritemapPointer, "Independent direction edit overrides calculation in actual handler");
             AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Visual edit preserves control flow");
@@ -2259,8 +2243,8 @@ internal static class LookupStream2Verification
             }
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
             var shot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
-            var system = new SamusProjectileSystem { FrameBindings = stock };
-            _ = system.RunProjectileInstructionHandler(shot);
+            var system = new SamusProjectileSystem { Animation = { FrameBindings = stock } };
+            _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             string key = ProjectileFrameBindingFormat.FrameName(pointer);
             string original = document.Frames[key];
@@ -2268,9 +2252,9 @@ internal static class LookupStream2Verification
                 ? ProjectileSpriteDefinitions.NativePointers[1] : ProjectileSpriteDefinitions.NativePointers[0];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(replacement);
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
-            system.FrameBindings = edited;
+            system.Animation.FrameBindings = edited;
             var editedShot = new SamusProjectileSlot(0) { InstructionPointer = pointer, InstructionTimer = 1 };
-            _ = system.RunProjectileInstructionHandler(editedShot);
+            _ = system.Animation.RunProjectileInstructionHandler(editedShot);
             AssertEqual(replacement, editedShot.SpritemapPointer, "Every Wave/Ice supplied edit takes precedence");
             AssertEqual(shot.InstructionTimer, editedShot.InstructionTimer, "Wave/Ice visual edit preserves duration");
             AssertEqual(shot.InstructionPointer, editedShot.InstructionPointer, "Wave/Ice visual edit preserves flow");

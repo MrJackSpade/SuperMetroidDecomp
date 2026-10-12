@@ -34,10 +34,8 @@ internal static class ZoaSpeedDefinitionsVerification
             return;
         }
         var enemies = new RoomEnemySystem();
-        var shoot = typeof(RoomEnemySystem).GetMethod(
-                "RunZoaShooting", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>>>();
-        RoomEnemySlot actor = enemies.Slots[0];
+        Action<RoomEnemySlot, ZoaEnemyState, Position16<RoomPixels>> shoot = ZoaBehavior.RunZoaShooting;
+        RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new ZoaEnemyState(actor);
         for (ushort offset = 0; offset <= 16; offset += 4)
         {

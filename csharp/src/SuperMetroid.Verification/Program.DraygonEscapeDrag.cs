@@ -25,14 +25,14 @@ internal static class DraygonEscapeDragVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0135, 0x019d)) };
         samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: false);
         samus.DraygonGrabbed.Release(bus, samus);
 
-        var state = new DraygonEnemyState(enemies.Slots[0]) { Function = DraygonAiFunction.CarrySamus };
+        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]) { Function = DraygonAiFunction.CarrySamus };
         state.Body.Position = state.Body.Position.WithWhole(new(0x013b, 0x0176));
-        typeof(RoomEnemySystem).GetMethod("MoveSamusWithDraygon", flags)!.Invoke(enemies, [state, samus]);
+        enemies.DraygonBehavior.MoveSamusWithDraygon(state, samus);
 
         AssertEqual((ushort)(0x013b - 8), samus.Position.X.Whole, "the escaped Samus is placed eight pixels left of Draygon");
         AssertEqual((ushort)(0x0176 + 0x28), samus.Position.Y.Whole, "the escaped Samus is placed 40 pixels below Draygon");

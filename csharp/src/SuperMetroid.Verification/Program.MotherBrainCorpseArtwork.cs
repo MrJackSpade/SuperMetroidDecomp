@@ -140,10 +140,8 @@ internal static class MotherBrainCorpseArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
-        MethodInfo transfer = typeof(RoomEnemySystem).GetMethod(
-            "ApplyMotherBrainRainbowTileTransfer", flags)!;
+        enemies.BindFixtureBus(bus);
+        enemies.Presentation._vram = vram;
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(
@@ -151,7 +149,7 @@ internal static class MotherBrainCorpseArtworkVerification
                 MotherBrainCorpseArtworkDefinitions.VramPageByteCount,
                 MotherBrainCorpseArtworkDefinitions.VramPageSource(page),
                 MotherBrainCorpseArtworkDefinitions.VramPageDestination(page));
-            transfer.Invoke(enemies, [request]);
+            enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
         }
         return vram;
     }

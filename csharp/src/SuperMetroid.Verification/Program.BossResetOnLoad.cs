@@ -50,13 +50,11 @@ internal static class BossResetOnLoadVerification
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
-        var roomReader = typeof(SuperMetroidRuntime).GetMethod("LoadCartridgeRoomHeader",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
         ushort[] eyeBits = [0x45, 0x5c, 0x85, 0x9b, 0xa8];
         foreach (bool enabled in new[] { false, true })
         {
             var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeSavedGame(slot, resetBossesOnLoad: enabled);
+            runtime.RoomLoader.InitializeSavedGame(slot, resetBossesOnLoad: enabled);
             for (int area = 0; area < Bank80SystemState.AreaCount; area++)
             {
                 bool resetArea = enabled && area < AreaIds.RetailCount && area != (int)AreaId.Tourian;
@@ -77,21 +75,21 @@ internal static class BossResetOnLoadVerification
                 AssertEqual(snapshot.CollectedItemBytes[index], runtime.System.GetCollectedItemByteRaw(index), "pickups preserved");
             for (int index = 0; index < Bank80SystemState.RoomChozoBitByteCount; index++)
                 AssertEqual(snapshot.RoomChozoBytes[index], runtime.System.GetRoomChozoByteRaw(index), "Chozo orbs preserved");
-            AssertEqual(slot.CollectedItems, (ushort)runtime.Samus!.CollectedItems, "collected inventory preserved");
-            AssertEqual(slot.EquippedItems, (ushort)runtime.Samus.EquippedItems, "equipment selection preserved");
-            AssertEqual(slot.Health, runtime.Samus.Health, "health preserved");
-            AssertEqual(slot.Missiles, runtime.Samus.Missiles, "ammo preserved");
+            AssertEqual(slot.CollectedItems, (ushort)runtime.Player.Samus!.CollectedItems, "collected inventory preserved");
+            AssertEqual(slot.EquippedItems, (ushort)runtime.Player.Samus.EquippedItems, "equipment selection preserved");
+            AssertEqual(slot.Health, runtime.Player.Samus.Health, "health preserved");
+            AssertEqual(slot.Missiles, runtime.Player.Samus.Missiles, "ammo preserved");
             foreach (var (room, alive, defeated) in new (ushort, ushort, ushort)[]
                 { (0x9804, 0x981b, 0x9835), (0x9dc7, 0x9dd9, 0x9df3),
                   (0xb283, 0xb295, 0xb2af), (0xd8c5, 0xd8d7, 0xd8f1) })
             {
-                var header = (CartridgeRoomHeader)roomReader.Invoke(runtime, [room])!;
+                var header = runtime.RoomLoader.LoadCartridgeRoomHeader(room);
                 AssertEqual(enabled ? alive : defeated, header.State.Pointer,
                     $"loaded progression selects encounter state for room {room:X4}");
             }
             // Prove this is not a continuously enforced immortality/respawn mode.
             runtime.System.SetBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss);
-            _ = (CartridgeRoomHeader)roomReader.Invoke(runtime, [(ushort)0x9dc7])!;
+            _ = runtime.RoomLoader.LoadCartridgeRoomHeader((ushort)0x9dc7);
             AssertTrue(runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss),
                 "subsequent defeat persists until another explicit save load");
         }

@@ -20,8 +20,8 @@ internal static class MotherBrainPlasmaImpactVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        var head = enemies.Slots[1];
+        enemies.BindFixtureBus(bus);
+        var head = enemies.SlotTable.Slots[1];
         head.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
         head.Definition = RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer);
         head.Properties = head.Properties.With(EnemyProperties.BlocksPlasmaBeam);
@@ -29,12 +29,12 @@ internal static class MotherBrainPlasmaImpactVerification
         head.Radius = new(16, 16);
         head.SpritemapPointer = 1;
         head.Health = 18000;
-        var state = new MotherBrainEnemyState(enemies.Slots[0]) { Head = head, Form = 2, WalkCounter = 0x1000 };
-        typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", flags)!.SetValue(enemies, state);
-        ((List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!).Add(head.NativeIndex);
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = 2, WalkCounter = 0x1000 };
+        enemies.MotherBrainEncounter.MotherBrain = state;
+        ((List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes).Add(head.NativeIndex);
         var samus = new SamusState();
         var installation = RepositoryInstallation.Installation;
-        var shots = new SamusProjectileSystem { FrameBindings = RepositoryInstallation.Projectiles.FrameBindings };
+        var shots = new SamusProjectileSystem { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];
         SeedChargedPlasma();
@@ -77,7 +77,7 @@ internal static class MotherBrainPlasmaImpactVerification
         Console.WriteLine("Mother Brain Plasma: one charged impact/damage event, no later-frame repeats, recoil and first-form restriction passed.");
         return 0;
 
-        int Hit() => enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus);
+        int Hit() => enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus);
         void SeedChargedPlasma()
         {
             shot.Type = 0x8018; shot.Damage = 450; shot.Direction = 2;

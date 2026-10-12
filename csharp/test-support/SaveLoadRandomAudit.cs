@@ -63,9 +63,9 @@ internal static class SaveLoadRandomAudit
                 Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
             }
             var runtime = game.RuntimeForVerification;
-            if (!insertedWait || runtime?.Samus is null)
+            if (!insertedWait || runtime?.Player.Samus is null)
                 throw new InvalidDataException("Save-load RNG audit did not reach the loaded runtime through file map.");
-            Console.WriteLine($"SAVE RNG wait={wait} frontendFrames={sequence} dispatches={dispatches} rng={runtime.System.RandomNumber} room={runtime.ActiveRoom?.Pointer:X4} energy={runtime.Samus.Health} PB={runtime.Samus.PowerBombs}/{runtime.Samus.MaxPowerBombs}");
+            Console.WriteLine($"SAVE RNG wait={wait} frontendFrames={sequence} dispatches={dispatches} rng={runtime.System.RandomNumber} room={runtime.Room.ActiveRoom?.Pointer:X4} energy={runtime.Player.Samus.Health} PB={runtime.Player.Samus.PowerBombs}/{runtime.Player.Samus.MaxPowerBombs}");
             // The reset vector seeds before the first main-loop/state-zero pass.
             // This empty save room has no random-consuming population initializer.
             var expected = new Bank80SystemState();
@@ -110,6 +110,6 @@ internal static class SaveLoadRandomAudit
     [VerificationCommand("--save-load-rng-fixture")]
     internal static int SaveLoadRngFixtureCommand()
     {
-     return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), RepositoryInstallation.BindGame); 
+     return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), InstalledFixtures.BindGame); 
     }
 }

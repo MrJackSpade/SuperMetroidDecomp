@@ -195,7 +195,7 @@ internal static void VerifyDoorOpeningTrajectories()
     {
         AssertEqual(
             direction >= 2,
-            SuperMetroidRuntime.DoorTransitionAlignsX((DoorDirection)direction),
+            RoomLoader.DoorTransitionAlignsX((DoorDirection)direction),
             $"door direction {direction} alignment axis");
         var door = new CartridgeDoorHeader(
             Pointer: 0x8000,
@@ -387,7 +387,7 @@ internal static void VerifyEndingCreditsState()
         {
             previous = ending.Phase;
             reached.Add(previous);
-            Rgba32[] pixels = ending.Render();
+            Rgba32[] pixels = ending.Presentation.Render();
             AssertEqual(FrontendFrame.Width * FrontendFrame.Height, pixels.Length,
                 $"ending {previous} frame size");
             renderedTransitions++;

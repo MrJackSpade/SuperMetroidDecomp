@@ -159,8 +159,8 @@ internal static class SnesGameplayFrameRendererAccess
                 return;
             }
 
-            bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
-            SamusMovementType movementType = samus.ReadMovementType(bus);
+            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection(bus) == 4;
+            SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
 
             // `$88:88B8-$88F3` anchors the ray three pixels in front of Samus. Standing and
             // turning bodies place it sixteen pixels above the center; only stable movement

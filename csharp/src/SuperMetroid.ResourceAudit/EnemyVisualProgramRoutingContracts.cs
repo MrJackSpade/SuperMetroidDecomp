@@ -6,28 +6,30 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>The common enemy-interpreter methods that route instruction words to visual selectors.</summary>
 internal static class EnemyVisualProgramRoutingContracts
 {
-    private static readonly string[] Methods =
+    // Each routing method and the type that owns it.
+    private static readonly (string Method, string Owner)[] Methods =
     [
-        "ReadEnemyInstructionMechanicsWord",
-        "ReadEnemyProjectileInstructionMechanicsWord",
-        "ReadEnemyVisualSelector",
-        "SetEnemyProjectileVisualOperand",
-        "DrawEnemySpritemap",
-        "ProcessInstructions",
-        "ProcessCommonEnemyInstruction",
-        "TryProcessOwnedEnemyInstruction",
-        "ProcessEnemyProjectileInstructions",
+        ("ReadEnemyInstructionMechanicsWord", "EnemyInstructionInterpreter"),
+        ("ReadEnemyProjectileInstructionMechanicsWord", "EnemyProjectileEngine"),
+        ("ReadEnemyVisualSelector", "EnemyInstructionInterpreter"),
+        ("SetEnemyProjectileVisualOperand", "EnemyProjectileEngine"),
+        ("DrawEnemySpritemap", "EnemyPresentation"),
+        ("ProcessInstructions", "EnemyInstructionInterpreter"),
+        ("ProcessCommonEnemyInstruction", "EnemyInstructionInterpreter"),
+        ("TryProcessOwnedEnemyInstruction", "EnemyInstructionInterpreter"),
+        ("ProcessEnemyProjectileInstructions", "EnemyProjectileEngine"),
     ];
 
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)
     {
-        MethodDeclarationSyntax[] methods = compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes()
-            .OfType<ClassDeclarationSyntax>().Where(type => type.Identifier.ValueText == "RoomEnemySystem")
-            .SelectMany(type => type.Members.OfType<MethodDeclarationSyntax>())).ToArray();
-        foreach (string name in Methods)
+        var declared = compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
+            .SelectMany(type => type.Members.OfType<MethodDeclarationSyntax>()
+                .Select(method => (Method: method.Identifier.ValueText, Owner: type.Identifier.ValueText)))
+            .ToHashSet();
+        foreach (var (name, owner) in Methods)
         {
-            if (!methods.Any(method => method.Identifier.ValueText == name))
-                report.Gap(ResourceDomains.CompiledSelector, name, "RoomEnemySystem",
+            if (!declared.Contains((name, owner)))
+                report.Gap(ResourceDomains.CompiledSelector, name, owner,
                     "Interpreter routing method is missing; update this audit's routing contract.");
         }
     }

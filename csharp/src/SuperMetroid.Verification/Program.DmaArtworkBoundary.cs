@@ -35,13 +35,12 @@ internal static class DmaArtworkBoundaryVerification
         AreaMapPresentationCatalog maps = installation.LoadMaps();
         EnemyTileArtworkCatalog art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var enemies = new RoomEnemySystem { TileArtwork = art, HudTileArtwork = maps.HudTiles };
+        var enemies = new RoomEnemySystem { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, memory);
+        enemies.BindFixtureBus(memory);
         var background = new SnesVram();
-        typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, background);
-        Action upload = typeof(RoomEnemySystem).GetMethod("UploadKraidRoomBackgroundTiles", flags)!
-            .CreateDelegate<Action>(enemies);
+        enemies.Presentation._vram = background;
+        Action upload = new Action(enemies.KraidBehavior.UploadKraidRoomBackgroundTiles);
         upload();
         var expected = new SnesVram();
         ImportedVramOracle.ExecuteQueued(expected, reference,
@@ -55,14 +54,13 @@ internal static class DmaArtworkBoundaryVerification
             "missing Kraid background artwork is not a cartridge fallback");
         enemies.TileArtwork = art;
 
-        var transfer = typeof(RoomEnemySystem).GetMethod("AdvanceKraidDeathBg3Transfer", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction, VramWriteQueue?>>(enemies);
+        Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.AdvanceKraidDeathBg3Transfer;
         foreach (bool queued in new[] { false, true })
         {
             var actual = new SnesVram(); expected = new SnesVram();
-            typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, actual);
+            enemies.Presentation._vram = actual;
             var state = new KraidEnemyState(); var writes = new VramWriteQueue();
-            RoomEnemySlot body = enemies.Slots[0];
+            RoomEnemySlot body = enemies.SlotTable.Slots[0];
             for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount; quarter++)
             {
                 transfer(body, state, quarter, KraidAiFunction.DeathFadeInBackground, queued ? writes : null);
@@ -84,8 +82,8 @@ internal static class DmaArtworkBoundaryVerification
                     "artwork transfer preserves the death coroutine successor");
             }
         }
-        enemies.HudTileArtwork = null;
-        AssertThrows<InvalidDataException>(() => transfer(enemies.Slots[0], new KraidEnemyState(),
+        enemies.Presentation.HudTileArtwork = null;
+        AssertThrows<InvalidDataException>(() => transfer(enemies.SlotTable.Slots[0], new KraidEnemyState(),
             0, KraidAiFunction.DeathFadeInBackground, new VramWriteQueue()),
             "Kraid death restoration requires installed HUD art even when queued");
 

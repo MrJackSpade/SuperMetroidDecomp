@@ -10,7 +10,7 @@ internal static class CrystalFlashVisualsVerification
 {
     internal static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, int elapsed)
     {
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         var bus = runtime.AddressSpace;
         var packet = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         if (samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash)
@@ -38,8 +38,8 @@ internal static class CrystalFlashVisualsVerification
         var mutedMemory = new PpuMemorySnapshot(packet.Memory.Vram, colors, packet.Memory.Oam, packet.Memory.ModeledSpriteCount);
         var mutedBody = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(mutedMemory,
             packet.Layers, packet.ObjectSelection, packet.Brightness));
-        int centerX = samus.Position.X.Whole - runtime.DisplayedGameplayPpu.Layer1Position.X;
-        int centerY = samus.Position.Y.Whole - runtime.DisplayedGameplayPpu.Layer1Position.Y;
+        int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.X;
+        int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayPpu.Layer1Position.Y;
         AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,
             "visual fixture keeps the entire Crystal Flash sprite in the viewport");
         bool bodyVisible = Enumerable.Range(centerY - 32, 64)

@@ -15,8 +15,6 @@ internal static class YardVisualsVerification
     {
         var selectedFrames = new HashSet<ushort>();
         var guard = NewYardInstructionReadGuard(rom, forbidPresentation: true);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (int index = 0;
              index < YardInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -50,8 +48,7 @@ internal static class YardVisualsVerification
             enemies.TileArtwork = stock;
             yard.CurrentInstruction = unchecked((ushort)(operand - 2));
             yard.InstructionTimer = 1;
-            process.Invoke(enemies,
-                [yard, null, null, Position16<RoomPixels>.Zero, (ushort)0]);
+            enemies.Instructions.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
             AssertEqual(installedPointer, yard.SpritemapPointer,
                 $"installed Yard instruction {index} selects native frame");
         }

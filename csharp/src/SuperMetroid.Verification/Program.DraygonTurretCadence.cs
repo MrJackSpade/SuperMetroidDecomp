@@ -22,17 +22,17 @@ internal static class DraygonTurretCadenceVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
-        var boss = runtime.Enemies.Draygon!;
+        var boss = runtime.Enemies.DraygonBehavior.Draygon!;
         AssertEqual(DraygonAiFunction.IntroInitialDelay, boss.Function, "fight intro waits before the dance");
 
         int StepWith(byte counter8, ushort counter16)
         {
             int before = boss.TurretCadenceChecks;
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Samus, Level = runtime.LevelData, NmiFrameCounter8 = counter8, NmiFrameCounter = counter16 });
+            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, NmiFrameCounter8 = counter8, NmiFrameCounter = counter16 });
             return boss.TurretCadenceChecks - before;
         }
 
@@ -44,52 +44,47 @@ internal static class DraygonTurretCadenceVerification
         // #1269: both goop instructions pass A=2 to $86:8027, which stores it as the speed
         // parameter. A prior turret spawn (speed 3) must not change the goop's velocity.
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo spawnGoop = typeof(RoomEnemySystem).GetMethod("SpawnDraygonGoop", flags)!;
-        MethodInfo spawnTurret = typeof(RoomEnemySystem).GetMethod("SpawnDraygonWallTurret", flags)!;
         (ushort X, ushort XSub, ushort Y, ushort YSub, ushort Angle) SpawnGoop()
         {
             runtime.System.SetRandomNumber(0x1234);
-            spawnGoop.Invoke(runtime.Enemies, [boss, false]);
-            RoomEnemyProjectileSlot goop = runtime.Enemies.EnemyProjectiles.Last(p =>
+            runtime.Enemies.DraygonBehavior.SpawnDraygonGoop(boss, false);
+            RoomEnemyProjectileSlot goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
             var velocity = (goop.Velocity.X.RawValue, goop.Variable0, goop.Velocity.Y.RawValue, goop.Variable1, goop.DirectionParameter);
             goop.Clear();
             return velocity;
         }
         var beforeTurret = SpawnGoop();
-        spawnTurret.Invoke(runtime.Enemies, [boss, runtime.Samus!, (ushort)0]);
+        runtime.Enemies.DraygonBehavior.SpawnDraygonWallTurret(boss, runtime.Player.Samus!, (ushort)0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
-        MethodInfo product = typeof(RoomEnemySystem).GetMethod("ReadUnsignedSineMagnitudeProduct",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        int expectedX = (int)product.Invoke(null, [afterTurret.Angle, DraygonProjectileSpeeds.Goop, (ushort)0x40])!;
+        int expectedX = EnemyMath.ReadUnsignedSineMagnitudeProduct(afterTurret.Angle, DraygonProjectileSpeeds.Goop, 0x40);
         AssertEqual(expectedX, unchecked((int)SnesSixteenSixteen.Compose(afterTurret.X, afterTurret.XSub)), "goop X velocity is speed two");
 
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
         // its ID and Samus's XSpeedDivisor clears, but the routine still moves the slot.
         runtime.System.SetRandomNumber(0x1234);
-        spawnGoop.Invoke(runtime.Enemies, [boss, false]);
-        RoomEnemyProjectileSlot bombed = runtime.Enemies.EnemyProjectiles.Last(p =>
+        runtime.Enemies.DraygonBehavior.SpawnDraygonGoop(boss, false);
+        RoomEnemyProjectileSlot bombed = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
             p.Kind == RoomEnemyProjectileKind.DraygonGoop);
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Spawn(bombed.Position.Whole);
         typeof(SamusPowerBombExplosionState).GetProperty(nameof(SamusPowerBombExplosionState.ExplosionRadius))!
             .SetValue(explosion, (ushort)0x2000);
-        typeof(RoomEnemySystem).GetField("_audioPowerBomb", flags)!.SetValue(runtime.Enemies, explosion);
-        runtime.Samus!.XSpeedDivisor = 3;
+        runtime.Enemies.Audio.PowerBomb = explosion;
+        runtime.Player.Samus!.XSpeedDivisor = 3;
         ushort bombedX = bombed.Position.X.Whole;
-        runtime.Enemies.StepEnemyProjectileInstructions(runtime.LevelData!, runtime.Samus,
-            new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y));
+        runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LevelData!, runtime.Player.Samus,
+            new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y));
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
-        AssertEqual((ushort)0, runtime.Samus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
+        AssertEqual((ushort)0, runtime.Player.Samus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");
 
         // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"
         // test. A later hit on the zero-health body reinstalls the drift function.
         boss.Body.Health = 0;
         boss.Function = DraygonAiFunction.DyingSink;
-        typeof(RoomEnemySystem).GetMethod("ResolveDraygonReaction", flags)!
-            .Invoke(runtime.Enemies, [boss.Body, runtime.Samus]);
+        runtime.Enemies.DraygonBehavior.ResolveDraygonReaction(boss.Body, runtime.Player.Samus);
         AssertEqual(DraygonAiFunction.Dying, boss.Function,
             "a hit on the dead body restarts the drift to the death spot");
         Console.WriteLine("Draygon turret cadence: $A5:87AA follows NMI_FrameCounter ($05B6), not $05B5; goop speed is two; power bombs delete goop; dead-body hits restart the death drift.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -15,15 +16,89 @@ namespace SuperMetroid.Core.Runtime;
 /// currently translated main-thread logic runs. Future bank ports can be added to the logic
 /// phase without changing every tool or viewer that wants to step one frame.
 /// </remarks>
-public sealed partial class SuperMetroidRuntime
+public sealed class SuperMetroidRuntime
 {
+    /// <summary>The <see cref="HdmaObjectPhase"/> owner of this SuperMetroidRuntime.</summary>
+    internal HdmaObjectPhase HdmaPhase { get; }
+
+    /// <summary>The <see cref="GameplayTimeFreeze"/> owner of this SuperMetroidRuntime.</summary>
+    internal GameplayTimeFreeze Freeze { get; }
+
+    /// <summary>The <see cref="PlmFramePhase"/> owner of this SuperMetroidRuntime.</summary>
+    internal PlmFramePhase PlmPhase { get; }
+
+    /// <summary>The <see cref="RoomMainRoutines"/> owner of this SuperMetroidRuntime.</summary>
+    internal RoomMainRoutines RoomMains { get; }
+
+    /// <summary>The <see cref="GameplayHudSetup"/> owner of this SuperMetroidRuntime.</summary>
+    internal GameplayHudSetup HudSetup { get; }
+
+    /// <summary>The <see cref="BackgroundScrollPhase"/> owner of this SuperMetroidRuntime.</summary>
+    internal BackgroundScrollPhase BackgroundPhase { get; }
+
+    /// <summary>The <see cref="NmiHandler"/> owner of this SuperMetroidRuntime.</summary>
+    internal NmiHandler NmiHandler { get; }
+
+    /// <summary>The <see cref="MessageBoxFlow"/> owner of this SuperMetroidRuntime.</summary>
+    internal MessageBoxFlow MessageBoxes { get; }
+
+    /// <summary>The <see cref="DeathSequenceRunner"/> owner of this SuperMetroidRuntime.</summary>
+    internal DeathSequenceRunner DeathSequence { get; }
+
+    /// <summary>The <see cref="SamusFramePhases"/> owner of this SuperMetroidRuntime.</summary>
+    internal SamusFramePhases SamusPhases { get; }
+
+    /// <summary>The <see cref="RoomLoader"/> owner of this SuperMetroidRuntime.</summary>
+    internal RoomLoader RoomLoader { get; }
+    internal EnemyRoomEffects EnemyRoomEffects { get; }
+    internal AttractDemoSession AttractSession { get; } = new();
+
+    /// <summary>The <see cref="GameplayDisplayState"/> owner of this SuperMetroidRuntime.</summary>
+    internal GameplayDisplayState Display { get; }
+
+    /// <summary>The <see cref="SamusFrameState"/> owner of this SuperMetroidRuntime.</summary>
+    internal SamusFrameState Player { get; }
+
+    /// <summary>The <see cref="ActiveRoomState"/> owner of this SuperMetroidRuntime.</summary>
+    internal ActiveRoomState Room { get; }
+
+    /// <summary>The <see cref="NmiClock"/> owner of this SuperMetroidRuntime.</summary>
+    internal NmiClock Nmi { get; }
+
+    /// <summary>The <see cref="GameplayOptions"/> owner of this SuperMetroidRuntime.</summary>
+    internal GameplayOptions Options { get; }
+
+    /// <summary>The <see cref="TesterTools"/> owner of this SuperMetroidRuntime.</summary>
+    internal TesterTools Tester { get; }
+
+    /// <summary>The <see cref="PlmShotBlockVisuals"/> owner of this SuperMetroidRuntime.</summary>
+    internal PlmShotBlockVisuals ShotBlockVisuals { get; }
+
+    /// <summary>The <see cref="GameplayActorDrawing"/> owner of this SuperMetroidRuntime.</summary>
+    internal GameplayActorDrawing ActorDrawing { get; }
+
+    /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
+    internal XrayReveal Xray { get; }
+
+    /// <summary>The <see cref="GameplayWindowRegisters"/> owner of this SuperMetroidRuntime.</summary>
+    internal GameplayWindowRegisters GameplayWindows { get; }
+
+    /// <summary>The <see cref="EscapeRoomEffects"/> owner of this SuperMetroidRuntime.</summary>
+    internal EscapeRoomEffects EscapeEffects { get; }
+
+    /// <summary>The <see cref="EnemyFramePhase"/> owner of this SuperMetroidRuntime.</summary>
+    internal EnemyFramePhase EnemyPhase { get; }
+
+    /// <summary>The <see cref="AttractDemoDriver"/> owner of this SuperMetroidRuntime.</summary>
+    internal AttractDemoDriver AttractDemo { get; }
+
+    /// <summary>The <see cref="DoorTransitionRunner"/> owner of this SuperMetroidRuntime.</summary>
+    internal DoorTransitionRunner DoorTransition { get; }
+
+    /// <summary>The <see cref="RuntimeArtwork"/> owner of this SuperMetroidRuntime.</summary>
+    internal RuntimeArtwork Artwork { get; }
+
     internal readonly ISnesAddressSpace _addressSpace;
-    private SamusSuitPickupKind? _pendingSuitPickup;
-    private StationActivationEvent? _pendingSaveStation;
-    private StationActivationEvent? _pendingSaveStationCompletion;
-    private SaveStationPersistenceRequest? _completedSaveStation;
-    private ushort _samusLoadAppearanceFramesRemaining;
-    private ushort _samusLoadAppearancePaletteFxDefinition;
 
     /// <summary>
     /// Mutable-state write boundary. Immutable gameplay definitions and installed
@@ -32,8 +107,7 @@ public sealed partial class SuperMetroidRuntime
     internal ISnesAddressSpace AddressSpace => _addressSpace;
 
     /// <summary>Live WRAM/SRAM for NMI DMA and the typed domain memory views.</summary>
-    internal ISnesMemoryBus MemoryBus =>
-        SnesMemoryBusRequirement.Require(_addressSpace, "The runtime requires live WRAM/SRAM access.");
+    internal ISnesMemoryBus MemoryBus => RuntimeMemory.RequireBus(_addressSpace);
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
@@ -41,55 +115,61 @@ public sealed partial class SuperMetroidRuntime
     /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
     public SuperMetroidRuntime(ISnesAddressSpace addressSpace, HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt = null)
     {
+        Display = new GameplayDisplayState();
+        Player = new SamusFrameState();
+        Room = new ActiveRoomState();
+        Nmi = new NmiClock();
+        Options = new GameplayOptions();
         _addressSpace = Ensure.NotNull(addressSpace);
-        InitialPaletteArt = initialPaletteArt;
-        GrantAllEquipmentEnabled = overrides.GrantAllEquipment;
-        UnlockTourianEnabled = overrides.UnlockTourian;
-        PlayerInvincibilityEnabled = overrides.PlayerInvincibilityEnabled;
-        InfiniteAmmoEnabled = overrides.InfiniteAmmoEnabled;
-        PreventEscapeTimeout = overrides.PreventEscapeTimeout;
-        MapRevealMode = Enum.IsDefined(overrides.MapRevealMode)
-            ? overrides.MapRevealMode
-            : throw new ArgumentOutOfRangeException(nameof(overrides.MapRevealMode));
 
         // These two host objects represent the lower and upper halves of the cartridge's
         // parallel ten-slot projectile arrays. BombProjectiles remains the owner of shared
         // cooldown $0CCC until the remaining weapon producers are consolidated.
         BombProjectiles = new SamusBombProjectileSystem();
         Projectiles = new SamusProjectileSystem();
-        BindGameplayWindowRegisters();
-        Projectiles.BindRoomEarthquakeOwner(Enemies);
+        Freeze = new GameplayTimeFreeze(Player);
+        Tester = new TesterTools(Cgram, Player, System, _addressSpace);
+        TourianStatues = new TourianStatueSequence(new TourianStatueSequenceDependencies { AddressSpace = AddressSpace, Cgram = Cgram, Enemies = Enemies, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, System = System, Tester = Tester, Freeze = Freeze, VramWrites = VramWrites });
+        Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BombProjectiles = BombProjectiles, Cgram = Cgram, Display = Display, Enemies = Enemies, Hud = Hud, MessageBox = MessageBox, Player = Player, Projectiles = Projectiles, RoomLayer3Fx = RoomLayer3Fx, Vram = Vram, VramWrites = VramWrites });
+        HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Enemies = Enemies, Hud = Hud, Player = Player, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
+        GameplayWindows = new GameplayWindowRegisters(Enemies, Projectiles, Room, RoomLayer3Fx);
+        Xray = new XrayReveal(BackgroundScroll, Player, Plms, Room, System, Vram, _addressSpace);
+        NmiHandler = new NmiHandler(new NmiHandlerDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, DisplayedOam = DisplayedOam, Enemies = Enemies, GameplayWindows = GameplayWindows, Nmi = Nmi, Oam = Oam, Options = Options, Player = Player, RoomLayer3Fx = RoomLayer3Fx, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, Xray = Xray, AddressSpace = _addressSpace });
+        BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room, Vram);
+        ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, Freeze = Freeze, Nmi = Nmi, Oam = Oam, Player = Player, Projectiles = Projectiles, Room = Room, VramWrites = VramWrites, AddressSpace = _addressSpace });
+        EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, Enemies = Enemies, EscapeTimer = EscapeTimer, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, System = System, AddressSpace = _addressSpace });
+        EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeTimer = EscapeTimer, Freeze = Freeze, Nmi = Nmi, Oam = Oam, Player = Player, Plms = Plms, Projectiles = Projectiles, Room = Room, RoomLayer3Fx = RoomLayer3Fx, VramWrites = VramWrites, AddressSpace = _addressSpace });
+        HdmaPhase = new HdmaObjectPhase(Freeze, RoomLayer3Fx, System, TourianStatues);
+        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, CeresElevatorShaft = CeresElevatorShaft, Display = Display, Enemies = Enemies, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, MaridiaElevatube = MaridiaElevatube, Nmi = Nmi, NmiHandler = NmiHandler, Oam = Oam, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, System = System, WreckedShipTreadmill = WreckedShipTreadmill, AddressSpace = _addressSpace });
+        EscapeEffects = new EscapeRoomEffects(Enemies, Freeze, Nmi, Room, System);
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { Artwork = Artwork, BackgroundPhase = BackgroundPhase, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, CeresElevatorShaft = CeresElevatorShaft, CeresHaze = CeresHaze, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, MaridiaElevatube = MaridiaElevatube, Nmi = Nmi, Options = Options, Player = Player, Plms = Plms, Projectiles = Projectiles, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, RoomSpikes = RoomSpikes, RoomTreadmills = RoomTreadmills, SandAnimatedTiles = SandAnimatedTiles, System = System, Tester = Tester, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, WreckedShipTreadmill = WreckedShipTreadmill, AddressSpace = _addressSpace });
+        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, HudSetup = HudSetup, NmiHandler = NmiHandler, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AddressSpace = _addressSpace });
+        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, NmiHandler = NmiHandler, Oam = Oam, Player = Player, Room = Room, VramWrites = VramWrites, AddressSpace = _addressSpace });
+        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Enemies = Enemies, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Plms = Plms, Room = Room, SuitPickup = SuitPickup, System = System, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
+        PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Plms = Plms, Room = Room, SuitPickup = SuitPickup, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
+        ShotBlockVisuals = new PlmShotBlockVisuals(Plms);
+        RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Enemies = Enemies, Player = Player, Room = Room, RoomSpikes = RoomSpikes, RoomTreadmills = RoomTreadmills, SandAnimatedTiles = SandAnimatedTiles, System = System, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, WreckedShipTreadmill = WreckedShipTreadmill, AddressSpace = _addressSpace });
+        SamusPhases = new SamusFramePhases(new SamusFramePhasesDependencies { Artwork = Artwork, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, EnemyPhase = EnemyPhase, Freeze = Freeze, GameTime = GameTime, Nmi = Nmi, Options = Options, Player = Player, Plms = Plms, Projectiles = Projectiles, Room = Room, RoomPaletteFx = RoomPaletteFx, System = System, VramWrites = VramWrites, AddressSpace = _addressSpace });
+
+        Artwork.InitialPaletteArt = initialPaletteArt;
+        Tester.GrantAllEquipmentEnabled = overrides.GrantAllEquipment;
+        Tester.UnlockTourianEnabled = overrides.UnlockTourian;
+        Options.PlayerInvincibilityEnabled = overrides.PlayerInvincibilityEnabled;
+        Options.InfiniteAmmoEnabled = overrides.InfiniteAmmoEnabled;
+        Options.PreventEscapeTimeout = overrides.PreventEscapeTimeout;
+        Options.MapRevealMode = Enum.IsDefined(overrides.MapRevealMode)
+            ? overrides.MapRevealMode
+            : throw new ArgumentOutOfRangeException(nameof(overrides.MapRevealMode));
+
+        GameplayWindows.BindGameplayWindowRegisters();
+        Projectiles.Earthquakes.BindRoomEarthquakeOwner(Enemies);
 
         // $82:82C5 copies all 512 bytes of kInitialPalette from ROM $9A:8000. The retail
         // game stages this through WRAM before NMI uploads CGRAM; initializing the modeled
         // PPU here produces the same starting colors while that fade pipeline is ported.
-        (InitialPaletteArt ?? throw new InvalidOperationException(
+        (Artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Gameplay requires the installed initial palette catalog.")).LoadInitial(Cgram);
     }
-
-    /// <summary>
-    /// Host testing switch that prevents Samus from dropping below one energy.
-    /// </summary>
-    /// <remarks>
-    /// The guard deliberately surrounds the complete frame instead of branching inside the
-    /// many cartridge damage producers. Enemy, projectile, liquid, and scripted routines
-    /// therefore retain their ordinary damage, collision, and animation side effects. Only
-    /// a lethal zero-energy result is raised to one before the frontend can enter death.
-    /// </remarks>
-    public bool PlayerInvincibilityEnabled { get; private set; }
-
-    /// <summary>
-    /// Host testing switch that keeps every unlocked consumable ammo type above zero.
-    /// </summary>
-    /// <remarks>
-    /// Cartridge routines still subtract ammunition and publish their ordinary projectile,
-    /// HUD, and sound side effects. The frame-exit guard only raises a zero count to one when
-    /// the corresponding maximum is nonzero, so it cannot unlock an unavailable item.
-    /// </remarks>
-    public bool InfiniteAmmoEnabled { get; private set; }
-
-    /// <summary>Host testing option: both escape countdowns stop at one second, without changing their earlier timing.</summary>
-    public bool PreventEscapeTimeout { get; private set; }
 
     /// <summary>
     /// Set when the escape countdown expired during this runtime's frame: <c>$90:E0EC</c>
@@ -104,9 +184,6 @@ public sealed partial class SuperMetroidRuntime
         TimeUpRequested = false;
         return requested;
     }
-
-    /// <summary>Nonpersistent host map visibility used by gameplay HUD updates.</summary>
-    public MapRevealMode MapRevealMode { get; private set; }
 
     /// <summary>Bank-$80 shared random/event/input-filter state.</summary>
     public Bank80SystemState System { get; } = new();
@@ -126,8 +203,8 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public bool JapaneseText
     {
-        get => Enemies.JapaneseText;
-        set => Enemies.JapaneseText = value;
+        get => Enemies.RoomStatus.JapaneseText;
+        set => Enemies.RoomStatus.JapaneseText = value;
     }
 
     /// <summary>Ordinary seven-byte-record VRAM write table.</summary>
@@ -156,72 +233,6 @@ public sealed partial class SuperMetroidRuntime
     public RoomEnemySystem Enemies { get; } = new();
 
     /// <summary>
-    /// Normal-gameplay Samus rendering state. Null means the current scenario has not
-    /// explicitly introduced Samus; the Landing Site cinematic does not do so by itself.
-    /// </summary>
-    public SamusState? Samus { get; private set; }
-
-    /// <summary>
-    /// Winning cartridge pose-transition entry for the most recently latched controller
-    /// chord. The grounded debug scenario applies its verified $01/$02/$09/$0A/$25/$26
-    /// routes; every other winner remains diagnostic until its native side effects exist.
-    /// </summary>
-    public SamusPoseTransition? ProspectiveSamusPose { get; private set; }
-
-    /// <summary>
-    /// Block-only result of `$91:EADE` after movement. This is separate from the input
-    /// table record because a killed running speed can create `$89/$8A/$CF-$D2` even when
-    /// no controller record matched, and a one-pixel probe can replace a running target.
-    /// </summary>
-    public SamusPoseId? ProspectiveSamusWallCollisionPose { get; private set; }
-
-    /// <summary>The optional one-pixel block probe responsible for the native arm-pump bug.</summary>
-    public BlockMoveResult? LastRanIntoWallProbe { get; private set; }
-
-    /// <summary>
-    /// No-button fallback selected by <c>Samus_Pose_CancelGrapple</c> at $91:82D9. This is
-    /// separate from <see cref="ProspectiveSamusPose"/> because no six-byte table entry wins.
-    /// </summary>
-    public SamusPoseId? ProspectiveSamusFallbackPose { get; private set; }
-
-    /// <summary>
-    /// True only for the explicit grounded gameplay-debug scenario. The cinematic render
-    /// stimulus remains stationary and continues treating pose matches as diagnostics.
-    /// </summary>
-    public bool GroundedSamusMovementEnabled { get; internal set; }
-
-    /// <summary>
-    /// Host-readable equivalent of the native Moonwalk options word consumed by
-    /// `$91:F88C`. False preserves the default turn substitution; true admits the six
-    /// stable movement-type-$10 poses selected by the unchanged ROM input tables.
-    /// </summary>
-    public bool MoonwalkEnabled { get; set; }
-
-    /// <summary>
-    /// WRAM <c>$09EA</c>. Native projectile-data teardown clears the selected HUD icon
-    /// when this word is nonzero; retaining it beside Moonwalk keeps both special-options
-    /// words available to their actual gameplay owners.
-    /// </summary>
-    public bool IconCancelEnabled { get; set; }
-
-    /// <summary>
-    /// Host ownership of shared WRAM <c>$0A78</c> outside X-ray. Reserve auto-refill and
-    /// fatal-damage states set this while still calling portions of state-eight gameplay;
-    /// every enemy/projectile/scroll consumer must observe the same native word.
-    /// </summary>
-    public bool GameplayTimeFrozen { get; set; }
-
-    /// <summary>The effective global freeze word, including X-ray's translated owner.</summary>
-    public bool TimeIsFrozen => GameplayTimeFrozen || (Samus?.Xray.TimeIsFrozen ?? false);
-
-    /// <summary>
-    /// Live copies of WRAM <c>$09B2-$09BE</c>. The host supplies physical controller bits;
-    /// accepted gameplay NMIs translate them once at the same conceptual seam where native
-    /// routines compare input with these configurable action words.
-    /// </summary>
-    public ControllerBindings ControllerBindings { get; set; } = ControllerBindings.Default;
-
-    /// <summary>
     /// Native elevator status word at WRAM <c>$0E18</c>. The room's elevator actor owns this
     /// producer. Every nonzero status runs forward-facing `$00/$9B` through `$90:A392`'s
     /// exact one-pixel downward terrain scan. Destination arrival depends on that scan to
@@ -231,20 +242,9 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public ushort ElevatorStatus
     {
-        get => (ushort)Enemies.ElevatorStatus;
-        set => Enemies.SetElevatorStatusForDebugging(value);
+        get => (ushort)Enemies.ElevatorBehavior.ElevatorStatus;
+        set => Enemies.ElevatorBehavior.SetElevatorStatusForDebugging(value);
     }
-
-    /// <summary>
-    /// Reconstructs the one side effect still owned by the native door-transition caller.
-    /// This host resumes gameplay immediately after loading the destination, so the arriving
-    /// downward actor can cross its pseudo-door while statuses two/three are visible to
-    /// state eight. Retain its moving beta handler, but permit its type-$9 handler to
-    /// publish a real transition or elevator flag only for status one; otherwise a
-    /// collapsed transition can immediately depart again.
-    /// </summary>
-    internal static bool ShouldPublishFacingForwardElevatorDoorSideEffects(
-        ElevatorActorStatus status) => status == ElevatorActorStatus.Departing;
 
     /// <summary>
     /// WRAM GameState ($0998) of the frontend dispatch now running. Samus commands such as
@@ -271,172 +271,6 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public bool PowerBombExplosionSuppressesSounds =>
         unchecked((short)PowerBombExplosionStatus) < 0;
-
-    /// <summary>
-    /// Low-byte snapshot at WRAM <c>$0A11</c> used by X-ray stability and post-draw spin audio.
-    /// The runtime updates it after each completed gameplay frame.
-    /// </summary>
-    public SamusMovementType PreviousMovementTypeForXray { get; private set; }
-
-    /// <summary>
-    /// Horizontal and vertical collision results from the most recent translated grounded
-    /// movement pass. Null before movement, and always null for the cinematic stimulus.
-    /// </summary>
-    public GroundedMovementResult? LastGroundedSamusMovement { get; private set; }
-
-    /// <summary>Most recent ordinary-air collision result, exposed for debugger watches.</summary>
-    public AerialMovementResult? LastAerialSamusMovement { get; private set; }
-
-    /// <summary>Most recent ordinary Morph-Ball collision result, exposed for debugger watches.</summary>
-    public MorphBallMovementResult? LastMorphBallMovement { get; private set; }
-
-    /// <summary>Most recent special bomb-jump handler result, exposed for debugger watches.</summary>
-    public BombJumpMovementResult? LastBombJumpMovement { get; private set; }
-
-    /// <summary>Most recent special knockback-handler result, exposed for debugger watches.</summary>
-    public KnockbackMovementResult? LastKnockbackMovement { get; private set; }
-
-    /// <summary>Most recent Ceres Ridley scripted ejection-handler result.</summary>
-    public CeresRidleyEjectionResult? LastCeresRidleyEjection { get; private set; }
-
-    /// <summary>Most recent bank-$9B connected-grapple function result.</summary>
-    public GrappleMovementResult? LastGrappleMovement { get; private set; }
-
-    /// <summary>Most recent stored-shine windup or active shinespark handler result.</summary>
-    public ShinesparkMovementResult? LastShinesparkMovement { get; private set; }
-
-    /// <summary>Most recent Crystal Flash start, ammo-drain, or finish handler result.</summary>
-    public CrystalFlashMovementResult? LastCrystalFlashMovement { get; private set; }
-
-    /// <summary>Most recent call of X-ray's dedicated bank-$91 pose-input handler.</summary>
-    public XrayPoseInputResult? LastXrayPoseInput { get; private set; }
-
-    /// <summary>Most recent call of X-ray's bank-$88 setup/beam/deactivation state.</summary>
-    public XrayBeamStepResult? LastXrayBeamStep { get; private set; }
-
-    /// <summary>
-    /// Angle-selected `$90:E94F` art frame; null while X-ray's type-`$0E` turn handler is RTS.
-    /// </summary>
-    public ushort? LastXrayAnimationFrame { get; private set; }
-
-    /// <summary>Most recent game-state-owned fatal-damage animation/palette/VRAM call.</summary>
-    public SamusDeathSequenceStepResult? LastDeathSequenceStep { get; private set; }
-
-    /// <summary>
-    /// Most recent global bank-$8D Hyper Beam palette-object call. Unlike Samus's body
-    /// palette handler, this owns OBJ palette six and runs before the Samus state handler.
-    /// </summary>
-    public HyperBeamPaletteFxStepResult? LastHyperBeamPaletteFxStep { get; private set; }
-
-    /// <summary>
-    /// Most recent beam-charge/post-shot body-palette branch from `$91:D743`. This remains
-    /// distinct from the global Hyper Beam projectile palette object above: it owns Samus's
-    /// OBJ palette four rather than projectile OBJ palette six.
-    /// </summary>
-    public SamusBeamChargePaletteStepResult LastBeamChargePaletteStep { get; private set; }
-
-    /// <summary>Most recent ordinary `$91:D83F` visor color-cycle step.</summary>
-    public SamusVisorPaletteStepResult LastVisorPaletteStep { get; private set; }
-
-    /// <summary>
-    /// Native WRAM <c>$1982</c>. Room/HDMA setup owns this word; the current Landing Site
-    /// shell starts at bank-$88's cleared-FX default two.
-    /// </summary>
-    public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; set; } =
-        LayerBlendingConfiguration.NormalGameplay;
-
-    /// <summary>
-    /// Most recent call of the final-priority ordinary hurt palette handler. The result
-    /// exposes both visible palette cadence and counter-forty audio recovery to a debugger.
-    /// </summary>
-    public SamusHurtFlashPaletteStepResult LastHurtFlashPaletteStep { get; private set; }
-
-    /// <summary>Most recent `$90:C5C4` arm-cannon cover state update.</summary>
-    public SamusArmCannonUpdateResult LastArmCannonUpdate { get; private set; }
-
-    /// <summary>Most recent optional cannon OBJ and tile-$1F DMA publication.</summary>
-    public SamusArmCannonDrawResult LastArmCannonDraw { get; private set; }
-
-    /// <summary>
-    /// Whether the current main-loop frame actually appended Samus's body spritemaps.
-    /// This differs from merely reaching the drawing phase: invincibility and the elevator
-    /// display handler can intentionally suppress the body on odd accepted NMI frames.
-    /// </summary>
-    public bool LastSamusBodyDrawn { get; private set; }
-
-    /// <summary>
-    /// True only when the current frame dispatched `$90:EBF3`, the deliberately minimal
-    /// shinespark-crash body-plus-two-echo renderer. Exposed separately from phase state so
-    /// a debugger can verify that handler installation and presentation agree on a frame.
-    /// </summary>
-    public bool LastShinesparkCrashDrawingHandlerActive { get; private set; }
-
-    /// <summary>
-    /// True when this frame dispatched grapple's replacement `$90:EB86` Samus handler.
-    /// Teardown phases remain true for their one pending frame even though the handler's
-    /// signed range test selects ordinary body/cannon/echo rendering inside that routine.
-    /// </summary>
-    public bool LastGrappleDrawingHandlerActive { get; private set; }
-
-    /// <summary>
-    /// True when `$90:EB86` took its beam-specific flare/body/rope half rather than the
-    /// teardown fallback. This is intentionally narrower than handler installation.
-    /// </summary>
-    public bool LastGrappleBeamSpecificDrawingPath { get; private set; }
-
-    /// <summary>Whether grapple's bank-$93 flare passed its unsigned screen-Y gate.</summary>
-    public bool LastGrappleFlareDrawn { get; private set; }
-
-    /// <summary>
-    /// Ceres's current shadow Mode 7 matrix. The shaft room main publishes it after the
-    /// drawing pass, and sprite producers use it only while calculating their temporary
-    /// rendered origins. The translated consumer never moves physical coordinates.
-    /// </summary>
-    public SamusMode7Transform? ActiveSamusMode7Transform { get; set; }
-
-    /// <summary>
-    /// Ceres Mode 7 matrix made PPU-visible by the most recent accepted NMI. This is the
-    /// register-phase companion to <see cref="DisplayedOam"/>: software rendering must use
-    /// both displayed values together rather than mixing current main-loop shadow words
-    /// with the preceding NMI's sprites.
-    /// </summary>
-    public SamusMode7Transform? DisplayedSamusMode7Transform { get; private set; }
-
-    /// <summary>
-    /// Ordinary BG scroll registers and room-shake deltas published by the most recent
-    /// accepted NMI. These belong to the same PPU-visible frame as <see cref="DisplayedOam"/>.
-    /// </summary>
-    public GameplayPpuRenderSnapshot DisplayedGameplayPpu { get; private set; }
-
-    /// <summary>
-    /// BG3 character base selected by gameplay initialization or a room's library-
-    /// background command list. Kraid temporarily selects word $2000; ordinary rooms use
-    /// word $4000.
-    /// </summary>
-    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
-    public ushort GameplayHudCharacterBaseWord { get; private set; } =
-        GameplayVramLayout.HudCharacterWord;
-
-    /// <summary>The BG3 character region at the base BG34NBA currently selects (Kraid's room moves it to word $2000).</summary>
-    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
-    private VramRegion HudCharactersAtCurrentBase()
-    {
-        VramRegion ordinary = new GameplayVram(Vram).HudCharacters;
-        return new VramStore(Vram).All.Slice(GameplayHudCharacterBaseWord, ordinary.WordCount);
-    }
-
-    /// <summary>Selects the ordinary BG3 character base (BG34NBA=$04), as gameplay PPU initialization does.</summary>
-    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
-    private void SelectGameplayHudCharacterBase() => GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
-
-    /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
-    public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx { get; private set; }
-
-    /// <summary>
-    /// Morph-ball eye beam geometry published with <see cref="DisplayedOam"/>. A nullable
-    /// record distinguishes a genuinely inactive beam from a malformed active slot.
-    /// </summary>
-    public MorphBallEyeBeamRenderSnapshot? DisplayedMorphBallEyeBeam { get; private set; }
 
     /// <summary>Door-selected bank-$83/$88 gameplay BG3 effect.</summary>
     public RoomLayer3FxState RoomLayer3Fx { get; } = new();
@@ -467,28 +301,6 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
     public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();
 
-    /// <summary>Most recent <c>$89:ACC3</c> room-main call.</summary>
-    public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; private set; }
-
-    /// <summary>Room-main scratch word <c>$07E1</c>, which room loading never clears.</summary>
-    public RoomMainScratchState RoomMainScratch { get; private set; } = new();
-
-    /// <summary>Most recent call of drained Samus's installed `$90:94CB` falling handler.</summary>
-    public DrainedSamusMovementResult? LastDrainedSamusMovement { get; private set; }
-
-    /// <summary>Most recent normal movement-type-`$1A` dispatcher result.</summary>
-    public DraygonGrabbedMovementResult? LastDraygonGrabbedMovement { get; private set; }
-
-    /// <summary>Most recent `$90:E2A1` alternating-D-pad escape-handler result.</summary>
-    public DraygonEscapeResult? LastDraygonEscape { get; private set; }
-
-    /// <summary>
-    /// Explicit debugger substitute for the untranslated HUD item selector. When enabled,
-    /// a new Shoot edge starts grapple firing from the current pose. Normal scenarios leave
-    /// this false, so X retains its existing bomb/projectile meaning.
-    /// </summary>
-    public bool DebugGrappleItemSelected { get; private set; }
-
     /// <summary>
     /// Five-slot normal-bomb lifecycle spanning the translated bank-$90/$93/$94/$A0 seams.
     /// </summary>
@@ -512,36 +324,6 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public GameplayMessageBoxState MessageBox { get; } = new();
 
-    /// <summary>One-frame bank-$85 request for the save selector's library-one sound $37.</summary>
-    public bool MessageBoxSelectionSoundRequestedThisFrame { get; private set; }
-
-    /// <summary>
-    /// Returns and clears the message selector's momentary sound publication.
-    /// </summary>
-    /// <remarks>
-    /// Message boxes advance through an NMI-only path and therefore do not increment
-    /// <see cref="CompletedGameplayAudioPublication"/>. Giving this publisher explicit
-    /// consume semantics keeps it audible once without reopening stale gameplay lists.
-    /// </remarks>
-    public bool ConsumeMessageBoxSelectionSoundRequest()
-    {
-        bool requested = MessageBoxSelectionSoundRequestedThisFrame;
-        MessageBoxSelectionSoundRequestedThisFrame = false;
-        return requested;
-    }
-
-    /// <summary>
-    /// Returns and clears a confirmed save-station request. SRAM encoding remains owned by
-    /// the frontend because it owns the selected file slot; the runtime supplies only the
-    /// cartridge area/station identity and already-mutated gameplay state.
-    /// </summary>
-    public SaveStationPersistenceRequest? ConsumeSaveStationPersistenceRequest()
-    {
-        SaveStationPersistenceRequest? request = _completedSaveStation;
-        _completedSaveStation = null;
-        return request;
-    }
-
     /// <summary>
     /// Shared post-message Varia/Gravity light-beam transformation from banks $88/$91.
     /// </summary>
@@ -551,482 +333,19 @@ public sealed partial class SuperMetroidRuntime
     public HudState Hud { get; } = new();
 
     /// <summary>
-    /// Active layer-1 scroll-boundary state. It remains null until a room-specific scroll
-    /// table is loaded; this prevents the runtime from silently assuming Landing Site.
-    /// </summary>
-    public ScrollBoundaryCamera? Camera { get; private set; }
-
-    /// <summary>
     /// Bank-$80 parallax/register/block dispatcher fed by the active layer-1 camera.
     /// Its requests become row/column staging DMAs when a room loader supplies level data.
     /// </summary>
     public BackgroundScrollState BackgroundScroll { get; } = new();
 
-    /// <summary>Landing Site's ROM-backed bank-$80 tilemap producer after room initialization.</summary>
-    public BackgroundTilemapStreamer? BackgroundStreamer { get; private set; }
-
-    /// <summary>Row/column updates produced by the most recent camera-to-BG pass.</summary>
-    public int LastBackgroundUpdateCount { get; private set; }
-
-    /// <summary>
-    /// Active room's decompressed BG1/BTS/BG2 allocation. Rendering and collision must
-    /// share this instance; null means no room level stream has been loaded yet.
-    /// </summary>
-    public RoomLevelData? LevelData { get; private set; }
-
-    /// <summary>Landing Site's bank-$88 scrolling-sky updater after room initialization.</summary>
-    public ScrollingSkyState? ScrollingSky { get; private set; }
-
-    /// <summary>Door/header/library-background data selected for the current Landing Site entry.</summary>
-    public LandingSiteEntryState? LandingSiteEntry { get; private set; }
-
-    /// <summary>
-    /// Copies the translated layer-1 camera into <c>$80:A3AB</c> scroll bookkeeping and
-    /// returns the exact BG update calls selected for this frame.
-    /// </summary>
-    public IReadOnlyList<BackgroundUpdateRequest> UpdateBackgroundScrollingFromCamera(bool timeIsFrozen = false)
-    {
-        if (Camera is null)
-            throw new InvalidOperationException("A room camera must be initialized before BG scrolling.");
-
-        BackgroundScroll.Layer1Position = Camera.PixelPosition;
-        IReadOnlyList<BackgroundUpdateRequest> requests = BackgroundScroll.StepScrolling(timeIsFrozen);
-
-        // Both native block producers begin with the same `$0783` test at
-        // `$80:A9DE/$80:AB78`. Ceres's elevator door sets that Mode-7 IRQ word, so crossing
-        // a 16-pixel camera boundary still updates all layer/register bookkeeping above but
-        // performs no ordinary Mode-1 row or column expansion. Apart from corrupting Mode-7
-        // VRAM, retaining these requests made the bottom-right 17th row sample walk beyond
-        // Ceres's logical BG2 allocation and turned harmless native overfetch into a host
-        // exception.
-        if (ActiveDoor?.UsesCeresElevatorMode7 == true)
-        {
-            LastBackgroundUpdateCount = 0;
-            return Array.Empty<BackgroundUpdateRequest>();
-        }
-
-        LastBackgroundUpdateCount = requests.Count;
-        return requests;
-    }
-
-    /// <summary>
-    /// Expands and commits one ordered set of bank-$80 scrolling requests to the live
-    /// tilemap ring buffer. Gameplay camera tracking and the door IRQ are separate native
-    /// callers of the same row/column producers; keeping their consumer shared prevents a
-    /// transition from updating only the scroll registers while silently dropping its DMA.
-    /// </summary>
-    internal void ExecuteBackgroundStreamRequests(
-        IReadOnlyList<BackgroundUpdateRequest> requests,
-        string owner)
-    {
-        Ensure.NotNull(requests);
-        ArgumentException.ThrowIfNullOrWhiteSpace(owner);
-        if (BackgroundStreamer is null)
-            throw new InvalidOperationException($"{owner} has no active background streamer.");
-
-        // Ceres's elevator door keeps the ordinary block-coordinate mirrors moving while
-        // its IRQ owns Mode 7. Native `$0783` suppresses the corresponding BG1/BG2 DMA;
-        // preserve that gate for both gameplay and door-transition callers.
-        if (ActiveDoor?.UsesCeresElevatorMode7 == true)
-        {
-            LastBackgroundUpdateCount = 0;
-            return;
-        }
-
-        LastBackgroundUpdateCount = requests.Count;
-        foreach (BackgroundUpdateRequest request in requests)
-        {
-            TilemapStreamUpdate update = BackgroundStreamer.Build(request)
-                ?? throw new InvalidOperationException(
-                    $"{owner} unexpectedly requested ordinary streaming while Mode 7 is active.");
-            update.ExecuteTo(Vram);
-        }
-    }
-
-    /// <summary>
-    /// Queues <c>Update_Beam_Tiles_and_Palette</c> at <c>$90:AC8D</c> for the live beam
-    /// word supplied by pause teardown. State `$11` performs this restore under forced
-    /// blank so the first resumed gameplay frame uses the newly equipped combination.
-    /// </summary>
-    internal void QueueGameplayBeamTilesAndLoadPalette(ushort equippedBeams) =>
-        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
-            _addressSpace,
-            VramWrites,
-            Cgram,
-            equippedBeams, BeamArtwork);
-
-    /// <summary>
-    /// Loads standard 2-bpp BG3 graphics and initializes the HUD tilemap using the exact
-    /// ROM/WRAM/VRAM destinations from <c>$82:82E2</c> and <c>$80:9A79</c>.
-    /// </summary>
-    public void InitializeHud(HudSnapshot snapshot)
-    {
-        Hud.BindPresentation(MapPresentation?.GameplayHud, Samus);
-        // Load_StandardBG3Tiles_SpriteTiles_ClearTilemaps at `$82:82E2` directly DMAs a
-        // prefilled WRAM page to VRAM $5800. Rows zero through three are replaced by the
-        // live HUD below; rows four through 31 must remain character $6F padding. A fresh
-        // host VRAM previously left those words at zero, selecting the visible orange `1`
-        // glyph whenever liquid HDMA exposed the above-surface portion of the BG3 page.
-        var roomFxPadding = new ushort[RoomFxRomData.Layer3.PaddingWordCount];
-        Array.Fill(roomFxPadding, RoomFxRomData.Layer3.PaddingTilemapWord);
-        new RoomFxVram(Vram).Layer3Area.Write(roomFxPadding);
-
-        // The original copies $2000 bytes even though the named standard BG3 graphics are
-        // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
-        // VRAM $4000-$4FFF with zeroes.
-        if (MapPresentation is null)
-            VramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, Assets.AssetVram.HudCharacterUploadDma);
-        else
-            VramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, Assets.AssetVram.HudCharacterUploadDma);
-
-        // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
-        // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
-        // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
-        VramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
-            sourceAddress: StandardObjectArtworkAddresses.Source,
-            destination: GameplayVram.ObjectCharactersDma());
-        TrailArtwork?.Tiles?.QueueTo(VramWrites);
-
-        // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
-        // room enemy loader has already populated the modeled VRAM for immediate watches;
-        // queueing the source records here makes enemy art win again at the accepted NMI.
-        if (Enemies.IsLoaded)
-            Enemies.QueueGraphicsUploads(VramWrites);
-
-        // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
-        VramWrites.Enqueue(sizeInBytes: GameplayHudDefinitions.TopRowByteCount,
-            sourceAddress: GameplayHudDefinitions.TopRowAddress,
-            destination: GameplayVram.HudTilemapDma());
-
-        Hud.Initialize(_addressSpace, snapshot);
-        Hud.QueueUpload(_addressSpace, VramWrites);
-    }
-
-    /// <summary>
-    /// <c>GrappleBeamHandler</c> ($9B:C490), reached from the HUD-selection dispatch of
-    /// <c>HandleHUDSpecificBehaviorAndProjectiles</c> ($90:DCDD) in Samus's alpha pass.
-    /// It therefore runs before Samus's projectiles and before <c>Main_Enemy_Routine</c>,
-    /// so enemies see the beam endpoint and Samus position it leaves this frame. Only
-    /// connected and release functions own Samus's movement; an extending or cancelling
-    /// beam coexists with the current pose's ordinary movement.
-    /// </summary>
-    private bool RunGrappleBeamHandler(bool deathOwnsSamus, bool suitOwnsSamus)
-    {
-        if (Samus is null || LevelData is null)
-            throw new InvalidOperationException("The grapple handler requires Samus and room collision data.");
-        LastGrappleMovement = null;
-        bool grappleOwnsMovement = false;
-        if (deathOwnsSamus || suitOwnsSamus)
-        {
-            // Game states `$15-$18` do not call the ordinary Samus alpha/beta
-            // handlers. The death state advances later at the animation seam.
-        }
-        else if (Samus.Grapple.Phase == GrapplePhase.Firing)
-        {
-            LastGrappleMovement = SamusGrappleMovement.StepFiring(
-                _addressSpace,
-                LevelData,
-                Samus,
-                Controller1.Current,
-                Plms,
-                Enemies.ResolveGrappleEndpoint,
-                deferConnectionPoseChange: true);
-            grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
-        }
-        else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
-        {
-            LastGrappleMovement =
-                SamusGrappleMovement.CompleteFiringCancellation(_addressSpace, LevelData, Samus);
-            grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
-        }
-        else if (Samus.Grapple.Phase is
-            GrapplePhase.ConnectedSwinging or GrapplePhase.ReleaseFromSwing or
-            GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
-            GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
-            GrapplePhase.Dropped)
-        {
-            LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Bus = _addressSpace, Level = LevelData, Plms = Plms }, Samus, Controller1.Current, Controller1.NewlyPressed, NmiFrameCounter, Enemies.ResolveGrappleEndpoint, deferDropPoseChange: true);
-            grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
-        }
-        else if (!TimeIsFrozen &&
-                 (DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_addressSpace, Samus)) &&
-                 ((Controller1.NewlyPressed | Samus.PreviousDrawNewInput) & (ushort)SnesButton.X) != 0)
-        {
-            // Normal HUD item four now reaches the same bank-$9B actor as the
-            // diagnostic entry point, after bank-$90's movement-type admission.
-            SamusGrappleMovement.BeginFiring(_addressSpace, Samus, Controller1.Current);
-            LastGrappleMovement = new GrappleMovementResult(
-                Samus.Grapple.Phase,
-                Fired: Samus.Grapple.Phase == GrapplePhase.Firing,
-                OwnsMovement: false);
-        }
-
-        if (LastGrappleMovement is { Fired: true })
-            LoadGrapplePalette();
-        else if (LastGrappleMovement is { Phase: GrapplePhase.Inactive })
-        {
-            // Native cancellation, drop, wall-jump and swing-release tails all
-            // reload the equipped beam palette before returning to inactive.
-            (BeamArtwork?.Palettes ?? throw new InvalidOperationException(
-                "Grapple cleanup requires installed beam artwork."))
-                .LoadTo(Cgram, new SamusBeamLoadoutWord(Samus.EquippedBeams).Combination ?? throw new InvalidOperationException(
-                    "Equipped-beam index is outside the beam-combination tables."));
-        }
-
-        // `$9B:C4B1-$C4EA` runs after every grapple function, including inactive.
-        // Swing calculations above therefore consumed last frame's bit; this write
-        // publishes the current bottom-boundary result for the next frame exactly
-        // where the native bank-$9B handler does.
-        SamusGrappleMovement.RefreshLiquidPhysicsFlag(Samus);
-        return grappleOwnsMovement;
-    }
-
-    private void LoadGrapplePalette()
-    {
-        // Both ordinary HUD firing and debug entry select the installed native palette.
-        (BeamArtwork?.Palettes ?? throw new InvalidOperationException(
-            "Grapple palette requires installed beam artwork."))
-            .LoadTo(Cgram, SamusGrappleRomData.Palettes.FiringSelection);
-        new SamusPalettes(Cgram).GrappleFlare.Write(0, SamusGrappleRomData.Palettes.FlareColor);
-    }
-
-    /// <summary>
-    /// Runs the complete Samus-side X-ray admission path after the HUD has selected the
-    /// equipped scope and observed held Dash, matching `$90:DDD3 -> $91:CAD6 -> $91:E16D`.
-    /// </summary>
-    /// <remarks>
-    /// HUD cursor movement is not yet a general runtime subsystem, so this narrow entry
-    /// point represents only the already-selected item. It still requires equipped bit
-    /// `$8000` and passes the live bomb cooldown/count, power-bomb phase, current/previous
-    /// movement types, vertical velocity, landing-pose gate, and speed divisor to native
-    /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
-    /// </remarks>
-    public bool TryBeginXrayFromSelectedHudItem(ushort gameState = 8, bool deferActivation = false)
-    {
-        if (Samus is null || !GroundedSamusMovementEnabled || LevelData is null)
-        {
-            throw new InvalidOperationException(
-                "X-ray requires initialized gameplay Samus and room level data.");
-        }
-
-        // `$90:C5AE` prevents selecting the HUD item without the scope. The lower-level
-        // `$91:E16D` routine assumes that selector has already succeeded.
-        if (!Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
-            return false;
-
-        return Samus.Xray.TryBegin(_addressSpace, Samus, PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionStatus = PowerBombExplosionStatus, ProjectileCooldownTimer = BombProjectiles.CooldownTimer, BombCounter = BombProjectiles.BombCounter }, deferActivation);
-    }
-
-    /// <summary>
-    /// Enters `$9B:B3A7` after the outer death game state has completed its music wait.
-    /// Fatal-damage detection, blackout, and queued-music polling are deliberately not
-    /// fabricated by this narrow runtime seam.
-    /// </summary>
-    public SamusDeathSequenceStartResult BeginDeathSequenceAfterMusicWait()
-    {
-        if (Samus is null || Camera is null || !GroundedSamusMovementEnabled)
-        {
-            throw new InvalidOperationException(
-                "Death sequence requires initialized gameplay Samus and a layer-1 camera.");
-        }
-
-        SamusDeathSequenceStartResult result = Samus.DeathSequence.Begin(
-            _addressSpace,
-            Samus,
-            Camera.PixelPosition);
-
-        // The next accepted NMI must see pose `$D7/$D8` definitions. Native game state 15
-        // draws once before setup and state 16 draws the new pose on its following call;
-        // priming here preserves that same first-visible-frame contract in this thin host.
-        Samus.PrimeGraphics(_addressSpace);
-        return result;
-    }
-
-    /// <summary>
-    /// Runs one state-$15 fatal-display frame without advancing enemies, PLMs, scrolling,
-    /// room main, or the gameplay clock. This is <c>Samus_DrawWhenNotAnimatingOrDying</c>,
-    /// not a shortened state-eight call.
-    /// </summary>
-    public void DrawFatalSamusFrame(ushort controllerInput)
-    {
-        if (Samus is null || Camera is null)
-            throw new InvalidOperationException("Fatal Samus drawing requires an active room.");
-
-        RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        Oam.BeginFrame();
-        LastSamusBodyDrawn = Samus.Draw(
-            _addressSpace,
-            Oam,
-            Camera.PixelPosition,
-            mode7Transform: ActiveSamusMode7Transform);
-        Oam.FinalizeFrame();
-    }
-
-    /// <summary>
-    /// Runs one isolated bank-$9B death-animation frame for game states <c>$16-$18</c>.
-    /// The resulting OAM and queued graphics become visible through the ordinary accepted-
-    /// NMI pipeline, while every state-eight actor remains stopped as on the cartridge.
-    /// </summary>
-    public SamusDeathSequenceStepResult StepDeathSequenceFrame(ushort controllerInput)
-    {
-        if (Samus is null || Camera is null || !Samus.DeathSequence.IsActive)
-            throw new InvalidOperationException("The bank-$9B death sequence is not active.");
-
-        RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        Oam.BeginFrame();
-        LastSamusBodyDrawn = false;
-        LastDeathSequenceStep = Samus.DeathSequence.Step(
-            _addressSpace,
-            Samus,
-            Cgram,
-            VramWrites,
-            SamusBodyArt?.DeathPalettes);
-        if (LastDeathSequenceStep.Value.DrawPose)
-        {
-            LastSamusBodyDrawn = Samus.Draw(
-                _addressSpace,
-                Oam,
-                Camera.PixelPosition,
-                mode7Transform: ActiveSamusMode7Transform);
-        }
-        else if (LastDeathSequenceStep.Value.DrawExplosion)
-        {
-            Samus.DeathSequence.DrawExplosion(_addressSpace, Oam, SamusBodyArt?.Spritemaps);
-        }
-        Oam.FinalizeFrame();
-        return LastDeathSequenceStep.Value;
-    }
-
-    /// <summary>
-    /// Accepts one NMI and publishes an empty OAM build for outer states that run no draw
-    /// handlers. The just-accepted NMI still displays the preceding build for this frame,
-    /// matching the cartridge's main-thread/NMI double-buffer boundary.
-    /// </summary>
-    /// <summary>
-    /// <c>AnimatedTilesObject_Handler</c> ($87:8064): gameplay ($82:8B75) and the door
-    /// transition's $82:E659 and every $82:E737 fade step call it. XraySetup's
-    /// Disable_AnimatedTilesObjects ($91:E239) freezes every object until the scope ends.
-    /// </summary>
-    internal void RunAnimatedTilesObjectHandler()
-    {
-        if (Samus?.Xray.AreAnimatedTilesSuspended == true)
-            return;
-        SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
-        RoomSpikes.Step(_addressSpace, Vram, VramWrites);
-        if (ActiveRoom is not null)
-            RoomTreadmills.Step(_addressSpace,
-                System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss), VramWrites);
-        TourianStatues.StepTiles(this);
-
-        // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
-        // handler publishes one 32-byte source per frame only after Phantoon's area-boss
-        // bit is set; NMI consumes the queued transfer on the following accepted frame.
-        if (WreckedShipTreadmill.IsActive)
-        {
-            AreaId areaIndex = ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
-                "A live Wrecked Ship treadmill animation has no active cartridge room.");
-            WreckedShipTreadmill.Step(
-                _addressSpace,
-                System.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
-                VramWrites);
-        }
-    }
-
-    /// <summary>
-    /// The bank-$88 HDMA objects' pre-instructions ($88:84B9), which run before
-    /// <c>GenerateRandomNumber</c>: the room liquid's shared state and the Tourian
-    /// statues' BG2 delay and descent ($88:DBD7-$DCBA), whose rumble reads that RNG.
-    /// </summary>
-    internal void AdvanceHdmaObjectPreInstructions()
-    {
-        RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
-        TourianStatues.StepDescent(this);
-    }
-
-    /// <summary>
-    /// Runs <c>$90:A337</c>'s movement-type table for a pose stored without
-    /// <c>InitializeSamusPose_1</c>: the cached <c>$0A1F</c> type, not the pose, selects the mover.
-    /// </summary>
-    private void StepUninitializedPoseMovement()
-    {
-        RoomLevelData level = LevelData ?? throw new InvalidOperationException(
-            "Uninitialized-pose movement requires active room level data.");
-        switch (Samus!.ReadMovementType(_addressSpace))
-        {
-            case SamusMovementType.Special:
-                // `$90:A7DA` only clears the momentum-transition selector.
-                break;
-            case SamusMovementType.SpinJumping:
-                LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
-                    _addressSpace, level, Samus, Controller1.Current, NmiFrameCounter,
-                    Controller1.NewlyPressed, Plms);
-                break;
-            case SamusMovementType.NormalJumping:
-                LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
-                    _addressSpace, level, Samus, Controller1.Current, NmiFrameCounter, Plms);
-                break;
-            default:
-                throw new NotSupportedException(
-                    $"Cached movement type ${(byte)Samus.ReadMovementType(_addressSpace):X2} under " +
-                    $"uninitialized pose ${(int)Samus.Pose:X2} has no translated $90:A337 mover.");
-        }
-    }
-
     /// <summary>Runs one accepted NMI and publishes an empty finalized OAM frame without advancing gameplay owners.</summary>
     public void RunBlankGameplayFrame(ushort controllerInput)
     {
-        RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         Oam.BeginFrame();
         Oam.FinalizeFrame();
-        PublishDoorScrollingIrqNmiRequest();
+        RoomLoader.PublishDoorScrollingIrqNmiRequest();
     }
-
-    /// <summary>
-    /// The layer-one position an earlier gameplay owner left in WRAM. Only its fraction words
-    /// <c>$090F</c>/<c>$0913</c> matter: no load path writes them, so this runtime's first
-    /// camera starts from them.
-    /// </summary>
-    internal FixedPosition<RoomPixels> InheritedLayer1Position { get; private set; }
-
-    /// <summary>Adopts the layer-one position whose fraction words survived the previous runtime.</summary>
-    internal void AdoptLayer1Position(FixedPosition<RoomPixels> retained) => InheritedLayer1Position = retained;
-
-    /// <summary>Low-byte NMI frame counter at WRAM <c>$05B5</c>.</summary>
-    public byte NmiFrameCounter8 { get; private set; }
-
-    /// <summary>16-bit accepted-NMI frame counter at WRAM <c>$05B6</c>.</summary>
-    public ushort NmiFrameCounter { get; private set; }
-
-    /// <summary>
-    /// Adopts <c>$05B5</c>/<c>$05B6</c> from the frontend that counted accepted NMIs before
-    /// this runtime existed. The cartridge has one pair of words; allocation never resets it.
-    /// </summary>
-    internal void AdoptNmiFrameCounters(byte counter8, ushort counter)
-    {
-        NmiFrameCounter8 = counter8;
-        NmiFrameCounter = counter;
-    }
-
-    /// <summary>
-    /// Monotonic host sequence advanced only after a complete state-eight gameplay owner
-    /// pass has published its per-frame audio requests.
-    /// </summary>
-    /// <remarks>
-    /// Door transitions and other frontend coroutines can run accepted NMIs without
-    /// running enemy, projectile, or PLM owners. Consumers must distinguish those waits
-    /// from a fresh gameplay publication; otherwise the last request is re-enqueued on
-    /// every transition NMI and the native sound-queue drain can never finish.
-    /// </remarks>
-    public ulong CompletedGameplayAudioPublication { get; private set; }
-
-    /// <summary>Consecutive NMIs for which the main loop had no pending request.</summary>
-    public ushort NmiLagCounter { get; private set; }
-
-    /// <summary>Largest observed consecutive lag count.</summary>
-    public ushort MaximumNmiLag { get; private set; }
-
-    /// <summary>Counter incremented by every NMI, accepted or lagged.</summary>
-    public ushort NmiCounterIncludingLag { get; private set; }
 
     /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic, as <paramref name="request"/> asks.</summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
@@ -1034,9 +353,9 @@ public sealed partial class SuperMetroidRuntime
     public RuntimeFrameResult StepFrame(ushort controller1Input, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
-        ApplyTesterInventory();
+        Tester.ApplyTesterInventory();
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
-            HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
+            HostInfiniteAmmoFrameGuard.Begin(Options.InfiniteAmmoEnabled, Player.Samus);
         try
         {
             return StepFrameGuarded(controller1Input, request, infiniteAmmoGuard);
@@ -1046,9 +365,9 @@ public sealed partial class SuperMetroidRuntime
             // The desktop error reporter deliberately catches translated exceptions and
             // attempts another frame. A finally seam is therefore mandatory: otherwise a
             // frame that throws after borrowing the last round leaves live ammo at two.
-            infiniteAmmoGuard.Complete(Samus);
+            infiniteAmmoGuard.Complete(Player.Samus);
             // A failed demo frame must not leak scripted input into the player latch.
-            RestoreAttractPlayerInput();
+            AttractDemo.RestoreAttractPlayerInput();
         }
     }
 
@@ -1060,31 +379,31 @@ public sealed partial class SuperMetroidRuntime
 
         // Routing references are deliberately not serialized as duplicate native state.
         // Reattach before any producer executes, including after loading an older snapshot.
-        BindGrapplePresentation();
-        BindGameplayWindowRegisters();
-        Projectiles.BindRoomEarthquakeOwner(Enemies);
-        Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
-        Samus?.Shinespark.BindProjectileOwners(Projectiles, BombProjectiles.PowerBombExplosion);
-        ApplyPendingChozoStatuePlms();
+        Artwork.BindGrapplePresentation();
+        GameplayWindows.BindGameplayWindowRegisters();
+        Projectiles.Earthquakes.BindRoomEarthquakeOwner(Enemies);
+        Plms.Sounds.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
+        Player.Samus?.Shinespark.BindProjectileOwners(Projectiles, BombProjectiles.PowerBombExplosion);
+        EnemyRoomEffects.ApplyPendingChozoStatuePlms();
         // Bank $85's message routine runs on lag frames inside the suspended dispatch: the
         // NMI accepts no input and the main loop neither calls the RNG nor any owner.
         if (MessageBox.IsActive)
             return StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
-        Projectiles.BeginImpactAudioFrame(cinematicActive: false);
-        RunNmi(controller1Input, mainLoopRequestedNmi: true);
+        Projectiles.ImpactAudio.BeginImpactAudioFrame(cinematicActive: false);
+        NmiHandler.RunNmi(controller1Input, mainLoopRequestedNmi: true);
         frameRequest.AfterAcceptedNmi();
-        PrepareGameplayWindowRegisters();
+        GameplayWindows.PrepareGameplayWindowRegisters();
 
         // HDMA owns shared RNG mutations before the main loop advances it. A
         // message-box NMI wait does not execute that outer-loop HDMA pass.
-        if (Camera is not null && !MessageBox.IsActive)
-            AdvanceHdmaObjectPreInstructions();
+        if (Room.Camera is not null && !MessageBox.IsActive)
+            HdmaPhase.AdvanceHdmaObjectPreInstructions();
 
         // Blast HDMA belongs to the outer frame, not Samus alpha. A statue carry
         // replaces her handlers while the already-spawned blast continues normally.
         // Its cleanup runs Samus command $1E, which can queue sounds before the Samus
         // handler; the frame's Samus sound window therefore opens here.
-        if (Samus is { } hdmaSamus && !MessageBox.IsActive)
+        if (Player.Samus is { } hdmaSamus && !MessageBox.IsActive)
         {
             hdmaSamus.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
             BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current, DispatchGameState);
@@ -1102,7 +421,7 @@ public sealed partial class SuperMetroidRuntime
 
         CeresHaze.Step();
 
-        MessageBoxSelectionSoundRequestedThisFrame = false;
+        MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
 
         // HDMA object pre-instructions run once near the start of each ordinary gameplay
         // pass. A transformation spawned when the preceding message returned therefore
@@ -1110,9 +429,9 @@ public sealed partial class SuperMetroidRuntime
         // normal owner below continues to run around the input-locked, centered Samus.
         if (SuitPickup.IsActive)
         {
-            if (Samus is null)
+            if (Player.Samus is null)
                 throw new InvalidOperationException("A suit transformation has no Samus owner.");
-            SuitPickup.Step(_addressSpace, Samus, Cgram);
+            SuitPickup.Step(_addressSpace, Player.Samus, Cgram);
         }
 
         // DisplayMessageBox waits on NMI while retaining the already-published room OAM,
@@ -1123,40 +442,40 @@ public sealed partial class SuperMetroidRuntime
         // must not scroll or animate during DisplayMessageBox's NMI-only wait loop above.
         // Keeping this after that early-return seam reproduces that native suspension and
         // prevents rain/fog from advancing behind a station or item message.
-        if (Enemies.Phantoon is { } waveBoss)
+        if (Enemies.PhantoonBehavior.Phantoon is { } waveBoss)
         {
             waveBoss.Wave.Step(waveBoss);
-            waveBoss.Blending.Step(waveBoss, LayerBlendingDefaultConfig);
+            waveBoss.Blending.Step(waveBoss, Display.LayerBlendingDefaultConfig);
         }
-        if (Camera is not null)
+        if (Room.Camera is not null)
         {
-            RoomLayer3Fx.Step(_addressSpace, Vram, new RoomLayer3FxFrame { Camera = Camera.PixelPosition, TimeIsFrozen = TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Enemies.FirefleaDarknessLevel, PowerBomb = BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = RoomLayer3Fx.MovesLiquidInHdmaPass });
+            RoomLayer3Fx.Step(_addressSpace, Vram, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = RoomLayer3Fx.MovesLiquidInHdmaPass });
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
                 // type $15. Apply that global side effect before the ordinary shake handler
                 // later in this frame so its first displacement is visible immediately.
-                Enemies.EarthquakeType = roomFxEarthquake.Type;
-                Enemies.EarthquakeTimer = unchecked((ushort)(
-                    Enemies.EarthquakeTimer | roomFxEarthquake.TimerBits));
+                Enemies.Earthquake.EarthquakeType = roomFxEarthquake.Type;
+                Enemies.Earthquake.EarthquakeTimer = unchecked((ushort)(
+                    Enemies.Earthquake.EarthquakeTimer | roomFxEarthquake.TimerBits));
             }
-            if (Samus is not null && RoomLayer3Fx.Type is
+            if (Player.Samus is not null && RoomLayer3Fx.Type is
                     RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
-                RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
+                RoomLayer3Fx.ApplyToSamusLiquidPhysics(Player.Samus.LiquidPhysics);
         }
 
         // MainScrollingRoutine saves its previous-position words after scrolling, not at
         // frame start. This fallback is only for a newly loaded/restored camera; otherwise
         // retain the preceding scrolling checkpoint so later room-main movement (such as
         // the elevatube) contributes to the next frame's distance just like enemy movement.
-        FixedPosition<RoomPixels>? samusCameraPointAtFrameStart = Samus is null
+        FixedPosition<RoomPixels>? samusCameraPointAtFrameStart = Player.Samus is null
             ? null
-            : Samus.Position;
+            : Player.Samus.Position;
 
         // `GameState_8_MainGameplay` begins with Determine_Which_Enemies_to_Process
         // ($82:8B47), before palette FX and Samus. The grapple scan uses this list.
-        if (Camera is not null && Enemies.IsLoaded)
-            Enemies.PrepareEnemyProcessingList(Camera.PixelPosition);
+        if (Room.Camera is not null && Enemies.IsLoaded)
+            Enemies.ProcessingWindow.PrepareEnemyProcessingList(Room.Camera.PixelPosition);
 
         // Gameplay state eight calls `$8D:C527` before `$91:8000` dispatches Samus and
         // before `$A0:868F` processes enemies. Controller function three is invoked by the
@@ -1170,100 +489,101 @@ public sealed partial class SuperMetroidRuntime
         // Door destination drawing borrows this frame path, but native state $0B
         // ($82:E737) does not call the palette-FX handler. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
-        if (RoomPaletteFx.HandlerEnabled && !Enemies.ElevatorDoorTransitionActive &&
-            Samus?.Xray.ArePaletteFxSuspended != true)
+        if (RoomPaletteFx.HandlerEnabled && !Enemies.ElevatorBehavior.ElevatorDoorTransitionActive &&
+            Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
-            RoomPaletteFx.Step(_addressSpace, Cgram, MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
-                    "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Samus?.Position.Y.Whole ?? 0, EquippedItems = Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0, AreaMiniBossDefeated = ActiveRoom is { } paletteRoom &&
-                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Samus, NmiFrameCounter = NmiFrameCounter }, BombProjectiles.PowerBombExplosion);
+            RoomPaletteFx.Step(_addressSpace, Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
+                    "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Enemies.SlotTable.Slots.Count == 0 || Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
+                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus, NmiFrameCounter = Nmi.NmiFrameCounter }, BombProjectiles.PowerBombExplosion);
         }
         // Hyper Beam's palette object lives in the same native pool and handler.
-        LastHyperBeamPaletteFxStep = RoomPaletteFx.HandlerEnabled
-            ? Samus?.Drained.HyperBeamPaletteFx.Step(
+        Player.LastHyperBeamPaletteFxStep = RoomPaletteFx.HandlerEnabled
+            ? Player.Samus?.Drained.HyperBeamPaletteFx.Step(
                 _addressSpace,
                 Cgram,
-                BeamArtwork?.HyperBeamFxColors)
+                Artwork.BeamArtwork?.HyperBeamFxColors)
             : null;
 
         // The bank-$82 main loop clears high OAM and resets its stack before dispatching
         // game state, then finalizes unused entries afterward. Samus is emitted before the
         // escape timer so lower OAM indices retain their normal overlap precedence.
         Oam.BeginFrame();
-        LastSamusBodyDrawn = false;
-        LastShinesparkCrashDrawingHandlerActive = false;
-        LastGrappleDrawingHandlerActive = false;
-        LastGrappleBeamSpecificDrawingPath = false;
-        LastGrappleFlareDrawn = false;
+        ActorDrawing.LastSamusBodyDrawn = false;
+        ActorDrawing.LastShinesparkCrashDrawingHandlerActive = false;
+        ActorDrawing.LastGrappleDrawingHandlerActive = false;
+        ActorDrawing.LastGrappleBeamSpecificDrawingPath = false;
+        ActorDrawing.LastGrappleFlareDrawn = false;
 
-        PrepareEnemyFrame();
+        EnemyPhase.PrepareEnemyFrame();
         // Host-disabled Samus movement has no alpha phase to wait for. Otherwise
         // defer actors until projectile production/update, immediately before beta.
-        bool enemyMainAlreadyRan = Samus is null || Camera is null || !GroundedSamusMovementEnabled;
+        bool enemyMainAlreadyRan = Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled;
         // Native EnemyMain follows SamusCurrentStateHandler. An actor that restores the
         // normal handler pair there (gunship $A2:A987) affects this frame's beta only:
         // the locked alpha has already run, so it still sees the lock below.
         bool enemyMainReleasedAlphaLock = false;
         if (enemyMainAlreadyRan)
         {
-            bool lockedBeforeEnemyMain = Samus?.InputLocked == true;
-            RunEnemyMainPhase(processingListPrepared: true,
-                Camera?.PreviousSamusPoint ?? samusCameraPointAtFrameStart);
-            enemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Samus?.InputLocked == false;
+            bool lockedBeforeEnemyMain = Player.Samus?.InputLocked == true;
+            EnemyPhase.RunEnemyMainPhase(processingListPrepared: true,
+                Room.Camera?.PreviousSamusPoint ?? samusCameraPointAtFrameStart);
+            enemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Player.Samus?.InputLocked == false;
         }
         SuspendedGameplayFrameTail? frameTail = null;
-        if (Samus is not null && Camera is not null)
+        if (Player.Samus is not null && Room.Camera is not null)
         {
             // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
             // setup/beam/deactivation state before alpha so state five can restore the
             // ordinary pose and handler pair before this frame samples pose input. The
             // revealed-block BG2 copies/window table remain a separate renderer boundary.
-            LastXrayBeamStep = null;
-            LastXrayPoseInput = null;
-            LastDeathSequenceStep = null;
-            if (Samus.Xray.IsActive && !Samus.DeathSequence.IsActive)
+            Player.LastXrayBeamStep = null;
+            Player.LastXrayPoseInput = null;
+            Player.LastDeathSequenceStep = null;
+            if (Player.Samus.Xray.IsActive && !Player.Samus.DeathSequence.IsActive)
             {
-                if (Samus.Xray.SetupStage == XraySetupStage.BuildRevealReadBg2FirstScreen)
-                    BuildXrayRevealTilemap();
-                LastXrayBeamStep = Samus.Xray.StepBeam(
+                if (Player.Samus.Xray.SetupStage == XraySetupStage.BuildRevealReadBg2FirstScreen)
+                    Xray.BuildXrayRevealTilemap();
+                Player.LastXrayBeamStep = Player.Samus.Xray.StepBeam(
                     _addressSpace,
-                    Samus,
+                    Player.Samus,
                     Controller1.Current);
             }
 
             // Preserve movement on either side of the frame boundary. A new camera uses
             // the fallback sampled before enemy-owned motion and the bank-$90 handler.
-            FixedPosition<RoomPixels> previousCameraPoint = Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart!.Value;
+            var frame = new SamusHandlerFrame();
+            frame.PreviousCameraPoint = Room.Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart!.Value;
 
             // Whether this frame's alpha handler is the locked one installed at its start.
-            bool AlphaInputLocked() => Samus.InputLocked || enemyMainReleasedAlphaLock;
+            bool AlphaInputLocked() => Player.Samus.InputLocked || enemyMainReleasedAlphaLock;
 
             // Retain the dispatch pose because command $F8 can replace Samus.Pose during
             // animation later in this same frame. Native alpha/beta/transition phases all
             // agree on that order; using the mutable value afterward would apply an input
             // match selected for the old pose to the newly installed one.
-            BeginAttractSamusInput();
-            SamusPoseId poseAtFrameStart = Samus.Pose;
+            AttractDemo.BeginAttractSamusInput();
+            frame.PoseAtFrameStart = Player.Samus.Pose;
             // Beta dispatches on the pose installed when it runs, which EnemyMain can have
             // replaced since alpha: Draygon's death releases a sparking Samus to pose $01,
             // and standing movement runs. `$91:E8B6` then reads that pose's type.
-            SamusPoseId poseAtBetaMovement = poseAtFrameStart;
+            frame.PoseAtBetaMovement = frame.PoseAtFrameStart;
             // Ordinary alpha publishes the current pose's live radius before input
             // and collision. Prospective transitions later in beta can retain the
             // previous radius until this point in the following frame. The locked
             // alpha ($90:E713) has no SetSamusRadius, so e.g. an elevator ride keeps
             // the boarding pose's radius.
-            if (GroundedSamusMovementEnabled && !TimeIsFrozen && !AlphaInputLocked() &&
-                !Samus.DeathSequence.IsActive && !Enemies.ElevatorDoorTransitionActive)
-                Samus.RefreshCollisionRadii(_addressSpace);
+            if (Player.GroundedSamusMovementEnabled && !Freeze.TimeIsFrozen && !AlphaInputLocked() &&
+                !Player.Samus.DeathSequence.IsActive && !Enemies.ElevatorBehavior.ElevatorDoorTransitionActive)
+                Player.Samus.PoseMetadata.RefreshCollisionRadii(_addressSpace);
             // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
             // affects the next beta, not the animation already owned this frame.
-            bool stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
-            bool refillStationLocked = Samus.RefillStationLocked;
+            frame.StationaryScriptControlLocked = Player.Samus.ScriptLocks.StationaryScriptControlLocked;
+            bool refillStationLocked = Player.Samus.ScriptLocks.RefillStationLocked;
             // Suit command $15 installs an empty beta, not just locked pose input.
             // Preserve the suspended movement pointer and all of its timers so command
             // $0B can resume it after the HDMA transformation (including Blue Suit).
-            bool suitOwnsSamus = SuitPickup.IsActive;
-            SamusMovementType movementTypeAtFrameStart = Samus.ReadMovementType(_addressSpace);
+            frame.SuitOwnsSamus = SuitPickup.IsActive;
+            frame.MovementTypeAtFrameStart = Player.Samus.PoseMetadata.ReadMovementType(_addressSpace);
 
             // Direction bits already use the transition table's canonical layout. Input
             // matching belongs to frame-handler alpha, before beta moves the CURRENT pose;
@@ -1273,913 +593,72 @@ public sealed partial class SuperMetroidRuntime
             // pointer is even read. Pose zero's pointer bytes otherwise overlap legitimate
             // data and can appear to select nonsense transitions after several frames, so
             // suppressing only their application would be too late and observably wrong.
-            bool deathOwnsSamus = Samus.DeathSequence.IsActive;
+            frame.DeathOwnsSamus = Player.Samus.DeathSequence.IsActive;
             // Sound queues are global persistent engines on hardware, but this typed host
             // publication is scoped to one frame's Samus handler. It opened before the HDMA
             // pass, ahead of `$91:F046`'s landing sounds during collision.
-            bool xrayOwnsPoseInput = Samus.Xray.OwnsSamusControl && !deathOwnsSamus;
-            bool xrayActivatedThisFrame = false;
-            SamusMovementType movementBeforeXrayAdmission = Samus.ReadMovementType(_addressSpace);
+            bool xrayOwnsPoseInput = Player.Samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus;
+            frame.XrayActivatedThisFrame = false;
+            frame.MovementBeforeXrayAdmission = Player.Samus.PoseMetadata.ReadMovementType(_addressSpace);
             if (xrayOwnsPoseInput)
             {
-                LastXrayPoseInput = Samus.Xray.HandlePoseInput(
+                Player.LastXrayPoseInput = Player.Samus.Xray.HandlePoseInput(
                     _addressSpace,
-                    Samus,
+                    Player.Samus,
                     Controller1.Current);
             }
 
-            bool bombJumpLocksPoseInput = Samus.BombJumpPoseInputLocked;
-            bool actorLocksPoseInput = AlphaInputLocked() || bombJumpLocksPoseInput ||
-                ((Samus.ShinesparkPoseInputLocked || Samus.CrystalFlashPoseInputLocked) && !Samus.AutoJumpInputPending) ||
-                (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
+            frame.BombJumpLocksPoseInput = Player.Samus.BombJumpPoseInputLocked;
+            bool actorLocksPoseInput = AlphaInputLocked() || frame.BombJumpLocksPoseInput ||
+                ((Player.Samus.InputSnapshot.ShinesparkPoseInputLocked || Player.Samus.InputSnapshot.CrystalFlashPoseInputLocked) && !Player.Samus.InputSnapshot.AutoJumpInputPending) ||
+                (SamusPoseMetadata.IsForwardFacingPose(Player.Samus.Pose) && ElevatorStatus != 0);
             // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
             // poses can still have table entries, but reading them here prematurely
             // interrupts crouch/morph animations before their animation command wins.
-            bool postureTransitionSkipsPoseInput = movementTypeAtFrameStart == SamusMovementType.PostureTransition;
+            bool postureTransitionSkipsPoseInput = frame.MovementTypeAtFrameStart == SamusMovementType.PostureTransition;
             SamusPoseTransitionLookup poseLookup =
-                deathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput || postureTransitionSkipsPoseInput
+                frame.DeathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput || postureTransitionSkipsPoseInput
                 ? default
                 : SamusPoseTransitionTable.Lookup(
                     _addressSpace,
-                    Samus.Pose,
+                    Player.Samus.Pose,
                     Controller1.Current,
-                    IsAttractDemo ? Controller1.NewlyPressed : Samus.ConsumeAutoJumpInput(Controller1.NewlyPressed));
-            ProspectiveSamusPose = poseLookup.Transition;
+                    AttractDemo.IsAttractDemo ? Controller1.NewlyPressed : Player.Samus.InputSnapshot.ConsumeAutoJumpInput(Controller1.NewlyPressed));
+            Player.ProspectiveSamusPose = poseLookup.Transition;
             // The retail table matcher clears a pending/active bomb direction as
             // soon as it selects a DIFFERENT pose, before collision and movement.
-            if (ProspectiveSamusPose is { } matchedBombCancel &&
-                matchedBombCancel.ProspectivePose != Samus.Pose)
-                Samus.BombJumpDirection = 0;
-            bool usePoseDefinitionFallback = poseLookup.UsesPoseDefinitionFallback;
-            bool deceleratingFallbackHasMomentum = Samus.HorizontalSpeed.BaseFixed != 0;
-            ProspectiveSamusFallbackPose = null;
-            ProspectiveSamusWallCollisionPose = null;
-            LastRanIntoWallProbe = null;
+            if (Player.ProspectiveSamusPose is { } matchedBombCancel &&
+                matchedBombCancel.ProspectivePose != Player.Samus.Pose)
+                Player.Samus.BombJumpDirection = 0;
+            frame.UsePoseDefinitionFallback = poseLookup.UsesPoseDefinitionFallback;
+            frame.DeceleratingFallbackHasMomentum = Player.Samus.HorizontalSpeed.BaseFixed != 0;
+            Player.ProspectiveSamusFallbackPose = null;
+            Player.ProspectiveSamusWallCollisionPose = null;
+            Player.LastRanIntoWallProbe = null;
 
             // Zero input and an unmatched nonzero table chord both reach `$91:82D9`; a matched
             // same-pose record does not. Native writes the prospective pose slot in alpha and
             // commits it after beta movement and animation, so the selection is captured here.
             // A retained pose still selects a transition slot whose command runs later.
-            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback)
+            if (Player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
             {
-                ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
-                    Samus.ReadMovementType(_addressSpace),
-                    Samus.Pose,
-                    Samus.ReadNoInputFallbackPose(_addressSpace),
-                    deceleratingFallbackHasMomentum).ProspectivePose;
+                Player.ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
+                    Player.Samus.PoseMetadata.ReadMovementType(_addressSpace),
+                    Player.Samus.Pose,
+                    Player.Samus.PoseMetadata.ReadNoInputFallbackPose(_addressSpace),
+                    frame.DeceleratingFallbackHasMomentum).ProspectivePose;
             }
 
-            if (GroundedSamusMovementEnabled)
-            {
-                if (LevelData is null)
-                    throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
-
-                // Frame-handler alpha calls `$90:9C5B` after pose input/radius setup and
-                // before beta movement. Refreshing the split gravity words every frame is
-                // essential at a liquid surface: a jump can cross from water to air without
-                // any pose transition that would otherwise reinitialize acceleration.
-                SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
-
-                if (ActiveRoom is null)
-                    throw new InvalidOperationException("Live Samus terrain reactions require an active cartridge room.");
-                // `$94:9B60` samples the body after alpha's SetSamusRadius: a pose whose
-                // radius grew in last frame's beta reaches air spikes with its new body now.
-                // Samus command zero replaces the ordinary alpha handler with `$90:E713`,
-                // which never dispatches block-inside detection. Automatic Reserve recovery
-                // uses this exact lock; re-sampling spikes while it owns Samus changes the
-                // post-recovery knockback window used by Shinespark Suit.
-                if (!Samus.StationaryScriptControlLocked)
-                {
-                    SamusTerrainHazardCollision.PrepareFrame(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        ActiveRoom.AreaIndex,
-                        System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss));
-                }
-
-                if (!TimeIsFrozen && !AlphaInputLocked() && ActiveRoom is { } insideRoom)
-                    SamusInsideBlockReactions.PrepareFrame(LevelData, Samus, insideRoom.AreaIndex,
-                        System.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), Plms);
-
-                // Alpha order is cooldown -> movement-type HUD projectile producer ->
-                // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
-                // before beta movement. A newly placed bomb therefore counts 60 -> 59 and
-                // selects its first bank-$93 art record in the placement frame itself.
-                // The door fade's EnemyMain/draw pass does not execute normal alpha.
-                // In particular its draw-only zero input must not release a held charge.
-                // X-ray's freeze leaves the normal state handler installed, so `$90:DCDD`
-                // still runs cooldown, HUD switching and the HUD handler; only its
-                // Handle_Projectiles tail stops (`$90:DCFB`), which both projectile owners
-                // apply themselves. A selection cancel during X-ray therefore takes effect.
-                bool alphaRuns = !GameplayTimeFrozen && !deathOwnsSamus && !Enemies.ElevatorDoorTransitionActive;
-                if (alphaRuns)
-                {
-                    // `$90:C4E7` runs before the movement-type HUD projectile producer.
-                    // Consequently a Select edge can choose missiles and an X edge can
-                    // fire one during this same alpha pass. Input-locked message/elevator
-                    // handlers do not execute the normal selection owner.
-                    // The switched-to handler of the item the loop settles on runs on every
-                    // cancel or select edge, even one that leaves the selection unchanged.
-                    // Each clears the charge and restores suit colors, except grapple's
-                    // while a grapple is already active ($90:C59A), which changes nothing.
-                    if (!AlphaInputLocked() && !SamusState.IsForwardFacingPose(Samus.Pose) &&
-                        Samus.HandleHudSelection(Controller1.Current, Controller1.NewlyPressed).ItemHandlerAccepted &&
-                        (Samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
-                         Samus.Grapple.Phase == GrapplePhase.Inactive))
-                    {
-                        Projectiles.CancelChargeForHudSelection();
-                        Samus.ProjectileFlareCounter = 0;
-                        Samus.LoadSuitPalette(_addressSpace, Cgram);
-                    }
-
-                    // The selected scope uses held Run, not Fire. Setup installs its
-                    // own pose handlers, superseding alpha's ordinary pending pose.
-                    if (!AlphaInputLocked() && !SamusState.IsForwardFacingPose(Samus.Pose) &&
-                        Samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
-                        Samus.Grapple.Phase == GrapplePhase.Inactive &&
-                        (Controller1.Current & (ushort)SnesButton.B) != 0 &&
-                        TryBeginXrayFromSelectedHudItem(deferActivation: true))
-                    {
-                        xrayActivatedThisFrame = true;
-                        ProspectiveSamusPose = null;
-                        ProspectiveSamusFallbackPose = null;
-                    }
-
-                    // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
-                    // and palette FX while time is frozen. Normal bombs cannot be placed or
-                    // advanced through this translated producer during the X-ray interval.
-                    BombProjectileFrameResult bombFrame = BombProjectiles.StepFrame(new SamusTerrain { Bus = _addressSpace, Level = LevelData, Plms = Plms }, Samus, Controller1.Current, Controller1.NewlyPressed, deferSamusOverlap: true, advancePowerBombHdma: false);
-
-                    if (bombFrame.BeamChargeConsumed)
-                    {
-                        Projectiles.CancelChargeForBombSpread();
-                        Samus.ProjectileFlareCounter = 0;
-                        Samus.LoadSuitPalette(_addressSpace, Cgram);
-                    }
-
-                }
-
-                bool grappleOwnsMovement = RunGrappleBeamHandler(deathOwnsSamus, suitOwnsSamus);
-
-                if (alphaRuns)
-                {
-                    // The bomb half above has already decremented shared cooldown $0CCC.
-                    // `$90:DD31` then dispatches the humanoid HUD producer before the same
-                    // HandleProjectile pass. Passing the live layer-1 position also gives
-                    // `$90:B16A` its exact off-screen deletion window.
-                    // Bank-$80's typed progression owners and the cartridge's live SRAM
-                    // mirror are normally equivalent. Publish them before bank-$90 alpha
-                    // so malformed callback-table entries can perform their literal WRAM
-                    // writes, then reclaim ownership only when such a write occurred.
-                    System.WritePersistentMirror(MemoryBus);
-                    SamusProjectileFrameResult projectileFrame = Projectiles.StepFrame(new SamusTerrain { Bus = _addressSpace, Level = LevelData, Plms = Plms }, Samus, new ProjectileButtonInput { ControllerInput = Controller1.Current, ControllerNewInput = Controller1.NewlyPressed, ControllerPreviousNewInput = Samus.PreviousDrawNewInput }, Camera.PixelPosition, BombProjectiles, projectileProducerEnabled: !AlphaInputLocked() && !DebugGrappleItemSelected, producerSoundSuppressed: BombProjectiles.SoundSuppressedBeforeProjectileHandling);
-                    if (projectileFrame.PersistentMemoryCorrupted)
-                        System.LoadPersistentMirror(MemoryBus);
-
-                    if (!TimeIsFrozen)
-                        BombProjectiles.ResolveSamusOverlap(Samus, Projectiles.ProjectileInvincibilityTimer);
-
-                    // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
-                    // immediately clears `$0B5E`. Pose initialization occurs later in the
-                    // new-state handler, so a bridge published below survives precisely
-                    // until this point in the following gameplay frame.
-                    Samus.ClearPoseTransitionShotDirection();
-                    SamusProjectileInheritance.ClearMovement(_addressSpace);
-
-                    // `$0CD0` is one shared WRAM word, not independent projectile/movement
-                    // state. Samus's spin/wall-jump contact-damage handlers run in beta and
-                    // must see the counter that `$90:B80D` just updated during alpha.
-                    Samus.ProjectileFlareCounter = Projectiles.FlareCounter;
-                }
-
-                // Samus_Func10 ($90:EB30) snapshots movement at the end of alpha,
-                // before beta applies animation/input transitions. Admission reads the
-                // preceding snapshot; a newly queued X-ray pose is not installed yet.
-                PreviousMovementTypeForXray = xrayActivatedThisFrame
-                    ? movementBeforeXrayAdmission : Samus.ReadMovementType(_addressSpace);
-                if (!enemyMainAlreadyRan)
-                    RunEnemyMainPhase(processingListPrepared: true, previousCameraPoint);
-                // A carry-set Samus command issued by enemy AI cleared alpha's prospective
-                // poses and commands ($90:F093), so nothing pending is committed this frame.
-                if (Samus.ConsumePendingPoseTransitionCancellation())
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                }
-                // Actor commands replace beta before its dispatch in this same update.
-                stationaryScriptControlLocked = Samus.StationaryScriptControlLocked;
-                if (!TimeIsFrozen && !deathOwnsSamus)
-                    ResolveUpdatedBeamHits();
-
-                // EnemyMain consumes the preceding frame's contact-damage index.
-                // Only beta clears it, before movement republishes the current value.
-                if (!suitOwnsSamus)
-                    Samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
-
-                // $90:E725 dispatches movement type before animation. Every admitted pose
-                // below has its own verified direction/mode path; a newly reachable pose
-                // cannot accidentally inherit generic standing or running physics.
-                LastGroundedSamusMovement = null;
-                LastAerialSamusMovement = null;
-                LastMorphBallMovement = null;
-                LastBombJumpMovement = null;
-                LastKnockbackMovement = null;
-                LastCeresRidleyEjection = null;
-                LastShinesparkMovement = null;
-                LastCrystalFlashMovement = null;
-                LastXrayAnimationFrame = null;
-                // X-ray publishes its pose-input and beam results above because both run
-                // outside the normal movement-type dispatcher. Its movement result is the
-                // directly inspectable frame returned by `StepMovement` below.
-                LastDrainedSamusMovement = null;
-                LastDraygonGrabbedMovement = null;
-                LastDraygonEscape = null;
-
-
-                bool grappleReleaseAcceptsPoseInput = false;
-                if (Samus.Grapple.ReleasedMovementActive)
-                {
-                    // The replacement beta mover does not replace normal airborne alpha
-                    // input. Preserve its pending aim/turn transition after release cleanup;
-                    // the connection/release frames that themselves replace the pose still
-                    // invalidate a lookup sampled from their previous grapple body.
-                    grappleReleaseAcceptsPoseInput =
-                        movementTypeAtFrameStart != SamusMovementType.Grappling &&
-                        Samus.Pose == poseAtFrameStart;
-                    // `$9B:C7C1` replaces the normal beta movement-handler pointer on the
-                    // release-input frame. It remains independent of the beam function, so
-                    // it must also run after `$9B:CB8B` has made that function inactive.
-                    SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
-                    LastAerialSamusMovement = SamusAerialMovement.StepReleasedFromGrapple(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        Controller1.Current,
-                        NmiFrameCounter,
-                        Plms);
-                    grappleOwnsMovement = true;
-                }
-
-                if (LastGrappleMovement is { CameraPrevious: { } grapplePrevious })
-                {
-                    // `$9B:BAD5-$BB5F` clamps native previous-position words to twelve
-                    // pixels after a close-collision snap. Feed those corrected whole words
-                    // to bank-$90 tracking while preserving the pre-frame subpositions.
-                    previousCameraPoint = previousCameraPoint.WithWhole(
-                        grapplePrevious);
-                }
-
-                poseAtBetaMovement = Samus.Pose;
-
-                if (deathOwnsSamus || suitOwnsSamus)
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                }
-                // Command zero installs an empty beta handler independently of the
-                // movement pointer that was active beforehand. Automatic Reserve can
-                // therefore freeze an in-progress hurt launch; special owners such as
-                // `$90:DF38` must not outrank this explicitly installed handler.
-                else if (stationaryScriptControlLocked)
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                }
-                else if (grappleOwnsMovement)
-                {
-                    // Movement type $16's beta handler is empty. Discard input transitions
-                    // sampled from the pre-grapple pose once connection installs $B2/$B3.
-                    if (!grappleReleaseAcceptsPoseInput)
-                    {
-                        ProspectiveSamusPose = null;
-                        ProspectiveSamusFallbackPose = null;
-                    }
-                }
-                // The real grabbed route uses the explicit RTS handler installed at
-                // `$90:E262`, not the otherwise reachable type-$1A normal dispatcher. Keep
-                // the latter in the pose switch below for direct/diagnostic dispatcher use.
-                else if (Samus.DraygonGrabbed.OwnsMovement)
-                {
-                    // Deliberately empty: Draygon's bank-$A5 actor owns coordinates.
-                }
-                // Special prospective-pose command five installs `$90:E94F` instead of the
-                // normal movement-type dispatcher. Stable X-ray bodies select one of five
-                // angle frames; type-`$0E` turning deliberately performs no beta movement.
-                else if (Samus.Xray.OwnsSamusControl)
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    LastXrayAnimationFrame = Samus.Xray.StepMovement(_addressSpace, Samus);
-                }
-                // `$90:E119` installs a separate movement/gamma-handler pair for Ceres
-                // Ridley's retreat. It must precede ordinary damage knockback because pose
-                // `$53/$54` is shared while ownership, duration, and termination are not.
-                else if (Samus.CeresRidleyEjection.IsActive)
-                {
-                    // `$90:E12E` installs the hurt pose and clears every prospective pose and
-                    // command (`$90:E1A5-$E1B7`). Afterwards `$90:E1C8` suppresses only a
-                    // damage-boost result `$4F/$50` selected from pose `$53/$54`; it does not
-                    // replace the complete input handler. A lookup failure there keeps the
-                    // knockback pose and its Stop command, which clears the X acceleration
-                    // mode when the pose is committed.
-                    if (Samus.CeresRidleyEjection.InitializationPending)
-                    {
-                        ProspectiveSamusPose = null;
-                        ProspectiveSamusFallbackPose = null;
-                    }
-                    else
-                    {
-                        if (ProspectiveSamusPose?.ProspectivePose is
-                            SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose)
-                            ProspectiveSamusPose = null;
-                        if (ProspectiveSamusFallbackPose is
-                            SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose)
-                            ProspectiveSamusFallbackPose = null;
-                    }
-                    LastCeresRidleyEjection = Samus.CeresRidleyEjection.Step(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        Camera.PixelPosition.X,
-                        NmiFrameCounter);
-                }
-                // Knockback's `$90:DF38` handler takes precedence over the normal movement-
-                // type dispatcher. Unlike bomb jump, normal pose input remains active so
-                // `$53/$54` can still select the retail damage-boost escape chord.
-                else if (Samus.KnockbackActive)
-                {
-                    SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
-                    LastKnockbackMovement = SamusKnockbackMovement.Step(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        NmiFrameCounter,
-                        Plms);
-                }
-                // Special command three replaces both handlers. Preserve the retained
-                // pose while input is locked; the late-rise helper can restore input
-                // before the movement handler ends, allowing a matched cancellation.
-                else if (Samus.BombJumpStarting || Samus.BombJumpActive)
-                {
-                    if (bombJumpLocksPoseInput)
-                    {
-                        ProspectiveSamusPose = null;
-                        ProspectiveSamusFallbackPose = null;
-                    }
-
-                    // The shared alpha environment pass above already selected these words;
-                    // repeat the explicit special-handler publication here to preserve the
-                    // old diagnostic seam while allowing water/lava instead of forcing air.
-                    SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
-                    LastBombJumpMovement = Samus.BombJumpStarting
-                        ? SamusBombJumpMovement.Start(_addressSpace, Samus)
-                        : SamusBombJumpMovement.Step(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                }
-                // `$90:D5A2` installs one of three Crystal Flash movement pointers and an
-                // RTS pose-input handler. Mother Brain's rainbow command keeps those words,
-                // but temporarily replaces frame-handler beta with `$E8D9`, which calls no
-                // movement at all. Once command one restores `$E725`, Flash resumes under
-                // the drained pose. The Super Metroid never installs that beta lock, so its
-                // interruption continues Flash immediately. Model the physical beta owner,
-                // not merely the fact that a cinematic pose exists.
-                else if (Samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive &&
-                    !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && Samus.InputLocked))
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    LastCrystalFlashMovement = Samus.CrystalFlash.Step(
-                        _addressSpace,
-                        Samus,
-                        NmiFrameCounter);
-                    if (LastCrystalFlashMovement.Value.PhaseAtStart == CrystalFlashPhase.Raising &&
-                        LastCrystalFlashMovement.Value.BubbleHdmaRequested)
-                    {
-                        // `$90:D6AE` clears `$0CEA`, copies Samus's raised center into the
-                        // shared explosion words, then spawns `$88:A2BD/$A32A`. This beta
-                        // pass occurs after bomb alpha, so the retained type-`$0300` slot
-                        // observes the released flag and deletes on the following frame.
-                        BombProjectiles.PowerBombExplosion.BeginCrystalFlash(Samus.Position.Whole);
-                    }
-                }
-                // Drained controller functions install movement-type-$1B poses whose normal
-                // beta dispatcher is RTS. Only animation command `$F7` replaces the handler
-                // with `$90:94CB`; the other phases stay motionless while enemy AI controls
-                // pose/timing. This branch is reached only when no independently retained
-                // Crystal Flash pointer still owns the physical movement-handler word.
-                // Controller zero ($91:E4F8) changes only the pose, so a crashing spark keeps
-                // its handler and finishes below; `$F7` relinquishes the spark itself.
-                // The rainbow-beam lock is beta `$E8D9` itself: once command one restores
-                // `$E725` during enemy AI, this same frame's beta dispatches the knockback
-                // pose's type-$0A mover below, as `$90:A5FC` does natively.
-                // The controller-held standing/crouching phases last only while Samus keeps a
-                // drained body: a pose the movement installs (a wall jump out of a drained
-                // spin) returns her to the ordinary movement and input dispatch.
-                else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive &&
-                    !(Samus.Drained.Phase is DrainedSamusPhase.Standing or DrainedSamusPhase.Crouching &&
-                      !SamusState.IsDrainedPose(Samus.Pose)) &&
-                    !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !Samus.InputLocked) &&
-                    (Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked || !Samus.Shinespark.OwnsMovementHandler))
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    if (Samus.Drained.Phase == DrainedSamusPhase.Falling)
-                    {
-                        LastDrainedSamusMovement = Samus.Drained.StepFalling(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter);
-                    }
-                    else if (Samus.InitializedPose != Samus.Pose)
-                    {
-                        // Controllers $91:E571/$E60C store a drained pose without
-                        // InitializeSamusPose_1, and $90:A337 keeps dispatching the cached
-                        // $0A1F movement type. An airborne Samus therefore keeps her jump
-                        // physics in the drained pose until a real initializer runs.
-                        StepUninitializedPoseMovement();
-                    }
-                }
-                // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active
-                // launch, and crash therefore own beta movement regardless of the pose's
-                // table index; ordinary type-$1B physics does not exist to fall back to.
-                else if (Samus.Shinespark.OwnsMovementHandler)
-                {
-                    // Determine_Samus_YAcceleration supplies the environment-selected pair
-                    // used as spark acceleration. Projectile_Func7 does not replace it.
-                    SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
-                    LastShinesparkMovement = Samus.Shinespark.Step(new SamusTerrain { Bus = _addressSpace, Level = LevelData, Plms = Plms }, Samus, new ShinesparkFrame { NmiFrameCounter = NmiFrameCounter, ProjectileCounter = Projectiles.ProjectileCounter, PlayerInvincibilityEnabled = PlayerInvincibilityEnabled, Projectiles = Projectiles, GameTimeFrames = GameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = previousCameraPoint });
-                    if (LastShinesparkMovement.Value.WindupTimedOut)
-                    {
-                        // The movement handler publishes an interrupted vertical pose. That
-                        // priority beats an ordinary input record sampled from `$C7/$C8`
-                        // earlier in alpha during the timeout frame.
-                        ProspectiveSamusPose = null;
-                        ProspectiveSamusFallbackPose = null;
-                    }
-                }
-                // SamusCode_00 installs an alpha handler which advances existing
-                // projectiles but a beta handler which performs no movement at all. All
-                // translated special movement owners above take priority; an otherwise
-                // locked standing body must not run generic ground collision or drift while
-                // state $20 waits at the Ceres elevator.
-                else if (Samus.InputLocked &&
-                    !(SamusState.IsForwardFacingPose(Samus.Pose) &&
-                      Enemies.ElevatorRunsSamusMovement))
-                {
-                    // Elevator command seven installs the moving beta handler for departure.
-                    // HandleTransition reinstalls it only on downward arrival. Upward arrival
-                    // retains command zero until the actor reaches rest; terrain probes there
-                    // would incorrectly wake the scroll triggers the platform passes.
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                }
-                // `$90:A337` returns before the movement table and echo update while time is
-                // frozen. X-ray setup freezes time in alpha, so a running Samus stops on
-                // the activation frame before her pose changes.
-                else if (TimeIsFrozen)
-                {
-                    // No positional movement.
-                }
-                // `$90:A7DA` is the normal movement-table entry for type `$1B`.
-                // It only clears the momentum-transition selector. This path is reachable
-                // when hurt-expiry command one replaces a freshly installed Shinespark
-                // handler while retaining its `$C7/$C8` body and palette (Shinespark Suit).
-                else if (Samus.ReadMovementType(_addressSpace) == SamusMovementType.Special)
-                {
-                    // No positional movement.
-                }
-                else switch (Samus.Pose)
-                {
-                    case SamusPoseId.ForwardFacingPowerSuitPose:
-                    case SamusPoseId.ForwardFacingSuitedPose:
-                        // `$00/$9B` enter through controller-locked demo/elevator commands.
-                        // The actor-owned `$0E18` word remains an explicit producer, while
-                        // this consumer now includes both the zero-status no-op and nonzero
-                        // `$94:9763` one-pixel downward block scan.
-                        SamusGroundedMovement.StepFacingForward(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            elevatorIsMoving:
-                                Enemies.ElevatorStatus != ElevatorActorStatus.Inactive,
-                            plms: Plms,
-                            publishDoorSideEffects:
-                                ShouldPublishFacingForwardElevatorDoorSideEffects(
-                                    Enemies.ElevatorStatus));
-                        break;
-                    case SamusPoseId.FacingRightNormalPose:
-                    case SamusPoseId.StandingAimUpRightPose:
-                    case SamusPoseId.StandingAimDiagonalUpRightPose:
-                    case SamusPoseId.StandingAimDiagonalDownRightPose:
-                        LastGroundedSamusMovement = SamusGroundedMovement.StepStandingRight(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        NmiFrameCounter,
-                        Controller1.Current,
-                        Plms);
-                        break;
-                    case SamusPoseId.MovingRightNormalPose:
-                    case SamusPoseId.MovingRightGunExtendedPose:
-                    case SamusPoseId.RunningAimUpRightPose:
-                    case SamusPoseId.RunningAimDiagonalUpRightPose:
-                    case SamusPoseId.RunningAimDiagonalDownRightPose:
-                        LastGroundedSamusMovement = SamusGroundedMovement.StepRunningRight(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Controller1.Current,
-                            Plms);
-                        break;
-                    case SamusPoseId.FacingLeftNormalPose:
-                    case SamusPoseId.StandingAimUpLeftPose:
-                    case SamusPoseId.StandingAimDiagonalUpLeftPose:
-                    case SamusPoseId.StandingAimDiagonalDownLeftPose:
-                        LastGroundedSamusMovement = SamusGroundedMovement.StepStandingLeft(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        NmiFrameCounter,
-                        Controller1.Current,
-                        Plms);
-                        break;
-                    case SamusPoseId.MovingLeftNormalPose:
-                    case SamusPoseId.MovingLeftGunExtendedPose:
-                    case SamusPoseId.RunningAimUpLeftPose:
-                    case SamusPoseId.RunningAimDiagonalUpLeftPose:
-                    case SamusPoseId.RunningAimDiagonalDownLeftPose:
-                        LastGroundedSamusMovement = SamusGroundedMovement.StepRunningLeft(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Controller1.Current,
-                            Plms);
-                        break;
-                    case SamusPoseId.MoonwalkFacingLeftPose:
-                    case SamusPoseId.MoonwalkFacingRightPose:
-                    case SamusPoseId.MoonwalkAimUpLeftPose:
-                    case SamusPoseId.MoonwalkAimUpRightPose:
-                    case SamusPoseId.MoonwalkAimDownLeftPose:
-                    case SamusPoseId.MoonwalkAimDownRightPose:
-                        LastGroundedSamusMovement = SamusGroundedMovement.StepMoonwalking(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.RanIntoWallRightPose:
-                    case SamusPoseId.RanIntoWallLeftPose:
-                    case SamusPoseId.RanIntoWallAimUpRightPose:
-                    case SamusPoseId.RanIntoWallAimUpLeftPose:
-                    case SamusPoseId.RanIntoWallAimDownRightPose:
-                    case SamusPoseId.RanIntoWallAimDownLeftPose:
-                        LastGroundedSamusMovement = SamusGroundedMovement.StepRanIntoWall(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.TurningRightToLeftPose:
-                    case SamusPoseId.TurningLeftToRightPose:
-                    case SamusPoseId.TurningRightToLeftAimUpPose:
-                    case SamusPoseId.TurningLeftToRightAimUpPose:
-                    case SamusPoseId.TurningRightToLeftAimDiagonalUpPose:
-                    case SamusPoseId.TurningLeftToRightAimDiagonalUpPose:
-                    case SamusPoseId.TurningRightToLeftAimDiagonalDownPose:
-                    case SamusPoseId.TurningLeftToRightAimDiagonalDownPose:
-                    case SamusPoseId.TurningRightToLeftCrouchingPose:
-                    case SamusPoseId.TurningLeftToRightCrouchingPose:
-                    case SamusPoseId.TurningRightToLeftCrouchingAimUpPose:
-                    case SamusPoseId.TurningLeftToRightCrouchingAimUpPose:
-                    case SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose:
-                    case SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose:
-                    case SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose:
-                    case SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose:
-                    case SamusPoseId.MoonwalkTurnJumpLeftPose:
-                    case SamusPoseId.MoonwalkTurnJumpRightPose:
-                    case SamusPoseId.MoonwalkTurnJumpAimUpLeftPose:
-                    case SamusPoseId.MoonwalkTurnJumpAimUpRightPose:
-                    case SamusPoseId.MoonwalkTurnJumpAimDownLeftPose:
-                    case SamusPoseId.MoonwalkTurnJumpAimDownRightPose:
-                        // `$90:A337` dispatches strictly through the pose definition's
-                        // movement-type byte. Y direction is data consumed by the selected
-                        // handler, never a replacement dispatcher. In particular, crouched
-                        // turn `$44` can retain downward direction while its type remains
-                        // `$0E`; treating that word as type `$17` sent it into A790 and
-                        // produced the live replay crash from issue 58.
-                        SamusMovementType turnMovementType = Samus.ReadMovementKind(_addressSpace);
-                        if (turnMovementType == SamusMovementType.TurningOnGround ||
-                            (turnMovementType == SamusMovementType.TurningWhileJumping &&
-                             Samus.Kinematics.YDirection == SamusVerticalDirection.None))
-                        {
-                            LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
-                                _addressSpace,
-                                LevelData,
-                                Samus,
-                                NmiFrameCounter,
-                                Plms);
-                        }
-                        else if (turnMovementType is
-                            SamusMovementType.TurningWhileJumping or
-                            SamusMovementType.TurningWhileFalling)
-                        {
-                            LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(
-                                _addressSpace,
-                                LevelData,
-                                Samus,
-                                NmiFrameCounter,
-                                Plms);
-                        }
-                        else
-                        {
-                            throw new InvalidDataException(
-                                $"Turn pose ${(int)Samus.Pose:X2} has unsupported movement type " +
-                                $"${(byte)turnMovementType:X2}.");
-                        }
-                        break;
-                    case SamusPoseId.NormalLandingRightPose:
-                    case SamusPoseId.NormalLandingLeftPose:
-                    case SamusPoseId.SpinLandingRightPose:
-                    case SamusPoseId.SpinLandingLeftPose:
-                    case SamusPoseId.LandingAimUpRightPose:
-                    case SamusPoseId.LandingAimUpLeftPose:
-                    case SamusPoseId.LandingAimDiagonalUpRightPose:
-                    case SamusPoseId.LandingAimDiagonalUpLeftPose:
-                    case SamusPoseId.LandingAimDiagonalDownRightPose:
-                    case SamusPoseId.LandingAimDiagonalDownLeftPose:
-                    case SamusPoseId.FiringLandingRightPose:
-                    case SamusPoseId.FiringLandingLeftPose:
-                        LastGroundedSamusMovement = SamusGroundedMovement.StepLanding(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.MorphBallGroundRightPose:
-                    case SamusPoseId.MorphBallGroundLeftPose:
-                    case SamusPoseId.MorphBallMovingRightPose:
-                    case SamusPoseId.MorphBallMovingLeftPose:
-                    case SamusPoseId.SpringBallGroundRightPose:
-                    case SamusPoseId.SpringBallGroundLeftPose:
-                    case SamusPoseId.SpringBallMovingRightPose:
-                    case SamusPoseId.SpringBallMovingLeftPose:
-                        LastMorphBallMovement = SamusMorphBallMovement.StepGrounded(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.MorphBallFallingRightPose:
-                    case SamusPoseId.MorphBallFallingLeftPose:
-                    case SamusPoseId.SpringBallFallingRightPose:
-                    case SamusPoseId.SpringBallFallingLeftPose:
-                        LastMorphBallMovement = SamusMorphBallMovement.StepFalling(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            Controller1.Current,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.SpringBallJumpRightPose:
-                    case SamusPoseId.SpringBallJumpLeftPose:
-                        LastMorphBallMovement = SamusMorphBallMovement.StepSpringBallInAir(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            Controller1.Current,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.NeutralJumpTransitionRightPose:
-                    case SamusPoseId.NeutralJumpTransitionLeftPose:
-                    case SamusPoseId.NeutralJumpRightPose:
-                    case SamusPoseId.NeutralJumpLeftPose:
-                    case SamusPoseId.NormalJumpGunExtendedRightPose:
-                    case SamusPoseId.NormalJumpGunExtendedLeftPose:
-                    case SamusPoseId.NormalJumpForwardRightPose:
-                    case SamusPoseId.NormalJumpForwardLeftPose:
-                    case SamusPoseId.NormalJumpAimUpRightPose:
-                    case SamusPoseId.NormalJumpAimUpLeftPose:
-                    case SamusPoseId.NormalJumpTransitionAimUpRightPose:
-                    case SamusPoseId.NormalJumpTransitionAimUpLeftPose:
-                    case SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose:
-                    case SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose:
-                    case SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose:
-                    case SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose:
-                    case SamusPoseId.NormalJumpAimDiagonalUpRightPose:
-                    case SamusPoseId.NormalJumpAimDiagonalUpLeftPose:
-                    case SamusPoseId.NormalJumpAimDiagonalDownRightPose:
-                    case SamusPoseId.NormalJumpAimDiagonalDownLeftPose:
-                    case SamusPoseId.NormalJumpAimDownRightPose:
-                    case SamusPoseId.NormalJumpAimDownLeftPose:
-                        LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            Controller1.Current,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.SpinJumpRightPose:
-                    case SamusPoseId.SpinJumpLeftPose:
-                    case SamusPoseId.SpaceJumpRightPose:
-                    case SamusPoseId.SpaceJumpLeftPose:
-                    case SamusPoseId.ScrewAttackRightPose:
-                    case SamusPoseId.ScrewAttackLeftPose:
-                        LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            Controller1.Current,
-                            NmiFrameCounter,
-                            Controller1.NewlyPressed,
-                            Plms);
-                        break;
-                    case SamusPoseId.WallJumpRightPose:
-                    case SamusPoseId.WallJumpLeftPose:
-                        LastAerialSamusMovement = SamusAerialMovement.StepWallJump(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            Controller1.Current,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.DamageBoostRightPose:
-                    case SamusPoseId.DamageBoostLeftPose:
-                        LastAerialSamusMovement = SamusAerialMovement.StepDamageBoost(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            Controller1.Current,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.TurningRightToLeftJumpPose:
-                    case SamusPoseId.TurningLeftToRightJumpPose:
-                    case SamusPoseId.TurningRightToLeftJumpAimUpPose:
-                    case SamusPoseId.TurningLeftToRightJumpAimUpPose:
-                    case SamusPoseId.TurningRightToLeftJumpAimDownPose:
-                    case SamusPoseId.TurningLeftToRightJumpAimDownPose:
-                    case SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose:
-                    case SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose:
-                    case SamusPoseId.TurningRightToLeftFallingPose:
-                    case SamusPoseId.TurningLeftToRightFallingPose:
-                    case SamusPoseId.TurningRightToLeftFallingAimUpPose:
-                    case SamusPoseId.TurningLeftToRightFallingAimUpPose:
-                    case SamusPoseId.TurningRightToLeftFallingAimDownPose:
-                    case SamusPoseId.TurningLeftToRightFallingAimDownPose:
-                    case SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose:
-                    case SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose:
-                        LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.FallingRightPose:
-                    case SamusPoseId.FallingLeftPose:
-                    case SamusPoseId.FallingGunExtendedRightPose:
-                    case SamusPoseId.FallingGunExtendedLeftPose:
-                    case SamusPoseId.FallingAimUpRightPose:
-                    case SamusPoseId.FallingAimUpLeftPose:
-                    case SamusPoseId.FallingAimDiagonalUpRightPose:
-                    case SamusPoseId.FallingAimDiagonalUpLeftPose:
-                    case SamusPoseId.FallingAimDiagonalDownRightPose:
-                    case SamusPoseId.FallingAimDiagonalDownLeftPose:
-                    case SamusPoseId.FallingAimDownRightPose:
-                    case SamusPoseId.FallingAimDownLeftPose:
-                        LastAerialSamusMovement = SamusAerialMovement.StepFalling(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            Controller1.Current,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.CrouchingRightPose:
-                    case SamusPoseId.CrouchingLeftPose:
-                    case SamusPoseId.CrouchingAimUpRightPose:
-                    case SamusPoseId.CrouchingAimUpLeftPose:
-                    case SamusPoseId.CrouchingAimDiagonalUpRightPose:
-                    case SamusPoseId.CrouchingAimDiagonalUpLeftPose:
-                    case SamusPoseId.CrouchingAimDiagonalDownRightPose:
-                    case SamusPoseId.CrouchingAimDiagonalDownLeftPose:
-                        LastGroundedSamusMovement = SamusPostureMovement.StepCrouching(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.KnockbackRightPose:
-                    case SamusPoseId.KnockbackLeftPose:
-                    {
-                        // `$90:A5FC` is the normal type-$0A movement-table entry. Active
-                        // knockback and Ceres ejection were intercepted above; this branch
-                        // is their authentic one-frame normal-dispatch tail before bank-$91
-                        // installs the input/no-input target chosen during alpha.
-                        int groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
-                            Samus.Kinematics, Samus.HorizontalSpeed);
-                        BlockMoveResult grounding = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        LastGroundedSamusMovement = new GroundedMovementResult(default, grounding);
-                        // Normal type-$0A still publishes collision result one when its
-                        // downward probe hits the floor. Reuse the ordinary landing seam
-                        // for presentation, pose selection and command-five speed cleanup.
-                        if (grounding.Collided && groundingDisplacement >= 0)
-                            LastAerialSamusMovement = new AerialMovementResult(
-Landed: true, HitCeiling: false);
-                        break;
-                    }
-                    case SamusPoseId.CrouchingTransitionRightPose:
-                    case SamusPoseId.CrouchingTransitionLeftPose:
-                    case SamusPoseId.StandingTransitionRightPose:
-                    case SamusPoseId.StandingTransitionLeftPose:
-                    case SamusPoseId.CrouchingTransitionAimUpRightPose:
-                    case SamusPoseId.CrouchingTransitionAimUpLeftPose:
-                    case SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose:
-                    case SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose:
-                    case SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose:
-                    case SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose:
-                    case SamusPoseId.StandingTransitionAimUpRightPose:
-                    case SamusPoseId.StandingTransitionAimUpLeftPose:
-                    case SamusPoseId.StandingTransitionAimDiagonalUpRightPose:
-                    case SamusPoseId.StandingTransitionAimDiagonalUpLeftPose:
-                    case SamusPoseId.StandingTransitionAimDiagonalDownRightPose:
-                    case SamusPoseId.StandingTransitionAimDiagonalDownLeftPose:
-                        LastGroundedSamusMovement = SamusPostureMovement.StepCrouchStandTransition(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.MorphingTransitionRightPose:
-                    case SamusPoseId.MorphingTransitionLeftPose:
-                    case SamusPoseId.UnmorphingTransitionRightPose:
-                    case SamusPoseId.UnmorphingTransitionLeftPose:
-                        LastMorphBallMovement = SamusMorphBallMovement.StepTransition(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter,
-                            Plms);
-                        break;
-                    case SamusPoseId.DraygonGrabbedNeutralLeftPose:
-                    case SamusPoseId.DraygonGrabbedAimUpLeftPose:
-                    case SamusPoseId.DraygonGrabbedFiringLeftPose:
-                    case SamusPoseId.DraygonGrabbedAimDownLeftPose:
-                    case SamusPoseId.DraygonGrabbedMovingLeftPose:
-                    case SamusPoseId.DraygonGrabbedNeutralRightPose:
-                    case SamusPoseId.DraygonGrabbedAimUpRightPose:
-                    case SamusPoseId.DraygonGrabbedFiringRightPose:
-                    case SamusPoseId.DraygonGrabbedAimDownRightPose:
-                    case SamusPoseId.DraygonGrabbedMovingRightPose:
-                        // This is the normal dispatcher at `$90:A7D2`, which only clears
-                        // the vertical solid-collision result. The actual boss grab above
-                        // runs its separately installed RTS handler instead.
-                        LastDraygonGrabbedMovement =
-                            SamusDraygonGrabbedState.StepMovement(Samus);
-                        break;
-                    default:
-                        // Every pose reachable from the translated retail input, animation,
-                        // enemy-grab, death, drained, grapple, Morph Ball, and shinespark
-                        // producers has an explicit branch above. Reaching this point means
-                        // the pose byte no longer agrees with the cartridge-backed producer
-                        // set; it is corrupt state, not a recoverable movement family.
-                        throw new InvalidDataException(
-                            $"Runtime movement dispatcher received invalid pose ${(int)Samus.Pose:X2}.");
-                }
-            }
+            SamusPhases.StepGroundedSamusMovement(frame, enemyMainAlreadyRan, AlphaInputLocked, Player.Samus, Room.Camera);
 
             // Samus_MovementHandler_Normal calls `$90:EEE7` after the selected movement
             // function and before animation/pose transitions. Every fourth gameplay frame
             // at boost stage four, it alternates between two exact world-position snapshots.
             // Keeping this producer here means the draw handler below consumes post-motion
             // coordinates with the same frame ordering as the cartridge.
-            if (!suitOwnsSamus && LastShinesparkMovement is null)
+            if (!frame.SuitOwnsSamus && Player.LastShinesparkMovement is null)
             {
-                Samus.HorizontalSpeed.CaptureSpeedEchoPosition(GameTime.Frames, Samus.Position.Whole);
+                Player.Samus.HorizontalSpeed.CaptureSpeedEchoPosition(GameTime.Frames, Player.Samus.Position.Whole);
             }
 
             // Every ordinary downward collision calls `$91:F046` inside movement, before
@@ -2188,23 +667,23 @@ Landed: true, HitCeiling: false);
             // consumer; do not restore its diagnostic pre-impact magnitude for effects.
             // Drained movement retains its separately modeled impact publication.
             bool ordinaryOrBallLanded =
-                LastAerialSamusMovement is { Landed: true } ||
-                LastMorphBallMovement is { Landed: true };
-            bool knockbackLanded = LastKnockbackMovement is { Landed: true };
-            bool drainedLanded = LastDrainedSamusMovement is { Landed: true };
-            if (!deathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
+                Player.LastAerialSamusMovement is { Landed: true } ||
+                Player.LastMorphBallMovement is { Landed: true };
+            bool knockbackLanded = Player.LastKnockbackMovement is { Landed: true };
+            bool drainedLanded = Player.LastDrainedSamusMovement is { Landed: true };
+            if (!frame.DeathOwnsSamus && (ordinaryOrBallLanded || knockbackLanded || drainedLanded))
             {
                 ushort impactYSpeed = drainedLanded
-                    ? LastDrainedSamusMovement!.Value.ImpactYSpeed
-                    : Samus.Kinematics.YSpeed;
+                    ? Player.LastDrainedSamusMovement!.Value.ImpactYSpeed
+                    : Player.Samus.Kinematics.YSpeed;
                 ushort impactYSubspeed = drainedLanded
-                    ? LastDrainedSamusMovement!.Value.ImpactYSubspeed
-                    : Samus.Kinematics.YSubspeed;
-                Samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+                    ? Player.LastDrainedSamusMovement!.Value.ImpactYSubspeed
+                    : Player.Samus.Kinematics.YSubspeed;
+                Player.Samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
                     _addressSpace,
-                    Samus,
-                    movementTypeAtFrameStart,
-                    poseAtFrameStart,
+                    Player.Samus,
+                    frame.MovementTypeAtFrameStart,
+                    frame.PoseAtFrameStart,
                     impactYSpeed,
                     impactYSubspeed);
             }
@@ -2212,25 +691,25 @@ Landed: true, HitCeiling: false);
             // `$90:E738` runs the timer/hack handler after movement and before animation.
             // Commands five/$18 install the Mother Brain-specific Up-edge branches; the
             // method is a cheap no-op for every ordinary gameplay state.
-            if (!suitOwnsSamus)
-                Samus.Drained.StepGetUpHandler(Samus, Controller1.NewlyPressed);
+            if (!frame.SuitOwnsSamus)
+                Player.Samus.Drained.StepGetUpHandler(Player.Samus, Controller1.NewlyPressed);
 
-            if (!suitOwnsSamus && Samus.DraygonGrabbed.IsActive)
+            if (!frame.SuitOwnsSamus && Player.Samus.DraygonGrabbed.IsActive)
             {
                 // `$90:E738` calls this installed hack handler after movement and before
                 // animation. A locked grapple cancels the prospective pose chosen in alpha;
                 // an escape release additionally clears every pending route while installing
                 // ordinary `$01/$02` and zeroing the documented velocity words.
-                LastDraygonEscape = Samus.DraygonGrabbed.StepEscapeHandler(
+                Player.LastDraygonEscape = Player.Samus.DraygonGrabbed.StepEscapeHandler(
                     _addressSpace,
-                    Samus,
+                    Player.Samus,
                     Controller1.NewlyPressed,
-                    Samus.Grapple.Phase == GrapplePhase.ConnectedLocked);
-                if (LastDraygonEscape.Value.SuppressProspectivePose ||
-                    LastDraygonEscape.Value.Released)
+                    Player.Samus.Grapple.Phase == GrapplePhase.ConnectedLocked);
+                if (Player.LastDraygonEscape.Value.SuppressProspectivePose ||
+                    Player.LastDraygonEscape.Value.Released)
                 {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
+                    Player.ProspectiveSamusPose = null;
+                    Player.ProspectiveSamusFallbackPose = null;
                 }
             }
 
@@ -2239,1069 +718,25 @@ Landed: true, HitCeiling: false);
             // Animation sees the same held-input word as movement. Ordinary Dash uses B
             // both to accumulate `$0B42.$0B44` and to intercept the running delay-list
             // command at `$90:852C`; passing a reconstructed input later would skew art.
-            if (deathOwnsSamus)
+            if (frame.DeathOwnsSamus)
             {
-                LastDeathSequenceStep = Samus.DeathSequence.Step(
+                Player.LastDeathSequenceStep = Player.Samus.DeathSequence.Step(
                     _addressSpace,
-                    Samus,
+                    Player.Samus,
                     Cgram,
                     VramWrites,
-                    SamusBodyArt?.DeathPalettes);
+                    Artwork.SamusBodyArt?.DeathPalettes);
             }
             // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
-            else if (!stationaryScriptControlLocked && !refillStationLocked && !suitOwnsSamus)
+            else if (!frame.StationaryScriptControlLocked && !refillStationLocked && !frame.SuitOwnsSamus)
             {
-                Samus.AnimateNoFx(_addressSpace, new SamusAnimationStep { ControllerInput = Controller1.Current, NmiFrameCounter = NmiFrameCounter, System = System, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose, DemoPoseInput = IsAttractDemo, QueueEchoSound = frameRequest.Audio.QueueEchoSound });
-                StepSamusLoadAppearance();
+                Player.Samus.Presentation.AnimateNoFx(_addressSpace, new SamusAnimationStep { ControllerInput = Controller1.Current, NmiFrameCounter = Nmi.NmiFrameCounter, System = System, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = Player.ProspectiveSamusPose?.ProspectivePose ?? Player.ProspectiveSamusFallbackPose, DemoPoseInput = AttractDemo.IsAttractDemo, QueueEchoSound = frameRequest.Audio.QueueEchoSound });
+                SamusPhases.StepSamusLoadAppearance();
             }
 
+            SamusPhases.ApplySamusAnimationTransitions(frame, Player.Samus);
 
-            if (GroundedSamusMovementEnabled && !deathOwnsSamus && !suitOwnsSamus &&
-                !stationaryScriptControlLocked)
-            {
-                // Hit interruption observes the old movement type before UpdateSamusPose.
-                // Its carry-clear bomb rejection still occurs when an animation transition
-                // wins pose selection; otherwise a stale request survives unmorph/morph.
-                if (Samus.KnockbackTimer == 0 && Samus.KnockbackDirection == 0)
-                    Samus.RejectUnsupportedPublishedBombJump(_addressSpace, TimeIsFrozen);
-
-                // Command $F8's command-three “super-special” transition wins at this seam.
-                // F8 publishes a turn-completion pose only if alpha did not select one
-                // of its four jump exceptions. When published, it still wins here.
-                // `$90:DDE9` samples hurt expiry before bank $91 applies a queued
-                // animation command. Preserve that decision even if Shinespark setup
-                // clears the live knockback direction while installing `$C7/$C8`.
-                bool hitInterruptionExpiryPending =
-                    SamusKnockbackMovement.IsExpiredHitInterruptionPending(Samus);
-                bool animationTransitionApplied =
-                    Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
-
-                // C8C5 queues a transitional pose rather than replacing beta movement.
-                // Commit after animation, suppressing the lower-priority input/grounding
-                // pose. Its speed clears already happened before movement in bank $9B.
-                if (!animationTransitionApplied && LastGrappleMovement is { PendingDropPose: SamusPoseId dropPose })
-                {
-                    Samus.ApplyGrappleDropTransition(_addressSpace,
-                        LevelData ?? throw new InvalidOperationException("Grapple drop requires room geometry."),
-                        dropPose, NmiFrameCounter, Plms, clearMovementSpeed: false);
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // $9B:CB8B queues its release pose the same way, so the hit interruption
-                // earlier this frame still saw the grappling movement type.
-                if (!animationTransitionApplied && LastGrappleMovement is { PendingReleasePose: SamusPoseId releasePose })
-                {
-                    SamusGrappleMovement.ApplyReleasePose(_addressSpace, Samus, releasePose);
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // Crash movement queues a transitional pose; it must not replace the
-                // body seen by AnimateSamus earlier in this frame. Command-three
-                // animation transitions retain their higher cartridge priority.
-                if (!animationTransitionApplied && LastShinesparkMovement is { CrashSequenceFinished: true })
-                {
-                    SamusShinesparkState.ApplyCrashFinishPose(_addressSpace, Samus);
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // Expiry still permits this frame's movement and animation. Its
-                // transitional slot wins over the ordinary input selected in alpha,
-                // even when a damage boost has already restored normal movement.
-                // With an animation command three already pending, native changes it
-                // to command eight: keep the animation pose and ALSO clear hurt state.
-                if (hitInterruptionExpiryPending)
-                {
-                    SamusKnockbackMovement.FinishExpiredHitInterruption(_addressSpace, Samus);
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // `$90:DDE9` runs after AnimateSamus and before UpdateSamusPose. Terrain
-                // spike reactions only publish `$18A8/$18AA/$0A54`; this common interruption
-                // converts that request into the same hurt pose and special movement handler
-                // used by every cartridge damage producer. Animation command three retains
-                // its higher UpdateSamusPose priority and therefore suppresses this branch.
-                if (!animationTransitionApplied &&
-                    SamusKnockbackMovement.TryStartPendingHitInterruption(
-                        _addressSpace,
-                        Samus,
-                        Controller1.Current,
-                        TimeIsFrozen,
-                        LevelData,
-                        NmiFrameCounter,
-                        Plms))
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // Bomb overlap is published between alpha and beta, but the native
-                // interruption dispatcher considers it only AFTER movement/animation.
-                // Active hurt words retain the request without arming or rejecting it;
-                // expiry owns this frame even after clearing those words. This permits
-                // a later bomb launch to retain the damaged pose, with input locked by
-                // special command three rather than an early speculative pose change.
-                if (!animationTransitionApplied && Samus.KnockbackTimer == 0 &&
-                    Samus.KnockbackDirection == 0 &&
-                    Samus.TrySetupPublishedBombJump(
-                        _addressSpace,
-                        LevelData ?? throw new InvalidOperationException(
-                            "A published bomb-jump direction requires active room level data."),
-                        TimeIsFrozen,
-                        NmiFrameCounter,
-                        Controller1.NewlyPressed,
-                        Plms))
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // Windup expiry installs vertical movement immediately, but publishes
-                // an interrupted pose for this later phase. AnimateSamus must still see
-                // the windup body; otherwise the launch animation loses its first tick.
-                if (!animationTransitionApplied &&
-                    LastShinesparkMovement is { PendingLaunchPose: SamusPoseId launchPose })
-                {
-                    SamusShinesparkState.ApplyDirectionalLaunchPose(_addressSpace, Samus, launchPose);
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                if (Samus.Xray.CommitPendingActivation(_addressSpace, Samus, animationTransitionApplied))
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // Grapple connection publishes a bank-$91 special prospective command.
-                // Super-special animation/hurt owners above can suppress it without
-                // undoing the already-installed bank-$9B beam function. This is the
-                // cartridge ordering used by bounded Grapple momentum-retention setups.
-                if (!animationTransitionApplied &&
-                    LastGrappleMovement is { PendingConnection: { } pendingConnection })
-                {
-                    Position16<RoomPixels> grapplePrevious =
-                        SamusGrappleMovement.ApplyPendingConnectionPose(
-                            _addressSpace,
-                            Samus,
-                            pendingConnection);
-                    previousCameraPoint = previousCameraPoint.WithWhole(
-                        grapplePrevious);
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    ProspectiveSamusWallCollisionPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // $91:E8E5 replaces the ordinary input target with the current pose
-                // on ceiling collision. Apply the ball's deferred EFDF vertical
-                // stop and consume this same-pose transition so history still shifts
-                // and an alpha aim/turn selection cannot override it. Higher-priority
-                // animation and hurt interruptions above retain their native priority.
-                // Ball movement can resume before the bomb arc reaches a ceiling;
-                // its collision must also outrank the stop-rolling input fallback.
-                if (!animationTransitionApplied &&
-                    (LastAerialSamusMovement is { HitCeiling: true } ||
-                     LastMorphBallMovement is { HitCeiling: true } ||
-                     LastBombJumpMovement is { Vertical.Collided: true }))
-                {
-                    if (LastMorphBallMovement is { HitCeiling: true })
-                        Samus.ApplySolidCeilingCollision();
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // $91:E8F2 overrides the input target when the bomb arc moved down through
-                // its apex with no floor below; the airborne pose is installed this frame.
-                if (!animationTransitionApplied &&
-                    LastBombJumpMovement is { FellWithoutFloor: true })
-                {
-                    Samus.ApplyBombJumpFallingPose(_addressSpace);
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    animationTransitionApplied = true;
-                }
-
-                // `$91:EADE` runs inside UpdateSamusPose after beta movement/animation and
-                // only when no super-special animation command has already won. Its first
-                // branch consumes the X-speed-killed flag produced by CURRENT type-one
-                // running movement. This creates a wall-stop pose even with no input match.
-                // An unobstructed upward platform carry leaves the prospective input
-                // pose intact too. Requiring a vertical collision here wrongly skipped
-                // the native one-pixel run check while a Kamer was carrying Samus upward.
-                // A special movement pointer can also retain a standing/running pose
-                // (suit-interrupted windup). EADE does not require normal grounded beta.
-                if (!animationTransitionApplied &&
-                    LastGroundedSamusMovement is not
-                        { Vertical.IsUnobstructedDownwardMovement: true })
-                {
-                    bool currentRunHitWall =
-                        (SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
-                         SamusState.IsLeftFacingRunningPose(poseAtFrameStart)) &&
-                        LastGroundedSamusMovement is { Horizontal.Collided: true };
-                    SamusPoseId? prospectiveRunningPose =
-                        ProspectiveSamusPose is { } prospective
-                            ? prospective.ProspectivePose
-                            // Native alpha writes the same prospective-pose slot for a
-                            // table match and a no-input fallback. A decelerating run
-                            // retains its running pose and must still take EADE's real
-                            // one-pixel forward move; omitting it shortens release drift.
-                            : ProspectiveSamusFallbackPose;
-                    ProspectiveSamusWallCollisionPose =
-                        Samus.CheckProspectiveRunningPoseForWall(
-                            _addressSpace,
-                            LevelData ?? throw new InvalidOperationException(
-                                "Ran-into-wall probe requires active room level data."),
-                            prospectiveRunningPose,
-                            currentRunHitWall,
-                            out BlockMoveResult? onePixelProbe,
-                            Plms);
-                    LastRanIntoWallProbe = onePixelProbe;
-                }
-
-                if (!animationTransitionApplied &&
-                    ProspectiveSamusWallCollisionPose is { } wallCollisionPose)
-                {
-                    // The selector result replaces the ordinary input target. Applying it
-                    // here also covers the no-input “running speed was killed” branch.
-                    Samus.ApplyRanIntoWallPoseChange(_addressSpace, wallCollisionPose);
-                    animationTransitionApplied = true;
-                    // `$91:EADE` replaces only ProspectivePose. When alpha's table lookup
-                    // failed, UpdateSamusPose ($91:EBF0) still runs the command `$91:8304`
-                    // selected for the pre-wall movement type.
-                    if (ProspectiveSamusPose is null && ProspectiveSamusFallbackPose is not null)
-                    {
-                        SamusProspectivePoseChangeCommand command = SamusPoseChangeCommandDefinitions.ForLookupFailure(
-                            SamusState.ReadMovementType(_addressSpace, poseAtFrameStart));
-                        if (command is not (SamusProspectivePoseChangeCommand.Decelerate or SamusProspectivePoseChangeCommand.Stop))
-                            throw new InvalidDataException(
-                                $"Ran-into-wall source ${(int)poseAtFrameStart:X2} selected unexpected lookup-failure command {command}.");
-                        Samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
-                            command == SamusProspectivePoseChangeCommand.Decelerate && deceleratingFallbackHasMomentum,
-                            Samus.ReadFacingDirection(_addressSpace));
-                    }
-                }
-
-                // Morph landing has its own prospective-pose and collision tables. A hard
-                // impact retains `$31/$32` and launches bounce one; the next collision
-                // launches bounce two; only a gentle/second-bounce collision installs
-                // grounded `$1D/$41`. Treat every branch as a consumed transition so input
-                // selected before collision cannot override the cartridge's bounce result.
-                // The ROM collision table ignores ground-family type four, even if hurt
-                // movement left that pose with nonzero Y speed. Do not infer an airborne
-                // landing dispatcher from velocity alone.
-                if (!animationTransitionApplied &&
-                    LastMorphBallMovement is { Landed: true } &&
-                    SamusState.IsAirborneMorphBallPose(poseAtFrameStart))
-                {
-                    Samus.ApplyMorphBallLanding(_addressSpace);
-                    animationTransitionApplied = true;
-                }
-
-                // `$90:9D35` publishes solid-vertical collision result five and returns
-                // carry set, preventing vertical motion. The matching bank-$91 command
-                // installs `$83/$84`, clears old momentum, and launches from ROM constants.
-                if (!animationTransitionApplied &&
-                    LastAerialSamusMovement is { WallJumpTriggered: true })
-                {
-                    Samus.ApplyWallJumpTrigger(_addressSpace, LevelData, NmiFrameCounter, Plms);
-                    animationTransitionApplied = true;
-                }
-
-                // Spring Ball's three movement families share collision result three, but
-                // `$91:F25E` makes held Jump an immediate relaunch and stores `$0601/$0602`
-                // during automatic rebounds. Keep it distinct from ordinary-ball state.
-                // Ground-family type $11 likewise has the table's no-transition entry.
-                if (!animationTransitionApplied &&
-                    LastMorphBallMovement is { Landed: true } &&
-                    SamusState.IsAirborneSpringBallPose(poseAtFrameStart))
-                {
-                    Samus.ApplySpringBallLanding(_addressSpace, Controller1.Current);
-                    animationTransitionApplied = true;
-                }
-
-                // A downward collision publishes result one. $91:E95D chooses normal or
-                // spin landing from the movement type that executed this frame, then pose
-                // command five clears both velocity axes. This ordinary prospective pose
-                // is lower priority than an animation command-three transition above.
-                if (!animationTransitionApplied &&
-                    LastAerialSamusMovement is { Landed: true } &&
-                    !SamusState.IsAerialTurnPose(poseAtFrameStart))
-                {
-                    if (SamusState.IsCompactAerialPose(poseAtFrameStart))
-                    {
-                        Samus.TryApplyCompactAerialLanding(
-                            _addressSpace,
-                            LevelData ?? throw new InvalidOperationException(
-                                "Compact landing requires active room level data."),
-                            NmiFrameCounter,
-                            Plms);
-                    }
-                    else
-                    {
-                        bool wasSpinning = SamusState.IsSpinJumpPose(poseAtFrameStart) ||
-                            SamusState.IsWallJumpPose(poseAtFrameStart);
-                        Samus.TryApplyAerialLanding(
-                            _addressSpace,
-                            LevelData ?? throw new InvalidOperationException(
-                                "Aerial landing requires active room level data."),
-                            wasSpinning,
-                            Controller1.Current,
-                            NmiFrameCounter,
-                            Plms);
-                    }
-                    animationTransitionApplied = true;
-                }
-
-                // An unobstructed DOWNWARD grounding probe publishes result two. An
-                // unobstructed upward platform carry publishes result zero at `$90:E606`
-                // and must leave the pose alone; treating every non-collision as result two
-                // made rising Kamers repeatedly alternate falling and landing. For admitted
-                // standing (including landing art), running, and stable crouching types,
-                // data zero at `$90:E65A`
-                // selects airborne family zero and `$91:E8F2` chooses falling art.
-                // Turn types `$0E/$17` contain `$04` (no pose change) in that literal table;
-                // they finish `$F8`, then the destination pose detects the missing floor.
-                if (!animationTransitionApplied &&
-                    LastGroundedSamusMovement is
-                        { Vertical.IsUnobstructedDownwardMovement: true } &&
-                    (SamusState.IsRightFacingStandingPose(poseAtBetaMovement) ||
-                     SamusState.IsLeftFacingStandingPose(poseAtBetaMovement) ||
-                     SamusState.IsRightFacingLandingPose(poseAtBetaMovement) ||
-                     SamusState.IsLeftFacingLandingPose(poseAtBetaMovement) ||
-                     SamusState.IsRightFacingRunningPose(poseAtBetaMovement) ||
-                     SamusState.IsLeftFacingRunningPose(poseAtBetaMovement) ||
-                     SamusState.IsMoonwalkingPose(poseAtBetaMovement) ||
-                     poseAtBetaMovement is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose ||
-                     SamusState.IsRanIntoWallPose(poseAtBetaMovement) ||
-                     SamusState.IsRightFacingCrouchingPose(poseAtBetaMovement) ||
-                     SamusState.IsLeftFacingCrouchingPose(poseAtBetaMovement)))
-                {
-                    SamusPoseId fallingPose = Samus.SelectFallingPoseForCurrentAim(_addressSpace);
-                    Samus.ApplyWalkedOffFloorTransition(_addressSpace,
-                        LevelData ?? throw new InvalidOperationException("Walk-off requires room collision data."),
-                        fallingPose, NmiFrameCounter, Plms);
-                    animationTransitionApplied = true;
-                }
-
-                // Movement type four publishes ordinary airborne `$31/$32` when its
-                // no-speed grounding probe finds no floor. The shared rolling animation is
-                // preserved, while Y speed starts at zero/down exactly like `$91:E8F2`.
-                if (!animationTransitionApplied &&
-                    LastMorphBallMovement is
-                        { Vertical.IsUnobstructedDownwardMovement: true } &&
-                    (SamusState.IsGroundedMorphBallPose(poseAtFrameStart) ||
-                     SamusState.IsGroundedSpringBallPose(poseAtFrameStart)))
-                {
-                    Samus.ApplyMorphBallWalkOff(_addressSpace);
-                    animationTransitionApplied = true;
-                }
-
-                if (!animationTransitionApplied && ProspectiveSamusPose is { } inputTransition)
-                {
-                    SamusPoseId targetPose = unchecked(inputTransition.ProspectivePose);
-
-                    // Self-transitions in the turn tables mean “remain in this animation.”
-                    // Reinitializing frame zero would prevent $F8 from ever being reached.
-                    if (targetPose != poseAtFrameStart)
-                    {
-                        switch ((poseAtFrameStart, targetPose))
-                        {
-                            case var (source, target)
-                                when SamusState.IsDraygonGrabbedPose(source) &&
-                                     SamusState.IsDraygonGrabbedPose(target):
-                                // Both ROM tables stay within one facing. The helper makes
-                                // that invariant explicit and initializes the target's real
-                                // `$91:B2B4/$B53C` animation list.
-                                Samus.ApplyDraygonGrabbedPoseChange(
-                                    _addressSpace,
-                                    targetPose);
-                                break;
-                            case var (source, target)
-                                when (((SamusState.IsRightFacingStandingPose(source) ||
-                                        SamusState.IsRightFacingRanIntoWallPose(source) ||
-                                        SamusState.IsRightFacingLandingPose(source)) &&
-                                       SamusState.IsMoonwalkingFacingRightPose(target)) ||
-                                      ((SamusState.IsLeftFacingStandingPose(source) ||
-                                        SamusState.IsLeftFacingRanIntoWallPose(source) ||
-                                        SamusState.IsLeftFacingLandingPose(source)) &&
-                                       SamusState.IsMoonwalkingFacingLeftPose(target)) ||
-                                      (SamusState.IsMoonwalkingPose(source) &&
-                                       (SamusState.IsMoonwalkingPose(target) ||
-                                        target is SamusPoseId.MovingRightNormalPose or
-                                            SamusPoseId.MovingLeftNormalPose))):
-                                Samus.ApplyMoonwalkPoseChange(
-                                    _addressSpace,
-                                    targetPose,
-                                    MoonwalkEnabled);
-                                break;
-                            case var (source, target)
-                                when SamusState.IsMoonwalkingPose(source) &&
-                                     SamusState.IsMoonwalkTurnJumpPose(target):
-                                // The stable `$49/$4A/$75-$78` table publishes a generic
-                                // reversal target. `$91:F8D3` validates it against the old
-                                // shot direction, folds momentum, and leaves `$BF-$C4`
-                                // grounded until either its input table or `$F8` starts jump.
-                                Samus.ApplyMoonwalkTurnJump(_addressSpace, targetPose);
-                                break;
-                            case var (source, target)
-                                when SamusState.IsMoonwalkTurnJumpLeftPose(source) &&
-                                         target is SamusPoseId.SpinJumpLeftPose or
-                                             SamusPoseId.NeutralJumpTransitionLeftPose ||
-                                     SamusState.IsMoonwalkTurnJumpRightPose(source) &&
-                                         target is SamusPoseId.SpinJumpRightPose or
-                                             SamusPoseId.NeutralJumpTransitionRightPose:
-                                Samus.ApplyOrdinaryJumpTransition(
-                                    _addressSpace,
-                                    targetPose,
-                                    Controller1.NewlyPressed);
-                                break;
-                            case (SamusPoseId.KnockbackRightPose, SamusPoseId.DamageBoostRightPose):
-                            case (SamusPoseId.KnockbackLeftPose, SamusPoseId.DamageBoostLeftPose):
-                                // The accepted pose restores normal movement while
-                                // preserving the hurt arc and remaining timer.
-                                SamusKnockbackMovement.ApplyDamageBoostTransition(
-                                    _addressSpace,
-                                    Samus,
-                                    poseAtFrameStart,
-                                    targetPose);
-                                break;
-                            case (SamusPoseId.DamageBoostRightPose,
-                                  SamusPoseId.NeutralJumpRightPose or SamusPoseId.NormalJumpForwardRightPose):
-                            case (SamusPoseId.DamageBoostLeftPose,
-                                  SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpForwardLeftPose):
-                                SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
-                                    _addressSpace,
-                                    Samus,
-                                    targetPose,
-                                    Controller1.NewlyPressed);
-                                break;
-                            case var (source, target)
-                                when ((SamusState.IsRightFacingNormalJumpPose(source) &&
-                                       target == SamusPoseId.TurningRightToLeftJumpPose) ||
-                                      (SamusState.IsLeftFacingNormalJumpPose(source) &&
-                                       target == SamusPoseId.TurningLeftToRightJumpPose) ||
-                                      (SamusState.IsRightFacingFallingPose(source) &&
-                                       target == SamusPoseId.TurningRightToLeftFallingPose) ||
-                                      (SamusState.IsLeftFacingFallingPose(source) &&
-                                       target == SamusPoseId.TurningLeftToRightFallingPose)):
-                                // `$2F/$30/$87/$88` are generic table outputs. The helper
-                                // reads the source shot-direction record, chooses the exact
-                                // `$8F-$A1` art when needed, folds momentum, and runs compact
-                                // pose-expansion collision before committing the turn.
-                                Samus.TryApplyAerialTurn(
-                                    _addressSpace,
-                                    LevelData ?? throw new InvalidOperationException(
-                                        "Aerial turn requires active room level data."),
-                                    target,
-                                    NmiFrameCounter,
-                                    Plms);
-                                break;
-                            case var (source, target)
-                                when (SamusState.IsSpinJumpPose(source) ||
-                                      SamusState.IsWallJumpPose(source)) &&
-                                     SamusState.IsSpinJumpPose(target):
-                                Samus.ApplySpinJumpDirectionTransition(_addressSpace, targetPose);
-                                break;
-                            case var (source, target)
-                                when SamusState.IsStableBallPose(source) &&
-                                     SamusState.IsStableBallPose(target) &&
-                                     !(SamusState.IsGroundedSpringBallPose(source) &&
-                                       target is SamusPoseId.SpringBallJumpRightPose or
-                                           SamusPoseId.SpringBallJumpLeftPose):
-                                // `$1D/$1E/$1F/$31/$32/$41` all share delay list `$B378`.
-                                // The initializer preserves frame/timer and applies mode-one
-                                // reversal momentum only when direction actually changes.
-                                Samus.ApplyMorphBallPoseChange(_addressSpace, target);
-                                break;
-                            case var (source, target)
-                                when SamusState.IsGroundedSpringBallPose(source) &&
-                                     target is SamusPoseId.SpringBallJumpRightPose or
-                                         SamusPoseId.SpringBallJumpLeftPose:
-                                Samus.ApplySpringBallJump(_addressSpace, target);
-                                break;
-                            case var (source, target)
-                                when ((SamusState.ReadPoseXDirection(_addressSpace, source) == 8 &&
-                                       target == SamusPoseId.MorphingTransitionRightPose) ||
-                                      (SamusState.ReadPoseXDirection(_addressSpace, source) == 4 &&
-                                       target == SamusPoseId.MorphingTransitionLeftPose) ||
-                                      (SamusState.IsStableBallPose(source) &&
-                                       target is SamusPoseId.UnmorphingTransitionRightPose or
-                                           SamusPoseId.UnmorphingTransitionLeftPose)):
-                                Samus.TryApplyMorphTransition(
-                                    _addressSpace,
-                                    LevelData ?? throw new InvalidOperationException(
-                                        "Morph transition requires active room level data."),
-                                    targetPose,
-                                    NmiFrameCounter,
-                                    Plms);
-                                break;
-                            case var (source, target)
-                                when (SamusState.IsCompactAerialPose(source) ||
-                                      SamusState.IsCompactAerialPose(target)) &&
-                                     ((SamusState.IsRightFacingNormalJumpPose(source) &&
-                                       SamusState.IsRightFacingNormalJumpPose(target)) ||
-                                      (SamusState.IsLeftFacingNormalJumpPose(source) &&
-                                       SamusState.IsLeftFacingNormalJumpPose(target)) ||
-                                      (SamusState.IsRightFacingFallingPose(source) &&
-                                       SamusState.IsRightFacingFallingPose(target)) ||
-                                      (SamusState.IsLeftFacingFallingPose(source) &&
-                                       SamusState.IsLeftFacingFallingPose(target))):
-                                Samus.TryApplyCompactAerialTransition(
-                                    _addressSpace,
-                                    LevelData ?? throw new InvalidOperationException(
-                                        "Compact aerial transition requires active room level data."),
-                                    targetPose,
-                                    NmiFrameCounter,
-                                    Plms);
-                                break;
-                            case var (source, target)
-                                when (SamusState.IsGroundedAimPose(source) ||
-                                      SamusState.IsGroundedAimPose(target) ||
-                                      SamusState.IsGunExtendedPose(source) ||
-                                      SamusState.IsGunExtendedPose(target)) &&
-                                     (((SamusState.IsRightFacingStandingPose(source) ||
-                                        SamusState.IsRightFacingRunningPose(source) ||
-                                        SamusState.IsRightFacingRanIntoWallPose(source) ||
-                                        SamusState.IsRightFacingLandingPose(source)) &&
-                                       (SamusState.IsRightFacingStandingPose(target) ||
-                                        SamusState.IsRightFacingRunningPose(target) ||
-                                        SamusState.IsRightFacingRanIntoWallPose(target))) ||
-                                      ((SamusState.IsLeftFacingStandingPose(source) ||
-                                        SamusState.IsLeftFacingRunningPose(source) ||
-                                        SamusState.IsLeftFacingRanIntoWallPose(source) ||
-                                        SamusState.IsLeftFacingLandingPose(source)) &&
-                                       (SamusState.IsLeftFacingStandingPose(target) ||
-                                        SamusState.IsLeftFacingRunningPose(target) ||
-                                        SamusState.IsLeftFacingRanIntoWallPose(target))) ||
-                                      (SamusState.IsRightFacingCrouchingPose(source) &&
-                                       SamusState.IsRightFacingCrouchingPose(target)) ||
-                                      (SamusState.IsLeftFacingCrouchingPose(source) &&
-                                       SamusState.IsLeftFacingCrouchingPose(target))):
-                                Samus.ApplyGroundedAimTransition(_addressSpace, targetPose);
-                                break;
-                            case var (source, target)
-                                when SamusState.IsSameFacingAerialAimFireOrForwardTransition(
-                                    source,
-                                    target):
-                                Samus.ApplyAerialAimTransition(_addressSpace, targetPose);
-                                break;
-                            case (SamusPoseId.FacingRightNormalPose, SamusPoseId.MovingRightNormalPose):
-                                Samus.ApplyStandingRightToRunningRight(_addressSpace);
-                                break;
-                            case (SamusPoseId.FacingLeftNormalPose, SamusPoseId.MovingLeftNormalPose):
-                                Samus.ApplyStandingLeftToRunningLeft(_addressSpace);
-                                break;
-                            case var (source, target)
-                                when SamusState.IsRanIntoWallPose(source) &&
-                                     (SamusState.IsRightFacingRunningPose(target) ||
-                                      SamusState.IsLeftFacingRunningPose(target)):
-                                Samus.ApplyRanIntoWallToRunning(_addressSpace, target);
-                                break;
-                            case var (forwardSource, forwardTarget)
-                                when SamusState.IsForwardFacingPose(forwardSource) &&
-                                     forwardTarget is
-                                         SamusPoseId.TurningRightToLeftPose or
-                                         SamusPoseId.TurningLeftToRightPose:
-                                // Ceres releases controls while `$00` is still active.
-                                // Its own ROM transition table maps Left/Right to generic
-                                // `$25/$26`; `$91:F8D3` recognizes old pose `$00/$9B` and
-                                // preserves that target without inventing a source facing.
-                                Samus.ApplyGroundedTurn(_addressSpace, targetPose, Controller1.Current);
-                                break;
-                            case var (rightSource, rightTarget)
-                                when rightTarget is
-                                         SamusPoseId.TurningRightToLeftPose or
-                                         SamusPoseId.TurningRightToLeftCrouchingPose &&
-                                     (SamusState.IsRightFacingStandingPose(rightSource) ||
-                                      SamusState.IsRightFacingRunningPose(rightSource) ||
-                                      SamusState.IsMoonwalkingFacingRightPose(rightSource) ||
-                                      SamusState.IsRightFacingRanIntoWallPose(rightSource) ||
-                                      SamusState.IsRightFacingCrouchingPose(rightSource) ||
-                                      SamusState.IsRightFacingLandingPose(rightSource)):
-                            case var (leftSource, leftTarget)
-                                when leftTarget is
-                                         SamusPoseId.TurningLeftToRightPose or
-                                         SamusPoseId.TurningLeftToRightCrouchingPose &&
-                                     (SamusState.IsLeftFacingStandingPose(leftSource) ||
-                                      SamusState.IsLeftFacingRunningPose(leftSource) ||
-                                      SamusState.IsMoonwalkingFacingLeftPose(leftSource) ||
-                                      SamusState.IsLeftFacingRanIntoWallPose(leftSource) ||
-                                      SamusState.IsLeftFacingCrouchingPose(leftSource) ||
-                                      SamusState.IsLeftFacingLandingPose(leftSource)):
-                                Samus.ApplyGroundedTurn(_addressSpace, targetPose, Controller1.Current);
-                                break;
-                            case var (source, target)
-                                when ((SamusState.IsRightFacingStandingPose(source) ||
-                                       SamusState.IsRightFacingRanIntoWallPose(source)) &&
-                                      SamusState.IsRightFacingNormalJumpPose(target) &&
-                                      target is
-                                          SamusPoseId.NeutralJumpTransitionRightPose or
-                                          SamusPoseId.NormalJumpTransitionAimUpRightPose or
-                                          SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose or
-                                          SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose) ||
-                                     ((SamusState.IsLeftFacingStandingPose(source) ||
-                                       SamusState.IsLeftFacingRanIntoWallPose(source)) &&
-                                      SamusState.IsLeftFacingNormalJumpPose(target) &&
-                                      target is
-                                          SamusPoseId.NeutralJumpTransitionLeftPose or
-                                          SamusPoseId.NormalJumpTransitionAimUpLeftPose or
-                                          SamusPoseId.NormalJumpTransitionAimDiagonalUpLeftPose or
-                                          SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose) ||
-                                     SamusState.IsLandingToNormalJumpTransition(source, target):
-                                // All `$A4-$A7/$E0-$E7` landing records expose the same
-                                // standing input table while their brief streams are active.
-                                // A fresh Jump edge can therefore preserve any authored
-                                // normal-jump aim target, even from horizontal-fire `$E6/$E7`
-                                // before `$F8` fallback.
-                            case (SamusPoseId.MovingRightNormalPose,
-                                  SamusPoseId.SpinJumpRightPose):
-                            case (SamusPoseId.MovingRightGunExtendedPose,
-                                  SamusPoseId.SpinJumpRightPose):
-                            case (SamusPoseId.RunningAimUpRightPose or
-                                  SamusPoseId.RunningAimDiagonalUpRightPose or
-                                  SamusPoseId.RunningAimDiagonalDownRightPose,
-                                  SamusPoseId.SpinJumpRightPose):
-                            case (SamusPoseId.MovingLeftNormalPose,
-                                  SamusPoseId.SpinJumpLeftPose):
-                            case (SamusPoseId.MovingLeftGunExtendedPose,
-                                  SamusPoseId.SpinJumpLeftPose):
-                            case (SamusPoseId.RunningAimUpLeftPose or
-                                  SamusPoseId.RunningAimDiagonalUpLeftPose or
-                                  SamusPoseId.RunningAimDiagonalDownLeftPose,
-                                  SamusPoseId.SpinJumpLeftPose):
-                            case var (turnSourcePose, turnTargetPose)
-                                when SamusState.IsStandingGroundTurnToJumpTransition(
-                                    turnSourcePose,
-                                    turnTargetPose):
-                                // Every standing `$0E` turn—including the aimed `$8B-$8E`
-                                // and `$9C/$9D` records—continues consulting `$91:8142`.
-                                // That table can interrupt the art with either same-facing
-                                // spin or neutral jump. Preserve newly pressed Shoot as well:
-                                // the normal-jump initializer owns the simultaneous
-                                // Jump+Fire bridge when the selected body is type two.
-                                Samus.ApplyOrdinaryJumpTransition(
-                                    _addressSpace,
-                                    targetPose,
-                                    Controller1.NewlyPressed);
-                                break;
-                            case var (source, target)
-                                when ((SamusState.IsRightFacingCrouchingPose(source) &&
-                                       target == SamusPoseId.NeutralJumpTransitionRightPose) ||
-                                      (SamusState.IsLeftFacingCrouchingPose(source) &&
-                                       target == SamusPoseId.NeutralJumpTransitionLeftPose)):
-                                // `$91:A66C/$91:A6BC` use the ordinary `$4B/$4C` transition
-                                // art for every crouched aim direction. The helper preserves
-                                // `$91:FC7D`'s literal `$27/$28`-only ten-pixel adjustment.
-                                Samus.TryApplyCrouchJumpTransition(
-                                    _addressSpace,
-                                    LevelData ?? throw new InvalidOperationException(
-                                        "Crouch jump requires active room level data."),
-                                    targetPose,
-                                    NmiFrameCounter,
-                                    Plms);
-                                break;
-                            case var (source, target)
-                                when (SamusState.IsSpinJumpPose(source) ||
-                                      SamusState.IsWallJumpPose(source)) &&
-                                     (SamusState.IsRightFacingNormalJumpPose(target) ||
-                                      SamusState.IsLeftFacingNormalJumpPose(target)):
-                                // Aim and Fire cancel both compact spin and `$83/$84` wall-
-                                // jump bodies through the same normal-jump initializer without
-                                // restarting the jump arc. `$91:A9EC`, for example, maps Shot
-                                // directly from `$83` to `$13`. The shared helper performs
-                                // changed-pose collision for every radius expansion; a rejected
-                                // body leaves the compact source pose installed.
-                                Samus.TryApplySpinOrWallJumpToNormalJumpTransition(
-                                    _addressSpace,
-                                    LevelData ?? throw new InvalidOperationException(
-                                        "Spin-to-normal-jump transition requires active room level data."),
-                                    targetPose,
-                                    NmiFrameCounter,
-                                    Controller1.NewlyPressed,
-                                    Plms);
-                                break;
-                            case var (source, target)
-                                when (source == SamusPoseId.UnmorphingTransitionRightPose &&
-                                      SamusState.IsRightFacingFallingPose(target)) ||
-                                     (source == SamusPoseId.UnmorphingTransitionLeftPose &&
-                                      SamusState.IsLeftFacingFallingPose(target)):
-                                // Route an animation/collision-selected falling body through
-                                // ordinary expansion collision while preserving the fall.
-                                // Posture transitions do not poll controller pose tables:
-                                // the type-$0F input handler returns before lookup.
-                                Samus.TryApplyUnmorphToFallingTransition(
-                                    _addressSpace,
-                                    LevelData ?? throw new InvalidOperationException(
-                                        "Unmorph-to-falling transition requires active room level data."),
-                                    targetPose,
-                                    NmiFrameCounter,
-                                    Plms);
-                                break;
-                            case var (source, target)
-                                when ((SamusState.IsRightFacingCrouchingPose(source) &&
-                                       target == SamusPoseId.FacingRightNormalPose) ||
-                                      (SamusState.IsLeftFacingCrouchingPose(source) &&
-                                       target == SamusPoseId.FacingLeftNormalPose)):
-                                // These direct `$01/$02` records bypass the animated
-                                // `$F7-$FC` stand-up family, but still run pose-expansion
-                                // collision before installing the final standing body.
-                                Samus.TryApplyDirectCrouchToStandingTransition(
-                                    _addressSpace,
-                                    LevelData ?? throw new InvalidOperationException(
-                                        "Direct crouch exit requires active room level data."),
-                                    targetPose,
-                                    NmiFrameCounter,
-                                    Plms);
-                                break;
-                            case var (landingSource, landingTarget)
-                                when (landingTarget == SamusPoseId.MovingRightNormalPose &&
-                                      SamusState.IsRightFacingLandingPose(landingSource)) ||
-                                     (landingTarget == SamusPoseId.MovingLeftNormalPose &&
-                                      SamusState.IsLeftFacingLandingPose(landingSource)):
-                                Samus.ApplyLandingToRunning(_addressSpace, targetPose);
-                                break;
-                            case var (source, postureTarget)
-                                when SamusState.IsCrouchStandTransitionPose(postureTarget) &&
-                                     (SamusState.IsRightFacingStandingPose(source) ||
-                                      SamusState.IsLeftFacingStandingPose(source) ||
-                                      SamusState.IsRightFacingRunningPose(source) ||
-                                      SamusState.IsLeftFacingRunningPose(source) ||
-                                      SamusState.IsMoonwalkingPose(source) ||
-                                      SamusState.IsRanIntoWallPose(source) ||
-                                      SamusState.IsRightFacingLandingPose(source) ||
-                                      SamusState.IsLeftFacingLandingPose(source) ||
-                                      SamusState.IsRightFacingCrouchingPose(source) ||
-                                      SamusState.IsLeftFacingCrouchingPose(source)):
-                                Samus.TryApplyPostureTransition(
-                                    _addressSpace,
-                                    LevelData ?? throw new InvalidOperationException(
-                                        "Posture transition requires active room level data."),
-                                    targetPose,
-                                    NmiFrameCounter,
-                                    Plms);
-                                break;
-                            case var (source, sparkTarget)
-                                when source is
-                                         SamusPoseId.ShinesparkWindupRightPose or
-                                         SamusPoseId.ShinesparkWindupLeftPose &&
-                                     sparkTarget is
-                                         SamusPoseId.ShinesparkHorizontalRightPose or
-                                         SamusPoseId.ShinesparkHorizontalLeftPose or
-                                         SamusPoseId.ShinesparkVerticalRightPose or
-                                         SamusPoseId.ShinesparkVerticalLeftPose or
-                                         SamusPoseId.ShinesparkDiagonalRightPose or
-                                         SamusPoseId.ShinesparkDiagonalLeftPose:
-                                // `$91:AD6C/$AD80` are ordinary held/new input records, but
-                                // `$91:F80F` installs a special movement pointer instead of
-                                // invoking a normal movement-type initializer.
-                                Samus.ApplyShinesparkDirectionTransition(
-                                    _addressSpace,
-                                    targetPose);
-                                break;
-                            default:
-                                // MOVEMENT_COVERAGE exhaustively audits every active retail
-                                // transition pair entering this dispatcher. A ROM match not
-                                // owned by one of the explicit families above means the pose
-                                // table or state was mixed from an incompatible revision.
-                                throw new InvalidDataException(
-                                    $"Grounded input transition ${(int)poseAtFrameStart:X2} -> " +
-                                    $"${(int)targetPose:X2} escaped the exhaustive retail dispatcher.");
-                        }
-                    }
-                }
-                else if (!animationTransitionApplied &&
-                         poseAtFrameStart is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose &&
-                         ProspectiveSamusFallbackPose == poseAtFrameStart)
-                {
-                    // The retained hurt pose still executes prospective command two.
-                    // Reset deceleration and cancel the momentum flag after movement.
-                    // Extra speed survives this command, but the next normal mover
-                    // consumes the cancellation through HandleExtraRunSpeed.
-                    Samus.HorizontalSpeed.AccelerationMode = 0;
-                    Samus.HorizontalSpeed.CancelRunningMomentum(Samus.ReadFacingDirection(_addressSpace));
-                }
-                else if (!animationTransitionApplied &&
-                         poseAtFrameStart is SamusPoseId.DamageBoostRightPose or SamusPoseId.DamageBoostLeftPose &&
-                         ProspectiveSamusFallbackPose is { } boostFallback &&
-                         boostFallback != poseAtFrameStart)
-                {
-                    // Releasing every boost chord reaches definition byte two, `$4D/$4E`:
-                    // the same initializer as the table's held-Jump exit.
-                    SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
-                        _addressSpace,
-                        Samus,
-                        unchecked(boostFallback),
-                        Controller1.NewlyPressed);
-                }
-                else if (!animationTransitionApplied &&
-                         SamusState.IsDraygonGrabbedPose(poseAtFrameStart) &&
-                         ProspectiveSamusFallbackPose is { } draygonFallback)
-                {
-                    // Zero input uses pose-definition byte two, returning aimed/firing/
-                    // struggling art to neutral `$BA/$EC` without touching owner placement.
-                    Samus.ApplyDraygonGrabbedPoseChange(
-                        _addressSpace,
-                        unchecked(draygonFallback));
-                }
-                else if (!animationTransitionApplied &&
-                         SamusState.IsWallJumpPose(poseAtFrameStart) &&
-                         ProspectiveSamusFallbackPose is
-                             SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
-                {
-                    // Definition byte two leaves the launch animation for ordinary spin
-                    // art. Type $14 selects command six in $91:8304. HandleSamusPoseChange
-                    // ($91:F426) sets carry only when InitializeSamusPose itself replaces the
-                    // installed pose; then UpdateSamusPose ($91:EBEE) skips the command. So
-                    // a spin jump keeps its launch speed only when initialization promotes it
-                    // to Space Jump or Screw Attack; otherwise EC85 clears base/extra speed.
-                    SamusPoseId spinFallback = unchecked(ProspectiveSamusFallbackPose.Value);
-                    Samus.ApplySpinJumpDirectionTransition(_addressSpace, spinFallback);
-                    if (Samus.Pose == spinFallback)
-                        Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
-                }
-                else if (!animationTransitionApplied &&
-                         poseAtFrameStart is SamusPoseId.MorphBallFallingRightPose or SamusPoseId.MorphBallFallingLeftPose &&
-                         ProspectiveSamusFallbackPose == poseAtFrameStart)
-                {
-                    Samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
-                        deceleratingFallbackHasMomentum, Samus.ReadFacingDirection(_addressSpace));
-                }
-                else if (!animationTransitionApplied &&
-                         poseAtFrameStart is SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose or
-                             SamusPoseId.SpringBallFallingRightPose or SamusPoseId.SpringBallFallingLeftPose &&
-                         ProspectiveSamusFallbackPose == poseAtFrameStart)
-                {
-                    // Spring Ball in air/falling (types $12/$13) select command six in
-                    // $91:8304. After this frame's movement, $91:EC85 clears mode and base
-                    // speed and falls through to $91:EC8E's boost/extra-speed cancel.
-                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
-                }
-                else if (!animationTransitionApplied &&
-                         poseAtFrameStart is SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallGroundLeftPose or
-                             SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose &&
-                         ProspectiveSamusFallbackPose == poseAtFrameStart)
-                {
-                    // $91:EC85 clears base/mode, then cancels extra running momentum.
-                    // Consume the same-pose command after this frame's movement.
-                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
-                }
-                else if (!animationTransitionApplied &&
-                         (poseAtFrameStart is SamusPoseId.MorphBallMovingRightPose or
-                             SamusPoseId.MorphBallMovingLeftPose or
-                             SamusPoseId.SpringBallMovingRightPose or
-                             SamusPoseId.SpringBallMovingLeftPose) &&
-                         ProspectiveSamusFallbackPose == poseAtFrameStart)
-                {
-                    // Prospective command one rechecks the post-movement base words. A
-                    // residue selects mode two deceleration; exact zero falls through to
-                    // command two's stopped mode and definition fallback on the next frame.
-                    Samus.HorizontalSpeed.AccelerationMode =
-                        Samus.HorizontalSpeed.BaseFixed != 0 ? (ushort)2 : (ushort)0;
-                }
-                else if (!animationTransitionApplied &&
-                         (poseAtFrameStart is SamusPoseId.MorphBallMovingRightPose or
-                             SamusPoseId.MorphBallMovingLeftPose or
-                             SamusPoseId.SpringBallMovingRightPose or
-                             SamusPoseId.SpringBallMovingLeftPose) &&
-                         ProspectiveSamusFallbackPose is
-                             SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallGroundLeftPose or
-                             SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose)
-                {
-                    // $91:EC85 command six clears base and extra momentum after the
-                    // current movement frame for both grounded ball movement types.
-                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
-                    Samus.ApplyMorphBallPoseChange(
-                        _addressSpace,
-                        unchecked(ProspectiveSamusFallbackPose.Value));
-                }
-                else if (!animationTransitionApplied &&
-                         (SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
-                          SamusState.IsLeftFacingRunningPose(poseAtFrameStart)) &&
-                         ProspectiveSamusFallbackPose == poseAtFrameStart)
-                {
-                    // Retaining the running fallback selected command one in alpha.
-                    // After movement, fold extra dash speed into base and cancel boost
-                    // before decelerating; changing only the mode leaves stale dash
-                    // speed alive and changes the subsequent stopping trajectory.
-                    Samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
-                        selectedMomentumCommand: true, Samus.ReadFacingDirection(_addressSpace));
-                }
-                else if (!animationTransitionApplied &&
-                         SamusState.IsRightFacingRunningPose(poseAtFrameStart) &&
-                         ProspectiveSamusFallbackPose == SamusPoseId.FacingRightNormalPose)
-                {
-                    Samus.HorizontalSpeed.AccelerationMode = 0;
-                    if (poseAtFrameStart == SamusPoseId.MovingRightNormalPose)
-                        Samus.ApplyRunningRightToStandingRight(_addressSpace);
-                    else
-                        Samus.ApplyGroundedAimTransition(_addressSpace, SamusPoseId.FacingRightNormalPose);
-                }
-                else if (!animationTransitionApplied &&
-                         SamusState.IsLeftFacingRunningPose(poseAtFrameStart) &&
-                         ProspectiveSamusFallbackPose == SamusPoseId.FacingLeftNormalPose)
-                {
-                    Samus.HorizontalSpeed.AccelerationMode = 0;
-                    if (poseAtFrameStart == SamusPoseId.MovingLeftNormalPose)
-                        Samus.ApplyRunningLeftToStandingLeft(_addressSpace);
-                    else
-                        Samus.ApplyGroundedAimTransition(_addressSpace, SamusPoseId.FacingLeftNormalPose);
-                }
-                else if (!animationTransitionApplied &&
-                         SamusState.IsMoonwalkingPose(poseAtFrameStart) &&
-                         ProspectiveSamusFallbackPose is { } moonwalkFallback)
-                {
-                    // Command two selected the literal standing/aim fallback during alpha.
-                    // Applying it after movement preserves the native one-last-step timing.
-                    Samus.ApplyMoonwalkPoseChange(
-                        _addressSpace,
-                        unchecked(moonwalkFallback),
-                        MoonwalkEnabled);
-                }
-                else if (!animationTransitionApplied &&
-                         SamusState.IsAimedRanIntoWallPose(poseAtFrameStart) &&
-                         ProspectiveSamusFallbackPose is { } wallFallback)
-                {
-                    // `$CF-$D2` store `$89/$8A` in pose-definition byte two. The stable
-                    // target shares radius, animation list, and type-$15 cleanup physics.
-                    Samus.ApplyGroundedAimTransition(
-                        _addressSpace,
-                        unchecked(wallFallback));
-                }
-                else if (!animationTransitionApplied &&
-                         (poseAtFrameStart is
-                              SamusPoseId.StandingAimUpRightPose or
-                              SamusPoseId.StandingAimUpLeftPose or
-                              SamusPoseId.StandingAimDiagonalUpRightPose or
-                              SamusPoseId.StandingAimDiagonalUpLeftPose or
-                              SamusPoseId.StandingAimDiagonalDownRightPose or
-                              SamusPoseId.StandingAimDiagonalDownLeftPose ||
-                          SamusState.IsAimedCrouchingPose(poseAtFrameStart)) &&
-                         ProspectiveSamusFallbackPose is { } aimFallback)
-                {
-                    // Only `$91:82D9`'s explicit fallback path above populates this value.
-                    // Validate and apply it through the same radius/animation seam as
-                    // held-input aim changes; never assign the ROM byte directly to Pose.
-                    Samus.ApplyGroundedAimTransition(
-                        _addressSpace,
-                        unchecked(aimFallback));
-                }
-                else if (!animationTransitionApplied &&
-                         usePoseDefinitionFallback && ProspectiveSamusPose is null &&
-                         Samus.Pose == poseAtFrameStart &&
-                         SamusState.IsAimedCrouchingTurnPose(poseAtFrameStart) &&
-                         ProspectiveSamusFallbackPose is { } crouchingTurnFallback)
-                {
-                    Samus.ApplyAimedCrouchingTurnInputFallback(
-                        _addressSpace,
-                        unchecked(crouchingTurnFallback));
-                }
-                else if (!animationTransitionApplied &&
-                         usePoseDefinitionFallback && ProspectiveSamusPose is null &&
-                         Samus.Pose == poseAtFrameStart &&
-                         (SamusState.IsAerialTurnPose(poseAtFrameStart) ||
-                          movementTypeAtFrameStart == SamusMovementType.TurningOnGround))
-                {
-                    // A $FF definition fallback retains the animation, not the momentum
-                    // command. Native command two still cancels reverse acceleration,
-                    // for ground turns ($0E) exactly as for aerial ones ($17/$18).
-                    Samus.ApplyTurnInputFallback(_addressSpace, movementTypeAtFrameStart);
-                }
-                else if (!animationTransitionApplied &&
-                         movementTypeAtFrameStart == SamusMovementType.NormalJumping &&
-                         ProspectiveSamusFallbackPose is { } jumpFallback)
-                {
-                    // An unchanged prospective pose must not reset animation or invoke
-                    // compact-radius expansion. Command one still folds momentum after
-                    // beta movement and rechecks the remaining base speed there.
-                    if (jumpFallback != Samus.Pose)
-                        Samus.ApplyAerialAimTransition(_addressSpace, unchecked(jumpFallback));
-                    Samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
-                        deceleratingFallbackHasMomentum, Samus.ReadFacingDirection(_addressSpace));
-                }
-                else if (!animationTransitionApplied &&
-                         SamusState.IsAimedAerialPose(poseAtFrameStart) &&
-                         ProspectiveSamusFallbackPose is { } aerialFallback)
-                {
-                    // Install the fallback's pose metadata and native initializer first.
-                    // Falling command eight below then clears only the extra component;
-                    // it must not be folded into base speed like running deceleration.
-                    // A retained compact pose selects history/momentum work only;
-                    // native pose initialization and animation restart require a change.
-                    if (aerialFallback != Samus.Pose)
-                        Samus.ApplyAerialAimTransition(
-                            _addressSpace,
-                            unchecked(aerialFallback));
-                }
-
-                // Crouching selects command two only on lookup failure. A matched
-                // angle-held pose must retain boost even though movement zeroed X speed.
-                if (!animationTransitionApplied && usePoseDefinitionFallback &&
-                    ProspectiveSamusPose is null &&
-                    movementTypeAtFrameStart == SamusMovementType.Crouching &&
-                    Samus.ReadMovementType(_addressSpace) == SamusMovementType.Crouching)
-                    Samus.HorizontalSpeed.ApplyStoppedInputFallback(Samus.ReadFacingDirection(_addressSpace));
-
-                // Windup still runs the ordinary type-$1B input lookup. Its unmatched
-                // chord selects command two at $91:8304, just like crouching. Skipping
-                // this loses the one-frame momentum cancellation before a delayed
-                // midair launch. A selected launch or timeout must win instead.
-                if (!animationTransitionApplied && usePoseDefinitionFallback &&
-                    ProspectiveSamusPose is null &&
-                    poseAtFrameStart is SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose &&
-                    Samus.Shinespark.Phase == ShinesparkPhase.Windup)
-                    Samus.HorizontalSpeed.ApplyStoppedInputFallback(Samus.ReadFacingDirection(_addressSpace));
-
-                // Falling's lookup-failure command still runs when its definition
-                // retains the current pose. It follows pose initialization, and must
-                // not run when a higher-priority collision or interruption won.
-                if (!animationTransitionApplied && usePoseDefinitionFallback &&
-                    ProspectiveSamusPose is null &&
-                    movementTypeAtFrameStart == SamusMovementType.Falling &&
-                    Samus.ReadMovementType(_addressSpace) == SamusMovementType.Falling)
-                    Samus.ApplyFallingInputFallback(_addressSpace);
-
-                // F433's normal-jump initializer publishes the fresh Shoot direction
-                // for every accepted route, including aim changes within a jump. The
-                // earlier projectile epilogue cleared the previous update's handoff.
-                if (Samus.Pose != Samus.PoseHistory.PreviousPose)
-                    Samus.PublishNormalJumpPoseShotDirection(_addressSpace, Controller1.NewlyPressed);
-
-                // $91:EB88 shifts history after consuming any transition slot,
-                // including a self-transition. A frame with no selected transition
-                // does not shift it. Keep this after final collision/pose selection.
-                // The translated grapple launch applies its $9B:C9CE transitional
-                // slot early and clears ordinary alpha input. It still reaches this
-                // same native history epilogue, once, after the forced launch pose.
-                // X-ray setup applies interrupted-slot command five early and clears
-                // ordinary alpha targets. Preserve its final history commit here.
-                if (animationTransitionApplied || xrayActivatedThisFrame || LastGrappleMovement is { WallJumpStarted: true } ||
-                    ProspectiveSamusPose is not null ||
-                    ProspectiveSamusFallbackPose is not null)
-                    Samus.CommitPoseHistory(_addressSpace);
-            }
-
-            if (!deathOwnsSamus && !IsAttractDemo)
+            if (!frame.DeathOwnsSamus && !AttractDemo.IsAttractDemo)
             {
                 // Normal beta ends with HandlePeriodicDamageToSamus ($90:E9CE), PauseCheck and
                 // LowEnergyCheck, before the enemy-projectile and PLM handlers. Damage those
@@ -3309,134 +744,28 @@ Landed: true, HitCeiling: false);
                 // Demo beta omits these calls. X-ray freezes time and therefore clears
                 // rather than applies accumulated damage; fatal zero-energy game-state
                 // acquisition remains the outer seam.
-                Samus.LiquidPhysics.ApplyPeriodicDamage(
-                    Samus,
-                    timeIsFrozen: TimeIsFrozen);
+                Player.Samus.LiquidPhysics.ApplyPeriodicDamage(
+                    Player.Samus,
+                    timeIsFrozen: Freeze.TimeIsFrozen);
                 // Locked/elevator/appearance handlers omit LowEnergyCheck; gunship command
                 // $1A installs a dedicated checker. Automatic reserves invoke their external
                 // check in the frontend.
-                if ((!Samus.InputLocked || Enemies.HasGunshipHealthHandler) &&
-                    !Samus.Xray.OwnsSamusControl)
+                if ((!Player.Samus.InputLocked || Enemies.GunshipHealthBehavior.HasGunshipHealthHandler) &&
+                    !Player.Samus.Xray.OwnsSamusControl)
                     frameRequest.Audio.CheckLowHealth?.Invoke();
             }
 
-            if (!deathOwnsSamus)
-                RunEnemyProjectileHandler();
+            if (!frame.DeathOwnsSamus)
+                DoorTransition.RunEnemyProjectileHandler();
 
-            // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
-            // enemy-projectile passes but before MainScrollingRoutine. A grapple block
-            // acquired above therefore consumes its initial timer and draws $E0B7 in this
-            // same frame; when it later becomes air, anchor validation has already run and
-            // sees that mutation on the following Samus frame.
-            if (!deathOwnsSamus && !TimeIsFrozen && !Samus.Xray.ArePlmsSuspended)
-            {
-                RunPlmHandlerCore(Controller1.NewlyPressed);
-
-                // Item PLMs publish acquisition only after their native trigger and
-                // handler pass. Apply the hardware-facing consequences at that same seam:
-                // beam combinations replace the projectile character/palette staging, and
-                // suit changes defer their visible palette reveal until bank-$88 stage
-                // three after the message. Resource tanks and other equipment bits are
-                // consumed directly by the HUD/movement owners.
-                foreach (CollectiblePickupEvent pickup in Plms.CollectiblePickupEvents)
-                {
-                    if (pickup.Kind is
-                        InWorldCollectibleKind.ChargeBeam or
-                        InWorldCollectibleKind.IceBeam or
-                        InWorldCollectibleKind.WaveBeam or
-                        InWorldCollectibleKind.SpazerBeam or
-                        InWorldCollectibleKind.PlasmaBeam)
-                    {
-                        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
-                            _addressSpace,
-                            VramWrites,
-                            Cgram,
-                            Samus.EquippedBeams, BeamArtwork);
-                    }
-                    else if (pickup.Kind is
-                             InWorldCollectibleKind.VariaSuit or
-                             InWorldCollectibleKind.GravitySuit)
-                    {
-                        if (_pendingSuitPickup is not null || SuitPickup.IsActive)
-                        {
-                            throw new InvalidDataException(
-                                "A second suit pickup attempted to replace an active transformation.");
-                        }
-                        _pendingSuitPickup = pickup.Kind == InWorldCollectibleKind.VariaSuit
-                            ? SamusSuitPickupKind.Varia
-                            : SamusSuitPickupKind.Gravity;
-                    }
-
-                    if (MessageBox.IsActive)
-                    {
-                        throw new InvalidDataException(
-                            "Multiple permanent items attempted to enter the synchronous " +
-                            "bank-$85 message routine during one PLM pass.");
-                    }
-                    MessageBox.Begin(_addressSpace, pickup.MessageBoxIndex, Controller1.Current);
-                }
-                foreach (StationActivationEvent station in Plms.StationActivationEvents)
-                {
-                    if (station.Kind == StationKind.Save)
-                    {
-                        if (station.MessageBoxIndex == GameplayMessageIds.SaveConfirmation)
-                        {
-                            if (_pendingSaveStation is not null ||
-                                _pendingSaveStationCompletion is not null ||
-                                MessageBox.IsActive)
-                            {
-                                throw new InvalidDataException(
-                                    "A save station attempted to replace an active PLM message owner.");
-                            }
-                            _pendingSaveStation = station;
-                            MessageBox.Begin(
-                                _addressSpace,
-                                GameplayMessageIds.SaveConfirmation,
-                                Controller1.Current);
-                            continue;
-                        }
-                        if (station.MessageBoxIndex == GameplayMessageIds.SaveCompleted)
-                        {
-                            if (_pendingSaveStation is not null ||
-                                _pendingSaveStationCompletion is not null ||
-                                MessageBox.IsActive)
-                            {
-                                throw new InvalidDataException(
-                                    "A completed save station attempted to replace an active message owner.");
-                            }
-                            _pendingSaveStationCompletion = station;
-                            MessageBox.Begin(_addressSpace, GameplayMessageIds.SaveCompleted, Controller1.Current);
-                            continue;
-                        }
-                        throw new InvalidDataException(
-                            $"Save station published unexpected message ${(int)station.MessageBoxIndex:X2}.");
-                    }
-                    if (MessageBox.IsActive)
-                    {
-                        throw new InvalidDataException(
-                            "Multiple PLMs attempted to enter the synchronous bank-$85 " +
-                            "message routine during one handler pass.");
-                    }
-                    MessageBox.Begin(_addressSpace, station.MessageBoxIndex, Controller1.Current);
-                }
-                foreach (MotherBrainGlassProjectileRequest request in
-                         Plms.MotherBrainGlassProjectileRequests)
-                {
-                    Enemies.SpawnMotherBrainGlassProjectile(request);
-                }
-                foreach (BombTorizoStatueProjectileRequest request in
-                         Plms.BombTorizoStatueProjectileRequests)
-                {
-                    Enemies.SpawnBombTorizoStatueBreakingProjectile(request);
-                }
-            }
+            PlmPhase.RunPlmPhase(frame.DeathOwnsSamus, Player.Samus);
 
             // $A2:AB1F calls the bank-$85 routine from inside EnemyMain, after this frame's
             // ship bob and earlier owners ran. The prompt exists only while Samus is locked
             // inside the ship, so the owners between EnemyMain and here have nothing to
             // act on; the box therefore opens at this shared suspension seam, and the
             // remainder resumes after the YES/NO/completion chain returns.
-            if (Enemies.GunshipSavePromptPending)
+            if (Enemies.GunshipBehavior.GunshipSavePromptPending)
             {
                 if (MessageBox.IsActive)
                 {
@@ -3447,10 +776,10 @@ Landed: true, HitCeiling: false);
             }
 
             frameTail = new SuspendedGameplayFrameTail(
-                deathOwnsSamus,
-                previousCameraPoint,
-                stationaryScriptControlLocked,
-                suitOwnsSamus);
+                frame.DeathOwnsSamus,
+                frame.PreviousCameraPoint,
+                frame.StationaryScriptControlLocked,
+                frame.SuitOwnsSamus);
         }
 
         // Bank $85's message routine runs inside PLM_Handler: the rest of this gameplay
@@ -3461,7 +790,7 @@ Landed: true, HitCeiling: false);
             _suspendedFrameTail = suspendedTail;
             // Producers up to PLM_Handler queued their sounds before DisplayMessageBox's
             // entry cancel; the frontend publishes this frame's requests at that boundary.
-            CompletedGameplayAudioPublication++;
+            NmiHandler.CompletedGameplayAudioPublication++;
             return Snapshot(infiniteAmmoGuard);
         }
         return FinishGameplayFrame(frameTail, frameRequest.Policy, infiniteAmmoGuard, resumedAfterMessageBox: false);
@@ -3471,22 +800,22 @@ Landed: true, HitCeiling: false);
     /// The remainder of gameplay state eight after <c>PLM_Handler</c>. A frame whose PLM
     /// pass opened a message box parks this state and resumes it when the box closes.
     /// </summary>
-    private RuntimeFrameResult FinishGameplayFrame(
+    internal RuntimeFrameResult FinishGameplayFrame(
         SuspendedGameplayFrameTail? frameTail,
         RuntimeFramePolicy policy,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard,
         bool resumedAfterMessageBox)
     {
-        if (frameTail is { } tail && Samus is not null && Camera is not null)
+        if (frameTail is { } tail && Player.Samus is not null && Room.Camera is not null)
         {
             bool deathOwnsSamus = tail.DeathOwnsSamus;
             FixedPosition<RoomPixels> previousCameraPoint = tail.PreviousCameraPoint;
             bool stationaryScriptControlLocked = tail.StationaryScriptControlLocked;
             bool suitOwnsSamus = tail.SuitOwnsSamus;
-            if (!deathOwnsSamus && !TimeIsFrozen)
+            if (!deathOwnsSamus && !Freeze.TimeIsFrozen)
             {
-                Enemies.ResolveEnemyProjectileSamusHits(Samus);
-                Enemies.ResolveEnemyProjectileSamusProjectileHits(
+                Enemies.Projectiles.ResolveEnemyProjectileSamusHits(Player.Samus);
+                Enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                     _addressSpace, Projectiles, BombProjectiles);
                 // GameState_8 calls `$A0:A306` every gameplay frame after the enemy-
                 // projectile passes. The native routine reads the high byte of live WRAM
@@ -3495,26 +824,26 @@ Landed: true, HitCeiling: false);
                 // expansion/afterglow radius from damaging one actor every frame.
                 SamusPowerBombExplosionState powerBomb =
                     BombProjectiles.PowerBombExplosion;
-                Enemies.ResolveOrdinaryPowerBombHits(
+                Enemies.Collision.ResolveOrdinaryPowerBombHits(
                     _addressSpace,
                     powerBomb.Position,
                     SnesUnsignedEightEight.Whole(powerBomb.ExplosionRadius),
-                    Samus);
+                    Player.Samus);
             }
 
             // Native GameState_8 runs bank-$86 enemy projectiles immediately after Samus's
             // movement handler and before MainScrollingRoutine. The two fresh-Ceres actors
             // use that slot to lower Samus one pixel at a time; moving this call below the
             // camera would make the viewport trail one frame behind the cartridge.
-            if (!deathOwnsSamus && CeresElevatorArrival is { IsComplete: false } arrival)
+            if (!deathOwnsSamus && Room.CeresElevatorArrival is { IsComplete: false } arrival)
             {
-                if (arrival.Step(Samus))
+                if (arrival.Step(Player.Samus))
                 {
                     // Command $0E installed a locked Samus handler before the projectiles
                     // were spawned. Re-enable the translated ordinary movement path only
                     // after the pad reaches the native Y=$0048 deletion condition.
-                    Samus.InputLocked = false;
-                    GroundedSamusMovementEnabled = true;
+                    Player.Samus.InputLocked = false;
+                    Player.GroundedSamusMovementEnabled = true;
                 }
             }
 
@@ -3522,43 +851,43 @@ Landed: true, HitCeiling: false);
             // Its shared $0795 gate is set for ordinary doors as well as elevators.
             // Running the normal camera here consumes the upward IRQ's +32 offset
             // before arrival resumes, exposing wrapped Samus art above the room.
-            if (!deathOwnsSamus && !Enemies.ElevatorDoorTransitionActive)
+            if (!deathOwnsSamus && !Enemies.ElevatorBehavior.ElevatorDoorTransitionActive)
             {
-                if (LevelData is null || BackgroundStreamer is null)
+                if (Room.LevelData is null || Room.BackgroundStreamer is null)
                     throw new InvalidOperationException("Gameplay camera tracking requires active room stream data.");
 
-                ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
+                ActiveRoomGeometry roomGeometry = RoomLoader.GetActiveRoomGeometry();
 
-                previousCameraPoint = Samus.ApplyPreviousPositionWrites(previousCameraPoint);
-                var currentCameraPoint = Samus.Position;
+                previousCameraPoint = Player.Samus.ApplyPreviousPositionWrites(previousCameraPoint);
+                var currentCameraPoint = Player.Samus.Position;
 
                 // GameState_8 calls MainScrollingRoutine after movement/PLMs and before
                 // DrawSamusEnemiesAndProjectiles regardless of which Samus input handler is
                 // installed. InputLocked suppresses controller transitions; it does not
                 // suppress scrolling. That is why the station-eighteen gunship can carry
                 // Samus down several screens while her ordinary movement handler is absent.
-                if (Samus.Grapple.SlowScrolling)
+                if (Player.Samus.Grapple.SlowScrolling)
                 {
                     // $90:94F2: a fast grapple swing takes the slow branch, which leaves
                     // the camera speed words from the last normal frame in place.
-                    Camera.TrackGrappleSlowScrolling(currentCameraPoint.Whole);
+                    Room.Camera.TrackGrappleSlowScrolling(currentCameraPoint.Whole);
                 }
                 else
                 {
-                    Camera.TrackMovedSamusHorizontally(
+                    Room.Camera.TrackMovedSamusHorizontally(
                         previousCameraPoint,
                         currentCameraPoint,
                         new HorizontalCameraContext(
-                            KnockbackDirection: Samus.KnockbackDirection,
-                            MovementType: Samus.ReadMovementType(_addressSpace),
-                            XAccelerationMode: Samus.HorizontalSpeed.AccelerationMode,
-                            PoseXDirection: Samus.ReadPoseXDirection(_addressSpace),
-                            CameraDistanceIndex: Enemies.CameraDistanceIndex));
-                    Camera.TrackMovedSamusVertically(
+                            KnockbackDirection: Player.Samus.KnockbackDirection,
+                            MovementType: Player.Samus.PoseMetadata.ReadMovementType(_addressSpace),
+                            XAccelerationMode: Player.Samus.HorizontalSpeed.AccelerationMode,
+                            PoseXDirection: Player.Samus.PoseMetadata.ReadPoseXDirection(_addressSpace),
+                            CameraDistanceIndex: Enemies.ZebetiteBehavior.CameraDistanceIndex));
+                    Room.Camera.TrackMovedSamusVertically(
                         previousCameraPoint,
                         currentCameraPoint,
                         new VerticalCameraContext(
-                            YDirection: Samus.Kinematics.YDirection,
+                            YDirection: Player.Samus.Kinematics.YDirection,
                             UpScroller: roomGeometry.UpScroller,
                             DownScroller: roomGeometry.DownScroller));
                 }
@@ -3566,38 +895,38 @@ Landed: true, HitCeiling: false);
                 // kick setup. Publish the camera calculation itself, including its
                 // integer-only sign test and previous scrolling checkpoint. A second
                 // frame-end absolute delta loses both the bias and checkpoint timing.
-                Samus.AbsoluteMovedLastFrameXFixed = unchecked((uint)Camera.Speed.X.RawValue);
-                SamusProjectileInheritance.PublishCameraYSubspeed(_addressSpace, Camera.Speed.Y.Fraction);
+                Player.Samus.AbsoluteMovedLastFrameXFixed = unchecked((uint)Room.Camera.Speed.X.RawValue);
+                SamusProjectileInheritance.PublishCameraYSubspeed(_addressSpace, Room.Camera.Speed.Y.Fraction);
 
                 // MainScrollingRoutine `$90:9563` invokes the mutable global
                 // scrolling-finished hook after both axes have tracked Samus. Live Spore
                 // Spawn installs `$90:9589`, which owns the arena's vertical camera floor;
                 // it must run before BG streaming and OAM consume layer-one position.
-                Enemies.RunScrollingFinishedHook(Camera);
-                Camera.FinishSamusScrolling(currentCameraPoint);
+                Enemies.SporeSpawnBehavior.RunScrollingFinishedHook(Room.Camera);
+                Room.Camera.FinishSamusScrolling(currentCameraPoint);
 
                 // The camera can cross a 16-pixel boundary in the same main-loop pass.
                 // Build and execute the exact row/column staging transfers now so both the
                 // live PPU diagnostic and the following frame see the newly exposed edge.
                 // Kraid's dead-room function wrote PreviousLayer1XBlock during EnemyMain.
-                if (Enemies.Kraid is { Layer1XBlockResetRequested: true } kraid)
+                if (Enemies.KraidBehavior.Kraid is { Layer1XBlockResetRequested: true } kraid)
                 {
                     BackgroundScroll.ResetPreviousLayer1XBlock();
                     kraid.Layer1XBlockResetRequested = false;
                 }
                 IReadOnlyList<BackgroundUpdateRequest> backgroundRequests =
-                    UpdateBackgroundScrollingFromCamera();
-                ExecuteBackgroundStreamRequests(backgroundRequests, "active room camera");
+                    BackgroundPhase.UpdateBackgroundScrollingFromCamera();
+                BackgroundPhase.ExecuteBackgroundStreamRequests(backgroundRequests, "active room camera");
 
                 // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
                 // position, not camera position. Fresh debug sessions begin without an area
                 // map, so only tiles actually visited by this runtime are revealed.
-                Hud.UpdateMinimap(_addressSpace, System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = LevelData.Size, Samus = Samus.Position.Whole, NmiFrameCounter = NmiFrameCounter8, MapRevealMode = MapRevealMode, PresentationMap = MapPresentation?.Get(roomGeometry.AreaIndex) });
+                Hud.UpdateMinimap(_addressSpace, System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = Player.Samus.Position.Whole, NmiFrameCounter = Nmi.NmiFrameCounter8, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
             }
 
-            RestoreAttractPlayerInput();
+            AttractDemo.RestoreAttractPlayerInput();
 
-            DrawGameplayActors(deathOwnsSamus,
+            ActorDrawing.DrawGameplayActors(deathOwnsSamus,
                 // Command zero's `$90:E8DC` beta handler does not dispatch bank-$91
                 // palette effects. In particular, automatic Reserve recovery freezes a
                 // stored shine instead of consuming it while Samus is stationary.
@@ -3607,8 +936,8 @@ Landed: true, HitCeiling: false);
         // It omits the normal $90:E738 timer-hack call: neither countdown nor OAM
         // survives boarding, even though timer status stays active. Decide after the
         // actor transition, before liftoff can repurpose the timer's OBJ tiles as dust.
-        bool runEscapeTimerHandler = !Enemies.HasGunshipHealthHandler;
-        if (runEscapeTimerHandler && EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout))
+        bool runEscapeTimerHandler = !Enemies.GunshipHealthBehavior.HasGunshipHealthHandler;
+        if (runEscapeTimerHandler && EscapeTimer.Process(Nmi.NmiFrameCounter, Options.PreventEscapeTimeout))
         {
             // `$90:E0E6`: the expired countdown publishes game state $23 for the
             // dispatcher, whites the target palettes and disables palette FX.
@@ -3617,7 +946,7 @@ Landed: true, HitCeiling: false);
         }
         if (runEscapeTimerHandler && EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam,
-                (MapPresentation ?? throw new InvalidOperationException(
+                (Artwork.MapPresentation ?? throw new InvalidOperationException(
                     "Escape timer requires installed presentation assets.")).EscapeTimer);
         Oam.FinalizeFrame();
 
@@ -3630,64 +959,64 @@ Landed: true, HitCeiling: false);
             // auto-cancel the selected weapon. Remove it before `$80:9B44` converts the
             // live counters into HUD tile words; publishing first made the on-screen
             // minimum read two even though Snapshot later restored the actor to one.
-            infiniteAmmoGuard.Complete(Samus);
+            infiniteAmmoGuard.Complete(Player.Samus);
             // `$80:9B44` rebuilds live energy/ammo words before appending the HUD transfer.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next accepted NMI.
             // Native PLM_Handler has not returned while a pickup message is open.
             // Its newly granted inventory reaches the HUD only after that return.
-            if (Samus is not null && !Plms.HasPendingCollectibleMessage)
-                Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen,
+            if (Player.Samus is not null && !Plms.CollectiblePlms.HasPendingCollectibleMessage)
+                Hud.UpdateGameplayCounters(_addressSpace, Player.Samus, Freeze.TimeIsFrozen,
                     soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             Hud.QueueUpload(_addressSpace, VramWrites);
         }
 
         // Landing Site's room main ASM appends four sky rows after ordinary gameplay logic;
         // they become visible when the following accepted NMI drains the queue.
-        if (ScrollingSky is not null && Camera is not null)
+        if (Room.ScrollingSky is not null && Room.Camera is not null)
         {
-            ScrollingSky.ProcessFrame(
-                Camera.PixelPosition.Y,
-                timeIsFrozen: TimeIsFrozen,
+            Room.ScrollingSky.ProcessFrame(
+                Room.Camera.PixelPosition.Y,
+                timeIsFrozen: Freeze.TimeIsFrozen,
                 VramWrites,
-                ActiveRoom?.State.MainCallback ?? RoomMainCallback.ScrollingSkyLand);
+                Room.ActiveRoom?.State.MainCallback ?? RoomMainCallback.ScrollingSkyLand);
         }
 
-        RunAnimatedTilesObjectHandler();
-        StepEscapeRoomEffects();
+        RoomMains.RunAnimatedTilesObjectHandler();
+        EscapeEffects.StepEscapeRoomEffects();
 
         // Room main $8F:E2B6 is selected by the room state rather than by coordinates.
         // It runs at the common room-main seam after gameplay drawing and before shaking.
         if (MaridiaElevatube.IsActive)
         {
-            if (LevelData is null)
+            if (Room.LevelData is null)
                 throw new InvalidOperationException("Maridia elevatube has no active room level.");
             _ = MaridiaElevatube.Step(
                 _addressSpace,
-                LevelData,
-                Samus,
-                NmiFrameCounter,
+                Room.LevelData,
+                Player.Samus,
+                Nmi.NmiFrameCounter,
                 Plms,
-                RoomMainScratch);
+                Room.RoomMainScratch);
         }
 
         // Execute the active room's bank-$8F wrapper at the same seam as Landing Site's
         // room main above: after gameplay drawing/HUD work and before global shaking. The
         // Ceres routine publishes a matrix for the following frame's presentation and may
         // change the outer dispatcher to state $20 only when its caller is state eight.
-        LastCeresElevatorShaftRoomMain = CeresElevatorShaft.Step(
+        RoomMains.LastCeresElevatorShaftRoomMain = CeresElevatorShaft.Step(
             _addressSpace,
-            Samus,
-            Enemies.CeresStatus,
+            Player.Samus,
+            Enemies.RidleyEncounter.CeresStatus,
             allowDeparture: policy.AllowCeresElevatorDeparture,
-            RoomMainScratch);
-        if (LastCeresElevatorShaftRoomMain.MatrixChanged)
-            ActiveSamusMode7Transform = LastCeresElevatorShaftRoomMain.Transform;
+            Room.RoomMainScratch);
+        if (RoomMains.LastCeresElevatorShaftRoomMain.MatrixChanged)
+            Display.ActiveSamusMode7Transform = RoomMains.LastCeresElevatorShaftRoomMain.Transform;
 
-        RunCeresFallingDebrisRoomMain();
-        RunCrocomireComebackRoomMain();
-        if (ActiveRoom?.State.MainCallback == RoomMainCallback.HandleCeresRidleyGetawayCutscene)
-            Enemies.RunCeresRidleyGetawayRoomMain(Samus, NmiFrameCounter);
+        RoomMains.RunCeresFallingDebrisRoomMain();
+        RoomMains.RunCrocomireComebackRoomMain();
+        if (Room.ActiveRoom?.State.MainCallback == RoomMainCallback.HandleCeresRidleyGetawayCutscene)
+            Enemies.CeresRidleyBehavior.RunCeresRidleyGetawayRoomMain(Player.Samus, Nmi.NmiFrameCounter);
 
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the
@@ -3700,145 +1029,23 @@ Landed: true, HitCeiling: false);
         // a new global quake this frame; consuming it here gives that request its first
         // displacement/decrement immediately and preserves the list used for actor shake.
         if (Enemies.IsLoaded)
-            Enemies.HandleRoomShaking(TimeIsFrozen);
+            Enemies.HandleRoomShaking(Freeze.TimeIsFrozen);
 
         // Gameplay state eight calls `$A0:9169` after Samus, enemies, drawing, HUD/BG
         // bookkeeping, room main ASM, the energy-zero check, and room shaking. Keep this
         // shared tail out of individual movement handlers: in particular, grapple spike
         // reactions set `$18A8/$18AA` without installing the bank-$90 knockback handler.
         // Death game states do not execute the gameplay-state tail at all.
-        if (Samus is not null && !Samus.DeathSequence.IsActive)
+        if (Player.Samus is not null && !Player.Samus.DeathSequence.IsActive)
         {
-            Samus.DecrementHurtTimers();
-            Projectiles.DecrementInteractionTimer();
+            Player.Samus.DecrementHurtTimers();
+            Projectiles.Firing.DecrementInteractionTimer();
         }
 
         // A resumed tail's frame already published its audio when it suspended.
         if (!resumedAfterMessageBox)
-            CompletedGameplayAudioPublication++;
+            NmiHandler.CompletedGameplayAudioPublication++;
         return Snapshot(infiniteAmmoGuard);
-    }
-
-    /// <summary>
-    /// Counts NMIs the cartridge accepts while its main loop is stalled in a hardware wait
-    /// ($80:95E7-$95F4): each clears the lag counter and advances <c>$05B5/$05B6</c>.
-    /// </summary>
-    internal void AcceptHardwareWaitNmis(int count)
-    {
-        Ensure.AtLeastZero(count);
-        if (count == 0)
-            return;
-        NmiLagCounter = 0;
-        NmiFrameCounter8 = unchecked((byte)(NmiFrameCounter8 + count));
-        NmiFrameCounter = unchecked((ushort)(NmiFrameCounter + count));
-    }
-
-    /// <summary>Runs the NMI handler portion currently translated from <c>$80:9583</c>.</summary>
-    /// <param name="controller1Input">Host-provided raw SNES controller word.</param>
-    /// <param name="mainLoopRequestedNmi">
-    /// Equivalent of WRAM's NMI request flag. False models a lag NMI: it skips transfers,
-    /// input, and accepted-frame counters but still advances the all-NMI counter.
-    /// </param>
-    public void RunNmi(ushort controller1Input, bool mainLoopRequestedNmi)
-    {
-        if (mainLoopRequestedNmi)
-        {
-            PublishAcceptedNmiTransfers();
-            // Menu code consumes raw physical buttons before a runtime exists. Once room
-            // gameplay owns the controller, all bank-$90/$91 action checks use the seven
-            // configurable WRAM masks. Canonicalizing here preserves one shared rising-edge
-            // latch and prevents different movement subsystems from interpreting a remap on
-            // different frames.
-            Controller1.Latch(ControllerBindings.Normalize(controller1Input));
-
-            NmiLagCounter = 0;
-            NmiFrameCounter8 = unchecked((byte)(NmiFrameCounter8 + 1));
-            NmiFrameCounter = unchecked((ushort)(NmiFrameCounter + 1));
-        }
-        else
-        {
-            NmiLagCounter = unchecked((ushort)(NmiLagCounter + 1));
-            if (NmiLagCounter >= MaximumNmiLag)
-                MaximumNmiLag = NmiLagCounter;
-        }
-
-        // $80:95F9 lies after the accepted/lagged branches rejoin, so it always advances.
-        NmiCounterIncludingLag = unchecked((ushort)(NmiCounterIncludingLag + 1));
-    }
-
-    /// <summary>
-    /// Applies queued graphics while a loading dispatch holds forced blank with NMI
-    /// disabled. Native loaders write these directly; no NMI runs, so neither the
-    /// controller latch nor any NMI counter changes.
-    /// </summary>
-    internal void PublishForcedBlankTransfers() => PublishAcceptedNmiTransfers();
-
-    /// <summary>The OAM, Samus, video-queue and register publication of $80:959E..$80:95DE.</summary>
-    private void PublishAcceptedNmiTransfers()
-    {
-        // Preserve $80:95A1 -> $80:95D0 -> $80:95E1 order: dedicated Samus graphics
-        // DMA precedes the general video queue, and both precede controller latching.
-        // $80:959E uploads the finalized main-loop OAM image immediately before that
-        // Samus DMA. `$80:95A7` subsequently copies the Mode 7 shadow words to
-        // $211B..$2120. Retain both displayed values so software rendering sees one
-        // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
-        DisplayedOam.CopyFinalizedFrom(Oam);
-        GameplayWindowRegisters.LatchNmi(mainLoopRequestedNmi: true);
-        DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
-        var bg2Window = Enemies.Draygon is { } boss
-            ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, BackgroundScroll.Layer1Position,
-                boss.Body.Properties.HasAny(EnemyProperties.Deleted))
-            : (First: 32, End: 224);
-        DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
-            BackgroundScroll.Layer1Position,
-            BackgroundScroll.Bg1Scroll,
-            BackgroundScroll.Bg2Scroll,
-            Enemies.LastRoomShake, bg2Window.First, bg2Window.End);
-        DisplayedRoomLayer3Fx = RoomLayer3Fx.CaptureForDisplay();
-        Enemies.Phantoon?.Wave.LatchDisplay();
-        if (Enemies.Phantoon is { } phantoonDisplay)
-            phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicRegister);
-        TourianStatues.LatchDisplay();
-        DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
-        Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
-        PublishReboundHudArtwork();
-        VramWrites.DrainTo(Vram, MemoryBus, this);
-        // A rebound snapshot may retain old VRAM and legacy queued transfers.
-        // Apply current content only at this accepted NMI, after those writes.
-        PublishReboundBeamArtwork();
-        PublishReboundTrailArtwork();
-        TransferXrayBg1Read();
-    }
-
-    /// <summary>
-    /// Captures the exact eye-body and HDMA-object values that become visible alongside
-    /// this NMI's OAM upload. Retail hard-codes body slot one; retaining the translated
-    /// slot reference here also makes corrupt actor ownership fail at publication time.
-    /// </summary>
-    private MorphBallEyeBeamRenderSnapshot? CaptureMorphBallEyeBeamForDisplay()
-    {
-        MorphBallEyeBeamState beam = Enemies.MorphBallEyeBeam;
-        if (beam.Phase == MorphBallEyeBeamPhase.Inactive)
-            return null;
-
-        int bodyIndex = beam.BodySlotIndex;
-        if ((uint)bodyIndex >= Enemies.Slots.Count ||
-            (uint)bodyIndex >= Enemies.MorphBallEyeStates.Count ||
-            Enemies.MorphBallEyeStates[bodyIndex] is not { } eyeState)
-        {
-            throw new InvalidDataException(
-                $"Active Morph Ball eye beam names invalid body slot {bodyIndex}.");
-        }
-
-        RoomEnemySlot body = Enemies.Slots[bodyIndex];
-        return new MorphBallEyeBeamRenderSnapshot(
-            beam.Phase,
-            body.Position.Whole,
-            eyeState.Angle,
-            beam.AngularWidth,
-            beam.Red,
-            beam.Green,
-            beam.Blue);
     }
 
     /// <summary>
@@ -3850,104 +1057,86 @@ Landed: true, HitCeiling: false);
         System.UpdateHeldInput(timerReset, Controller1.Current, Controller1.NewlyPressed);
     }
 
-    /// <summary>
-    /// Implements the complete visibility test in <c>SamusDisplayHandler_UsingElevator</c>
-    /// at <c>$90:EC14</c>. The retail handler returns on odd NMIs and calls the fatal/no-
-    /// animation body renderer on even NMIs, producing the deliberate 30 Hz elevator
-    /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
-    /// from being mistaken for the cartridge-authored effect.
-    /// </summary>
-    internal static bool ShouldDrawSamusOnElevator(ushort nmiFrameCounter) =>
-        (nmiFrameCounter & 1) == 0;
-
-    /// <summary>
-    /// Executes Falling Tile room main <c>$8F:E525-$E550</c>. It samples the existing RNG
-    /// word rather than generating a new one, preserving subsequent random consumers.
-    /// </summary>
-    private void RunCeresFallingDebrisRoomMain()
+    internal RuntimeFrameResult Snapshot(
+        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
-        if (ActiveRoom?.State.MainCallback !=
-                RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris ||
-            Enemies.CeresStatus == 0)
-            return;
+        // Every translated producer gets to apply its normal amount of damage first. The
+        // host intervenes only at the single frame-exit seam where zero would otherwise be
+        // observed by SuperMetroidGame and routed into the cartridge death states.
+        if (Options.PlayerInvincibilityEnabled && Player.Samus is { Health: 0 } samus)
+            samus.Health = 1;
 
-        // The timer is RoomMainASMVar1, inherited from the shaft's rotation index.
-        NativeWordCounterStep timer = NativeWordCounter.Decrement(RoomMainScratch.Var1);
-        RoomMainScratch.Var1 = timer.Value;
-        if (timer.IsNonNegative)
-            return;
+        infiniteAmmoGuard.Complete(Player.Samus);
 
-        RoomMainScratch.Var1 = 8;
-        ushort random = System.RandomNumber;
-        Enemies.SpawnCeresFallingDebris(
-            CeresFallingDebrisX(random & 0x000f),
-            dark: (random & 0x8000) != 0);
+        return new RuntimeFrameResult();
     }
 
-    /// <summary>
-    /// $8F:E551: sixteen debris columns, sixteen pixels apart from X $50 through $F0, then
-    /// thirty-two pixels apart through $190.
-    /// </summary>
-    internal static ushort CeresFallingDebrisX(int column) => (uint)column < 16
-        ? (ushort)(column <= 10 ? 0x0050 + 0x10 * column : 0x00f0 + 0x20 * (column - 10))
-        : throw new ArgumentOutOfRangeException(nameof(column));
+    // Final gameplay frame, reused by every software render of this runtime. A rendered
+    // frame is valid until the next render; hosts and tests that keep one must copy it.
+    [field: NonSerialized]
+    internal Rgba32[] GameplayFrameBuffer =>
+        field ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
 
     /// <summary>
-    /// Advances `$90:E86A/$92:ED24`'s saved-game appearance owner. The ordinary Samus
-    /// animation and bank-$8D palette interpreter have already run earlier in this frame;
-    /// this tail owns only the exact 360-call fanfare lifetime and handler restoration.
+    /// Gameplay-frame state the remainder of state eight reads after <c>PLM_Handler</c>.
+    /// The bank-$85 message routine runs inside that handler, so a PLM that opens a box
+    /// suspends the native frame; the port parks this state until the box closes.
     /// </summary>
-    private void StepSamusLoadAppearance()
+    internal readonly record struct SuspendedGameplayFrameTail(
+        bool DeathOwnsSamus,
+        FixedPosition<RoomPixels> PreviousCameraPoint,
+        bool StationaryScriptControlLocked,
+        bool SuitOwnsSamus);
+
+    internal SuspendedGameplayFrameTail? _suspendedFrameTail;
+
+
+    /// <summary>Updates live host guards without reconstructing any cartridge-owned state.</summary>
+    internal void ApplyHostOptions(SuperMetroidGameOptions options)
     {
-        if (_samusLoadAppearanceFramesRemaining == 0)
-            return;
-        SamusState samus = Samus
-            ?? throw new InvalidOperationException("Samus load appearance lost its actor.");
-
-        _samusLoadAppearanceFramesRemaining--;
-        if (_samusLoadAppearanceFramesRemaining != 0)
-            return;
-        if (RoomPaletteFx.IsDefinitionActive(_samusLoadAppearancePaletteFxDefinition))
-        {
-            throw new InvalidDataException(
-                $"Samus load palette FX $8D:{_samusLoadAppearancePaletteFxDefinition:X4} " +
-                "outlived the cartridge's 360-frame appearance handler.");
-        }
-
-        // PlaySamusFanfare publishes its same-pose history shift only on the
-        // completion call, before the ordinary handlers regain control.
-        samus.CommitPoseHistory(_addressSpace);
-        samus.InputLocked = false;
-        GroundedSamusMovementEnabled = true;
-        _samusLoadAppearancePaletteFxDefinition = 0;
+        if (!Enum.IsDefined(options.MapReveal))
+            throw new ArgumentOutOfRangeException(nameof(options), "Unknown map reveal mode.");
+        Options.PlayerInvincibilityEnabled = options.Invincibility;
+        Options.InfiniteAmmoEnabled = options.InfiniteAmmo;
+        if (!Tester.GrantAllEquipmentEnabled && options.GrantAllEquipment) Tester.testerInventoryRecipient = null;
+        Tester.GrantAllEquipmentEnabled = options.GrantAllEquipment;
+        bool openingTourian = !Tester.UnlockTourianEnabled && options.UnlockTourian;
+        Tester.UnlockTourianEnabled = options.UnlockTourian;
+        Tester.ApplyTesterInventory();
+        if (openingTourian && TourianStatues.Enabled) TourianStatues.Load();
+        Options.PreventEscapeTimeout = options.PreventEscapeTimeout;
+        Options.MapRevealMode = options.MapReveal;
     }
+
+    /// <summary>Room-owned native statue tile programs and HDMA descent.</summary>
+    public TourianStatueSequence TourianStatues { get; }
 
     /// <summary>
     /// One lag frame of the bank-$85 message routine. Its completion returns into the
     /// suspended dispatch, whose remaining owners already ran when the box opened.
     /// </summary>
-    private RuntimeFrameResult StepMessageBoxFrame(
+    internal RuntimeFrameResult StepMessageBoxFrame(
         ushort controller1Input,
         RuntimeFramePolicy policy,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
-        MessageBoxSelectionSoundRequestedThisFrame = false;
+        MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
         // The joypad registers are the routine's only input: the NMI reads no controller.
         MessageBox.Step(controller1Input);
         if (MessageBox.LastFrameAudio.RunsHdmaObjects)
         {
             // Restore_PPU's $88:84B9 runs the HDMA objects, including their RNG mutations.
-            if (Camera is not null)
-                AdvanceHdmaObjectPreInstructions();
-            if (Samus is { } hdmaSamus)
+            if (Room.Camera is not null)
+                HdmaPhase.AdvanceHdmaObjectPreInstructions();
+            if (Player.Samus is { } hdmaSamus)
                 BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current, DispatchGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
-            MessageBoxSelectionSoundRequestedThisFrame = true;
+            MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;
         if (MessageBox.IsActive)
             return Snapshot(infiniteAmmoGuard);
 
-        ResolveClosedMessageBox();
+        MessageBoxes.ResolveClosedMessageBox(frameSuspended: _suspendedFrameTail is not null);
         // The native PLM_Handler returns once the box and its item routine finish; the
         // parked remainder of that gameplay frame runs now, in this same dispatch.
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
@@ -3957,138 +1146,4 @@ Landed: true, HitCeiling: false);
         }
         return Snapshot(infiniteAmmoGuard);
     }
-
-    /// <summary>Applies the effects that follow a message box closing.</summary>
-    private void ResolveClosedMessageBox()
-    {
-
-        if (Enemies.GunshipSavePromptPending)
-        {
-            bool accepted = MessageBox.ConsumeConfirmationResult()
-                ?? throw new InvalidDataException("Gunship message closed without a save selection.");
-            Enemies.AnswerGunshipSavePrompt(accepted);
-            _gunshipExitSoundRequested = true;
-            if (accepted)
-            {
-                System.MarkSaveStationUsed(AreaId.Crateria, 0);
-                _completedSaveStation = new SaveStationPersistenceRequest(AreaId.Crateria, 0);
-            }
-            return;
-        }
-
-        if (_pendingSaveStation is { } saveStation)
-        {
-            bool? accepted = MessageBox.ConsumeConfirmationResult();
-            if (accepted is null)
-            {
-                throw new InvalidDataException(
-                    "Save-station message $17 closed without publishing a selection.");
-            }
-            _pendingSaveStation = null;
-            RoomLevelData level = LevelData ?? throw new InvalidOperationException(
-                "A save-station message returned without active room level data.");
-            if (BackgroundStreamer is null || Camera is null)
-                throw new InvalidOperationException("A save-station message returned without an active room.");
-            SaveStationConfirmationResult confirmation = Plms.ResolveSaveStationConfirmation(_addressSpace, saveStation, accepted.Value, level, BackgroundStreamer, new PlmView { Layer1Position = Camera.PixelPosition, Bg1XOffset = unchecked((ushort)BackgroundScroll.Bg1Offset.X) });
-            foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
-                update.ExecuteTo(Vram);
-            if (confirmation.Saving)
-            {
-                Enemies.SpawnSaveStationElectricity(
-                    saveStation.BlockIndex,
-                    level.Size.X);
-                System.MarkSaveStationUsed(
-                    saveStation.AreaIndex,
-                    saveStation.StationIndex & 7);
-                _completedSaveStation = new SaveStationPersistenceRequest(
-                    saveStation.AreaIndex,
-                    saveStation.StationIndex);
-            }
-            return;
-        }
-
-        if (_pendingSaveStationCompletion is { } completedStation)
-        {
-            Plms.CompleteSaveStation(completedStation);
-            _pendingSaveStationCompletion = null;
-        }
-
-        if (LevelData is null || BackgroundStreamer is null || Camera is null)
-            throw new InvalidOperationException("A message box returned without an active room.");
-        foreach (PlmTilemapUpdate update in Plms.CompleteCollectibleMessage(_addressSpace, LevelData, BackgroundStreamer, new PlmView { Layer1Position = Camera.PixelPosition, Bg1XOffset = unchecked((ushort)BackgroundScroll.Bg1Offset.X) }))
-            update.ExecuteTo(Vram);
-        // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
-        // suspended frame tail does that itself; a capture without one updates it here.
-        if (Samus is not null && _suspendedFrameTail is null)
-            Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen,
-                soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
-        if (_suspendedFrameTail is null)
-            Hud.QueueUpload(_addressSpace, VramWrites);
-
-        // The routine returns directly to the suspended item-PLM instruction list.
-        // Varia/Gravity immediately call their shared setup routine; for other items the
-        // rest of the dispatch already ran when the box opened.
-        if (_pendingSuitPickup is { } pendingSuit)
-        {
-            if (Samus is null || Camera is null)
-            {
-                throw new InvalidOperationException(
-                    "A pending suit transformation requires an active Samus and room camera.");
-            }
-            ElevatorStatus = 0;
-            SuitPickup.Begin(
-                _addressSpace,
-                Samus,
-                Camera.PixelPosition,
-                pendingSuit,
-                soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
-            _pendingSuitPickup = null;
-        }
-        return;
-    }
-
-    private RuntimeFrameResult Snapshot(
-        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
-    {
-        // Every translated producer gets to apply its normal amount of damage first. The
-        // host intervenes only at the single frame-exit seam where zero would otherwise be
-        // observed by SuperMetroidGame and routed into the cartridge death states.
-        if (PlayerInvincibilityEnabled && Samus is { Health: 0 } samus)
-            samus.Health = 1;
-
-        infiniteAmmoGuard.Complete(Samus);
-
-        return new RuntimeFrameResult();
-    }
-
 }
-
-/// <summary>
-/// PPU register values that were made visible together by one accepted gameplay NMI.
-/// </summary>
-/// <param name="Layer1Position">The camera/layer-one position the frame's actors were drawn against.</param>
-/// <param name="Bg1Scroll">The latched BG1HOFS/BG1VOFS mirrors.</param>
-/// <param name="Bg2Scroll">The latched BG2HOFS/BG2VOFS mirrors.</param>
-/// <param name="RoomShake">The room shake displayed with this frame.</param>
-/// <param name="Bg2FirstScanline">The first scanline of the BG2 main-screen window.</param>
-/// <param name="Bg2EndScanline">The scanline that ends the BG2 main-screen window.</param>
-public readonly record struct GameplayPpuRenderSnapshot(
-    Position16<RoomPixels> Layer1Position,
-    Position16<RoomPixels> Bg1Scroll,
-    Position16<Bg2Pixels> Bg2Scroll,
-    RoomShakeFrameResult RoomShake,
-    int Bg2FirstScanline = 32, int Bg2EndScanline = 224);
-
-/// <summary>Confirmed native save-point identity handed to the selected-slot SRAM owner.</summary>
-public readonly record struct SaveStationPersistenceRequest(
-    AreaId AreaIndex,
-    ushort StationIndex);
-
-/// <summary>
-/// Small immutable return value for loggers and debugger watches after a frame step.
-/// Mutable detail remains available on <see cref="SuperMetroidRuntime"/> itself.
-/// </summary>
-public readonly record struct RuntimeFrameResult();
-
-/// <summary>Debugger-visible work performed by the room's force-blank tilemap fill.</summary>
-public readonly record struct InitialViewportResult();

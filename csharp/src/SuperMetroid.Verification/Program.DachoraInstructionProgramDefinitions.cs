@@ -46,7 +46,6 @@ internal static class DachoraInstructionProgramDefinitionsVerification
 
         var executedOperands = new HashSet<ushort>();
         var guard = NewDachoraInstructionReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeDachora", flags)!;
         (ushort Parameter, ushort Expected)[] initializerCases =
         [
             (0, DachoraInstructionProgramDefinitions.IdleLeft),
@@ -57,17 +56,16 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         foreach ((ushort parameter, ushort expected) in initializerCases)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Dachora;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
             slot.Parameter1 = parameter;
-            initialize.Invoke(enemies, [slot]);
+            enemies.DachoraBehavior.InitializeDachora(slot);
             AssertEqual(expected, slot.CurrentInstruction,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         for (int index = 0;
              index < DachoraInstructionProgramDefinitions.ProgramCount;
              index++)
@@ -75,14 +73,13 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             DachoraInstructionProgram program =
                 DachoraInstructionProgramDefinitions.Program(index);
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Dachora;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
             slot.CurrentInstruction = program.Entry;
             ExecuteDachoraProgram(rom, executedOperands,
                 enemies,
-                process,
                 slot,
                 program.FrameCount + 1);
             AssertEqual(unchecked((ushort)(program.Entry + 4)), slot.CurrentInstruction,
@@ -147,7 +144,6 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot slot,
         int callCount)
     {
@@ -156,7 +152,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, slot, executedOperands);
         }
     }

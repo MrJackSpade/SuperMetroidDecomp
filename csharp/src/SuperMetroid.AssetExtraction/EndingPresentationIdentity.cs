@@ -20,12 +20,4 @@ public static class EndingPresentationIdentity
             [GameInstallationLayout.EndingObjectDirectoryName] = objects.ContentIdentity,
             [GameInstallationLayout.EndingPaletteDirectoryName] = palettes.ContentIdentity,
         };
-
-    /// <summary>Loads the same selected domains for installed diagnostic-artifact import.</summary>
-    public static IReadOnlyDictionary<string, string> Load(GameInstallation installation)
-    {
-        Ensure.NotNull(installation);
-        return Create(installation.LoadEndingMode7Art(), installation.LoadEndingObjectArt(),
-            installation.LoadEndingPalettes());
-    }
 }

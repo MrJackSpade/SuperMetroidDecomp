@@ -25,7 +25,6 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
     internal static void VerifyMorphBallEyeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         (ushort Entry, int Frames, ushort Sleep, string Name)[] sleepingPrograms =
         [
             (MorphBallEyeInstructionProgramDefinitions.FacingRightDeactivating,
@@ -96,9 +95,8 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         }
 
         var guard = NewMorphBallEyeInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         {
-            var enemies = NewMorphBallEyeInstructionSystem(guard, flags);
+            var enemies = NewMorphBallEyeInstructionSystem(guard);
             RoomEnemySlot slot = PrepareMorphBallEyeInstructionSlot(
                 enemies,
                 MorphBallEyeInstructionProgramDefinitions.Active);
@@ -109,7 +107,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
                  call++)
             {
                 slot.InstructionTimer = 1;
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
             }
             AssertEqual(unchecked((ushort)(
                     MorphBallEyeInstructionProgramDefinitions.Active + 4)),
@@ -119,20 +117,20 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
 
         foreach ((ushort entry, int frames, ushort sleep, string name) in sleepingPrograms)
         {
-            var enemies = NewMorphBallEyeInstructionSystem(guard, flags);
+            var enemies = NewMorphBallEyeInstructionSystem(guard);
             RoomEnemySlot slot = PrepareMorphBallEyeInstructionSlot(enemies, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int call = 0; call < frames + 1; call++)
             {
                 slot.InstructionTimer = 1;
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
             }
             AssertEqual(sleep, slot.CurrentInstruction,
                 $"Morph Ball eye {name} reaches terminal sleep");
         }
 
-        Suite(nameof(VerifyMorphBallEyeInitializerSelections), () => VerifyMorphBallEyeInitializerSelections(guard, flags));
+        Suite(nameof(VerifyMorphBallEyeInitializerSelections), () => VerifyMorphBallEyeInitializerSelections(guard));
 
         AssertEqual(0, guard.ObservedWords.Count,
             "Morph Ball eye programs use compiled spritemap selectors");
@@ -170,25 +168,20 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
             "without presentation ROM reads.");
     }
 
-    private static void VerifyMorphBallEyeInitializerSelections(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+    private static void VerifyMorphBallEyeInitializerSelections(ISnesAddressSpace bus)
     {
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeMorphBallEye",
-            flags)!;
         foreach ((ushort parameter1, ushort expected) in new[]
         {
             ((ushort)0, MorphBallEyeInstructionProgramDefinitions.FacingRightClosed),
             ((ushort)1, MorphBallEyeInstructionProgramDefinitions.FacingLeftClosed),
         })
         {
-            var enemies = NewMorphBallEyeInstructionSystem(bus, flags);
-            RoomEnemySlot slot = enemies.Slots[0];
+            var enemies = NewMorphBallEyeInstructionSystem(bus);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
             slot.Parameter1 = parameter1;
             slot.Parameter2 = 0;
-            initialize.Invoke(enemies, [slot]);
+            enemies.MorphBallEyeBehavior.InitializeMorphBallEye(slot);
             AssertEqual(expected, slot.CurrentInstruction,
                 $"Morph Ball eye body initializer parameter {parameter1}");
         }
@@ -202,22 +195,21 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         ];
         for (ushort direction = 0; direction < mountPrograms.Length; direction++)
         {
-            var enemies = NewMorphBallEyeInstructionSystem(bus, flags);
-            RoomEnemySlot slot = enemies.Slots[0];
+            var enemies = NewMorphBallEyeInstructionSystem(bus);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
             slot.Parameter2 = unchecked((ushort)(0x8000 | direction));
-            initialize.Invoke(enemies, [slot]);
+            enemies.MorphBallEyeBehavior.InitializeMorphBallEye(slot);
             AssertEqual(mountPrograms[direction], slot.CurrentInstruction,
                 $"Morph Ball eye mount initializer direction {direction}");
         }
     }
 
     private static RoomEnemySystem NewMorphBallEyeInstructionSystem(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+        ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         return enemies;
     }
 
@@ -225,7 +217,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         RoomEnemySystem enemies,
         ushort entry)
     {
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.CurrentInstruction = entry;

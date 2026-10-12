@@ -83,8 +83,8 @@ internal static class ProjectileTrailCoordinatesVerification
             0x9541, 0x9549, 0x9551, 0x9559, 0x9561, 0x9569,
         ];
         var system = new SamusProjectileSystem();
-        var spawn = typeof(SamusProjectileSystem).GetMethod("SpawnTrail", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>(system);
+        var spawn = typeof(ProjectileTrails).GetMethod("SpawnTrail", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>(system.Trails);
         int cases = 0;
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 37, 0x100, 0x200 })
         for (ushort direction = 0; direction < 10; direction++)

@@ -19,15 +19,13 @@ internal static class KraidFootCollisionDefinitionsVerification
     internal static void VerifyKraidFootCollisionDefinitions()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
-            "TryFindExtendedHitboxCallback", flags)!;
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewKraidFootCollisionNoReadBus();
         var installed = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed, denied);
+        installed.BindFixtureBus(denied);
 
-        RoomEnemySlot installedFoot = installed.Slots[0];
+        RoomEnemySlot installedFoot = installed.SlotTable.Slots[0];
         installedFoot.Definition =
             default(RoomEnemyDefinition) with { Bank = 0xa7 };
         installedFoot.EnemyDefinitionPointer = EnemyDefinitionId.KraidFoot;
@@ -81,7 +79,7 @@ internal static class KraidFootCollisionDefinitionsVerification
                     object?[] installedArguments =
                         [installedFoot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
-                    bool installedHit = (bool)walker.Invoke(installed, installedArguments)!;
+                    bool installedHit = ExtendedHitboxWalker.Find(installed, installedArguments);
                     AssertEqual(nativeHit, installedHit,
                         $"Kraid foot $A7:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
                     AssertEqual(nativeCallback,

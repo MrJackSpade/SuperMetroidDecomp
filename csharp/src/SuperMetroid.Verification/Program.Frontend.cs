@@ -444,7 +444,7 @@ internal static void VerifySavedGameLoadAppearance()
         ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");
 
     var runtime = CreateRetailRuntimeFixture(bus);
-    runtime.InitializeHud(new HudSnapshot(
+    runtime.HudSetup.InitializeHud(new HudSnapshot(
         slot.Health,
         slot.MaxHealth,
         slot.Missiles,
@@ -457,21 +457,21 @@ internal static void VerifySavedGameLoadAppearance()
         slot.HudItem,
         slot.ReserveEnergy,
         slot.ReserveMode));
-    runtime.RunNmi(0, mainLoopRequestedNmi: true);
-    runtime.InitializeSavedGame(slot);
+    runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+    runtime.RoomLoader.InitializeSavedGame(slot);
 
     AssertTrue(runtime.SamusLoadAppearanceActive,
         "saved-game load enters command-nine appearance handler");
     AssertEqual(0x0168, runtime.SamusLoadAppearanceFramesRemaining,
         "saved-game appearance uses native 360-frame fanfare lifetime");
-    AssertTrue(runtime.Samus is { InputLocked: true } &&
-        SamusState.IsForwardFacingPose(runtime.Samus.Pose),
+    AssertTrue(runtime.Player.Samus is { InputLocked: true } &&
+        SamusPoseMetadata.IsForwardFacingPose(runtime.Player.Samus.Pose),
         "saved-game appearance begins locked and front-facing");
-    AssertTrue(runtime.Plms.Stations.Where(station => station.Kind == StationKind.Save)
+    AssertTrue(runtime.Plms.StationSnapshots.Where(station => station.Kind == StationKind.Save)
         .All(station => station.SaveStationLockedOut),
         "loading onto a save room sets the native room-entry lockout");
 
-    var appearanceHistory = runtime.Samus!.PoseHistory;
+    var appearanceHistory = runtime.Player.Samus!.PoseHistory;
     SamusPoseId appearancePose = appearanceHistory.PreviousPose;
     ushort appearanceMetadata = appearanceHistory.PreviousDirectionAndMovement;
     // Distinct older sample exposes the otherwise invisible same-pose shift.
@@ -486,11 +486,11 @@ internal static void VerifySavedGameLoadAppearance()
     runtime.StepFrame(0);
     AssertEqual(appearancePose, appearanceHistory.LastDifferentPose, "appearance completion shifts prior pose");
     AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentDirectionAndMovement, "appearance completion shifts prior metadata");
-    AssertEqual(runtime.Samus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(SnesLittleEndian.Word(runtime.Samus.ReadPoseXDirection(bus), (byte)runtime.Samus.ReadMovementType(bus)),
+    AssertEqual(runtime.Player.Samus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
+    AssertEqual(SnesLittleEndian.Word(runtime.Player.Samus.PoseMetadata.ReadPoseXDirection(bus), (byte)runtime.Player.Samus.PoseMetadata.ReadMovementType(bus)),
         appearanceHistory.PreviousDirectionAndMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
-        runtime.Samus is { InputLocked: false },
+        runtime.Player.Samus is { InputLocked: false },
         "saved-game appearance restores ordinary input on call 360");
     AssertTrue(!runtime.MessageBox.IsActive,
         "save pod cannot immediately reopen after a load in the same room entry");

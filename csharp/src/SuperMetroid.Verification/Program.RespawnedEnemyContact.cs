@@ -24,18 +24,18 @@ internal static class RespawnedEnemyContactVerification
         const ushort respawnX = 0x1e0;
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Hellway);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
 
-        RoomEnemySlot enemy = runtime.Enemies.Slots.Single(slot =>
+        RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == respawningEnemy && slot.Position.X.Whole == respawnX);
         AssertTrue(enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled),
             "the Hellway actor respawns when killed");
-        runtime.Enemies.StartGenericEnemyDeath(enemy, deathAnimation: 0);
+        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 0);
 
         StepUntil(
             () => enemy.EnemyDefinitionPointer == respawningEnemy,
@@ -48,10 +48,10 @@ internal static class RespawnedEnemyContactVerification
         // #1269: game state eight rebuilds the interactive list ($A0:8EB6) before Samus's
         // grapple runs. The list built during the respawn frame still excluded the $DAFF
         // placeholder; only the next frame's prologue admits the respawned actor.
-        AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction == GrappleEnemyReaction.None,
+        AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction == GrappleEnemyReaction.None,
             "the respawn frame's interactive list does not yet contain the respawned actor");
-        runtime.Enemies.PrepareEnemyProcessingList(new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y));
-        AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction != GrappleEnemyReaction.None,
+        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(runtime.Room.Camera!.PixelPosition.X, runtime.Room.Camera.PixelPosition.Y));
+        AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction != GrappleEnemyReaction.None,
             "the next frame's prologue list lets the grapple reach the respawned actor");
         enemy.AiHandlerBits = 0;
         // $A0:A08C rejects Samus contact while this word is zero; the first instruction

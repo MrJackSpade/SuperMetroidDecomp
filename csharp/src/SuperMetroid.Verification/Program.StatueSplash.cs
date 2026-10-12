@@ -27,15 +27,15 @@ internal static class StatueSplashVerification
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => random)));
-            foreach (var actor in enemies.EnemyProjectiles) actor.Kind = 0;
-            enemies.TourianStatueWaterY = 216;
-            enemies.SpawnTourianUnlockEffect(0, false);
-            var eye = enemies.EnemyProjectiles.Single(p => p.IsActive);
+            foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Kind = 0;
+            enemies.TourianUnlockBehavior.TourianStatueWaterY = 216;
+            enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(0, false);
+            var eye = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             RoomEnemyProjectileSlot? particle = null;
             for (int frame = 0; frame < 200 && particle is null; frame++)
             {
                 enemies.StepEnemyProjectiles(assets.LevelData, null);
-                particle = enemies.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueParticle);
+                particle = enemies.Projectiles.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueParticle);
             }
             AssertTrue(particle is not null, "retail eye instruction spawned a particle");
             int angle = unchecked((byte)(random - 32));
@@ -58,13 +58,13 @@ internal static class StatueSplashVerification
                 enemies.StepEnemyProjectiles(assets.LevelData, null);
                 if (crosses)
                 {
-                    var splash = enemies.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
+                    var splash = enemies.Projectiles.EnemyProjectiles.FirstOrDefault(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.TourianStatueSplash);
                     AssertTrue(splash is not null, "surface crossing spawned splash");
                     AssertEqual(SnesFixedPosition.WholeOf(x), splash!.Position.X.Whole, "splash X follows native particle trajectory");
                     AssertEqual(212, splash.Position.Y.Whole, "splash is four pixels above water surface");
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.
-                    foreach (var other in enemies.EnemyProjectiles)
+                    foreach (var other in enemies.Projectiles.EnemyProjectiles)
                         if (other != splash) other.Kind = 0;
                     int visibleFrames = 0;
                     ushort splashX = SnesFixedPosition.WholeOf(x);

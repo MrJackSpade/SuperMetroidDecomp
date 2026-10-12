@@ -25,19 +25,19 @@ internal static class KraidArmSamusContactVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
-        RoomEnemySlot arm = runtime.Enemies.Slots[1];
+        RoomEnemySlot arm = runtime.Enemies.SlotTable.Slots[1];
         AssertEqual(EnemyDefinitionId.KraidArm, arm.EnemyDefinitionPointer, "slot one is Kraid's arm");
 
         // Native update 35724: the arm and Samus as they stand when EnemyMain tests contact.
         arm.Position = arm.Position.WithWhole(new(0x00b0, 0x01df));
         arm.SpritemapPointer = 0x90fd;
         arm.Properties = 0x2800;
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = 0;
@@ -46,14 +46,12 @@ internal static class KraidArmSamusContactVerification
         AssertTrue(!RadiusBoxesOverlapForArm(arm, samus), "the header radius alone does not reach Samus");
 
         // $A0:8EB6 builds this frame's interactive list from the native camera (0,$100).
-        typeof(RoomEnemySystem).GetMethod("DetermineWhichEnemiesToProcess",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-            .Invoke(runtime.Enemies, [new Position16<RoomPixels>((ushort)0, (ushort)0x100)]);
-        runtime.Enemies.ResolveOrdinarySamusContact(samus, 0, runtime.LevelData, onlyNativeEnemyIndex: 0x40);
+        runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(new Position16<RoomPixels>((ushort)0, (ushort)0x100));
+        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, 0, runtime.Room.LevelData, onlyNativeEnemyIndex: 0x40);
 
         AssertEqual((ushort)4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
         AssertEqual((short)-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");
-        AssertEqual((ushort)KraidAiFunction.LintFire, runtime.Enemies.Slots[4].VariableA,
+        AssertEqual((ushort)KraidAiFunction.LintFire, runtime.Enemies.SlotTable.Slots[4].VariableA,
             "the arm touch makes the bottom lint fire");
         AssertTrue(samus.InvincibilityTimer != 0, "the arm's contact damage starts invincibility");
         Console.WriteLine("  Kraid arm Samus contact: the extended arm frame pushes Samus back and fires the bottom lint.");

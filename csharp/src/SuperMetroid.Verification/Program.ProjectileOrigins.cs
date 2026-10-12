@@ -10,7 +10,7 @@ internal static class ProjectileOriginsVerification
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         var bus = new ProjectileOriginReadGuard(rom);
-        var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePosition", BindingFlags.NonPublic | BindingFlags.Static)!
+        var initialize = typeof(BeamFiring).GetMethod("InitializePosition", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusProjectileSlot>>();
         var samus = new SamusState();
         var slot = new SamusProjectileSlot(0);

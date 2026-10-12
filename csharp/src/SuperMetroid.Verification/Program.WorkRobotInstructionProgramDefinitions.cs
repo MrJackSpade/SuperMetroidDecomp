@@ -83,9 +83,6 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         var guard = NewWorkRobotInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(guard, out RoomEnemySlot robot);
         RoomLevelData level = CreateWorkRobotInstructionRoom();
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions",
-            BindingFlags.Instance | BindingFlags.NonPublic)!;
 
         foreach (ushort entry in WorkRobotInstructionEntries)
         {
@@ -95,9 +92,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
                 robot.InstructionTimer = 1;
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 enemies.WorkRobotStates[0]!.LaserCooldown = ushort.MaxValue;
-                process.Invoke(
-                    enemies,
-                    [robot, null, level, new Position16<RoomPixels>((ushort)384, (ushort)192), (ushort)0]);
+                enemies.Instructions.ProcessInstructions(robot, null, level, new Position16<RoomPixels>((ushort)384, (ushort)192), (ushort)0);
             }
         }
 
@@ -138,16 +133,15 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
 
-        robot = enemies.Slots[0];
+        robot = enemies.SlotTable.Slots[0];
         robot.EnemyDefinitionPointer = EnemyDefinitionId.Robot;
         robot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         robot.Radius = new(8, 16);
         var state = new WorkRobotEnemyState(robot) { Powered = true };
-        var states = (WorkRobotEnemyState?[])typeof(RoomEnemySystem)
-            .GetField("_workRobotStates", flags)!.GetValue(enemies)!;
+        var states = (WorkRobotEnemyState?[])enemies.WorkRobotBehavior._workRobotStates;
         states[0] = state;
         return enemies;
     }

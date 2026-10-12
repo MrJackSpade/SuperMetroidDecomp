@@ -23,20 +23,19 @@ internal static class BabyMetroidDeathCryVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         var installation = RepositoryInstallation.Installation;
-        enemies.MotherBrainRoomColors = RepositoryInstallation.Maps.MotherBrainRoomColors;
+        enemies.Presentation.MotherBrainRoomColors = InstalledFixtures.Maps.MotherBrainRoomColors;
         var cgram = new SnesCgram();
         for (int index = 0; index < 256; index++) cgram.SetColor(index, Bgr555.FromWord((ushort)(index + 1)));
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        var state = new MotherBrainEnemyState(enemies.Slots[0]);
+        enemies.Presentation._cgram = cgram;
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         var baby = new BabyMetroidCutsceneState();
         typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Phase))!.SetValue(baby, BabyMetroidCutscenePhase.FinalCharge);
         typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Health))!.SetValue(baby, (ushort)79);
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         var samus = new SamusState();
-        var apply = typeof(RoomEnemySystem).GetMethod("ApplyBabyMetroidFrameEffects", flags)!
-            .CreateDelegate<Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult>>(enemies);
+        Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
         apply(state, baby.Step(bus, samus, sequence, HeadOf(sequence)));
-        AssertEqual(0, enemies.SoundRequests.Count, "The live final charge does not emit a death cry early");
+        AssertEqual(0, enemies.Audio.SoundRequests.Count, "The live final charge does not emit a death cry early");
         for (int index = 0; index < 256; index++)
             AssertEqual((ushort)(index + 1), cgram.Colors[index], "Live final charge preserves room colors");
         baby.ApplyMotherBrainOnionRingHit(80);
@@ -46,8 +45,8 @@ internal static class BabyMetroidDeathCryVerification
         for (int index = 0; index < 256; index++)
             AssertEqual((ushort)(IsBlackoutColor(index) ? 0 : index + 1), cgram.Colors[index],
                 $"Fatal blow blacks out only native background colors: {index}");
-        AssertEqual(1, enemies.SoundRequests.Count, "Fatal transition emits exactly one death cry");
-        var request = enemies.SoundRequests.Single();
+        AssertEqual(1, enemies.Audio.SoundRequests.Count, "Fatal transition emits exactly one death cry");
+        var request = enemies.Audio.SoundRequests.Single();
         AssertEqual(SoundEffectLibrary.Library3, request.SoundEffect.Library, "Death cry belongs to library three");
         AssertEqual((byte)0x19, request.SoundEffect.Value, "Death cry retains native sequence 19");
         AssertEqual((byte)6, request.MaximumQueued, "Death cry uses native Max6");
@@ -55,7 +54,7 @@ internal static class BabyMetroidDeathCryVerification
         {
             typeof(RoomEnemySystem).GetMethod("BeginEnemySoundRequestFrame", flags)!.Invoke(enemies, null);
             apply(state, baby.Step(bus, samus, sequence, HeadOf(sequence)));
-            AssertEqual(0, enemies.SoundRequests.Count, "Fatal shake does not replay the death cry");
+            AssertEqual(0, enemies.Audio.SoundRequests.Count, "Fatal shake does not replay the death cry");
         }
         typeof(BabyMetroidCutsceneState).GetProperty(nameof(baby.Phase))!.SetValue(baby, BabyMetroidCutscenePhase.FinalCutscene);
         for (int frame = 0; frame < 7; frame++)

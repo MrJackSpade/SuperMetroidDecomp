@@ -91,11 +91,9 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         {
             var enemies = new RoomEnemySystem();
             Type type = typeof(RoomEnemySystem);
-            type.GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = type.GetMethod("InitializeEtecoon", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
-            RoomEnemySlot etecoon = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            var initialize = new Action<RoomEnemySlot>(enemies.EtecoonBehavior.InitializeEtecoon);
+            RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
             etecoon.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
             etecoon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
             initialize(etecoon);
@@ -104,7 +102,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
                 $"real Etecoon initializer before {program.Name}");
 
             ExecuteEtecoonProgram(rom, executedOperands,
-                enemies, process, etecoon, program.Program, program.Calls);
+                enemies, etecoon, program.Program, program.Calls);
             AssertEqual(program.Terminal, etecoon.CurrentInstruction,
                 $"Etecoon {program.Name} terminal instruction");
             if (program.Program == EtecoonInstructionProgramDefinitions.Flexing)
@@ -148,7 +146,6 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
-        MethodInfo process,
         RoomEnemySlot etecoon,
         ushort program,
         int callCount)
@@ -159,7 +156,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             etecoon.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, etecoon, executedOperands);
         }
     }

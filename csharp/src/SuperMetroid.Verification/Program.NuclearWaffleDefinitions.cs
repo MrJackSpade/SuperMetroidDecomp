@@ -47,12 +47,9 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle first turn threshold {direction}");
 
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies,
-                NewNuclearWaffleDefinitionReadGuard(rom));
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeNuclearWaffle", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(NewNuclearWaffleDefinitionReadGuard(rom));
+            Action<RoomEnemySlot> initialize = enemies.NuclearWaffleBehavior.InitializeNuclearWaffle;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = 0x2001;
             slot.Parameter2 = (ushort)(0x2000 | direction);
             slot.Position = slot.Position.WithWhole(new(0x0180, 0x0200));
@@ -101,15 +98,12 @@ internal static class NuclearWaffleDefinitionsVerification
         var executedOperands = new HashSet<ushort>();
         var programGuard = NewNuclearWaffleProgramReadGuard(rom);
         var programSystem = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            programSystem,
-            programGuard);
-        RoomEnemySlot programSlot = programSystem.Slots[0];
+        programSystem.BindFixtureBus(programGuard);
+        RoomEnemySlot programSlot = programSystem.SlotTable.Slots[0];
         programSlot.EnemyDefinitionPointer = EnemyDefinitionId.Puromi;
         programSlot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         programSlot.CurrentInstruction = NuclearWaffleInstructionProgramDefinitions.BodyLoop;
         programSlot.InstructionTimer = 1;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
             [programSlot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
@@ -118,7 +112,7 @@ internal static class NuclearWaffleDefinitionsVerification
         var installed = new HashSet<ushort>();
         for (int frame = 0; frame < 40; frame++)
         {
-            process.Invoke(programSystem, arguments);
+            EnemyInstructionRunner.Process(programSystem, arguments);
             VerifyExecutedEnemySelector(rom, programSlot, executedOperands);
             ushort operand = unchecked((ushort)(programSlot.CurrentInstruction - 2));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | operand)), programSlot.SpritemapPointer,

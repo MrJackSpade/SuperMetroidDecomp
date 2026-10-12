@@ -26,8 +26,8 @@ public static class SamusPostureMovement
         RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
-        if (!SamusState.IsRightFacingCrouchingPose(samus.Pose) &&
-            !SamusState.IsLeftFacingCrouchingPose(samus.Pose))
+        if (!SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
+            !SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose))
         {
             throw new InvalidOperationException(
                 $"Crouching movement requires pose $27/$28/$71-$74/$85/$86, not ${(int)samus.Pose:X2}.");
@@ -60,7 +60,7 @@ public static class SamusPostureMovement
         RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
-        if (!SamusState.IsCrouchStandTransitionPose(samus.Pose))
+        if (!SamusPoseMetadata.IsCrouchStandTransitionPose(samus.Pose))
         {
             throw new InvalidOperationException(
                 $"Crouch/stand transition movement requires pose $35/$36/$3B/$3C/$F1-$FC, not ${(int)samus.Pose:X2}.");
@@ -88,11 +88,11 @@ public static class SamusPostureMovement
         // behavior that lets a stage-four run continue sliding during crouch transition
         // `$35/$36`; bank $91 samples and stores the shine before normal crouching clears
         // that momentum. The old exception at this seam prevented that native route.
-        bool facingLeft = samus.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
 
         // `$90:923F` uses the external-Y replacement when present. Otherwise it couples
         // the downward floor probe to the total X speed calculated by the horizontal pass;

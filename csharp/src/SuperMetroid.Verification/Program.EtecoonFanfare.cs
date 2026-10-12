@@ -21,10 +21,10 @@ internal static class EtecoonFanfareVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+        enemies.BindFixtureBus(bus);
         for (int index = 0; index < 3; index++)
         {
-            var slot = enemies.Slots[index];
+            var slot = enemies.SlotTable.Slots[index];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
             slot.Definition = RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer);
             slot.AiBank = slot.Definition.Bank;
@@ -33,22 +33,22 @@ internal static class EtecoonFanfareVerification
             slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
             slot.Properties = 0x0c00;
             slot.Parameter2 = (ushort)index;
-            typeof(RoomEnemySystem).GetMethod("InitializeEtecoon", flags)!.Invoke(enemies, [slot]);
+            enemies.EtecoonBehavior.InitializeEtecoon(slot);
         }
         var samus = new SamusState { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         var level = new RoomLevelData(new Extent16<RoomBlocks>(48, 192), new RoomLevelPlanes(new ushort[48 * 192], new byte[48 * 192], new ushort[48 * 192]), new byte[8]);
-        enemies.ElevatorDoorTransitionActive = true;
+        enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
-            AssertEqual(0, enemies.SoundRequests.Count, "transition does not consume the Etecoon fanfare");
+            AssertEqual(0, enemies.Audio.SoundRequests.Count, "transition does not consume the Etecoon fanfare");
             foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
                 AssertEqual((ushort)0xffff, state!.FunctionTimer, "transition preserves dormant Etecoon timer");
         }
-        enemies.ElevatorDoorTransitionActive = false;
+        enemies.ElevatorBehavior.ElevatorDoorTransitionActive = false;
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
-        AssertEqual(1, enemies.SoundRequests.Count, "trio publishes one fanfare after fade");
-        var request = enemies.SoundRequests[0];
+        AssertEqual(1, enemies.Audio.SoundRequests.Count, "trio publishes one fanfare after fade");
+        var request = enemies.Audio.SoundRequests[0];
         AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x35), request.SoundEffect,
             "native Etecoon fanfare identity");
         AssertEqual(15, request.MaximumQueued, "native wake request uses Max15");
@@ -61,7 +61,7 @@ internal static class EtecoonFanfareVerification
         queue.QueueSound(request.SoundEffect, request.MaximumQueued);
         AssertTrue(queue.HasQueuedSounds, "post-fade fanfare reaches CPU queue");
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
-        AssertEqual(0, enemies.SoundRequests.Count, "next frame does not repeat fanfare");
+        AssertEqual(0, enemies.Audio.SoundRequests.Count, "next frame does not repeat fanfare");
         var channels = (ManagedSpcSoundChannel[][])typeof(ManagedSpcPlayer)
             .GetField("soundChannels", flags)!.GetValue(renderer.Player)!;
         var notes = new HashSet<byte>();

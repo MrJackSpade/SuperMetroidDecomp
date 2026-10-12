@@ -522,45 +522,45 @@ internal static void VerifyFrameRuntime()
     // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
     // only when an accepted NMI reaches `$80:95A7`, at the same boundary as displayed OAM.
     var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, 0xfff0, new Position16<RoomPixels>(0x0080, 0x03f0));
-    runtime.ActiveSamusMode7Transform = firstMode7;
+    runtime.Display.ActiveSamusMode7Transform = firstMode7;
 
     runtime.StepFrame((ushort)SnesButton.Start);
-    AssertEqual(1, runtime.NmiFrameCounter, "first accepted runtime frame");
+    AssertEqual(1, runtime.Nmi.NmiFrameCounter, "first accepted runtime frame");
     AssertEqual((ushort)SnesButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
     AssertEqual(EscapeTimerState.InitialDelay, runtime.EscapeTimer.State, "runtime dispatches timer after NMI");
     AssertEqual(0xca, runtime.Vram.ReadByte(0x40), "runtime NMI drains VRAM low byte");
     AssertEqual(0xfe, runtime.Vram.ReadByte(0x41), "runtime NMI drains VRAM high byte");
     AssertEqual(0, runtime.VramWrites.TailInBytes, "runtime NMI clears VRAM queue");
-    AssertEqual(firstMode7, runtime.DisplayedSamusMode7Transform,
+    AssertEqual(firstMode7, runtime.Display.DisplayedSamusMode7Transform,
         "accepted NMI publishes Mode 7 shadow registers");
 
     var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, 0xffe0, new Position16<RoomPixels>(0x0080, 0x03f0));
-    runtime.ActiveSamusMode7Transform = secondMode7;
+    runtime.Display.ActiveSamusMode7Transform = secondMode7;
     runtime.StepFrame((ushort)SnesButton.Start);
     AssertEqual(0, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
-    AssertEqual(2, runtime.NmiFrameCounter, "accepted NMI counter advances twice");
-    AssertEqual((ulong)2, runtime.CompletedGameplayAudioPublication,
+    AssertEqual(2, runtime.Nmi.NmiFrameCounter, "accepted NMI counter advances twice");
+    AssertEqual((ulong)2, runtime.NmiHandler.CompletedGameplayAudioPublication,
         "complete gameplay passes publish distinct audio generations");
-    AssertEqual(secondMode7, runtime.DisplayedSamusMode7Transform,
+    AssertEqual(secondMode7, runtime.Display.DisplayedSamusMode7Transform,
         "following accepted NMI publishes the changed Mode 7 matrix");
 
     // A lag NMI must not sample the changed input or advance accepted-frame state.
     var laggedMode7 = new SamusMode7Transform(0x00d0, 0x0030, 0xffd0, new Position16<RoomPixels>(0x0080, 0x03f0));
-    runtime.ActiveSamusMode7Transform = laggedMode7;
-    runtime.RunNmi((ushort)SnesButton.A, mainLoopRequestedNmi: false);
+    runtime.Display.ActiveSamusMode7Transform = laggedMode7;
+    runtime.NmiHandler.RunNmi((ushort)SnesButton.A, mainLoopRequestedNmi: false);
     AssertEqual((ushort)SnesButton.Start, runtime.Controller1.Current, "lag NMI skips controller read");
-    AssertEqual(2, runtime.NmiFrameCounter, "lag NMI skips accepted frame counter");
-    AssertEqual(1, runtime.NmiLagCounter, "lag NMI increments consecutive lag");
-    AssertEqual(1, runtime.MaximumNmiLag, "lag NMI records maximum lag");
-    AssertEqual(3, runtime.NmiCounterIncludingLag, "all-NMI counter includes lag");
-    AssertEqual(secondMode7, runtime.DisplayedSamusMode7Transform,
+    AssertEqual(2, runtime.Nmi.NmiFrameCounter, "lag NMI skips accepted frame counter");
+    AssertEqual(1, runtime.Nmi.NmiLagCounter, "lag NMI increments consecutive lag");
+    AssertEqual(1, runtime.Nmi.MaximumNmiLag, "lag NMI records maximum lag");
+    AssertEqual(3, runtime.Nmi.NmiCounterIncludingLag, "all-NMI counter includes lag");
+    AssertEqual(secondMode7, runtime.Display.DisplayedSamusMode7Transform,
         "lag NMI leaves displayed Mode 7 registers untouched");
 
     // Door/pause frontend coroutines accept NMIs without running the gameplay owner list.
     // They must not make the frontend consume the preceding enemy/PLM audio publication
     // again, or a door waiting for unread SFX entries can refill its own queue forever.
     runtime.RunBlankGameplayFrame(controllerInput: 0);
-    AssertEqual((ulong)2, runtime.CompletedGameplayAudioPublication,
+    AssertEqual((ulong)2, runtime.NmiHandler.CompletedGameplayAudioPublication,
         "NMI-only frontend frame does not republish gameplay audio");
 
     Console.WriteLine("  Runtime: frame seam, NMI order, and lag accounting agree.");

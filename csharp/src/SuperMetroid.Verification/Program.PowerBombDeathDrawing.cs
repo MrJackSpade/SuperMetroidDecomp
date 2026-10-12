@@ -34,7 +34,7 @@ internal static class PowerBombDeathDrawingVerification
             var fixture = CreateEnemyDropFixture(CreateDropTestSamus(), [1]);
             var enemies = fixture.System;
             enemies.TileArtwork = artwork;
-            var actor = enemies.Slots[0];
+            var actor = enemies.SlotTable.Slots[0];
             actor.EnemyDefinitionPointer = header;
             actor.Definition = RoomEnemyDefinitionCatalog.Get(header);
             actor.AiBank = actor.Definition.Bank;
@@ -50,19 +50,19 @@ internal static class PowerBombDeathDrawingVerification
             // explicit damage call represents the later runtime power-bomb phase.
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true });
             var before = new OamBuffer();
-            enemies.DrawLayers(before, new(0, 0), 0, 7);
+            enemies.Drawing.DrawLayers(before, new(0, 0), 0, 7);
             AssertTrue(before.NextByteOffset != 0, "live enemy was queued and drawn before power-bomb damage");
-            AssertEqual(1, enemies.ResolveOrdinaryPowerBombHits(fixture.Bus, new(128, 128), 64),
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryPowerBombHits(fixture.Bus, new(128, 128), 64),
                 "power bomb reaches the queued enemy");
             var after = new OamBuffer();
-            enemies.DrawLayers(after, new(0, 0), 0, 7);
+            enemies.Drawing.DrawLayers(after, new(0, 0), 0, 7);
             if (lethal)
             {
                 AssertEqual(respawns ? EnemyDefinitionId.Respawn : (ushort)0,
                     actor.EnemyDefinitionPointer, "lethal power bomb clears or reserves the physical slot");
                 AssertEqual(0, after.NextByteOffset, "dead enemy emits no sprite records");
-                AssertEqual((ushort)1, enemies.EnemiesKilled, "death is counted once");
-                AssertTrue(enemies.EnemyProjectiles.Any(projectile =>
+                AssertEqual((ushort)1, enemies.RoomStatus.EnemiesKilled, "death is counted once");
+                AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(projectile =>
                     projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion), "death explosion survives actor removal");
             }
             else
@@ -71,7 +71,7 @@ internal static class PowerBombDeathDrawingVerification
                 AssertEqual(before.NextByteOffset, after.NextByteOffset, "survivor keeps its sprite count");
                 AssertTrue(before.ImageEquals(after), "survivor keeps its sprite composition");
                 actor.SpritemapPointer = 0;
-                AssertThrows<InvalidDataException>(() => enemies.DrawLayers(new OamBuffer(), new(0, 0), 0, 7),
+                AssertThrows<InvalidDataException>(() => enemies.Drawing.DrawLayers(new OamBuffer(), new(0, 0), 0, 7),
                     "a live actor's missing composition must not be silently hidden");
             }
         }

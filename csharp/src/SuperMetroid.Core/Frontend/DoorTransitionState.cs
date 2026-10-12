@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Ordinary non-elevator state-$0B coroutine from <c>$82:E29E-$82:E76A</c>.
 /// </summary>
 /// <remarks>
-/// Room construction remains in <see cref="SuperMetroidRuntime.LoadPendingDoorDestination"/>;
+/// Room construction remains in <see cref="SuperMetroid.Core.Runtime.RoomLoader.LoadPendingDoorDestination"/>;
 /// this owner restores the observable stages that surround it: three-library drain, shared
 /// palette fade, source-camera alignment, black-screen opening scroll, music drain, final
 /// nudge ownership, and destination palette fade-in.
@@ -35,24 +35,24 @@ public sealed class DoorTransitionState
     public void Begin(SuperMetroidRuntime runtime)
     {
         Ensure.NotNull(runtime);
-        if (runtime.PendingDoorTransition is null || runtime.Samus is null)
+        if (runtime.RoomLoader.PendingDoorTransition is null || runtime.Player.Samus is null)
             throw new InvalidOperationException("A door transition requires a pending door and Samus.");
         if (IsActive)
             throw new InvalidOperationException("A door transition is already active.");
 
         runtime.Hud.EnableMinimapAfterDoorEntry();
-        runtime.Samus.InputLocked = true;
-        runtime.Enemies.ElevatorDoorTransitionActive = true;
-        runtime.Enemies.EnemyDoorTransitionActive = true;
-        door = runtime.PendingDoorTransition;
-        sourceCreBitset = runtime.ActiveRoom?.CreBitset
+        runtime.Player.Samus.InputLocked = true;
+        runtime.Enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
+        runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
+        door = runtime.RoomLoader.PendingDoorTransition;
+        sourceCreBitset = runtime.Room.ActiveRoom?.CreBitset
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
-        destinationCreBitset = runtime.PendingDoorDestinationCreBitset;
-        sourceSamus = runtime.Samus.Position;
+        destinationCreBitset = runtime.RoomLoader.PendingDoorDestinationCreBitset;
+        sourceSamus = runtime.Player.Samus.Position;
         paletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
             denominator: 12,
-            runtime.Enemies.GradualColorChange);
+            runtime.Enemies.Presentation.GradualColorChange);
         fadedSourcePalette = null;
         Phase = DoorTransitionPhase.WaitForSoundQueues;
     }
@@ -72,24 +72,24 @@ public sealed class DoorTransitionState
             throw new InvalidOperationException("Door transition has not begun.");
 
         // Derive the native door-owned gate for resumed legacy snapshots as well.
-        runtime.Enemies.EnemyDoorTransitionActive = true;
+        runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         runtime.CeresHaze.Step(
             roomFadeIn: Phase == DoorTransitionPhase.FadeInDestinationPalette,
             roomFadeOut: Phase == DoorTransitionPhase.FadeOutSourcePalette);
         switch (Phase)
         {
             case DoorTransitionPhase.WaitForSoundQueues:
-                runtime.RunDoorSoundWaitFrame(controllerInput);
+                runtime.DoorTransition.RunDoorSoundWaitFrame(controllerInput);
                 publishSoundWaitAudio?.Invoke();
                 if (!audio.HasQueuedSounds)
                     Phase = DoorTransitionPhase.FadeOutSourcePalette;
                 break;
 
             case DoorTransitionPhase.FadeOutSourcePalette:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 // A palette step returns to MainGameLoop. Hardware stalls while it
                 // executes are not additional dispatches, but this step is one.
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 if (paletteTransition!.Step(runtime.Cgram))
                 {
                     runtime.Oam.BeginFrame();
@@ -98,7 +98,7 @@ public sealed class DoorTransitionState
                 }
                 else
                 {
-                    runtime.DrawDoorTransitionActors(runEnemyProjectiles: false);
+                    runtime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: false);
                 }
                 break;
 
@@ -108,22 +108,22 @@ public sealed class DoorTransitionState
                 // header was captured by Begin; retaining this separate call preserves the
                 // coroutine boundary and its one accepted NMI.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
-                runtime.BeginDoorTransitionIrqDisplay(sourceCreBitset, destinationCreBitset);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                runtime.RoomLoader.BeginDoorTransitionIrqDisplay(sourceCreBitset, destinationCreBitset);
                 Phase = DoorTransitionPhase.AlignSourceCamera;
                 break;
 
             case DoorTransitionPhase.AlignSourceCamera:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
-                if (runtime.AlignPendingDoorCameraOnePixel())
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
+                if (runtime.RoomLoader.AlignPendingDoorCameraOnePixel())
                     Phase = DoorTransitionPhase.FixDoorsMovingUp;
                 break;
 
             case DoorTransitionPhase.FixDoorsMovingUp:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
-                runtime.FixPendingDoorTilesMovingUp();
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
+                runtime.RoomLoader.FixPendingDoorTilesMovingUp();
                 Phase = DoorTransitionPhase.SetupNewRoom;
                 break;
 
@@ -131,55 +131,55 @@ public sealed class DoorTransitionState
                 // Room/state/FX/level setup is atomic in LoadPendingDoorDestination, but
                 // native exposes this function separately from scrolling and tile upload.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
                 Phase = DoorTransitionPhase.SetupScrolling;
                 break;
 
             case DoorTransitionPhase.SetupScrolling:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
                 // Capture immediately before the setup call; source actors have run
                 // during the fade. The atomic loader must not apply this step twice.
-                var setupSamus = runtime.Samus
+                var setupSamus = runtime.Player.Samus
                     ?? throw new InvalidOperationException("Door scrolling requires Samus.");
                 sourceSamus = setupSamus.Position;
-                runtime.ApplyDoorScrollingSetupMovement();
+                runtime.RoomLoader.ApplyDoorScrollingSetupMovement();
                 Phase = DoorTransitionPhase.PlaceSamusAndLoadTiles;
                 break;
 
             case DoorTransitionPhase.PlaceSamusAndLoadTiles:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
-                runtime.PlaceSamusForDoorTileLoading();
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
+                runtime.RoomLoader.PlaceSamusForDoorTileLoading();
                 Phase = DoorTransitionPhase.LoadMoreThingsAndOpenDoor;
                 break;
 
             case DoorTransitionPhase.LoadMoreThingsAndOpenDoor:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: false);
                 // LoadMoreThings initializes enemy graphics/music/projectiles/animtiles,
                 // PLMs, FX, backgrounds, and then yields once per NMI until the IRQ raises
                 // door_transition_flag bit $8000. The host room constructor performs that
                 // setup atomically; its following calls now run the real coordinate path.
                 fadedSourcePalette = new CgramPalettes(runtime.Cgram).Image.ToArray();
-                runtime.LoadPendingDoorDestinationForTransition(sourceSamus);
+                runtime.RoomLoader.LoadPendingDoorDestinationForTransition(sourceSamus);
                 // Enemy loading resets room-private host gates. Restore the native
                 // $0795 transition ownership before any destination EnemyMain call;
                 // elevator AI must remain frozen through the final palette fade.
-                runtime.Enemies.ElevatorDoorTransitionActive = true;
-                runtime.Enemies.EnemyDoorTransitionActive = true;
+                runtime.Enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
+                runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
                 Bgr555[] destinationTarget = new CgramPalettes(runtime.Cgram).Image.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
                 // UpdateBeamTilesAndPalette writes live colors during loading, unlike
                 // the destination room/enemy/suit target palettes used by the fade.
                 DoorTransitionPaletteDefinitions.RestoreLoadedBeamPalette(runtime.Cgram, destinationTarget);
-                runtime.BeginDoorOpeningScroll(
+                runtime.RoomLoader.BeginDoorOpeningScroll(
                     door ?? throw new InvalidOperationException("Door header was not captured."),
                     sourceSamus,
                     loaderProgress,
                     completedLoadingIrqSteps: 1);
-                runtime.StepDoorOpeningScroll(loaderProgress);
-                if (runtime.IconCancelEnabled && runtime.Samus is { } samus)
+                runtime.RoomLoader.StepDoorOpeningScroll(loaderProgress);
+                if (runtime.Options.IconCancelEnabled && runtime.Player.Samus is { } samus)
                 {
                     // ResetProjectileData checks `$09EA` after clearing all projectile
                     // slots. This is the only gameplay effect of the Icon Cancel option.
@@ -189,7 +189,7 @@ public sealed class DoorTransitionState
                 paletteTransition = new CartridgePaletteTransition(
                     destinationTarget,
                     denominator: 12,
-                    runtime.Enemies.GradualColorChange);
+                    runtime.Enemies.Presentation.GradualColorChange);
                 Phase = DoorTransitionPhase.WaitForDoorOpeningScroll;
                 break;
 
@@ -199,14 +199,14 @@ public sealed class DoorTransitionState
                 // empty build prevents the faded source enemies from becoming black ghosts
                 // over the incrementally moving destination doorway.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                if (runtime.StepDoorOpeningScroll(loaderProgress))
+                if (runtime.RoomLoader.StepDoorOpeningScroll(loaderProgress))
                 {
                     // The cartridge calls PLM_Handler at $82:E53C on the final IRQ
                     // scrolling update, before the NMI that precedes destination fade-in.
                     // Setup lists can alter visible room state here; deferring them to the
                     // first ordinary gameplay frame exposes their pre-PLM state.
                     DoorTransitionPaletteDefinitions.PublishCompletedScrollVisor(runtime.Cgram);
-                    runtime.RunDoorTransitionPlmHandler();
+                    runtime.PlmPhase.RunDoorTransitionPlmHandler();
                     Phase = DoorTransitionPhase.FinishDoorLoading;
                 }
                 break;
@@ -215,7 +215,7 @@ public sealed class DoorTransitionState
                 // $82:E540 yields once after PLM processing. This resumes the
                 // same outer dispatch, so it aligns X without another RNG call.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AlignSamusAfterDoorLoading();
+                runtime.RoomLoader.AlignSamusAfterDoorLoading();
                 Phase = DoorTransitionPhase.HandleAnimatedTiles;
                 break;
 
@@ -223,23 +223,23 @@ public sealed class DoorTransitionState
                 // LoadCartridgeRoom already initialized the destination animtile owner.
                 // Native gives it one explicit call before polling the global music queue.
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 // $82:E659 runs the animated-tile objects once in the destination room.
-                runtime.RunAnimatedTilesObjectHandler();
+                runtime.RoomMains.RunAnimatedTilesObjectHandler();
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
                 break;
 
             case DoorTransitionPhase.WaitForMusicQueue:
                 runtime.RunBlankGameplayFrame(controllerInput);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 if (!audio.HasQueuedMusic)
                 {
                     Phase = DoorTransitionPhase.HandleTransition;
                     // $82:E670 calls LoadNewMusicTrackIfChanged here, before the
                     // final Samus nudge and palette fade, not during room creation.
-                    if (!runtime.IsAttractDemo)
+                    if (!runtime.AttractDemo.IsAttractDemo)
                     {
-                        CartridgeRoomState state = runtime.ActiveRoom?.State
+                        CartridgeRoomState state = runtime.Room.ActiveRoom?.State
                             ?? throw new InvalidOperationException("Door music requires the destination room.");
                         audio.QueueRoomMusicTrack(state.MusicDataIndex, state.MusicTrackIndex);
                     }
@@ -247,13 +247,13 @@ public sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.HandleTransition:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                runtime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 // `$82:E6A2` applies the narrow-door X/Y nudges only after the opening IRQ
                 // and music queue are both complete. The atomic loader computed that exact
                 // endpoint, which is restored here rather than during the visible scroll.
-                runtime.FinishDoorOpeningScroll();
-                runtime.EndDoorTransitionIrqDisplay();
+                runtime.RoomLoader.FinishDoorOpeningScroll();
+                runtime.RoomLoader.EndDoorTransitionIrqDisplay();
                 // E6A2 returns before the next E737 actor/fade dispatch. Falling
                 // through ran Samus movement and accepted three NMIs in one update.
                 Phase = DoorTransitionPhase.BuildDestinationOam;
@@ -261,12 +261,12 @@ public sealed class DoorTransitionState
 
             case DoorTransitionPhase.BuildDestinationOam:
             case DoorTransitionPhase.FadeInDestinationPalette:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                runtime.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
+                runtime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 // E737 runs the animated-tile objects, then enemy/draw owners, on every
                 // fade step, without Samus's movement/animation handler or the camera streamer.
-                runtime.RunAnimatedTilesObjectHandler();
-                runtime.DrawDoorTransitionActors(runEnemyProjectiles: true);
+                runtime.RoomMains.RunAnimatedTilesObjectHandler();
+                runtime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: true);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 // Enemy instruction lists run after the initial destination palette copy.
                 // Their target writes belong to this same fade, not a private dead buffer.
@@ -275,15 +275,15 @@ public sealed class DoorTransitionState
                 {
                     // $82:E737 releases $0795 after EnemyMain and the last fade step.
                     // Movement resumes on the following gameplay frame, not this one.
-                    runtime.Enemies.ElevatorDoorTransitionActive = false;
-                    runtime.Enemies.EnemyDoorTransitionActive = false;
+                    runtime.Enemies.ElevatorBehavior.ElevatorDoorTransitionActive = false;
+                    runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = false;
                     // Elevator arrival retains command zero's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
                     // The elevatube door ASM also installs command zero. Native E737
                     // does not replace that handler: release only our temporary door
                     // input gate, never a stationary script's movement ownership.
-                    if (runtime.Enemies.ElevatorStatus == ElevatorActorStatus.Inactive &&
-                        runtime.Samus is { StationaryScriptControlLocked: false } arrivingSamus)
+                    if (runtime.Enemies.ElevatorBehavior.ElevatorStatus == ElevatorActorStatus.Inactive &&
+                        runtime.Player.Samus is { } arrivingSamus && !arrivingSamus.ScriptLocks.StationaryScriptControlLocked)
                         arrivingSamus.InputLocked = false;
                     Phase = DoorTransitionPhase.Complete;
                 }
@@ -302,11 +302,11 @@ public sealed class DoorTransitionState
         // Keep HUD colors legible while the source room palette disappears.
         DoorTransitionPaletteDefinitions.PreserveHud(current, target);
 
-        CartridgeRoomHeader sourceRoom = runtime.ActiveRoom ??
+        CartridgeRoomHeader sourceRoom = runtime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Door palette fade started without an active source room header.");
         byte sourceCre = sourceRoom.CreBitset;
-        byte destinationCre = runtime.PendingDoorDestinationCreBitset;
+        byte destinationCre = runtime.RoomLoader.PendingDoorDestinationCreBitset;
         if (((sourceCre | destinationCre) & 1) == 0)
         {
             DoorTransitionPaletteDefinitions.PreserveCommonCre(current, target);

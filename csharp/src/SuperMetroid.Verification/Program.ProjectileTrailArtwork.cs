@@ -176,13 +176,13 @@ internal static class ProjectileTrailArtworkVerification
     private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
     {
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.GameplayTimeFrozen = true;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.Freeze.GameplayTimeFrozen = true;
         var side = runtime.Projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = 3; side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
-        side.Position = side.Position.WithX((ushort)(runtime.Camera!.PixelPosition.X + 100)).WithY((ushort)(runtime.Camera.PixelPosition.Y + 100));
+        side.Position = side.Position.WithX((ushort)(runtime.Room.Camera!.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.Camera.PixelPosition.Y + 100));
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var runtimeField = game.GetType().GetField("runtime", flags)!;
@@ -190,27 +190,45 @@ internal static class ProjectileTrailArtworkVerification
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            target.GetType().GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, false });
+            target.ActorDrawing.DrawGameplayActors(false, false);
             return target.Oam.LowTable.ToArray();
         }
         byte[] native = Draw(runtime);
-        game.BindTrailArtwork(stock);
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = stock,
+        });
         AssertTrue(native.SequenceEqual(Draw(runtime)), "Runtime trail stock binding preserves native OAM");
-        game.BindTrailArtwork(edited);
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = edited,
+        });
         AssertTrue(!native.SequenceEqual(Draw(runtime)), "Runtime actor pass consumes edited trail appearance");
-        game.BindTrailArtwork(null);
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = null,
+        });
         using var without = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(without, game);
-        game.BindTrailArtwork(stock);
+        game.BindArtwork(game.Artwork with
+        {
+            TrailArtwork = stock,
+        });
         using var with = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
         AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Trail catalogs are excluded from both frontend and runtime snapshots");
         with.Position = 0;
         var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
         var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtimeField.GetValue(restored)!;
-        AssertTrue(restoredRuntime.TrailArtwork is null, "Restored trail catalog requires host rebind");
+        AssertTrue(restoredRuntime.Artwork.TrailArtwork is null, "Restored trail catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
-        restored.BindTrailArtwork(edited); game.BindTrailArtwork(edited);
+        restored.BindArtwork(restored.Artwork with
+        {
+            TrailArtwork = edited,
+        }); game.BindArtwork(game.Artwork with
+{
+    TrailArtwork = edited,
+});
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");
     }

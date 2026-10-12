@@ -27,20 +27,20 @@ internal static class GateJumpTraceVerification
             AssertEqual(140, expected.Length, "Complete native gate jump trace");
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = CreateRetailRuntimeFixture(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
-            var samus = runtime.Samus!;
+            var samus = runtime.Player.Samus!;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
             samus.Position = samus.Position.WithWhole(new(140, 379));
             samus.EquippedItems = samus.EquippedBeams = 0;
             samus.SelectedHudItem = 1;
             samus.Missiles = samus.MaxMissiles = 10;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
-            runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 224));
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
+            runtime.Room.Camera!.SetPosition(new Position16<RoomPixels>(0, 224));
             bool activated = false;
             for (int frame = -60; frame < 80; frame++)
             {

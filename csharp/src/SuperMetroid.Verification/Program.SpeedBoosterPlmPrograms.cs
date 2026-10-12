@@ -176,9 +176,9 @@ internal static class SpeedBoosterPlmProgramsVerification
             AssertTrue(!contact.Collided,
                 $"boosted contact with BTS ${bts.Value:X2} admits the real PLM");
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            for (int frame = 0; frame < 100 && plms.ActiveCount != 0; frame++)
+            for (int frame = 0; frame < 100 && plms.SlotTable.ActiveCount != 0; frame++)
                 plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(0, plms.ActiveCount,
+            AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"BTS ${bts.Value:X2} compiled list reaches native deletion");
             AssertEqual(respawns ? RoomCollisionType.SpecialBlock :
                     RoomCollisionType.Air,
@@ -193,7 +193,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x82),
                 AreaId.Brinstar);
         var bombGuard = NewSpeedBoosterPlmReadGuard(bombBus);
-        AssertTrue(bombPlms.TrySpawnBombedSpecialBlock(bombLevel, bombBlock,
+        AssertTrue(bombPlms.BlockReactions.TrySpawnBombedSpecialBlock(bombLevel, bombBlock,
                 new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
             "normal bomb allocates the Speed Booster reveal PLM");
         bombPlms.Step(bombGuard, bombLevel, bombLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
@@ -201,7 +201,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             bombLevel.GetCollisionBlockByIndex(bombBlock).LevelWord,
             "bombed speed block draws the native physical reveal word");
         bombPlms.Step(bombGuard, bombLevel, bombLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0, bombPlms.ActiveCount,
+        AssertEqual(0, bombPlms.SlotTable.ActiveCount,
             "bombed speed-block reveal deletes after its single frame");
         AssertEqual(0, bombGuard.ForbiddenReadAttempts,
             "bombed Speed Booster reveal reads no compiled source bytes");

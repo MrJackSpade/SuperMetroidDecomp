@@ -71,20 +71,18 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
         byte[] colorJson = CeresRidleyColorExtractor.Extract(rom);
         var enemies = new RoomEnemySystem
         {
-            CeresRidleyColors = CeresRidleyColorCatalog.Load(
-                new MemoryStream(colorJson, writable: false)),
+            Presentation = { CeresRidleyColors = CeresRidleyColorCatalog.Load(
+                new MemoryStream(colorJson, writable: false)) },
         };
-        enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+        enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = new SnesCgram();
         // $A6:BFCF samples the live RNG word; it never calls GenerateRandomNumber.
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException(
                 "The Ceres Baby draw instructions must not advance the RNG."));
-        var advance = typeof(RoomEnemySystem).GetMethod(
-                "AdvanceCeresBabyDrawInstruction", flags)!
-            .CreateDelegate<Func<RidleyEnemyState, ushort>>(enemies);
+        Func<RidleyEnemyState, ushort> advance = enemies.CeresRidleyBehavior.AdvanceCeresBabyDrawInstruction;
 
         var completeLoop = new RidleyEnemyState
         {
@@ -138,7 +136,7 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
         {
             Blue = priorBabyColor.Blue == 31 ? 30 : priorBabyColor.Blue + 1,
         };
-        enemies.CeresRidleyColors = CeresRidleyColorCatalog.Load(
+        enemies.Presentation.CeresRidleyColors = CeresRidleyColorCatalog.Load(
             new MemoryStream(CeresRidleyColorCatalog.Write(colorDocument), writable: false));
         var editedPaletteState = new RidleyEnemyState
         {
@@ -148,9 +146,8 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
             BabyPosition = new Position16<RoomPixels>(100, 80),
         };
         ushort editedPalettePose = advance(editedPaletteState);
-        AssertEqual(enemies.CeresRidleyColors.ResolveBaby(1, 0),
-            ((SnesCgram)typeof(RoomEnemySystem).GetField("_cgram", flags)!
-                .GetValue(enemies)!).Colors[CeresRidleyPaletteRomData.BabyCgramIndex],
+        AssertEqual(enemies.Presentation.CeresRidleyColors.ResolveBaby(1, 0),
+            ((SnesCgram)enemies.Presentation._cgram).Colors[CeresRidleyPaletteRomData.BabyCgramIndex],
             "edited Ceres Baby color reaches the native CGRAM slot");
         AssertEqual(CeresBabyInstructionProgramDefinitions.HorizontalFrame,
             editedPalettePose, "palette edit does not change Baby pose selection");
@@ -167,8 +164,7 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
             new MemoryStream(stockJson, writable: false));
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed });
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            NewCeresBabyInstructionReadGuard(rom, blockBabyFrames: true));
+        enemies.BindFixtureBus(NewCeresBabyInstructionReadGuard(rom, blockBabyFrames: true));
         var baby = new RidleyEnemyState
         {
             MovementAnimationEnabled = 0,
@@ -183,7 +179,7 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
         nativeBaby.FinalizeFrame();
         var installedBaby = new OamBuffer();
         installedBaby.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(installedBaby, new(0, 0));
+        enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(installedBaby, new(0, 0));
         installedBaby.FinalizeFrame();
         AssertTrue(nativeBaby.ImageEquals(installedBaby),
             "private Ceres Baby draw matches native OAM with sprite ROM reads forbidden");
@@ -209,7 +205,7 @@ internal static class CeresBabyInstructionProgramDefinitionsVerification
         baby.BabyInstructionTimer = 1;
         var editedBaby = new OamBuffer();
         editedBaby.BeginFrame();
-        enemies.DrawCeresRidleyImmediateBabyAndDoor(editedBaby, new(0, 0));
+        enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(editedBaby, new(0, 0));
         editedBaby.FinalizeFrame();
         AssertEqual(nativeBaby.GetEntry(0).X, editedBaby.GetEntry(0).X,
             "Baby art edit preserves the authored world X position");

@@ -228,7 +228,7 @@ internal static class FullMovieReplayVerification
 
     private static void TraceMovieSamus(SuperMetroidGame game, byte[] memory, int update, ConvertedMovieUpdate step)
     {
-        var samus = game.RuntimeForVerification?.Samus;
+        var samus = game.RuntimeForVerification?.Player.Samus;
         string Native(int address) => Word(memory, address).ToString("X4");
         Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={(ushort)game.GameState:X2}/{Native(MovieDesyncMemory.GameState)} " +
             $"door={game.DoorTransitionPhaseForVerification}/{Native(0x099c)} rng={game.DispatcherRandomNumber:X4}/{Native(MovieDesyncMemory.Random)}");
@@ -241,11 +241,11 @@ internal static class FullMovieReplayVerification
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
         if (game.CeresDestructionForVerification is { } boom)
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
-        Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.NmiFrameCounter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
+        Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Nmi.NmiFrameCounter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
             Console.WriteLine($"  escape port={escape.RawStatus:X4} {escape.MinutesBcd:X2}:{escape.SecondsBcd:X2}.{escape.CentisecondsBcd:X2} " +
                 $"native={Native(0x0943)} {memory[0x0947]:X2}:{memory[0x0946]:X2}.{memory[0x0945]:X2}");
-        Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.LastAerialSamusMovement);
+        Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.Player.LastAerialSamusMovement);
         if (game.RuntimeForVerification is { } projectileRuntime)
         {
             Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Slots
@@ -270,7 +270,7 @@ internal static class FullMovieReplayVerification
         if (game.RuntimeForVerification?.Enemies is { } traceEnemies)
         {
             // $1997 IDs, $1A4B X, $1A93 Y: one word per slot.
-            var portProjectiles = traceEnemies.EnemyProjectiles.Select((projectile, slot) => (projectile, slot))
+            var portProjectiles = traceEnemies.Projectiles.EnemyProjectiles.Select((projectile, slot) => (projectile, slot))
                 .Where(entry => entry.projectile.IsActive)
                 .Select(entry => $"{entry.slot}:{(ushort)entry.projectile.Kind:X4}@{entry.projectile.Position.X.Whole:X}/{entry.projectile.Position.Y.Whole:X}" +
                     $"#{entry.projectile.InstructionPointer:X4}/{entry.projectile.InstructionTimer:X}");
@@ -279,9 +279,9 @@ internal static class FullMovieReplayVerification
                     $"#{Word(memory, 0x1b47 + 2 * slot):X4}/{Word(memory, 0x1b8f + 2 * slot):X}");
             Console.WriteLine("  eproj port   " + string.Join(" ", portProjectiles));
             Console.WriteLine("  eproj native " + string.Join(" ", nativeProjectiles));
-            Console.WriteLine($"  ceres port={traceEnemies.CeresStatus:X4} native={Native(0x093f)} " +
-                $"nmi port={game.RuntimeForVerification!.NmiFrameCounter:X4} native-raw={Native(0x05b6)}");
-            foreach (var actor in traceEnemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0))
+            Console.WriteLine($"  ceres port={traceEnemies.RidleyEncounter.CeresStatus:X4} native={Native(0x093f)} " +
+                $"nmi port={game.RuntimeForVerification!.Nmi.NmiFrameCounter:X4} native-raw={Native(0x05b6)}");
+            foreach (var actor in traceEnemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer != 0))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
                 int slotBase = MovieDesyncMemory.EnemyBase + actor.NativeIndex;
@@ -290,13 +290,13 @@ internal static class FullMovieReplayVerification
                     $"native inst={Native(slotBase + 0x1a)}/{Native(slotBase + 0x1c)} prop={Native(slotBase + 0x0e)}");
             }
         }
-        if (game.RuntimeForVerification?.Enemies.MotherBrain?.BabyMetroid is { } baby)
+        if (game.RuntimeForVerification?.Enemies.MotherBrainEncounter.MotherBrain?.BabyMetroid is { } baby)
         {
             // Baby Metroid cutscene actor: $0FA8+$40n function words; velocities at +2/+4.
             Console.WriteLine($"  baby port   pos={baby.Position.X.Whole:X4}.{baby.Position.X.Fraction:X4}/{baby.Position.Y.Whole:X4}.{baby.Position.Y.Fraction:X4} v={baby.Velocity.X.RawValue:X4}/{baby.Velocity.Y.RawValue:X4}");
             Console.WriteLine($"  baby native pos={Native(0x103a)}.{Native(0x103c)}/{Native(0x103e)}.{Native(0x1040)} v={Native(0x106a)}/{Native(0x106c)}");
         }
-        if (game.RuntimeForVerification?.Enemies.Ridley is { } ridley)
+        if (game.RuntimeForVerification?.Enemies.RidleyEncounter.Ridley is { } ridley)
         {
             // $7E:2020: seven ten-word tail records; X/Y at +12/+14.
             string Port(int index) => $"{ridley.TailSegments[index].Position.X:X4}/{ridley.TailSegments[index].Position.Y:X4}";
@@ -333,7 +333,7 @@ internal static class FullMovieReplayVerification
         if (game.GameState is SuperMetroidGameState.SetUpNewGame or SuperMetroidGameState.LoadingGameData)
             return mismatches;
         var runtime = game.RuntimeForVerification;
-        if (runtime?.Samus is not { } samus) return mismatches;
+        if (runtime?.Player.Samus is not { } samus) return mismatches;
         Check("Samus X", samus.Position.X.Whole, MovieDesyncMemory.SamusX);
         Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, MovieDesyncMemory.SamusXFraction);
         Check("Samus Y", samus.Position.Y.Whole, MovieDesyncMemory.SamusY);
@@ -355,13 +355,13 @@ internal static class FullMovieReplayVerification
         if (game.GameState != SuperMetroidGameState.MainGameplay) return mismatches;
 
         Check("Samus pose", (ushort)samus.Pose, MovieDesyncMemory.SamusPose);
-        Check("Room", runtime.ActiveRoom!.Pointer, MovieDesyncMemory.Room);
-        Check("Camera X", runtime.Camera!.PixelPosition.X, MovieDesyncMemory.CameraX);
-        Check("Camera Y", runtime.Camera.PixelPosition.Y, MovieDesyncMemory.CameraY);
-        Check("Camera X fraction", runtime.Camera.Position.X.Fraction, MovieDesyncMemory.CameraXSubposition);
-        Check("Camera Y fraction", runtime.Camera.Position.Y.Fraction, MovieDesyncMemory.CameraYSubposition);
-        Check("Accepted NMI", runtime.NmiFrameCounter, MovieDesyncMemory.NmiCounter);
-        if (runtime.Enemies.Ridley is { } ridley)
+        Check("Room", runtime.Room.ActiveRoom!.Pointer, MovieDesyncMemory.Room);
+        Check("Camera X", runtime.Room.Camera!.PixelPosition.X, MovieDesyncMemory.CameraX);
+        Check("Camera Y", runtime.Room.Camera.PixelPosition.Y, MovieDesyncMemory.CameraY);
+        Check("Camera X fraction", runtime.Room.Camera.Position.X.Fraction, MovieDesyncMemory.CameraXSubposition);
+        Check("Camera Y fraction", runtime.Room.Camera.Position.Y.Fraction, MovieDesyncMemory.CameraYSubposition);
+        Check("Accepted NMI", runtime.Nmi.NmiFrameCounter, MovieDesyncMemory.NmiCounter);
+        if (runtime.Enemies.RidleyEncounter.Ridley is { } ridley)
             for (int index = 0; index < ridley.TailSegments.Length; index++)
             {
                 int tail = MovieDesyncMemory.RidleyTailSegments + index * MovieDesyncMemory.RidleyTailSegmentStride;
@@ -373,12 +373,12 @@ internal static class FullMovieReplayVerification
                 Check($"Ridley tail {index} X", ridley.TailSegments[index].Position.X, tail + MovieDesyncMemory.RidleyTailXOffset);
                 Check($"Ridley tail {index} Y", ridley.TailSegments[index].Position.Y, tail + MovieDesyncMemory.RidleyTailYOffset);
             }
-        var projectiles = runtime.Enemies.EnemyProjectiles;
+        var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         if (projectiles.Count != MovieDesyncMemory.EnemyProjectileSlots)
             throw new InvalidOperationException($"Port has {projectiles.Count} enemy-projectile slots.");
         // The fresh-Ceres pad ($86:A387) and concealer ($86:A395) live in their own arrival
         // model, which owns native slots $22 and $20 while they exist; the pool leaves them free.
-        var arrival = runtime.CeresElevatorArrival;
+        var arrival = runtime.Room.CeresElevatorArrival;
         void CheckArrivalSlot(int slot, bool active, ushort id, ushort y)
         {
             int offset = 2 * slot;
@@ -414,7 +414,7 @@ internal static class FullMovieReplayVerification
                 Check($"Enemy projectile {slot} X", projectile.Position.X.Whole, MovieDesyncMemory.EnemyProjectileX + offset);
             Check($"Enemy projectile {slot} Y", projectile.Position.Y.Whole, MovieDesyncMemory.EnemyProjectileY + offset);
         }
-        foreach (var actor in runtime.Enemies.Slots)
+        foreach (var actor in runtime.Enemies.SlotTable.Slots)
         {
             int address = MovieDesyncMemory.EnemyBase + actor.NativeIndex;
             string owner = $"Enemy {actor.SlotIndex}";

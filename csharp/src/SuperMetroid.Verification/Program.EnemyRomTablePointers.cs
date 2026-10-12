@@ -112,17 +112,13 @@ internal static class EnemyRomTablePointersVerification
 
         var guarded = NewEnemyInstructionSelectionReadGuard(rom);
         Type type = typeof(RoomEnemySystem);
-        MethodInfo statueInitializer = type.GetMethod(
-            "InitializeTourianEntranceStatue", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var system = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-            type.GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .SetValue(system, guarded);
-            type.GetField("_cgram", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .SetValue(system, new SnesCgram());
+            var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            system.BindFixtureBus(guarded);
+            system.Presentation._cgram = new SnesCgram();
             var slot = new RoomEnemySlot(0) { Parameter1 = parameter };
-            statueInitializer.Invoke(system, [slot]);
+            system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(
                     parameter),
@@ -130,20 +126,17 @@ internal static class EnemyRomTablePointersVerification
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }
 
-        MethodInfo spawnReflectedSuper = type.GetMethod(
-            "SpawnGoldenTorizoSuperMissile", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (bool facingRight in new[] { false, true })
         {
-            var system = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-            type.GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .SetValue(system, guarded);
+            var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
+            system.BindFixtureBus(guarded);
             var torizo = new RoomEnemySlot(0)
             {
                 Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
-            spawnReflectedSuper.Invoke(system, [torizo]);
-            RoomEnemyProjectileSlot projectile = system.EnemyProjectiles.Single(
+            system.BombTorizoBehavior.SpawnGoldenTorizoSuperMissile(torizo);
+            RoomEnemyProjectileSlot projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);
             AssertEqual(
                 GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(facingRight),

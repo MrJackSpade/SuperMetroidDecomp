@@ -24,22 +24,22 @@ internal static class ShutterRepeatedBombsVerification
         foreach (int unmorphAt in new[] { -1, 45, 75, 105 })
         {
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom);
-            var samus = runtime.Samus!;
-            var platform = runtime.Enemies.Slots[slotIndex];
+            var samus = runtime.Player.Samus!;
+            var platform = runtime.Enemies.SlotTable.Slots[slotIndex];
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole + offset), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             for (int frame = 0; frame < 320; frame++)
             {
-                ushort input = frame < 220 && frame % interval == 0 ? runtime.ControllerBindings.Shoot : (ushort)0;
+                ushort input = frame < 220 && frame % interval == 0 ? runtime.Options.ControllerBindings.Shoot : (ushort)0;
                 if (frame == unmorphAt) input |= (ushort)SnesButton.Up;
                 runtime.StepFrame(input);
                 int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;

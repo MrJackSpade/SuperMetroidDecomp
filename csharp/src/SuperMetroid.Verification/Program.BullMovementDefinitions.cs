@@ -9,9 +9,8 @@ internal static class BullMovementDefinitionsVerification
     internal static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBull", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var slot = enemies.Slots[0];
+        Action<RoomEnemySlot> initialize = enemies.BullBehavior.InitializeBull;
+        var slot = enemies.SlotTable.Slots[0];
         for (ushort interval = 0; interval < 13; interval++)
         for (ushort speed = 0; speed < 8; speed++)
         {

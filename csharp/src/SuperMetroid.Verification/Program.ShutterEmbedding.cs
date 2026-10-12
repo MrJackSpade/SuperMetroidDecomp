@@ -28,17 +28,17 @@ internal static class ShutterEmbeddingVerification
             int offset = slot == 0 ? 32 : -32;
             SnesButton direction = slot == 0 ? SnesButton.Left : SnesButton.Right;
             var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShutterRoom, new Position16<RoomPixels>(0, 0));
-            var samus = runtime.Samus!;
-            var platform = runtime.Enemies.Slots[slot];
+            var samus = runtime.Player.Samus!;
+            var platform = runtime.Enemies.SlotTable.Slots[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole + offset), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             bool activated = false;
@@ -46,7 +46,7 @@ internal static class ShutterEmbeddingVerification
             for (int frame = 0; frame < 220; frame++)
             {
                 ushort input = frame < stopAt ? (ushort)direction : (ushort)0;
-                if (frame == bombAt || frame == bombAt + 20) input |= runtime.ControllerBindings.Shoot;
+                if (frame == bombAt || frame == bombAt + 20) input |= runtime.Options.ControllerBindings.Shoot;
                 runtime.StepFrame(input);
                 activated |= runtime.Enemies.VerticalShutterStates[slot]!.Function == VerticalShutterFunction.MovingUp;
                 carried |= samus.Kinematics.ExtraDisplacement.Y.RawValue < 0;

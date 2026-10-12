@@ -111,8 +111,8 @@ internal static class CrocomireArenaVisualsVerification
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);
         level.SetBlockDefinitionWord(0x0080 * 4, 0x0080);
-        var plms = new RoomPlmSystem { CrocomireVisuals = visuals };
-        AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
+        var plms = new RoomPlmSystem { Drawing = { CrocomireVisuals = visuals } };
+        AssertTrue(plms.BossRoomMutations.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire visual header ${(int)header:X4} allocates");
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         plms.Step(guard, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });

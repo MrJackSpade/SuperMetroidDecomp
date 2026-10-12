@@ -47,7 +47,7 @@ internal static class EyeDoorPlmsVerification
         var system = new Bank80SystemState();
         int plmBlock = 4 * 16 + 7;
 
-        enemies.SpawnEyeDoorProjectile(
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Projectile,
                 Parameter: 0,
@@ -55,7 +55,7 @@ internal static class EyeDoorPlmsVerification
                 DoorBit: 5),
             roomWidthInBlocks: 16,
             system);
-        RoomEnemyProjectileSlot attack = enemies.EnemyProjectiles.Single(projectile =>
+        RoomEnemyProjectileSlot attack = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorProjectile);
         AssertEqual((ushort)104, attack.Position.X.Whole,
             "eye-door attack initializer applies cartridge PLM X offset");
@@ -75,7 +75,7 @@ internal static class EyeDoorPlmsVerification
             attack.PreInstruction,
             "opened door impact executes its native clear-pre-instruction command");
 
-        enemies.SpawnEyeDoorProjectile(
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Sweat,
                 Parameter: 4,
@@ -83,14 +83,14 @@ internal static class EyeDoorPlmsVerification
                 DoorBit: 5),
             roomWidthInBlocks: 16,
             system);
-        RoomEnemyProjectileSlot sweat = enemies.EnemyProjectiles.Single(projectile =>
+        RoomEnemyProjectileSlot sweat = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat);
         AssertEqual((ushort)64, sweat.Velocity.X.RawValue,
             "mirrored sweat parameter selects positive cartridge X velocity");
         AssertEqual((ushort)512, sweat.Velocity.Y.RawValue,
             "sweat parameter retains cartridge falling velocity");
 
-        enemies.SpawnEyeDoorProjectile(
+        enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(
             new EyeDoorProjectileRequest(
                 EyeDoorProjectileDefinition.Smoke,
                 Parameter: 0x030a,
@@ -98,7 +98,7 @@ internal static class EyeDoorPlmsVerification
                 DoorBit: 5),
             roomWidthInBlocks: 16,
             system);
-        RoomEnemyProjectileSlot smoke = enemies.EnemyProjectiles.Single(projectile =>
+        RoomEnemyProjectileSlot smoke = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
         AssertEqual((ushort)0xe1c6, smoke.InstructionPointer,
             "smoke low parameter byte indexes the cartridge instruction-list pointer table");
@@ -135,10 +135,10 @@ internal static class EyeDoorPlmsVerification
         };
         var effects = new List<EyeDoorProjectileRequest>();
         var plms = new RoomPlmSystem();
-        AssertEqual(3, plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, pointer: 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = effects.Add } }),
+        AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, pointer: 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { EyeDoorProjectile = effects.Add } }),
             $"{orientation} eye-door population record count");
 
-        AssertEqual(3, plms.ActiveCount, $"{orientation} eye door retains three PLM slots");
+        AssertEqual(3, plms.SlotTable.ActiveCount, $"{orientation} eye door retains three PLM slots");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(39, slots[0].NativeSlotIndex,
             $"{orientation} eye receives the first highest native slot");
@@ -171,7 +171,7 @@ internal static class EyeDoorPlmsVerification
                 new SamusProjectileTypeWord(0x0000)),
             $"{orientation} beam collision reaches resident eye");
         StepEyeDoorPlms(plms, bus, level, streamer);
-        AssertTrue(plms.SoundRequests.Any(request =>
+        AssertTrue(plms.Sounds.SoundRequests.Any(request =>
                 request.SoundEffect == SoundEffectId.FromCartridge(
                     SoundEffectLibrary.Library2,
                     EyeDoorPlmRomData.RejectedShotSound)),
@@ -192,7 +192,7 @@ internal static class EyeDoorPlmsVerification
 
         AssertTrue(system.HasOpenedDoorBit(doorBit),
             $"{orientation} accepted hit threshold persists door bit");
-        AssertEqual(0, plms.ActiveCount,
+        AssertEqual(0, plms.SlotTable.ActiveCount,
             $"{orientation} eye and both passive components complete together");
 
         int capBlock = eyeBlock - roomWidth;

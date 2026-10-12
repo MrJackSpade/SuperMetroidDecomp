@@ -143,10 +143,10 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem { TileArtwork = installedArt ?? RepositoryInstallation.EnemyTiles };
+        var enemies = new RoomEnemySystem { TileArtwork = installedArt ?? InstalledFixtures.EnemyTiles };
         enemies.Load(new RoomEnemyLoadRequest(guard, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { Level = assets.LevelData });
 
-        RoomEnemySlot actor = enemies.Slots[0];
+        RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??
             throw new InvalidDataException("Real Alcoon initializer omitted slot-zero state.");
         var samus = new SamusState
@@ -156,8 +156,8 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingYPosition)),
         };
-        samus.RefreshCollisionRadii(rom);
-        samus.InitializeAnimation(rom);
+        samus.PoseMetadata.RefreshCollisionRadii(rom);
+        samus.Presentation.InitializeAnimation(rom);
 
         bool sawLeftFireball = false;
         bool sawRightFireball = false;
@@ -169,7 +169,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             int maximumX = Math.Max(0, room.Size.X * 256 - 256);
             ushort cameraX = unchecked((ushort)Math.Clamp(actor.Position.X.Whole - 128, 0, maximumX));
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
-            foreach (RoomEnemySlot slot in enemies.Slots)
+            foreach (RoomEnemySlot slot in enemies.SlotTable.Slots)
             {
                 if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Alcoon)
                     continue;
@@ -180,7 +180,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
 
             samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(actor.Position.X.Whole +
                 (state.Velocity.X.WholePixels < 0 ? -32 : 32))), state.LandingYPosition));
-            foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles.Where(
+            foreach (RoomEnemyProjectileSlot projectile in enemies.Projectiles.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {
                 sawLeftFireball |= unchecked((short)projectile.Velocity.X.RawValue) < 0;

@@ -35,6 +35,9 @@
     <TrimmerRootAssembly Include="SuperMetroid.Diagnostics" RootMode="All" />
     <TrimmerRootAssembly Include="SuperMetroid.AssetExtraction" RootMode="All" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(AndroidHostProbes)' == 'true'">
+    <DefineConstants>$(DefineConstants);ANDROID_HOST_PROBES</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <!-- Opt-in device probes are excluded from normal player APKs. -->
     <Compile Include="../../tools/android-probes/AudioFocusProbe.cs" Condition="'$(AndroidHostProbes)' == 'true'" />

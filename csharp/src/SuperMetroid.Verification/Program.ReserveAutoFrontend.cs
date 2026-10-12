@@ -38,14 +38,14 @@ internal static class ReserveAutoFrontendVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.Health = 0; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
         var game = new SuperMetroidGame(bus);
@@ -63,7 +63,7 @@ internal static class ReserveAutoFrontendVerification
             "zero-health gameplay routes to automatic reserves before pause admission");
         AssertEqual(0, samus.Health, "entry frame does not transfer reserve energy early");
         AssertEqual(2, samus.ReserveEnergy, "entry frame retains the full reserve supply");
-        AssertTrue(runtime.TimeIsFrozen && samus.InputLocked,
+        AssertTrue(runtime.Freeze.TimeIsFrozen && samus.InputLocked,
             "entry publishes both recovery locks for the next frame");
         AssertTrue(entry.Snapshot is not null,
             "entry preserves the completed gameplay presentation instead of a blank frame");
@@ -77,16 +77,16 @@ internal static class ReserveAutoFrontendVerification
             "automatic refill command-zero beta does not advance Samus animation timer");
         AssertEqual(1, samus.Health, "automatic refill first frame");
         AssertTrue(samus.HealthWarning.IsActive, "native external health check starts warning during frozen refill");
-        AssertTrue(runtime.TimeIsFrozen && samus.InputLocked, "nonfinal refill keeps native freeze and input lock");
-        AssertTrue(runtime.LastGroundedSamusMovement is null, "nonfinal refill does not execute grounded movement");
+        AssertTrue(runtime.Freeze.TimeIsFrozen && samus.InputLocked, "nonfinal refill keeps native freeze and input lock");
+        AssertTrue(runtime.Player.LastGroundedSamusMovement is null, "nonfinal refill does not execute grounded movement");
         AssertEqual(10, runtime.BombProjectiles.CooldownTimer, "nonfinal refill freezes shared projectile clock");
         game.StepCaptured((ushort)SnesButton.Right, ++hostSequence, 1);
         AssertEqual(2, samus.Health, "automatic refill completion frame");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "completion restores outer gameplay state");
-        AssertTrue(!runtime.TimeIsFrozen && !samus.InputLocked, "completion clears native freeze and input lock");
+        AssertTrue(!runtime.Freeze.TimeIsFrozen && !samus.InputLocked, "completion clears native freeze and input lock");
         AssertEqual(9, runtime.BombProjectiles.CooldownTimer,
             "completion unfreezes the gameplay projectile pass on the same frame");
-        AssertTrue(runtime.LastGroundedSamusMovement is not null,
+        AssertTrue(runtime.Player.LastGroundedSamusMovement is not null,
             "native $82:DC18 unfreezes BEFORE the completion frame gameplay/movement pass");
         var audio = (CartridgeAudioState)typeof(SuperMetroidGame).GetField("audio", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
         samus.HealthWarning.Update(99, audio);
@@ -96,9 +96,9 @@ internal static class ReserveAutoFrontendVerification
         // automatic recovery freezes movement. Inspect presentation, not just HP.
         runtime.Hud.UpdateGameplayCounters(bus, samus);
         runtime.Hud.QueueUpload(bus, runtime.VramWrites);
-        runtime.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0, true);
         var digitImages = new Dictionary<int, Rgba32[]>();
-        recovery.Begin(samus); runtime.GameplayTimeFrozen = true;
+        recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
         lockedAnimationFrame = samus.AnimationFrame;
         lockedAnimationTimer = samus.AnimationFrameTimer;
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.ReserveTanksAuto);
@@ -118,7 +118,7 @@ internal static class ReserveAutoFrontendVerification
                     "all nonfinal recovery frames retain Samus animation delay");
             }
             else
-                AssertTrue(!samus.StationaryScriptControlLocked,
+                AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked,
                     "completion restores the normal animation handler on the same frame");
             AssertTrue(capture.Snapshot is not null, "automatic recovery publishes a gameplay render packet");
             var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot!);
@@ -166,17 +166,17 @@ internal static class ReserveAutoFrontendVerification
         audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);
         AssertTrue(samus.HealthWarning.IsActive, "ordinary gameplay acquires critical warning after unlock");
         AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "ordinary gameplay publishes actual warning command");
-        runtime.InitializePostCeresZebesRoom();
+        runtime.RoomLoader.InitializePostCeresZebesRoom();
         // The Zebes handoff installs a fresh Samus that carries over only the inventory.
-        samus = runtime.Samus!;
-        AssertTrue(!runtime.Enemies.HasGunshipHealthHandler, "initial post-Ceres descent does not install command 1A");
-        var ship = runtime.Enemies.Slots[0];
+        samus = runtime.Player.Samus!;
+        AssertTrue(!runtime.Enemies.GunshipHealthBehavior.HasGunshipHealthHandler, "initial post-Ceres descent does not install command 1A");
+        var ship = runtime.Enemies.SlotTable.Slots[0];
         ship.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
         ship.VariableA = 100;
         samus.HealthWarning.Update(99, audio);
         samus.Health = 30; samus.InputLocked = true;
         audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);
-        AssertTrue(runtime.Enemies.HasGunshipHealthHandler && samus.HealthWarning.IsActive,
+        AssertTrue(runtime.Enemies.GunshipHealthBehavior.HasGunshipHealthHandler && samus.HealthWarning.IsActive,
             "gunship entry handler checks low health despite locked input");
         AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "gunship handler publishes warning audio");
         Console.WriteLine("Automatic reserve frontend: nonfinal freeze and same-frame completion movement pass.");

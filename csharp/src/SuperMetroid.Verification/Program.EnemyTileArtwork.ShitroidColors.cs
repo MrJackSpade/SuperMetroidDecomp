@@ -76,21 +76,19 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        RoomEnemySlot slot = enemies.Slots[0];
-        MethodInfo initialize = type.GetMethod("InitializeShitroid", flags)!;
-        initialize.Invoke(enemies, [slot, (ushort)0]);
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = cgram;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        enemies.ShitroidBehavior.InitializeShitroid(slot, (ushort)0);
         ShitroidEnemyState state = enemies.Shitroid ??
             throw new InvalidDataException("Shitroid initialization produced no state.");
         CheckLiveTarget(ShitroidColorTarget.Sidehopper, 0x90);
         CheckLiveTarget(ShitroidColorTarget.Shitroid, 0xa0);
         CheckLiveTarget(ShitroidColorTarget.DeadSidehopper, 0xf0);
-        MethodInfo step = type.GetMethod("StepShitroidNormalPalette", flags)!;
         for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
         {
             state.PaletteTimerAndPhase = (ushort)((frame + 7) & 7);
-            step.Invoke(enemies, [state]);
+            enemies.ShitroidBehavior.StepShitroidNormalPalette(state);
             AssertEqual(SnesLittleEndian.Word(unchecked((byte)frame), unchecked((byte)state.PaletteDelay)),
                 state.PaletteTimerAndPhase,
                 $"Shitroid normal frame {frame} retains native timer/phase selection");

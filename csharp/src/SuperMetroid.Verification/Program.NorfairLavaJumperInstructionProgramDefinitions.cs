@@ -40,15 +40,12 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         var guard = NewNorfairLavaJumperInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
+        enemies.BindFixtureBus(guard);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-        var initialize = type.GetMethod("InitializeNorfairLavaJumpingEnemy", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var runMain = type.GetMethod("RunNorfairLavaJumpingEnemyMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, NorfairLavaJumpingEnemyState>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        var initialize = new Action<RoomEnemySlot>(enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy);
+        var runMain = new Action<RoomEnemySlot, NorfairLavaJumpingEnemyState>(enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain);
 
-        RoomEnemySlot parent = enemies.Slots[0];
+        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.EnemyDefinitionPointer = EnemyDefinitionId.Squeept;
         parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         parent.Position = parent.Position.WithWhole(new(0x0100, 0x01e0));
@@ -59,7 +56,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
             [parent, null, null, Position16<RoomPixels>.Zero, (ushort)0];
 
         RunNorfairLavaJumperProgram(
-            enemies, process, processArguments, parent,
+            enemies, processArguments, parent,
             NorfairLavaJumperInstructionProgramDefinitions.Hidden,
             NorfairLavaJumperInstructionProgramDefinitions.HiddenSleep,
             timedFrames: 1);
@@ -71,14 +68,14 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
             parent.CurrentInstruction,
             "real lava-jumper rise handoff installs jump program");
         RunNorfairLavaJumperProgram(
-            enemies, process, processArguments, parent,
+            enemies, processArguments, parent,
             NorfairLavaJumperInstructionProgramDefinitions.Jump,
             NorfairLavaJumperInstructionProgramDefinitions.JumpSleep,
             timedFrames: 7);
         AssertTrue(parentState.AnimationFinished,
             "jump program publishes its real animation handshake");
 
-        RoomEnemySlot follower = enemies.Slots[1];
+        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.EnemyDefinitionPointer = EnemyDefinitionId.Squeept;
         follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         follower.Parameter1 = 0x8000;
@@ -90,7 +87,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < 7; frame++)
         {
             follower.InstructionTimer = 1;
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         }
         AssertEqual(unchecked((ushort)(
                 NorfairLavaJumperInstructionProgramDefinitions.Follower + 4)),
@@ -126,7 +123,6 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
 
     private static void RunNorfairLavaJumperProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         object?[] arguments,
         RoomEnemySlot slot,
         ushort entry,
@@ -137,10 +133,10 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         for (int frame = 0; frame < timedFrames; frame++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
         slot.InstructionTimer = 1;
-        process.Invoke(enemies, arguments);
+        EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(terminalSleep, slot.CurrentInstruction,
             "lava-jumper program reaches terminal sleep");
     }

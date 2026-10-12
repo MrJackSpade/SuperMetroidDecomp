@@ -127,9 +127,8 @@ internal static class RipperInstructionProgramDefinitionsVerification
         void VerifyGRipper(ushort packedSelector, ushort expectedProgram, string context)
         {
             RoomEnemySystem enemies = CreateSystem();
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeGRipper", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            RoomEnemySlot slot = enemies.Slots[0];
+            Action<RoomEnemySlot> initialize = enemies.RipperBehavior.InitializeGRipper;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.GRipper;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.CurrentInstruction = packedSelector;
@@ -142,23 +141,17 @@ internal static class RipperInstructionProgramDefinitionsVerification
         void VerifyGRipperReversal()
         {
             RoomEnemySystem enemies = CreateSystem();
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeGRipper", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            MethodInfo reverse = typeof(RoomEnemySystem).GetMethod(
-                "ReverseRipperVariant", flags)!;
-            RoomEnemySlot slot = enemies.Slots[0];
+            Action<RoomEnemySlot> initialize = enemies.RipperBehavior.InitializeGRipper;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.GRipper;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.CurrentInstruction = 1;
             slot.Parameter1 = 0;
             slot.Parameter2 = ushort.MaxValue;
             initialize(slot);
-            reverse.Invoke(null,
-            [
-                slot,
+            RipperBehavior.ReverseRipperVariant(slot,
                 RipperInstructionProgramDefinitions.GRipperMovingRight,
-                RipperInstructionProgramDefinitions.GRipperMovingLeft,
-            ]);
+                RipperInstructionProgramDefinitions.GRipperMovingLeft);
             VerifyInstalledLoop(
                 enemies,
                 slot,
@@ -169,9 +162,8 @@ internal static class RipperInstructionProgramDefinitionsVerification
         void VerifyRipper2(ushort initialDirection, ushort expectedProgram, string context)
         {
             RoomEnemySystem enemies = CreateSystem();
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeRipper2", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            RoomEnemySlot slot = enemies.Slots[0];
+            Action<RoomEnemySlot> initialize = enemies.RipperBehavior.InitializeRipper2;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Ripper2;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = 1;
@@ -183,9 +175,8 @@ internal static class RipperInstructionProgramDefinitionsVerification
         void VerifyRipper(ushort initialDirection, ushort expectedProgram, string context)
         {
             RoomEnemySystem enemies = CreateSystem();
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeRipper", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>();
-            RoomEnemySlot slot = enemies.Slots[0];
+            Action<RoomEnemySlot> initialize = RipperBehavior.InitializeRipper;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Ripper;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
             slot.Parameter1 = 1;
@@ -197,7 +188,7 @@ internal static class RipperInstructionProgramDefinitionsVerification
         RoomEnemySystem CreateSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             return enemies;
         }
 
@@ -211,13 +202,11 @@ internal static class RipperInstructionProgramDefinitionsVerification
                 $"{context} initializer-selected program");
             slot.InstructionTimer = 1;
             slot.Timer = 0;
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-                "ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < 31; frame++)
             {
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
                 if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
                     observedFrames.Add(slot.SpritemapPointer);
             }

@@ -9,7 +9,7 @@ internal static class CompiledEnemyDisplayAudit
 {
     internal static void Install(string root, ResourceIndex exports, AuditReport report)
     {
-        const string path = "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs";
+        const string path = "csharp/src/SuperMetroid.Core/Game/EnemyPresentation.cs";
         SyntaxTreeGuard(root, path);
         foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
         {

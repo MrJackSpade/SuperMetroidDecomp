@@ -965,7 +965,7 @@ internal static class RoomPlmSystemAccess
         /// <summary>
         /// Returns whether a room-authored header has a setup owner in the sequential loader.
         /// This is a read-only inventory seam for private-ROM audits; production still performs
-        /// dispatch and contextual failure from <see cref="RoomPlmSystem.LoadRoomPopulation"/> itself.
+        /// dispatch and contextual failure from <see cref="PlmPopulationLoader.LoadRoomPopulation"/> itself.
         /// </summary>
         internal static bool IsSupportedRoomPopulationHeader(PlmHeaderId header)
         {
@@ -984,14 +984,14 @@ internal static class RoomPlmSystemAccess
                 PlmHeaderId.SetMetroidsClearedStatesWhenRequired or
                 PlmHeaderId.MotherBrainEscapeRoomGate or
                 PlmHeaderId.DownwardGate or PlmHeaderId.DownwardGateShotBlock ||
-                ((bool)(PrivateState.InvokeStatic(typeof(RoomPlmSystem), "IsEyeDoorHeader", header))!) || ((bool)(PrivateState.InvokeStatic(typeof(RoomPlmSystem), "IsDraygonCannonHeader", header))!))
+                EyeDoorPlms.IsEyeDoorHeader(header) || DraygonCannonPlms.IsDraygonCannonHeader(header))
             {
                 return true;
             }
             if (RoomPlmSystem.IsColoredDoorHeader(header) ||
-                (bool)PrivateState.InvokeStaticWithOut(typeof(RoomPlmSystem), "TryIdentifyGreyDoor", [header, null])!)
+                GreyDoorPlms.TryIdentifyGreyDoor(header, out _))
                 return true;
-            return RoomPlmSystem.TryIdentifyPermanentCollectible(header, out _, out _);
+            return CollectiblePlms.TryIdentifyPermanentCollectible(header, out _, out _);
         }
 
         internal static bool IsColoredDoorHeader(PlmHeaderId header) => header is
@@ -1018,7 +1018,7 @@ internal static class RoomPlmSystemAccess
         ];
 
         /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
-        internal IReadOnlyList<GreyDoorPlmSnapshot> GreyDoors =>
+        internal IReadOnlyList<GreyDoorPlmSnapshot> GreyDoorSnapshots =>
         [
             .. ActiveSlots(self).Select(slot => (slot, door: PrivateState.Property<GreyDoorPlmState?>(slot, "GreyDoor")))
                 .Where(entry => entry.door is not null)
@@ -1031,7 +1031,7 @@ internal static class RoomPlmSystemAccess
         ];
 
         /// <summary>Debugger-visible projections of every live eye-door component.</summary>
-        internal IReadOnlyList<EyeDoorPlmSnapshot> EyeDoors =>
+        internal IReadOnlyList<EyeDoorPlmSnapshot> EyeDoorSnapshots =>
         [
             .. ActiveSlots(self).Select(slot => (slot, door: PrivateState.Property<object?>(slot, "EyeDoor")))
                 .Where(entry => entry.door is not null)
@@ -1096,12 +1096,12 @@ internal static class RoomPlmSystemAccess
         }
 
         /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
-        internal bool MotherBrainGlassWasLoaded => PrivateState.Field<bool>(self, "_motherBrainGlassWasLoaded");
+        internal bool MotherBrainGlassWasLoaded => PrivateState.Field<bool>(self.MotherBrainGlass, "_motherBrainGlassWasLoaded");
 
         /// <summary>Current native room argument, retained after the header deletes itself.</summary>
         internal ushort MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
             ? PrivateState.Property<ushort>(slot, "RoomArgument")
-            : PrivateState.Field<ushort>(self, "_motherBrainGlassLastRoomArgument");
+            : PrivateState.Field<ushort>(self.MotherBrainGlass, "_motherBrainGlassLastRoomArgument");
 
         /// <summary>Current bank-$84 instruction pointer, or zero after deletion.</summary>
         internal ushort MotherBrainGlassInstructionPointer => MotherBrainGlassSlot(self) is { } slot
@@ -1139,7 +1139,7 @@ internal static class RoomPlmSystemAccess
             object[] active = [.. ActiveSlots(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            PrivateState.Invoke(self, "DrawPlmInstruction", bus, level, streamer,
+            PrivateState.Invoke(self.Drawing, "DrawPlmInstruction", bus, level, streamer,
                 PrivateState.Property<PlmHeaderId>(active[0], "HeaderPointer"),
                 PrivateState.Property<int>(active[0], "BlockIndex"),
                 drawPointer, default(PlmView));
@@ -1154,7 +1154,7 @@ internal static class RoomPlmSystemAccess
         /// </summary>
         internal void SetSoleInstructionPointerForVerification(ushort instructionPointer)
         {
-            object[] active = PrivateState.Field<object[]>(self, "_slots").Where(slot => PrivateState.Property<bool>(slot, "Active")).ToArray();
+            object[] active = self.SlotTable._slots.Where(slot => PrivateState.Property<bool>(slot, "Active")).ToArray();
             if (active.Length != 1)
                 throw new InvalidOperationException(
                     "Instruction probe requires exactly one active PLM slot.");
@@ -1175,7 +1175,7 @@ internal static class RoomPlmSystemAccess
             int blockIndex,
             SamusProjectileTypeWord projectileType)
         {
-            foreach (object slot in PrivateState.Field<object[]>(self, "_slots"))
+            foreach (object slot in self.SlotTable._slots)
             {
                 if (!PrivateState.Property<bool>(slot, "Active") || PrivateState.Property<int>(slot, "BlockIndex") != blockIndex ||
                     PrivateState.Property<object?>(slot, "EyeDoor") is not { } door ||
@@ -1195,7 +1195,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
         internal IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => PrivateState.Property<bool>(PrivateState.Field<object[]>(self, "_slots")[snapshot.NativeSlotIndex], "IsElevatorPlatform"))
+            .Where(snapshot => PrivateState.Property<bool>(self.SlotTable._slots[snapshot.NativeSlotIndex], "IsElevatorPlatform"))
             .ToArray();
 
         /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
@@ -1203,17 +1203,17 @@ internal static class RoomPlmSystemAccess
         {
             get
             {
-                var snapshots = new RoomPlmSlotSnapshot[self.ActiveCount];
+                var snapshots = new RoomPlmSlotSnapshot[self.SlotTable.ActiveCount];
                 int next = 0;
-                for (int index = PrivateState.Field<object[]>(self, "_slots").Length - 1; index >= 0; index--)
-                    if (PrivateState.Property<bool>(PrivateState.Field<object[]>(self, "_slots")[index], "Active")) snapshots[next++] = self.Snapshot(index);
+                for (int index = self.SlotTable._slots.Length - 1; index >= 0; index--)
+                    if (PrivateState.Property<bool>(self.SlotTable._slots[index], "Active")) snapshots[next++] = self.Snapshot(index);
                 return snapshots;
             }
         }
 
         internal RoomPlmSlotSnapshot Snapshot(int index)
         {
-            object slot = PrivateState.Field<object[]>(self, "_slots")[index];
+            object slot = self.SlotTable._slots[index];
             return new RoomPlmSlotSnapshot(
                 NativeSlotIndex: index,
                 HeaderPointer: PrivateState.Property<PlmHeaderId>(slot, "HeaderPointer"),
@@ -1227,7 +1227,7 @@ internal static class RoomPlmSystemAccess
         }
 
         /// <summary>Visible BG1 mutations emitted during the most recent handler pass.</summary>
-        internal IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => PrivateState.Field<List<PlmTilemapUpdate>>(self, "_tilemapUpdates");
+        internal IReadOnlyList<PlmTilemapUpdate> TilemapUpdates => self.Drawing._tilemapUpdates;
 
         /// <summary>
         /// Publishes contact with BTS $47-$4D to its resident station. This is the same generic
@@ -1238,7 +1238,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Typed BTS overload used by room collision dispatch.</summary>
         internal bool TryNotifyStationTouch(int accessBlockIndex, RoomBlockBehavior behavior)
-            => ((bool)(PrivateState.Invoke(self, "TryNotifyStationCollision", (int)(accessBlockIndex), (RoomBlockBehavior)(behavior), (SamusPoseId)byte.MaxValue, (bool)(true), (bool)(true), (int)(0), (bool)(true)))!);
+            => (bool)PrivateState.Invoke(self.Stations, "TryNotifyStationCollision", accessBlockIndex, behavior, (SamusPoseId)byte.MaxValue, true, true, 0, true)!;
 
         /// <summary>
         /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.
@@ -1248,7 +1248,7 @@ internal static class RoomPlmSystemAccess
             RoomLevelData level,
             int blockIndex,
             byte behavior)
-            => self.TrySpawnBreakableGrappleBlock(
+            => self.BlockReactions.TrySpawnBreakableGrappleBlock(
                 level,
                 blockIndex,
                 new RoomBlockBehavior(behavior));
@@ -1272,7 +1272,7 @@ internal static class RoomPlmSystemAccess
             RoomLevelData level,
             int blockIndex,
             byte behavior)
-            => self.TrySpawnCollisionBombBlock(level, blockIndex, new RoomBlockBehavior(behavior));
+            => self.BlockReactions.TrySpawnCollisionBombBlock(level, blockIndex, new RoomBlockBehavior(behavior));
 
         /// <summary>
         /// Spawns the bank-$84 shot/bombed/grappled-reaction PLM selected by bombable BTS.
@@ -1298,7 +1298,7 @@ internal static class RoomPlmSystemAccess
             int blockIndex,
             byte behavior,
             SamusProjectileTypeWord projectileType)
-            => self.TrySpawnBombReactionBlock(
+            => self.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 blockIndex,
                 new RoomBlockBehavior(behavior),
@@ -1359,14 +1359,14 @@ internal static class RoomPlmSystemAccess
 
             // Spawn_PLM's descending free-slot search happens before any setup routine. A full
             // pool must therefore leave both level data and BTS completely untouched.
-            for (int slotIndex = PrivateState.Field<object[]>(self, "_slots").Length - 1; slotIndex >= 0; slotIndex--)
+            for (int slotIndex = self.SlotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
             {
-                object slot = PrivateState.Field<object[]>(self, "_slots")[slotIndex];
+                PlmSlot slot = self.SlotTable._slots[slotIndex];
                 if (PrivateState.Property<bool>(slot, "Active"))
                     continue;
 
                 RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-                PrivateState.InvokeStatic(typeof(RoomPlmSystem), "ClearSlot", slot);
+                PlmPopulationLoader.ClearSlot(slot);
                 PrivateState.SetProperty(slot, "Active", true);
                 PrivateState.SetProperty(slot, "BlockIndex", blockIndex);
                 PrivateState.SetProperty(slot, "InstructionTimer", 1);
@@ -1452,7 +1452,7 @@ internal static class RoomPlmSystemAccess
             byte behavior,
             SamusProjectileTypeWord projectileType,
             bool solidBlock)
-            => self.TrySpawnProjectileShotBlock(
+            => self.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 blockIndex,
                 new RoomBlockBehavior(behavior),
@@ -1479,7 +1479,7 @@ internal static class RoomPlmSystemAccess
             byte behavior,
             AreaId areaIndex,
             SamusProjectileTypeWord projectileType)
-            => self.TrySpawnBombedSpecialBlock(
+            => self.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 blockIndex,
                 new RoomBlockBehavior(behavior),
@@ -1507,13 +1507,13 @@ internal static class RoomPlmSystemAccess
     }
 
     private static IEnumerable<object> ActiveSlots(RoomPlmSystem plms) =>
-        PrivateState.Field<object[]>(plms, "_slots").Where(slot => PrivateState.Property<bool>(slot, "Active"));
+        plms.SlotTable._slots.Where(slot => PrivateState.Property<bool>(slot, "Active"));
 
     /// <summary>The live Mother Brain glass PLM slot, as the system's own slot search finds it.</summary>
     private static object? MotherBrainGlassSlot(RoomPlmSystem plms)
     {
         object?[] arguments = [null];
-        return (bool)PrivateState.InvokeWithOut(plms, "TryGetMotherBrainGlassSlot", arguments)! ? arguments[0] : null;
+        return (bool)PrivateState.InvokeWithOut(plms.MotherBrainGlass, "TryGetMotherBrainGlassSlot", arguments)! ? arguments[0] : null;
     }
 }
 

@@ -15,18 +15,18 @@ internal static class RetailElevatorDepartureTests
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.InitializePostCeresZebesRoom();
-        var samus = runtime.Samus!;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializePostCeresZebesRoom();
+        var samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation(bus);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarElevatorRoom);
-        var actor = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
+        var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
         samus.Position = samus.Position.WithWhole(new(actor.Position.X.Whole, unchecked((ushort)(actor.Position.Y.Whole - ElevatorCaptureFixtureDefinitions.SamusAttachmentOffset))));
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
-        runtime.Enemies.PublishElevatorDoorContact();
+        runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
         int samples = 0, departure = 0, scrolling = 0, returning = 0;
         void Compare(string phase)
         {
@@ -39,13 +39,13 @@ internal static class RetailElevatorDepartureTests
         }
         runtime.StepFrame((ushort)SnesButton.Down);
         Compare("departure start");
-        if (runtime.Enemies.LastElevatorEvent != ElevatorFrameEvent.DepartureStarted)
+        if (runtime.Enemies.ElevatorBehavior.LastElevatorEvent != ElevatorFrameEvent.DepartureStarted)
             throw new InvalidOperationException("Downward elevator did not accept the input edge.");
-        while (!runtime.HasPendingDoorTransition && departure < 240)
+        while (!runtime.RoomLoader.HasPendingDoorTransition && departure < 240)
         {
             runtime.StepFrame(0); departure++; Compare("departure");
         }
-        if (!runtime.HasPendingDoorTransition) throw new InvalidOperationException("Elevator never reached its exit.");
+        if (!runtime.RoomLoader.HasPendingDoorTransition) throw new InvalidOperationException("Elevator never reached its exit.");
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
@@ -55,13 +55,13 @@ internal static class RetailElevatorDepartureTests
             if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance); Compare(transition.Phase.ToString());
         }
-        if (transition.IsActive || scrolling < 12 || runtime.ActiveRoom?.Pointer != RoomHeaderPointers.MorphBallRoom)
+        if (transition.IsActive || scrolling < 12 || runtime.Room.ActiveRoom?.Pointer != RoomHeaderPointers.MorphBallRoom)
             throw new InvalidOperationException("Downward elevator did not complete the authored transition.");
-        while (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive && returning < 1200)
+        while (runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive && returning < 1200)
         {
             runtime.StepFrame(0); returning++; Compare("arrival");
         }
-        if (returning == 0 || runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive || samus.InputLocked)
+        if (returning == 0 || runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.InputLocked)
             throw new InvalidOperationException("Downward arrival did not restore control.");
         for (int tick = 0; tick < 8; tick++) { runtime.StepFrame(0); Compare("settled"); }
         Console.WriteLine($"{device.Kind}: downward elevator {samples} exact frames, {departure} departure, " +

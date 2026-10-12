@@ -50,13 +50,11 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
-        var enemies = new RoomEnemySystem { CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors };
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
+        var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors } };
+        enemies.BindFixtureBus(guard);
         var cgram = new SnesCgram();
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        var tick = typeof(RoomEnemySystem).GetMethod(
-            "TickCeresRidleyEyeFade", flags)!
-            .CreateDelegate<Action<RidleyEnemyState>>(enemies);
+        enemies.Presentation._cgram = cgram;
+        Action<RidleyEnemyState> tick = enemies.CeresRidleyBehavior.TickCeresRidleyEyeFade;
 
         var state = new RidleyEnemyState
         {

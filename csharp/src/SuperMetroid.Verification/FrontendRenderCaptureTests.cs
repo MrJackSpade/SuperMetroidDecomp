@@ -16,8 +16,14 @@ internal static class FrontendRenderCaptureTestsVerification
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         var legacy = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         var captured = CreateRetailGameFixture(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
-        legacy.BindMapPresentation(presentation);
-        captured.BindMapPresentation(presentation);
+        legacy.BindArtwork(legacy.Artwork with
+        {
+            MapPresentation = presentation,
+        });
+        captured.BindArtwork(captured.Artwork with
+        {
+            MapPresentation = presentation,
+        });
         AssertTrue(captured.GetRetainedDisplay(1, 1) is null,
             "legacy-only initial display is not disguised as a captured packet");
         var states = new HashSet<SuperMetroidGameState>();

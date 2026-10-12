@@ -21,19 +21,19 @@ internal static class EvirInitTimerVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xd4c2);
 
         int checkedBodies = 0;
-        foreach (RoomEnemySlot slot in runtime.Enemies.Slots)
+        foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots)
         {
             if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Evir || slot.Parameter1 != 0)
                 continue;
             int speedOffset = (byte)slot.Parameter2 * 8;
             int relative = 0x0fb7 + speedOffset - 0x0f78;
-            RoomEnemySlot aliased = runtime.Enemies.Slots[relative / 0x40];
+            RoomEnemySlot aliased = runtime.Enemies.SlotTable.Slots[relative / 0x40];
             int byteOffset = relative % 0x40;
             ushort word = byteOffset switch
             {

@@ -26,14 +26,12 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, NewShaktoolSegmentReadGuard(rom));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeShaktool", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
+        enemies.BindFixtureBus(NewShaktoolSegmentReadGuard(rom));
+        Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < definitions.Length; index++)
         {
             ShaktoolSegmentDefinition definition = definitions[index];
-            RoomEnemySlot slot = enemies.Slots[index];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
             slot.Parameter2 = unchecked((ushort)(index * 2));
             slot.Properties = 0x0010;
@@ -61,17 +59,11 @@ internal static class ShaktoolSegmentDefinitionsVerification
 
         foreach (ShaktoolSegmentState state in enemies.ShaktoolSegments.Take(7)!)
             state.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
-        MethodInfo resetMethod = typeof(RoomEnemySystem).GetMethod(
-            "TryProcessShaktoolInstruction", flags)!;
-        object[] arguments =
-        [
-            enemies.Slots[0],
-            (ushort)ShaktoolInstruction.Instruction_Shaktool_ResetShaktoolFunctions,
-            (ushort)0x1234,
-        ];
-        AssertTrue((bool)resetMethod.Invoke(enemies, arguments)!,
+        ushort resetCursor = 0x1234;
+        AssertTrue(enemies.ShaktoolBehavior.TryProcessShaktoolInstruction(
+                enemies.SlotTable.Slots[0], (ushort)ShaktoolInstruction.Instruction_Shaktool_ResetShaktoolFunctions, ref resetCursor),
             "Shaktool production reset callback handled");
-        AssertEqual((ushort)0x1236, (ushort)arguments[2],
+        AssertEqual((ushort)0x1236, resetCursor,
             "Shaktool production reset cursor");
         for (int index = 0; index < definitions.Length; index++)
         {

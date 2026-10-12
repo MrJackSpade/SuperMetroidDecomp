@@ -22,11 +22,9 @@ internal static class RidleyClawOffsetsVerification
             AssertEqual(y[Math.Min(word >> 1, 8)], RidleyClawOffsets.ReadY((ushort)word), "Existing foot-index read window preserved");
         }
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
-        var carry = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyGrabbedSamus", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState>>();
-        var overlaps = typeof(RoomEnemySystem).GetMethod("RidleyClawOverlapsSamus", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool>>();
-        var slot = new RoomEnemySystem().Slots[0];
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState> carry = RidleyBehavior.UpdateNorfairRidleyGrabbedSamus;
+        Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = RidleyBehavior.RidleyClawOverlapsSamus;
+        var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var state = new RidleyEnemyState();
         var samus = new SamusState();
         static int Decay(short offset) => offset < 0 ? Math.Min(0, offset + 4) : Math.Max(0, offset - 4);

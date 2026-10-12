@@ -40,12 +40,10 @@ internal static class MultiviolaInstructionProgramDefinitionsVerification
         var guard = NewMultiviolaInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = type.GetMethod("InitializeMultiviola", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.MultiviolaBehavior.InitializeMultiviola);
 
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Multiviola;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         slot.Parameter1 = 0x0058;
@@ -60,7 +58,7 @@ internal static class MultiviolaInstructionProgramDefinitionsVerification
         for (int call = 0; call < 15; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         }
         AssertEqual(unchecked((ushort)(MultiviolaInstructionProgramDefinitions.Flying + 4)),
             slot.CurrentInstruction,

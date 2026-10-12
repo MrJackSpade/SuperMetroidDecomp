@@ -180,7 +180,7 @@ internal static class GrappleConnectionDefinitionsVerification
         using var artworkDirectory = new TestScratchDirectory("map-catalog");
         SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
-        samus.TileTransfers.BindArtwork(SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null));
+        samus.Presentation.TileTransfers.BindArtwork(SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null));
         samus.Grapple.FlarePlacement = SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.GrappleFlarePlacementExtractor.Extract(rom)));
         for (byte movement = 0; movement < 28; movement++)
@@ -225,7 +225,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             samus.Pose = (SamusPoseId)sourcePose;
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(radius);
-            bool left = SamusState.IsFacingLeft(rom, (SamusPoseId)sourcePose);
+            bool left = SamusPoseMetadata.IsFacingLeft(rom, (SamusPoseId)sourcePose);
             int expected = radius < 17 ? (left ? 0x28 : 0x27) : (left ? 2 : 1);
             AssertEqual(expected, drop(guard, samus), "Non-fireable drop direction retains facing fallback");
         }

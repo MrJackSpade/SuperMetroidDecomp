@@ -16,15 +16,12 @@ internal static class FuneNamiheDefinitionsVerification
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, new CartridgeReadGuard(new TestAddressSpace()).Forbid(
+            enemies.BindFixtureBus(new CartridgeReadGuard(new TestAddressSpace()).Forbid(
                     address => address is >= 0xa896d3 and < 0xa896e3,
                     address => $"Fune/Namihe attempted migrated selector read ${address:X6}."));
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeFuneNamihe", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            var runMain = typeof(RoomEnemySystem).GetMethod("RunFuneNamiheMain", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, FuneNamiheEnemyState, SamusState?>>();
-            RoomEnemySlot slot = enemies.Slots[0];
+            Action<RoomEnemySlot> initialize = enemies.FuneNamiheBehavior.InitializeFuneNamihe;
+            Action<RoomEnemySlot, FuneNamiheEnemyState, SamusState?> runMain = FuneNamiheBehavior.RunFuneNamiheMain;
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0));
             slot.Parameter2 = 0x1000;
             slot.Position = slot.Position.WithWholeY(0x0200);

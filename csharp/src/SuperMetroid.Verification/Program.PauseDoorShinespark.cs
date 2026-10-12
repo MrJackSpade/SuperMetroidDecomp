@@ -23,64 +23,14 @@ internal static class PauseDoorShinesparkVerification
             var installation=RepositoryInstallation.Installation;
             var bus=installation.OpenRuntimeAddressSpace();
             var game=new SuperMetroidGame(bus);
-            game.BindMapPresentation(installation.LoadMaps());
-            game.BindGameplayBasePalettes(installation.LoadGameplayBasePalettes());
-            game.BindStandardObjectArt(installation.LoadStandardObjects());
-            game.BindIntroCinematicArt(installation.LoadIntroCinematicArt());
-            game.BindSamusBodyArt(installation.LoadSamusBodyArt());
-            game.BindEndingMode7Art(installation.LoadEndingMode7Art());
-            game.BindEndingObjectArt(installation.LoadEndingObjectArt());
-            game.BindEndingPaletteArt(installation.LoadEndingPalettes());
-            game.BindRoomCharacterArt(installation.LoadRoomCharacters());
-            game.BindRoomPaletteArt(installation.LoadRoomPalettes());
-            game.BindRoomMetatileArt(installation.LoadRoomMetatiles());
-            game.BindRoomVisualLayouts(installation.LoadRoomVisualLayouts());
-            game.BindRoomPlmShotBlockVisuals(installation.LoadRoomPlmShotBlockVisuals());
-            game.BindRoomPlmGrappleBlockVisuals(installation.LoadRoomPlmGrappleBlockVisuals());
-            game.BindRoomPlmStationVisuals(installation.LoadRoomPlmStationVisuals());
-            game.BindRoomPlmBlueDoorVisuals(installation.LoadRoomPlmBlueDoorVisuals());
-            game.BindRoomPlmColoredDoorVisuals(installation.LoadRoomPlmColoredDoorVisuals());
-            game.BindRoomPlmGreyDoorVisuals(installation.LoadRoomPlmGreyDoorVisuals());
-            game.BindRoomPlmEyeDoorVisuals(installation.LoadRoomPlmEyeDoorVisuals());
-            game.BindRoomPlmMotherBrainGlassVisuals(installation.LoadRoomPlmMotherBrainGlassVisuals());
-            game.BindRoomPlmNoobTubeVisuals(installation.LoadRoomPlmNoobTubeVisuals());
-            game.BindRoomPlmDownwardGateVisuals(installation.LoadRoomPlmDownwardGateVisuals());
-            game.BindRoomPlmElevatorPlatformVisuals(installation.LoadRoomPlmElevatorPlatformVisuals());
-            game.BindRoomPlmEscapeGateVisuals(installation.LoadRoomPlmEscapeGateVisuals());
-            game.BindRoomPlmBombTorizoHandVisuals(installation.LoadRoomPlmBombTorizoHandVisuals());
-            game.BindRoomPlmDraygonCannonVisuals(installation.LoadRoomPlmDraygonCannonVisuals());
-            game.BindRoomPlmChozoStatueVisuals(installation.LoadRoomPlmChozoStatueVisuals());
-            game.BindRoomPlmLinkedRestoreVisuals(installation.LoadRoomPlmLinkedRestoreVisuals());
-            game.BindRoomPlmTourianAccessVisuals(installation.LoadRoomPlmTourianAccessVisuals());
-            game.BindRoomPlmSpeedBoosterVisuals(installation.LoadRoomPlmSpeedBoosterVisuals());
-            game.BindRoomPlmMaridiaElevatubeVisuals(installation.LoadRoomPlmMaridiaElevatubeVisuals());
-            game.BindRoomPlmSporeSpawnCeilingVisuals(installation.LoadRoomPlmSporeSpawnCeilingVisuals());
-            game.BindRoomPlmSamusEaterVisuals(installation.LoadRoomPlmSamusEaterVisuals());
-            game.BindRoomPlmBotwoonWallVisuals(installation.LoadRoomPlmBotwoonWallVisuals());
-            game.BindRoomPlmKraidVisuals(installation.LoadRoomPlmKraidVisuals());
-            game.BindRoomPlmCrocomireVisuals(installation.LoadRoomPlmCrocomireVisuals());
-            game.BindRoomPlmMotherBrainFakeDeathVisuals(installation.LoadRoomPlmMotherBrainFakeDeathVisuals());
-            game.BindRoomPlmCollectibleVisuals(installation.LoadRoomPlmCollectibleVisuals());
-            game.BindRoomPlmDynamicCollectibleArt(installation.LoadRoomPlmDynamicCollectibleArt());
-            game.BindXrayRevealVisuals(installation.LoadXrayRevealVisuals());
-            game.BindRoomBackgroundTilemapArt(installation.LoadRoomBackgroundTilemaps());
-            game.BindRoomSkyTilemapArt(installation.LoadRoomSkyTilemaps());
-            var projectiles=installation.LoadProjectiles();
-            game.BindProjectileCompositions(projectiles.Catalog);
-            game.BindProjectileFrameBindings(projectiles.FrameBindings);
-            game.BindBeamArtwork(projectiles.BeamTiles);
-            game.BindEnemyTileArtwork(installation.LoadEnemyTiles());
-            game.BindTrailArtwork(projectiles.Trails);
-            game.BindChargeFlarePlacement(projectiles.FlarePlacement);
-            game.BindChargeFlareCompositions(projectiles.FlareCompositions);
-            game.BindGrappleArtwork(projectiles.GrappleTiles);
+            InstalledFixtures.BindGame(game);
             typeof(SuperMetroidGame).GetMethod("CreateGameplayRuntime",flags)!.Invoke(game,new object[]{false});
             var runtime=(SuperMetroidRuntime)typeof(SuperMetroidGame).GetField("runtime",flags)!.GetValue(game)!;
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesAwake);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ParlorAndAlcatraz);
-            foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
+            foreach (var enemy in runtime.Enemies.SlotTable.Slots) enemy.Clear();
             var words = new ushort[32 * 16];
             var bts = new byte[words.Length];
             for (int row = 0; row < 16; row++)
@@ -90,13 +40,13 @@ internal static class PauseDoorShinesparkVerification
                 words[row * 32 + 12] = 0x8000;
             }
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, bts, new ushort[512]), new byte[8], doorListPointer: 0xdad5);
-            typeof(SuperMetroidRuntime).GetProperty(nameof(SuperMetroidRuntime.LevelData))!.SetValue(runtime, level);
-            var samus = runtime.Samus!;
+            typeof(ActiveRoomState).GetProperty(nameof(ActiveRoomState.LevelData))!.SetValue(runtime.Room, level);
+            var samus = runtime.Player.Samus!;
             samus.InputLocked = false;
             samus.Health = 999;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.Presentation.InitializeAnimation(bus);
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
             samus.Shinespark.BeginWindup(samus);
             samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseId.ShinesparkHorizontalRightPose);
@@ -105,16 +55,16 @@ internal static class PauseDoorShinesparkVerification
             typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
             game.Step((ushort)SnesButton.Start);
             AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "Start begins darkening before reaching the open door");
-            AssertTrue(!runtime.HasPendingDoorTransition, "initial Start frame is short of the door");
+            AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "initial Start frame is short of the door");
             if (scenario.Brightening)
                 typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.Unpausing);
             typeof(SuperMetroidGame).GetField("pauseBrightness", flags)!.SetValue(game,
                 (byte)(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15)));
-            typeof(SuperMetroidGame).GetField("pauseFadeCounter", flags)!.SetValue(game, 0);
+            PrivateState.Field<ScreenFadeTimer>(game, "screenFade").Counter = 0;
             // Put the leading edge immediately before the door for the next real mover call.
             samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));
             game.Step(0);
-            AssertTrue(runtime.HasPendingDoorTransition, "horizontal shinespark actually touches the open door during the fade");
+            AssertTrue(runtime.RoomLoader.HasPendingDoorTransition, "horizontal shinespark actually touches the open door during the fade");
             AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "door contact does not crash the shinespark");
             var expected = scenario.Terminal
                 ? scenario.Brightening ? SuperMetroidGameState.MainGameplay : SuperMetroidGameState.LoadingNextRoomA

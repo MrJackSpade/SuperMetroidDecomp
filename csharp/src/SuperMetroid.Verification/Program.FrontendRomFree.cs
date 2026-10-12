@@ -146,59 +146,68 @@ internal static class FrontendRomFreeVerification
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         return (game, bindIntro) =>
         {
-            game.BindMapPresentation(maps);
-            game.BindGameplayBasePalettes(palettes);
-            game.BindEnemyTileArtwork(enemies);
-            game.BindStandardObjectArt(objects);
-            game.BindRoomPlmShotBlockVisuals(assetRoomPlmShotBlockVisuals);
-            game.BindRoomPlmGrappleBlockVisuals(assetRoomPlmGrappleBlockVisuals);
-            game.BindRoomPlmStationVisuals(assetRoomPlmStationVisuals);
-            game.BindRoomPlmBlueDoorVisuals(assetRoomPlmBlueDoorVisuals);
-            game.BindRoomPlmColoredDoorVisuals(assetRoomPlmColoredDoorVisuals);
-            game.BindRoomPlmGreyDoorVisuals(assetRoomPlmGreyDoorVisuals);
-            game.BindRoomPlmEyeDoorVisuals(assetRoomPlmEyeDoorVisuals);
-            game.BindRoomPlmMotherBrainGlassVisuals(assetRoomPlmMotherBrainGlassVisuals);
-            game.BindRoomPlmNoobTubeVisuals(assetRoomPlmNoobTubeVisuals);
-            game.BindRoomPlmDownwardGateVisuals(assetRoomPlmDownwardGateVisuals);
-            game.BindRoomPlmElevatorPlatformVisuals(assetRoomPlmElevatorPlatformVisuals);
-            game.BindRoomPlmEscapeGateVisuals(assetRoomPlmEscapeGateVisuals);
-            game.BindRoomPlmBombTorizoHandVisuals(assetRoomPlmBombTorizoHandVisuals);
-            game.BindRoomPlmDraygonCannonVisuals(assetRoomPlmDraygonCannonVisuals);
-            game.BindRoomPlmChozoStatueVisuals(assetRoomPlmChozoStatueVisuals);
-            game.BindRoomPlmLinkedRestoreVisuals(assetRoomPlmLinkedRestoreVisuals);
-            game.BindRoomPlmTourianAccessVisuals(assetRoomPlmTourianAccessVisuals);
-            game.BindRoomPlmSpeedBoosterVisuals(assetRoomPlmSpeedBoosterVisuals);
-            game.BindRoomPlmMaridiaElevatubeVisuals(assetRoomPlmMaridiaElevatubeVisuals);
-            game.BindRoomPlmSporeSpawnCeilingVisuals(assetRoomPlmSporeSpawnCeilingVisuals);
-            game.BindRoomPlmSamusEaterVisuals(assetRoomPlmSamusEaterVisuals);
-            game.BindRoomPlmBotwoonWallVisuals(assetRoomPlmBotwoonWallVisuals);
-            game.BindRoomPlmKraidVisuals(assetRoomPlmKraidVisuals);
-            game.BindRoomPlmCrocomireVisuals(assetRoomPlmCrocomireVisuals);
-            game.BindRoomPlmMotherBrainFakeDeathVisuals(assetRoomPlmMotherBrainFakeDeathVisuals);
-            game.BindRoomPlmCollectibleVisuals(assetRoomPlmCollectibleVisuals);
-            game.BindRoomPlmDynamicCollectibleArt(assetRoomPlmDynamicCollectibleArt);
-            game.BindXrayRevealVisuals(assetXrayRevealVisuals);
-            game.BindBeamArtwork(projectiles.BeamTiles);
+            game.BindArtwork(game.Artwork with
+            {
+                MapPresentation = maps,
+                GameplayBasePalettes = palettes,
+                EnemyTileArtwork = enemies,
+                StandardObjectArt = objects,
+                RoomPlmShotBlockVisuals = assetRoomPlmShotBlockVisuals,
+                RoomPlmGrappleBlockVisuals = assetRoomPlmGrappleBlockVisuals,
+                RoomPlmStationVisuals = assetRoomPlmStationVisuals,
+                RoomPlmBlueDoorVisuals = assetRoomPlmBlueDoorVisuals,
+                RoomPlmColoredDoorVisuals = assetRoomPlmColoredDoorVisuals,
+                RoomPlmGreyDoorVisuals = assetRoomPlmGreyDoorVisuals,
+                RoomPlmEyeDoorVisuals = assetRoomPlmEyeDoorVisuals,
+                RoomPlmMotherBrainGlassVisuals = assetRoomPlmMotherBrainGlassVisuals,
+                RoomPlmNoobTubeVisuals = assetRoomPlmNoobTubeVisuals,
+                RoomPlmDownwardGateVisuals = assetRoomPlmDownwardGateVisuals,
+                RoomPlmElevatorPlatformVisuals = assetRoomPlmElevatorPlatformVisuals,
+                RoomPlmEscapeGateVisuals = assetRoomPlmEscapeGateVisuals,
+                RoomPlmBombTorizoHandVisuals = assetRoomPlmBombTorizoHandVisuals,
+                RoomPlmDraygonCannonVisuals = assetRoomPlmDraygonCannonVisuals,
+                RoomPlmChozoStatueVisuals = assetRoomPlmChozoStatueVisuals,
+                RoomPlmLinkedRestoreVisuals = assetRoomPlmLinkedRestoreVisuals,
+                RoomPlmTourianAccessVisuals = assetRoomPlmTourianAccessVisuals,
+                RoomPlmSpeedBoosterVisuals = assetRoomPlmSpeedBoosterVisuals,
+                RoomPlmMaridiaElevatubeVisuals = assetRoomPlmMaridiaElevatubeVisuals,
+                RoomPlmSporeSpawnCeilingVisuals = assetRoomPlmSporeSpawnCeilingVisuals,
+                RoomPlmSamusEaterVisuals = assetRoomPlmSamusEaterVisuals,
+                RoomPlmBotwoonWallVisuals = assetRoomPlmBotwoonWallVisuals,
+                RoomPlmKraidVisuals = assetRoomPlmKraidVisuals,
+                RoomPlmCrocomireVisuals = assetRoomPlmCrocomireVisuals,
+                RoomPlmMotherBrainFakeDeathVisuals = assetRoomPlmMotherBrainFakeDeathVisuals,
+                RoomPlmCollectibleVisuals = assetRoomPlmCollectibleVisuals,
+                RoomPlmDynamicCollectibleArt = assetRoomPlmDynamicCollectibleArt,
+                XrayRevealVisuals = assetXrayRevealVisuals,
+                BeamArtwork = projectiles.BeamTiles,
+            });
             // An already-finished intro is deliberately not rebound for the
             // isolated gameplay-room census: its restored DMA side effect
             // would test a retired cinematic, not the room under examination.
             if (bindIntro)
-                game.BindIntroCinematicArt(intro);
-            game.BindSamusBodyArt(samus);
-            game.BindRoomCharacterArt(characters);
-            game.BindRoomPaletteArt(roomPalettes);
-            game.BindRoomMetatileArt(metatiles);
-            game.BindRoomVisualLayouts(visualLayouts);
-            game.BindRoomBackgroundTilemapArt(backgrounds);
-            game.BindRoomSkyTilemapArt(sky);
-            game.BindRoomPlmSamusEaterVisuals(samusEaterVisuals);
-            game.BindBeamArtwork(projectiles.BeamTiles);
-            game.BindProjectileCompositions(projectiles.Catalog);
-            game.BindProjectileFrameBindings(projectiles.FrameBindings);
-            game.BindTrailArtwork(projectiles.Trails);
-            game.BindChargeFlarePlacement(projectiles.FlarePlacement);
-            game.BindChargeFlareCompositions(projectiles.FlareCompositions);
-            game.BindGrappleArtwork(projectiles.GrappleTiles);
+                game.BindArtwork(game.Artwork with
+                {
+                    IntroCinematicArt = intro,
+                });
+            game.BindArtwork(game.Artwork with
+            {
+                SamusBodyArt = samus,
+                RoomCharacterArt = characters,
+                RoomPaletteArt = roomPalettes,
+                RoomMetatileArt = metatiles,
+                RoomVisualLayouts = visualLayouts,
+                RoomBackgroundTilemapArt = backgrounds,
+                RoomSkyTilemapArt = sky,
+                RoomPlmSamusEaterVisuals = samusEaterVisuals,
+                BeamArtwork = projectiles.BeamTiles,
+                ProjectileCompositions = projectiles.Catalog,
+                ProjectileFrameBindings = projectiles.FrameBindings,
+                TrailArtwork = projectiles.Trails,
+                ChargeFlarePlacement = projectiles.FlarePlacement,
+                ChargeFlareCompositions = projectiles.FlareCompositions,
+                GrappleArtwork = projectiles.GrappleTiles,
+            });
         };
     }
 
@@ -297,8 +306,8 @@ internal static class FrontendRomFreeVerification
                     {
                         // Enter the authored lower-right wake rectangle on both
                         // independently stepped games, without crossing a door.
-                        nativeRoom.RuntimeForVerification!.Samus!.Position = nativeRoom.RuntimeForVerification!.Samus!.Position.WithWhole(new(0x0180, 0x0150));
-                        installedRoom.RuntimeForVerification!.Samus!.Position = installedRoom.RuntimeForVerification!.Samus!.Position.WithWhole(new(0x0180, 0x0150));
+                        nativeRoom.RuntimeForVerification!.Player.Samus!.Position = nativeRoom.RuntimeForVerification!.Player.Samus!.Position.WithWhole(new(0x0180, 0x0150));
+                        installedRoom.RuntimeForVerification!.Player.Samus!.Position = installedRoom.RuntimeForVerification!.Player.Samus!.Position.WithWhole(new(0x0180, 0x0150));
                         // The attack choices are random. Pin the seed this scenario was authored
                         // against so earlier frontend timing cannot change which attacks occur.
                         nativeRoom.RuntimeForVerification!.System.SetRandomNumber(0x23fc);
@@ -311,7 +320,7 @@ internal static class FrontendRomFreeVerification
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
-                            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
+                            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoRightSonicInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = 1;
@@ -321,7 +330,7 @@ internal static class FrontendRomFreeVerification
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
-                            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.Slots.Single(
+                            RoomEnemySlot boss = game.RuntimeForVerification!.Enemies.SlotTable.Slots.Single(
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction =
                                 GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward;
@@ -333,12 +342,12 @@ internal static class FrontendRomFreeVerification
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
                             RoomEnemySystem enemies = game.RuntimeForVerification!.Enemies;
-                            RoomEnemySlot boss = enemies.Slots.Single(slot =>
+                            RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoStunnedInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = 1;
                             boss.Parameter2 |= GoldenTorizoBehavioralProperties.Stunned;
-                            enemies.GoldenTorizo!.ReturnInstruction =
+                            enemies.BombTorizoBehavior.GoldenTorizo!.ReturnInstruction =
                                 GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenStun = true });
@@ -361,11 +370,11 @@ internal static class FrontendRomFreeVerification
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
                             RoomEnemySystem enemies = game.RuntimeForVerification!.Enemies;
-                            RoomEnemySlot boss = enemies.Slots.Single(slot =>
+                            RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             boss.CurrentInstruction = GoldenTorizoLeftFootOrbInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = 1;
-                            enemies.GoldenTorizo!.ReturnInstruction =
+                            enemies.BombTorizoBehavior.GoldenTorizo!.ReturnInstruction =
                                 GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenLeftFootOrb = true });
@@ -406,7 +415,7 @@ internal static class FrontendRomFreeVerification
         nativeRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
         installedRoom.RuntimeForVerification!.LoadCartridgeRoomForDebug(RoomHeaderPointers.Kraid);
         AssertEqual(RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord,
-            installedRoom.RuntimeForVerification!.GameplayHudCharacterBaseWord,
+            installedRoom.RuntimeForVerification!.Display.GameplayHudCharacterBaseWord,
             "restored Kraid room selects the relocated HUD character base");
         int bg2Byte = KraidBackgroundRomData.LiveBg2TilemapWord * sizeof(ushort);
         int bg2Bytes = KraidBackgroundRomData.WorkingTilemapWords * sizeof(ushort);
@@ -457,8 +466,8 @@ internal static class FrontendRomFreeVerification
                 int first = 0;
                 while (actual.Pixels[first].Equals(expected.Pixels[first]))
                     first++;
-                var nativeSamus = native.RuntimeForVerification!.Samus!;
-                var installedSamus = installed.RuntimeForVerification!.Samus!;
+                var nativeSamus = native.RuntimeForVerification!.Player.Samus!;
+                var installedSamus = installed.RuntimeForVerification!.Player.Samus!;
                 int firstVram = 0;
                 ReadOnlySpan<byte> nativeVram = native.RuntimeForVerification!.Vram.Bytes;
                 ReadOnlySpan<byte> installedVram = installed.RuntimeForVerification!.Vram.Bytes;
@@ -475,10 +484,10 @@ internal static class FrontendRomFreeVerification
                     $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
                     $"Samus native=({native.GameplaySamusX},{native.GameplaySamusY}) " +
                     $"pose ${(int)native.GameplaySamusPose:X2}/frame {nativeSamus.AnimationFrame}/" +
-                    $"top {nativeSamus.TopSpritemapIndex}/bottom {nativeSamus.BottomSpritemapIndex}, installed=" +
+                    $"top {nativeSamus.Presentation.TopSpritemapIndex}/bottom {nativeSamus.Presentation.BottomSpritemapIndex}, installed=" +
                     $"({installed.GameplaySamusX},{installed.GameplaySamusY}) " +
                     $"pose ${(int)installed.GameplaySamusPose:X2}/frame {installedSamus.AnimationFrame}/" +
-                    $"top {installedSamus.TopSpritemapIndex}/bottom {installedSamus.BottomSpritemapIndex}; " +
+                    $"top {installedSamus.Presentation.TopSpritemapIndex}/bottom {installedSamus.Presentation.BottomSpritemapIndex}; " +
                     $"first VRAM diff={firstVram}, first OAM diff={firstOam}.");
             }
             fired |= installed.GameplayLastFiredProjectileSlot is not null;
@@ -520,14 +529,14 @@ internal static class FrontendRomFreeVerification
         // These isolated rooms are not one continuous playthrough. Refill on
         // entry so damage in an earlier room cannot turn a later comparison
         // into two identical death screens.
-        native.RuntimeForVerification!.Samus!.MaxHealth = 1499;
-        native.RuntimeForVerification!.Samus!.Health = 1499;
-        installed.RuntimeForVerification!.Samus!.MaxHealth = 1499;
-        installed.RuntimeForVerification!.Samus!.Health = 1499;
+        native.RuntimeForVerification!.Player.Samus!.MaxHealth = 1499;
+        native.RuntimeForVerification!.Player.Samus!.Health = 1499;
+        installed.RuntimeForVerification!.Player.Samus!.MaxHealth = 1499;
+        installed.RuntimeForVerification!.Player.Samus!.Health = 1499;
         setup?.Invoke(native, installed);
         RoomEnemySlot? awakenedGoldenTorizo = room.RoomPointer == RoomHeaderPointers.GoldenTorizo &&
             setup is not null
-            ? installed.RuntimeForVerification!.Enemies.Slots.FirstOrDefault(slot =>
+            ? installed.RuntimeForVerification!.Enemies.SlotTable.Slots.FirstOrDefault(slot =>
                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
             : null;
         if (room.RoomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
@@ -626,7 +635,7 @@ internal static class FrontendRomFreeVerification
             // The stun's ClearAnimationLock and its return path's UnmarkStunned release the
             // boss; later attacks may lock again, so observe the release, not the last frame.
             else if (forcedGoldenStunObserved && !forcedGoldenStunReleased &&
-                     installed.RuntimeForVerification!.Enemies.GoldenTorizo!.ShotGuard == 0 &&
+                     installed.RuntimeForVerification!.Enemies.BombTorizoBehavior.GoldenTorizo!.ShotGuard == 0 &&
                      (awakenedGoldenTorizo!.Parameter2 & GoldenTorizoBehavioralProperties.Stunned) == 0)
                 forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&
@@ -773,16 +782,10 @@ internal static class FrontendRomFreeVerification
     private static void VerifyTorizoOperandFreeCallbackDoesNotReadNextWord(
         RoomEnemySystem enemies, RoomEnemySlot torizo)
     {
-        MethodInfo callback = typeof(RoomEnemySystem).GetMethod(
-            "TryProcessBombTorizoInstruction",
-            BindingFlags.Instance | BindingFlags.NonPublic) ??
-            throw new InvalidOperationException("Torizo callback dispatcher was not found.");
-        object?[] arguments =
-        [
-            torizo, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
-            (ushort)TorizoInstruction.Instruction_Torizo_Return, (ushort)0xf000, false,
-        ];
-        AssertTrue(callback.Invoke(enemies, arguments) is true,
+        ushort cursor = 0xf000;
+        AssertTrue(enemies.BombTorizoBehavior.TryProcessBombTorizoInstruction(
+                torizo, new TorizoInstructionInputs { Samus = null, Level = null, ControllerInput = 0, FrameCounterLow = 0 },
+                (ushort)TorizoInstruction.Instruction_Torizo_Return, ref cursor, out _),
             "operand-free Torizo return executes without reading $AA:F002");
     }
 

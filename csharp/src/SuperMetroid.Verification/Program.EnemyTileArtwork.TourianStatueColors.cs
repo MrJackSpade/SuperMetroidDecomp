@@ -44,10 +44,10 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"Tourian statue entry parameter {parameter} preserves full native CGRAM");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
-                installed.Slots[0].CurrentInstruction,
+                installed.SlotTable.Slots[0].CurrentInstruction,
                 $"Tourian statue entry parameter {parameter} keeps instruction selection");
             AssertEqual(parameter == 0 ? 3 : 0,
-                installed.EnemyProjectiles.Count(x => x.IsActive),
+                installed.Projectiles.EnemyProjectiles.Count(x => x.IsActive),
                 $"Tourian statue entry parameter {parameter} keeps spawned actors");
         }
         foreach (ushort parameter in new ushort[] { 0, 2, 4, 6 })
@@ -55,14 +55,14 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             SnesCgram nativeCgram = SeedColors();
             (RoomEnemySystem installed, SnesCgram installedCgram) = CreateEnemy(guard, stock);
             ReferenceEye(nativeCgram, parameter);
-            installed.SpawnTourianUnlockEffect(parameter, soul: false);
+            installed.TourianUnlockBehavior.SpawnTourianUnlockEffect(parameter, soul: false);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"Tourian eye parameter {parameter} preserves full native CGRAM");
             AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
-                installed.EnemyProjectiles.Single(x => x.IsActive).Position.X.Whole,
+                installed.Projectiles.EnemyProjectiles.Single(x => x.IsActive).Position.X.Whole,
                 $"Tourian eye parameter {parameter} keeps physical X");
             AssertEqual(new ushort[] { 0x90, 0x51, 0x80, 0x72 }[parameter / 2],
-                installed.EnemyProjectiles.Single(x => x.IsActive).Position.Y.Whole,
+                installed.Projectiles.EnemyProjectiles.Single(x => x.IsActive).Position.Y.Whole,
                 $"Tourian eye parameter {parameter} keeps physical Y");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -90,7 +90,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         SnesCgram nativeEyeCgram = SeedColors();
         (RoomEnemySystem editedEye, SnesCgram editedEyeCgram) = CreateEnemy(guard, edited);
         ReferenceEye(nativeEyeCgram, 4);
-        editedEye.SpawnTourianUnlockEffect(4, soul: false);
+        editedEye.TourianUnlockBehavior.SpawnTourianUnlockEffect(4, soul: false);
         CheckOnlyDifferences(nativeEyeCgram, editedEyeCgram,
             [(TourianStatuePaletteRomData.EyeCgramIndex + 1, 1 << 10)],
             "Tourian eye edit");
@@ -125,8 +125,8 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             greyDestinations.Add(destination);
             CopyReferenceColors(nativeGreyCgram, 0x87839c, destination, 8);
         }
-        installedRoom.TourianStatues.StepTiles(installedRoom);
-        editedRoom.TourianStatues.StepTiles(editedRoom);
+        installedRoom.TourianStatues.StepTiles();
+        editedRoom.TourianStatues.StepTiles();
         AssertTrue(new CgramPalettes(nativeGreyCgram).ImageEquals(new CgramPalettes(installedRoom.Cgram)),
             "Tourian grey room instruction preserves full native CGRAM");
         var differences = greyDestinations
@@ -203,18 +203,17 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemy = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemy, source);
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemy, cgram);
+            enemy.BindFixtureBus(source);
+            enemy.Presentation._cgram = cgram;
             return (enemy, cgram);
         }
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            RoomEnemySlot slot = enemy.Slots[0];
+            RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
-            typeof(RoomEnemySystem).GetMethod("InitializeTourianEntranceStatue", flags)!
-                .Invoke(enemy, [slot]);
+            enemy.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
         }
 
         static SuperMetroidRuntime CreateGreyRoom(
@@ -222,9 +221,9 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             var runtime = CreateRetailRuntimeFixture(source, playerInvincibilityEnabled: true);
             runtime.Enemies.TileArtwork = artwork;
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.RoomLoader.InitializeStartingCeresRoom();
+            runtime.RoomLoader.InitializeCeresStartSamus();
             for (int area = 1; area <= 4; area++)
                 runtime.System.SetBossBits(area, BossBits.AreaBoss);
             for (int greyEvent = 6; greyEvent <= 9; greyEvent++)

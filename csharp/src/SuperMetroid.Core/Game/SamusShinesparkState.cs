@@ -248,7 +248,7 @@ public sealed class SamusShinesparkState
     public void BeginWindup(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (samus.SharedShineTimer == 0)
+        if (samus.InputSnapshot.SharedShineTimer == 0)
             throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
 
         InitializeWindup(samus);
@@ -271,7 +271,7 @@ public sealed class SamusShinesparkState
         ushort cancelledCharge = samus.ProjectileFlareCounter;
         if (cancelledCharge != 0)
         {
-            _projectiles?.CancelChargeForShinespark();
+            _projectiles?.Firing.CancelChargeForShinespark();
             samus.ProjectileFlareCounter = 0;
             if (cancelledCharge >= SamusProjectileRomData.Beams.ChargeSoundStartCounter)
             {
@@ -342,8 +342,8 @@ public sealed class SamusShinesparkState
                 $"Pose ${(int)targetPose:X2} is not one of the six directional shinespark poses."),
         };
 
-        samus.ShinesparkPoseInputLocked = true;
-        samus.AutoJumpInputPending = false;
+        samus.InputSnapshot.ShinesparkPoseInputLocked = true;
+        samus.InputSnapshot.AutoJumpInputPending = false;
         if (!deferPoseChange)
             ApplyDirectionalLaunchPose(bus, samus, targetPose);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
@@ -355,8 +355,8 @@ public sealed class SamusShinesparkState
     internal static void ApplyDirectionalLaunchPose(ISnesAddressSpace bus, SamusState samus, SamusPoseId pose)
     {
         samus.Pose = pose;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
@@ -379,7 +379,7 @@ public sealed class SamusShinesparkState
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
-                SamusPoseId verticalPose = samus.IsFacingLeft(terrain.Bus)
+                SamusPoseId verticalPose = samus.PoseMetadata.IsFacingLeft(terrain.Bus)
                     ? SamusPoseId.ShinesparkVerticalLeftPose
                     : SamusPoseId.ShinesparkVerticalRightPose;
                 BeginDirectionalLaunch(terrain.Bus, samus, verticalPose, frame.DeferTimeoutPoseChange);
@@ -399,7 +399,7 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
             if (Phase == ShinesparkPhase.CrashEchoCircle)
                 return StepCrashEchoCircle();
             if (Phase == ShinesparkPhase.CrashFinish)
-                return FinishCrash(samus, frame.Projectiles?.ProjectileCounter ?? frame.ProjectileCounter, frame.Projectiles);
+                return FinishCrash(samus, frame.Projectiles?.SlotTable.ProjectileCounter ?? frame.ProjectileCounter, frame.Projectiles);
 
             // Stored/inactive states are not installed special movement handlers. Returning
             // an empty snapshot is defensive; runtime normally never dispatches them here.
@@ -521,7 +521,7 @@ false);
         // EndSuperJump retains this frame's contact damage. The shared frame
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlashCounter = 0;
-        bool facingLeft = samus.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
         FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
         SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
         CrashAngularDelta = facingLeft ? (short)4 : (short)-4;
@@ -642,11 +642,11 @@ false);
             if (unchecked((short)(projectileCounter - 4)) < 0)
             {
                 _firstReleasedCrashEcho.Initialize(departureAngles.First, samus.Position.Whole);
-                projectiles?.InitializeShinesparkEcho(3, departureAngles.First);
+                projectiles?.Shinespark.InitializeShinesparkEcho(3, departureAngles.First);
             }
 
             _secondReleasedCrashEcho.Initialize(departureAngles.Second, samus.Position.Whole);
-            projectiles?.InitializeShinesparkEcho(4, departureAngles.Second);
+            projectiles?.Shinespark.InitializeShinesparkEcho(4, departureAngles.Second);
         }
 
         ShineTimer = 1;
@@ -662,9 +662,9 @@ false,             CrashSequenceFinished: true);
     {
         // Transitional command two restores the normal input handler as well as beta. That
         // replaces a drained pose's movement word too: a Samus drained mid-crash is free.
-        samus.ShinesparkPoseInputLocked = false;
+        samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.Drained.RelinquishMovementHandler();
-        SamusPoseId standingPose = samus.IsFacingLeft(bus)
+        SamusPoseId standingPose = samus.PoseMetadata.IsFacingLeft(bus)
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
         ushort previousRadius = samus.Kinematics.Radius.Y;
@@ -672,8 +672,8 @@ false,             CrashSequenceFinished: true);
         // The native transitional-pose handler restores normal movement and
         // aligns the standing body's bottom with the old crash body. Alpha alone
         // publishes the new live radius on the following frame.
-        samus.AlignBottomAfterPoseChange(previousRadius, SamusState.ReadPoseYRadius(standingPose));
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
+        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
     /// <summary>
@@ -808,7 +808,7 @@ false,             CrashSequenceFinished: true);
             samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         }
 
-        var displacement = SamusHorizontalDisplacement.Toward(samus.IsFacingLeft(bus), samus, baseSpeed: 0);
+        var displacement = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(bus), samus, baseSpeed: 0);
         return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 

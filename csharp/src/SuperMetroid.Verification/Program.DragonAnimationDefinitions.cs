@@ -47,9 +47,6 @@ internal static class DragonAnimationDefinitionsVerification
 
     private static void VerifyAllDragonAnimationInstalls()
     {
-        MethodInfo install = typeof(RoomEnemySystem).GetMethod(
-            "InstallDragonInstructionList",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
         for (int index = 0; index < 6; index++)
         {
             var requested = (DragonAnimationSelector)index;
@@ -57,7 +54,7 @@ internal static class DragonAnimationDefinitionsVerification
             DragonEnemyState state = NewDragonAnimationState(slot);
             state.RequestedInstructionListIndex = requested;
             state.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
-            install.Invoke(null, [slot, state]);
+            DragonBehavior.InstallDragonInstructionList(slot, state);
             AssertDragonAnimationHandoff(slot, state, requested, $"Dragon {requested}");
         }
     }
@@ -67,10 +64,9 @@ internal static class DragonAnimationDefinitionsVerification
         bool facingLeft)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(enemies, NewDragonAnimationReadGuard(rom));
-        RoomEnemySlot body = enemies.Slots[0];
-        RoomEnemySlot wing = enemies.Slots[1];
+        enemies.BindFixtureBus(NewDragonAnimationReadGuard(rom));
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
         wing.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
         body.Parameter1 = 0;
@@ -80,16 +76,8 @@ internal static class DragonAnimationDefinitionsVerification
         wing.Position = wing.Position.WithWholeY(0x0100);
         body.Position = body.Position.WithWholeY(0x0100);
 
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeDragon", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        MethodInfo wait = typeof(RoomEnemySystem).GetMethod(
-            "RunDragonWaitToRise", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        MethodInfo rise = typeof(RoomEnemySystem).GetMethod(
-            "RunDragonRising", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        MethodInfo attack = typeof(RoomEnemySystem).GetMethod(
-            "RunDragonAttacking", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        initialize.Invoke(enemies, [body]);
-        initialize.Invoke(enemies, [wing]);
+        enemies.DragonBehavior.InitializeDragon(body);
+        enemies.DragonBehavior.InitializeDragon(wing);
         DragonEnemyState bodyState = enemies.DragonStates[0]!;
         DragonEnemyState wingState = enemies.DragonStates[1]!;
         var samus = new SamusState
@@ -97,7 +85,7 @@ internal static class DragonAnimationDefinitionsVerification
             Position = new(new(unchecked((ushort)(body.Position.X.Whole + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
         };
 
-        wait.Invoke(enemies, [body, bodyState, samus]);
+        enemies.DragonBehavior.RunDragonWaitToRise(body, bodyState, samus);
         DragonAnimationSelector idle = facingLeft
             ? DragonAnimationSelector.IdleFacingLeft
             : DragonAnimationSelector.IdleFacingRight;
@@ -118,8 +106,8 @@ internal static class DragonAnimationDefinitionsVerification
             expectedInstructionTimer: facingLeft ? (ushort)0 : (ushort)1);
 
         bodyState.FunctionTimer = 0;
-        rise.Invoke(enemies, [body, bodyState]);
-        attack.Invoke(enemies, [body, bodyState]);
+        enemies.DragonBehavior.RunDragonRising(body, bodyState);
+        enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         DragonAnimationSelector attacking = facingLeft
             ? DragonAnimationSelector.AttackingFacingLeft
             : DragonAnimationSelector.AttackingFacingRight;

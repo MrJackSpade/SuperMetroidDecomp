@@ -132,15 +132,14 @@ internal static class CrocomireSkeletonArtworkVerification
             ISnesAddressSpace bus, SnesVram vram)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, bus);
-            typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(system, vram);
+            system.BindFixtureBus(bus);
+            system.Presentation._vram = vram;
         }
 
         static void Upload(RoomEnemySystem system, CrocomireDeathState state)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            typeof(RoomEnemySystem).GetMethod(
-                "UploadNextCrocomireSkeletonTileChunk", flags)!.Invoke(system, [state]);
+            system.CrocomireBehavior.UploadNextCrocomireSkeletonTileChunk(state);
         }
     }
 

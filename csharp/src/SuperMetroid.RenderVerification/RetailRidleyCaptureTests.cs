@@ -13,13 +13,13 @@ internal static class RetailRidleyCaptureTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
-        runtime.RunNmi(0, true);
-        var ridley = runtime.Enemies.CeresRidley!;
+        runtime.NmiHandler.RunNmi(0, true);
+        var ridley = runtime.Enemies.RidleyEncounter.CeresRidley!;
         var retained = new List<(RenderFrameSnapshot Packet, Rgba32[] Expected)>();
         // Retail PPU memory with controlled escape registers, not a simulated battle.
         // Vary signed rotation/scale and scroll while retaining the native floor/HUD.

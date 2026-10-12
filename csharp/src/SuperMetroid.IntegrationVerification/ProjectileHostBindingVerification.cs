@@ -25,30 +25,23 @@ internal static class ProjectileHostBindingVerification
     private static int Verify(GameInstallation installation)
     {
         string root = installation.Root;
-        var field = typeof(SuperMetroidGame).GetField("projectileCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var frameField = typeof(SuperMetroidGame).GetField("projectileFrameBindings", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var beamField = typeof(SuperMetroidGame).GetField("beamArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var trailField = typeof(SuperMetroidGame).GetField("trailArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var flareField = typeof(SuperMetroidGame).GetField("chargeFlarePlacement", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var flareCompositionField = typeof(SuperMetroidGame).GetField("chargeFlareCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var grappleField = typeof(SuperMetroidGame).GetField("grappleArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         using (var session = new AndroidSessionData(root))
         {
-            var content = field.GetValue(session.Game);
+            var content = session.Game.Artwork.ProjectileCompositions;
             if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed Android session did not bind projectile content.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
-            CheckFrameBindings(frameField.GetValue(session.Game), installation.LoadProjectiles().FrameBindings);
+            CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
             session.SaveSlot(0);
-            CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork!, installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions!, installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
-            CheckFrameBindings(frameField.GetValue(session.Game), installation.LoadProjectiles().FrameBindings);
-            CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
-            if (!ReferenceEquals(content, field.GetValue(session.Game))) throw new InvalidDataException("State load lost current host projectile content.");
-            CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
-            CheckTrails((ProjectileTrailCatalog)trailField.GetValue(session.Game)!, installation.LoadProjectiles().Trails);
-            CheckFlare((ChargeFlarePlacementCatalog)flareField.GetValue(session.Game)!, installation.LoadProjectiles().FlarePlacement);
+            CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
+            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork!, installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions!, installation.LoadProjectiles().FlareCompositions);
+            if (!ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions)) throw new InvalidDataException("State load lost current host projectile content.");
+            CheckBeams((BeamTileCatalog)session.Game.Artwork.BeamArtwork!, installation.LoadProjectiles().BeamTiles);
+            CheckTrails((ProjectileTrailCatalog)session.Game.Artwork.TrailArtwork!, installation.LoadProjectiles().Trails);
+            CheckFlare((ChargeFlarePlacementCatalog)session.Game.Artwork.ChargeFlarePlacement!, installation.LoadProjectiles().FlarePlacement);
         }
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
         string path = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
@@ -98,18 +91,18 @@ internal static class ProjectileHostBindingVerification
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName), grappleSwing.ToJsonString());
         using (var session = new AndroidSessionData(root))
         {
-            var content = field.GetValue(session.Game);
-            CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
+            var content = session.Game.Artwork.ProjectileCompositions;
+            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork!, installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions!, installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
-            CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
-            if (content is null || !ReferenceEquals(content, field.GetValue(session.Game)))
+            CheckGrapple((GrappleTileAtlas)session.Game.Artwork.GrappleArtwork!, installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)session.Game.Artwork.ChargeFlareCompositions!, installation.LoadProjectiles().FlareCompositions);
+            if (content is null || !ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions))
                 throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
-            CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
-            CheckTrails((ProjectileTrailCatalog)trailField.GetValue(session.Game)!, installation.LoadProjectiles().Trails);
-            CheckFlare((ChargeFlarePlacementCatalog)flareField.GetValue(session.Game)!, installation.LoadProjectiles().FlarePlacement);
+            CheckBeams((BeamTileCatalog)session.Game.Artwork.BeamArtwork!, installation.LoadProjectiles().BeamTiles);
+            CheckTrails((ProjectileTrailCatalog)session.Game.Artwork.TrailArtwork!, installation.LoadProjectiles().Trails);
+            CheckFlare((ChargeFlarePlacementCatalog)session.Game.Artwork.ChargeFlarePlacement!, installation.LoadProjectiles().FlarePlacement);
         }
         File.WriteAllText(path, "invalid override");
         try

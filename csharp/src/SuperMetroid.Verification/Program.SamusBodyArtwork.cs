@@ -459,8 +459,8 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = originalArmSamus.Pose, Position = FixedPosition<RoomPixels>.FromWhole(originalArmSamus.Position.Whole), SelectedHudItem = originalArmSamus.SelectedHudItem,
         };
-        originalArmSamus.TileTransfers.BindArtwork(stock);
-        editedArmSamus.TileTransfers.BindArtwork(replacement);
+        originalArmSamus.Presentation.TileTransfers.BindArtwork(stock);
+        editedArmSamus.Presentation.TileTransfers.BindArtwork(replacement);
         originalArmSamus.ArmCannon.Artwork = stock.ArmCannon;
         editedArmSamus.ArmCannon.Artwork = replacement.ArmCannon;
         for (int frame = 0; frame < 4; frame++)
@@ -584,29 +584,29 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        stockLandingSamus.TileTransfers.BindArtwork(stock);
-        editedLandingSamus.TileTransfers.BindArtwork(replacement);
-        stockLandingSamus.Draw(guardedBus, new OamBuffer(), layer1: new(0, 0));
-        editedLandingSamus.Draw(guardedBus, new OamBuffer(), layer1: new(0, 0));
-        AssertEqual(unchecked((ushort)(stockLandingSamus.SpritemapPosition.Y - 1)),
-            editedLandingSamus.SpritemapPosition.Y,
+        stockLandingSamus.Presentation.TileTransfers.BindArtwork(stock);
+        editedLandingSamus.Presentation.TileTransfers.BindArtwork(replacement);
+        stockLandingSamus.Presentation.Draw(guardedBus, new OamBuffer(), layer1: new(0, 0));
+        editedLandingSamus.Presentation.Draw(guardedBus, new OamBuffer(), layer1: new(0, 0));
+        AssertEqual(unchecked((ushort)(stockLandingSamus.Presentation.SpritemapPosition.Y - 1)),
+            editedLandingSamus.Presentation.SpritemapPosition.Y,
             "edited landing visual offset changes production OAM origin without a ROM read");
         var editedSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
-        editedSamus.TileTransfers.BindArtwork(replacement);
+        editedSamus.Presentation.TileTransfers.BindArtwork(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
-            editedSamus.ReadGraphicsYOffset(guardedBus),
+            editedSamus.PoseMetadata.ReadGraphicsYOffset(guardedBus),
             "edited Samus visual Y offset is used without a cartridge read");
         var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        stockSamus.TileTransfers.BindArtwork(stock);
+        stockSamus.Presentation.TileTransfers.BindArtwork(stock);
         editedSamus.Position = editedSamus.Position.WithWhole(stockSamus.Position.Whole);
         var stockOam = new OamBuffer();
         var editedOam = new OamBuffer();
         stockOam.BeginFrame();
         editedOam.BeginFrame();
-        stockSamus.Draw(guardedBus, stockOam, layer1: new(0, 0));
-        editedSamus.Draw(guardedBus, editedOam, layer1: new(0, 0));
-        AssertEqual(unchecked((ushort)(stockSamus.SpritemapPosition.Y - 1)),
-            editedSamus.SpritemapPosition.Y,
+        stockSamus.Presentation.Draw(guardedBus, stockOam, layer1: new(0, 0));
+        editedSamus.Presentation.Draw(guardedBus, editedOam, layer1: new(0, 0));
+        AssertEqual(unchecked((ushort)(stockSamus.Presentation.SpritemapPosition.Y - 1)),
+            editedSamus.Presentation.SpritemapPosition.Y,
             "edited pose graphics Y offset shifts the actual Samus OAM origin one pixel");
         AssertEqual(unchecked((byte)originalYOffset),
             SamusPoseProjectileOriginDefinitions.ReadYOffset(SamusPoseId.FacingRightNormalPose),
@@ -716,8 +716,8 @@ internal static class SamusBodyArtworkVerification
         // owners must now receive the installed catalog; no ROM fallback remains.
         nativeSamus.ArmCannon.Artwork = armCannon;
         installedSamus.ArmCannon.Artwork = armCannon;
-        nativeSamus.TileTransfers.BindArtwork(body);
-        installedSamus.TileTransfers.BindArtwork(body);
+        nativeSamus.Presentation.TileTransfers.BindArtwork(body);
+        installedSamus.Presentation.TileTransfers.BindArtwork(body);
         for (int frame = 0; frame < 4; frame++)
         {
             SamusArmCannonUpdateResult native = nativeSamus.ArmCannon.Update(bus, nativeSamus);

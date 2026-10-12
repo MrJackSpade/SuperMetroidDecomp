@@ -36,10 +36,10 @@ internal static class SuperMissileEnemyHitQuakeVerification
         projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), bombs);
         AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Slots[0].PackedType.Family, "X fires a Super Missile");
 
-        projectiles.ApplyEnemyCollisionPrelude(0, markCollisionState: true);
-        AssertEqual(SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType, projectiles.EarthquakeType,
+        projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(0, markCollisionState: true);
+        AssertEqual(SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType, projectiles.Earthquakes.EarthquakeType,
             "an enemy hit starts quake type $12");
-        AssertEqual(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration, projectiles.EarthquakeTimer,
+        AssertEqual(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration, projectiles.Earthquakes.EarthquakeTimer,
             "for thirty calls");
         Console.WriteLine("  Super Missile enemy-hit quake: type $12, which leaves crawlers crawling.");
     }

@@ -103,14 +103,10 @@ internal static class DraygonIntroDanceDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewDraygonIntroDefinitionReadGuard(rom));
+        enemies.BindFixtureBus(NewDraygonIntroDefinitionReadGuard(rom));
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-        var run = typeof(RoomEnemySystem).GetMethod(
-            "RunDraygonIntroDance",
-            flags)!.CreateDelegate<Action<DraygonEnemyState, SamusState?, byte>>(enemies);
-        var state = new DraygonEnemyState(enemies.Slots[0]);
+        Action<DraygonEnemyState, SamusState?, byte> run = enemies.DraygonBehavior.RunDraygonIntroDance;
+        var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
         ushort[] expectedX = new ushort[4];
         ushort[] expectedY = new ushort[4];
@@ -188,13 +184,9 @@ internal static class DraygonIntroDanceDefinitionsVerification
         // duration. Exercise the production dispatcher so this cannot regress into an
         // arbitrary bank-$A5 read hidden behind a catalog-only unit test.
         var malformedEnemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            malformedEnemies,
-            NewDraygonIntroDefinitionReadGuard(rom));
-        var malformedRun = typeof(RoomEnemySystem).GetMethod(
-            "RunDraygonIntroDance",
-            flags)!.CreateDelegate<Action<DraygonEnemyState, SamusState?, byte>>(malformedEnemies);
-        var malformedState = new DraygonEnemyState(malformedEnemies.Slots[0])
+        malformedEnemies.BindFixtureBus(NewDraygonIntroDefinitionReadGuard(rom));
+        Action<DraygonEnemyState, SamusState?, byte> malformedRun = malformedEnemies.DraygonBehavior.RunDraygonIntroDance;
+        var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])
         {
             // Slot 31 subtracts $0200, selecting invalid offset one immediately.
             FightIntroDanceIndex = 0x0201,

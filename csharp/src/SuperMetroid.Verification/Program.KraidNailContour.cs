@@ -14,11 +14,10 @@ internal static class KraidNailContourVerification
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        var reflect = typeof(RoomEnemySystem).GetMethod("KraidBodyContourReflectsNail", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, bool>>(enemies);
-        var body = enemies.Slots[0];
-        var nail = enemies.Slots[6];
+        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        Func<RoomEnemySlot, bool> reflect = enemies.KraidBehavior.KraidBodyContourReflectsNail;
+        var body = enemies.SlotTable.Slots[0];
+        var nail = enemies.SlotTable.Slots[6];
         nail.Radius = nail.Radius.WithX(4);
         int overreadCases = 0;
         var histogram = new int[6];

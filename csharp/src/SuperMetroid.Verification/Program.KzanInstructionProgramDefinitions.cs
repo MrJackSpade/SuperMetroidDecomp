@@ -42,10 +42,9 @@ internal static class KzanInstructionProgramDefinitionsVerification
 
         var guard = NewKzanInstructionProgramGuard(rom);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeKzanTop", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemySlot> initialize = enemies.KzanBehavior.InitializeKzanTop;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.KzanTop;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
         slot.Position = slot.Position.WithWholeY(0x0080);
@@ -53,14 +52,13 @@ internal static class KzanInstructionProgramDefinitionsVerification
         AssertEqual(KzanInstructionProgramDefinitions.Idle, slot.CurrentInstruction,
             "Kzan initializer installs compiled program identity");
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         object?[] arguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        process.Invoke(enemies, arguments);
+        EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 |
                 KzanInstructionProgramDefinitionsTooling.PresentationWord)), slot.SpritemapPointer,
             "Kzan selects its exact native frame without cartridge reads");
-        process.Invoke(enemies, arguments);
+        EnemyInstructionRunner.Process(enemies, arguments);
         AssertEqual(unchecked((ushort)(KzanInstructionProgramDefinitions.Idle + 4)),
             slot.CurrentInstruction,
             "Kzan reaches terminal native sleep");

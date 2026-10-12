@@ -61,7 +61,7 @@ internal static class SamusHurtColorsVerification
         SamusHurtColorCatalog catalog, bool cinematic)
     {
         var samus = new SamusState { HurtFlashCounter = 1 };
-        samus.SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
+        samus.Presentation.SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(
             SamusSuitColorExtractor.Extract(rom)));
         samus.LiquidPhysics.CinematicFunctionActive = cinematic;
         var cgram = new SnesCgram();

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rom;
-using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
@@ -15,25 +14,21 @@ internal static class RoomShakeDefinitionsVerification
 
         var guarded = NewRoomShakeReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
-        MethodInfo projectileShake = typeof(RoomEnemySystem).GetMethod(
-            "GetEnemyProjectileShake",
-            flags)!;
+        enemies.BindFixtureBus(guarded);
 
         for (ushort type = 0; type < renderedTypeCount; type++)
         {
             RoomShakeDefinition definition = RoomShakeDefinitions.ForType(type);
-            enemies.EarthquakeType = type;
-            enemies.EarthquakeTimer = 1;
+            enemies.Earthquake.EarthquakeType = type;
+            enemies.Earthquake.EarthquakeTimer = 1;
             RoomShakeFrameResult positive = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(definition.Bg1, definition.Bg2),
                 positive,
                 $"room shake type {type} positive production frame");
-            AssertEqual((ushort)0, enemies.EarthquakeTimer,
+            AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer,
                 $"room shake type {type} positive timer consumption");
 
-            enemies.EarthquakeTimer = 2;
+            enemies.Earthquake.EarthquakeTimer = 2;
             RoomShakeFrameResult negative = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(
                     new(unchecked((short)-definition.Bg1.X), unchecked((short)-definition.Bg1.Y)),
@@ -41,17 +36,13 @@ internal static class RoomShakeDefinitionsVerification
                 negative,
                 $"room shake type {type} alternating production frame");
 
-            enemies.EarthquakeTimer = 1;
-            var positiveProjectile = (Offset16<RoomPixels>)projectileShake.Invoke(
-                enemies,
-                [false])!;
+            enemies.Earthquake.EarthquakeTimer = 1;
+            var positiveProjectile = enemies.Earthquake.GetEnemyProjectileShake(false);
             AssertEqual(definition.Projectile, positiveProjectile,
                 $"room shake type {type} positive projectile displacement");
 
-            enemies.EarthquakeTimer = 2;
-            var negativeProjectile = (Offset16<RoomPixels>)projectileShake.Invoke(
-                enemies,
-                [false])!;
+            enemies.Earthquake.EarthquakeTimer = 2;
+            var negativeProjectile = enemies.Earthquake.GetEnemyProjectileShake(false);
             AssertEqual(-definition.Projectile,
                 negativeProjectile,
                 $"room shake type {type} alternating projectile displacement");
@@ -61,21 +52,21 @@ internal static class RoomShakeDefinitionsVerification
             () => RoomShakeDefinitions.ForType(renderedTypeCount),
             "room shake type outside rendered table");
 
-        enemies.EarthquakeType = RoomFxRomData.Earthquake.FirstNonRenderedType;
-        enemies.EarthquakeTimer = 4;
+        enemies.Earthquake.EarthquakeType = RoomFxRomData.Earthquake.FirstNonRenderedType;
+        enemies.Earthquake.EarthquakeTimer = 4;
         AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: false),
             "non-rendered earthquake type does not access compiled definitions");
-        AssertEqual((ushort)4, enemies.EarthquakeTimer,
+        AssertEqual((ushort)4, enemies.Earthquake.EarthquakeTimer,
             "non-rendered earthquake type preserves timer");
         AssertEqual(Offset16<RoomPixels>.Zero,
-            (Offset16<RoomPixels>)projectileShake.Invoke(enemies, [false])!,
+            enemies.Earthquake.GetEnemyProjectileShake(false),
             "non-rendered earthquake type has no projectile displacement");
 
-        enemies.EarthquakeType = 0;
+        enemies.Earthquake.EarthquakeType = 0;
         AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: true),
             "frozen room shake does not access compiled definitions");
         AssertEqual(Offset16<RoomPixels>.Zero,
-            (Offset16<RoomPixels>)projectileShake.Invoke(enemies, [true])!,
+            enemies.Earthquake.GetEnemyProjectileShake(true),
             "frozen projectile shake does not access compiled definitions");
 
         Console.WriteLine(

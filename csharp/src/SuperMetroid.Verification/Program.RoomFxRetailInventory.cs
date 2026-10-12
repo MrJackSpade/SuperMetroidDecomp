@@ -650,13 +650,13 @@ internal static class RoomFxRetailInventoryVerification
         CartridgeDoorHeader door = doors.Single(candidate =>
             candidate.Pointer == RetailRoomFxDefinitions.RisingLavaRoom28.EntryDoor);
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(door);
-        if (runtime.Samus is null)
+        if (runtime.Player.Samus is null)
             throw new InvalidDataException("Room $02/$28 runtime load omitted Samus.");
-        runtime.Samus.InputLocked = true;
+        runtime.Player.Samus.InputLocked = true;
 
         int referenceSoundTimer = 0, referenceSoundIndex = 0, referenceSoundCount = 0;
         void StepAndVerifySound(int frame)
@@ -692,18 +692,18 @@ internal static class RoomFxRetailInventoryVerification
         static bool Shook(RoomShakeFrameResult shake) => shake != default;
 
         runtime.StepFrame(0);
-        AssertTrue(!Shook(runtime.Enemies.LastRoomShake), "room $02/$28 callback install pass does not shake");
+        AssertTrue(!Shook(runtime.Enemies.Earthquake.LastRoomShake), "room $02/$28 callback install pass does not shake");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "room $02/$28 callback install pass is silent");
 
         StepAndVerifySound(0);
-        RoomShakeFrameResult dormantShake = runtime.Enemies.LastRoomShake;
+        RoomShakeFrameResult dormantShake = runtime.Enemies.Earthquake.LastRoomShake;
         AssertTrue(!Shook(dormantShake),
             "room $02/$28 dormant rise initializer does not shake one frame early");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count,
             "room $02/$28 dormant rise initializer does not sound one frame early");
 
         StepAndVerifySound(1);
-        RoomShakeFrameResult firstActiveShake = runtime.Enemies.LastRoomShake;
+        RoomShakeFrameResult firstActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
         AssertEqual(1, runtime.RoomLayer3Fx.SoundRequests.Count,
             "room $02/$28 first wait frame emits one earthquake sound");
         RoomFxSoundRequest sound = runtime.RoomLayer3Fx.SoundRequests[0];
@@ -711,10 +711,10 @@ internal static class RoomFxRetailInventoryVerification
             "room $02/$28 earthquake sound identity");
         AssertEqual((byte)6, sound.MaximumQueued,
             "room $02/$28 earthquake sound queue cap");
-        AssertEqual(RoomFxRomData.Earthquake.RisingLiquidType, runtime.Enemies.EarthquakeType,
+        AssertEqual(RoomFxRomData.Earthquake.RisingLiquidType, runtime.Enemies.Earthquake.EarthquakeType,
             "room $02/$28 earthquake type");
         AssertTrue(Shook(firstActiveShake) &&
-            runtime.Enemies.EarthquakeType >= RoomFxRomData.Earthquake.FirstEnemyShakingType,
+            runtime.Enemies.Earthquake.EarthquakeType >= RoomFxRomData.Earthquake.FirstEnemyShakingType,
             "room $02/$28 first wait frame shakes backgrounds and enemies");
 
         int table = RoomFxRomData.Earthquake.BgDisplacementTableAddress +
@@ -730,7 +730,7 @@ internal static class RoomFxRetailInventoryVerification
             firstActiveShake.Bg2.Y, "room $02/$28 first shake BG2 Y");
 
         StepAndVerifySound(2);
-        RoomShakeFrameResult secondActiveShake = runtime.Enemies.LastRoomShake;
+        RoomShakeFrameResult secondActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
         AssertEqual(unchecked((short)-firstActiveShake.Bg1.X), secondActiveShake.Bg1.X,
             "room $02/$28 alternating shake BG1 X");
         AssertEqual(unchecked((short)-firstActiveShake.Bg1.Y), secondActiveShake.Bg1.Y,
@@ -751,7 +751,7 @@ internal static class RoomFxRetailInventoryVerification
         for (int frame = 3; frame < RetailRoomFxDefinitions.MaximumRiseAuditFrames; frame++)
         {
             StepAndVerifySound(frame);
-            if (Shook(runtime.Enemies.LastRoomShake))
+            if (Shook(runtime.Enemies.Earthquake.LastRoomShake))
             {
                 appliedFrames++;
                 lastShakeFrame = frame;
@@ -761,7 +761,7 @@ internal static class RoomFxRetailInventoryVerification
                 firstMovementFrame = frame;
             if (targetFrame < 0 && runtime.RoomLayer3Fx.PackedYVelocity == 0)
                 targetFrame = frame;
-            if (targetFrame >= 0 && runtime.Enemies.EarthquakeTimer == 0)
+            if (targetFrame >= 0 && runtime.Enemies.Earthquake.EarthquakeTimer == 0)
                 break;
         }
 

@@ -21,9 +21,8 @@ internal static class BotwoonSpeedsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb394bb + phase * 4)), speed.MovementSpeed, "Botwoon native movement speed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb39e77 + phase * 2)), speed.SpitSpeed, "Botwoon native spit speed");
         }
-        var update = typeof(RoomEnemySystem).GetMethod("UpdateBotwoonHealthPhase", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
-        var head = new RoomEnemySystem().Slots[0];
+        Action<RoomEnemySlot, BotwoonEnemyState> update = BotwoonBehavior.UpdateBotwoonHealthPhase;
+        var head = new RoomEnemySystem().SlotTable.Slots[0];
         var state = new BotwoonEnemyState(head) { HalfHealth = 1500, QuarterHealth = 750 };
         for (int health = 0; health <= 3000; health++)
         {

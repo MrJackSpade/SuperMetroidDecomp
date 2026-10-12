@@ -107,8 +107,6 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             NinjaSpacePirateInstructionProgramDefinitions.DivekickRightDive,
             NinjaSpacePirateFunction.DivekickRightDive));
 
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessInstructions", flags)!;
         for (int index = 0;
              index < NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -118,8 +116,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             var (enemies, slot, samus) = CreateSystem();
             slot.CurrentInstruction = unchecked((ushort)(address - 2));
             slot.InstructionTimer = 1;
-            process.Invoke(enemies,
-                [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
+            EnemyInstructionRunner.Process(enemies, [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0]);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb20000 | address)),
                 slot.SpritemapPointer,
                 $"production execution selects ninja Pirate frame $B2:{address:X4}");
@@ -154,7 +151,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]!;
             AssertEqual(1, state.SpawnedClawCount,
                 $"ninja Pirate claw program $B2:{program:X4} first spawn count");
-            RoomEnemyProjectileSlot claw = enemies.EnemyProjectiles.Single(p => p.IsActive);
+            RoomEnemyProjectileSlot claw = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(
                 unchecked((ushort)(slot.Position.X.Whole + expectedFirstXOffset)),
                 claw.Position.X.Whole,
@@ -171,24 +168,23 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 $"ninja Pirate dive program $B2:{program:X4} function");
             AssertEqual((ushort)0x0e00, slot.PaletteIndex,
                 $"ninja Pirate dive program $B2:{program:X4} palette");
-            AssertEqual((ushort)0x0066, enemies.LastSpacePirateSoundEffect!.Value,
+            AssertEqual((ushort)0x0066, enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect!.Value,
                 $"ninja Pirate dive program $B2:{program:X4} sound");
         }
 
         (RoomEnemySystem Enemies, RoomEnemySlot Slot, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
+            enemies.BindFixtureBus(guard);
+            enemies.Presentation._cgram = new SnesCgram();
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
-            RoomEnemySlot slot = enemies.Slots[0];
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyNinja;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Radius = new(8, 16);
             slot.Parameter2 = 0x0080;
-            typeof(RoomEnemySystem).GetMethod("InitializeNinjaSpacePirate", flags)!
-                .Invoke(enemies, [slot]);
+            enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
             return (enemies, slot, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 
@@ -198,10 +194,9 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             SamusState samus,
             int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, samus, null, Position16<RoomPixels>.Zero, (ushort)0];
-            for (int frame = 0; frame < frames; frame++) process.Invoke(enemies, arguments);
+            for (int frame = 0; frame < frames; frame++) EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

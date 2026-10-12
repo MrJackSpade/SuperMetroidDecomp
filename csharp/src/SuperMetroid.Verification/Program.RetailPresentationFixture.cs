@@ -29,12 +29,12 @@ internal static class RetailPresentationFixtureVerification
     }
 
     internal static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus, PauseMenuEntry entry) =>
-        RepositoryInstallation.CreatePause(bus, entry);
+        InstalledFixtures.CreatePause(bus, entry);
 
     /// <summary>
     /// The shared installation's map presentation, the same extracted content contract the
     /// playable host uses. Independent game instances still own their mutable state.
     /// </summary>
     internal static AreaMapPresentationCatalog RetailPresentationFixture() =>
-        RepositoryInstallation.Maps;
+        InstalledFixtures.Maps;
 }

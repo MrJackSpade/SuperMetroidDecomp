@@ -17,14 +17,14 @@ internal static class RetailDoorCaptureTests
         {
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = RepositoryInstallation.CreateRuntime(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
-            runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+            runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+            runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
             ushort destination = left ? RoomHeaderPointers.CeresDeadScientistRoom : RoomHeaderPointers.CeresFinalHallway;
             ushort door = left ? DoorPointers.CeresDeadScientistFromFinalHallway : DoorPointers.CeresFinalHallwayFromDeadScientist;
             runtime.LoadCartridgeRoomForDebug(left ? RoomHeaderPointers.CeresFinalHallway : RoomHeaderPointers.CeresDeadScientistRoom,
                 new Position16<RoomPixels>(left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0));
-            runtime.Samus!.Kinematics.Position = runtime.Samus!.Kinematics.Position.WithX(SnesFixedPosition.FromRaw(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed));
-            runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed));
+            runtime.Player.Samus!.Kinematics.Position = runtime.Player.Samus!.Kinematics.Position.WithX(SnesFixedPosition.FromRaw(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed));
+            runtime.Player.Samus.Kinematics.Position = runtime.Player.Samus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed));
             SwapchainTests.VerifyBlockedDoor(device, renderer, runtime, bus, door, destination, left ? "left" : "right");
         }
     }
@@ -47,7 +47,7 @@ internal static class RetailDoorCaptureTests
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: door {doorCase.Door:X4}, {context}, frame={frames}, phase={transition.Phase}");
             }
-            if (transition.IsActive || scrollFrames < 60 || runtime.ActiveDoor?.DestinationRoomPointer != doorCase.Destination)
+            if (transition.IsActive || scrollFrames < 60 || runtime.Room.ActiveDoor?.DestinationRoomPointer != doorCase.Destination)
                 throw new InvalidOperationException($"Door fixture missed complete scrolling/destination: {context}, scroll={scrollFrames}.");
             Console.WriteLine($"{device.Kind}: {context} retail door: {frames} exact frames, {scrollFrames} scroll frames, destination verified.");
     }
@@ -56,14 +56,14 @@ internal static class RetailDoorCaptureTests
     {
         // Same staged approach as the existing visual regression: discover the real
         // authored door via its collision block, then run the production dispatcher.
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         for (int index = 0; index < level.ForegroundEntries.Length; index++)
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(bus, block.Behavior, runtime.Samus!.Pose, publishDoorSideEffects: false);
+            var door = level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.Samus!.Pose, publishDoorSideEffects: false);
             if (door.Pointer != pointer) continue;
-            level.ResolveDoorCollision(bus, block.Behavior, runtime.Samus.Pose, publishDoorSideEffects: true);
+            level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.Samus.Pose, publishDoorSideEffects: true);
             return;
         }
         throw new InvalidOperationException($"No authored collision for door {pointer:X4}.");

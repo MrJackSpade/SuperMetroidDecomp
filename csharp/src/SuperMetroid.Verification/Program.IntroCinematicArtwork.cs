@@ -48,7 +48,7 @@ internal static class IntroCinematicArtworkVerification
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;
         // ROM import itself is covered by the asset-import verification.
-        using PrivateInstallationCopy copy = RepositoryInstallation.CreatePrivateCopy();
+        using PrivateInstallationCopy copy = InstalledFixtures.CreatePrivateCopy();
         string root = copy.Root;
         {
             GameInstallation installation = copy.Installation;

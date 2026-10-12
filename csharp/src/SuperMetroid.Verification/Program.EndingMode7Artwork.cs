@@ -49,8 +49,8 @@ internal static class EndingMode7ArtworkVerification
             bool first = phases.Add(native.Phase);
             if (first || frame % 173 == 0)
             {
-                LayeredRenderSnapshot expected = native.CaptureRenderSnapshot();
-                LayeredRenderSnapshot actual = installed.CaptureRenderSnapshot();
+                LayeredRenderSnapshot expected = native.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).AsSpan().SequenceEqual(
@@ -100,7 +100,7 @@ internal static class EndingMode7ArtworkVerification
                 state.Step();
                 audio.AdvanceFrame(sceneBus, default);
             }
-            LayeredRenderSnapshot baselineSnapshot = state.CaptureRenderSnapshot();
+            LayeredRenderSnapshot baselineSnapshot = state.Presentation.CaptureRenderSnapshot();
             AssertTrue(baselineSnapshot.Brightness > 0,
                 $"ending {id} override fixture reaches a visible frame");
             byte[] baseline = baselineSnapshot.Memory.Vram.ToArray();
@@ -118,7 +118,7 @@ internal static class EndingMode7ArtworkVerification
                 EndingMode7SceneArtwork.WriteMap(output, map);
             EndingMode7ArtworkCatalog editedMap = installation.LoadEndingMode7Art();
             state.BindMode7Artwork(editedMap);
-            LayeredRenderSnapshot mapSnapshot = state.CaptureRenderSnapshot();
+            LayeredRenderSnapshot mapSnapshot = state.Presentation.CaptureRenderSnapshot();
             byte[] mapVram = mapSnapshot.Memory.Vram.ToArray();
             AssertTrue(!baseline.SequenceEqual(mapVram) &&
                     baseline.AsSpan(0x8000).SequenceEqual(mapVram.AsSpan(0x8000)) &&
@@ -145,9 +145,9 @@ internal static class EndingMode7ArtworkVerification
                     partial.Step();
                     partialAudio.AdvanceFrame(partialBus, default);
                 }
-                byte[] partiallyUploaded = partial.CaptureRenderSnapshot().Memory.Vram.ToArray();
+                byte[] partiallyUploaded = partial.Presentation.CaptureRenderSnapshot().Memory.Vram.ToArray();
                 partial.BindMode7Artwork(editedMap);
-                byte[] rebound = partial.CaptureRenderSnapshot().Memory.Vram.ToArray();
+                byte[] rebound = partial.Presentation.CaptureRenderSnapshot().Memory.Vram.ToArray();
                 for (int word = 0; word < EndingCreditsRomData.Rendering.FlyawayUploadBytes; word++)
                     AssertEqual(partiallyUploaded[word * 2], rebound[word * 2],
                         $"edited explosion retains already-transferred map word {word}");
@@ -176,7 +176,7 @@ internal static class EndingMode7ArtworkVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingMode7ArtworkCatalog editedCharacters = installation.LoadEndingMode7Art();
             state.BindMode7Artwork(editedCharacters);
-            LayeredRenderSnapshot characterSnapshot = state.CaptureRenderSnapshot();
+            LayeredRenderSnapshot characterSnapshot = state.Presentation.CaptureRenderSnapshot();
             byte[] characterVram = characterSnapshot.Memory.Vram.ToArray();
             AssertTrue(!baseline.SequenceEqual(characterVram) &&
                     baseline.AsSpan(0x8000).SequenceEqual(characterVram.AsSpan(0x8000)) &&

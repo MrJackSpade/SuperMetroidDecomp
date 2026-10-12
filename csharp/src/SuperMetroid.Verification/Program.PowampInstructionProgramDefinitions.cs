@@ -42,12 +42,10 @@ internal static class PowampInstructionProgramDefinitionsVerification
         var executedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = type.GetMethod("InitializePowamp", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.PowampBehavior.InitializePowamp);
 
-        RoomEnemySlot balloon = enemies.Slots[0];
+        RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
         balloon.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
         balloon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         balloon.Parameter1 = 1;
@@ -56,7 +54,7 @@ internal static class PowampInstructionProgramDefinitionsVerification
             balloon.CurrentInstruction,
             "real Powamp balloon initializer installs compiled deflated program");
 
-        RoomEnemySlot body = enemies.Slots[1];
+        RoomEnemySlot body = enemies.SlotTable.Slots[1];
         body.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         initialize(body);
@@ -66,13 +64,13 @@ internal static class PowampInstructionProgramDefinitionsVerification
 
         object?[] bodyArguments =
             [body, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, bodyArguments, body, 4);
+        ExecutePowampInstructionCalls(rom, executedOperands, enemies, bodyArguments, body, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BodySlow + 4)),
             body.CurrentInstruction,
             "Powamp slow body loop completes its native goto and first repeated frame");
 
         body.CurrentInstruction = PowampInstructionProgramDefinitions.BodyFast;
-        ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, bodyArguments, body, 4);
+        ExecutePowampInstructionCalls(rom, executedOperands, enemies, bodyArguments, body, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BodyFast + 4)),
             body.CurrentInstruction,
             "Powamp fast body loop completes its native goto and first repeated frame");
@@ -80,13 +78,13 @@ internal static class PowampInstructionProgramDefinitionsVerification
         object?[] balloonArguments =
             [balloon, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         balloon.CurrentInstruction = PowampInstructionProgramDefinitions.BalloonInflate0;
-        ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, balloonArguments, balloon, 4);
+        ExecutePowampInstructionCalls(rom, executedOperands, enemies, balloonArguments, balloon, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BalloonInflate2 + 4)),
             balloon.CurrentInstruction,
             "Powamp inflate program reaches terminal sleep");
 
         balloon.CurrentInstruction = PowampInstructionProgramDefinitions.BalloonStartSinking;
-        ExecutePowampInstructionCalls(rom, executedOperands, enemies, process, balloonArguments, balloon, 4);
+        ExecutePowampInstructionCalls(rom, executedOperands, enemies, balloonArguments, balloon, 4);
         AssertEqual(unchecked((ushort)(PowampInstructionProgramDefinitions.BalloonDeflated + 4)),
             balloon.CurrentInstruction,
             "Powamp deflate program falls through to shared deflated sleep");
@@ -125,7 +123,6 @@ internal static class PowampInstructionProgramDefinitionsVerification
     private static void ExecutePowampInstructionCalls(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
-        MethodInfo process,
         object?[] arguments,
         RoomEnemySlot slot,
         int calls)
@@ -133,7 +130,7 @@ internal static class PowampInstructionProgramDefinitionsVerification
         for (int call = 0; call < calls; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
             VerifyExecutedEnemySelector(rom, slot, executedOperands);
         }
     }

@@ -36,12 +36,6 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
 
     private static void VerifyAllSkreeMetareeInstallHandoffs()
     {
-        MethodInfo installMetaree = typeof(RoomEnemySystem).GetMethod(
-            "InstallRequestedMetareeInstruction",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        MethodInfo installSkree = typeof(RoomEnemySystem).GetMethod(
-            "InstallRequestedSkreeInstruction",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
 
         for (int index = 0; index < 4; index++)
         {
@@ -52,7 +46,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 RequestedInstructionListIndex = phase,
                 InstalledInstructionListIndex = DifferentSkreeMetareePhase(phase),
             };
-            installMetaree.Invoke(null, [metareeSlot, metareeState]);
+            MetareeBehavior.InstallRequestedMetareeInstruction(metareeSlot, metareeState);
             AssertSkreeMetareeHandoff(
                 metareeSlot,
                 metareeState.InstalledInstructionListIndex,
@@ -66,7 +60,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
                 RequestedInstructionIndex = phase,
                 InstalledInstructionIndex = DifferentSkreeMetareePhase(phase),
             };
-            installSkree.Invoke(null, [skreeSlot, skreeState]);
+            SkreeBehavior.InstallRequestedSkreeInstruction(skreeSlot, skreeState);
             AssertSkreeMetareeHandoff(
                 skreeSlot,
                 skreeState.InstalledInstructionIndex,
@@ -79,23 +73,17 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static void VerifyLiveMetareeAnimationHandoffs(SuperMetroidAddressSpace rom)
     {
         var enemies = NewSkreeMetareeGuardedSystem(rom);
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeMetaree", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        MethodInfo idle = typeof(RoomEnemySystem).GetMethod(
-            "RunMetareeIdle", BindingFlags.Static | BindingFlags.NonPublic)!;
-        MethodInfo prepare = typeof(RoomEnemySystem).GetMethod(
-            "RunMetareePreparation", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        initialize.Invoke(enemies, [slot]);
+        enemies.MetareeBehavior.InitializeMetaree(slot);
         MetareeEnemyState state = enemies.MetareeStates[0]!;
         var samus = new SamusState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
 
-        idle.Invoke(null, [slot, state, samus]);
+        MetareeBehavior.RunMetareeIdle(slot, state, samus);
         AssertSkreeMetareeHandoff(
             slot,
             state.InstalledInstructionListIndex,
@@ -105,7 +93,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             "live Metaree preparation");
 
         state.AttackReady = true;
-        prepare.Invoke(enemies, [slot, state]);
+        enemies.MetareeBehavior.RunMetareePreparation(slot, state);
         AssertSkreeMetareeHandoff(
             slot,
             state.InstalledInstructionListIndex,
@@ -118,21 +106,17 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     private static void VerifyLiveSkreeAnimationHandoffs(SuperMetroidAddressSpace rom)
     {
         var enemies = NewSkreeMetareeGuardedSystem(rom);
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeSkree", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        MethodInfo runMain = typeof(RoomEnemySystem).GetMethod(
-            "RunSkreeMain", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        initialize.Invoke(enemies, [slot]);
+        enemies.SkreeBehavior.InitializeSkree(slot);
         SkreeEnemyState state = enemies.SkreeStates[0]!;
         var samus = new SamusState
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + 0x60)))),
         };
 
-        runMain.Invoke(enemies, [slot, samus, null]);
+        enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
         AssertSkreeMetareeHandoff(
             slot,
             state.InstalledInstructionIndex,
@@ -142,7 +126,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
             "live Skree preparation");
 
         state.AttackReady = true;
-        runMain.Invoke(enemies, [slot, samus, null]);
+        enemies.SkreeBehavior.RunSkreeMain(slot, samus, null);
         AssertSkreeMetareeHandoff(
             slot,
             state.InstalledInstructionIndex,
@@ -156,8 +140,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(enemies, NewSkreeMetareeAnimationReadGuard(rom));
+        enemies.BindFixtureBus(NewSkreeMetareeAnimationReadGuard(rom));
         return enemies;
     }
 

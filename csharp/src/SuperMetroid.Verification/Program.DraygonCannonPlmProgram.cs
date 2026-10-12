@@ -68,8 +68,8 @@ internal static class DraygonCannonPlmProgramVerification
                         new RoomLevelWord(word).VisualWord)).ToArray())).ToArray();
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
-        plms.DraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
-        AssertEqual(4, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
+        plms.Drawing.DraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
+        AssertEqual(4, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
             "four retail cannon headers load with cartridge program lists");
 
         static void Step(RoomPlmSystem plms, ISnesAddressSpace bus,
@@ -105,7 +105,7 @@ internal static class DraygonCannonPlmProgramVerification
         AssertTrue(disabled.Contains((ushort)DraygonCannonControlWord.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");
         int rightBlock = rightShieldBlock;
-        AssertTrue(plms.TryNotifyResidentProjectileHit(rightBlock, 0x0200),
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, 0x0200),
             "Super Missile reaches live right cannon");
         var seenRightDamageWords = new HashSet<ushort>();
         for (int frame = 0; frame < 28; frame++)
@@ -120,7 +120,7 @@ internal static class DraygonCannonPlmProgramVerification
         AssertTrue(disabled.Contains((ushort)DraygonCannonControlWord.LowerLeft),
             "right cannon follows native three-hit threshold to damaged list");
         int leftBlock = leftShieldBlock;
-        AssertTrue(plms.TryNotifyResidentProjectileHit(leftBlock, 0x0200),
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(leftBlock, 0x0200),
             "Super Missile reaches live left cannon");
         var seenLeftDamageWords = new HashSet<ushort>();
         for (int frame = 0; frame < 28; frame++)

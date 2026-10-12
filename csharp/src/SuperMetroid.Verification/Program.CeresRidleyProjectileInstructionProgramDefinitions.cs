@@ -38,35 +38,23 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
                 $"Ceres Ridley projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewCeresRidleyProjectileInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", instanceFlags)!;
-        MethodInfo spawnFireball = typeof(RoomEnemySystem).GetMethod(
-            "SpawnRidleyFireball", instanceFlags)!;
-        MethodInfo spawnCenter = typeof(RoomEnemySystem).GetMethod(
-            "SpawnAfterburnCenter", instanceFlags)!;
-        MethodInfo spawnDirectional = typeof(RoomEnemySystem).GetMethod(
-            "SpawnDirectionalAfterburn", instanceFlags)!;
-        MethodInfo beginFinal = typeof(RoomEnemySystem).GetMethod(
-            "BeginAfterburnFinalAnimation", staticFlags)!;
         EnemyDefinitionId ceresRidleyDefinition = EnemyDefinitionId.RidleyCeres;
 
         RoomEnemySystem fireballSystem = NewSystem();
-        RoomEnemySlot ridley = fireballSystem.Slots[0];
+        RoomEnemySlot ridley = fireballSystem.SlotTable.Slots[0];
         ridley.EnemyDefinitionPointer = ceresRidleyDefinition;
         ridley.Position = ridley.Position.WithWhole(new(128, 96));
-        typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", instanceFlags)!.SetValue(
-            fireballSystem,
-            new RidleyEnemyState
+        fireballSystem.RidleyEncounter.Ridley = new RidleyEnemyState
             {
                 FacingDirection = RidleyFacing.Left,
                 FireballVelocity = new EightEightVector<RoomPixels>(unchecked((short)0xfe00), 0x0100),
-            });
-        spawnFireball.Invoke(fireballSystem, [ridley, true]);
-        RoomEnemyProjectileSlot fireball = fireballSystem.EnemyProjectiles.Single(
+            };
+        fireballSystem.RidleyProjectiles.SpawnRidleyFireball(ridley, true);
+        RoomEnemyProjectileSlot fireball = fireballSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CeresRidleyFireball);
         AssertEqual(CeresRidleyProjectileInstructionProgramDefinitions.Fireball,
             fireball.InstructionPointer, "real Ceres Ridley fireball producer");
@@ -96,16 +84,16 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            spawnCenter.Invoke(enemies, [centerKind, new Position16<RoomPixels>(120, 88), (ushort)3]);
-            RoomEnemyProjectileSlot center = enemies.EnemyProjectiles.Single(
+            enemies.RidleyProjectiles.SpawnAfterburnCenter(centerKind, new Position16<RoomPixels>(120, 88), (ushort)3);
+            RoomEnemyProjectileSlot center = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == centerKind);
             AssertEqual(program, center.InstructionPointer,
                 "real center-afterburn producer selects its named program");
             RunForcedTicks(enemies, center, 2);
-            AssertTrue(enemies.EnemyProjectiles.Any(
+            AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(
                     projectile => projectile.Kind == firstChild),
                 "center-afterburn callback spawns its first directional child");
-            AssertTrue(enemies.EnemyProjectiles.Any(
+            AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(
                     projectile => projectile.Kind == secondChild),
                 "center-afterburn callback spawns its second directional child");
             RunForcedTicks(enemies, center, 4);
@@ -122,20 +110,18 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            RoomEnemyProjectileSlot source = enemies.EnemyProjectiles[0];
+            RoomEnemyProjectileSlot source = enemies.Projectiles.EnemyProjectiles[0];
             source.Position = source.Position.WithWhole(new(120, 88));
             source.RemainingAfterburns = 1;
-            spawnDirectional.Invoke(
-                enemies,
-                [source, kind, new EightEightVector<RoomPixels>(0x0100, -0x0100)]);
-            RoomEnemyProjectileSlot afterburn = enemies.EnemyProjectiles.Single(
+            enemies.RidleyProjectiles.SpawnDirectionalAfterburn(source, kind, new EightEightVector<RoomPixels>(0x0100, -0x0100));
+            RoomEnemyProjectileSlot afterburn = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == kind);
             AssertEqual(
                 CeresRidleyProjectileInstructionProgramDefinitions.DirectionalAfterburn,
                 afterburn.InstructionPointer,
                 "real directional-afterburn producer selects its named program");
             RunForcedTicks(enemies, afterburn, 2);
-            AssertEqual(2, enemies.EnemyProjectiles.Count(
+            AssertEqual(2, enemies.Projectiles.EnemyProjectiles.Count(
                     projectile => projectile.Kind == kind),
                 "directional callback spawns the next same-direction afterburn");
             RunForcedTicks(enemies, afterburn, 4);
@@ -144,17 +130,15 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
         }
 
         RoomEnemySystem finalSystem = NewSystem();
-        RoomEnemyProjectileSlot finalSource = finalSystem.EnemyProjectiles[0];
+        RoomEnemyProjectileSlot finalSource = finalSystem.Projectiles.EnemyProjectiles[0];
         finalSource.RemainingAfterburns = 0;
-        spawnDirectional.Invoke(
-            finalSystem,
-            [finalSource,
+        finalSystem.RidleyProjectiles.SpawnDirectionalAfterburn(finalSource,
              RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight,
-             new EightEightVector<RoomPixels>(0x0100, 0)]);
-        RoomEnemyProjectileSlot final = finalSystem.EnemyProjectiles.Single(
+             new EightEightVector<RoomPixels>(0x0100, 0));
+        RoomEnemyProjectileSlot final = finalSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight);
-        beginFinal.Invoke(null, [final]);
+        RidleyProjectiles.BeginAfterburnFinalAnimation(final);
         AssertEqual(CeresRidleyProjectileInstructionProgramDefinitions.AfterburnFinal,
             final.InstructionPointer, "production collision handoff selects final impact");
         AssertTrue(final.CanDamageSamus, "terrain impact preserves final-afterburn contact damage");
@@ -169,13 +153,11 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
             "final afterburn impact completes all five frames and deletes");
 
         RoomEnemySystem sharedDeleteSystem = NewSystem();
-        RoomEnemyProjectileSlot sharedDeleteSource = sharedDeleteSystem.EnemyProjectiles[0];
-        spawnDirectional.Invoke(
-            sharedDeleteSystem,
-            [sharedDeleteSource,
+        RoomEnemyProjectileSlot sharedDeleteSource = sharedDeleteSystem.Projectiles.EnemyProjectiles[0];
+        sharedDeleteSystem.RidleyProjectiles.SpawnDirectionalAfterburn(sharedDeleteSource,
              RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown,
-             new EightEightVector<RoomPixels>(0, 0x0100)]);
-        RoomEnemyProjectileSlot sharedDelete = sharedDeleteSystem.EnemyProjectiles.Single(
+             new EightEightVector<RoomPixels>(0, 0x0100));
+        RoomEnemyProjectileSlot sharedDelete = sharedDeleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown);
         sharedDelete.InstructionPointer =
@@ -222,7 +204,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
+            enemies.BindFixtureBus(guard);
             return enemies;
         }
 
@@ -231,7 +213,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
             RoomEnemyProjectileSlot projectile)
         {
             projectile.InstructionTimer = 1;
-            process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands);
         }
 

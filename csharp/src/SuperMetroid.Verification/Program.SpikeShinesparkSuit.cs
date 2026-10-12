@@ -23,7 +23,7 @@ internal static class SpikeShinesparkSuitVerification
         })
         {
             SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: false);
-            SamusState samus = runtime.Samus!;
+            SamusState samus = runtime.Player.Samus!;
             for (int frame = 0; frame < 15; frame++)
             {
                 runtime.StepFrame(frame is 1 || frame == expected.LaunchFrame
@@ -43,7 +43,7 @@ internal static class SpikeShinesparkSuitVerification
         // coordinates, animation cursor, movement owner, and stored-shine palette
         // while automatic Reserve recovery advances only global hurt timers.
         SuperMetroidRuntime frozenRuntime = CreateSpikeSuitRuntime(bus, underwater: true);
-        SamusState frozenSamus = frozenRuntime.Samus!;
+        SamusState frozenSamus = frozenRuntime.Player.Samus!;
         for (int frame = 0; frame < 8; frame++)
             frozenRuntime.StepFrame(frame == 1 ? (ushort)SnesButton.A : (ushort)0);
         frozenSamus.Health = 0;
@@ -52,16 +52,16 @@ internal static class SpikeShinesparkSuitVerification
         frozenSamus.ReserveTankMode = 1;
         var shortRecovery = new SamusReserveAutoRecoveryState();
         shortRecovery.Begin(frozenSamus);
-        frozenRuntime.GameplayTimeFrozen = true;
+        frozenRuntime.Freeze.GameplayTimeFrozen = true;
         uint frozenX = frozenSamus.Kinematics.Position.X.RawValue;
         uint frozenY = frozenSamus.Kinematics.Position.Y.RawValue;
         ushort frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer;
-        ushort frozenShineTimer = frozenSamus.SharedShineTimer;
+        ushort frozenShineTimer = frozenSamus.InputSnapshot.SharedShineTimer;
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
-            shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.NmiFrameCounter) });
+            shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.Nmi.NmiFrameCounter) });
         AssertEqual((frozenX, frozenY),
             (frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
             "Reserve command zero freezes spike-knockback position");
@@ -69,7 +69,7 @@ internal static class SpikeShinesparkSuitVerification
             (frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer),
             "Reserve command zero freezes the unmorph animation cursor");
         AssertEqual((frozenShineTimer, frozenPalette),
-            (frozenSamus.SharedShineTimer, frozenSamus.Shinespark.PaletteType),
+            (frozenSamus.InputSnapshot.SharedShineTimer, frozenSamus.Shinespark.PaletteType),
             "Reserve command zero freezes stored-shine palette progression");
         AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer,
             "global hurt timer continues while Reserve owns Samus");
@@ -94,7 +94,7 @@ internal static class SpikeShinesparkSuitVerification
             bool retainedSuit = samus.Pose == SamusPoseId.ShinesparkWindupRightPose &&
                 samus.Shinespark.Phase == ShinesparkPhase.Inactive &&
                 samus.Shinespark.PaletteType == SamusSpecialPaletteType.Shinesparking &&
-                samus.SharedShineTimer != 0;
+                samus.InputSnapshot.SharedShineTimer != 0;
             AssertEqual(expected.RetainsSuit, retainedSuit,
                 $"underwater Reserve suit freeze {expected.FreezeAfter}, launch {expected.LaunchAfter}");
         }
@@ -109,7 +109,7 @@ internal static class SpikeShinesparkSuitVerification
         int launchAfter)
     {
         SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: true);
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         for (int frame = 0; frame < freezeAfter; frame++)
             runtime.StepFrame(frame == 1 ? (ushort)SnesButton.A : (ushort)0);
 
@@ -120,7 +120,7 @@ internal static class SpikeShinesparkSuitVerification
         samus.ReserveTankMode = 1;
         var recovery = new SamusReserveAutoRecoveryState();
         recovery.Begin(samus);
-        runtime.GameplayTimeFrozen = true;
+        runtime.Freeze.GameplayTimeFrozen = true;
         while (recovery.IsActive)
         {
             ushort input = samus.ReserveEnergy == 1 && launchAfter == 0
@@ -128,8 +128,8 @@ internal static class SpikeShinesparkSuitVerification
                 : (ushort)0;
             runtime.StepFrame(input, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
             {
-                if (recovery.StepAfterNmi(samus, runtime.NmiFrameCounter).Completed)
-                    runtime.GameplayTimeFrozen = false;
+                if (recovery.StepAfterNmi(samus, runtime.Nmi.NmiFrameCounter).Completed)
+                    runtime.Freeze.GameplayTimeFrozen = false;
             } });
         }
         for (int frame = 1; frame < 25; frame++)
@@ -142,16 +142,16 @@ internal static class SpikeShinesparkSuitVerification
         bool underwater)
     {
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RunNmi(0, true);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, new Position16<RoomPixels>(0, 0));
-        RoomLevelData level = runtime.LevelData!;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.NmiHandler.RunNmi(0, true);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(runtime.Room.ActiveRoom!.Pointer, new Position16<RoomPixels>(0, 0));
+        RoomLevelData level = runtime.Room.LevelData!;
         runtime.InitializeDebugGroundedSamus(200, 166, 16);
-        foreach (RoomEnemySlot enemy in runtime.Enemies.Slots)
+        foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)
             enemy.Clear();
-        foreach (RoomEnemyProjectileSlot projectile in runtime.Enemies.EnemyProjectiles)
+        foreach (RoomEnemyProjectileSlot projectile in runtime.Enemies.Projectiles.EnemyProjectiles)
             projectile.Clear();
         for (int block = 0; block < level.Size.X * level.Size.Y; block++)
         {
@@ -159,7 +159,7 @@ internal static class SpikeShinesparkSuitVerification
             level.SetBehavior(block, 0);
         }
 
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = samus.CollectedItems = (ushort)(
@@ -171,8 +171,8 @@ internal static class SpikeShinesparkSuitVerification
             samus.LiquidPhysics.ConfigureWater(8, 0x80);
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(200).WithFractionX(0).WithWholeY(166).WithFractionY(0);
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
             SnesLittleEndian.Word(8, (byte)SamusMovementType.MorphBallGround);

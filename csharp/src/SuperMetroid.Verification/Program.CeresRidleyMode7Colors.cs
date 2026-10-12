@@ -53,23 +53,22 @@ internal static class CeresRidleyMode7ColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
-        var runtime = new SuperMetroidRuntime(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { Artwork = { MapPresentation = edited } };
         AssertTrue(ReferenceEquals(edited.CeresRidleyMode7Colors,
-            runtime.Enemies.CeresRidleyMode7Colors),
+            runtime.Enemies.Presentation.CeresRidleyMode7Colors),
             "installed runtime binds Ceres Mode-7 colors to enemy owner");
-        runtime.MapPresentation = original;
+        runtime.Artwork.MapPresentation = original;
         AssertTrue(ReferenceEquals(original.CeresRidleyMode7Colors,
-            runtime.Enemies.CeresRidleyMode7Colors),
+            runtime.Enemies.Presentation.CeresRidleyMode7Colors),
             "runtime rebind drops old Ceres Mode-7 colors");
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors };
+        var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
         var cgram = new SnesCgram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        var select = typeof(RoomEnemySystem).GetMethod("UpdateCeresRidleyMode7Palette", flags)!
-            .CreateDelegate<Action<ushort>>(enemies);
+        enemies.BindFixtureBus(guard);
+        enemies.Presentation._cgram = cgram;
+        Action<ushort> select = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;
         var visited = new HashSet<int>();
         for (ushort byteIndex = 0; byteIndex < 224; byteIndex += 2)
         {

@@ -23,7 +23,7 @@ internal static class FileCopyArrowVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var installation = RepositoryInstallation.Installation;
-        var art = RepositoryInstallation.Maps;
+        var art = InstalledFixtures.Maps;
         // All SRAM changes belong to this private imported address space.
         var saves = new SuperMetroidSaveRam(rom, RetailPresentationFixture());
         for (int slot = 0; slot < 3; slot++)

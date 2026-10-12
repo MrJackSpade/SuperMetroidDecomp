@@ -34,21 +34,21 @@ internal static class PoseDispatchDefinitionsVerification
             ISnesAddressSpace source = forbidden;
             samus.Pose = (SamusPoseId)pose;
             byte aim = rom.ReadCartridgeByte(address + 3);
-            AssertEqual(aim, samus.ReadShotDirection(source), "Live aim and restrictions retain the full native byte without authored ROM reads");
-            AssertEqual(aim, SamusState.ReadShotDirection(source, (SamusPoseId)pose), "Prospective aim retains native byte and adjacent indexes");
-            AssertEqual(facing, samus.ReadPoseXDirection(source), "Live pose facing retains native value");
-            AssertEqual(facing, SamusState.ReadPoseXDirection(source, (SamusPoseId)pose), "Prospective pose facing retains native value");
-            AssertEqual(fallback, (byte)samus.ReadNoInputFallbackPose(source), "No-input fallback retains native pose or sentinel");
+            AssertEqual(aim, samus.PoseMetadata.ReadShotDirection(source), "Live aim and restrictions retain the full native byte without authored ROM reads");
+            AssertEqual(aim, SamusPoseMetadata.ReadShotDirection(source, (SamusPoseId)pose), "Prospective aim retains native byte and adjacent indexes");
+            AssertEqual(facing, samus.PoseMetadata.ReadPoseXDirection(source), "Live pose facing retains native value");
+            AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(source, (SamusPoseId)pose), "Prospective pose facing retains native value");
+            AssertEqual(fallback, (byte)samus.PoseMetadata.ReadNoInputFallbackPose(source), "No-input fallback retains native pose or sentinel");
             if (movement <= (byte)SamusMovementType.Special)
             {
-                AssertEqual(movement, (byte)samus.ReadMovementType(source), "Live movement discriminator matches native");
-                AssertEqual(movement, (byte)SamusState.ReadMovementType(source, (SamusPoseId)pose), "Prospective movement discriminator matches native");
+                AssertEqual(movement, (byte)samus.PoseMetadata.ReadMovementType(source), "Live movement discriminator matches native");
+                AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType(source, (SamusPoseId)pose), "Prospective movement discriminator matches native");
                 commit(samus, source);
                 AssertEqual((ushort)(SnesLittleEndian.Word(facing, movement)), samus.PoseHistory.PreviousDirectionAndMovement,
                     "Actual history publisher retains native facing/movement word");
             }
             else
-                AssertThrows<InvalidDataException>(() => samus.ReadMovementType(source), "Adjacent invalid movement remains a loud error");
+                AssertThrows<InvalidDataException>(() => samus.PoseMetadata.ReadMovementType(source), "Adjacent invalid movement remains a loud error");
         }
 
         // These three compiled tables are queried by ordinary movement, rendering, and
@@ -72,8 +72,8 @@ internal static class PoseDispatchDefinitionsVerification
         for (int index = 0; index < 65536; index++)
         {
             SamusPoseId pose = unchecked((SamusPoseId)(index % 253));
-            checksum += SamusState.ReadPoseXDirection(forbidden, pose);
-            checksum += (byte)SamusState.ReadMovementType(forbidden, pose);
+            checksum += SamusPoseMetadata.ReadPoseXDirection(forbidden, pose);
+            checksum += (byte)SamusPoseMetadata.ReadMovementType(forbidden, pose);
             checksum += (int)SamusPoseDispatchDefinitions.ReadNoInputPose(pose);
         }
         return GC.GetAllocatedBytesForCurrentThread() - before;

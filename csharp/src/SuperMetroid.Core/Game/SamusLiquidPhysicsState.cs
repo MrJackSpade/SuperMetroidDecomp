@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// Keeping the literal source words here lets each translated caller reproduce its own
 /// comparison instead of sharing a convenient but incorrect host-side boolean.
 /// </remarks>
-public sealed partial class SamusLiquidPhysicsState
+public sealed class SamusLiquidPhysicsState
 {
     private readonly List<SamusSoundRequest> _soundRequests = [];
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
@@ -257,7 +257,7 @@ public sealed partial class SamusLiquidPhysicsState
         if (beginSoundRequestFrame)
             BeginFrameSoundRequests();
 
-        SamusMovementType movementType = samus.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
         TrySpawnRunningFootsteps(bus, samus, movementType);
 
         // Samus_Animate's FX handlers call $90:EC3E, whose occupied bottom
@@ -305,7 +305,7 @@ public sealed partial class SamusLiquidPhysicsState
                 // Cancel_SpeedBoosting owns the momentum/counter/palette/echo transition;
                 // the two extra-run words are then cleared explicitly by the FX handler.
                 // Acid deliberately skips all three writes.
-                samus.HorizontalSpeed.CancelRunningMomentum(samus.ReadFacingDirection(bus));
+                samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
                 samus.HorizontalSpeed.ExtraRunSpeed = 0;
                 samus.HorizontalSpeed.ExtraRunSubspeed = 0;
             }
@@ -732,7 +732,7 @@ public sealed partial class SamusLiquidPhysicsState
         // This is $0A68, not $0AD0: the latter is already nonzero during boost buildup.
         if (!CinematicFunctionActive &&
             BossId == 0 &&
-            samus.SharedShineTimer == 0 &&
+            samus.InputSnapshot.SharedShineTimer == 0 &&
             (samus.HorizontalSpeed.SpeedBoostCounter & 0x0400) == 0)
         {
             QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x06), maximumQueued: 6);
@@ -741,7 +741,7 @@ public sealed partial class SamusLiquidPhysicsState
 
     private void SpawnFootstepPair(ISnesAddressSpace bus, SamusState samus, byte type)
     {
-        bool directionIsFour = samus.IsFacingLeft(bus);
+        bool directionIsFour = samus.PoseMetadata.IsFacingLeft(bus);
         ushort firstX = directionIsFour
             ? unchecked((ushort)(samus.Position.X.Whole - 12))
             : unchecked((ushort)(samus.Position.X.Whole + 12));
@@ -776,4 +776,23 @@ public sealed partial class SamusLiquidPhysicsState
     private static bool IsBelowSurface(ushort surface, ushort boundary) =>
         unchecked((short)surface) >= 0 &&
         unchecked((short)(surface - boundary)) < 0;
+
+    /// <summary>Ports $91:FA76's pose-entry dust writes, shared by ordinary and grapple wall jumps.</summary>
+    internal void SpawnWallJumpDust(ISnesAddressSpace bus, SamusState samus)
+    {
+        // Get_Samus_Bottom_Boundary ($90:EC3E) uses the last occupied pixel of the current
+        // pose's definition radius, not live $0B00, which keeps the spin body's radius
+        // through the wall-jump frame. Liquid suppression leaves all previous slot words
+        // intact, even when Gravity Suit makes movement itself behave as though the room
+        // were dry.
+        ushort bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1));
+        if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
+            return;
+        int offset = samus.PoseMetadata.IsFacingRight(bus)
+            ? -SamusWallJumpDustDefinitions.HorizontalOffset
+            : SamusWallJumpDustDefinitions.HorizontalOffset;
+        AtmosphericEffects.SetSlot(SamusWallJumpDustDefinitions.Slot,
+            SamusWallJumpDustDefinitions.Type, 0, SamusWallJumpDustDefinitions.InitialTimer,
+            new(unchecked((ushort)(samus.Position.X.Whole + offset)), bottom));
+    }
 }

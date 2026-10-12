@@ -79,7 +79,7 @@ public static class SamusKnockbackMovement
         if (samus.KnockbackActive || samus.KnockbackDirection != 0)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
-        SamusMovementType sourceMovementType = samus.ReadMovementType(bus);
+        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType(bus);
         bool morphed = sourceMovementType is
             SamusMovementType.MorphBallGround or
             SamusMovementType.MorphBallFalling or
@@ -130,7 +130,7 @@ public static class SamusKnockbackMovement
         // `$90:DEFA` replaces an ordinary body with `$53/$54`. `$90:DF15`, by contrast,
         // republishes the exact Morph/Spring Ball pose. Because UpdateSamusPose sees no
         // pose change in that branch, the rolling animation frame and timer survive.
-        bool facingLeft = SamusState.IsFacingLeft(bus, samus.Pose);
+        bool facingLeft = SamusPoseMetadata.IsFacingLeft(bus, samus.Pose);
         if (humanoid)
         {
             SamusPoseId targetPose = facingLeft
@@ -139,7 +139,7 @@ public static class SamusKnockbackMovement
             // Native interrupted poses pass through the same expansion check as ordinary
             // input poses before command one initializes knockback. Scripted cinematic
             // callers without room terrain retain their explicitly positioned behavior.
-            if (level is not null && !samus.TryResolveKnockbackPoseCollision(
+            if (level is not null && !samus.PoseTransitions.TryResolveKnockbackPoseCollision(
                     bus, level, targetPose, nmiFrameCounter, plms))
                 return false;
             samus.Pose = targetPose;
@@ -155,7 +155,7 @@ public static class SamusKnockbackMovement
             samus.Pose = facingLeft
                 ? SamusPoseId.UnusedKnockbackLeftPose
                 : SamusPoseId.UnusedKnockbackRightPose;
-            samus.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii(bus);
             humanoid = true;
         }
 
@@ -208,7 +208,7 @@ public static class SamusKnockbackMovement
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, samus);
         if (humanoid)
-            samus.InitializeAnimation(bus, initialFrame: 0);
+            samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         return true;
     }
 
@@ -235,14 +235,14 @@ public static class SamusKnockbackMovement
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         // The special handler does not replace the pose's speed-table index.
         // Morphed bodies retain their own movement type throughout hurt movement.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, samus.ReadMovementType(bus));
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, samus.PoseMetadata.ReadMovementType(bus));
         var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == 0, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback uses the ordinary left/right wrapper, whose collision branch
         // cancels X momentum before the vertical pass. Retaining the clipped move's
         // base speed incorrectly accelerates the next frame away from the obstacle.
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
 
         BlockMoveResult vertical = samus.KnockbackDirection is 1 or 2
             ? MoveWithSharedVerticalSpeedCalculation(bus, level, samus, nmiFrameCounter, plms)
@@ -299,9 +299,9 @@ public static class SamusKnockbackMovement
         // reset in `$91:8113` does not run for a merely prospective type change.
         // Preserve velocity and hurt words until the common expiry handoff consumes them.
         samus.Pose = targetPose;
-        samus.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.KnockbackActive = false;
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
     /// <summary>Installs a same-family target selected by the two `$91:A3F6/A40A` tables.</summary>
@@ -333,9 +333,9 @@ public static class SamusKnockbackMovement
         // reselects the acceleration mode from extra run speed, and can start a spark from
         // stored shine. The selected target's delay stream starts at frame zero.
         samus.Pose = targetPose;
-        samus.RefreshCollisionRadii(bus);
-        if (!samus.InitializeInstalledNormalJumpPose(bus, SamusMovementType.DamageBoost, controllerNewInput))
-            samus.InitializeAnimation(bus, initialFrame: 0);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        if (!samus.PoseTransitions.InitializeInstalledNormalJumpPose(bus, SamusMovementType.DamageBoost, controllerNewInput))
+            samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
     /// <summary>
@@ -380,9 +380,9 @@ public static class SamusKnockbackMovement
         // radius 10 moves Samus down nine pixels while preserving her feet. Reading the
         // history record instead of assuming a hurt pose also covers the no-animation
         // path, where both radii ordinarily match and the alignment is a no-op.
-        ushort previousRadius = SamusState.ReadPoseYRadius(
+        ushort previousRadius = SamusPoseMetadata.ReadPoseYRadius(
             unchecked(samus.PoseHistory.PreviousPose));
-        ushort targetRadius = SamusState.ReadPoseYRadius(samus.Pose);
+        ushort targetRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
         samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);
 
         // UpdateSamusPose jumps straight to command one without installing its own

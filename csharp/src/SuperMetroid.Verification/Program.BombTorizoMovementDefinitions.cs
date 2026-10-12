@@ -71,9 +71,6 @@ internal static class BombTorizoMovementDefinitionsVerification
             "Bomb Torizo walk offset outside table");
 
         BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
-        MethodInfo applyPosture = typeof(RoomEnemySystem).GetMethod(
-            "ApplyBombTorizoMapOffset",
-            staticFlags)!;
 
         for (ushort tableOffset = 0; tableOffset < 32; tableOffset += 2)
         foreach (bool subtract in new[] { false, true })
@@ -85,7 +82,7 @@ internal static class BombTorizoMovementDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
 
-            applyPosture.Invoke(null, [slot, tableOffset, subtract]);
+            BombTorizoBehavior.ApplyBombTorizoMapOffset(slot, tableOffset, subtract);
             int sign = subtract ? -1 : 1;
             AssertEqual(unchecked((ushort)(1000 + sign * expected.X)), slot.Position.X.Whole,
                 $"Bomb Torizo posture X ${tableOffset:X2} subtract {subtract}");
@@ -96,10 +93,7 @@ internal static class BombTorizoMovementDefinitionsVerification
         var guarded = NewBombTorizoMovementReadGuard(rom);
         var enemies = new RoomEnemySystem();
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
-        MethodInfo processWalk = typeof(RoomEnemySystem).GetMethod(
-            "ProcessBombTorizoWalkInstruction",
-            instanceFlags)!;
+        enemies.BindFixtureBus(guarded);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new ushort[4096], new byte[4096], new ushort[4096]), new byte[8]);
 
         for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)
@@ -111,9 +105,7 @@ internal static class BombTorizoMovementDefinitionsVerification
             };
             var state = new TorizoEnemyState(slot, isGolden: false);
             const ushort cursor = 0x9000;
-            ushort next = (ushort)processWalk.Invoke(
-                enemies,
-                [slot, state, null, level, cursor, new TorizoWalkStep { TableOffset = tableOffset, CollisionFacingRight = 0xb962, CollisionFacingLeft = 0xbdd8 }])!;
+            ushort next = (ushort)enemies.BombTorizoBehavior.ProcessBombTorizoWalkInstruction(slot, state, null, level, cursor, new TorizoWalkStep { TableOffset = tableOffset, CollisionFacingRight = 0xb962, CollisionFacingLeft = 0xbdd8 });
 
             AssertEqual(BombTorizoMovementDefinitions.WalkVelocity(tableOffset),
                 state.Velocity.X.RawValue,

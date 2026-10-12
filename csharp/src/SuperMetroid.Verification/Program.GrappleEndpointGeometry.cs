@@ -58,25 +58,24 @@ internal static class GrappleEndpointGeometryVerification
     private static void VerifyGrappleEndpointActor(SuperMetroidAddressSpace bus)
     {
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.RunNmi(0, true);
-        var samus = runtime.Samus!;
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.NmiHandler.RunNmi(0, true);
+        var samus = runtime.Player.Samus!;
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
         {
             samus.Pose = pose;
-            samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 100), (ushort)(runtime.Camera.PixelPosition.Y + 100)));
-            samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
+            samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.Camera!.PixelPosition.X + 100), (ushort)(runtime.Room.Camera.PixelPosition.Y + 100)));
+            samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.RopeLength = 8;
             samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(samus.Position.X.Whole);
-            samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(unchecked((ushort)(runtime.Camera.PixelPosition.Y - 1)));
+            samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(unchecked((ushort)(runtime.Room.Camera.PixelPosition.Y - 1)));
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
             samus.Grapple.SegmentAnimationTimers[15] = 1;
             runtime.Oam.BeginFrame();
-            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .Invoke(runtime, new object?[] { false, false });
+            runtime.ActorDrawing.DrawGameplayActors(false, false);
             int endpoints = 0;
             for (int offset = 0; offset < runtime.Oam.NextByteOffset; offset += 4)
                 if (runtime.Oam.LowTable[offset + 2] == 0x20 && runtime.Oam.LowTable[offset + 3] == 0x3a)

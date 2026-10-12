@@ -44,11 +44,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
             BindingFlags.NonPublic;
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "RunInitializationAi", flags)!;
-        MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
-            "ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
-        FieldInfo vramField = typeof(RoomEnemySystem).GetField("_vram", flags)!;
-        FieldInfo cgramField = typeof(RoomEnemySystem).GetField("_cgram", flags)!;
 
         var translated = new HashSet<EnemyDefinitionId>();
         var owned = new HashSet<EnemyDefinitionId>();
@@ -69,13 +64,13 @@ internal static class EnemyInstructionOwnerCoverageVerification
             foreach (RoomEnemyPopulationRecord population in records)
             {
                 var enemies = new RoomEnemySystem();
-                busField.SetValue(enemies, rom);
-                vramField.SetValue(enemies, new SnesVram());
-                cgramField.SetValue(enemies, new SnesCgram());
+                enemies.BindFixtureBus(rom);
+                enemies.Presentation._vram = new SnesVram();
+                enemies.Presentation._cgram = new SnesCgram();
                 enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
                 enemies.VerificationServices().ReadRandom = ((Func<ushort>)(() => 0));
 
-                RoomEnemySlot slot = enemies.Slots[0];
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.EnemyDefinitionPointer = definitionPointer;
                 slot.Definition = definition;
                 slot.Radius = new(definition.Radius.X, definition.Radius.Y);
@@ -122,7 +117,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
 
                 definitionNeedsOwner = true;
                 if (HasCompiledEnemyInstructionOwner(
-                    busField, readMechanics, enemies, rom, slot, slot.CurrentInstruction))
+                    enemies, rom, slot, slot.CurrentInstruction))
                 {
                     definitionHasOwner = true;
                 }
@@ -162,15 +157,11 @@ internal static class EnemyInstructionOwnerCoverageVerification
             Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 },
             CurrentInstruction = 0x9000,
         };
-        var unknownSystem = new RoomEnemySystem();
-        TargetInvocationException unknownException = AssertThrows<TargetInvocationException>(
-            () => readMechanics.Invoke(
-                unknownSystem,
-                [unknown, unknown.CurrentInstruction]),
+        InvalidDataException unknownException = AssertThrows<InvalidDataException>(
+            () => EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(unknown, unknown.CurrentInstruction),
             "unknown ordinary-enemy definition fails instead of reading cartridge mechanics");
         AssertTrue(
-            unknownException.InnerException is InvalidDataException invalid &&
-            invalid.Message.Contains("has no compiled owner", StringComparison.Ordinal),
+            unknownException.Message.Contains("has no compiled owner", StringComparison.Ordinal),
             "unknown ordinary-enemy failure identifies the missing compiled owner");
 
         Console.WriteLine(
@@ -181,26 +172,23 @@ internal static class EnemyInstructionOwnerCoverageVerification
     }
 
     private static bool HasCompiledEnemyInstructionOwner(
-        FieldInfo busField,
-        MethodInfo readMechanics,
         RoomEnemySystem enemies,
         ISnesAddressSpace source,
         RoomEnemySlot slot,
         ushort address)
     {
         var probe = NewEnemyInstructionOwnerReadProbe(source);
-        busField.SetValue(enemies, probe);
+        enemies.BindFixtureBus(probe);
         try
         {
-            _ = readMechanics.Invoke(enemies, [slot, address]);
+            _ = EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(slot, address);
             return true;
         }
-        catch (TargetInvocationException exception)
-            when (exception.InnerException is EnemyInstructionOwnerFallbackReadException)
+        catch (EnemyInstructionOwnerFallbackReadException)
         {
             return false;
         }
-        catch (TargetInvocationException)
+        catch (Exception)
         {
             // A family owner can reject an address that is presentation-only or lies
             // outside its authored program. The important boundary is that dispatch
@@ -209,7 +197,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         }
         finally
         {
-            busField.SetValue(enemies, source);
+            enemies.BindFixtureBus(source);
         }
     }
 

@@ -312,7 +312,10 @@ internal static class FileSelectRoomMapVerification
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
         var game = CreateRetailGameFixture(bus, gameOptions: null, renderGameplayFrames: false);
-        game.BindMapPresentation(RetailPresentationFixture());
+        game.BindArtwork(game.Artwork with
+        {
+            MapPresentation = RetailPresentationFixture(),
+        });
         FrontendFrame frame = game.Step(0);
         frame = game.Step(0x1000);
         Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen), 150);
@@ -328,9 +331,9 @@ internal static class FileSelectRoomMapVerification
         if (savedArea == 6)
         {
             Until(() => game.RuntimeForVerification is not null, 200);
-            AssertEqual(AreaId.Ceres, game.RuntimeForVerification!.ActiveRoom!.AreaIndex,
+            AssertEqual(AreaId.Ceres, game.RuntimeForVerification!.Room.ActiveRoom!.AreaIndex,
                 "Ceres checkpoint bypasses Zebes map and retains elevator arrival");
-            AssertTrue(game.RuntimeForVerification!.CeresElevatorArrival is not null,
+            AssertTrue(game.RuntimeForVerification!.Room.CeresElevatorArrival is not null,
                 "Ceres checkpoint still owns its arrival sequence");
             return;
         }
@@ -360,7 +363,7 @@ internal static class FileSelectRoomMapVerification
         frame = game.Step(0x1000);
         Until(() => game.RuntimeForVerification is not null, 100);
         AssertEqual(SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).RoomPointer,
-            game.RuntimeForVerification!.ActiveRoom!.Pointer, "second map confirmation loads selected SRAM station");
+            game.RuntimeForVerification!.Room.ActiveRoom!.Pointer, "second map confirmation loads selected SRAM station");
         void Until(Func<bool> predicate, int limit)
         {
             for (int tick = 0; tick < limit && !predicate(); tick++)

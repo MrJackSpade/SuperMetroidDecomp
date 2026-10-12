@@ -33,21 +33,17 @@ internal static class PhantoonSoundDefinitionsVerification
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewPhantoonSoundReadGuard(rom));
-        RoomEnemySlot body = enemies.Slots[0];
+        enemies.BindFixtureBus(NewPhantoonSoundReadGuard(rom));
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
         var state = new PhantoonEnemyState(body)
         {
-            Eye = enemies.Slots[1],
-            Tentacles = enemies.Slots[2],
-            Mouth = enemies.Slots[3],
+            Eye = enemies.SlotTable.Slots[1],
+            Tentacles = enemies.SlotTable.Slots[2],
+            Mouth = enemies.SlotTable.Slots[3],
         };
-        typeof(RoomEnemySystem).GetField("<Phantoon>k__BackingField", flags)!.SetValue(enemies, state);
-        var process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessPhantoonInstructionFunction", flags)!
-            .CreateDelegate<Func<RoomEnemySlot, ushort, bool>>(enemies);
+        enemies.PhantoonBehavior.Phantoon = state;
+        Func<RoomEnemySlot, ushort, bool> process = enemies.PhantoonBehavior.ProcessPhantoonInstructionFunction;
 
         for (ushort call = 0; call < 6; call++)
         {

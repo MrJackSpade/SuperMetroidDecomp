@@ -56,21 +56,21 @@ internal static class FrozenGateGlitchVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
             RoomHeaderPointers.Caterpillar,
             new Position16<RoomPixels>(FrozenGateCameraX, FrozenGateCameraY));
 
-        RoomLevelData level = runtime.LevelData!;
+        RoomLevelData level = runtime.Room.LevelData!;
         RoomPlmSystem plms = runtime.Plms;
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(FrozenGateBlockIndex, gate.BlockIndex,
             "Caterpillar retail downward gate block");
 
-        RoomEnemySlot[] zeros = runtime.Enemies.Slots
+        RoomEnemySlot[] zeros = runtime.Enemies.SlotTable.Slots
             .Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zero)
             .ToArray();
         AssertEqual(3, zeros.Length, "Caterpillar retains its three retail Zero enemies");
@@ -82,7 +82,7 @@ internal static class FrozenGateGlitchVerification
 
         for (int warm = 0; warm < 2; warm++)
         {
-            plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
+            plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
         }
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
@@ -90,13 +90,13 @@ internal static class FrozenGateGlitchVerification
             gate.PreInstruction, "Caterpillar gate enters proximity-aware sleep");
         ushort sleepingInstruction = gate.InstructionPointer;
 
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(FrozenGateStartX);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
         samus.Position = samus.Position.WithWholeY(FrozenGateY);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-        samus.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
         AssertEqual((ushort)5, samus.Kinematics.Radius.X,
             "standing Samus horizontal collision radius");
         AssertEqual((ushort)21, samus.Kinematics.Radius.Y,
@@ -120,7 +120,7 @@ internal static class FrozenGateGlitchVerification
         AssertEqual(expected.FinalX, samus.Position.X.Whole,
             $"{expected.Distance}-pixel case preserves native final X");
 
-        plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
+        plms.Step(bus, level, runtime.Room.BackgroundStreamer!, new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         bool gateWoke = gate.InstructionPointer != sleepingInstruction;

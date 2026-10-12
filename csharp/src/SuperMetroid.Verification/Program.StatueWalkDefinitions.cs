@@ -13,12 +13,10 @@ internal static class StatueWalkDefinitionsVerification
         for (ushort offset = 0; offset <= 38; offset++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalkDefinitions.Velocity(offset), "Torizo all complete native byte windows");
         var enemies = new RoomEnemySystem();
-        var walk = typeof(RoomEnemySystem).GetMethod("ProcessGoldenTorizoWalkInstruction", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .CreateDelegate<Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, ushort, ushort, ushort>>(enemies);
-        var carry = typeof(RoomEnemySystem).GetMethod("ProcessChozoStatueMovement", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .CreateDelegate<Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, ushort>>(enemies);
+        Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, ushort, ushort, ushort> walk = enemies.BombTorizoBehavior.ProcessGoldenTorizoWalkInstruction;
+        Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, ushort> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
-        RoomEnemySlot slot = enemies.Slots[0];
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Radius = new(8, 8);
         var torizo = new TorizoEnemyState(slot, true);
         var statue = new ChozoStatueState(slot);

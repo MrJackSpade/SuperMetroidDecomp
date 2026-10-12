@@ -107,13 +107,11 @@ internal static class WaverInstructionProgramDefinitionsVerification
             out RoomEnemySlot slot)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            var initialize = typeof(RoomEnemySystem).GetMethod("InitializeWaver", flags)!
-                .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-            var install = typeof(RoomEnemySystem).GetMethod("SetWaverInstructionList", flags)!
-                .CreateDelegate<Action<RoomEnemySlot, WaverEnemyState>>();
+            enemies.BindFixtureBus(guard);
+            Action<RoomEnemySlot> initialize = enemies.WaverBehavior.InitializeWaver;
+            Action<RoomEnemySlot, WaverEnemyState> install = WaverBehavior.SetWaverInstructionList;
 
-            slot = enemies.Slots[0];
+            slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Waver;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
             initialize(slot);
@@ -129,11 +127,10 @@ internal static class WaverInstructionProgramDefinitionsVerification
 
         static void RunWaverProgram(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)
         {
-            MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
             for (int frame = 0; frame < frames; frame++)
-                process.Invoke(enemies, arguments);
+                EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

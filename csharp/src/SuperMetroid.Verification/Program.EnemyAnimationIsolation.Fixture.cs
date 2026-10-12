@@ -20,7 +20,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal const int FloorY = 224;
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         internal RoomEnemySystem Enemies { get; }
-        internal RoomEnemySlot Actor => Enemies.Slots[0];
+        internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
         internal SamusState Samus { get; } = new() { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
         internal RoomLevelData Level { get; }
         internal SnesVram Vram { get; } = new();
@@ -28,7 +28,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal ushort RandomWord { get; private set; } = 1;
         internal int RandomCalls { get; private set; }
         internal int BossBitCalls { get; private set; }
-        internal TorizoEnemyState? Torizo => Enemies.GoldenTorizo;
+        internal TorizoEnemyState? Torizo => Enemies.BombTorizoBehavior.GoldenTorizo;
 
         internal EnemyAnimationFixture(EnemyTileArtworkCatalog artwork, bool golden)
         {
@@ -39,9 +39,9 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 layer[y * roomBlocks + x] = RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw;
             Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), new RoomLevelPlanes(layer, new byte[layer.Length], new ushort[layer.Length]), []);
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
-            Bind("_bus", Memory);
-            Bind("_vram", Vram);
-            Bind("_cgram", Colors);
+            Enemies.BindFixtureBus(Memory);
+            Enemies.Presentation._vram = Vram;
+            Enemies.Presentation._cgram = Colors;
             Enemies.VerificationServices().NextRandom = (Func<ushort>)NextRandom;
             Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => RandomWord);
             Enemies.VerificationServices().SeedRandom = (Action<ushort>)(value => RandomWord = value);
@@ -62,13 +62,13 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 Actor.ExtraProperties = (ushort)EnemyExtraProperties.UsesExtendedSpritemap;
                 Actor.CurrentInstruction = GoldenTorizoRightOrbInstructionProgramDefinitions.Start;
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
-                Bind("_torizoState", new TorizoEnemyState(Actor, isGolden: true)
+                Enemies.BombTorizoBehavior._torizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {
                     Function = TorizoFunction.GoldenPreInstruction,
                     PreInstruction = TorizoPreInstruction.Idle,
                     ReturnInstruction = GoldenTorizoRightOrbInstructionProgramDefinitions.Start,
                     Velocity = new EightEightVector<RoomPixels>(0, 256),
-                });
+                };
             }
             else
             {
@@ -76,8 +76,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 // fixture inputs, not authored animation/gameplay tuning.
                 Actor.Parameter1 = (3 << 8) | 2;
                 Actor.Parameter2 = Actor.Position.Y.Whole;
-                typeof(RoomEnemySystem).GetMethod("InitializeBoyon", PrivateInstance)!
-                    .CreateDelegate<Action<RoomEnemySlot>>(Enemies)(Actor);
+                new Action<RoomEnemySlot>(Enemies.BoyonBehavior.InitializeBoyon)(Actor);
             }
         }
 
@@ -91,14 +90,12 @@ internal static class EnemyAnimationIsolationFixtureVerification
         {
             var oam = new OamBuffer();
             oam.BeginFrame();
-            Enemies.DrawLayers(oam, new(0, 0), 0, 7);
+            Enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 7);
             Enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);
             return oam;
         }
 
-        internal void BeginDeath() => typeof(RoomEnemySystem).GetMethod("BeginBombTorizoDeath",
-            BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot, TorizoEnemyState>>()(Actor, Torizo!);
+        internal void BeginDeath() => new Action<RoomEnemySlot, TorizoEnemyState>(BombTorizoBehavior.BeginBombTorizoDeath)(Actor, Torizo!);
 
         private void Bind(string field, object value) => typeof(RoomEnemySystem)
             .GetField(field, PrivateInstance)!.SetValue(Enemies, value);
@@ -118,10 +115,10 @@ internal static class EnemyAnimationIsolationFixtureVerification
         EnemyAnimationFixture edited, int frame)
     {
         string context = $"enemy animation replacement at frame {frame}";
-        for (int index = 0; index < baseline.Enemies.Slots.Count; index++)
-            AssertAnimationValues(baseline.Enemies.Slots[index], edited.Enemies.Slots[index], context);
-        for (int index = 0; index < baseline.Enemies.EnemyProjectiles.Count; index++)
-            AssertAnimationValues(baseline.Enemies.EnemyProjectiles[index], edited.Enemies.EnemyProjectiles[index], context);
+        for (int index = 0; index < baseline.Enemies.SlotTable.Slots.Count; index++)
+            AssertAnimationValues(baseline.Enemies.SlotTable.Slots[index], edited.Enemies.SlotTable.Slots[index], context);
+        for (int index = 0; index < baseline.Enemies.Projectiles.EnemyProjectiles.Count; index++)
+            AssertAnimationValues(baseline.Enemies.Projectiles.EnemyProjectiles[index], edited.Enemies.Projectiles.EnemyProjectiles[index], context);
         AssertAnimationValues(baseline.Samus, edited.Samus, context);
         AssertAnimationValues(baseline.Samus.Kinematics, edited.Samus.Kinematics, context);
         AssertAnimationValues(baseline.Enemies, edited.Enemies, context);
@@ -134,8 +131,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
         AssertSameBytes(baseline.Memory.WorkRam[bg2End..], edited.Memory.WorkRam[bg2End..],
             context + " preserves WRAM above the enemy BG2 staging image");
         AssertSameBytes(baseline.Memory.SaveRam, edited.Memory.SaveRam, context + " preserves all SRAM");
-        AssertTrue(baseline.Enemies.SoundRequests.SequenceEqual(edited.Enemies.SoundRequests), context + " preserves audio calls");
-        AssertTrue(baseline.Enemies.MusicRequests.SequenceEqual(edited.Enemies.MusicRequests), context + " preserves music calls");
+        AssertTrue(baseline.Enemies.Audio.SoundRequests.SequenceEqual(edited.Enemies.Audio.SoundRequests), context + " preserves audio calls");
+        AssertTrue(baseline.Enemies.Audio.MusicRequests.SequenceEqual(edited.Enemies.Audio.MusicRequests), context + " preserves music calls");
         AssertEqual(baseline.RandomWord, edited.RandomWord, context + " preserves RNG state");
         AssertEqual(baseline.RandomCalls, edited.RandomCalls, context + " preserves RNG consumption");
         AssertEqual(baseline.BossBitCalls, edited.BossBitCalls, context + " preserves boss-event publication");

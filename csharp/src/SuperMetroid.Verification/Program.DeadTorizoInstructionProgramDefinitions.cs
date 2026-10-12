@@ -39,14 +39,12 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         bool sawPresentationWord = false;
         var guard = NewDeadTorizoInstructionReadGuard(rom, () => sawPresentationWord = true);
-        var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
+        var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = type.GetMethod("InitializeDeadTorizo", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.DeadTorizoBehavior.InitializeDeadTorizo);
 
-        RoomEnemySlot corpse = enemies.Slots[0];
+        RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
         corpse.Definition = default(RoomEnemyDefinition) with { Bank = 0xa9 };
         initialize(corpse);
@@ -57,9 +55,9 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
         object?[] processArguments =
             [corpse, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         corpse.InstructionTimer = 1;
-        process.Invoke(enemies, processArguments);
+        EnemyInstructionRunner.Process(enemies, processArguments);
         corpse.InstructionTimer = 1;
-        process.Invoke(enemies, processArguments);
+        EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(DeadTorizoInstructionProgramDefinitions.SleepOpcode,
             corpse.CurrentInstruction,
             "Dead Torizo program reaches terminal sleep");

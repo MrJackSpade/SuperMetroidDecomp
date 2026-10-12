@@ -61,24 +61,17 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         var cgram = new SnesCgram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            CartridgeReadGuard.Unbacked()
+        enemies.BindFixtureBus(CartridgeReadGuard.Unbacked()
                 .ForbidAll(address => $"Installed Magdollite palette hook read ROM ${address:X6}.")
                 .RejectWrites(address => $"Installed Magdollite palette hook wrote ROM ${address:X6}."));
-        typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        typeof(RoomEnemySystem).GetField("_magdollitePaletteAnimationInstalled", flags)!
-            .SetValue(enemies, true);
-        typeof(RoomEnemySystem).GetField("_magdollitePaletteAnimationTimer", flags)!
-            .SetValue(enemies, (ushort)8);
-        typeof(RoomEnemySystem).GetField("_magdollitePaletteAnimationIndex", flags)!
-            .SetValue(enemies, (ushort)0);
-        typeof(RoomEnemySystem).GetField("_magdollitePaletteBaseByteOffset", flags)!
-            .SetValue(enemies, (ushort)0x100);
-        var step = typeof(RoomEnemySystem).GetMethod(
-                "StepMagdollitePaletteAnimation", flags)!
-            .CreateDelegate<Action>(enemies);
+        enemies.Presentation._cgram = cgram;
+        enemies.MagdolliteBehavior._magdollitePaletteAnimationInstalled = true;
+        enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer = (ushort)8;
+        enemies.MagdolliteBehavior._magdollitePaletteAnimationIndex = (ushort)0;
+        enemies.MagdolliteBehavior._magdollitePaletteBaseByteOffset = (ushort)0x100;
+        Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
         const int destination = (0x100 >> 1) + MagdollitePaletteRomData.FirstAnimatedColor;
-        RoomEnemySlot untouched = enemies.Slots[0];
+        RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
         ushort healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
@@ -106,8 +99,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         AssertEqual(xBefore, untouched.Position.X.Whole,
             "Magdollite visual-cycle edit does not change enemy position");
         AssertEqual((ushort)8,
-            (ushort)typeof(RoomEnemySystem).GetField("_magdollitePaletteAnimationTimer", flags)!
-                .GetValue(enemies)!,
+            (ushort)enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer,
             "Magdollite color edits preserve the eight-tick cadence");
 
         File.WriteAllBytes(overrideFile, [0]);

@@ -26,21 +26,20 @@ internal static class ContactDamageSoundVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0xd0b9);
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
-        RoomEnemySlot sciser = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
+        RoomEnemySlot sciser = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
         ushort healthBefore = sciser.Health;
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetMethod("ResolveNormalEnemyTouch", flags)!
-            .Invoke(runtime.Enemies, [sciser, samus, false]);
+        runtime.Enemies.Collision.ResolveNormalEnemyTouch(sciser, samus, false);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");
-        EnemySoundRequest request = runtime.Enemies.SoundRequests.Single();
+        EnemySoundRequest request = runtime.Enemies.Audio.SoundRequests.Single();
         AssertEqual(SoundEffectLibrary2Sounds.EnemyContactDamaged, request.SoundEffect, "the hit queues library-two $0B");
         AssertEqual((byte)1, request.MaximumQueued, "through QueueSound_Lib2_Max1");
         Console.WriteLine("  Contact-damage sound: Samus's damaging touch queues library-two $0B.");

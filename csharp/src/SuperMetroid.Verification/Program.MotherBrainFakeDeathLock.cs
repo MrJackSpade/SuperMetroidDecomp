@@ -26,26 +26,25 @@ internal static class MotherBrainFakeDeathLockVerification
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
-        SamusState samus = runtime.Samus!;
+        SamusState samus = runtime.Player.Samus!;
         samus.InputLocked = false;
-        MotherBrainEnemyState state = runtime.Enemies.MotherBrain!;
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain!;
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
         state.FunctionTimer = 0;
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo run = typeof(RoomEnemySystem).GetMethod("RunMotherBrainFakeDeath", flags)!;
-        run.Invoke(runtime.Enemies, [state, samus]);
-        AssertTrue(samus.InputLocked && samus.StationaryScriptControlLocked,
+        runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
+        AssertTrue(samus.InputLocked && samus.ScriptLocks.StationaryScriptControlLocked,
             "the descent locks Samus with command zero's stationary handlers");
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock;
         state.FunctionTimer = 0;
-        run.Invoke(runtime.Enemies, [state, samus]);
-        AssertTrue(!samus.InputLocked && !samus.StationaryScriptControlLocked,
+        runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
+        AssertTrue(!samus.InputLocked && !samus.ScriptLocks.StationaryScriptControlLocked,
             "command one restores the normal handlers");
         Console.WriteLine("  Mother Brain fake-death lock: command zero locks Samus, command one frees her.");
     }

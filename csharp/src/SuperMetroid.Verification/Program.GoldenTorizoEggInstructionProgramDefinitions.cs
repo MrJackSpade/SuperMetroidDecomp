@@ -44,14 +44,6 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
             .ObserveWords(EnemyProjectileCodePointers.BankBase,
                 GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount,
                 GoldenTorizoEggInstructionProgramDefinitions.PresentationWordAddress);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
-        MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
-            "SpawnGoldenTorizoEgg", flags)!;
-        MethodInfo runBounce = typeof(RoomEnemySystem).GetMethod(
-            "RunGoldenTorizoEggPreInstruction", BindingFlags.NonPublic | BindingFlags.Static)!;
-        MethodInfo runFall = typeof(RoomEnemySystem).GetMethod(
-            "RunGoldenTorizoEggFall", BindingFlags.NonPublic | BindingFlags.Static)!;
         RoomLevelData emptyRoom = CreateEmptyRoom(new(32, 32));
         ushort[] floorWords = new ushort[32 * 32];
         for (int column = 0; column < 32; column++)
@@ -69,11 +61,11 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
         {
             var random = new Queue<ushort>([0x0080, 0x0080]);
             RoomEnemySystem enemies = CreateSystem(guard, random);
-            RoomEnemySlot torizo = enemies.Slots[0];
+            RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             torizo.Parameter1 = movingRight ? (ushort)0x8000 : (ushort)0;
-            spawn.Invoke(enemies, [torizo]);
-            RoomEnemyProjectileSlot egg = enemies.EnemyProjectiles[^1];
+            enemies.BombTorizoBehavior.SpawnGoldenTorizoEgg(torizo);
+            RoomEnemyProjectileSlot egg = enemies.Projectiles.EnemyProjectiles[^1];
             ushort bouncing = movingRight
                 ? GoldenTorizoEggInstructionProgramDefinitions.BouncingRight
                 : GoldenTorizoEggInstructionProgramDefinitions.BouncingLeft;
@@ -84,7 +76,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
 
             for (int frame = 1; frame <= 49; frame++)
             {
-                process.Invoke(enemies, [egg, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(egg, null, Position16<RoomPixels>.Zero);
                 AssertTrue(egg.IsActive,
                     $"Golden Torizo {movingRight} egg bounce wait frame {frame}");
             }
@@ -94,7 +86,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
                 $"Golden Torizo {movingRight} egg sleep timer");
 
             egg.Variable1 = 0;
-            runBounce.Invoke(enemies, [egg, emptyRoom]);
+            BombTorizoBehavior.RunGoldenTorizoEggPreInstruction(egg, emptyRoom);
             AssertEqual(unchecked((ushort)(bouncing + 6)), egg.InstructionPointer,
                 $"Golden Torizo {movingRight} egg hatch skips sleep");
             AssertEqual((ushort)1, egg.InstructionTimer,
@@ -104,7 +96,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
 
             for (int frame = 1; frame <= 13; frame++)
             {
-                process.Invoke(enemies, [egg, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(egg, null, Position16<RoomPixels>.Zero);
                 AssertTrue(egg.IsActive,
                     $"Golden Torizo {movingRight} egg hatch frame {frame}");
             }
@@ -124,7 +116,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
                 $"Golden Torizo {movingRight} egg hatched loop cursor");
 
             for (int frame = 1; frame <= 24; frame++)
-                process.Invoke(enemies, [egg, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(egg, null, Position16<RoomPixels>.Zero);
             AssertEqual((ushort)6, egg.InstructionTimer,
                 $"Golden Torizo {movingRight} egg reloads 24-frame hatched loop");
             AssertEqual(unchecked((ushort)(hatchedLoop + 4)), egg.InstructionPointer,
@@ -134,7 +126,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
                 (ushort)EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
             egg.Position = egg.Position.WithWholeX(128).WithWholeY(153).WithFractionY(0);
             egg.Velocity = egg.Velocity.WithY(new SnesSignedEightEight(256));
-            runFall.Invoke(enemies, [egg, floorRoom]);
+            BombTorizoBehavior.RunGoldenTorizoEggFall(egg, floorRoom);
             ushort breakProgram = movingRight
                 ? GoldenTorizoEggInstructionProgramDefinitions.BreakRight
                 : GoldenTorizoEggInstructionProgramDefinitions.BreakLeft;
@@ -146,13 +138,13 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
             int breakFrames = movingRight ? 24 : 26;
             for (int frame = 1; frame <= breakFrames; frame++)
             {
-                process.Invoke(enemies, [egg, null, Position16<RoomPixels>.Zero]);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(egg, null, Position16<RoomPixels>.Zero);
                 AssertTrue(egg.IsActive,
                     $"Golden Torizo {movingRight} egg break frame {frame}");
                 AssertEqual((ushort)EnemyProjectilePreInstruction.RTS_868170, egg.PreInstruction,
                     $"Golden Torizo {movingRight} egg break clears callback");
             }
-            process.Invoke(enemies, [egg, null, Position16<RoomPixels>.Zero]);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(egg, null, Position16<RoomPixels>.Zero);
             AssertTrue(!egg.IsActive,
                 $"Golden Torizo {movingRight} egg deletes after exact break lifetime");
             AssertEqual(0, random.Count,
@@ -169,20 +161,20 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
             0, 1, 2,
         ]);
         RoomEnemySystem shotEnemies = CreateSystem(guard, shotRandom);
-        RoomEnemySlot shotTorizo = shotEnemies.Slots[0];
+        RoomEnemySlot shotTorizo = shotEnemies.SlotTable.Slots[0];
         shotTorizo.Position = shotTorizo.Position.WithWhole(new(1000, 500));
-        spawn.Invoke(shotEnemies, [shotTorizo]);
-        RoomEnemyProjectileSlot shot = shotEnemies.EnemyProjectiles[^1];
+        shotEnemies.BombTorizoBehavior.SpawnGoldenTorizoEgg(shotTorizo);
+        RoomEnemyProjectileSlot shot = shotEnemies.Projectiles.EnemyProjectiles[^1];
         shot.InstructionPointer = TorizoChozoOrbInstructionProgramDefinitions.WallImpact;
         shot.InstructionTimer = 1;
         shot.Variable0 = shot.Position.X.Whole;
         shot.Variable1 = shot.Position.Y.Whole;
         for (int frame = 1; frame <= 20; frame++)
         {
-            process.Invoke(shotEnemies, [shot, null, Position16<RoomPixels>.Zero]);
+            shotEnemies.Projectiles.ProcessEnemyProjectileInstructions(shot, null, Position16<RoomPixels>.Zero);
             AssertTrue(shot.IsActive, $"Golden Torizo egg shot-break frame {frame}");
         }
-        process.Invoke(shotEnemies, [shot, null, Position16<RoomPixels>.Zero]);
+        shotEnemies.Projectiles.ProcessEnemyProjectileInstructions(shot, null, Position16<RoomPixels>.Zero);
         AssertTrue(!shot.IsActive,
             "Golden Torizo egg shot path completes shared Chozo-orb break program");
 
@@ -223,7 +215,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
         RoomEnemySystem CreateSystem(ISnesAddressSpace bus, Queue<ushort> random)
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
+            enemies.BindFixtureBus(bus);
             enemies.VerificationServices().NextRandom = (Func<ushort>)random.Dequeue;
             return enemies;
         }

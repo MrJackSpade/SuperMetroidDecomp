@@ -103,7 +103,7 @@ public static class SamusTerrainHazardCollision
         // The native expression `((pose_x_dir ^ $0C) & $08) != 0` maps right-facing
         // records to leftward knockback and both left/front-special records to the other
         // direction. A switch over the proven pose discriminator states that intent.
-        samus.KnockbackXDirection = samus.ReadFacingDirection(bus) == SamusFacingDirection.Right
+        samus.KnockbackXDirection = samus.PoseMetadata.ReadFacingDirection(bus) == SamusFacingDirection.Right
             ? (ushort)0
             : (ushort)1;
     }

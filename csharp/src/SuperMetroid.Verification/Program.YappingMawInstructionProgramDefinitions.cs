@@ -25,7 +25,6 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     internal static void VerifyYappingMawInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertEqual(96, YappingMawInstructionProgramDefinitions.MechanicsWordCount,
             "Yapping Maw compiled mechanics word count");
         AssertEqual(52, YappingMawInstructionProgramDefinitions.PresentationWordCount,
@@ -42,19 +41,18 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         }
 
         var guard = NewYappingMawInstructionReadGuard(rom);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         for (int direction = 0; direction < 8; direction++)
         {
             ushort entry = YappingMawInstructionProgramDefinitions
                 .AttackForDirection(direction);
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
-                NewYappingMawInstructionSystem(guard, flags, entry);
+                NewYappingMawInstructionSystem(guard, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            RunYappingMawInstructionFrames(process, enemies, arguments, slot, count: 5);
+            RunYappingMawInstructionFrames(enemies, arguments, slot, count: 5);
             AssertEqual(unchecked((ushort)(entry + 4)), slot.CurrentInstruction,
                 $"Yapping Maw attack direction {direction} completes its loop");
-            AssertEqual((ushort?)0x002f, enemies.LastYappingMawSoundEffect,
+            AssertEqual((ushort?)0x002f, enemies.YappingMawBehavior.LastYappingMawSoundEffect,
                 $"Yapping Maw attack direction {direction} publishes its sound");
         }
 
@@ -95,27 +93,26 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                  in cooldowns)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
-                NewYappingMawInstructionSystem(guard, flags, entry);
+                NewYappingMawInstructionSystem(guard, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-            RunYappingMawInstructionFrames(process, enemies, arguments, slot, count: 1);
+            RunYappingMawInstructionFrames(enemies, arguments, slot, count: 1);
             AssertEqual(x, state.HeldSamusOffset.X,
                 $"Yapping Maw {name} callback X offset");
             AssertEqual(y, state.HeldSamusOffset.Y,
                 $"Yapping Maw {name} callback Y offset");
             RunYappingMawInstructionFrames(
-                process,
                 enemies,
                 arguments,
                 slot,
                 count: calls - 1);
             AssertEqual(final, slot.CurrentInstruction,
                 $"Yapping Maw {name} cooldown completes its loop");
-            AssertEqual((ushort?)0x002f, enemies.LastYappingMawSoundEffect,
+            AssertEqual((ushort?)0x002f, enemies.YappingMawBehavior.LastYappingMawSoundEffect,
                 $"Yapping Maw {name} cooldown publishes its sound");
         }
 
-        Suite(nameof(VerifyYappingMawInitializerSelections), () => VerifyYappingMawInitializerSelections(guard, flags));
+        Suite(nameof(VerifyYappingMawInitializerSelections), () => VerifyYappingMawInitializerSelections(guard));
 
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids all compiled Yapping Maw mechanics and visual bytes");
@@ -142,12 +139,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     }
 
     private static void VerifyYappingMawInitializerSelections(
-        ISnesAddressSpace bus,
-        BindingFlags flags)
+        ISnesAddressSpace bus)
     {
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeYappingMaw",
-            flags)!;
         foreach ((ushort parameter2, ushort expected, string name) in new[]
         {
             ((ushort)0, YappingMawInstructionProgramDefinitions.AttackingFacingDown,
@@ -157,14 +150,14 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         })
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-            RoomEnemySlot slot = enemies.Slots[0];
+            enemies.BindFixtureBus(bus);
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             slot.Position = slot.Position.WithWhole(new(128, 128));
             slot.Parameter1 = 128;
             slot.Parameter2 = parameter2;
-            initialize.Invoke(enemies, [slot]);
+            enemies.YappingMawBehavior.InitializeYappingMaw(slot);
             AssertEqual(expected, slot.CurrentInstruction,
                 $"Yapping Maw {name} initializer program");
             YappingMawEnemyState state = enemies.YappingMawStates[0] ??
@@ -182,26 +175,22 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         RoomEnemySlot Slot,
         YappingMawEnemyState State) NewYappingMawInstructionSystem(
             ISnesAddressSpace bus,
-            BindingFlags flags,
             ushort entry)
     {
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(bus);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.CurrentInstruction = entry;
         slot.InstructionTimer = 1;
         var state = new YappingMawEnemyState(slot);
-        var states = (YappingMawEnemyState?[])typeof(RoomEnemySystem)
-            .GetField("_yappingMawStates", flags)!
-            .GetValue(enemies)!;
+        var states = (YappingMawEnemyState?[])enemies.YappingMawBehavior._yappingMawStates;
         states[0] = state;
         return (enemies, slot, state);
     }
 
     private static void RunYappingMawInstructionFrames(
-        MethodInfo process,
         RoomEnemySystem enemies,
         object?[] arguments,
         RoomEnemySlot slot,
@@ -210,7 +199,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         for (int call = 0; call < count; call++)
         {
             slot.InstructionTimer = 1;
-            process.Invoke(enemies, arguments);
+            EnemyInstructionRunner.Process(enemies, arguments);
         }
     }
 

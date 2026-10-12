@@ -161,19 +161,19 @@ internal static class TourianAccessPlmProgramsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnTourianAccess(level, clear),
+        AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear),
             $"Tourian {(clear ? "clear" : "crumble")} PLM allocates");
         var bus = NewTourianAccessSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
-        for (int frame = 0; frame < 120 && plms.ActiveCount != 0; frame++)
+        for (int frame = 0; frame < 120 && plms.SlotTable.ActiveCount != 0; frame++)
         {
             plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0 && !clear)
                 AssertEqual((ushort)0x0053,
                     level.GetCollisionBlockByIndex(12 * width + 6).LevelWord,
                     "Tourian crumble first frame draws the native first breakup word");
-            if (plms.ActiveCount == 0)
+            if (plms.SlotTable.ActiveCount == 0)
                 deletionFrame = frame;
         }
         AssertEqual(clear ? 1 : 96, deletionFrame,

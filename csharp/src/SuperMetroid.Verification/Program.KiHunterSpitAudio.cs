@@ -26,17 +26,17 @@ internal static class KiHunterSpitAudioVerification
             .Select(offset => bus.ReadCartridgeByte(0xa8f6dc + offset)),
             "retail spit instruction loads $4C and calls QueueSfx2_Max6 once");
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(0x948c);
-        var samus = runtime.Samus!;
+        var samus = runtime.Player.Samus!;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));
         samus.InputLocked = true;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus);
-        var body = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
+        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.Presentation.InitializeAnimation(bus);
+        var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64]!;
         body.Position = body.Position.WithWhole(new(128, 128));
         state.Function = KiHunterEnemyFunction.NoOp;
@@ -46,7 +46,7 @@ internal static class KiHunterSpitAudioVerification
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(SuperMetroidGame).GetField("runtime", flags)!.SetValue(game, runtime);
-        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);
+        typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.Room.ActiveRoom!.State.Pointer);
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
         byte[] ports = new byte[4];
         var spit = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4c);
@@ -55,7 +55,7 @@ internal static class KiHunterSpitAudioVerification
         {
             game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
             var frame = game.Step(0);
-            requests += runtime.Enemies.SoundRequests.Count(request => request.SoundEffect == spit);
+            requests += runtime.Enemies.Audio.SoundRequests.Count(request => request.SoundEffect == spit);
             foreach (var command in frame.AudioCommands)
             {
                 if (command.Kind != CartridgeAudioCommandKind.WritePort) continue;
@@ -64,14 +64,14 @@ internal static class KiHunterSpitAudioVerification
             }
         }
         Step();
-        AssertEqual(1, runtime.Enemies.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");
-        AssertTrue(runtime.Enemies.SoundRequests.Any(request => request.SoundEffect == spit && request.MaximumQueued == 6), "spit calls library two Max6");
+        AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");
+        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.MaximumQueued == 6), "spit calls library two Max6");
         // Remain in the post-spit waiting state without introducing another attack.
         body.CurrentInstruction = (ushort)(KiHunterInstructionProgramDefinitions.SpitRight + 0x1c);
         body.InstructionTimer = 1;
         for (int frame = 1; frame < 20; frame++) Step();
         Console.WriteLine($"One KiHunter spit: {requests} requests, {writes} APU writes over 20 frames.");
-        var level = runtime.LevelData!;
+        var level = runtime.Room.LevelData!;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
         for (int x = 0; x < level.Size.X && !selected; x++)

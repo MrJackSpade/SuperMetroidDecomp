@@ -39,13 +39,9 @@ internal static class BullInstructionProgramDefinitionsVerification
 
         var guard = NewBullInstructionProgramReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBull", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
-        MethodInfo resolveShot = typeof(RoomEnemySystem).GetMethod(
-            "ResolveBullImmuneShot", flags)!;
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(guard);
+        Action<RoomEnemySlot> initialize = enemies.BullBehavior.InitializeBull;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Bull;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         initialize(slot);
@@ -55,7 +51,7 @@ internal static class BullInstructionProgramDefinitionsVerification
         object?[] processArguments =
             [slot, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int frame = 0; frame < 41; frame++)
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
             slot.CurrentInstruction,
             "Bull normal program completes its native animation loop");
@@ -64,11 +60,11 @@ internal static class BullInstructionProgramDefinitionsVerification
 
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
-        resolveShot.Invoke(null, [slot, state, (ushort)2]);
+        BullBehavior.ResolveBullImmuneShot(slot, state, (ushort)2);
         AssertEqual(BullInstructionProgramDefinitions.Shot, slot.CurrentInstruction,
             "Bull immune-shot program");
         for (int frame = 0; frame < 61; frame++)
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         AssertEqual(unchecked((ushort)(BullInstructionProgramDefinitions.Normal + 4)),
             slot.CurrentInstruction,
             "Bull shot program repeats five times and returns to normal");

@@ -26,14 +26,10 @@ internal static class SbugMovementDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies,
-            NewSbugMovementReadGuard(new TestAddressSpace()));
-        var initialize = typeof(RoomEnemySystem).GetMethod("InitializeSbug", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        var runMain = typeof(RoomEnemySystem).GetMethod("RunSbugMain", flags)!
-            .CreateDelegate<Action<RoomEnemySlot, SamusState, RoomLevelData?>>(enemies);
-        RoomEnemySlot slot = enemies.Slots[0];
+        enemies.BindFixtureBus(NewSbugMovementReadGuard(new TestAddressSpace()));
+        Action<RoomEnemySlot> initialize = enemies.SbugBehavior.InitializeSbug;
+        Action<RoomEnemySlot, SamusState, RoomLevelData?> runMain = enemies.SbugBehavior.RunSbugMain;
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
         for (ushort directionIndex = 0; directionIndex < 16; directionIndex++)
         {
@@ -117,14 +113,11 @@ internal static class SbugMovementDefinitionsVerification
             SbugInstructionProgramDefinitions.Down,
             SbugInstructionProgramDefinitions.DownRight,
         ];
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         for (int entryIndex = 0; entryIndex < entries.Length; entryIndex++)
         {
             var programSystem = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                programSystem,
-                programGuard);
-            RoomEnemySlot programSlot = programSystem.Slots[0];
+            programSystem.BindFixtureBus(programGuard);
+            RoomEnemySlot programSlot = programSystem.SlotTable.Slots[0];
             programSlot.EnemyDefinitionPointer = entryIndex < 4
                 ? EnemyDefinitionId.Sbug
                 : EnemyDefinitionId.Sbug2;
@@ -137,7 +130,7 @@ internal static class SbugMovementDefinitionsVerification
             // Four five-frame entries total 20 frames; the margin proves the terminal
             // goto restarts the production stream rather than merely reaching its target.
             for (int frame = 0; frame < 25; frame++)
-                process.Invoke(programSystem, arguments);
+                EnemyInstructionRunner.Process(programSystem, arguments);
         }
 
         AssertEqual(0, programGuard.ObservedWords.Count,

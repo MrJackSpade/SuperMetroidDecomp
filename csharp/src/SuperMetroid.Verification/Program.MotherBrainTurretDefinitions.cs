@@ -21,14 +21,6 @@ internal static class MotherBrainTurretDefinitionsVerification
     internal static void VerifyMotherBrainTurretDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
-        MethodInfo spawnTurret = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainTurret", instance)!;
-        MethodInfo selectDirection = typeof(RoomEnemySystem).GetMethod(
-            "SelectNextMotherBrainTurretDirection",
-            BindingFlags.Static | BindingFlags.NonPublic)!;
-        MethodInfo spawnBullet = typeof(RoomEnemySystem).GetMethod(
-            "SpawnMotherBrainTurretBullet", instance)!;
-        FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
         var guarded = NewMotherBrainTurretReadGuard(rom);
 
         for (ushort parameter = 0; parameter < 12; parameter++)
@@ -58,12 +50,12 @@ internal static class MotherBrainTurretDefinitionsVerification
             }
 
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
-            spawnTurret.Invoke(enemies, [parameter]);
+            enemies.MotherBrainBehavior.SpawnMotherBrainTurret(parameter);
 
             RoomEnemyProjectileSlot turret =
-                enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
+                enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             MotherBrainTurretDirectionDefinition directionDefinition =
                 MotherBrainTurretDefinitions.ForDirection(definition.InitialDirection);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainRoomTurret, turret.Kind,
@@ -97,7 +89,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                     ? candidate
                     : unchecked((byte)(current + expectedDelta));
 
-                selectDirection.Invoke(null, [rotation]);
+                MotherBrainBehavior.SelectNextMotherBrainTurretDirection(rotation);
                 AssertEqual(unchecked((ushort)(
                         SnesLittleEndian.Word(expectedDirection, unchecked((byte)expectedDelta)))),
                     rotation.Position.Y.Fraction,
@@ -132,15 +124,15 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"Mother Brain turret bullet Y velocity {direction}");
 
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, guarded);
+            enemies.BindFixtureBus(guarded);
             var turret = new RoomEnemyProjectileSlot(0)
             {
                 Position = new(new(0x0400, 0), new(0x0200, direction)),
             };
-            spawnBullet.Invoke(enemies, [turret]);
+            enemies.MotherBrainBehavior.SpawnMotherBrainTurretBullet(turret);
 
             RoomEnemyProjectileSlot bullet =
-                enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
+                enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, bullet.Kind,
                 $"production Mother Brain turret bullet kind {direction}");
             AssertEqual((ushort)direction, bullet.DirectionParameter,

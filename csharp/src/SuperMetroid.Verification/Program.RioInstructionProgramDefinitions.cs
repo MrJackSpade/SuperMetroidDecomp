@@ -39,12 +39,10 @@ internal static class RioInstructionProgramDefinitionsVerification
         var guard = NewRioInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        var initialize = type.GetMethod("InitializeRio", flags)!
-            .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;
+        enemies.BindFixtureBus(guard);
+        var initialize = new Action<RoomEnemySlot>(enemies.RioBehavior.InitializeRio);
 
-        RoomEnemySlot rio = enemies.Slots[0];
+        RoomEnemySlot rio = enemies.SlotTable.Slots[0];
         rio.EnemyDefinitionPointer = EnemyDefinitionId.Rio;
         rio.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
         initialize(rio);
@@ -56,7 +54,6 @@ internal static class RioInstructionProgramDefinitionsVerification
             [rio, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         ExecuteRioProgram(
             enemies,
-            process,
             processArguments,
             rio,
             RioInstructionProgramDefinitions.Idle,
@@ -69,7 +66,6 @@ internal static class RioInstructionProgramDefinitionsVerification
         state.AnimationFinished = false;
         ExecuteRioProgram(
             enemies,
-            process,
             processArguments,
             rio,
             RioInstructionProgramDefinitions.SwoopingPart1,
@@ -82,7 +78,6 @@ internal static class RioInstructionProgramDefinitionsVerification
 
         ExecuteRioProgram(
             enemies,
-            process,
             processArguments,
             rio,
             RioInstructionProgramDefinitions.SwoopingPart2,
@@ -94,7 +89,6 @@ internal static class RioInstructionProgramDefinitionsVerification
         state.AnimationFinished = false;
         ExecuteRioProgram(
             enemies,
-            process,
             processArguments,
             rio,
             RioInstructionProgramDefinitions.SwoopCooldown,
@@ -142,7 +136,6 @@ internal static class RioInstructionProgramDefinitionsVerification
 
     internal static void ExecuteRioProgram(
         RoomEnemySystem enemies,
-        MethodInfo process,
         object?[] processArguments,
         RoomEnemySlot rio,
         ushort program,
@@ -152,7 +145,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         for (int call = 0; call < callCount; call++)
         {
             rio.InstructionTimer = 1;
-            process.Invoke(enemies, processArguments);
+            EnemyInstructionRunner.Process(enemies, processArguments);
         }
     }
 

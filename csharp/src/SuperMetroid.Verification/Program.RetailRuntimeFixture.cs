@@ -7,10 +7,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static class RetailRuntimeFixtureVerification
 {
-    internal static SamusProjectileSystem CreateProjectileFixture() => RepositoryInstallation.CreateProjectileSystem();
+    internal static SamusProjectileSystem CreateProjectileFixture() => InstalledFixtures.CreateProjectileSystem();
 
-    internal static SamusBombProjectileSystem CreateBombFixture() => RepositoryInstallation.CreateBombSystem();
-    internal static SamusState PrepareRetailSamusFixture(SamusState samus) => RepositoryInstallation.BindSamus(samus);
+    internal static SamusBombProjectileSystem CreateBombFixture() => InstalledFixtures.CreateBombSystem();
+    internal static SamusState PrepareRetailSamusFixture(SamusState samus) => InstalledFixtures.BindSamus(samus);
     // Tests using retail gameplay must supply the host's installed presentation
     // contract explicitly. Each fixture retains its own bus and mutable runtime.
     internal static SuperMetroidRuntime CreateRetailRuntimeFixture(
@@ -28,7 +28,7 @@ internal static class RetailRuntimeFixtureVerification
 
 
     /// <summary>The shared installation's stock enemy artwork, loaded once per process.</summary>
-    internal static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => RepositoryInstallation.EnemyTiles;
+    internal static EnemyTileArtworkCatalog FixtureEnemyTileArtwork() => InstalledFixtures.EnemyTiles;
 
     /// <summary>
     /// Loads a room's asset graph with the shared installation's stock catalogs, replacing only the
@@ -37,11 +37,11 @@ internal static class RetailRuntimeFixtureVerification
     internal static CartridgeRoomAssets LoadFixtureRoomAssets(ISnesAddressSpace bus, CartridgeRoomHeader room,
         RoomCharacterAtlasCatalog? characterArt = null, RoomStaticPaletteCatalog? paletteArt = null,
         RoomMetatileCatalog? metatileArt = null, RoomVisualLayoutCatalog? visualLayouts = null) =>
-        CartridgeRoomAssets.Load(bus, room, RepositoryInstallation.RoomAssets with
+        CartridgeRoomAssets.Load(bus, room, InstalledFixtures.RoomAssets with
         {
-            Characters = characterArt ?? RepositoryInstallation.RoomAssets.Characters,
-            Palettes = paletteArt ?? RepositoryInstallation.RoomAssets.Palettes,
-            Metatiles = metatileArt ?? RepositoryInstallation.RoomAssets.Metatiles,
-            VisualLayouts = visualLayouts ?? RepositoryInstallation.RoomAssets.VisualLayouts,
+            Characters = characterArt ?? InstalledFixtures.RoomAssets.Characters,
+            Palettes = paletteArt ?? InstalledFixtures.RoomAssets.Palettes,
+            Metatiles = metatileArt ?? InstalledFixtures.RoomAssets.Metatiles,
+            VisualLayouts = visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts,
         });
 }

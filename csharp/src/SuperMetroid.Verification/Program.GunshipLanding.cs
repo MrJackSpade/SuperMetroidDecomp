@@ -47,14 +47,14 @@ internal static class GunshipLandingVerification
             InputLocked = true,
         };
         var enemies = new RoomEnemySystem();
-        samus.TileTransfers.BindArtwork(
-            RepositoryInstallation.SamusBody);
+        samus.Presentation.TileTransfers.BindArtwork(
+            InstalledFixtures.SamusBody);
         enemies.Load(new RoomEnemyLoadRequest(new GunshipMotionFixtureGuard(bus), populationPointer, tilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
                 zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet } }) { Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });
 
-        RoomEnemySlot top = enemies.Slots[0];
-        RoomEnemySlot bottom = enemies.Slots[1];
-        RoomEnemySlot pad = enemies.Slots[2];
+        RoomEnemySlot top = enemies.SlotTable.Slots[0];
+        RoomEnemySlot bottom = enemies.SlotTable.Slots[1];
+        RoomEnemySlot pad = enemies.SlotTable.Slots[2];
         AssertEqual(0x006f, top.Position.Y.Whole, "post-Ceres top begins seventeen pixels above Samus");
         AssertEqual(0x0097, bottom.Position.Y.Whole, "post-Ceres bottom begins twenty-three pixels below Samus");
         AssertEqual(0xa80c, top.VariableF, "post-Ceres top selects descent function three");
@@ -65,7 +65,7 @@ internal static class GunshipLandingVerification
         bool observedPadClose = false;
         bool observedEngineSound = false;
         bool observedLandingClamp = false;
-        while (enemies.LastGunshipEvent != GunshipFrameEvent.LandingCompleted && frames < 800)
+        while (enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted && frames < 800)
         {
             ushort previousTopY = top.Position.Y.Whole;
             ushort previousTopSubY = top.Position.Y.Fraction;
@@ -75,7 +75,7 @@ internal static class GunshipLandingVerification
                 : (ushort)0;
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, cameraY), TimeIsFrozen = false, Samus = samus });
             frames++;
-            observedEngineSound |= enemies.SoundRequests.Contains(
+            observedEngineSound |= enemies.Audio.SoundRequests.Contains(
                 new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4d), MaximumQueued: 6));
 
             if (top.VariableF == 0xa80c)
@@ -107,8 +107,8 @@ internal static class GunshipLandingVerification
                 observedLandingClamp = true;
             }
 
-            observedPadOpen |= enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened;
-            if (enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened)
+            observedPadOpen |= enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened;
+            if (enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingPadOpened)
             {
                 // $A2:A91E-$A925 place Samus beside the hatch in both X words, so the
                 // following MainScrollingRoutine measures no horizontal movement.
@@ -116,7 +116,7 @@ internal static class GunshipLandingVerification
                 AssertEqual(checkpoint.WithX(checkpoint.X.WithWhole(samus.Position.X.Whole)),
                     samus.ApplyPreviousPositionWrites(checkpoint),
                     "landing writes SamusPreviousXPosition with Samus X");
-                AssertTrue(enemies.SoundRequests.Contains(new EnemySoundRequest(
+                AssertTrue(enemies.Audio.SoundRequests.Contains(new EnemySoundRequest(
                         SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6)),
                     "landing queues QueueSound_Lib3_Max6($14)");
                 // EnemyMain installs $A5BE, then this same slot's ordinary instruction
@@ -127,8 +127,8 @@ internal static class GunshipLandingVerification
                     pad.CurrentInstruction,
                     "bounce completion advances the cartridge pad-open list once");
             }
-            observedPadClose |= enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadClosed;
-            if (enemies.LastGunshipEvent == GunshipFrameEvent.LandingPadClosed)
+            observedPadClose |= enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingPadClosed;
+            if (enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingPadClosed)
             {
                 AssertEqual(
                     unchecked((ushort)(
@@ -144,7 +144,7 @@ internal static class GunshipLandingVerification
         AssertTrue(observedPadClose, "gunship publishes pad-close boundary");
         AssertTrue(observedEngineSound,
             "gunship bottom timer publishes QueueSfx2_Max6($4D)");
-        AssertEqual(GunshipFrameEvent.LandingCompleted, enemies.LastGunshipEvent,
+        AssertEqual(GunshipFrameEvent.LandingCompleted, enemies.GunshipBehavior.LastGunshipEvent,
             "gunship completes post-Ceres landing");
         AssertEqual(641, frames, "gunship full landing frame count");
         AssertEqual(0xa9bd, top.VariableF, "gunship installs ordinary idle function");
@@ -154,12 +154,12 @@ internal static class GunshipLandingVerification
         var openingSound = new EnemySoundRequest(
             SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6);
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus });
-        AssertTrue(!enemies.SoundRequests.Contains(openingSound),
+        AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
             "idle ship does not publish an entrance sound without Down");
         ushort deckX = samus.Position.X.Whole;
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 16)));
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0x0400 });
-        AssertTrue(!enemies.SoundRequests.Contains(openingSound),
+        AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
             "Down outside entrance does not publish an opening sound");
         samus.Position = samus.Position.WithWholeX(deckX);
 
@@ -168,14 +168,14 @@ internal static class GunshipLandingVerification
         zebesTimebombSet = true;
         var takeoffWrites = new VramWriteQueue();
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0x0400, VramWriteQueue = takeoffWrites });
-        AssertEqual(GunshipFrameEvent.EntryStarted, enemies.LastGunshipEvent,
+        AssertEqual(GunshipFrameEvent.EntryStarted, enemies.GunshipBehavior.LastGunshipEvent,
             "endgame Down input begins ordinary gunship entry");
-        AssertEqual(1, enemies.SoundRequests.Count(request => request == openingSound),
+        AssertEqual(1, enemies.Audio.SoundRequests.Count(request => request == openingSound),
             "entry frame publishes exactly one library-three $14 Max6 sound");
         if (entrySoundOnly)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0x0400 });
-            AssertTrue(!enemies.SoundRequests.Contains(openingSound),
+            AssertTrue(!enemies.Audio.SoundRequests.Contains(openingSound),
                 "opening animation does not republish the entry sound");
             Console.WriteLine("Gunship entry sound: exact entry edge, input/position guards and no repeat verified.");
             return;
@@ -184,7 +184,7 @@ internal static class GunshipLandingVerification
         int takeoffFrames = 0;
         bool observedTakeoffStart = false;
         int maximumLiftoffDustActors = 0;
-        while (enemies.LastGunshipEvent != GunshipFrameEvent.EscapeTakeoffCompleted &&
+        while (enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.EscapeTakeoffCompleted &&
                takeoffFrames < 900)
         {
             ushort takeoffCameraY = samus.Position.Y.Whole > 120
@@ -192,10 +192,10 @@ internal static class GunshipLandingVerification
                 : (ushort)0;
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, takeoffCameraY), TimeIsFrozen = false, Samus = samus, VramWriteQueue = takeoffWrites });
             observedTakeoffStart |=
-                enemies.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffStarted;
+                enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffStarted;
             maximumLiftoffDustActors = Math.Max(
                 maximumLiftoffDustActors,
-                enemies.EnemyProjectiles.Count(projectile =>
+                enemies.Projectiles.EnemyProjectiles.Count(projectile =>
                     projectile.IsActive &&
                     projectile.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud));
             takeoffFrames++;
@@ -203,7 +203,7 @@ internal static class GunshipLandingVerification
 
         AssertTrue(observedTakeoffStart,
             "event $0E bypasses restoration and publishes takeoff start");
-        AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, enemies.LastGunshipEvent,
+        AssertEqual(GunshipFrameEvent.EscapeTakeoffCompleted, enemies.GunshipBehavior.LastGunshipEvent,
             "accelerating gunship publishes frontend state-$26 boundary");
         AssertEqual(5, takeoffWrites.Entries.Count,
             "takeoff queues all five cartridge dust-cloud tile chunks");

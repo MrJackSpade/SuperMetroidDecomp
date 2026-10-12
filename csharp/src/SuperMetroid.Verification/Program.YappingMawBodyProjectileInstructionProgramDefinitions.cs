@@ -38,14 +38,10 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
                 $"Yapping Maw body-projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
+        var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
         var guard = NewYappingMawBodyProjectileInstructionReadGuard(rom);
-        MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
-            "InitializeYappingMaw", flags)!;
-        MethodInfo process = typeof(RoomEnemySystem).GetMethod(
-            "ProcessEnemyProjectileInstructions", flags)!;
         RoomEnemyProjectileSlot? deletionCandidate = null;
 
         foreach ((ushort parameter, ushort expected, string facing) in new[]
@@ -57,14 +53,14 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
         })
         {
             var enemies = new RoomEnemySystem();
-            typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            RoomEnemySlot owner = enemies.Slots[0];
+            enemies.BindFixtureBus(guard);
+            RoomEnemySlot owner = enemies.SlotTable.Slots[0];
             owner.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
             owner.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
             owner.Position = owner.Position.WithWhole(new(128, 112));
             owner.Parameter1 = 128;
             owner.Parameter2 = parameter;
-            initialize.Invoke(enemies, [owner]);
+            enemies.YappingMawBehavior.InitializeYappingMaw(owner);
 
             RoomEnemyProjectileSlot[] bodies = enemies.YappingMawStates[0]!
                 .BodyProjectiles
@@ -101,17 +97,17 @@ internal static class YappingMawBodyProjectileInstructionProgramDefinitionsVerif
                 RoomEnemyProjectileSlot body)
             {
                 body.InstructionTimer = 1;
-                process.Invoke(system, [body, new SamusState(), Position16<RoomPixels>.Zero]);
+                system.Projectiles.ProcessEnemyProjectileInstructions(body, new SamusState(), Position16<RoomPixels>.Zero);
                 VerifyExecutedProjectileFrame(rom, body, spriteArtwork, executedOperands);
             }
         }
 
         var deletionSystem = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(deletionSystem, guard);
+        deletionSystem.BindFixtureBus(guard);
         RoomEnemyProjectileSlot deletion = deletionCandidate!;
         deletion.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;
         deletion.InstructionTimer = 1;
-        process.Invoke(deletionSystem, [deletion, new SamusState(), Position16<RoomPixels>.Zero]);
+        deletionSystem.Projectiles.ProcessEnemyProjectileInstructions(deletion, new SamusState(), Position16<RoomPixels>.Zero);
         AssertTrue(!deletion.IsActive,
             "Yapping Maw body shot reaction reaches the compiled shared delete program");
 

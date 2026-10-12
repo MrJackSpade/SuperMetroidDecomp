@@ -78,7 +78,7 @@ public static class SamusBombJumpMovement
             // before the later Y scan replaces its collision result. This must
             // not end the bomb ascent, but it must stop horizontal acceleration.
             if (horizontal.Value.Collided)
-                samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
+                samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
         }
 
         // `$90:8F1B` changes signed underflow to the falling direction. A diagonal jump

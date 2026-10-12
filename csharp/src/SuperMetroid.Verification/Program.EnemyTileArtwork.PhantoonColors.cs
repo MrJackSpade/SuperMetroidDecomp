@@ -77,28 +77,26 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        type.GetField("_bus", flags)!.SetValue(enemies, guarded);
-        type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        RoomEnemySlot body = enemies.Slots[0];
-        RoomEnemySlot eye = enemies.Slots[1];
-        RoomEnemySlot tentacles = enemies.Slots[2];
+        enemies.BindFixtureBus(guarded);
+        enemies.Presentation._cgram = cgram;
+        RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        RoomEnemySlot eye = enemies.SlotTable.Slots[1];
+        RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];
         var state = new PhantoonEnemyState(body)
         {
             Eye = eye,
             Tentacles = tentacles,
         };
-        MethodInfo copyHealth = type.GetMethod("CopyPhantoonHealthPalette", flags)!;
-        MethodInfo fadeIn = type.GetMethod("AdvancePhantoonFadeIn", flags)!;
         for (int band = 0; band < PhantoonColorRomData.HealthBandCount; band++)
         {
             body.Health = unchecked((ushort)(band * 312 + 1));
-            copyHealth.Invoke(enemies, [body]);
+            enemies.PhantoonBehavior.CopyPhantoonHealthPalette(body);
             AssertBodyBand(band, $"Phantoon live health restore band {band}");
             for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
                 cgram.SetColor(PhantoonColorRomData.BodyDestination + color, new Bgr555(0, 0, 0));
             eye.VariableE = 1;
             eye.VariableF = 0;
-            fadeIn.Invoke(enemies, [body, state, (ushort)0]);
+            enemies.PhantoonBehavior.AdvancePhantoonFadeIn(body, state, (ushort)0);
             AssertBodyBand(band, $"Phantoon live materialization band {band}");
             AssertEqual((ushort)2, eye.VariableE,
                 $"Phantoon fade-in band {band} retains native numerator advance");
@@ -107,15 +105,14 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         body.Health = unchecked((ushort)(2 * 312 + 1));
         body.FlashTimer = 8;
         tentacles.Parameter2 = 0x0101;
-        type.GetMethod("ApplyPhantoonHurt", flags)!.Invoke(enemies, [body, state]);
+        enemies.PhantoonBehavior.ApplyPhantoonHurt(body, state);
         AssertBodyBand(2, "Phantoon live hurt restore");
         AssertEqual((ushort)0x0001, tentacles.Parameter2,
             "Phantoon hurt restore clears only the flash-latch byte");
 
         eye.VariableE = 1;
         eye.VariableF = 0;
-        type.GetMethod("AdvancePhantoonFadeOut", flags)!
-            .Invoke(enemies, [state, (ushort)0]);
+        enemies.PhantoonBehavior.AdvancePhantoonFadeOut(state, (ushort)0);
         for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
             AssertEqual(colors.ResolveFadeOut(color),
                 cgram.Colors[PhantoonColorRomData.BodyDestination + color],
@@ -125,8 +122,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         eye.VariableD = 0;
         eye.VariableE = 1;
-        bool complete = (bool)type.GetMethod("AdvanceWreckedShipPowerPalette", flags)!
-            .Invoke(enemies, [eye])!;
+        bool complete = (bool)enemies.PhantoonBehavior.AdvanceWreckedShipPowerPalette(eye);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
         for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
             AssertEqual(colors.ResolvePowerOn(color),

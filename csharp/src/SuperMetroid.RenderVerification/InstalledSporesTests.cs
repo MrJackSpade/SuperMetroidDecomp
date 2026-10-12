@@ -87,8 +87,8 @@ internal static partial class InstalledSporesTests
                 bool frozen = frame is >= 37 and < 45;
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
                 RoomLayer3FxRenderSnapshot before = baseline.CaptureForDisplay()!.Value;
-                baseline.Step(memory, baselineVram, camera, frozen, mainGameLoopCarry: false);
-                replacement.Step(memory, editedVram, camera, frozen, mainGameLoopCarry: false);
+                baseline.Step(memory, baselineVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
+                replacement.Step(memory, editedVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
                 var capture = baseline.CaptureForDisplay()!.Value;
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else

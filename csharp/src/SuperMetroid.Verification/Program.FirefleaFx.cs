@@ -29,7 +29,7 @@ internal static partial class Program
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
         for (int frame = 1; frame <= 144; frame++)
         {
-            fx.Step(bus, vram, Position16<RoomPixels>.Zero, false, true);
+            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
             int expectedIndex = (frame / 6) % 12;
             int shade = flash[expectedIndex] >> 8;
             AssertEqual(expectedIndex, bus.ReadByte(0x177A), $"Fireflea index frame {frame}");
@@ -39,7 +39,7 @@ internal static partial class Program
         }
         byte timer = bus.ReadByte(0x1778);
         byte red = fixedColor.Red;
-        for (int frame = 0; frame < 100; frame++) fx.Step(bus, vram, Position16<RoomPixels>.Zero, true, true);
+        for (int frame = 0; frame < 100; frame++) fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
         AssertEqual(timer, bus.ReadByte(0x1778), "X-ray frozen time retains flashing phase");
         AssertEqual(red, fixedColor.Red, "X-ray frozen time retains fixed color");
         AssertEqual(LayerBlendingConfiguration.Fireflea, fx.LayerBlendConfiguration, "frozen Fireflea still selects blending");
@@ -48,7 +48,7 @@ internal static partial class Program
             fx.Load(bus, vram, new SnesCgram(), record, 0, 0);
             for (int frame = 1; frame <= 78; frame++)
             {
-                fx.Step(bus, vram, Position16<RoomPixels>.Zero, false, true, firefleaDarknessLevel: level);
+                fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
                 int index = level < 10 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
                 byte shade = (byte)(unchecked((ushort)(darkness[level / 2] + flash[index])) >> 8);
                 AssertEqual(shade | 0x20, fixedColor.Red, $"death offset {level}, frame {frame}: red");
@@ -57,14 +57,14 @@ internal static partial class Program
                 AssertEqual(level, (ushort)bus.ReadByte(0x177E), "enemy death offset reaches the native FX mirror");
             }
             byte retained = fixedColor.Red;
-            fx.Step(bus, vram, Position16<RoomPixels>.Zero, true, true, firefleaDarknessLevel: level);
+            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
             AssertEqual(retained, fixedColor.Red, "frozen death level retains its exact shade");
         }
         // Removing the effect must stop its producer, not let the old flashing timer
         // keep changing a subsequent room's fixed color.
         fx.Load(bus, vram, new SnesCgram(), 0, 0, 0);
         fixedColor.Red = 0x25;
-        fx.Step(bus, vram, Position16<RoomPixels>.Zero, false, true);
+        fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(0x25, fixedColor.Red, "non-Fireflea room does not execute the old producer");
         if (includeXrayCapture) VerifyFirefleaXrayCapture();
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
@@ -110,7 +110,7 @@ internal static partial class Program
         // Seed a late darkness shade through the production FX owner. X-ray freezes
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
-        runtime.RoomLayer3Fx.Step(bus, runtime.Vram, Position16<RoomPixels>.Zero, false, true, firefleaDarknessLevel: 6);
+        runtime.RoomLayer3Fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = 6 });
         byte shade = new FixedColorMemory(bus).RedIntensity;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         var ordinaryDarkness = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
@@ -125,7 +125,7 @@ internal static partial class Program
             "ordinary Fireflea keeps both room maps and subtracts fixed color");
         AssertTrue(SoftwareLayeredSnapshotRenderer.Render(ordinaryDarkness).SequenceEqual(
             SuperMetroidRuntimeFrameRenderer.Render(runtime)), "immediate and packet Fireflea paths agree");
-        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus)), "Fireflea display fixture activates X-ray");
+        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus), new XrayBeginConditions()), "Fireflea display fixture activates X-ray");
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.ControllerBindings.Dash);
         var packet = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         AssertTrue(packet.Layers[0] is GameplayColorMathRenderLayer, "Fireflea capture uses source-aware X-ray compositor");

@@ -51,23 +51,7 @@ public sealed partial class SuperMetroidRuntime
     {
         if (Camera is not null && Enemies.IsLoaded)
         {
-            Enemies.StepFrame(
-                Camera.PixelPosition,
-                TimeIsFrozen,
-                Samus,
-                Controller1.NewlyPressed,
-                LevelData,
-                Controller1.Current,
-                Projectiles,
-                NmiFrameCounter8,
-                ActiveSamusMode7Transform,
-                BombProjectiles,
-                VramWrites,
-                resolveSamusContactBeforeAi: true,
-                collisionPlms: Plms,
-                nmiFrameCounter: NmiFrameCounter,
-                processingListPrepared: processingListPrepared,
-                samusPreviousPositionCheckpoint: samusPreviousPositionCheckpoint);
+            Enemies.StepFrame(new RoomEnemyFrame { Camera = Camera.PixelPosition, TimeIsFrozen = TimeIsFrozen, Samus = Samus, NewlyPressedControllerInput = Controller1.NewlyPressed, Level = LevelData, ControllerInput = Controller1.Current, SamusProjectiles = Projectiles, NmiFrameCounter8 = NmiFrameCounter8, Mode7Transform = ActiveSamusMode7Transform, SharedProjectiles = BombProjectiles, VramWriteQueue = VramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = Plms, NmiFrameCounter = NmiFrameCounter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
             ApplyEnemyRequestedRoomEffects();
             if (Enemies.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
             {

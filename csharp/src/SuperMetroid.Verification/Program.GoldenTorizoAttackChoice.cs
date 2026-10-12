@@ -28,16 +28,7 @@ internal static partial class Program
         samus.Missiles = 187;
         torizo.CurrentInstruction = landedFacingLeft;
         torizo.InstructionTimer = 1;
-        runtime.Enemies.StepFrame(
-            new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y),
-            timeIsFrozen: false,
-            samus,
-            0,
-            runtime.LevelData,
-            0,
-            runtime.Projectiles,
-            nmiFrameCounter8: 0x2d,
-            nmiFrameCounter: 0xefd8);
+        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, NmiFrameCounter8 = 0x2d, NmiFrameCounter = 0xefd8 });
         AssertTrue(torizo.CurrentInstruction is > sonicBoomsFacingLeft and
                 < 0xcc57,
             $"NMI_FrameCounter selects the sonic-boom list, not chozo orbs (${chozoOrbsFacingLeft:X4}); " +

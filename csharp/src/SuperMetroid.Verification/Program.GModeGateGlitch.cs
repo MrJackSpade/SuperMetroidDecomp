@@ -85,7 +85,7 @@ internal static partial class Program
         {
             if (frame == reactivateFrame)
             {
-                AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing),
+                AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions()),
                     $"direct G-Mode cancellation is admitted on frame {frame}");
                 AssertTrue(!samus.Xray.IsGMode && !samus.Xray.ArePlmsSuspended,
                     $"frame {frame} X-Ray activation restores native subsystem words");
@@ -209,7 +209,7 @@ internal static partial class Program
         AssertTrue(samus.HorizontalSpeed.HasRunningMomentum,
             "overloaded G-Mode sand preserves the running-momentum flag");
 
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing),
+        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions()),
             "using X-Ray again cancels direct G-Mode after sand overload");
         AssertTrue(!samus.Xray.ArePlmsSuspended,
             "G-Mode cancellation restores the cartridge PLM-enable word");
@@ -319,13 +319,7 @@ internal static partial class Program
             RoomLevelData controlLevel = CreateLevel();
             var controlPlms = new RoomPlmSystem();
             SamusState controlSamus = CreateSamus();
-            BlockMoveResult control = SamusBlockCollision.MoveVertical(
-                bus,
-                controlLevel,
-                controlSamus.Kinematics,
-                4 << 16,
-                scanLeftToRight: true,
-                plms: controlPlms);
+            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = controlLevel, Plms = controlPlms }, controlSamus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertTrue(control.Collided,
                 $"available PLM allocation retains ordinary solid contact for {description}");
 
@@ -334,13 +328,7 @@ internal static partial class Program
             FillSuspendedPlmPool(plms);
             SamusState samus = CreateSamus();
 
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(
-                bus,
-                level,
-                samus.Kinematics,
-                4 << 16,
-                scanLeftToRight: true,
-                plms: plms);
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertEqual(expectedPass, !result.Collided,
                 $"full PLM pool gives cartridge default collision for {description}");
             AssertEqual(collisionType,
@@ -517,7 +505,7 @@ internal static partial class Program
         samus.Kinematics.YSubspeed = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing),
+        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions()),
             "direct G-Mode fixture activates X-Ray");
 
         var recovery = new SamusReserveAutoRecoveryState();

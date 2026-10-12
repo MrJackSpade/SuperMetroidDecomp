@@ -103,12 +103,7 @@ internal static partial class Program
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
             Radius = new(8, 7),
         };
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            body,
-            displacement: 1 << 16,
-            plms: plms);
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, body, new HorizontalBlockMove { Displacement = 1 << 16 });
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),

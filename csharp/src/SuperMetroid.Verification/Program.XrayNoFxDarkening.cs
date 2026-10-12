@@ -81,7 +81,7 @@ internal static partial class Program
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing), "fixture enters X-ray");
+        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions()), "fixture enters X-ray");
         // The closed-beam setup state makes the selected pixels unambiguously outside.
         typeof(SamusXrayState).GetProperty(nameof(SamusXrayState.SetupStage))!.SetValue(samus.Xray, XraySetupStage.ReadBg1FirstScreen);
         runtime.RunNmi(0, mainLoopRequestedNmi: true);

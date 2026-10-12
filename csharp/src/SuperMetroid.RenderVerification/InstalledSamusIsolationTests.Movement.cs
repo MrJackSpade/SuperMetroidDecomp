@@ -126,7 +126,7 @@ internal sealed partial class InstalledSamusIsolationTests
 
     private static void Animate(Actor actor, ushort frame)
     {
-        actor.Samus.AnimateNoFx(actor.Memory, nmiFrameCounter: frame);
+        actor.Samus.AnimateNoFx(actor.Memory, new SamusAnimationStep { NmiFrameCounter = frame });
         if (actor.Samus.ApplyPendingVerifiedAnimationTransition(actor.Memory)) actor.Samus.CommitPoseHistory(actor.Memory);
     }
 

@@ -24,7 +24,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         var target = enemies.Slots[0];
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
-        enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
         enemies.ResolveOrdinarySamusContact(samus, 0);
         var state = enemies.MetroidStates[0]!;
         AssertEqual(MetroidAiFunction.AttachedToSamus, state.Function, "real touch attaches Metroid to morphed Samus");
@@ -36,7 +36,7 @@ internal static partial class Program
             ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
             bombs.StepFrame(bus, assets.LevelData, samus, input, input);
             if (firstExplosion < 0 && bombs.Slots.Any(b => b.Type != 0 && b.BombTimer == 0)) firstExplosion = frame;
-            enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             enemies.ResolveOrdinaryBombHits(bombs, shots, samus);
             if (state.Function == MetroidAiFunction.PowerBombEscape && detached < 0) detached = frame;
             if (detached >= 0) break;
@@ -55,7 +55,7 @@ internal static partial class Program
             // Move Samus away to prevent touch from immediately changing the returned
             // Homing state. The escape routine itself ignores her new position.
             samus.Position = samus.Position.WithWholeX(32);
-            enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             AssertEqual(expectedX, target.Position.X.Whole, "native post-bomb escape X");
             AssertEqual(expectedY, target.Position.Y.Whole, "native post-bomb escape Y");
             AssertEqual(frame == 3 ? MetroidAiFunction.Homing : MetroidAiFunction.PowerBombEscape,

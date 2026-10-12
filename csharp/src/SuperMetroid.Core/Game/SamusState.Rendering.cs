@@ -164,15 +164,7 @@ public sealed partial class SamusState
     /// atmospheric slots, sound requests, and periodic-damage words before the timer
     /// decrement. The historical name remains as a source-compatible debugger API.
     /// </remarks>
-    public void AnimateNoFx(
-        ISnesAddressSpace bus,
-        ushort controllerInput = 0,
-        ushort nmiFrameCounter = 0,
-        Bank80SystemState? system = null,
-        bool beginLiquidSoundRequestFrame = true,
-        SamusPoseId? prospectiveInputPose = null,
-        bool demoPoseInput = false,
-        Func<ushort>? queueEchoSound = null)
+    public void AnimateNoFx(ISnesAddressSpace bus, SamusAnimationStep step)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureAnimationInitialized();
@@ -183,9 +175,9 @@ public sealed partial class SamusState
         LiquidPhysics.PrepareAnimationFrame(
             bus,
             this,
-            nmiFrameCounter,
-            system,
-            beginLiquidSoundRequestFrame);
+            step.NmiFrameCounter,
+            step.System,
+            step.BeginLiquidSoundRequestFrame);
 
         // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before DEC and applies only when the
@@ -205,7 +197,7 @@ public sealed partial class SamusState
             return;
 
         AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
-        HandleAnimationDelay(bus, controllerInput, prospectiveInputPose, demoPoseInput, queueEchoSound);
+        HandleAnimationDelay(bus, step.ControllerInput, step.ProspectiveInputPose, step.DemoPoseInput, step.QueueEchoSound);
     }
 
     /// <summary>

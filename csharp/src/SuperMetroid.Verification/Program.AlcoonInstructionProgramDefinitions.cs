@@ -157,7 +157,7 @@ internal static partial class Program
         {
             int maximumX = Math.Max(0, room.Size.X * 256 - 256);
             ushort cameraX = unchecked((ushort)Math.Clamp(actor.Position.X.Whole - 128, 0, maximumX));
-            enemies.StepFrame(new(cameraX, 0), false, samus, level: assets.LevelData);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             foreach (RoomEnemySlot slot in enemies.Slots)
             {
                 if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Alcoon)

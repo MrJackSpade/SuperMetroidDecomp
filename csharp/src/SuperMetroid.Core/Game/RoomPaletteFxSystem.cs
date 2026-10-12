@@ -119,22 +119,12 @@ public sealed class RoomPaletteFxSystem
     /// presentation on every step. Construction creates only serializable program
     /// state; it cannot hide an unbound color source until a later instruction.
     /// </remarks>
-    public void Step(
-        ISnesAddressSpace bus,
-        SnesCgram cgram,
-        IPaletteFxColorSource colors,
-        ushort samusY,
-        ushort equippedItems,
-        bool enemyZeroIsDead,
-        bool areaMiniBossDefeated,
-        SamusState? samus = null,
-        ushort nmiFrameCounter = 0,
-        SamusPowerBombExplosionState? powerBomb = null)
+    public void Step(ISnesAddressSpace bus, SnesCgram cgram, IPaletteFxColorSource colors, PaletteFxFrame frame)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
         ArgumentNullException.ThrowIfNull(colors);
-        audioPowerBomb = powerBomb;
+        audioPowerBomb = frame.PowerBomb;
 
         // PaletteFXObject_Handler owns a new publication window on every game frame.
         // Requests are momentary calls into bank $80, not persistent object state.
@@ -147,15 +137,7 @@ public sealed class RoomPaletteFxSystem
             if (slot.Id == 0)
                 continue;
 
-            RunPreInstruction(
-                slot,
-                slotIndex,
-                samusY,
-                equippedItems,
-                enemyZeroIsDead,
-                areaMiniBossDefeated,
-                samus,
-                nmiFrameCounter);
+            RunPreInstruction(slot, slotIndex, frame);
             if (slot.Id == 0)
                 continue;
 
@@ -228,22 +210,14 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    private void RunPreInstruction(
-        PaletteFxSlot slot,
-        int slotIndex,
-        ushort samusY,
-        ushort equippedItems,
-        bool enemyZeroIsDead,
-        bool areaMiniBossDefeated,
-        SamusState? samus,
-        ushort nmiFrameCounter)
+    private void RunPreInstruction(PaletteFxSlot slot, int slotIndex, PaletteFxFrame frame)
     {
         var preInstruction = (PaletteFxPreInstruction)slot.PreInstruction;
         if (!Enum.IsDefined(preInstruction))
         {
             throw new NotSupportedException(
                 $"Room palette-FX pre-instruction $8D:{slot.PreInstruction:X4} is not translated " +
-                $"for object $8D:{slot.Id:X4} (Samus Y=${samusY:X4}, items=${equippedItems:X4}).");
+                $"for object $8D:{slot.Id:X4} (Samus Y=${frame.SamusY:X4}, items=${frame.EquippedItems:X4}).");
         }
         switch (preInstruction)
         {
@@ -253,12 +227,12 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstruction.DeleteWhenEnemyZeroDies:
-                if (enemyZeroIsDead)
+                if (frame.EnemyZeroIsDead)
                     slot.Clear();
                 return;
 
             case PaletteFxPreInstruction.SwitchAboveY380:
-                if (samusY <
+                if (frame.SamusY <
                     CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
                 {
                     slot.InstructionTimer = 1;
@@ -267,7 +241,7 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstruction.SwitchAboveY380Second:
-                if (samusY <
+                if (frame.SamusY <
                     CrateriaLightningPaletteFxProgramMechanicsDefinitions.VerticalSwitchSamusY)
                 {
                     slot.InstructionTimer = 1;
@@ -276,12 +250,12 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstruction.DeleteWhenAreaMiniBossDies:
-                if (areaMiniBossDefeated)
+                if (frame.AreaMiniBossDefeated)
                     slot.Clear();
                 return;
 
             case PaletteFxPreInstruction.Heat:
-                RunHeatPreInstruction(slot, equippedItems, samus, nmiFrameCounter);
+                RunHeatPreInstruction(slot, frame.EquippedItems, frame.Samus, frame.NmiFrameCounter);
                 return;
 
             case PaletteFxPreInstruction.InspectAdjacentSlot:

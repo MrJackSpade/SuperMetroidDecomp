@@ -108,11 +108,7 @@ internal static partial class Program
         target.Radius = new(16, 16);
         target.Health = 1000;
         target.SpritemapPointer = 0x8000;
-        combat.System.StepFrame(
-            new(0, 0),
-            timeIsFrozen: true,
-            samus,
-            level: combat.Level);
+        combat.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = combat.Level });
 
         AssertEqual(1, combat.System.ResolveOrdinaryProjectileHits(
             combat.Bus, projectiles, shared, samus),

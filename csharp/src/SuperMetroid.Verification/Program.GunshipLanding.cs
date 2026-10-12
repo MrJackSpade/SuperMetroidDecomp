@@ -58,7 +58,7 @@ internal static partial class Program
             ushort cameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
-            enemies.StepFrame(camera: new(0x0400, cameraY), timeIsFrozen: false, samus);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, cameraY), TimeIsFrozen = false, Samus = samus });
             frames++;
             observedEngineSound |= enemies.SoundRequests.Contains(
                 new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4d), MaximumQueued: 6));
@@ -138,13 +138,12 @@ internal static partial class Program
 
         var openingSound = new EnemySoundRequest(
             SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6);
-        enemies.StepFrame(new(0x0400, 0x0400), timeIsFrozen: false, samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus });
         AssertTrue(!enemies.SoundRequests.Contains(openingSound),
             "idle ship does not publish an entrance sound without Down");
         ushort deckX = samus.Position.X.Whole;
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 16)));
-        enemies.StepFrame(new(0x0400, 0x0400), timeIsFrozen: false, samus,
-            newlyPressedControllerInput: 0x0400);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0x0400 });
         AssertTrue(!enemies.SoundRequests.Contains(openingSound),
             "Down outside entrance does not publish an opening sound");
         samus.Position = samus.Position.WithWholeX(deckX);
@@ -153,20 +152,14 @@ internal static partial class Program
         // RestoreSamusInGunship: there is no refill wait, save prompt, or ordinary exit.
         zebesTimebombSet = true;
         var takeoffWrites = new VramWriteQueue();
-        enemies.StepFrame(
-            camera: new(0x0400, 0x0400),
-            timeIsFrozen: false,
-            samus,
-            newlyPressedControllerInput: 0x0400,
-            vramWriteQueue: takeoffWrites);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0x0400, VramWriteQueue = takeoffWrites });
         AssertEqual(GunshipFrameEvent.EntryStarted, enemies.LastGunshipEvent,
             "endgame Down input begins ordinary gunship entry");
         AssertEqual(1, enemies.SoundRequests.Count(request => request == openingSound),
             "entry frame publishes exactly one library-three $14 Max6 sound");
         if (entrySoundOnly)
         {
-            enemies.StepFrame(new(0x0400, 0x0400), timeIsFrozen: false, samus,
-                newlyPressedControllerInput: 0x0400);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0x0400 });
             AssertTrue(!enemies.SoundRequests.Contains(openingSound),
                 "opening animation does not republish the entry sound");
             Console.WriteLine("Gunship entry sound: exact entry edge, input/position guards and no repeat verified.");
@@ -182,11 +175,7 @@ internal static partial class Program
             ushort takeoffCameraY = samus.Position.Y.Whole > 120
                 ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
-            enemies.StepFrame(
-                camera: new(0x0400, takeoffCameraY),
-                timeIsFrozen: false,
-                samus,
-                vramWriteQueue: takeoffWrites);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, takeoffCameraY), TimeIsFrozen = false, Samus = samus, VramWriteQueue = takeoffWrites });
             observedTakeoffStart |=
                 enemies.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffStarted;
             maximumLiftoffDustActors = Math.Max(

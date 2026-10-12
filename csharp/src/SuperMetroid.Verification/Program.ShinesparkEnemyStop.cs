@@ -20,7 +20,7 @@ internal static partial class Program
                 Radius: new(8, 8), FreezeTimer: (ushort)(frozen ? 1 : 0),
                 Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus))];
             uint initialY = samus.Kinematics.Position.Y.RawValue;
-            samus.Shinespark.Step(bus, level, samus, 0);
+            samus.Shinespark.Step(new SamusTerrain { Bus = bus, Level = level }, samus, new ShinesparkFrame { NmiFrameCounter = 0 });
             if (gap == 4)
             {
                 AssertEqual(initialY, samus.Kinematics.Position.Y.RawValue, "spark enemy hit retains exact crash Y instead of advancing to boundary");

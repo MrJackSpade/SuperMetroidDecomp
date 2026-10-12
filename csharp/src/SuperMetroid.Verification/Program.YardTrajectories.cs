@@ -33,7 +33,7 @@ internal static partial class Program
                 ushort x = actor.Position.X.Whole, y = actor.Position.Y.Whole;
                 var function = state.MovementFunction;
                 ushort cameraX = unchecked((ushort)Math.Max(0, x - 128)), cameraY = unchecked((ushort)Math.Max(0, y - 112));
-                enemies.StepFrame(new(cameraX, cameraY), false, samus, level: assets.LevelData);
+                enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
                 int distance = Math.Max(Math.Abs(unchecked((short)(actor.Position.X.Whole - x))), Math.Abs(unchecked((short)(actor.Position.Y.Whole - y))));
                 if (distance > largest)
                 {
@@ -66,7 +66,7 @@ internal static partial class Program
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) };
             samus.RefreshCollisionRadii(bus);
-            enemies.StepFrame(new(128, 128), false, samus, level: floor);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(128, 128), TimeIsFrozen = false, Samus = samus, Level = floor });
             AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.

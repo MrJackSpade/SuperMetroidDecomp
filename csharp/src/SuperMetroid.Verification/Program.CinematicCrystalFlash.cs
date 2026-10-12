@@ -136,10 +136,7 @@ internal static partial class Program
         AssertEqual(DrainedSamusPhase.Inactive, superSamus.Drained.Phase,
             "Super Metroid release reaches an ordinary posture");
         SamusMovementType releasedMovement = superSamus.ReadMovementType(superBus);
-        bool xrayAdmitted = superSamus.Xray.TryBegin(
-            superBus,
-            superSamus,
-            releasedMovement);
+        bool xrayAdmitted = superSamus.Xray.TryBegin(superBus, superSamus, releasedMovement, new XrayBeginConditions());
         AssertTrue(xrayAdmitted, "X-Ray admits from the released immobile suit posture");
         AssertTrue(!superSamus.CrystalFlashPoseInputLocked,
             "X-Ray replaces the retained Crystal Flash input handler");

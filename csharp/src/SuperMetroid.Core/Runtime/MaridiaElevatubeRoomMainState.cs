@@ -96,14 +96,7 @@ public sealed class MaridiaElevatubeRoomMainState
         Position = unchecked((ushort)(trackedPosition >> 16));
         scratch.Var1 = unchecked((ushort)trackedPosition);
 
-        BlockMoveResult movement = SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            activeSamus.Kinematics,
-            displacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            includeSolidEnemies: false,
-            plms: plms);
+        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, activeSamus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false });
 
         // The assembly performs an unsigned range test after biasing by $0E20. This is
         // precisely the inclusive signed range -$0E20..+$0E20; a candidate outside it is

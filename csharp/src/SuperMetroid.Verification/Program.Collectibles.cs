@@ -237,8 +237,7 @@ internal static partial class Program
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(1124, 651)), Radius = new(5, 14),
         };
-        SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
-            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
@@ -250,8 +249,7 @@ internal static partial class Program
         fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
             "Morph Ball pickup draws native empty level word on message return");
-        var next = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
-            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.Plms.CollectiblePhases[0],
@@ -259,8 +257,7 @@ internal static partial class Program
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         AssertEqual(0, fixture.Plms.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
         AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
-        var cleared = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
-            plms: fixture.Plms, alignToSlopeAfterMovement: false);
+        var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
         AssertEqual((ushort)1121, movement.Position.X.Whole, "movement also advances after owner deletion");
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");

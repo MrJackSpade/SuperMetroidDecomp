@@ -54,7 +54,7 @@ internal static partial class Program
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         ushort blocker = level.GetCollisionBlock(new(76, 9)).LevelWord;
-        var before = SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, -65536, plms: plms);
+        var before = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(before.Collided, "Ordinary speedless contact blocks before ceiling overload");
         int firstFull = -1;
         for (int frame = 0; frame < 344; frame++)
@@ -67,7 +67,7 @@ internal static partial class Program
             if (firstFull < 0 && plms.ActiveCount == 40) firstFull = frame;
         }
         AssertEqual(343, firstFull, "Authored room reaches full pool with live PLM timers");
-        var after = SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, -65536, plms: plms);
+        var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(!after.Collided, "Native full-pool collision remains carry clear without Speed Booster");
         AssertEqual((ushort)1236, samus.Position.X.Whole, "Samus enters first speed block without a clip or teleport");
         AssertEqual(blocker, level.GetCollisionBlock(new(76, 9)).LevelWord, "Exhaustion bypass does not break the block");

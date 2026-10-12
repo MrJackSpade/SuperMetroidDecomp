@@ -172,11 +172,11 @@ static void VerifySamusHorizontalSpeed()
         controllerInput: (ushort)SnesButton.B,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
+        dashAnimation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)SnesButton.B });
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
+        dashAnimation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)SnesButton.B });
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash restart uses shared frame-zero delay");
 

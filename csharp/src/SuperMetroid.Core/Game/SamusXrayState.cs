@@ -138,15 +138,7 @@ public sealed class SamusXrayState
     /// The caller represents the already selected/equipped HUD item; item ownership is
     /// checked by the HUD selector one layer above this native routine.
     /// </summary>
-    public bool TryBegin(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        SamusMovementType previousMovementType,
-        ushort gameState = 8,
-        ushort powerBombExplosionStatus = 0,
-        ushort projectileCooldownTimer = 0,
-        ushort bombCounter = 0,
-        bool deferActivation = false)
+    public bool TryBegin(ISnesAddressSpace bus, SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, bool deferActivation = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -158,7 +150,7 @@ public sealed class SamusXrayState
         // `$91:E173-$E189` contains a very specific five-bomb/cooldown/divisor rejection.
         // Preserve the three-way conjunction; rejecting every nonzero cooldown would erase
         // a retail quirk, while ignoring it would permit the exact forbidden state.
-        if (projectileCooldownTimer == 7 && bombCounter == 5 && samus.XSpeedDivisor == 2)
+        if (conditions.ProjectileCooldownTimer == 7 && conditions.BombCounter == 5 && samus.XSpeedDivisor == 2)
             return false;
 
         // Landing art `$A4-$A7/$E0-$E7` is explicitly excluded even though its movement
@@ -168,7 +160,7 @@ public sealed class SamusXrayState
             >= SamusPoseId.LandingAimUpRightPose and <= SamusPoseId.FiringLandingLeftPose)
             return false;
 
-        if (gameState != 8 || powerBombExplosionStatus != 0 ||
+        if (conditions.GameState != 8 || conditions.PowerBombExplosionStatus != 0 ||
             samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0)
         {
             return false;

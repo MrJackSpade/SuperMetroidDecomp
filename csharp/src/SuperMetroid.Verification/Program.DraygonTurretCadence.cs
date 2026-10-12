@@ -21,8 +21,7 @@ internal static partial class Program
         int StepWith(byte counter8, ushort counter16)
         {
             int before = boss.TurretCadenceChecks;
-            runtime.Enemies.StepFrame(new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y),                 timeIsFrozen: false, samus: runtime.Samus, level: runtime.LevelData,
-                nmiFrameCounter8: counter8, nmiFrameCounter: counter16);
+            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y), TimeIsFrozen = false, Samus = runtime.Samus, Level = runtime.LevelData, NmiFrameCounter8 = counter8, NmiFrameCounter = counter16 });
             return boss.TurretCadenceChecks - before;
         }
 

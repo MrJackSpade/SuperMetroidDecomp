@@ -158,7 +158,7 @@ static void VerifySamusMorphBallMovement()
     // The compiled retail transition is 03,03,F9: six animation ticks
     // reach the frame-two branch while retaining its native F9 operands.
     for (int tick = 0; tick < 6; tick++)
-        samus.AnimateNoFx(bus);
+        samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xf9, samus.LastAnimationDelayCommand!.Value, "morph transition reaches F9");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, samus.PendingTransitionalPose!.Value,
         "F9 selects no-spring grounded endpoint");
@@ -507,7 +507,7 @@ static void VerifySamusMorphBallMovement()
         "airborne F9 fixture begins morph");
     airborneEntry.Kinematics.YSubspeed = 1;
     for (int tick = 0; tick < 6; tick++)
-        airborneEntry.AnimateNoFx(bus);
+        airborneEntry.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, airborneEntry.PendingTransitionalPose!.Value,
         "F9 nonzero Y subspeed selects airborne endpoint");
 
@@ -526,7 +526,7 @@ static void VerifySamusMorphBallMovement()
             bus, floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "Spring Ball fixture begins morph entry");
     for (int tick = 0; tick < 6; tick++)
-        spring.AnimateNoFx(bus);
+        spring.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(SamusPoseId.SpringBallGroundRightPose, spring.PendingTransitionalPose!.Value,
         "F9 equipped endpoint selects Spring Ball ground");
     AssertTrue(spring.ApplyPendingVerifiedAnimationTransition(bus), "Spring Ball F9 applies");

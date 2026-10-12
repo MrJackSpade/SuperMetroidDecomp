@@ -1038,8 +1038,8 @@ internal static partial class Program
             };
             stockRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
             editedRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
-            stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, original.RoomPaletteFx, 0, 0, false, false);
-            editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, edited.RoomPaletteFx, 0, 0, false, false);
+            stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, original.RoomPaletteFx, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, edited.RoomPaletteFx, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(
                 stockRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)] !=
                 editedRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)],

@@ -60,14 +60,7 @@ public sealed partial class RoomEnemySystem
     /// Executes the common grapple AI selected by handler bit zero. Returning true tells the
     /// ordinary scheduler that this call replaced main AI for the current enemy frame.
     /// </summary>
-    private bool RunCommonGrappleAi(
-        RoomEnemySlot enemy,
-        SamusState? samus,
-        ushort newlyPressedControllerInput,
-        ushort controllerInput,
-        RoomLevelData? level,
-        Position16<RoomPixels> camera,
-        byte nmiFrameCounter8)
+    private bool RunCommonGrappleAi(RoomEnemySlot enemy, RoomEnemyFrame frame, byte nmiFrameCounter8)
     {
         if ((enemy.AiHandlerBits & 1) == 0)
             return false;
@@ -116,15 +109,13 @@ public sealed partial class RoomEnemySystem
                 // This common wrapper is Powamp's crucial distinction: it invokes the
                 // enemy's normal main function while bit zero remains observable, then
                 // clears that bit after the actor has moved its grapple anchor.
-                RunMainAi(
-                    enemy,
-                    samus,
-                    newlyPressedControllerInput,
-                    controllerInput,
-                    level,
-                    camera,
-                    samusProjectiles: null,
-                    nmiFrameCounter8);
+                RunMainAi(enemy, frame with
+                {
+                    SamusProjectiles = null,
+                    Mode7Transform = null,
+                    SharedProjectiles = null,
+                    VramWriteQueue = null,
+                }, nmiFrameCounter8);
                 enemy.AiHandlerBits = 0;
                 return true;
 

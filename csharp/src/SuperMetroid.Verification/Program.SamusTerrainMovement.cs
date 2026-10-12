@@ -96,11 +96,7 @@ static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(24, 21)),
         Radius = new(5, 5),
     };
-    BlockMoveResult slopeMove = SamusBlockCollision.MoveHorizontal(
-        bus,
-        level,
-        slopeBody,
-        displacement: 0x00010000);
+    BlockMoveResult slopeMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, slopeBody, new HorizontalBlockMove { Displacement = 0x00010000 });
     AssertEqual(0x0000c000, slopeMove.AcceptedDisplacement, "horizontal scan applies BTS $12 multiplier");
     AssertEqual(24, slopeBody.Position.X.Whole, "subpixel slope move preserves whole X");
     AssertEqual(0xc000, slopeBody.Position.X.Fraction, "subpixel slope move updates X fraction");
@@ -114,12 +110,7 @@ static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(24, 19)),
         Radius = new(5, 5),
     };
-    BlockMoveResult groundProbe = SamusBlockCollision.MoveVertical(
-        bus,
-        level,
-        groundedBody,
-        displacement: 0x00010000,
-        scanLeftToRight: true);
+    BlockMoveResult groundProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, groundedBody, new VerticalBlockMove { Displacement = 0x00010000, ScanLeftToRight = true });
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement, "vertical non-square grounding probe clips to zero");
     AssertEqual(19, groundedBody.Position.Y.Whole, "grounding collision preserves resting center Y");
@@ -134,11 +125,7 @@ static void VerifySamusBlockCollision()
         Radius = new(5, 5),
         HorizontalSlopeCollisionEnable = 0,
     };
-    BlockMoveResult wallMove = SamusBlockCollision.MoveHorizontal(
-        bus,
-        level,
-        wallBody,
-        displacement: 0x00020000);
+    BlockMoveResult wallMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, wallBody, new HorizontalBlockMove { Displacement = 0x00020000 });
     AssertTrue(wallMove.Collided, "horizontal type-8 solid collision flag");
     AssertEqual(0x00010000, wallMove.AcceptedDisplacement, "horizontal type-8 solid clipped amount");
     AssertEqual(27, wallBody.Position.X.Whole, "horizontal type-8 solid whole X");
@@ -151,12 +138,7 @@ static void VerifySamusBlockCollision()
         Position = new(new(56, 0), new(19, 0x4000)),
         Radius = new(5, 5),
     };
-    BlockMoveResult airMove = SamusBlockCollision.MoveVertical(
-        bus,
-        level,
-        airBody,
-        displacement: 0x00008000,
-        scanLeftToRight: false);
+    BlockMoveResult airMove = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, airBody, new VerticalBlockMove { Displacement = 0x00008000, ScanLeftToRight = false });
     AssertTrue(!airMove.Collided, "vertical type-0 air has no collision");
     AssertEqual(19, airBody.Position.Y.Whole, "vertical air fractional move whole Y");
     AssertEqual(0xc000, airBody.Position.Y.Fraction, "vertical air fractional move subposition");
@@ -178,11 +160,7 @@ static void VerifySamusBlockCollision()
         Radius = new(5, 5),
         HorizontalSlopeCollisionEnable = 0,
     };
-    BlockMoveResult squareWall = SamusBlockCollision.MoveHorizontal(
-        bus,
-        squareLevel,
-        squareWallBody,
-        displacement: 0x00020000);
+    BlockMoveResult squareWall = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = squareLevel }, squareWallBody, new HorizontalBlockMove { Displacement = 0x00020000 });
     AssertTrue(squareWall.Collided, "horizontal fully-solid square slope collision");
     AssertEqual(0x00010000, squareWall.AcceptedDisplacement, "horizontal square-slope 8-pixel clipping");
     AssertEqual(0xffff, squareWallBody.Position.X.Fraction, "horizontal square slope writes right-wall fraction");
@@ -192,12 +170,7 @@ static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(16, 26)),
         Radius = new(5, 5),
     };
-    BlockMoveResult squareFloor = SamusBlockCollision.MoveVertical(
-        bus,
-        squareLevel,
-        squareFloorBody,
-        displacement: 0x00020000,
-        scanLeftToRight: true);
+    BlockMoveResult squareFloor = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = squareLevel }, squareFloorBody, new VerticalBlockMove { Displacement = 0x00020000, ScanLeftToRight = true });
     AssertTrue(squareFloor.Collided, "vertical fully-solid square slope collision");
     AssertEqual(0x00010000, squareFloor.AcceptedDisplacement, "vertical square-slope 8-pixel clipping");
     AssertTrue(squareFloorBody.PositionAdjustedBySlope, "downward square slope sets adjusted flag");
@@ -226,11 +199,7 @@ static void VerifySamusBlockCollision()
         Radius = new(5, 5),
         HorizontalSlopeCollisionEnable = 0,
     };
-    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(
-        bus,
-        doorLevel,
-        doorBody,
-        displacement: 0x00020000);
+    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = doorLevel }, doorBody, new HorizontalBlockMove { Displacement = 0x00020000 });
     AssertTrue(!normalDoorMove.Collided, "normal type-$9 door returns carry clear");
     AssertEqual(0x00020000, normalDoorMove.AcceptedDisplacement,
         "normal type-$9 door accepts full horizontal displacement");
@@ -252,11 +221,7 @@ static void VerifySamusBlockCollision()
         new byte[8],
         doorListPointer: doorListPointer);
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
-    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(
-        bus,
-        elevatorDoorLevel,
-        doorBody,
-        displacement: 0x00020000);
+    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = elevatorDoorLevel }, doorBody, new HorizontalBlockMove { Displacement = 0x00020000 });
     AssertTrue(elevatorDoorMove.Collided, "elevator pseudo-door remains solid");
     AssertEqual(0x00010000, elevatorDoorMove.AcceptedDisplacement,
         "elevator pseudo-door uses ordinary solid clipping");
@@ -272,11 +237,7 @@ static void VerifySamusBlockCollision()
         Radius = new(5, 5),
         HorizontalSlopeCollisionEnable = 0,
     };
-    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(
-        bus,
-        level,
-        rightEdgeBody,
-        displacement: 0x00020000);
+    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, rightEdgeBody, new HorizontalBlockMove { Displacement = 0x00020000 });
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement,
         "prefilled right room edge clips at logical boundary");
@@ -288,12 +249,7 @@ static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(56, 58)),
         Radius = new(5, 5),
     };
-    BlockMoveResult bottomEdgeMove = SamusBlockCollision.MoveVertical(
-        bus,
-        level,
-        bottomEdgeBody,
-        displacement: 0x00020000,
-        scanLeftToRight: true);
+    BlockMoveResult bottomEdgeMove = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, bottomEdgeBody, new VerticalBlockMove { Displacement = 0x00020000, ScanLeftToRight = true });
     AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
     AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement,
         "prefilled bottom room edge clips at logical boundary");
@@ -341,11 +297,7 @@ static void VerifySamusBlockCollision()
             Radius = new(5, 5),
             HorizontalSlopeCollisionEnable = 0,
         };
-        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(
-            bus,
-            dispatcherLevel,
-            dispatcherBody,
-            displacement: 0x00020000);
+        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = dispatcherLevel }, dispatcherBody, new HorizontalBlockMove { Displacement = 0x00020000 });
 
         AssertEqual(expectedCollision, dispatcherMove.Collided,
             $"body dispatcher type ${(collisionWord >> 12):X1} collision topology");
@@ -387,12 +339,7 @@ static void VerifySamusBlockCollision()
             AreaId.Norfair,
             areaBossDefeated: false);
 
-        BlockMoveResult spikeFloor = SamusBlockCollision.MoveVertical(
-            bus,
-            spikeLevel,
-            spikeSamus.Kinematics,
-            displacement: 2 << 16,
-            scanLeftToRight: true);
+        BlockMoveResult spikeFloor = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = spikeLevel }, spikeSamus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true });
         AssertTrue(spikeFloor.Collided,
             $"spike-block BTS ${spikeBehavior:X2} retains solid collision");
         AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PeriodicDamage,
@@ -432,12 +379,7 @@ static void VerifySamusBlockCollision()
             spikeSamus,
             AreaId.WreckedShip,
             bossDefeated);
-        _ = SamusBlockCollision.MoveVertical(
-            bus,
-            wreckedShipSpikes,
-            spikeSamus.Kinematics,
-            displacement: 2 << 16,
-            scanLeftToRight: true);
+        _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = wreckedShipSpikes }, spikeSamus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true });
         AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PeriodicDamage,
             $"Wrecked Ship BTS-zero spike boss gate {bossDefeated}");
     }
@@ -825,7 +767,7 @@ static void VerifySamusGroundedReversal()
     // Three two-tick art frames lead to byte index three, command $F8. Its operand $02 is
     // pending until the transition seam; applying it initializes pose $02 frame zero.
     for (int tick = 0; tick < 6; tick++)
-        animatedTurn.AnimateNoFx(bus);
+        animatedTurn.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xf8, animatedTurn.LastAnimationDelayCommand!.Value, "turn reaches command $F8");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.PendingTransitionalPose!.Value, "turn $F8 publishes left-standing pose");
     AssertTrue(animatedTurn.ApplyPendingVerifiedAnimationTransition(bus), "turn animation transition applies");
@@ -944,7 +886,7 @@ static void VerifySamusGroundedReversal()
             $"aimed turn preserves old momentum direction case {caseIndex}");
 
         for (int tick = 0; tick < 6; tick++)
-            aimedTurn.AnimateNoFx(bus);
+            aimedTurn.AnimateNoFx(bus, new SamusAnimationStep());
         AssertEqual(0xf8, aimedTurn.LastAnimationDelayCommand!.Value, $"aimed turn reaches $F8 case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.PendingTransitionalPose!.Value, $"aimed turn publishes destination case {caseIndex}");
         AssertTrue(aimedTurn.ApplyPendingVerifiedAnimationTransition(bus), $"aimed turn transition applies case {caseIndex}");
@@ -1061,7 +1003,7 @@ static void VerifySamusGroundedReversal()
         }
 
         for (int tick = 0; tick < 6; tick++)
-            crouchedTurn.AnimateNoFx(bus);
+            crouchedTurn.AnimateNoFx(bus, new SamusAnimationStep());
         AssertEqual(0xf8, crouchedTurn.LastAnimationDelayCommand!.Value, $"crouched turn reaches $F8 case {caseIndex}");
         AssertEqual(testCase.Destination, crouchedTurn.PendingTransitionalPose!.Value, $"crouched turn publishes destination case {caseIndex}");
         AssertTrue(crouchedTurn.ApplyPendingVerifiedAnimationTransition(bus), $"crouched turn transition applies case {caseIndex}");
@@ -1327,7 +1269,7 @@ static void VerifySamusMoonwalking()
     var animated = new SamusState { Pose = SamusPoseId.MoonwalkFacingRightPose };
     animated.ApplyMoonwalkTurnJump(bus, SamusPoseId.MoonwalkTurnJumpLeftPose);
     for (int tick = 0; tick < 6; tick++)
-        animated.AnimateNoFx(bus);
+        animated.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xf8, animated.LastAnimationDelayCommand!.Value,
         "moonwalk turn reaches command $F8");
     AssertEqual(SamusPoseId.SpinJumpLeftPose, animated.PendingTransitionalPose!.Value,

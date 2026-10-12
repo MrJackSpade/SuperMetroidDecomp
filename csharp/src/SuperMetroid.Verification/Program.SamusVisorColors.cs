@@ -144,7 +144,7 @@ internal static partial class Program
         };
         samus.RefreshCollisionRadii(rom);
         samus.InitializeAnimation(rom);
-        AssertTrue(samus.Xray.TryBegin(rom, samus, SamusMovementType.Standing),
+        AssertTrue(samus.Xray.TryBegin(rom, samus, SamusMovementType.Standing, new XrayBeginConditions()),
             "stock X-ray setup is accepted");
         return samus;
     }

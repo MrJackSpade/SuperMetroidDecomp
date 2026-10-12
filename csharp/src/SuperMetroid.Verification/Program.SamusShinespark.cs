@@ -173,8 +173,7 @@ static void VerifySamusStoredShineAndShinespark()
         directional.Kinematics.YSubacceleration = 0x2800;
         uint directionalXBefore = directional.Kinematics.Position.X.RawValue;
         uint directionalYBefore = directional.Kinematics.Position.Y.RawValue;
-        directional.Shinespark.Step(
-            bus, directionLevel, directional, nmiFrameCounter: 0);
+        directional.Shinespark.Step(new SamusTerrain { Bus = bus, Level = directionLevel }, directional, new ShinesparkFrame { NmiFrameCounter = 0 });
         AssertEqual(expectedPhase, directional.Shinespark.Phase,
             $"pose ${(int)targetPose:X2} installs expected shinespark handler");
         AssertEqual(expectsHorizontal, directional.Kinematics.Position.X.RawValue != directionalXBefore,
@@ -217,11 +216,7 @@ static void VerifySamusStoredShineAndShinespark()
     externallyReversedSpark.Kinematics.YSubacceleration = 0x2800;
     externallyReversedSpark.Kinematics.ExtraDisplacement = externallyReversedSpark.Kinematics.ExtraDisplacement.WithWholeY(8).WithFractionY(0);
     uint reversedSparkYBefore = externallyReversedSpark.Kinematics.Position.Y.RawValue;
-    externallyReversedSpark.Shinespark.Step(
-        bus,
-        directionLevel,
-        externallyReversedSpark,
-        nmiFrameCounter: 0);
+    externallyReversedSpark.Shinespark.Step(new SamusTerrain { Bus = bus, Level = directionLevel }, externallyReversedSpark, new ShinesparkFrame { NmiFrameCounter = 0 });
     AssertEqual(0x0000d800, unchecked((int)(externallyReversedSpark.Kinematics.Position.Y.RawValue - reversedSparkYBefore)),
         "positive external Y reverses vertical shinespark after native speed negation");
     AssertEqual(160, externallyReversedSpark.Position.Y.Whole,
@@ -231,10 +226,10 @@ static void VerifySamusStoredShineAndShinespark()
 
     for (ushort frame = 0; frame < 29; frame++)
     {
-        ShinesparkMovementResult waiting = shine.Shinespark.Step(bus, empty, shine, frame);
+        ShinesparkMovementResult waiting = shine.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, shine, new ShinesparkFrame { NmiFrameCounter = frame });
         AssertTrue(!waiting.WindupTimedOut, $"windup frame {frame} remains stationary");
     }
-    ShinesparkMovementResult timeout = shine.Shinespark.Step(bus, empty, shine, 29);
+    ShinesparkMovementResult timeout = shine.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, shine, new ShinesparkFrame { NmiFrameCounter = 29 });
     AssertTrue(timeout.WindupTimedOut, "thirtieth windup frame launches vertically");
     AssertEqual(SamusPoseId.ShinesparkVerticalRightPose, shine.Pose,
         "windup timeout selects right-metadata vertical pose");
@@ -265,8 +260,7 @@ static void VerifySamusStoredShineAndShinespark()
         invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
         invincible.Shinespark.BeginWindup(invincible);
         invincible.Shinespark.BeginDirectionalLaunch(bus, invincible, targetPose);
-        invincible.Shinespark.Step(bus, directionLevel, invincible, 0,
-            playerInvincibilityEnabled: true);
+        invincible.Shinespark.Step(new SamusTerrain { Bus = bus, Level = directionLevel }, invincible, new ShinesparkFrame { NmiFrameCounter = 0, PlayerInvincibilityEnabled = true });
         AssertTrue(invincible.Shinespark.Phase is not ShinesparkPhase.Crash,
             $"invincible pose {(int)targetPose:X2} continues at {energy} energy");
         AssertTrue(invincible.Position.X.Whole != 160 || invincible.Position.Y.Whole != 160,
@@ -295,8 +289,7 @@ static void VerifySamusStoredShineAndShinespark()
     var shineBombPlms = new RoomPlmSystem();
 
     uint firstYBefore = horizontal.Kinematics.Position.Y.RawValue;
-    horizontal.Shinespark.Step(
-        bus, empty, horizontal, nmiFrameCounter: 4, plms: shineBombPlms);
+    horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty, Plms = shineBombPlms }, horizontal, new ShinesparkFrame { NmiFrameCounter = 4 });
     AssertTrue(horizontal.Shinespark.Phase == ShinesparkPhase.Horizontal &&
         horizontal.Kinematics.Position.Y.RawValue == firstYBefore,
         "horizontal spark uses only block X movement without colliding");
@@ -316,8 +309,7 @@ static void VerifySamusStoredShineAndShinespark()
         "active spark publishes contact damage two");
 
     uint lowEnergyXBefore = horizontal.Kinematics.Position.X.RawValue;
-    horizontal.Shinespark.Step(
-        bus, empty, horizontal, nmiFrameCounter: 5);
+    horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = 5 });
     AssertTrue(horizontal.Kinematics.Position.X.RawValue != lowEnergyXBefore && horizontal.Health == 29,
         "29-energy frame moves then enters crash without another drain");
     AssertEqual(ShinesparkPhase.Crash, horizontal.Shinespark.Phase,
@@ -331,8 +323,7 @@ static void VerifySamusStoredShineAndShinespark()
 
     ushort crashCenterX = horizontal.Position.X.Whole;
     ushort crashCenterY = horizontal.Position.Y.Whole;
-    ShinesparkMovementResult firstCrash = horizontal.Shinespark.Step(
-        bus, empty, horizontal, nmiFrameCounter: 6);
+    ShinesparkMovementResult firstCrash = horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = 6 });
     AssertEqual(4, horizontal.Shinespark.CrashRadius,
         "crash orbit expands by four");
     AssertEqual(unchecked((ushort)(crashCenterX - 2)),
@@ -350,18 +341,17 @@ static void VerifySamusStoredShineAndShinespark()
     // Four expansion calls, 32 separation calls, and four contraction calls comprise the
     // exact `$90:D383-$D3CC` orbit. One was consumed above, so 39 remain.
     StepFrames(39, frame =>
-        horizontal.Shinespark.Step(bus, empty, horizontal, unchecked((ushort)(7 + frame))));
+        horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = (ushort)(7 + frame) }));
     AssertEqual(ShinesparkPhase.CrashEchoCircle, horizontal.Shinespark.Phase,
         "crash orbit contracts into echo-circle hold");
     AssertEqual(30, horizontal.Shinespark.StartStopTimer,
         "echo circle begins at 30 frames");
 
     StepFrames(30, frame =>
-        horizontal.Shinespark.Step(bus, empty, horizontal, unchecked((ushort)(46 + frame))));
+        horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = (ushort)(46 + frame) }));
     AssertEqual(ShinesparkPhase.CrashFinish, horizontal.Shinespark.Phase,
         "thirtieth echo-circle frame installs finish handler");
-    ShinesparkMovementResult finished = horizontal.Shinespark.Step(
-        bus, empty, horizontal, nmiFrameCounter: 76);
+    ShinesparkMovementResult finished = horizontal.Shinespark.Step(new SamusTerrain { Bus = bus, Level = empty }, horizontal, new ShinesparkFrame { NmiFrameCounter = 76 });
     AssertTrue(finished.CrashSequenceFinished, "finish handler publishes completion");
     AssertEqual(SamusPoseId.ShinesparkHorizontalRightPose, horizontal.Pose,
         "crash finish retains old pose until the post-animation transition");
@@ -443,12 +433,10 @@ static void VerifySamusStoredShineAndShinespark()
             fixtureBus, fixture, SamusPoseId.ShinesparkHorizontalRightPose);
         fixture.Kinematics.YAcceleration = 0;
         fixture.Kinematics.YSubacceleration = 0;
-        fixture.Shinespark.Step(
-            fixtureBus, fixtureLevel, fixture, 0, projectileCounter);
+        fixture.Shinespark.Step(new SamusTerrain { Bus = fixtureBus, Level = fixtureLevel }, fixture, new ShinesparkFrame { NmiFrameCounter = 0, ProjectileCounter = projectileCounter });
         for (ushort frame = 1; frame <= 71; frame++)
         {
-            fixture.Shinespark.Step(
-                fixtureBus, fixtureLevel, fixture, frame, projectileCounter);
+            fixture.Shinespark.Step(new SamusTerrain { Bus = fixtureBus, Level = fixtureLevel }, fixture, new ShinesparkFrame { NmiFrameCounter = frame, ProjectileCounter = projectileCounter });
         }
         return fixture;
     }

@@ -1049,7 +1049,7 @@ public sealed partial class IntroCinematicState
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            samus.AnimateNoFx(bus, demoInput, nmiFrameCounter);
+            samus.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = nmiFrameCounter });
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode

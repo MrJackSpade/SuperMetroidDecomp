@@ -82,7 +82,7 @@ internal static partial class Program
                 samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(48, 112));
                 samus.Kinematics.Radius = new(5, 16);
                 for (int frame = 0; frame < 32 && !runtime.HasPendingDoorTransition; frame++)
-                    SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, -(1 << 16), plms: runtime.Plms);
+                    SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -(1 << 16) });
                 AssertTrue(runtime.HasPendingDoorTransition, "Samus can cross opened rescue exit and trigger room transition");
                 AssertEqual((ushort)184, runtime.RoomLayer3Fx.TargetYPosition, "rescue liquid target matches retail FX header");
             }

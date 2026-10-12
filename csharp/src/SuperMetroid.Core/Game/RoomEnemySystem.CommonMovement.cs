@@ -132,15 +132,7 @@ public sealed partial class RoomEnemySystem
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
             int remaining = spanMinusOne - scanIndex;
-            if (EnemyVerticalProbeIsSolid(
-                    level,
-                    slot,
-                    EnemyMoverBlockIndex(firstIndex + scanIndex),
-                    targetCenter,
-                    targetEdge,
-                    movingUp,
-                    remaining,
-                    spanMinusOne))
+            if (EnemyVerticalProbeIsSolid(level, slot, EnemyMoverBlockIndex(firstIndex + scanIndex), new EnemyVerticalProbe { TargetCenter = targetCenter, TargetEdge = targetEdge, MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
             {
                 collided = true;
                 break;
@@ -305,15 +297,7 @@ public sealed partial class RoomEnemySystem
         };
     }
 
-    private bool EnemyVerticalProbeIsSolid(
-        RoomLevelData level,
-        RoomEnemySlot slot,
-        int nativeIndex,
-        ushort targetCenter,
-        ushort targetEdge,
-        bool movingUp,
-        int remaining,
-        int spanMinusOne)
+    private bool EnemyVerticalProbeIsSolid(RoomLevelData level, RoomEnemySlot slot, int nativeIndex, EnemyVerticalProbe probe)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, nativeIndex);
         int blockIndex = block.Index;
@@ -330,14 +314,14 @@ public sealed partial class RoomEnemySystem
                     level,
                     slot,
                     block,
-                    targetCenter,
-                    movingUp),
+                    probe.TargetCenter,
+                    probe.MovingUp),
             RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
                 slot,
-                targetEdge,
+                probe.TargetEdge,
                 block.Bts,
-                remaining,
-                spanMinusOne),
+                probe.Remaining,
+                probe.SpanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
             RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, blockIndex, block),
             RoomCollisionType.SolidBlock or

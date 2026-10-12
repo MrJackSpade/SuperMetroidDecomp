@@ -31,13 +31,13 @@ internal static partial class Program
         enemies.ElevatorDoorTransitionActive = true;
         for (int frame = 0; frame < 3; frame++)
         {
-            enemies.StepFrame(new(0x200, 0xb00), false, samus, level: level);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
             AssertEqual(0, enemies.SoundRequests.Count, "transition does not consume the Etecoon fanfare");
             foreach (var state in enemies.EtecoonStates.Where(state => state is not null))
                 AssertEqual((ushort)0xffff, state!.FunctionTimer, "transition preserves dormant Etecoon timer");
         }
         enemies.ElevatorDoorTransitionActive = false;
-        enemies.StepFrame(new(0x200, 0xb00), false, samus, level: level);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
         AssertEqual(1, enemies.SoundRequests.Count, "trio publishes one fanfare after fade");
         var request = enemies.SoundRequests[0];
         AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x35), request.SoundEffect,
@@ -51,7 +51,7 @@ internal static partial class Program
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
         queue.QueueSound(request.SoundEffect, request.MaximumQueued);
         AssertTrue(queue.HasQueuedSounds, "post-fade fanfare reaches CPU queue");
-        enemies.StepFrame(new(0x200, 0xb00), false, samus, level: level);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
         AssertEqual(0, enemies.SoundRequests.Count, "next frame does not repeat fanfare");
         var channels = (ManagedSpcSoundChannel[][])typeof(ManagedSpcPlayer)
             .GetField("soundChannels", flags)!.GetValue(renderer.Player)!;

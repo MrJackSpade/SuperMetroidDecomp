@@ -771,16 +771,7 @@ public sealed partial class SuperMetroidRuntime
             GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
             GrapplePhase.Dropped)
         {
-            LastGrappleMovement = SamusGrappleMovement.Step(
-                _addressSpace,
-                LevelData,
-                Samus,
-                Controller1.Current,
-                Controller1.NewlyPressed,
-                NmiFrameCounter,
-                Enemies.ResolveGrappleEndpoint,
-                Plms,
-                deferDropPoseChange: true);
+            LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Bus = _addressSpace, Level = LevelData, Plms = Plms }, Samus, Controller1.Current, Controller1.NewlyPressed, NmiFrameCounter, Enemies.ResolveGrappleEndpoint, deferDropPoseChange: true);
             grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!TimeIsFrozen &&
@@ -849,15 +840,7 @@ public sealed partial class SuperMetroidRuntime
         if (!Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return Samus.Xray.TryBegin(
-            _addressSpace,
-            Samus,
-            PreviousMovementTypeForXray,
-            gameState,
-            PowerBombExplosionStatus,
-            BombProjectiles.CooldownTimer,
-            BombProjectiles.BombCounter,
-            deferActivation);
+        return Samus.Xray.TryBegin(_addressSpace, Samus, PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionStatus = PowerBombExplosionStatus, ProjectileCooldownTimer = BombProjectiles.CooldownTimer, BombCounter = BombProjectiles.BombCounter }, deferActivation);
     }
 
     /// <summary>
@@ -1218,16 +1201,7 @@ public sealed partial class SuperMetroidRuntime
         }
         if (Camera is not null)
         {
-            RoomLayer3Fx.Step(
-                _addressSpace,
-                Vram,
-                Camera.PixelPosition,
-                TimeIsFrozen,
-                System.MainGameLoopCarry,
-                System.RandomNumber,
-                Enemies.FirefleaDarknessLevel,
-                powerBomb: BombProjectiles.PowerBombExplosion,
-                liquidMotionAlreadyAdvanced: RoomLayer3Fx.MovesLiquidInHdmaPass);
+            RoomLayer3Fx.Step(_addressSpace, Vram, new RoomLayer3FxFrame { Camera = Camera.PixelPosition, TimeIsFrozen = TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Enemies.FirefleaDarknessLevel, PowerBomb = BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = RoomLayer3Fx.MovesLiquidInHdmaPass });
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
@@ -1270,19 +1244,9 @@ public sealed partial class SuperMetroidRuntime
         if (RoomPaletteFx.HandlerEnabled && !Enemies.ElevatorDoorTransitionActive &&
             Samus?.Xray.ArePaletteFxSuspended != true)
         {
-            RoomPaletteFx.Step(
-                _addressSpace,
-                Cgram,
-                MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
-                    "Gameplay palette FX requires installed map presentation colors."),
-                Samus?.Position.Y.Whole ?? 0,
-                Samus?.EquippedItems ?? 0,
-                enemyZeroIsDead: Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0,
-                areaMiniBossDefeated: ActiveRoom is { } paletteRoom &&
-                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss),
-                samus: Samus,
-                nmiFrameCounter: NmiFrameCounter,
-                powerBomb: BombProjectiles.PowerBombExplosion);
+            RoomPaletteFx.Step(_addressSpace, Cgram, MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
+                    "Gameplay palette FX requires installed map presentation colors."), new PaletteFxFrame { SamusY = Samus?.Position.Y.Whole ?? 0, EquippedItems = Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0, AreaMiniBossDefeated = ActiveRoom is { } paletteRoom &&
+                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Samus, NmiFrameCounter = NmiFrameCounter, PowerBomb = BombProjectiles.PowerBombExplosion });
         }
         // Hyper Beam's palette object lives in the same native pool and handler.
         LastHyperBeamPaletteFxStep = RoomPaletteFx.HandlerEnabled
@@ -1841,18 +1805,7 @@ public sealed partial class SuperMetroidRuntime
                     // Determine_Samus_YAcceleration supplies the environment-selected pair
                     // used as spark acceleration. Projectile_Func7 does not replace it.
                     SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
-                    LastShinesparkMovement = Samus.Shinespark.Step(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        NmiFrameCounter,
-                        Projectiles.ProjectileCounter,
-                        Plms,
-                        playerInvincibilityEnabled: PlayerInvincibilityEnabled,
-                        projectiles: Projectiles,
-                        gameTimeFrames: GameTime.Frames,
-                        deferTimeoutPoseChange: true,
-                        previousCheckpoint: previousCameraPoint);
+                    LastShinesparkMovement = Samus.Shinespark.Step(new SamusTerrain { Bus = _addressSpace, Level = LevelData, Plms = Plms }, Samus, new ShinesparkFrame { NmiFrameCounter = NmiFrameCounter, ProjectileCounter = Projectiles.ProjectileCounter, PlayerInvincibilityEnabled = PlayerInvincibilityEnabled, Projectiles = Projectiles, GameTimeFrames = GameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = previousCameraPoint });
                     if (LastShinesparkMovement.Value.WindupTimedOut)
                     {
                         // The movement handler publishes an interrupted vertical pose. That
@@ -2390,15 +2343,7 @@ Landed: true, HitCeiling: false);
             // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
             else if (!stationaryScriptControlLocked && !refillStationLocked && !suitOwnsSamus)
             {
-                Samus.AnimateNoFx(
-                    _addressSpace,
-                    Controller1.Current,
-                    NmiFrameCounter,
-                    System,
-                    beginLiquidSoundRequestFrame: false,
-                    prospectiveInputPose: ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose,
-                    demoPoseInput: IsAttractDemo,
-                    queueEchoSound: queueEchoSound);
+                Samus.AnimateNoFx(_addressSpace, new SamusAnimationStep { ControllerInput = Controller1.Current, NmiFrameCounter = NmiFrameCounter, System = System, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose, DemoPoseInput = IsAttractDemo, QueueEchoSound = queueEchoSound });
                 StepSamusLoadAppearance();
             }
 

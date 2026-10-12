@@ -327,7 +327,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         internal void ShareChannels(PaletteFrame source, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition = 0, int greenAddition = 0)
         {
             if (Body.Length != source.Body.Length) return;
-            var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, red, green, blue, redAddition, greenAddition);
+            var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, new RainbowChannelSelection { Red = red, Green = green, Blue = blue, RedAddition = redAddition, GreenAddition = greenAddition });
             if (sharing is not null) Body = new BodyColors(sharing);
         }
         internal void ShareTint(PaletteFrame source, int red, int green, int blue)
@@ -460,32 +460,32 @@ public sealed class MotherBrainRainbowPalettePresentation
         private readonly int redAddition, greenAddition, independentCount;
         private readonly MotherBrainRainbowShadeChannel independent;
         internal int Length => source.Length;
-        private SharedBodyChannels(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition, int greenAddition)
+        private SharedBodyChannels(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
         {
-            this.source = source; this.red = red; this.green = green; this.blue = blue; this.redAddition = redAddition; this.greenAddition = greenAddition;
-            independentCount = (red ? 0 : 1) + (green ? 0 : 1) + (blue ? 0 : 1);
+            this.source = source; this.red = channels.Red; this.green = channels.Green; this.blue = channels.Blue; this.redAddition = channels.RedAddition; this.greenAddition = channels.GreenAddition;
+            independentCount = (channels.Red ? 0 : 1) + (channels.Green ? 0 : 1) + (channels.Blue ? 0 : 1);
             if (independentCount != 1) throw new InvalidOperationException("A rainbow shade profile requires one independently supplied channel.");
             var samples = new byte[Length];
             int index = 0;
             for (int color = 0; color < Length; color++)
             {
                 Bgr555 word = selected[color];
-                if (!red) samples[index++] = (byte)(word.Red);
-                if (!green) samples[index++] = (byte)(word.Green);
-                if (!blue) samples[index++] = (byte)(word.Blue);
+                if (!channels.Red) samples[index++] = (byte)(word.Red);
+                if (!channels.Green) samples[index++] = (byte)(word.Green);
+                if (!channels.Blue) samples[index++] = (byte)(word.Blue);
             }
             independent = new MotherBrainRainbowShadeChannel(samples, profile, color => source[color].Green);
         }
-        internal static SharedBodyChannels? TryCreate(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition, int greenAddition)
+        internal static SharedBodyChannels? TryCreate(BodyColors source, BodyColors selected, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
         {
             for (int color = 0; color < source.Length; color++)
             {
                 Bgr555 from = source[color], to = selected[color];
-                if (red && (from.Red) + redAddition != (to.Red) ||
-                    green && (from.Green) + greenAddition != (to.Green) ||
-                    blue && (from.Blue) != (to.Blue)) return null;
+                if (channels.Red && (from.Red) + channels.RedAddition != (to.Red) ||
+                    channels.Green && (from.Green) + channels.GreenAddition != (to.Green) ||
+                    channels.Blue && (from.Blue) != (to.Blue)) return null;
             }
-            return new(source, selected, profile, red, green, blue, redAddition, greenAddition);
+            return new(source, selected, profile, new RainbowChannelSelection { Red = channels.Red, Green = channels.Green, Blue = channels.Blue, RedAddition = channels.RedAddition, GreenAddition = channels.GreenAddition });
         }
         internal Bgr555 this[int color]
         {

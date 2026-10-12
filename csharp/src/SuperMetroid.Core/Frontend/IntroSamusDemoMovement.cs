@@ -75,7 +75,7 @@ internal static class IntroSamusDemoMovement
                 $"SR388 intro demo reached invalid grounded-left pose ${(int)poseAtFrameStart:X2}.");
         }
 
-        samus.AnimateNoFx(bus, heldInput, nmiFrameCounter);
+        samus.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = heldInput, NmiFrameCounter = nmiFrameCounter });
 
         // Native pose commit probes a proposed run before installing it. The clear
         // probe retains its movement; this is shared gameplay behavior, not cosmetic

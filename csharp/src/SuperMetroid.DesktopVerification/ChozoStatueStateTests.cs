@@ -28,9 +28,7 @@ internal static partial class Program
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.InitializeAnimation(loaded.AddressSpace);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y - 1)));
-        var collision = SamusBlockCollision.MoveVertical(loaded.AddressSpace, level,
-            samus.Kinematics, 2 << 16, scanLeftToRight: true, canBreakBombBlocks: false,
-            includeSolidEnemies: false, plms: runtime.Plms);
+        var collision = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = loaded.AddressSpace, Level = level, Plms = runtime.Plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
         // Samus's whole horizontal extent lies in the hand's column, so the downward contact
         // that collided is the hand block; activating the statue is that block's trigger effect.
         bool spanWithinHandColumn =
@@ -93,9 +91,7 @@ internal static partial class Program
             samus.PoseId = bossAlive ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.FacingRightNormalPose;
             samus.InitializeAnimation(loaded.AddressSpace);
             samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y - 1)));
-            var result = SamusBlockCollision.MoveVertical(loaded.AddressSpace, runtime.LevelData!,
-                samus.Kinematics, 2 << 16, scanLeftToRight: true, canBreakBombBlocks: false,
-                includeSolidEnemies: false, plms: runtime.Plms);
+            var result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = loaded.AddressSpace, Level = runtime.LevelData, Plms = runtime.Plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
             if (!result.Collided || runtime.Enemies.Slots[0].Parameter1 != 0 ||
                 !runtime.GroundedSamusMovementEnabled)
                 throw new InvalidDataException($"Chozo hand admitted invalid contact: bossAlive={bossAlive}.");

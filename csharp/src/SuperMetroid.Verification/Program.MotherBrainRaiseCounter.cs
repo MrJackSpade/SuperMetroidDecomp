@@ -22,9 +22,7 @@ internal static partial class Program
         state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
         var camera = runtime.Camera!;
 
-        void Step(byte counter8, ushort counter) => runtime.Enemies.StepFrame(
-            camera.PixelPosition, timeIsFrozen: false, runtime.Samus,
-            level: runtime.LevelData, nmiFrameCounter8: counter8, nmiFrameCounter: counter);
+        void Step(byte counter8, ushort counter) => runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = camera.PixelPosition, TimeIsFrozen = false, Samus = runtime.Samus, Level = runtime.LevelData, NmiFrameCounter8 = counter8, NmiFrameCounter = counter });
 
         Step(0x68, 0x01ff);
         AssertEqual((ushort)0x0117, state.Body.Position.Y.Whole, "no raise while $05B6 & 3 is nonzero, whatever $05B5 holds");

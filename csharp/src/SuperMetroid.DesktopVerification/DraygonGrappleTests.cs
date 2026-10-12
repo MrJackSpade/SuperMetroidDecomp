@@ -29,7 +29,7 @@ internal static partial class Program
         if (samus.Grapple.Phase != GrapplePhase.ConnectedLocked)
             throw new InvalidOperationException("Held grapple did not select the native locked connection.");
         CheckHeldBody();
-        SamusGrappleMovement.Step(loaded.AddressSpace, runtime.LevelData!, samus, 0, 0);
+        SamusGrappleMovement.Step(new SamusTerrain { Bus = loaded.AddressSpace, Level = runtime.LevelData }, samus, 0, 0);
         SamusGrappleMovement.CompleteFiringCancellation(loaded.AddressSpace, runtime.LevelData!, samus);
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
             throw new InvalidOperationException("Held grapple did not cancel on release.");

@@ -172,7 +172,7 @@ internal static partial class Program
         AssertTrue(samus.AnimationFrameTimer is > 0 and <= 32,
             "running fixture starts with a bounded native animation delay");
         while (samus.AnimationFrameTimer > 1)
-            samus.AnimateNoFx(bus);
+            samus.AnimateNoFx(bus, new SamusAnimationStep());
     }
 
     private static CartridgeReadGuard NewSamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) =>

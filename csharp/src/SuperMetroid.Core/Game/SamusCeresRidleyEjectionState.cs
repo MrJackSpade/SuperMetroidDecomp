@@ -109,12 +109,7 @@ public sealed class SamusCeresRidleyEjectionState
             bus,
             samus.ReadMovementType(bus));
         var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == 1, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            requestedX.Displacement,
-            collisionMovementDirection: requestedX.CollisionDirection);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
         {
@@ -149,12 +144,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.YSpeed = unchecked((ushort)(accelerated >> 16));
             samus.Kinematics.YSubspeed = unchecked((ushort)accelerated);
         }
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            samus.Kinematics,
-            unchecked((int)samus.Kinematics.VerticalSpeedFixed),
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new VerticalBlockMove { Displacement = (int)samus.Kinematics.VerticalSpeedFixed, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
 
         return new CeresRidleyEjectionResult();
     }

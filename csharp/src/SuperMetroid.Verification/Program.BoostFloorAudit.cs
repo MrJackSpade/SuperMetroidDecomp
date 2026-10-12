@@ -43,15 +43,14 @@ internal static partial class Program
         var kinematics = samus.Kinematics;
         kinematics.Position = kinematics.Position.WithWholeX(375).WithWholeY(451).WithFractionY(0);
         kinematics.PositionAdjustedBySlope = false;
-        var floor = SamusBlockCollision.MoveVertical(bus, level, kinematics, 1 << 16,
-            scanLeftToRight: true, includeSolidEnemies: false);
+        var floor = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, kinematics, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = true, IncludeSolidEnemies = false });
         AssertTrue(floor.Collided && kinematics.PositionAdjustedBySlope, "downward square-floor contact sets native support latch");
-        SamusBlockCollision.MoveHorizontal(bus, level, kinematics, 7 << 16);
+        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, kinematics, new HorizontalBlockMove { Displacement = 7 << 16 });
         AssertTrue(kinematics.PositionAdjustedBySlope, "horizontal alignment preserves prior square-floor support");
-        SamusBlockCollision.MoveVertical(bus, level, kinematics, 0, scanLeftToRight: false, includeSolidEnemies: false);
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, kinematics, new VerticalBlockMove { Displacement = 0, ScanLeftToRight = false, IncludeSolidEnemies = false });
         AssertTrue(kinematics.PositionAdjustedBySlope, "zero vertical movement preserves native support latch");
         kinematics.Position = kinematics.Position.WithWholeY(400);
-        SamusBlockCollision.MoveVertical(bus, level, kinematics, 1 << 16, scanLeftToRight: false, includeSolidEnemies: false);
+        SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, kinematics, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = false, IncludeSolidEnemies = false });
         AssertTrue(!kinematics.PositionAdjustedBySlope, "nonzero unobstructed terrain entry clears support latch");
         Console.WriteLine("  Boosted floor: retail half-height traversal, real wall endpoint and native slope-support latch lifetime agree.");
     }

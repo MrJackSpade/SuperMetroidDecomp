@@ -119,11 +119,9 @@ public sealed class RoomLayer3FxState
         ushort doorPointer,
         ushort randomNumber,
         ushort roomHeaderPointer = 0) =>
-        LoadCore(bus, vram, cgram, fxPointer, doorPointer, randomNumber, roomHeaderPointer, null);
+        LoadCore(bus, vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, RoomHeaderPointer = roomHeaderPointer, SuppliedDefinition = null });
 
-    private void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram,
-        ushort fxPointer, ushort doorPointer, ushort randomNumber, ushort roomHeaderPointer,
-        RoomFxRecordDefinition? suppliedDefinition)
+    private void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -141,15 +139,15 @@ public sealed class RoomLayer3FxState
         Array.Fill(clearedTilemap, RoomFxRomData.Layer3.ClearTilemapWord);
         layer3Area.Write(clearedTilemap);
 
-        if (RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(roomHeaderPointer))
+        if (RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(source.RoomHeaderPointer))
             earthquakeSoundTimer = ushort.MaxValue;
-        if (fxPointer == 0)
+        if (source.FxPointer == 0)
             return;
 
-        ushort record = suppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(fxPointer, doorPointer);
+        ushort record = source.SuppliedDefinition?.Pointer ?? RoomFxRecordDefinitions.Select(source.FxPointer, source.DoorPointer);
         if (record == 0)
             return;
-        RoomFxRecordDefinition definition = suppliedDefinition ?? RoomFxRecordDefinitions.Get(record);
+        RoomFxRecordDefinition definition = source.SuppliedDefinition ?? RoomFxRecordDefinitions.Get(record);
 
         BaseYPosition = definition.BaseYPosition;
         TargetYPosition = definition.TargetYPosition;
@@ -198,7 +196,7 @@ public sealed class RoomLayer3FxState
             // `$88:D981` masks the random word with six *after* shifting it once,
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
-            horizontalVelocity = RoomFxRomData.Rain.HorizontalVelocity((randomNumber >> 2) & 3);
+            horizontalVelocity = RoomFxRomData.Rain.HorizontalVelocity((source.RandomNumber >> 2) & 3);
         }
     }
 
@@ -267,21 +265,12 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
-    public void Step(
-        ISnesAddressSpace bus,
-        SnesVram vram,
-        Position16<RoomPixels> camera,
-        bool timeIsFrozen,
-        bool mainGameLoopCarry,
-        ushort randomNumber = 0,
-        ushort firefleaDarknessLevel = 0,
-        SamusPowerBombExplosionState? powerBomb = null,
-        bool liquidMotionAlreadyAdvanced = false)
+    public void Step(ISnesAddressSpace bus, SnesVram vram, RoomLayer3FxFrame frame)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
-        audioPowerBomb = powerBomb;
-        if (!liquidMotionAlreadyAdvanced)
+        audioPowerBomb = frame.PowerBomb;
+        if (!frame.LiquidMotionAlreadyAdvanced)
         {
             soundRequests.Clear();
             EarthquakeRequest = null;
@@ -290,10 +279,10 @@ public sealed class RoomLayer3FxState
         {
             LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
             FirefleaRoomFx.Step(SnesMemoryBusRequirement.Require(bus, "Fireflea FX requires live WRAM."),
-                timeIsFrozen, firefleaDarknessLevel);
+                frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
             return;
         }
-        if (!IsRenderable || timeIsFrozen)
+        if (!IsRenderable || frame.TimeIsFrozen)
             return;
 
         // The shared bank-$87 handler runs independently of the bank-$88 HDMA
@@ -306,23 +295,23 @@ public sealed class RoomLayer3FxState
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            StepLavaAcid(camera, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
+            StepLavaAcid(frame.Camera, frame.RandomNumber, frame.MainGameLoopCarry, frame.LiquidMotionAlreadyAdvanced);
             return;
         }
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            StepWater(camera, randomNumber, mainGameLoopCarry, liquidMotionAlreadyAdvanced);
+            StepWater(frame.Camera, frame.RandomNumber, frame.MainGameLoopCarry, frame.LiquidMotionAlreadyAdvanced);
             return;
         }
 
         if (Type == RoomFxType.Rain)
         {
-            Offset16<Bg3Pixels> cameraDelta = previousCamera.AsBg3Scroll() - camera.AsBg3Scroll();
+            Offset16<Bg3Pixels> cameraDelta = previousCamera.AsBg3Scroll() - frame.Camera.AsBg3Scroll();
             Scroll = Position16<Bg3Pixels>.Zero + cameraDelta + drift.WholePixels();
             drift = new(unchecked((short)(drift.X + horizontalVelocity)),
                 unchecked((short)(drift.Y - RoomFxRomData.Rain.VerticalVelocity)));
-            previousCamera = camera;
+            previousCamera = frame.Camera;
             return;
         }
 
@@ -330,13 +319,13 @@ public sealed class RoomLayer3FxState
         {
             // $88:DA47 samples each signed accumulator before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
-            Scroll = camera.AsBg3Scroll() + drift.WholePixels();
+            Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
             drift = drift.WithY(unchecked((short)(drift.Y - RoomFxRomData.Spores.VerticalVelocity)));
             return;
         }
 
         // `$88:DB36` anchors fog to layer one and moves its texture by -$40/+50 in 8.8.
-        Scroll = camera.AsBg3Scroll() + drift.WholePixels();
+        Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
         drift = new(unchecked((short)(drift.X + RoomFxRomData.Fog.HorizontalVelocity)),
             unchecked((short)(drift.Y - RoomFxRomData.Fog.VerticalVelocity)));
     }

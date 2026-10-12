@@ -38,7 +38,7 @@ internal static partial class Program
 
             // Freeze only the AI while producing the real draw queue. The following
             // explicit damage call represents the later runtime power-bomb phase.
-            enemies.StepFrame(new(0, 0), timeIsFrozen: true);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true });
             var before = new OamBuffer();
             enemies.DrawLayers(before, new(0, 0), 0, 7);
             AssertTrue(before.NextByteOffset != 0, "live enemy was queued and drawn before power-bomb damage");

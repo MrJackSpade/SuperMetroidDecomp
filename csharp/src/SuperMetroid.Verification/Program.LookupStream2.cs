@@ -202,7 +202,7 @@ internal static partial class Program
             for (int tick = 0; tick <= cycle; tick++)
             {
                 if (elapsed == nativeDurations[frameIndex]) { frameIndex = (frameIndex + 1) % 15; elapsed = 0; }
-                actual.Step(guarded, cgram, colors, 0, 0, false, false);
+                actual.Step(guarded, cgram, colors, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),
                         cgram.Colors[definition.ColorByteIndex / 2 + color], "Actual CGRAM follows each exact native hold and loop boundary");

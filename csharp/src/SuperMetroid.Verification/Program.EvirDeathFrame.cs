@@ -37,8 +37,7 @@ internal static partial class Program
         // Contact kills the body after the real scheduler has selected all three slots.
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.
-        enemies.StepFrame(new(0, 0), false, samus, level: fixture.Level,
-            resolveSamusContactBeforeAi: true);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.None, body.EnemyDefinitionPointer, "Screw Attack clears Evir body during contact");
         AssertEqual((ushort)1, enemies.EnemiesKilled, "only body counts as a killed enemy");
         AssertTrue(arms.Properties.HasAny(EnemyProperties.Deleted) && projectile.Properties.HasAny(EnemyProperties.Deleted),
@@ -50,7 +49,7 @@ internal static partial class Program
         AssertEqual((ushort)18, projectile.Position.Y.Whole, "idle spit uses cleared body Y plus native offset");
         AssertTrue(enemies.EnemyProjectiles.Any(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "normal death explosion remains alive");
-        enemies.StepFrame(new(0, 0), false, samus, level: fixture.Level);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
         AssertEqual(EnemyDefinitionId.None, arms.EnemyDefinitionPointer, "next frame removes deleted arms");
         AssertEqual(EnemyDefinitionId.None, projectile.EnemyDefinitionPointer, "next frame removes deleted spit");
         AssertEqual(0, enemies.ActiveEnemyIndexes.Count, "no orphan Evir remains active");

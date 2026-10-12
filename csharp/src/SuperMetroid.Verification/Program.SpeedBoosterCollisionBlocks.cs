@@ -28,13 +28,7 @@ internal static partial class Program
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: false);
 
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            samus.Kinematics,
-            4 << 16,
-            scanLeftToRight: true,
-            plms: plms);
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
 
         AssertTrue(result.Collided,
             "inactive contact with BTS $0E retains the special-solid collision result");
@@ -51,13 +45,7 @@ internal static partial class Program
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0e), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
 
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            samus.Kinematics,
-            4 << 16,
-            scanLeftToRight: true,
-            plms: plms);
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
 
         AssertTrue(!result.Collided,
             "stage-four downward contact passes through the newly cleared floor block");
@@ -101,12 +89,7 @@ internal static partial class Program
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
         samus.Position = samus.Position.WithWhole(new(34, 72));
 
-        BlockMoveResult result = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            4 << 16,
-            plms: plms);
+        BlockMoveResult result = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = 4 << 16 });
 
         AssertTrue(!result.Collided,
             "stage-four horizontal contact passes through permanent speed terrain");
@@ -139,13 +122,7 @@ internal static partial class Program
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
                 CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(bts), AreaId.Brinstar);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(
-                bus,
-                level,
-                samus.Kinematics,
-                4 << 16,
-                scanLeftToRight: true,
-                plms: plms);
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
 
             AssertTrue(!result.Collided,
                 $"Brinstar BTS ${bts:X2} clears through the production collision path");

@@ -48,7 +48,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         var endpoint = new SamusState { Pose = source, InputLocked = locked };
         endpoint.InitializeAnimation(bus);
         for (int tick = 0; tick < 6; tick++)
-            endpoint.AnimateNoFx(bus, prospectiveInputPose: selected);
+            endpoint.AnimateNoFx(bus, new SamusAnimationStep { ProspectiveInputPose = selected });
         bool jumpWins = !locked && selected.HasValue && selected != SamusPoseId.MovingRightNormalPose;
         AssertEqual(jumpWins ? (SamusPoseId?)null : SamusPoseId.FacingRightNormalPose,
             endpoint.PendingTransitionalPose, "F8 respects selected jump and disabled-input exception");
@@ -152,7 +152,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(0x00010000, unchecked((int)(turn.Kinematics.Position.X.RawValue - turnXBefore)), "turn retains old rightward momentum after native 0.8000 deceleration");
     AssertEqual(33, turn.Position.X.Whole, "turn moves in old direction despite new facing");
     for (int tick = 0; tick < 6; tick++)
-        turn.AnimateNoFx(bus);
+        turn.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xf8, turn.LastAnimationDelayCommand!.Value, "aerial turn reaches F8");
     AssertTrue(turn.ApplyPendingVerifiedAnimationTransition(bus), "aerial turn F8 applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
@@ -185,7 +185,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         endpoint.HorizontalSpeed.ExtraRunSpeed = (ushort)(extra >> 16);
         endpoint.HorizontalSpeed.ExtraRunSubspeed = (ushort)extra;
         for (int tick = 0; tick < 6; tick++)
-            endpoint.AnimateNoFx(bus);
+            endpoint.AnimateNoFx(bus, new SamusAnimationStep());
         AssertTrue(endpoint.ApplyPendingVerifiedAnimationTransition(bus), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? 0 : 2, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
@@ -207,7 +207,7 @@ static void VerifySamusAerialTurnsAndWallJump()
         lavaEndpoint.RefreshCollisionRadii(bus);
         lavaEndpoint.InitializeAnimation(bus);
         lavaEndpoint.SetAnimationFrameFromSpecialHandler(2, 1);
-        lavaEndpoint.AnimateNoFx(bus, nmiFrameCounter: 1);
+        lavaEndpoint.AnimateNoFx(bus, new SamusAnimationStep { NmiFrameCounter = 1 });
         AssertTrue(lavaEndpoint.ApplyPendingVerifiedAnimationTransition(bus), "lava turn consumes command three");
         AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer,
             "command three adds lava and pose-change buffers to native jump/fall target delay (2 or 8, plus 2+2)");
@@ -370,7 +370,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     // Pose $83's native stream starts 05,05,FB,03; the FB branch occurs
     // after ten ticks, not the old synthetic eight-tick delay.
     for (int tick = 0; tick < 10; tick++)
-        eligible.AnimateNoFx(bus);
+        eligible.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xfb, eligible.LastAnimationDelayCommand!.Value, "wall animation reaches FB");
     AssertEqual(3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
 

@@ -478,7 +478,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
                 ripper.FrozenTimer = 400;
                 for (int frame = 1; frame <= 12; frame++)
                 {
-                    enemies.StepFrame(new(0, 0), true, level: level);
+                    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
                     string actual = $"{(intangible ? 1 : 0)},{initial},{frame},{ripper.InvincibilityTimer}," +
                         $"{ripper.FlashTimer},{ripper.FrozenTimer},{ripper.Position.X.Whole},{ripper.CurrentInstruction}";
                     AssertEqual(lines[index++], actual, "original CPU versus production frozen EnemyMain");
@@ -494,7 +494,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         ushort initialInstruction = ripper.CurrentInstruction;
         for (int frame = 1; frame <= 12; frame++)
         {
-            enemies.StepFrame(new(0, 0), timeIsFrozen: true, level: level);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
             AssertEqual(Math.Max(0, 10 - frame), ripper.InvincibilityTimer,
                 $"X-Plasma prerequisite: tangible invincibility expires during X-ray frame {frame}");
             AssertEqual(16, ripper.FlashTimer, "X-ray holds flash timer independently");
@@ -504,7 +504,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         }
         ripper.Properties |= (ushort)EnemyProperties.IgnoreSamusCollision;
         ripper.InvincibilityTimer = 10;
-        enemies.StepFrame(new(0, 0), timeIsFrozen: true, level: level);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
         AssertEqual(10, ripper.InvincibilityTimer, "intangible actor bypasses native invincibility clock");
         ripper.Properties &= unchecked((ushort)~(ushort)EnemyProperties.IgnoreSamusCollision);
         ripper.InvincibilityTimer = 1;
@@ -515,10 +515,10 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
             Health = 99,
             Position = FixedPosition<RoomPixels>.FromWhole(ripper.Position.Whole),
         };
-        enemies.StepFrame(new(0, 0), false, touchingSamus, level: level, resolveSamusContactBeforeAi: true);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = touchingSamus, Level = level, ResolveSamusContactBeforeAi = true });
         AssertEqual(0, ripper.InvincibilityTimer, "ordinary frame expires the last invincibility tick");
         AssertEqual(99, touchingSamus.Health, "expiration frame still skips native collision branch");
-        enemies.StepFrame(new(0, 0), false, touchingSamus, level: level, resolveSamusContactBeforeAi: true);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = touchingSamus, Level = level, ResolveSamusContactBeforeAi = true });
         AssertEqual(94, touchingSamus.Health, "following frame resumes body contact damage");
         Console.WriteLine("X-Plasma timer prerequisite: invincibility expires while movement/flash/Ice remain frozen.");
         return;
@@ -528,7 +528,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     AssertEqual(0, ripper.VariableC, "Ripper init X subvelocity");
 
     for (int frame = 0; frame < 9; frame++)
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, level: level);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Level = level });
     AssertEqual(88, ripper.Position.X.Whole, "Ripper wall-aligned reversal X");
     AssertEqual(0xffff, ripper.VariableD, "Ripper reversal signed whole X velocity");
     AssertEqual(0xe527, ripper.SpritemapPointer, "Ripper reversal selects left-facing frame");
@@ -623,7 +623,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         "Ripper Ice Beam collision");
     AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");
     ushort frozenX = ripper.Position.X.Whole;
-    enemies.StepFrame(new(0, 0), timeIsFrozen: false, level: level);
+    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Level = level });
     AssertEqual(frozenX, ripper.Position.X.Whole, "frozen Ripper suppresses movement");
     AssertEqual(399, ripper.FrozenTimer, "frozen Ripper timer advances");
 
@@ -712,13 +712,13 @@ static void VerifyCeresElevatorPlatformAnimation()
 
     var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(new RoomEnemyLoadRequest(bus, populationPointer, tilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0)));
-    enemies.StepFrame(new(0, 0), timeIsFrozen: false);
+    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     for (int index = 0; index < 4; index++)
         AssertEqual(light[index], vram.ReadByte((0x060e + index) * 2),
             "Ceres elevator landed platform light map frame");
 
-    enemies.StepFrame(new(0, 0), timeIsFrozen: false);
-    enemies.StepFrame(new(0, 0), timeIsFrozen: false);
+    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
+    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     for (int index = 0; index < 4; index++)
         AssertEqual(dark[index], vram.ReadByte((0x060e + index) * 2),
             "Ceres elevator landed platform dark map frame");
@@ -781,7 +781,7 @@ static void VerifyCeresDoorBossBranch()
     door.InstructionTimer = 1;
 
     for (int frame = 0; frame < 4; frame++)
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus: samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertEqual(0, door.Properties & (ushort)EnemyProperties.IgnoreSamusCollision,
         "living Ceres boss keeps Ridley-room door tangible");
 
@@ -793,7 +793,7 @@ static void VerifyCeresDoorBossBranch()
         frame < 40 && !door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision);
         frame++)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus: samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     }
     AssertTrue(door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         $"defeated Ceres boss advances door bytecode to intangible setup " +
@@ -944,7 +944,7 @@ static void VerifyCeresRidleyRoomEntry()
     enemies.CeresStatus = 0;
     enemies.EarthquakeTimer = 0;
 
-    enemies.StepFrame(camera: new(0, 0), timeIsFrozen: false);
+    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,
         "Ceres Ridley door-clear transition");
     AssertEqual(511, state.FunctionTimer, "Ceres Ridley first delay decrement");
@@ -955,12 +955,12 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0xe540, ridley.CurrentInstruction, "Ceres Ridley initial list sleeps");
 
     for (int frame = 0; frame < 512; frame++)
-        enemies.StepFrame(camera: new(0, 0), timeIsFrozen: false);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.FadeInEyes, (ushort)state.Function,
         "Ceres Ridley 512-counter underflow starts eye fade");
 
     for (int frame = 0; frame < 65; frame++)
-        enemies.StepFrame(camera: new(0, 0), timeIsFrozen: false);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.FadeInBody, (ushort)state.Function,
         "Ceres Ridley eye table terminator starts body fade");
     AssertEqual(1, state.MovementAnimationEnabled,
@@ -977,7 +977,7 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley resting tail segments share the tail root before liftoff");
 
     for (int frame = 0; frame < 32; frame++)
-        enemies.StepFrame(camera: new(0, 0), timeIsFrozen: false);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.WaitBeforeRoar, (ushort)state.Function,
         "Ceres Ridley body fade completes");
     AssertEqual(4, state.FunctionTimer, "Ceres Ridley pre-roar timer");
@@ -1002,7 +1002,7 @@ static void VerifyCeresRidleyRoomEntry()
     bool observedRoarSound = false;
     while (state.Function != RidleyAiFunction.CeresHovering && battleEntryFrames < 1024)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         observedRoarSound |= enemies.SoundRequests.Contains(
             new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x59), MaximumQueued: 6));
         battleEntryFrames++;
@@ -1022,7 +1022,7 @@ static void VerifyCeresRidleyRoomEntry()
     int hoverFrames = 0;
     while (state.Function == RidleyAiFunction.CeresHovering && hoverFrames < 256)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         hoverFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresFireballMoveToPosition, (ushort)state.Function,
@@ -1032,13 +1032,13 @@ static void VerifyCeresRidleyRoomEntry()
     int fireballFrames = 0;
     while (state.Function == RidleyAiFunction.CeresFireballMoveToPosition && fireballFrames < 256)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         fireballFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresFireballShooting, (ushort)state.Function,
         "Ceres Ridley reaches its fireball hover");
     for (int frame = 0; frame < 8; frame++)
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertEqual(callsBeforeFireballs, generatedRandomCalls,
         "Ceres Ridley fireball hover reads the random number without generating one");
     // #1275: at low energy the fireballing instruction list's $A6:E4D2 stores 8 into the
@@ -1048,7 +1048,7 @@ static void VerifyCeresRidleyRoomEntry()
     int lowEnergyFrames = 0;
     while (state.Function == RidleyAiFunction.CeresFireballShooting && lowEnergyFrames < 224)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         lowEnergyFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
@@ -1074,7 +1074,7 @@ static void VerifyCeresRidleyRoomEntry()
     state.TailWhipTargetCounterClockwiseAngle = 0xffff;
     state.Function = RidleyAiFunction.CeresLungeSetup;
     samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole - 64)), unchecked((ushort)(ridley.Position.Y.Whole + 68))));
-    enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus);
+    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertEqual((ushort)RidleyAiFunction.CeresLungeMain, (ushort)state.Function,
         "Ceres Ridley enters lunge main");
     AssertTrue(state.TailWhipTargetClockwiseAngle != 0xffff,
@@ -1153,7 +1153,7 @@ static void VerifyCeresRidleyRoomEntry()
         }
         AssertEqual((ushort)0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     }
 
     AssertEqual(100, state.HitCounter, "Ceres Ridley uses dedicated 100-shot counter");
@@ -1165,7 +1165,7 @@ static void VerifyCeresRidleyRoomEntry()
     Bgr555? retreatBackgroundColor = null;
     while (enemies.CeresStatus != 1 && retreatFrames < 1024)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         // $A6:A9E3 writes BG palette five as the retreat delay expires; the next frame's
         // first getaway step replaces it with the Mode-7 zoom palette from $51.
         if (state.Function == RidleyAiFunction.CeresPublishEscapeHandoff)
@@ -1215,7 +1215,7 @@ static void VerifyCeresRidleyRoomEntry()
         "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     void GetawayFrame()
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         enemies.RunCeresRidleyGetawayRoomMain(samus, 0);
     }
     ushort expectedX = 0xff80, expectedY = 0x20;
@@ -1244,7 +1244,7 @@ static void VerifyCeresRidleyRoomEntry()
     AssertEqual(8, backgroundTransfers.Count, "native Ceres background transfer count");
     for (int record = 0; record < spriteTransfers.Count; record++)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         bool finalSprite = record == spriteTransfers.Count - 1;
         AssertEqual(record + 1 + (finalSprite ? 1 : 0), escapeWrites.Entries.Count,
             "Ceres sprite transfers yield one per frame and fall through on the final record");
@@ -1252,7 +1252,7 @@ static void VerifyCeresRidleyRoomEntry()
     }
     for (int record = 1; record < backgroundTransfers.Count; record++)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         bool finalBackground = record == backgroundTransfers.Count - 1;
         AssertEqual(spriteTransfers.Count + record + 1 + (finalBackground ? 1 : 0),
             escapeWrites.Entries.Count, "Ceres background transfers yield and append EMERGENCY on the final frame");
@@ -1291,11 +1291,11 @@ static void VerifyCeresRidleyRoomEntry()
 
     for (int frame = 0; frame < 127; frame++)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         AssertTrue(!enemies.CeresEscapeStartedThisFrame,
             $"Ceres escape does not publish early on hold frame {frame}");
     }
-    enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+    enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
     AssertTrue(!enemies.CeresEscapeStartedThisFrame,
         "Ceres escape does not skip the English warning after its 128-frame title hold");
     AssertEqual(10, state.FunctionTimer,
@@ -1304,7 +1304,7 @@ static void VerifyCeresRidleyRoomEntry()
     int typewriterFrames = 0;
     while (!enemies.CeresEscapeStartedThisFrame && typewriterFrames < 512)
     {
-        enemies.StepFrame(new(0, 0), timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         typewriterFrames++;
     }
     AssertTrue(enemies.CeresEscapeStartedThisFrame,

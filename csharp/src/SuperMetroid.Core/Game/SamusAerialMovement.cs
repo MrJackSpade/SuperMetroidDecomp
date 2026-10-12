@@ -124,13 +124,7 @@ public static class SamusAerialMovement
         {
             samus.HorizontalSpeed.AccelerationMode = 0;
             var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed: 0);
-            BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
-                bus,
-                level,
-                samus.Kinematics,
-                requested.Displacement,
-                plms: plms,
-                collisionMovementDirection: requested.CollisionDirection);
+            BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -142,13 +136,7 @@ public static class SamusAerialMovement
             BlockMoveResult? vertical = null;
             if (externalY is int displacement)
             {
-                vertical = SamusBlockCollision.MoveVertical(
-                    bus,
-                    level,
-                    samus.Kinematics,
-                    displacement,
-                    scanLeftToRight: (nmiFrameCounter & 1) == 0,
-                    plms: plms);
+                vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
             }
             return new AerialMovementResult(
                 Landed: externalY >= 0 && vertical is { Collided: true },
@@ -250,13 +238,7 @@ public static class SamusAerialMovement
         }
 
         var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            requested.Displacement,
-            plms: plms,
-            collisionMovementDirection: requested.CollisionDirection);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -409,13 +391,7 @@ public static class SamusAerialMovement
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
         var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            requested.Displacement,
-            plms: plms,
-            collisionMovementDirection: requested.CollisionDirection);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -569,13 +545,12 @@ public static class SamusAerialMovement
             speed.BaseSpeed = 0;
             speed.BaseSubspeed = 0;
             // This branch bypasses $90:E4E6; retain the previous total-speed pair.
-            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, 0, plms: plms);
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = 0 });
         }
         else
         {
             var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(bus, level, state, requested.Displacement, plms: plms,
-                collisionMovementDirection: requested.CollisionDirection);
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
                 speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         }
@@ -627,13 +602,7 @@ public static class SamusAerialMovement
         }
 
         var requested = SamusHorizontalDisplacement.ForPoseDirection(bus, samus, calculation.Speed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            requested.Displacement,
-            plms: plms,
-            collisionMovementDirection: requested.CollisionDirection);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return horizontal;
@@ -648,16 +617,7 @@ public static class SamusAerialMovement
         RoomPlmSystem? plms = null,
         bool deferCeilingResponse = false)
     {
-        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(
-            bus,
-            level,
-            samus,
-            nmiFrameCounter,
-            out bool hitCeiling,
-            out bool downwardDisplacement,
-            canBreakBombBlocks,
-            plms,
-            deferCeilingResponse);
+        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, canBreakBombBlocks, deferCeilingResponse);
         bool landed = downwardDisplacement && vertical.Collided;
 
         return new AerialMovementResult(landed, hitCeiling);
@@ -673,18 +633,9 @@ public static class SamusAerialMovement
     /// is important: the old-speed displacement, equality-only terminal-speed check, and
     /// ceiling response are observable native behavior, not general-purpose host physics.
     /// </remarks>
-    internal static BlockMoveResult StepVerticalWithSpeedCalculations(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        SamusState samus,
-        ushort nmiFrameCounter,
-        out bool hitCeiling,
-        out bool downwardDisplacement,
-        bool canBreakBombBlocks = false,
-        RoomPlmSystem? plms = null,
-        bool deferCeilingResponse = false)
+    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, ushort nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, bool canBreakBombBlocks = false, bool deferCeilingResponse = false)
     {
-        ValidateCommon(bus, level, samus);
+        ValidateCommon(terrain.Bus, terrain.Level, samus);
         SamusKinematicsState state = samus.Kinematics;
 
         // `$90:90E5` snapshots the OLD speed into displacement before changing the stored
@@ -716,14 +667,7 @@ public static class SamusAerialMovement
             state,
             displacement);
         downwardDisplacement = displacement >= 0;
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            state,
-            displacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            canBreakBombBlocks: canBreakBombBlocks,
-            plms: plms);
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = canBreakBombBlocks });
 
         // `$90:E61B` (down) and `$90:E606` (up) publish this word after every move. A
         // downward pass is never zero: 1 on a landing, otherwise 2 unless a wall jump's 5 is retained.

@@ -82,7 +82,7 @@ internal static partial class Program
         internal void Step(int frame)
         {
             Enemies.StepEnemyProjectiles(Level, Samus, nmiFrameCounter8: unchecked((byte)frame));
-            Enemies.StepFrame(new(0, 0), false, Samus, level: Level, nmiFrameCounter8: unchecked((byte)frame));
+            Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, Level = Level, NmiFrameCounter8 = (byte)frame });
         }
 
         internal OamBuffer Draw()

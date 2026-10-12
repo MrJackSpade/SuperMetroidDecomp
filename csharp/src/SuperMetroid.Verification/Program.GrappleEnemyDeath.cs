@@ -25,11 +25,11 @@ internal static partial class Program
         enemy.Position = enemy.Position.WithWhole(new(100, 100));
         enemy.Radius = new(8, 8);
         enemy.Health = 500;
-        fixture.System.StepFrame(new(0, 0), timeIsFrozen: true, samus, level: fixture.Level);
+        fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = fixture.Level });
         var contact = fixture.System.ResolveGrappleEndpoint(new(100, 100));
         AssertEqual(GrappleEnemyReaction.Kill, contact.Reaction, "header selects grapple kill independently of enemy health");
         samus.Grapple.Phase = GrapplePhase.Firing;
-        fixture.System.StepFrame(new(0, 0), timeIsFrozen: false, samus, level: fixture.Level);
+        fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
         var explosion = fixture.System.EnemyProjectiles.Single(p => p.IsActive);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind, "grapple kill creates the ordinary death actor");
         AssertEqual(1, fixture.System.EnemiesKilled, "grapple death increments kill count once");
@@ -104,13 +104,13 @@ internal static partial class Program
             enemy.Position = enemy.Position.WithWhole(new(100, 100));
             enemy.Radius = new(8, 8);
             enemy.Health = 500;
-            fixture.System.StepFrame(new(0, 0), timeIsFrozen: true, samus, level: fixture.Level);
+            fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = fixture.Level });
             fixture.System.ResolveGrappleEndpoint(new(100, 100));
             samus.Grapple.Phase = GrapplePhase.Firing;
-            fixture.System.StepFrame(new(0, 0), timeIsFrozen: false, samus, level: fixture.Level);
+            fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(new(32, 32), new ushort[32 * 32], new byte[32 * 32]);
-            var result = SamusGrappleMovement.Step(retail, movementRoom, samus, 0, 0);
+            var result = SamusGrappleMovement.Step(new SamusTerrain { Bus = retail, Level = movementRoom }, samus, 0, 0);
             AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)pose:X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
             AssertEqual(pose == SamusPoseId.StandingAimDiagonalDownRightPose ? pose : SamusPoseId.FacingRightNormalPose,

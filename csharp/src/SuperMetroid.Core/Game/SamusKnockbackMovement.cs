@@ -254,13 +254,7 @@ public static class SamusKnockbackMovement
         // Morphed bodies retain their own movement type throughout hurt movement.
         uint baseSpeed = speed.CalculateBaseSpeed(bus, samus.ReadMovementType(bus));
         var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == 0, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            requestedX.Displacement,
-            plms: plms,
-            collisionMovementDirection: requestedX.CollisionDirection);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback uses the ordinary left/right wrapper, whose collision branch
         // cancels X momentum before the vertical pass. Retaining the clipped move's
         // base speed incorrectly accelerates the next frame away from the obstacle.
@@ -456,14 +450,7 @@ public static class SamusKnockbackMovement
         // midair hang came from failing to dispatch ordinary falling after that expiry, not
         // from this calculation. Sharing the routine still preserves the real direction-
         // reversal behavior for any longer knockback stimulus without inventing a new path.
-        return SamusAerialMovement.StepVerticalWithSpeedCalculations(
-            bus,
-            level,
-            samus,
-            nmiFrameCounter,
-            out _,
-            out _,
-            plms: plms);
+        return SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, nmiFrameCounter, out _, out _);
     }
 
     private static BlockMoveResult MoveDownWithoutSpeedCalculation(
@@ -478,13 +465,7 @@ public static class SamusKnockbackMovement
         int requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            samus.Kinematics,
-            requested,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            plms: plms);
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
     }
 
 }

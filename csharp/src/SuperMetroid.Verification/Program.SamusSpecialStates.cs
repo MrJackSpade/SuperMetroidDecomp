@@ -173,7 +173,7 @@ static void VerifySamusCrystalFlash()
         AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
             $"raise frame {frame} retains start handler");
         AssertEqual(77, samus.InvincibilityTimer, "ordinary raise handler does not clear immunity");
-        samus.AnimateNoFx(bus, chord);
+        samus.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = chord });
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
@@ -241,7 +241,7 @@ static void VerifySamusCrystalFlash()
         "Crystal Flash HDMA cleanup clears phase");
     AssertEqual(0, crystalWindow.Status,
         "Crystal Flash HDMA cleanup clears shared status");
-    samus.AnimateNoFx(bus, chord);
+    samus.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = chord });
     AssertEqual(2, samus.AnimationFrameTimer,
         "same beta frame decrements forced timer three to two");
 
@@ -276,12 +276,12 @@ static void VerifySamusCrystalFlash()
 
     // Finish animation is ROM bytecode, not a host countdown. Movement runs before animation
     // each frame; `$FD,$01` publishes standing-right, which is committed after animation.
-    samus.AnimateNoFx(bus, chord);
+    samus.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = chord });
     int finishFrames = 0;
     while (samus.PendingTransitionalPose is null && finishFrames++ < 20)
     {
         samus.CrystalFlash.Step(bus, samus, (ushort)(0x0100 + finishFrames));
-        samus.AnimateNoFx(bus, chord);
+        samus.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = chord });
     }
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.PendingTransitionalPose,
         "Crystal Flash ROM finish command publishes standing right");
@@ -405,7 +405,7 @@ static void VerifySamusXray()
     standing.InitializeAnimation(bus);
 
     AssertTrue(
-        standing.Xray.TryBegin(bus, standing, previousMovementType: SamusMovementType.Standing),
+        standing.Xray.TryBegin(bus, standing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions()),
         "standing X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingStandingRightPose, standing.Pose, "right standing X-ray pose");
     AssertEqual(21, standing.Kinematics.Radius.Y, "standing X-ray radius");
@@ -424,7 +424,7 @@ static void VerifySamusXray()
     AssertEqual(2, standing.Xray.StepMovement(bus, standing)!.Value,
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer, "X-ray movement forces timer fifteen");
-    standing.AnimateNoFx(bus);
+    standing.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(14, standing.AnimationFrameTimer,
         "generic animation follows X-ray movement timer write");
 
@@ -526,7 +526,7 @@ static void VerifySamusXray()
     AssertTrue(standing.Xray.StepMovement(bus, standing) is null,
         "X-ray movement is RTS during type-E turn");
     for (int tick = 0; tick < 5; tick++)
-        standing.AnimateNoFx(bus);
+        standing.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
     standing.Xray.HandlePoseInput(bus, standing, 0);
@@ -573,10 +573,7 @@ static void VerifySamusXray()
     };
     crouched.RefreshCollisionRadii(bus);
     crouched.InitializeAnimation(bus);
-    AssertTrue(crouched.Xray.TryBegin(
-        bus,
-        crouched,
-        previousMovementType: SamusMovementType.Crouching),
+    AssertTrue(crouched.Xray.TryBegin(bus, crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions()),
         "crouched X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingCrouchingRightPose, crouched.Pose, "right crouched X-ray pose");
     AssertEqual(16, crouched.Kinematics.Radius.Y, "crouched X-ray radius");
@@ -609,11 +606,7 @@ static void VerifySamusXray()
     };
     interrupted.RefreshCollisionRadii(bus);
     interrupted.InitializeAnimation(bus);
-    AssertTrue(interrupted.Xray.TryBegin(
-        bus,
-        interrupted,
-        previousMovementType: SamusMovementType.Standing,
-        deferActivation: true),
+    AssertTrue(interrupted.Xray.TryBegin(bus, interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions(), deferActivation: true),
         "X-Mode fixture admits deferred left-facing X-Ray setup");
     AssertTrue(interrupted.Xray.IsActive && !interrupted.Xray.OwnsSamusControl,
         "deferred setup starts beam ownership before pose-command arbitration");
@@ -662,25 +655,17 @@ static void VerifySamusXray()
     WritePoseAnimationDelays(bus, SamusPoseId.NormalLandingRightPose, 0xc700, [0x01, 0xff]);
     WritePoseAnimationDelays(bus, SamusPoseId.FallingRightPose, 0xc710, [0x01, 0xff]);
     var landing = Rejected(SamusPoseId.NormalLandingRightPose);
-    AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: SamusMovementType.Standing),
+    AssertTrue(!landing.Xray.TryBegin(bus, landing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions()),
         "X-ray rejects landing pose");
     var movingVertically = Rejected(SamusPoseId.FacingRightNormalPose, ySubspeed: 1);
-    AssertTrue(!movingVertically.Xray.TryBegin(
-        bus,
-        movingVertically,
-        previousMovementType: SamusMovementType.Standing),
+    AssertTrue(!movingVertically.Xray.TryBegin(bus, movingVertically, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions()),
         "X-ray rejects fractional Y velocity");
     var badPrevious = Rejected(SamusPoseId.FacingRightNormalPose);
-    AssertTrue(!badPrevious.Xray.TryBegin(bus, badPrevious, previousMovementType: SamusMovementType.Falling),
+    AssertTrue(!badPrevious.Xray.TryBegin(bus, badPrevious, previousMovementType: SamusMovementType.Falling, conditions: new XrayBeginConditions()),
         "X-ray rejects unsupported previous movement type");
     var fiveBombQuirk = Rejected(SamusPoseId.FacingRightNormalPose);
     fiveBombQuirk.XSpeedDivisor = 2;
-    AssertTrue(!fiveBombQuirk.Xray.TryBegin(
-        bus,
-        fiveBombQuirk,
-        previousMovementType: SamusMovementType.Standing,
-        projectileCooldownTimer: 7,
-        bombCounter: 5),
+    AssertTrue(!fiveBombQuirk.Xray.TryBegin(bus, fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { ProjectileCooldownTimer = 7, BombCounter = 5 }),
         "X-ray preserves five-bomb cooldown/divisor rejection");
 
     Console.WriteLine(

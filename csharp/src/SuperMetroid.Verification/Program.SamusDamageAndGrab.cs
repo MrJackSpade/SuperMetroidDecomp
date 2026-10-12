@@ -117,7 +117,7 @@ static void VerifySamusDrainedController()
     // Index two lasts two ticks; index three lasts sixteen. Expiration reaches `$F7` at
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
-        right.AnimateNoFx(bus);
+        right.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xf7, right.LastAnimationDelayCommand!.Value,
         "drained animation reaches F7");
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
@@ -161,7 +161,7 @@ static void VerifySamusDrainedController()
     AssertEqual(4, right.AnimationFrame, "standing release writes byte index four");
     AssertEqual(1, right.AnimationFrameTimer, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
-        right.AnimateNoFx(bus);
+        right.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.PendingTransitionalPose,
         "standing drained release reaches ROM FD operand");
     AssertTrue(right.ApplyPendingVerifiedAnimationTransition(bus),
@@ -185,7 +185,7 @@ static void VerifySamusDrainedController()
     AssertEqual(13, left.AnimationFrame,
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
-        left.AnimateNoFx(bus);
+        left.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.PendingTransitionalPose,
         "left crouched release reaches asymmetric FD operand");
     AssertTrue(left.ApplyPendingVerifiedAnimationTransition(bus),
@@ -548,8 +548,7 @@ static void VerifySamusSolidEnemyCollision()
         Radius = new(5, 10),
         InteractiveEnemies = [frozen],
     };
-    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(
-        new TestAddressSpace(), airRoom, integrated, displacement: 2 << 16);
+    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = new TestAddressSpace(), Level = airRoom }, integrated, new HorizontalBlockMove { Displacement = 2 << 16 });
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
     AssertEqual(101, integrated.Position.X.Whole, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
@@ -561,12 +560,7 @@ static void VerifySamusSolidEnemyCollision()
 
     integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
-    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(
-        new TestAddressSpace(),
-        airRoom,
-        integrated,
-        displacement: 2 << 16,
-        scanLeftToRight: true);
+    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = new TestAddressSpace(), Level = airRoom }, integrated, new VerticalBlockMove { Displacement = 2 << 16, ScanLeftToRight = true });
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual(0x01c0, integratedVertical.EnemyCollision?.EnemyIndex,

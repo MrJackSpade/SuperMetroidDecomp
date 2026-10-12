@@ -53,14 +53,14 @@ static void VerifySamusRenderingSlice()
     // Frames 0-3 each last ten calls. The fifth byte is command $F6, which returns a
     // healthy Samus to frame zero rather than ever exposing command index four as art.
     for (int tick = 0; tick < 9; tick++)
-        samus.AnimateNoFx(bus);
+        samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0, samus.AnimationFrame, "standing frame remains zero for first nine ticks");
     AssertEqual(1, samus.AnimationFrameTimer, "standing timer reaches one before advance");
-    samus.AnimateNoFx(bus);
+    samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(1, samus.AnimationFrame, "standing frame advances on tenth tick");
     AssertEqual(10, samus.AnimationFrameTimer, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
-        samus.AnimateNoFx(bus);
+        samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
     AssertEqual(0xf6, samus.LastAnimationDelayCommand!.Value, "healthy standing loop command");
 
@@ -69,11 +69,11 @@ static void VerifySamusRenderingSlice()
     samus.Health = 29;
     samus.InitializeAnimation(bus);
     for (int tick = 0; tick < 40; tick++)
-        samus.AnimateNoFx(bus);
+        samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(5, samus.AnimationFrame, "low-health $F6 enters alternate sequence");
     AssertEqual(8, samus.AnimationFrameTimer, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
-        samus.AnimateNoFx(bus);
+        samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
     AssertEqual(0xfe, samus.LastAnimationDelayCommand!.Value, "low-health backward-loop command");
 

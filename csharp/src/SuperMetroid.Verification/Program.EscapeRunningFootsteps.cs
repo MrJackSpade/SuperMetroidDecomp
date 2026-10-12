@@ -54,7 +54,7 @@ internal static partial class Program
             samus.Drained.StepGetUpHandler(samus, (ushort)(SnesButton.Up | SnesButton.A));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the
             // real animation/footstep path throws the exact player-reported exception.
-            samus.AnimateNoFx(bus, (ushort)(SnesButton.Up | SnesButton.A));
+            samus.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (ushort)(SnesButton.Up | SnesButton.A) });
             AssertEqual(DrainedGetUpHandler.Inactive, samus.Drained.GetUpHandler,
                 "escape timer replaces the drained hack handler");
             AssertEqual((ushort)9, samus.AnimationFrame, "Up edge in acid advances the running animation normally");

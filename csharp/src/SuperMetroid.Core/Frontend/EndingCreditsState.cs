@@ -405,9 +405,8 @@ internal sealed partial class EndingCreditsState
         }
 
         // The native cinematic invokes the shared bank-$8D interpreter after actors.
-        paletteFx.Step(bus, cgram,
-            paletteFxArtwork ?? throw new InvalidOperationException(
-                "Ending palette FX requires installed palette colors."), 0, 0, false, false);
+        paletteFx.Step(bus, cgram, paletteFxArtwork ?? throw new InvalidOperationException(
+                "Ending palette FX requires installed palette colors."), new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
         // $8B:D46B follows cinematic actors even while a text-only TM masks OBJ.

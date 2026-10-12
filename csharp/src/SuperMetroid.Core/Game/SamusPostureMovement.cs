@@ -90,13 +90,7 @@ public static class SamusPostureMovement
         // that momentum. The old exception at this seam prevented that native route.
         bool facingLeft = samus.IsFacingLeft(bus);
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            requestedHorizontal.Displacement,
-            plms: plms,
-            collisionMovementDirection: requestedHorizontal.CollisionDirection);
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
@@ -105,13 +99,7 @@ public static class SamusPostureMovement
         // this matters for a Speed-Booster slide through `$35/$36`.
         int verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            samus.Kinematics,
-            displacement: verticalDisplacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            plms: plms);
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
         return new GroundedMovementResult(horizontal, vertical);
     }
 

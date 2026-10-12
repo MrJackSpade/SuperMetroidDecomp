@@ -34,8 +34,8 @@ internal static partial class Program
         // ticking concurrently. Compare all native instruction timers, not endpoints.
         for (int tick = 0; tick < 160; tick++)
         {
-            stockFx.Step(stockBus, stockCgram, original, 0, 0, false, false);
-            editedFx.Step(editedBus, editedCgram, replacement, 0, 0, false, false);
+            stockFx.Step(stockBus, stockCgram, original, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            editedFx.Step(editedBus, editedCgram, replacement, new PaletteFxFrame { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertPaletteContractFxState(stockFx, editedFx);
             AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
             foreach (var definition in TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)

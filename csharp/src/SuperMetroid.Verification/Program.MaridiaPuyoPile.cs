@@ -29,7 +29,7 @@ internal static partial class Program
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };
         for (int frame = 1; frame <= 3841; frame++)
         {
-            enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData);
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             for (int i = 0; i < population.Length; i++)
             {
                 var state = enemies.PuyoStates[i]!;

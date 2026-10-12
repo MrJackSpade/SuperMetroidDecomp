@@ -360,32 +360,13 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
-    /// <param name="bus">Address space used by Samus pose metadata and the translated movement/collision helpers.</param>
-    /// <param name="level">Current mutable room collision data used by active spark movement.</param>
+    /// <param name="terrain">The room terrain Samus's block collision probes: the address space, the level data, and the PLMs that react to touched blocks (#633).</param>
     /// <param name="samus">Live player state; movement, energy, contact damage, pose state, and echo coordinates may change during the call.</param>
-    /// <param name="nmiFrameCounter">Native NMI frame word whose parity selects the vertical block-probe traversal order.</param>
-    /// <param name="projectileCounter">Ordinary projectile count used for crash-echo admission when no live <paramref name="projectiles"/> owner is supplied; excludes bomb slots.</param>
-    /// <param name="plms">Optional current-room PLM owner receiving block reactions during spark movement.</param>
-    /// <param name="playerInvincibilityEnabled">Host cheat that bypasses the low-energy crash condition, but retains collision termination and drains energy no lower than one.</param>
-    /// <param name="projectiles">Optional live ordinary-projectile owner supplying its count and accepting released echoes in fixed slots three/four.</param>
-    /// <param name="gameTimeFrames">Native gameplay-clock word used by echo sampling, independent of NMI collision parity.</param>
-    /// <param name="deferTimeoutPoseChange">The runtime commits interrupted poses after animation; standalone movement callers may commit immediately.</param>
-    /// <param name="previousCheckpoint">Optional mutable camera-history point whose X/Y trailing distance is capped after the corresponding spark movement axis.</param>
-    public ShinesparkMovementResult Step(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        SamusState samus,
-        ushort nmiFrameCounter,
-        ushort projectileCounter = 0,
-        RoomPlmSystem? plms = null,
-        bool playerInvincibilityEnabled = false,
-        SamusProjectileSystem? projectiles = null,
-        ushort gameTimeFrames = 0,
-        bool deferTimeoutPoseChange = false,
-        FixedPosition<RoomPixels>? previousCheckpoint = null)
+    /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
+    public ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(terrain.Bus);
+        ArgumentNullException.ThrowIfNull(terrain.Level);
         ArgumentNullException.ThrowIfNull(samus);
 
         ShinesparkPhase phaseAtStart = Phase;
@@ -398,11 +379,11 @@ public sealed class SamusShinesparkState
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
-                SamusPoseId verticalPose = samus.IsFacingLeft(bus)
+                SamusPoseId verticalPose = samus.IsFacingLeft(terrain.Bus)
                     ? SamusPoseId.ShinesparkVerticalLeftPose
                     : SamusPoseId.ShinesparkVerticalRightPose;
-                BeginDirectionalLaunch(bus, samus, verticalPose, deferTimeoutPoseChange);
-                if (deferTimeoutPoseChange)
+                BeginDirectionalLaunch(terrain.Bus, samus, verticalPose, frame.DeferTimeoutPoseChange);
+                if (frame.DeferTimeoutPoseChange)
                     pendingLaunchPose = verticalPose;
             }
 
@@ -418,7 +399,7 @@ timedOut,                 PendingLaunchPose: pendingLaunchPose);
             if (Phase == ShinesparkPhase.CrashEchoCircle)
                 return StepCrashEchoCircle();
             if (Phase == ShinesparkPhase.CrashFinish)
-                return FinishCrash(samus, projectiles?.ProjectileCounter ?? projectileCounter, projectiles);
+                return FinishCrash(samus, frame.Projectiles?.ProjectileCounter ?? frame.ProjectileCounter, frame.Projectiles);
 
             // Stored/inactive states are not installed special movement handlers. Returning
             // an empty snapshot is defensive; runtime normally never dispatches them here.
@@ -431,7 +412,7 @@ false);
 
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
         // post-motion producer while this special handler owns the frame.
-        samus.HorizontalSpeed.CaptureSpeedEchoPosition(gameTimeFrames, samus.Position.Whole);
+        samus.HorizontalSpeed.CaptureSpeedEchoPosition(frame.GameTimeFrames, samus.Position.Whole);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
@@ -439,14 +420,14 @@ false);
         // Samus. Only a camera reads that word; fixtures without one pass no checkpoint.
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
         {
-            horizontal = MoveX(bus, level, samus, plms);
-            if (previousCheckpoint is { } checkpoint)
+            horizontal = MoveX(terrain.Bus, terrain.Level, samus, terrain.Plms);
+            if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousX(samus, checkpoint);
         }
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
         {
-            vertical = MoveY(bus, level, samus, nmiFrameCounter, plms);
-            if (previousCheckpoint is { } checkpoint)
+            vertical = MoveY(terrain.Bus, terrain.Level, samus, frame.NmiFrameCounter, terrain.Plms);
+            if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousY(samus, checkpoint);
         }
 
@@ -459,15 +440,15 @@ false);
         // terminates all three launch directions through the ordinary crash handler.
         bool hasNativeEnergy = unchecked((short)(samus.Health -
             SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy)) >= 0;
-        bool lowEnergy = !playerInvincibilityEnabled && !hasNativeEnergy;
+        bool lowEnergy = !frame.PlayerInvincibilityEnabled && !hasNativeEnergy;
         if (collided || lowEnergy)
-            BeginCrash(bus, samus);
+            BeginCrash(terrain.Bus, samus);
 
         // At exactly 30 energy, this frame still moves and drains to 29. The following
         // frame moves once more before EndSuperJump observes that 29 is below the threshold.
         // Invincible playtesting retains energy loss without requiring refills: below
         // the native cutoff, continue draining to one, never decrementing zero or one.
-        bool drained = playerInvincibilityEnabled
+        bool drained = frame.PlayerInvincibilityEnabled
             ? samus.Health > 1
             : hasNativeEnergy;
         if (drained)
@@ -828,14 +809,7 @@ false,             CrashSequenceFinished: true);
         }
 
         var displacement = SamusHorizontalDisplacement.Toward(samus.IsFacingLeft(bus), samus, baseSpeed: 0);
-        return SamusBlockCollision.MoveHorizontal(
-            bus,
-            level,
-            samus.Kinematics,
-            displacement.Displacement,
-            canBreakBombBlocks: true,
-            plms: plms,
-            collisionMovementDirection: displacement.CollisionDirection);
+        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
     private BlockMoveResult MoveY(
@@ -892,15 +866,7 @@ false,             CrashSequenceFinished: true);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);
 
-        return SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            samus.Kinematics,
-            upwardDisplacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            canBreakBombBlocks: true,
-            includeSolidEnemies: false,
-            plms: plms);
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;

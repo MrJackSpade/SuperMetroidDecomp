@@ -79,8 +79,7 @@ internal static partial class Program
             if (runtime.RoomLayer3Fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
             typeof(SuperMetroidRuntime).GetMethod("PrepareGameplayWindowRegisters", flags)!.Invoke(runtime, null);
-            runtime.RoomLayer3Fx.Step(bus, runtime.Vram, runtime.Camera!.PixelPosition,
-                timeIsFrozen: false, mainGameLoopCarry: true);
+            runtime.RoomLayer3Fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = runtime.Camera!.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
             runtime.RunNmi(0, mainLoopRequestedNmi: true);
             var registers = runtime.DisplayedGameplayWindowRegisters;
             AssertEqual((byte)0x11, registers.MainScreen, "waterfall native TM");

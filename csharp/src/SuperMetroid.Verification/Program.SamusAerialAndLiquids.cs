@@ -44,7 +44,7 @@ static void VerifySamusAerialMovement()
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
         bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
     AssertEqual(77, samus.Position.Y.Whole, "neutral-jump transition preserves Y");
-    samus.AnimateNoFx(bus);
+    samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "neutral-jump transition reaches FD");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "FD installs neutral jump pose");
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "FD target pose");
@@ -86,7 +86,7 @@ static void VerifySamusAerialMovement()
     // The compiled retail $A4 stream is 05,02,F8,01. Five plus two ticks
     // reach $F8 at byte index two; its operand returns to $01.
     for (int tick = 0; tick < 7; tick++)
-        samus.AnimateNoFx(bus);
+        samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xf8, samus.LastAnimationDelayCommand!.Value, "landing reaches F8");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "landing F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "landing animation returns to standing");
@@ -305,10 +305,8 @@ static void VerifySamusAerialMovement()
                         Position = new(new(x, 0), new(36, 0)),
                         Radius = new(12, 12),
                     };
-                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(
-                        bus, squareRoom, leftToRight, 1 << 16, scanLeftToRight: true);
-                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(
-                        bus, squareRoom, rightToLeft, 1 << 16, scanLeftToRight: false);
+                    BlockMoveResult ltr = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = squareRoom }, leftToRight, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = true });
+                    BlockMoveResult rtl = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = squareRoom }, rightToLeft, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = false });
                     AssertEqual(ltr.Collided, rtl.Collided,
                         $"square slope {shape}/{orientation} X={x} collision scan parity");
                     AssertEqual(ltr.AcceptedDisplacement, rtl.AcceptedDisplacement,
@@ -654,7 +652,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     submergedSpin.ProjectileFlareCounter = 0x003c;
     submergedSpin.InitializeAnimation(bus, initialFrame: 0);
     for (int tick = 0; tick < 3; tick++)
-        submergedSpin.AnimateNoFx(bus);
+        submergedSpin.AnimateNoFx(bus, new SamusAnimationStep());
     submergedSpin.LiquidPhysics.ConfigureWater(surfaceY: 100);
     submergedSpin.LiquidPhysics.BeginFrameSoundRequests();
     SamusAerialMovement.StepSpinJump(bus, empty, submergedSpin, 0, 0, 0);

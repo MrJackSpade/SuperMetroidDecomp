@@ -345,7 +345,7 @@ static void VerifySamusPostureMovement()
     AssertEqual(48, sunkSamus.Position.Y.Whole, "command seven clips its crouch descent at the floor");
 
     for (int tick = 0; tick < 3; tick++)
-        samus.AnimateNoFx(bus);
+        samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "crouch transition reaches FD");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "crouch FD applies");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "crouch transition target");
@@ -371,7 +371,7 @@ static void VerifySamusPostureMovement()
     samus.RefreshCollisionRadii(bus);
     AssertEqual(21, samus.Kinematics.Radius.Y, "next alpha publishes standing transition radius");
     for (int tick = 0; tick < 3; tick++)
-        samus.AnimateNoFx(bus);
+        samus.AnimateNoFx(bus, new SamusAnimationStep());
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "standing FD applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "standing transition target");
 
@@ -397,7 +397,7 @@ static void VerifySamusPostureMovement()
         SamusPostureMovement.StepCrouchStandTransition(
             bus, level, aimedSamus, unchecked((ushort)index));
         for (int tick = 0; tick < 3; tick++)
-            aimedSamus.AnimateNoFx(bus);
+            aimedSamus.AnimateNoFx(bus, new SamusAnimationStep());
         AssertTrue(aimedSamus.ApplyPendingVerifiedAnimationTransition(bus), "aimed crouch FD applies");
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
@@ -417,7 +417,7 @@ static void VerifySamusPostureMovement()
         aimedSamus.RefreshCollisionRadii(bus);
         AssertEqual(21, aimedSamus.Kinematics.Radius.Y, "aimed stand next alpha radius");
         for (int tick = 0; tick < 3; tick++)
-            aimedSamus.AnimateNoFx(bus);
+            aimedSamus.AnimateNoFx(bus, new SamusAnimationStep());
         AssertTrue(aimedSamus.ApplyPendingVerifiedAnimationTransition(bus), "aimed stand FD applies");
         AssertEqual(aimedStandTargets[index], aimedSamus.Pose, "aimed stand FD target");
     }

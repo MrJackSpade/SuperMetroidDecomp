@@ -64,7 +64,7 @@ internal static partial class Program
             for (int tick = 0; tick < 16; tick++)
             {
                 ushort input = (ushort)(SuperMetroid.Core.Input.SnesButton.X | (tick < 8 ? SuperMetroid.Core.Input.SnesButton.Left : SuperMetroid.Core.Input.SnesButton.Right));
-                AssertEqual(SamusGrappleMovement.Step(bus, empty, native, input, 0), SamusGrappleMovement.Step(bus, empty, changed, input, 0), "Edited swing frames preserve actual pendulum results");
+                AssertEqual(SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = empty }, native, input, 0), SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = empty }, changed, input, 0), "Edited swing frames preserve actual pendulum results");
                 AssertEqual((native.AnimationFrame + 11) & 31, changed.AnimationFrame, "Edited frame reaches actual pendulum updater");
                 AssertEqual(native.AnimationFrameTimer, changed.AnimationFrameTimer, "Visual mapping cannot change swing timing");
                 ushort displayed = changed.AnimationFrame;

@@ -38,7 +38,7 @@ internal static partial class Program
         var oam = new OamBuffer();
         for (int frame = 0; frame < 4096; frame++)
         {
-            enemies.StepFrame(new(0, 0), false, samus, level: assets.LevelData, nmiFrameCounter8: unchecked((byte)frame));
+            enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData, NmiFrameCounter8 = (byte)frame });
             functions.Add(boss.Function);
             bool queuedTransfer = false;
             foreach (var queue in queues)

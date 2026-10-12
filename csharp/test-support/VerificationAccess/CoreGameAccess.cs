@@ -1655,7 +1655,14 @@ internal static class RoomLayer3FxStateAccess
             RoomFxRecordDefinition definition, ushort randomNumber)
         {
             ArgumentNullException.ThrowIfNull(definition);
-            PrivateState.Invoke(self, "LoadCore", (ISnesAddressSpace)(bus), (SnesVram)(vram), (SnesCgram)(cgram), (ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (ushort)(randomNumber), (ushort)(0), (RoomFxRecordDefinition?)(definition));
+            PrivateState.Invoke(self, "LoadCore", (ISnesAddressSpace)(bus), (SnesVram)(vram), (SnesCgram)(cgram), new RoomFxLoadSource
+            {
+                FxPointer = definition.Pointer,
+                DoorPointer = definition.DoorPointer,
+                RandomNumber = randomNumber,
+                RoomHeaderPointer = 0,
+                SuppliedDefinition = definition,
+            });
         }
     }
 }

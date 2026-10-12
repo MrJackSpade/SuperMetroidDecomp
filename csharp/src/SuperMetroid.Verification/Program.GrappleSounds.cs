@@ -35,7 +35,7 @@ internal static partial class Program
             if (phase == GrapplePhase.CancelPending)
                 SamusGrappleMovement.CompleteFiringCancellation(bus, air, samus);
             else
-                SamusGrappleMovement.Step(bus, air, samus, 0, 0);
+                SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = air }, samus, 0, 0);
             AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 7), 15),
                 samus.LiquidPhysics.SoundRequests.Single(), $"{phase} emits native grapple stop command once");
         }

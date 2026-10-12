@@ -402,19 +402,10 @@ public static partial class SamusGrappleMovement
     /// Executes one connected grapple-function call. X is the default shoot binding used by
     /// this runtime; left/right pump the swing, newly pressed up/down adjust rope length.
     /// </summary>
-    public static GrappleMovementResult Step(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        SamusState samus,
-        ushort controllerInput,
-        ushort newlyPressedInput,
-        ushort nmiFrameCounter = 0,
-        Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
-        RoomPlmSystem? plms = null,
-        bool deferDropPoseChange = false)
+    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, ushort controllerInput, ushort newlyPressedInput, ushort nmiFrameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, bool deferDropPoseChange = false)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(terrain.Bus);
+        ArgumentNullException.ThrowIfNull(terrain.Level);
         ArgumentNullException.ThrowIfNull(samus);
         SamusGrappleState grapple = samus.Grapple;
 
@@ -422,22 +413,22 @@ public static partial class SamusGrappleMovement
         {
             // $9B:CB8B executes on the frame after $9B:C79D queued it. The launch velocity
             // was already published, so this pass changes art/handlers and clears grapple.
-            SamusPoseId? pendingReleasePose = CompleteQueuedRelease(bus, level, samus, grapple, deferDropPoseChange);
+            SamusPoseId? pendingReleasePose = CompleteQueuedRelease(terrain.Bus, terrain.Level, samus, grapple, deferDropPoseChange);
             return new GrappleMovementResult(GrapplePhase.Inactive, PendingReleasePose: pendingReleasePose);
         }
 
         // These are literal bank-$9B function-pointer phases. Each handler owns the whole
         // grapple beta pass, so dispatch it before entering ordinary pendulum integration.
         if (grapple.Phase == GrapplePhase.ConnectedLocked)
-            return StepLocked(level, samus, controllerInput, enemyCollision);
+            return StepLocked(terrain.Level, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrab)
-            return StepWallGrab(level, samus, controllerInput, enemyCollision);
+            return StepWallGrab(terrain.Level, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrabRelease)
-            return StepWallGrabRelease(bus, level, samus, newlyPressedInput);
+            return StepWallGrabRelease(terrain.Bus, terrain.Level, samus, newlyPressedInput);
         if (grapple.Phase == GrapplePhase.WallJumping)
-            return CompleteGrappleWallJump(bus, level, samus, grapple);
+            return CompleteGrappleWallJump(terrain.Bus, terrain.Level, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
-            return CompleteDropped(bus, level, samus, grapple, nmiFrameCounter, plms, deferDropPoseChange);
+            return CompleteDropped(terrain.Bus, terrain.Level, samus, grapple, nmiFrameCounter, terrain.Plms, deferDropPoseChange);
 
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
@@ -468,12 +459,12 @@ public static partial class SamusGrappleMovement
         }
 
         ApplyRopeAndDirectionInput(grapple, controllerInput, newlyPressedInput);
-        bool ropeLengthBlocked = ApplyRopeLengthDelta(level, samus, grapple);
+        bool ropeLengthBlocked = ApplyRopeLengthDelta(terrain.Level, samus, grapple);
         CalculateGravity(grapple);
         IntegrateAngularVelocity(grapple);
         ApplyJumpImpulse(grapple, newlyPressedInput);
-        GrappleSwingCollisionResult terrain = AdvanceAngleWithTerrainCollision(
-            level,
+        GrappleSwingCollisionResult swingCollision = AdvanceAngleWithTerrainCollision(
+            terrain.Level,
             samus,
             grapple);
 
@@ -482,7 +473,7 @@ public static partial class SamusGrappleMovement
         // pose, anchor-relative body offset, and locked/wallgrab function pointer.
         if (grapple.SpecialAngleHandling &&
             TryHandleSpecialAngle(
-                bus,
+                terrain.Bus,
                 samus,
                 grapple,
                 previousPosition,
@@ -490,8 +481,8 @@ public static partial class SamusGrappleMovement
         {
             return special with
             {
-                TerrainCollided = terrain.Collided,
-                CollisionDistanceFromFeet = terrain.DistanceFromFeet,
+                TerrainCollided = swingCollision.Collided,
+                CollisionDistanceFromFeet = swingCollision.DistanceFromFeet,
                 RopeLengthBlocked = ropeLengthBlocked,
             };
         }
@@ -500,7 +491,7 @@ public static partial class SamusGrappleMovement
         bool anchorDisconnected = !enemyAnchorHeld &&
             (grapple.ValidateAnchorEnemy ||
              grapple.ValidateAnchorBlock &&
-                !IsStillConnectedToSupportedBlock(level, samus, grapple));
+                !IsStillConnectedToSupportedBlock(terrain.Level, samus, grapple));
         if (anchorDisconnected)
         {
             // The persistent block path normally remains connected forever. Retain the
@@ -512,8 +503,8 @@ public static partial class SamusGrappleMovement
                 grapple.Phase = GrapplePhase.Dropped;
                 return new GrappleMovementResult(
                     grapple.Phase,
-                    TerrainCollided: terrain.Collided,
-                    CollisionDistanceFromFeet: terrain.DistanceFromFeet,
+                    TerrainCollided: swingCollision.Collided,
+                    CollisionDistanceFromFeet: swingCollision.DistanceFromFeet,
                     RopeLengthBlocked: ropeLengthBlocked);
             }
 
@@ -522,17 +513,17 @@ public static partial class SamusGrappleMovement
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
             return new GrappleMovementResult(
                 grapple.Phase,
-                TerrainCollided: terrain.Collided,
-                CollisionDistanceFromFeet: terrain.DistanceFromFeet,
+                TerrainCollided: swingCollision.Collided,
+                CollisionDistanceFromFeet: swingCollision.DistanceFromFeet,
                 RopeLengthBlocked: ropeLengthBlocked);
         }
 
-        PositionSamusFromPendulum(bus, samus, grapple);
+        PositionSamusFromPendulum(terrain.Bus, samus, grapple);
 
         return new GrappleMovementResult(
             grapple.Phase,
-            TerrainCollided: terrain.Collided,
-            CollisionDistanceFromFeet: terrain.DistanceFromFeet,
+            TerrainCollided: swingCollision.Collided,
+            CollisionDistanceFromFeet: swingCollision.DistanceFromFeet,
             RopeLengthBlocked: ropeLengthBlocked);
     }
 

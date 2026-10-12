@@ -18,7 +18,7 @@ internal static partial class Program
         var eye = runtime.Enemies.Slots[0];
         AssertEqual(EnemyDefinitionId.Fune, eye.EnemyDefinitionPointer, "reported rock eye is retail Fune/Namihe family");
         ushort cameraX = 368, cameraY = 608;
-        runtime.Enemies.StepFrame(new(cameraX, cameraY), false, runtime.Samus, level: runtime.LevelData);
+        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Samus, Level = runtime.LevelData });
         var oam = new OamBuffer();
         oam.BeginFrame();
         runtime.Enemies.DrawLayers(oam, new(cameraX, cameraY), 0, 7);

@@ -70,7 +70,7 @@ internal static partial class Program
                 uint accelerated = unchecked(vy + 0x2000);
                 vy = unchecked((short)((accelerated >> 16) - 4)) < 0
                     ? accelerated : (vy & 0xFFFF0000) | (accelerated & 0xFFFF);
-                enemies.StepFrame(new(384, 384), false, samus, level: level);
+                enemies.StepFrame(new RoomEnemyFrame { Camera = new(384, 384), TimeIsFrozen = false, Samus = samus, Level = level });
                 AssertEqual(x, actor.Position.X.RawValue, "Yard airborne X trajectory");
                 AssertEqual(y, actor.Position.Y.RawValue, "Yard airborne Y trajectory");
                 AssertEqual(vx, unchecked((uint)state.AirborneVelocity.X.RawValue), "Yard native friction words");

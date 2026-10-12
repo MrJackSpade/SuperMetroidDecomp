@@ -123,10 +123,7 @@ internal static partial class Program
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(
-                bus,
-                samus,
-                SamusMovementType.Standing),
+        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions()),
             "X-Ray fixture activation");
         return samus;
     }

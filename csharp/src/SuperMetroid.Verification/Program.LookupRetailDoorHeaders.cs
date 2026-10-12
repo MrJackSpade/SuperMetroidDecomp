@@ -49,7 +49,7 @@ internal static partial class Program
         {
             int address = (0x830000 | pointer) + offset;
             int expected = DoorHeaderFieldRomByte(rom, address);
-            if (width == 2) expected |= DoorHeaderFieldRomByte(rom, address + 1) << 8;
+            if (width == 2) expected |= SnesLittleEndian.Word(0, DoorHeaderFieldRomByte(rom, address + 1));
             CartridgeDoorHeader actual = DoorDefinitions.Get(pointer);
             AssertEqual(expected, field(actual), $"Door {pointer:X4} native field at {offset}");
             if (offset == 10)

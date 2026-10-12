@@ -30,7 +30,7 @@ internal static partial class Program
         {
             int record = 0xa6c4d9 + 7 * page;
             int count = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record), CpuBusRegionRead.Read(rom, record + 1));
-            int source = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + 2), CpuBusRegionRead.Read(rom, record + 3)) | CpuBusRegionRead.Read(rom, record + 4) << 16;
+            int source = (int)new SnesAddress(CpuBusRegionRead.Read(rom, record + 4), SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + 2), CpuBusRegionRead.Read(rom, record + 3)));
             int destination = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + 5), CpuBusRegionRead.Read(rom, record + 6));
             cartridgeVram.LoadBytes(destination * 2, RomDataReader.ReadFixedBank(rom, source, count));
         }

@@ -897,7 +897,7 @@ public sealed partial class RoomEnemySystem
         }
 
         byte phase = unchecked((byte)((state.PaletteTimerAndPhase + 1) & 7));
-        state.PaletteTimerAndPhase = unchecked((ushort)((state.PaletteDelay << 8) | phase));
+        state.PaletteTimerAndPhase = SnesLittleEndian.Word(phase, unchecked((byte)state.PaletteDelay));
         if (phase == 5 && state.CryEnabled != 0)
         {
             state.CryCounter = unchecked((ushort)(state.CryCounter + 1));

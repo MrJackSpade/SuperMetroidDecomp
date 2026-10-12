@@ -24,7 +24,7 @@ public static class KraidCeilingRockPositions
         if ((uint)offset > 18) throw new IndexOutOfRangeException();
         int index = offset >> 1;
         return (offset & 1) == 0 ? Word(index)
-            : unchecked((ushort)((SnesLittleEndian.HighByte(Word(index))) | (Word(index + 1) << 8)));
+            : SnesLittleEndian.Word(SnesLittleEndian.HighByte(Word(index)), unchecked((byte)Word(index + 1)));
     }
 
     // Alternate the left (columns2..6) and right (10..13) ceiling gaps.

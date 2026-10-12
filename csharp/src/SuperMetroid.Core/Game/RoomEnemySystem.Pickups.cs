@@ -164,7 +164,7 @@ public sealed partial class RoomEnemySystem
         {
             ushort random = EnemyRandom.Generate();
             ushort x = unchecked((ushort)((random & xMask) + xBase));
-            ushort y = unchecked((ushort)(((random & yMask) >> 8) + yBase));
+            ushort y = unchecked((ushort)(SnesLittleEndian.HighByte(unchecked((ushort)(random & yMask))) + yBase));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
         }
     }
@@ -178,7 +178,7 @@ public sealed partial class RoomEnemySystem
         {
             ushort random = EnemyRandom.Generate();
             ushort x = unchecked((ushort)(origin.X + (random & 0x001f) - 16));
-            ushort y = unchecked((ushort)(origin.Y + ((random & 0x1f00) >> 8) - 16));
+            ushort y = unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & 0x1f)) - 16));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
         }
     }

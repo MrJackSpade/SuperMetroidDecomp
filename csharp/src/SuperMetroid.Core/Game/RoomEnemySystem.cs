@@ -1011,7 +1011,7 @@ public sealed partial class RoomEnemySystem
             // seven, but retaining the wider mask makes corrupt data fail visibly.
             (TileArtwork ?? throw new InvalidOperationException(
                 "Enemy population requires installed palette artwork."))
-                .LoadPaletteTo(definitionPointer, new CgramPalettes(cgram).ObjectRow(vramDestination & 0x00ff));
+                .LoadPaletteTo(definitionPointer, new CgramPalettes(cgram).ObjectRow(unchecked((byte)vramDestination)));
 
             int byteCount = definition.TileDataSize & 0x7fff;
             int stagingOffset = (definition.TileDataSize & 0x8000) != 0
@@ -2478,7 +2478,7 @@ public sealed partial class RoomEnemySystem
             bottom.VariableF = 0x0900;
 
         uint samusY = samus.Kinematics.Position.Y.RawValue;
-        samusY = unchecked(samusY - ((uint)bottom.VariableF << 8));
+        samusY = unchecked(samusY - SnesSixteenSixteen.FromEightEight((uint)bottom.VariableF));
         samus.Kinematics.Position = samus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(samusY));
         MoveGunshipAndSamusToY(top, samus, samus.Position.Y.Whole);
     }

@@ -545,13 +545,13 @@ public sealed partial class SamusState
         BlockMoveResult upward = ProbeChangedPoseVertical(
             bus,
             level,
-            displacement: unchecked(-radiusDifference << 16),
+            displacement: unchecked(SnesSixteenSixteen.FromWhole(-radiusDifference)),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             targetPose, plms);
         BlockMoveResult downward = ProbeChangedPoseVertical(
             bus,
             level,
-            displacement: radiusDifference << 16,
+            displacement: SnesSixteenSixteen.FromWhole(radiusDifference),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             targetPose, plms);
 
@@ -579,7 +579,7 @@ public sealed partial class SamusState
             // `$91:FFA7`'s crouch selector because the initial flags were not both set.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
                 bus, level,
-                displacement: centerAdjustment << 16,
+                displacement: SnesSixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 targetPose, plms: plms);
             if (opposite.Collided)
@@ -598,7 +598,7 @@ public sealed partial class SamusState
             // `$91:FF2B` is the downward mirror of the opposite-side check above.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
                 bus, level,
-                displacement: centerAdjustment << 16,
+                displacement: SnesSixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 targetPose, plms: plms);
             if (opposite.Collided)

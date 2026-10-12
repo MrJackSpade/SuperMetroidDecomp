@@ -722,7 +722,7 @@ internal static partial class Program
             for (int frame = 0; frame <= count; frame++)
             {
                 expected = unchecked(expected + (uint)Native(address + (frame % count) * 4));
-                if (fast || expectedAngle != 0xe0) expectedAngle = (expectedAngle - (fast ? 4 : 1)) & 0xff;
+                if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
                 AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), (SnesAngle)type.GetField("mode7Angle", flags)!.GetValue(state)!, "rotation context advances independently of selected signs");

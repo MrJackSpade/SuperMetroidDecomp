@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
@@ -33,7 +34,7 @@ internal static partial class Program
             body.ExtraDisplacement = body.ExtraDisplacement.WithX(SuperMetroid.Core.Hardware.SnesSignedSixteenSixteen.FromParts(7, 0x1234));
             samus.HorizontalSpeed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
             bool admitted = behavior >= 10 || (verticalSpeed == 0 && (area != AreaId.WreckedShip || powered));
-            int expected = admitted ? ((behavior & 1) == 0 ? 2 : -2) << 16 : 0x71234;
+            int expected = admitted ? SnesSixteenSixteen.FromWhole((behavior & 1) == 0 ? 2 : -2) : 0x71234;
             SamusInsideBlockReactions.PrepareFrame(level, samus, area, powered);
             AssertEqual(expected, body.ExtraDisplacement.X.RawValue, $"conveyor BTS {behavior}, area {area}, power {powered}, Y {verticalSpeed}");
             AssertEqual(SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
@@ -41,7 +42,7 @@ internal static partial class Program
             if (admitted)
             {
                 SamusGroundedMovement.StepStandingRight(bus, level, samus, 0, controllerInput: 0);
-                AssertEqual((ushort)(24 + (expected >> 16)), samus.Position.X.Whole, "conveyor actual horizontal motion");
+                AssertEqual((ushort)(24 + SnesSixteenSixteen.WholeOf(expected)), samus.Position.X.Whole, "conveyor actual horizontal motion");
             }
             cases++;
         }

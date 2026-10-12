@@ -202,7 +202,7 @@ internal sealed class IntroRinkaSystem
     {
         SnesFixedPosition x = rinka.Position.X;
         uint subSum = (uint)x.Fraction + IntroRinkaDefinitions.HalfPixelFraction;
-        int carry = (int)(subSum >> 16);
+        int carry = (int)(SnesCarry.OutOfWord(subSum));
         rinka.Position = rinka.Position.WithX(new(
             unchecked((ushort)(x.Whole + wholeDelta + carry)), unchecked((ushort)subSum)));
     }
@@ -212,6 +212,6 @@ internal sealed class IntroRinkaSystem
         SnesFixedPosition y = rinka.Position.Y;
         uint subSum = (uint)y.Fraction + IntroRinkaDefinitions.HalfPixelFraction;
         rinka.Position = rinka.Position.WithY(new(
-            unchecked((ushort)(y.Whole + (subSum >> 16))), unchecked((ushort)subSum)));
+            unchecked((ushort)(y.Whole + (SnesCarry.OutOfWord(subSum)))), unchecked((ushort)subSum)));
     }
 }

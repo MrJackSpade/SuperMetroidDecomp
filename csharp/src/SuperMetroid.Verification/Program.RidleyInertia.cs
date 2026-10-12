@@ -67,8 +67,8 @@ internal static partial class Program
         if ((short)initial < 0)
         {
             int a = initial + q + carry;
-            int b = unchecked((ushort)a) + q + (a >> 16);
-            value = unchecked((ushort)b) + q + (b >> 16);
+            int b = unchecked((ushort)a) + q + SnesCarry.OutOfWord(a);
+            value = unchecked((ushort)b) + q + SnesCarry.OutOfWord(b);
         }
         else value = initial + q + carry;
         ushort result = unchecked((ushort)value);
@@ -98,8 +98,8 @@ internal static partial class Program
         if ((short)initial < 0)
         {
             int a = unchecked((ushort)(initial + boost)) + 8;
-            int b = unchecked((ushort)a) + q + (a >> 16);
-            value = unchecked((ushort)b) + q + (b >> 16);
+            int b = unchecked((ushort)a) + q + SnesCarry.OutOfWord(a);
+            value = unchecked((ushort)b) + q + SnesCarry.OutOfWord(b);
         }
         else value = initial + q + (position >= target ? 1 : 0);
         ushort result = unchecked((ushort)value);

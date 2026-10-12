@@ -66,8 +66,7 @@ internal static partial class Program
         for (int area = 0; area < 6; area++)
         {
             int address = 0x81aa34 + area * 16 + edge * 4;
-            uint expected = ReadVerificationWord(rom, address) |
-                ((uint)ReadVerificationWord(rom, address + 2) << 16);
+            uint expected = SnesSixteenSixteen.Compose(ReadVerificationWord(rom, address + 2), ReadVerificationWord(rom, address));
             AssertEqual(expected, select(FileSelectMapWindowMotions.Get(area)),
                 $"map window area {area} edge {edge} signed16.16 velocity");
         }

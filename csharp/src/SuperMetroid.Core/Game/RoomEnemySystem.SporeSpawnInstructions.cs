@@ -162,7 +162,7 @@ public sealed partial class RoomEnemySystem
     {
         ushort random = EnemyRandom.Generate();
         SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((random & 0x7f00) >> 8) - 64))),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((SnesLittleEndian.HighByte(random) & 0x7f)) - 64))),
             animationIndex: 0x0015);
         LastSporeSpawnSoundEffectLibrary2 = 0x0029;
     }
@@ -171,7 +171,7 @@ public sealed partial class RoomEnemySystem
     {
         ushort random = EnemyRandom.Generate();
         _ = SpawnRoomSpriteObject(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((random & 0x3f00) >> 8) - 32))),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((SnesLittleEndian.HighByte(random) & 0x3f)) - 32))),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
             graphicsIndex: 0);
         LastSporeSpawnSoundEffectLibrary2 = 0x0025;
@@ -183,7 +183,7 @@ public sealed partial class RoomEnemySystem
         {
             ushort random = EnemyRandom.Generate();
             ushort x = unchecked((ushort)((random & 0x007f) + 64));
-            ushort y = unchecked((ushort)(((random & 0x3f00) >> 8) + 528));
+            ushort y = unchecked((ushort)(((SnesLittleEndian.HighByte(random) & 0x3f)) + 528));
             _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
             SpawnEnemyDropFromEnemyHeader(new(x, y), EnemyDefinitionId.SporeSpawn);
         }

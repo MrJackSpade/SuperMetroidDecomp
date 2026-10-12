@@ -60,7 +60,7 @@ internal static partial class Program
             edited = JsonSerializer.Deserialize<CeresFlightMapDocument>(input,
                 MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Stock Ceres flight map is empty.");
-        edited.FrontTiles[0] = (edited.FrontTiles[0] + 1) & 255;
+        edited.FrontTiles[0] = unchecked((byte)(edited.FrontTiles[0] + 1));
         using (var output = File.Create(overridePath))
             CeresFlightArtworkCatalog.WriteMap(output, edited);
         CeresFlightArtworkCatalog overrideArt = installation.LoadIntroCinematicArt().CeresFlight;

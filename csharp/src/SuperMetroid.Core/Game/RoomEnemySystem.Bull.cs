@@ -340,7 +340,7 @@ public sealed partial class RoomEnemySystem
 
         uint fractionalSum = (uint)position.Fraction + fraction;
         return new(
-            unchecked((ushort)(position.Whole + whole + (fractionalSum >> 16))),
+            unchecked((ushort)(position.Whole + whole + (SnesCarry.OutOfWord(fractionalSum)))),
             unchecked((ushort)fractionalSum));
     }
 

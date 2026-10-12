@@ -27,8 +27,7 @@ internal static partial class Program
             int instruction = 0x82ec66 + 17 * index;
             AssertEqual((byte)0xa9, CpuBusRegionRead.Read(rom, instruction), "native page bank LDA immediate");
             AssertEqual((byte)0xa9, CpuBusRegionRead.Read(rom, instruction + 5), "native page address LDA immediate");
-            int source = (SnesLittleEndian.HighByteInPlace(ReadVerificationWord(rom, instruction + 1))) << 8 |
-                ReadVerificationWord(rom, instruction + 6);
+            int source = (int)new SnesAddress(SnesLittleEndian.HighByte(ReadVerificationWord(rom, instruction + 1)), ReadVerificationWord(rom, instruction + 6));
             var expected = originalOrder[index];
             GameOptionsPageResource actual = GameOptionsRomData.Pages.Get(expected.Page);
             AssertEqual(source, actual.Address, "original options resource address");

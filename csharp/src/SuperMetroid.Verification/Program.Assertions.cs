@@ -18,8 +18,8 @@ static ushort ReferenceNextRandom(ushort seed)
     byte stackLow = (byte)hardwareProductLow;
     byte stackHigh = SnesLittleEndian.HighByte(unchecked((ushort)hardwareProductLow));
 
-    int hardwareProductHigh = ((SnesLittleEndian.HighByte(seed)) & 0xff) * 5;
-    int eightBitAdc = stackHigh + (hardwareProductHigh & 0xff) + 1;
+    int hardwareProductHigh = SnesLittleEndian.HighByte(seed) * 5;
+    int eightBitAdc = stackHigh + unchecked((byte)hardwareProductHigh) + 1;
     stackHigh = (byte)eightBitAdc;
     int carry = eightBitAdc > 0xff ? 1 : 0;
 

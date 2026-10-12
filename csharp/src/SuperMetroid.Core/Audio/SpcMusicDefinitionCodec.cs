@@ -299,7 +299,7 @@ internal static class SpcMusicDefinitionCodec
         for (int channel = 0; channel < channelPrograms.Length; channel++)
         {
             ushort programAddress = ReadWord(ram, written, ref cursor, id);
-            if ((programAddress >> 8) == 0)
+            if (SnesLittleEndian.HighByte(programAddress) == 0)
                 continue;
             if (!written[programAddress])
             {

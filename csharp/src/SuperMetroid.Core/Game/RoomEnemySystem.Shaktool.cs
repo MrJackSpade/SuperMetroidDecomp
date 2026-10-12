@@ -95,6 +95,10 @@ public sealed partial class RoomEnemySystem
     private void ResetShaktoolRoomState() => Array.Clear(_shaktoolSegments);
 
     /// <summary>Ports <c>Shaktool_Init</c> at <c>$AA:DE43</c>.</summary>
+    /// <summary>The whole table step half a turn from <paramref name="angle"/>, its fraction cleared.</summary>
+    private static ushort OppositeOrbitStep(ushort angle) =>
+        SnesAngle.FromTableIndex(SnesAngle.FromRaw(angle).AddRaw(SnesAngle.HalfTurn.RawValue).TableIndex).RawValue;
+
     private void InitializeShaktool(RoomEnemySlot slot)
     {
         if ((slot.Parameter2 & 1) != 0 || slot.Parameter2 > 12)
@@ -248,7 +252,7 @@ public sealed partial class RoomEnemySystem
         // The native helper restores only whole-pixel words before collision. Subpositions
         // remain those produced by DC2A, a subtle asymmetry that affects wall alignment.
         slot.Position = slot.Position.WithWhole(previous);
-        int xDisplacement = step.X << 16;
+        int xDisplacement = SnesSixteenSixteen.FromWhole(step.X);
         bool collided = MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
@@ -256,7 +260,7 @@ public sealed partial class RoomEnemySystem
         if (!collided)
         {
             slot.Position = slot.Position.WithWholeY(previous.Y);
-            int yDisplacement = step.Y << 16;
+            int yDisplacement = SnesSixteenSixteen.FromWhole(step.Y);
             collided = MoveEnemyVertically(level, slot, yDisplacement);
         }
 
@@ -275,7 +279,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if (((state.TargetAngle ^ state.OrbitAngle) & 0xff00) == 0)
+        if (SnesAngle.FromRaw(state.TargetAngle).TableIndex == SnesAngle.FromRaw(state.OrbitAngle).TableIndex)
         {
             SynchronizeShaktoolOrbitTargets(slot, state.TargetAngle);
             state.OrientationAndAcceleration = 0x7800;
@@ -283,7 +287,7 @@ public sealed partial class RoomEnemySystem
                 slot,
                 (ShaktoolMotionFlags)slot.Parameter1 & ~ShaktoolMotionFlags.ReversedOnce);
             state.OrientationAndAcceleration = unchecked((ushort)(
-                (SnesLittleEndian.HighByte(state.OrientationAndAcceleration)) << 8));
+                SnesLittleEndian.HighByteInPlace(state.OrientationAndAcceleration)));
         }
 
         state.OrientationAndAcceleration = unchecked((ushort)(
@@ -326,7 +330,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot owner = SlotFromNativeIndex(state.OwnerNativeIndex);
         byte angle = CalculateCartridgeAngle(
             new(unchecked((short)(slot.Position.X.Whole - owner.Position.X.Whole)), unchecked((short)(slot.Position.Y.Whole - owner.Position.Y.Whole))));
-        ushort target = unchecked((ushort)(angle << 8));
+        ushort target = SnesAngle.FromTableIndex(angle).RawValue;
         target = ((ShaktoolMotionFlags)slot.Parameter1 & ShaktoolMotionFlags.Clockwise) != 0
             ? unchecked((ushort)(target - 0x4000))
             : unchecked((ushort)(target + 0x4000));
@@ -370,8 +374,8 @@ public sealed partial class RoomEnemySystem
         ShaktoolSegmentState leftState = RequireShaktoolState(left);
         ShaktoolSegmentState rightState = RequireShaktoolState(right);
         ushort saved = leftState.OrbitAngle;
-        leftState.OrbitAngle = unchecked((ushort)((rightState.OrbitAngle ^ 0x8000) & 0xff00));
-        rightState.OrbitAngle = unchecked((ushort)((saved ^ 0x8000) & 0xff00));
+        leftState.OrbitAngle = OppositeOrbitStep(rightState.OrbitAngle);
+        rightState.OrbitAngle = OppositeOrbitStep(saved);
     }
 
     /// <summary>Ports the per-segment convergence speed calculation at <c>$AA:DC07</c>.</summary>

@@ -86,12 +86,12 @@ public sealed class ScrollBoundaryCamera
     public void SetPosition(Position16<RoomPixels> requested)
     {
         PreviousSamusPoint = null;
-        int maxX = (Scrolls.Size.X - 1) << 8;
+        int maxX = RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1);
 
         // The vertical maximum depends on blue/green scroll alignment. Starting with the
         // room-wide conservative +$1F allowance matches $80:A731's largest legal result;
         // the first vertical movement applies the cell-specific exact maximum.
-        int maxY = ((Scrolls.Size.Y - 1) << 8) + 0x1f;
+        int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + 0x1f;
         var clamped = new Position16<RoomPixels>(
             (ushort)Math.Clamp(requested.X, 0, maxX),
             (ushort)Math.Clamp(requested.Y, 0, maxY));
@@ -299,7 +299,7 @@ public sealed class ScrollBoundaryCamera
         if ((short)Position.X.Whole < 0)
             SetWholeX(0);
 
-        ushort roomMaximum = (ushort)((Scrolls.Size.X - 1) << 8);
+        ushort roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
         if (Position.X.Whole > roomMaximum)
             SetWholeX(roomMaximum);
 
@@ -370,7 +370,7 @@ public sealed class ScrollBoundaryCamera
         if ((short)Position.Y.Whole < 0)
             SetWholeY(0);
 
-        ushort roomMaximum = unchecked((ushort)(((Scrolls.Size.Y - 1) << 8) + verticalAlignment));
+        ushort roomMaximum = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
         if (Position.Y.Whole > roomMaximum)
             SetWholeY(roomMaximum);
 
@@ -432,7 +432,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithX(new SnesFixedPosition(IdealPosition.X, 0));
         }
 
-        ushort roomMaximum = (ushort)((Scrolls.Size.X - 1) << 8);
+        ushort roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
         if (Position.X.Whole > roomMaximum)
         {
             SetWholeX(roomMaximum);
@@ -497,7 +497,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithY(new SnesFixedPosition(IdealPosition.Y, 0));
         }
 
-        ushort boundary = unchecked((ushort)(((Scrolls.Size.Y - 1) << 8) + verticalAlignment));
+        ushort boundary = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
         bool beyondRoomBottom = boundary < Position.Y.Whole;
         bool blockedBelow = false;
         if (!beyondRoomBottom)

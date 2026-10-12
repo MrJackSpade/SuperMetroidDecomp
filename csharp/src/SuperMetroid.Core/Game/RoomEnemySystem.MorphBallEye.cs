@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -396,7 +397,7 @@ public sealed partial class RoomEnemySystem
         uint deltaFraction = (uint)MorphBallEyeBeam.AngularSubwidthDelta + 0x4000u;
         MorphBallEyeBeam.AngularSubwidthDelta = unchecked((ushort)deltaFraction);
         MorphBallEyeBeam.AngularWidthDelta = unchecked((ushort)(
-            MorphBallEyeBeam.AngularWidthDelta + (deltaFraction >> 16)));
+            MorphBallEyeBeam.AngularWidthDelta + SnesCarry.OutOfWord(deltaFraction)));
 
         uint widthFraction = (uint)MorphBallEyeBeam.AngularSubwidth +
             MorphBallEyeBeam.AngularSubwidthDelta;
@@ -404,7 +405,7 @@ public sealed partial class RoomEnemySystem
         MorphBallEyeBeam.AngularWidth = unchecked((ushort)(
             MorphBallEyeBeam.AngularWidth +
             MorphBallEyeBeam.AngularWidthDelta +
-            (widthFraction >> 16)));
+            SnesCarry.OutOfWord(widthFraction)));
 
         if (unchecked((short)(MorphBallEyeBeam.AngularWidth - 4)) >= 0)
         {

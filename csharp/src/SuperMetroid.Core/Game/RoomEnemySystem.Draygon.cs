@@ -378,7 +378,7 @@ public sealed partial class RoomEnemySystem
         // whole/subpixel words consumed by AddToHiLo during descent.
         ushort distance = WrappedMagnitude(unchecked((ushort)(
             state.LeftSideResetXPosition - samus.Position.X.Whole)));
-        uint velocity = ((uint)distance << 16) / (uint)frameCount;
+        uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
         state.Body.VariableD = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
         state.Body.VariableE = unchecked((ushort)velocity);
         state.Body.VariableB = unchecked((ushort)byteOffset);
@@ -422,7 +422,7 @@ public sealed partial class RoomEnemySystem
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the apex.");
         ushort distance = unchecked((ushort)(0x02a0 - body.Position.X.Whole));
-        uint velocity = ((uint)distance << 16) / (uint)frameCount;
+        uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
         body.VariableD = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
         body.VariableE = unchecked((ushort)velocity);
         state.Function = DraygonAiFunction.SwoopRightAscending;
@@ -471,7 +471,7 @@ public sealed partial class RoomEnemySystem
 
         ushort distance = WrappedMagnitude(unchecked((ushort)(
             state.RightSideResetXPosition - samus.Position.X.Whole)));
-        uint velocity = ((uint)distance << 16) / (uint)frameCount;
+        uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
         state.Body.VariableD = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
         state.Body.VariableE = unchecked((ushort)velocity);
         state.Function = DraygonAiFunction.SwoopLeftDescending;
@@ -524,7 +524,7 @@ public sealed partial class RoomEnemySystem
             ? unchecked((ushort)(
                 unchecked((ushort)-state.LeftSideResetXPosition) + body.Position.X.Whole))
             : unchecked((ushort)(body.Position.X.Whole - state.LeftSideResetXPosition));
-        uint velocity = ((uint)distance << 16) / (uint)frameCount;
+        uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
         body.VariableD = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
         body.VariableE = unchecked((ushort)velocity);
         state.Function = DraygonAiFunction.SwoopLeftAscending;
@@ -569,7 +569,7 @@ public sealed partial class RoomEnemySystem
     private static void AddDraygonHorizontalVelocity(RoomEnemySlot body)
     {
         uint position = body.Position.X.RawValue;
-        uint velocity = ((uint)body.VariableD << 16) | body.VariableE;
+        uint velocity = SnesSixteenSixteen.Compose(body.VariableD, body.VariableE);
         position = unchecked(position + velocity);
         body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
@@ -577,7 +577,7 @@ public sealed partial class RoomEnemySystem
     private static void SubtractDraygonHorizontalVelocity(RoomEnemySlot body)
     {
         uint position = body.Position.X.RawValue;
-        uint velocity = ((uint)body.VariableD << 16) | body.VariableE;
+        uint velocity = SnesSixteenSixteen.Compose(body.VariableD, body.VariableE);
         position = unchecked(position - velocity);
         body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
@@ -730,7 +730,7 @@ public sealed partial class RoomEnemySystem
         state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(
             0x0180 + ReadEightBitCosineProduct(state.GoopYOscillationAngle, 0x0020))));
         state.GoopYOscillationAngle = unchecked((ushort)(
-            (state.GoopYOscillationAngle + 1) & 0x00ff));
+            unchecked((byte)(state.GoopYOscillationAngle + 1))));
         if (movingRight)
             AddDraygonHorizontalVelocity(state.Body);
         else

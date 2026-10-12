@@ -262,7 +262,7 @@ public sealed partial class RoomEnemySystem
 
     private static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
     {
-        int frameIndex = (SnesLittleEndian.HighByte(state.FallingPatternIndex)) & 0xff;
+        int frameIndex = SnesLittleEndian.HighByte(state.FallingPatternIndex);
         ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
             state.FallingPatternPointer,
             frameIndex);

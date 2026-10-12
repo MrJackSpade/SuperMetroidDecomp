@@ -127,7 +127,7 @@ internal static partial class Program
                 part.Priority << 12 | (part.FlipX ? 0x4000 : 0) | (part.FlipY ? 0x8000 : 0)));
             expected[index * 4] = unchecked((byte)x); expected[index * 4 + 1] = unchecked((byte)y);
             expected[index * 4 + 2] = (byte)tile; expected[index * 4 + 3] = SnesLittleEndian.HighByte(tile);
-            high |= (byte)(((x >> 8 & 1) | (part.Size == 16 ? 2 : 0)) << (index * 2));
+            high |= (byte)(((SnesLittleEndian.HighByte(unchecked((ushort)x)) & 1) | (part.Size == 16 ? 2 : 0)) << (index * 2));
         }
         AssertEqual(expected.Length, actual.NextByteOffset, "body emits exactly the authored limb count");
         AssertTrue(expected.AsSpan().SequenceEqual(actual.LowTable[..expected.Length]), "body limb position/tile/palette/flip/order match authored art");

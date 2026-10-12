@@ -296,17 +296,13 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void MoveBankA9EnemyWithVelocity(RoomEnemySlot slot)
     {
-        int xCarry = (slot.Position.X.Fraction >> 8) + (byte)slot.VariableB;
-        slot.Position = slot.Position.WithFractionX(unchecked((ushort)(
-            (slot.Position.X.Fraction & 0x00ff) | ((xCarry & 0xff) << 8))));
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-            slot.Position.X.Whole + unchecked((sbyte)(SnesLittleEndian.HighByte(slot.VariableB))) + (xCarry >> 8))));
+        SnesFixedPosition x = new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction)
+            .AddEightEightToHighFraction(slot.VariableB);
+        slot.Position = slot.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
-        int yCarry = (slot.Position.Y.Fraction >> 8) + (byte)slot.VariableC;
-        slot.Position = slot.Position.WithFractionY(unchecked((ushort)(
-            (slot.Position.Y.Fraction & 0x00ff) | ((yCarry & 0xff) << 8))));
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
-            slot.Position.Y.Whole + unchecked((sbyte)(SnesLittleEndian.HighByte(slot.VariableC))) + (yCarry >> 8))));
+        SnesFixedPosition y = new SnesFixedPosition(slot.Position.Y.Whole, slot.Position.Y.Fraction)
+            .AddEightEightToHighFraction(slot.VariableC);
+        slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 
     private void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)

@@ -318,7 +318,7 @@ public sealed partial class RoomEnemySystem
         {
             ushort random = EnemyRandom.Generate();
             _ = SpawnRoomSpriteObject(
-                new(unchecked((ushort)((random & 0x003f) + 96)), unchecked((ushort)(((random & 0x0f00) >> 8) + 480))),
+                new(unchecked((ushort)((random & 0x003f) + 96)), unchecked((ushort)(((SnesLittleEndian.HighByte(random) & 0x0f)) + 480))),
                 RoomSpriteObjectKind.DustCloud,
                 graphicsIndex: 0);
         }

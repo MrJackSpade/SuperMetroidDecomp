@@ -190,6 +190,6 @@ internal static class MotherBrainNeckKinematics
     {
         short sine = EnemyTrigonometryTables.SignedSine(angle);
         int product = sine * unchecked((sbyte)distance);
-        return unchecked((short)(product >> 8));
+        return unchecked((short)SnesEightEight.WholeOf(product));
     }
 }

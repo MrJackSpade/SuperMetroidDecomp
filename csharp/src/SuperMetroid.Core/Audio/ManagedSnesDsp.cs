@@ -114,12 +114,10 @@ public sealed class ManagedSnesDsp
                 voice.VolumeRight = unchecked((sbyte)value);
                 break;
             case DspVoiceRegister.PitchLow:
-                voice.Pitch = unchecked((ushort)((voice.Pitch &
-                    (SnesDspRegisterMap.Fields.PitchHighMask << 8)) | value));
+                voice.Pitch = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(voice.Pitch) & SnesDspRegisterMap.Fields.PitchMask | value));
                 break;
             case DspVoiceRegister.PitchHigh:
-                voice.Pitch = unchecked((ushort)(((SnesLittleEndian.LowByte(voice.Pitch)) | (value << 8)) &
-                    SnesDspRegisterMap.Fields.PitchMask));
+                voice.Pitch = unchecked((ushort)(SnesLittleEndian.Word(SnesLittleEndian.LowByte(voice.Pitch), value) & SnesDspRegisterMap.Fields.PitchMask));
                 break;
             case DspVoiceRegister.SourceNumber:
                 voice.SourceNumber = value;
@@ -226,7 +224,7 @@ public sealed class ManagedSnesDsp
                 // source IDs. Preserve the register mirror because software can read it back.
                 break;
             case DspGlobalRegister.EchoBufferAddress:
-                echoBufferAddress = unchecked((ushort)(value << 8));
+                echoBufferAddress = SnesLittleEndian.Word(0, value);
                 break;
             case DspGlobalRegister.EchoDelay:
                 echoDelay = unchecked((ushort)((value & SnesDspRegisterMap.Fields.EchoDelayMask) * 512));
@@ -324,7 +322,7 @@ public sealed class ManagedSnesDsp
             ? noiseSample
             : sampleSource is null
                 ? (short)0
-                : GetInterpolatedSample(voice, voice.PitchCounter >> 12, (voice.PitchCounter >> 4) & 0xff);
+                : GetInterpolatedSample(voice, voice.PitchCounter >> 12, unchecked((byte)(voice.PitchCounter >> 4)));
 
         if (reset)
         {
@@ -367,12 +365,12 @@ public sealed class ManagedSnesDsp
                     voice.Gain = 0x7ff;
                 break;
             case EnvelopeState.Decay:
-                voice.Gain = unchecked((ushort)(voice.Gain - (((voice.Gain - 1) >> 8) + 1)));
+                voice.Gain = unchecked((ushort)(voice.Gain - (SnesEightEight.WholeOf(voice.Gain - 1) + 1)));
                 if (voice.Gain < voice.SustainLevel)
                     voice.AdsrState = EnvelopeState.Sustain;
                 break;
             case EnvelopeState.Sustain:
-                voice.Gain = unchecked((ushort)(voice.Gain - (((voice.Gain - 1) >> 8) + 1)));
+                voice.Gain = unchecked((ushort)(voice.Gain - (SnesEightEight.WholeOf(voice.Gain - 1) + 1)));
                 break;
             case EnvelopeState.Gain:
                 switch (voice.GainMode)
@@ -383,7 +381,7 @@ public sealed class ManagedSnesDsp
                             voice.Gain = 0;
                         break;
                     case 1:
-                        voice.Gain = unchecked((ushort)(voice.Gain - (((voice.Gain - 1) >> 8) + 1)));
+                        voice.Gain = unchecked((ushort)(voice.Gain - (SnesEightEight.WholeOf(voice.Gain - 1) + 1)));
                         break;
                     case 2:
                         voice.Gain = unchecked((ushort)(voice.Gain + 32));
@@ -490,7 +488,7 @@ public sealed class ManagedSnesDsp
     [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM sample directory loop pointers")]
     private ushort ReadLoopAddress(byte source)
     {
-        int directory = (registers[(byte)DspGlobalRegister.SourceDirectory] << 8) +
+        int directory = SnesLittleEndian.Word(0, registers[(byte)DspGlobalRegister.SourceDirectory]) +
             source * DspBrrLayout.DirectoryEntryBytes + DspBrrLayout.LoopPointerOffset;
         return SpcRamWords.Read(apuRam, directory);
     }

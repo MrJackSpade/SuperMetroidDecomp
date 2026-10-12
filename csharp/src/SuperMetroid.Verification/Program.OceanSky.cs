@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -41,7 +42,7 @@ internal static partial class Program
             for (int line = 32; line < 224; line += 8)
             {
                 int worldY = cameraY + line;
-                int pointerAddress = 0x88ADA6 + (worldY >> 8) * 2;
+                int pointerAddress = 0x88ADA6 + RoomScreenOf.Pixel(worldY) * 2;
                 int pointer = bus.ReadCartridgeWord(pointerAddress);
                 for (int column = 0; column < 32; column++)
                 {

@@ -157,8 +157,8 @@ public static partial class SamusGrappleMovement
     {
         -256 => -length,
         256 => length,
-        < 0 => -((-sine * length) >> 8),
-        _ => (sine * length) >> 8,
+        < 0 => -(SnesEightEight.Multiply(-sine, length)),
+        _ => SnesEightEight.Multiply(sine, length),
     };
 
     private static short ReadSignedSine(int index)

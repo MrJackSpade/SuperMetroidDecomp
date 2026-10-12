@@ -36,7 +36,7 @@ internal static class TitleSpriteExtractor
                 if (pointer != TitleSequenceRomData.Sprites.Blank)
                     pointers.Add(pointer);
                 entry += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
-                if ((entry & 0xffff) >= TitleSequenceRomData.Sprites.LogoPointerAddress % 0x10000)
+                if (SnesAddressMath.OffsetInBank(entry) >= TitleSequenceRomData.Sprites.LogoPointerAddress % 0x10000)
                     throw new InvalidDataException("Title text list did not terminate before the logo pointer.");
             }
         }

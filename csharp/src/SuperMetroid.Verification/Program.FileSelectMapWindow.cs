@@ -97,9 +97,9 @@ internal static partial class Program
         {
             AssertEqual(tick == 40, returning.Step(), "Maridia return is twelve updates shorter than expansion");
             AssertEqual(8 + 4 * tick, returning.Left, "return subtracts native negative left velocity");
-            AssertEqual((248 * 65536 - 0xf800 * tick) >> 16, returning.Right, "return retains right fraction");
-            AssertEqual((8 * 65536 + 0x31400 * tick) >> 16, returning.Top, "return retains top fraction");
-            AssertEqual((216 * 65536 - 0x1e000 * tick) >> 16, returning.Bottom, "return retains bottom fraction");
+            AssertEqual(SnesSixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick), returning.Right, "return retains right fraction");
+            AssertEqual(SnesSixteenSixteen.WholeOf(8 * 65536 + 0x31400 * tick), returning.Top, "return retains top fraction");
+            AssertEqual(SnesSixteenSixteen.WholeOf(216 * 65536 - 0x1e000 * tick), returning.Bottom, "return retains bottom fraction");
         }
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");

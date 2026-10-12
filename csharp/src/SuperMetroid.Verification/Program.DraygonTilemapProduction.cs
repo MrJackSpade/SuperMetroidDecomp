@@ -46,12 +46,12 @@ internal static partial class Program
             {
                 var slot = enemies.Slots[nativeIndex / 64];
                 if (((ushort)slot.ExtraProperties & 0x8004) != 0x8004) continue;
-                int bank = slot.Definition.Bank << 16;
+                int bank = (int)new SnesAddress(slot.Definition.Bank, 0);
                 int count = bus.ReadCartridgeByte(bank | slot.SpritemapPointer);
                 for (int component = 0; component < count; component++)
                 {
                     int stream = bus.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(slot.SpritemapPointer + 2 + component * 8 + 4)));
-                    if (bus.ReadCartridgeWordFixedBank(bank | (stream & 65535)) != 0xfffe) continue;
+                    if (bus.ReadCartridgeWordFixedBank(bank | SnesAddressMath.OffsetInBank(stream)) != 0xfffe) continue;
                     streams.Add(bank | stream); queuedTransfer = true;
                     int cursor = stream + 2;
                     for (int command = 0; ; command++)

@@ -33,7 +33,7 @@ internal static partial class Program
             AssertEqual(EnemyBg2FrameLayout.StreamMarker,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, stream)))),
                 $"Draygon {frame.Name} selects a BG2 command stream");
-            int cursor = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank ,                unchecked((ushort)(stream + 2))));
+            int cursor = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, unchecked((ushort)(stream + 2))));
             var native = new List<(ushort Destination, ushort[] Tiles)>();
             for (int command = 0;
                  command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)

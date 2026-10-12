@@ -85,6 +85,6 @@ internal static partial class Program
         AssertTrue(sprite >= 0, "options has a cursor OAM entry");
         ReadOnlySpan<byte> oam = frame.Memory.Oam;
         int highBits = oam[512 + sprite / 4] >> (2 * (sprite % 4));
-        return oam[sprite * 4] | ((highBits & 1) << 8);
+        return SnesLittleEndian.Word(oam[sprite * 4], (byte)(highBits & 1));
     }
 }

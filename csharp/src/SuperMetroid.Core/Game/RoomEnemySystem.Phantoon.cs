@@ -481,16 +481,16 @@ public sealed partial class RoomEnemySystem
 
     private static void AddPhantoonSpeed(RoomEnemySlot body, ushort low, ushort high)
     {
-        uint value = ((uint)body.VariableC << 16) | body.VariableB;
-        value = unchecked(value + (((uint)high << 16) | low));
+        uint value = SnesSixteenSixteen.Compose(body.VariableC, body.VariableB);
+        value = unchecked(value + (SnesSixteenSixteen.Compose(high, low)));
         body.VariableB = unchecked((ushort)value);
         body.VariableC = SnesFixedPosition.WholeOf(unchecked((int)value));
     }
 
     private static void SubtractPhantoonSpeed(RoomEnemySlot body, ushort low, ushort high)
     {
-        uint value = ((uint)body.VariableC << 16) | body.VariableB;
-        value = unchecked(value - (((uint)high << 16) | low));
+        uint value = SnesSixteenSixteen.Compose(body.VariableC, body.VariableB);
+        value = unchecked(value - (SnesSixteenSixteen.Compose(high, low)));
         body.VariableB = unchecked((ushort)value);
         body.VariableC = SnesFixedPosition.WholeOf(unchecked((int)value));
     }
@@ -577,9 +577,9 @@ public sealed partial class RoomEnemySystem
         // of the signed delta both adds an extra fade step and rounds darkening
         // in the wrong direction. The native divisor is an eight-bit register.
         byte remainingSteps = unchecked((byte)(denominator - numerator + 1));
-        int quotient = remainingSteps == 0 ? ushort.MaxValue : (Math.Abs(target - current) << 8) / remainingSteps;
+        int quotient = remainingSteps == 0 ? ushort.MaxValue : SnesEightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
         int signedStep = target < current ? -quotient : quotient;
-        return SnesLittleEndian.HighByte((ushort)((current << 8) + signedStep));
+        return SnesLittleEndian.HighByte((ushort)(SnesEightEight.FromWhole(current) + signedStep));
     }
 
     private static bool AdvancePhantoonWaveAmplitude(

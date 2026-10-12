@@ -121,7 +121,7 @@ public sealed partial class RoomEnemySystem
             else if (state.IdleTailWhipEnabled != 0)
             {
                 // Read the existing seed; this branch never advances the cartridge RNG.
-                if ((RequireRandomNumber() & 0xff) >= 0xf0)
+                if ((SnesLittleEndian.LowByte(RequireRandomNumber())) >= 0xf0)
                     AimCeresRidleyTailWhip(state, samus, unchecked((byte)(state.TailWhipRequest - 1)));
                 else if (samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128)
                     AimCeresRidleyTailWhip(state, samus, additionalAngle: 0);
@@ -175,7 +175,7 @@ public sealed partial class RoomEnemySystem
         byte cartridgeAngle = CalculateCartridgeAngle(
             new(unchecked((short)(targetX - root.Position.X)), unchecked((short)(targetY - root.Position.Y))));
         byte targetByte = unchecked((byte)-(cartridgeAngle - 0x80));
-        ushort additional = unchecked((ushort)(additionalAngle << 8));
+        ushort additional = SnesAngle.FromTableIndex(unchecked((byte)additionalAngle)).RawValue;
 
         if (state.FacingDirection == RidleyFacing.Left)
         {
@@ -318,8 +318,8 @@ public sealed partial class RoomEnemySystem
         // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
         // An arithmetic shift preserves its floor for negative fractional pixels.
         segment.Offset = new Offset16<RoomPixels>(
-            unchecked((short)(distanceInPixels * EnemyTrigonometryTables.SignedSine(angle) >> 8)),
-            unchecked((short)(distanceInPixels * EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64))) >> 8)));
+            unchecked((short)(SnesEightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(angle)))),
+            unchecked((short)(SnesEightEight.Multiply(distanceInPixels, EnemyTrigonometryTables.SignedSine(unchecked((byte)(angle + 64)))))));
     }
 
     private static void DeactivateRidleyTailSegment(RidleyTailSegment segment)

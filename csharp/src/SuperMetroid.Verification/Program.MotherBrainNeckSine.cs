@@ -22,8 +22,8 @@ internal static partial class Program
                     $"Mother Brain neck component angle {angle:X2}, distance {distance:X2}");
             }
 
-            ushort lowerAngle = unchecked((ushort)(angle << 8));
-            ushort upperAngle = unchecked((ushort)((byte)(255 - angle) << 8));
+            ushort lowerAngle = SnesAngle.FromTableIndex(unchecked((byte)angle)).RawValue;
+            ushort upperAngle = SnesAngle.FromTableIndex(unchecked((byte)(255 - angle))).RawValue;
             MotherBrainNeckGeometry expectedGeometry = ReferenceMotherBrainNeckGeometry(
                 rom,
                 body: new(0x0038, 0x00b6),
@@ -86,6 +86,6 @@ internal static partial class Program
     {
         int address = EnemyMathReferenceData.SignedSine + angle * 2;
         short sine = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-        return unchecked((short)(sine * unchecked((sbyte)distance) >> 8));
+        return unchecked((short)(SnesEightEight.Multiply(sine, (sbyte)distance)));
     }
 }

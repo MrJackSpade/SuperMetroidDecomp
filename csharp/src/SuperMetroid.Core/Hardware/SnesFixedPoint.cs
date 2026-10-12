@@ -51,6 +51,12 @@ public static class SnesSixteenSixteen
     /// <inheritdoc cref="FromEightEight(int)"/>
     public static uint FromEightEight(uint raw) => raw << (FractionBits - 8);
 
+    /// <summary>The raw 16.16 value of a whole word and a fraction word.</summary>
+    public static uint Compose(ushort whole, ushort fraction) => (uint)whole << FractionBits | fraction;
+
+    /// <summary><paramref name="value"/> times a 16.16 factor, truncated to whole units (arithmetic shift).</summary>
+    public static int Multiply(int value, int factor) => value * factor >> FractionBits;
+
     /// <summary>The whole part of a raw 16.16 value.</summary>
     public static int WholeOf(int raw) => raw >> FractionBits;
 
@@ -76,6 +82,12 @@ public static class SnesEightEight
 
     /// <summary>The raw 8.8 value with whole part <paramref name="whole"/> and no fraction.</summary>
     public static int FromWhole(int whole) => whole << FractionBits;
+
+    /// <summary>
+    /// <paramref name="value"/> times an 8.8 factor, truncated to whole units: the native multiply that keeps the
+    /// product's high byte, such as a sine sample or volume scaling a magnitude.
+    /// </summary>
+    public static int Multiply(int value, int factor) => value * factor >> FractionBits;
 
     /// <summary>The whole part of a raw 8.8 value.</summary>
     public static int WholeOf(int raw) => raw >> FractionBits;
@@ -167,4 +179,17 @@ public readonly record struct SnesFixedPosition(ushort Whole, ushort Fraction)
 
     /// <summary>Replaces only the fractional word, as cartridge routines that store one half do.</summary>
     public SnesFixedPosition WithFraction(ushort fraction) => this with { Fraction = fraction };
+
+    /// <summary>
+    /// Adds a signed 8.8 velocity the way the cartridge's split-byte movers do: with 8-bit A, the velocity's fraction
+    /// byte adds into the fraction word's high byte only, leaving its low byte untouched, and the byte carry plus the
+    /// sign-extended whole byte advance the whole word. A 16.16 addition would place the fraction 256 times too low.
+    /// </summary>
+    public SnesFixedPosition AddEightEightToHighFraction(ushort velocity)
+    {
+        int fractionSum = (Fraction >> 8) + unchecked((byte)velocity);
+        return new(
+            unchecked((ushort)(Whole + unchecked((sbyte)(velocity >> 8)) + (fractionSum >> 8))),
+            unchecked((ushort)((Fraction & 0xff) | (fractionSum & 0xff) << 8)));
+    }
 }

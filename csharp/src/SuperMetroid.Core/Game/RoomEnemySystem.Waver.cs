@@ -148,11 +148,11 @@ public sealed partial class RoomEnemySystem
             int verticalPixels = ReadEightBitNegativeSineProduct(
                 state.Angle,
                 WaverVerticalRadius);
-            if (MoveEnemyVertically(level, slot, verticalPixels << 16))
+            if (MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(verticalPixels)))
             {
                 // Vertical collision reflects the sine phase by half a turn. The explicit
                 // byte mask matters when a debugger has written high garbage into var3.
-                state.Angle = unchecked((ushort)((state.Angle + 0x80) & 0xff));
+                state.Angle = unchecked((ushort)(unchecked((byte)(state.Angle + 0x80))));
             }
             else
             {

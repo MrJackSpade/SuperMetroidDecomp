@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -82,7 +83,7 @@ public sealed partial class RoomEnemySystem
 
         // Native tests the whole-coordinate high byte rather than camera visibility. A shard
         // is deleted as soon as wrapped Y leaves page zero; X may freely leave the viewport.
-        if ((shard.Position.Y.Whole & 0xff00) != 0)
+        if (SnesLittleEndian.HighByte(shard.Position.Y.Whole) != 0)
         {
             shard.Clear();
             return;

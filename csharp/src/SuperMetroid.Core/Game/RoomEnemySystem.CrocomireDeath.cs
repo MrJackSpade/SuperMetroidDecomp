@@ -244,7 +244,7 @@ public sealed partial class RoomEnemySystem
         int subpositionSum = subpositionHigh + speedFraction;
         subpositionHigh = unchecked((byte)subpositionSum);
         state.ProjectileCounter = unchecked((ushort)(
-            (SnesLittleEndian.LowByte(state.ProjectileCounter)) | (subpositionHigh << 8)));
+            SnesLittleEndian.Word(SnesLittleEndian.LowByte(state.ProjectileCounter), subpositionHigh)));
         int yDelta = speedWhole + (subpositionSum > 0xff ? 1 : 0);
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + yDelta)));
     }
@@ -281,7 +281,7 @@ public sealed partial class RoomEnemySystem
         bool subpositionBorrow = subpositionHigh < speedFraction;
         subpositionHigh = unchecked((byte)(subpositionHigh - speedFraction));
         state.ProjectileCounter = unchecked((ushort)(
-            (SnesLittleEndian.LowByte(state.ProjectileCounter)) | (subpositionHigh << 8)));
+            SnesLittleEndian.Word(SnesLittleEndian.LowByte(state.ProjectileCounter), subpositionHigh)));
         int yDelta = speedWhole + (subpositionBorrow ? 1 : 0);
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - yDelta)));
     }
@@ -300,7 +300,7 @@ public sealed partial class RoomEnemySystem
             xOffset = unchecked((ushort)~xOffset);
         ushort acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 0x00e0;
         SpawnRoomSpriteObject(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - ((random & 0x1f00) >> 8)))),
+            new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - ((SnesLittleEndian.HighByte(random) & 0x1f))))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,
             graphicsIndex: 0);
     }

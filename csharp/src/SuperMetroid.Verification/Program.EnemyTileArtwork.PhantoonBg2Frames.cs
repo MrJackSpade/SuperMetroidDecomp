@@ -29,7 +29,7 @@ internal static partial class Program
             for (int component = 0; component < componentCount; component++)
             {
                 ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2 + component * 8 + 4));
-                int cursor = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank ,                    unchecked((ushort)(stream + 2))));
+                int cursor = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, unchecked((ushort)(stream + 2))));
                 for (int command = 0; command < 128; command++)
                 {
                     ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
@@ -157,7 +157,7 @@ internal static partial class Program
                     $"Phantoon {frame.Name} engine hitbox list");
                 if (!checkedLists.Add(component.HitboxPointer))
                     continue;
-                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank ,                    component.HitboxPointer));
+                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, component.HitboxPointer));
                 PhantoonCollisionDefinitions.HitboxSequence hitboxes =
                     PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), (ushort)hitboxes.Length,

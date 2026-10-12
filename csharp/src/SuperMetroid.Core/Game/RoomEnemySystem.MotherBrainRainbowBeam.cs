@@ -376,7 +376,7 @@ public sealed partial class RoomEnemySystem
         if (EscapeTimerArtwork?.TryLoadNativeTransfer(
             _vram!, unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination) == true)
             return;
-        if ((transfer.SourceAddress >> 16) is not (0x7e or 0x7f))
+        if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (0x7e or 0x7f))
         {
             // Every cartridge-backed source used by this encounter has an installed
             // art owner above. The remaining live transfer is the mutable $7E:9000

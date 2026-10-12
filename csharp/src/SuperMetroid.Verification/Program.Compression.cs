@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 internal static partial class Program
@@ -27,7 +28,7 @@ internal static partial class Program
             byte longHeader = unchecked((byte)(
                 SmCompressionFormat.LongHeaderMarker |
                 ((byte)command >> 5 << 2) |
-                (encodedLength >> 8)));
+                SnesLittleEndian.HighByte(unchecked((ushort)encodedLength))));
             SmCompressionHeader longDecoded = SmCompressionHeader.Decode(
                 longHeader,
                 unchecked((byte)encodedLength));

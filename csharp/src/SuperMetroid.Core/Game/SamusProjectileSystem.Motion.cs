@@ -385,7 +385,7 @@ public sealed partial class SamusProjectileSystem
             return;
 
         short velocity = vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
-        int wholeMagnitude = SnesEightEight.WholeOf(Math.Abs((int)velocity) & 0xff00);
+        int wholeMagnitude = SnesEightEight.WholeOf(Math.Abs((int)velocity));
         bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
         {

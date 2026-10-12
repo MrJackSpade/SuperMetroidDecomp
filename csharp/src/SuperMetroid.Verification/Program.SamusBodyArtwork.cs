@@ -413,7 +413,7 @@ internal static partial class Program
             ((armSelector & 0x80) != 0 ? 4 : 2)));
         int armXIndex = armXAddress - SamusArmCannonArtworkFormat.DrawingDataStart;
         int stockArmX = armDocument["drawingData"]![armXIndex]!.GetValue<int>();
-        armDocument["drawingData"]![armXIndex] = (stockArmX + 1) & 255;
+        armDocument["drawingData"]![armXIndex] = unchecked((byte)(stockArmX + 1));
         File.WriteAllText(armJsonOverride, armDocument.ToJsonString());
         string armPngOverride = Path.Combine(installation.SamusBodyOverrideDirectory,
             SamusArmCannonArtworkFormat.TileFileName);
@@ -477,7 +477,7 @@ internal static partial class Program
         AssertTrue(originalArmOam.NextByteOffset == 4 && editedArmOam.NextByteOffset == 4,
             "stock and edited covers both emit a visible OBJ");
         int originalSignedX = unchecked((sbyte)stockArmX);
-        int editedSignedX = unchecked((sbyte)((stockArmX + 1) & 255));
+        int editedSignedX = unchecked((sbyte)(unchecked((byte)(stockArmX + 1))));
         AssertEqual(originalArmOam.GetEntry(0).X + editedSignedX - originalSignedX,
             editedArmOam.GetEntry(0).X,
             "edited arm-cannon pose offset moves the production OAM entry on screen");

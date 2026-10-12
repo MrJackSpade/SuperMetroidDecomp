@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 
@@ -37,7 +38,7 @@ internal static class EndingWavySamusDefinitions
             {
                 int sample = line % HalfCycle;
                 short sine = EnemyTrigonometryTables.SignedSine(unchecked((byte)((phase + sample * SampleByteStep) >> 1)));
-                int magnitude = Math.Abs((int)sine) * Amplitude >> 16;
+                int magnitude = SnesSixteenSixteen.Multiply(Math.Abs((int)sine), Amplitude);
                 displacement = sine < 0 ? -magnitude : magnitude;
                 if ((line / HalfCycle & 1) != 0) displacement = -displacement;
             }

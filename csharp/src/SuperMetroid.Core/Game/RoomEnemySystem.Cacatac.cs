@@ -169,7 +169,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
     private void InitializeCacatac(RoomEnemySlot slot)
     {
-        var direction = (CacatacDirection)(slot.Parameter1 & 0x00ff);
+        var direction = (CacatacDirection)SnesLittleEndian.LowByte(slot.Parameter1);
         int distanceIndex = SnesLittleEndian.LowByte(slot.Parameter2);
         int speedIndex = SnesLittleEndian.HighByte(slot.Parameter2);
         if (!Enum.IsDefined(direction))
@@ -282,7 +282,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the 3/256 random attack gate at $A2:A01C.</summary>
     private void MaybeStartCacatacAttack(RoomEnemySlot slot, CacatacEnemyState state)
     {
-        ushort decision = unchecked((ushort)((EnemyRandom.Generate() + slot.FrameCounter) & 0x00ff));
+        ushort decision = unchecked((byte)(EnemyRandom.Generate() + slot.FrameCounter));
         if (decision >= 3)
             return;
 

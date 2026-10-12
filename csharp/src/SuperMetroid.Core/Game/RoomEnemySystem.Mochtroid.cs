@@ -141,7 +141,7 @@ public sealed partial class RoomEnemySystem
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
         int yDifference = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole));
-        int yVelocity = unchecked(state.Velocity.Y.RawValue - ((yDifference >> 2) << 8));
+        int yVelocity = unchecked(state.Velocity.Y.RawValue - SnesEightEight.FromWhole(yDifference >> 2));
         yVelocity = ClampMochtroidVelocity(yVelocity);
         StoreMochtroidYVelocity(state, yVelocity);
         if (MoveEnemyVertically(level, slot, yVelocity))
@@ -150,7 +150,7 @@ public sealed partial class RoomEnemySystem
         // Y is intentionally resolved first. Horizontal collision therefore sees the
         // vertically adjusted position, matching $A3:A80D followed by $A3:A87C.
         int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
-        int xVelocity = unchecked(state.Velocity.X.RawValue - ((xDifference >> 2) << 8));
+        int xVelocity = unchecked(state.Velocity.X.RawValue - SnesEightEight.FromWhole(xDifference >> 2));
         xVelocity = ClampMochtroidVelocity(xVelocity);
         StoreMochtroidXVelocity(state, xVelocity);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
@@ -164,9 +164,9 @@ public sealed partial class RoomEnemySystem
     {
         short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
         if (whole >= MochtroidMaximumVelocity)
-            return MochtroidMaximumVelocity << 16;
+            return SnesSixteenSixteen.FromWhole(MochtroidMaximumVelocity);
         if (whole < -MochtroidMaximumVelocity)
-            return -MochtroidMaximumVelocity << 16;
+            return SnesSixteenSixteen.FromWhole(-MochtroidMaximumVelocity);
         return velocity;
     }
 

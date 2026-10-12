@@ -47,7 +47,7 @@ internal static partial class Program
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818b + index * 8)), leftFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818d + index * 8));
             var expected = (right, rightFraction, left, leftFraction);
             slot.Parameter1 = 0;
-            slot.Parameter2 = (ushort)(index << 8);
+            slot.Parameter2 = SnesLittleEndian.Word(0, unchecked((byte)index));
             cacatac(slot);
             var c = enemies.CacatacStates[0]!;
             AssertEqual(expected, (c.RightVelocity, c.RightSubvelocity, c.LeftVelocity, c.LeftSubvelocity), "Cacatac native speed setup");

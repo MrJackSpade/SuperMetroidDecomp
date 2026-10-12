@@ -180,8 +180,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot spit,
         Position16<RoomPixels> camera)
     {
-        int xMagnitude = unchecked((spit.Velocity.X.RawValue << 16) | spit.Variable0);
-        int yMagnitude = unchecked((spit.Velocity.Y.RawValue << 16) | spit.Variable1);
+        int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.X.RawValue, spit.Variable0)));
+        int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(spit.Velocity.Y.RawValue, spit.Variable1)));
         int xDisplacement = ((spit.DirectionParameter + 64) & 0x80) != 0
             ? -xMagnitude
             : xMagnitude;

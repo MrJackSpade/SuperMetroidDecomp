@@ -71,10 +71,10 @@ public enum SbugEnemyFunction : ushort
 public readonly record struct SbugVelocityWords(ushort Pixel, ushort Subpixel)
 {
     /// <summary>The two native words interpreted as one signed host displacement.</summary>
-    public int SignedFixed => unchecked(((short)Pixel << 16) | Subpixel);
+    public int SignedFixed => unchecked((int)SnesSixteenSixteen.Compose(Pixel, Subpixel));
 
     /// <summary>The unchanged 32 bits used by the cartridge's modular position additions.</summary>
-    public uint RawFixed => ((uint)Pixel << 16) | Subpixel;
+    public uint RawFixed => SnesSixteenSixteen.Compose(Pixel, Subpixel);
 }
 
 /// <summary>
@@ -544,7 +544,7 @@ public sealed partial class RoomEnemySystem
         int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & 0x7f);
         ushort product = unchecked((ushort)(sineMagnitude * speed));
         ushort pixel = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
-        ushort subpixel = unchecked((ushort)(product << 8));
+        ushort subpixel = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
         if ((tableAngle & 0x80) != 0)
         {
             pixel = unchecked((ushort)-pixel);

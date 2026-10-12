@@ -41,12 +41,20 @@ internal static class D3D11FrameReadback
                     for (int x = 0; x < width; x++)
                     {
                         uint packed = row[x];
-                        pixels[y * width + x] = new((byte)packed, SnesLittleEndian.HighByte(unchecked((ushort)packed)), (byte)(packed >> 16), (byte)(packed >> 24));
+                        pixels[y * width + x] = UnpackRgba(packed);
                     }
                 }
                 return pixels;
             }
             finally { self.owner.Context.Unmap(staging, 0); }
         }
+    }
+
+    /// <summary>An R8G8B8A8 texel read as a little-endian word: red in the lowest byte.</summary>
+    private static Rgba32 UnpackRgba(uint packed)
+    {
+        Span<byte> channels = stackalloc byte[sizeof(uint)];
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32LittleEndian(channels, packed);
+        return new(channels[0], channels[1], channels[2], channels[3]);
     }
 }

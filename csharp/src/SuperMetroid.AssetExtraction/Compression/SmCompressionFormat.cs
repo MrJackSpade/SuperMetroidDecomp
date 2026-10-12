@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Lossless decoder for one Super Metroid compressed-stream command header.</summary>
@@ -24,8 +25,7 @@ public readonly record struct SmCompressionHeader
                 SmCompressionFormat.LongCommandShift) & SmCompressionFormat.CommandMask)
             : (SmCompressionCommand)(firstByte & SmCompressionFormat.CommandMask);
         Length = isLong
-            ? (((firstByte & SmCompressionFormat.LongLengthHighMask) << 8) |
-                secondByte!.Value) + 1
+            ? SnesLittleEndian.Word(secondByte!.Value, (byte)(firstByte & SmCompressionFormat.LongLengthHighMask)) + 1
             : (firstByte & SmCompressionFormat.ShortLengthMask) + 1;
         HeaderByteCount = isLong ? 2 : 1;
     }

@@ -237,9 +237,9 @@ public sealed class CartridgeAudioState
         int occupancy = (_soundWritePositions[queue] - _soundReadPositions[queue]) &
             AudioRomData.Queues.SoundIndexMask;
         if (occupancy >= maximumQueued)
-            return (ushort)((soundEffect.Value << 8) | occupancy);
+            return SnesLittleEndian.Word(unchecked((byte)occupancy), soundEffect.Value);
 
-        ushort accumulator = (ushort)((occupancy << 8) | soundEffect.Value);
+        ushort accumulator = SnesLittleEndian.Word(soundEffect.Value, unchecked((byte)occupancy));
         if (soundSuppressed || DoorTransitionSoundsDisabled)
             return accumulator;
 

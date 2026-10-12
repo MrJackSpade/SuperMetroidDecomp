@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -42,11 +43,11 @@ public sealed partial class RoomEnemySystem
             int jitteredY = (random & 3) + torizo.Position.Y.Whole;
             int yWithOffset = jitteredY + 0xfffb;
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)yWithOffset));
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((random & 0x001f) + 0x30 + (yWithOffset >> 16)))));
+            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((random & 0x001f) + 0x30 + SnesCarry.OutOfWord(yWithOffset)))));
             // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
             // stores a zero X velocity.
             int jitteredX = (EnemyRandom.Generate() & 3) + torizo.Position.X.Whole;
-            int carry = jitteredX >> 16;
+            int carry = SnesCarry.OutOfWord(jitteredX);
             projectile.Position = projectile.Position.WithWholeX((torizo.Parameter1 & 0x4000) != 0
                 ? unchecked((ushort)jitteredX)
                 : (torizo.Parameter1 & 0x8000) != 0

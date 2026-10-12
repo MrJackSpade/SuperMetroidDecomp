@@ -1455,7 +1455,7 @@ internal static partial class Program
         {
             int entry = 0xa9e1f4 + row * 8;
             var expected = new MotherBrainSpriteTileTransferRequest((ushort)row, CartridgeImportSource.Require(rom).ReadCartridgeWord(entry),
-                (uint)(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4) | (CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2) >> 8) << 16), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6));
+                (uint)(int)new SnesAddress(SnesLittleEndian.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6));
             AssertEqual(expected, transfers[row], "stream 3 native corpse rot transfer");
             AssertEqual(expected, enumerated[row], "stream 3 corpse transfer enumeration order");
             int pageEntry = 0xa99003 + row * 7;
@@ -2750,7 +2750,7 @@ internal static partial class Program
                 case 0xa9: // LDA immediate
                     accumulator = bus.ReadCartridgeByte(pc++);
                     if (!accumulatorIsEightBit)
-                        accumulator |= unchecked((ushort)(bus.ReadCartridgeByte(pc++) << 8));
+                        accumulator |= SnesLittleEndian.Word(0, bus.ReadCartridgeByte(pc++));
                     break;
 
                 case 0x8f: // STA long

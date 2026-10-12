@@ -100,7 +100,6 @@ internal static class SnesDspRegisterMap
 
     internal static class Fields
     {
-        internal const int PitchHighMask = 0x3f;
         internal const int PitchMask = 0x3fff;
         internal const int AdsrAttackMask = 0x0f;
         internal const int AdsrDecayMask = 0x70;

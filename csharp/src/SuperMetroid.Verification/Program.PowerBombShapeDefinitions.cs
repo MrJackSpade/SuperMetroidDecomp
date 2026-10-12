@@ -43,15 +43,15 @@ internal static partial class Program
         {
             var result = Enumerable.Repeat(-1, 193).ToArray();
             if (radius == 0) return result;
-            int outer = radius * tops[0] >> 8;
+            int outer = SnesEightEight.Multiply(radius, tops[0]);
             // Independent native-style fill: later bands overwrite shared endpoints.
             for (int i = 0; i < 32; i++)
             {
-                int inner = radius * tops[i] >> 8;
-                for (int y = inner; y <= outer; y++) result[y] = radius * widths[i] >> 8;
+                int inner = SnesEightEight.Multiply(radius, tops[i]);
+                for (int y = inner; y <= outer; y++) result[y] = SnesEightEight.Multiply(radius, widths[i]);
                 outer = inner;
             }
-            for (int y = 0; y <= outer; y++) result[y] = radius * widths[31] >> 8;
+            for (int y = 0; y <= outer; y++) result[y] = SnesEightEight.Multiply(radius, widths[31]);
             return result;
         }
         var explosion = new SamusPowerBombExplosionState();

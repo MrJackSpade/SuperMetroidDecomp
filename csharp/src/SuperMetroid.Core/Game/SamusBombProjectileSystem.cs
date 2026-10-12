@@ -706,9 +706,7 @@ public sealed class SamusBombProjectileSystem
 
     private static void MoveBombSpreadHorizontally(SamusBombProjectileSlot slot)
     {
-        ushort swapped = unchecked((ushort)(
-            (slot.BombSpreadDirectionMagnitude << 8) |
-            (SnesLittleEndian.HighByte(slot.BombSpreadDirectionMagnitude))));
+        ushort swapped = SnesLittleEndian.SwapBytes(slot.BombSpreadDirectionMagnitude);
         ushort subvelocity = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(swapped)));
         ushort wholeMagnitude = unchecked((ushort)(swapped & 0x007f));
         bool movingLeft = (swapped & 0x0080) != 0;
@@ -719,7 +717,7 @@ public sealed class SamusBombProjectileSystem
         slot.Position = slot.Position.WithFractionX(unchecked((ushort)fraction));
         int carryOrBorrow = movingLeft
             ? (fraction > ushort.MaxValue ? 1 : 0)
-            : (int)(fraction >> 16);
+            : (int)SnesCarry.OutOfWord(fraction);
         slot.Position = slot.Position.WithWholeX(movingLeft
             ? unchecked((ushort)(slot.Position.X.Whole - wholeMagnitude - carryOrBorrow))
             : unchecked((ushort)(slot.Position.X.Whole + wholeMagnitude + carryOrBorrow)));
@@ -733,7 +731,7 @@ public sealed class SamusBombProjectileSystem
     {
         uint fractionalSum = (uint)fraction + addFraction;
         fraction = unchecked((ushort)fractionalSum);
-        whole = unchecked((ushort)(whole + addWhole + (fractionalSum >> 16)));
+        whole = unchecked((ushort)(whole + addWhole + (SnesCarry.OutOfWord(fractionalSum))));
         return (whole, fraction);
     }
 

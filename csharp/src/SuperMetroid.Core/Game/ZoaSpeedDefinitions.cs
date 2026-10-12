@@ -23,7 +23,7 @@ public static class ZoaSpeedDefinitions
         if (byteOffset > 16)
             throw new ArgumentOutOfRangeException(nameof(byteOffset));
         ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
-        return unchecked((Word(byteOffset) << 16) | Word(byteOffset + 2));
+        return unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(byteOffset), Word(byteOffset + 2))));
     }
 
     // NTSC stage selection; initialization and the trailing record are stationary.

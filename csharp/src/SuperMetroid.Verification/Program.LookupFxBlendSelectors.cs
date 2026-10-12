@@ -22,7 +22,7 @@ internal static partial class Program
     private static void VerifyFxBlendSourceAddresses(ISnesAddressSpace rom)
     {
         // Original LDA.l operand at89:AB5F supplies the color-one base.
-        int nativeBase = SnesLittleEndian.Word(FxBlendSourceAddressesRomByte(rom, 0x89ab5f), FxBlendSourceAddressesRomByte(rom, 0x89ab60)) | FxBlendSourceAddressesRomByte(rom, 0x89ab61) << 16;
+        int nativeBase = (int)new SnesAddress(FxBlendSourceAddressesRomByte(rom, 0x89ab61), SnesLittleEndian.Word(FxBlendSourceAddressesRomByte(rom, 0x89ab5f), FxBlendSourceAddressesRomByte(rom, 0x89ab60)));
         AssertEqual(0x89aa02, nativeBase, "Pinned native blend load operand");
         foreach (int value in Enumerable.Range(0, 256))
         {

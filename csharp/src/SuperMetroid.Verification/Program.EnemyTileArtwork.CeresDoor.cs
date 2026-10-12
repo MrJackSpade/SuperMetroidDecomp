@@ -52,7 +52,7 @@ internal static partial class Program
             int record = 0xa60000 | pointer;
             AssertEqual((byte)0x80, CpuBusRegionRead.Read(bus, record),
                 $"Ceres-door Mode-7 transfer {frame} uses the native low-byte DMA");
-            int source = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, record + 1), CpuBusRegionRead.Read(bus, record + 2)) | CpuBusRegionRead.Read(bus, record + 3) << 16;
+            int source = (int)new SnesAddress(CpuBusRegionRead.Read(bus, record + 3), SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, record + 1), CpuBusRegionRead.Read(bus, record + 2)));
             AssertEqual(frame == 0 ? CeresDoorVisualRomData.Mode7FirstFrameSource :
                     CeresDoorVisualRomData.Mode7SecondFrameSource,
                 source, $"Ceres-door Mode-7 transfer {frame} source");

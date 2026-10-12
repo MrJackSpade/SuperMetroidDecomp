@@ -32,7 +32,7 @@ internal static partial class Program
             int angle = direction > 0 ? 32 : 224;
             int dx = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b443 + angle * 2) * 2048;
             int dy = (short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + angle * 2) * 2048;
-            int x = unchecked((origin - 4) << 16), y = 124 << 16;
+            int x = unchecked(SnesSixteenSixteen.FromWhole(origin - 4)), y = 124 << 16;
             var expected = new List<(byte X, byte Y)>();
             int visited = 0;
             if ((short)length >= 0)
@@ -42,7 +42,7 @@ internal static partial class Program
                 {
                     visited++;
                     ushort sx = SnesFixedPosition.WholeOf(x), sy = SnesFixedPosition.WholeOf(y);
-                    if (((sx | sy) & 0xff00) != 0) break;
+                    if (SnesLittleEndian.HighByte(unchecked((ushort)(sx | sy))) != 0) break;
                     expected.Add(((byte)sx, (byte)sy));
                     x = unchecked(x + dx); y = unchecked(y + dy);
                 }

@@ -103,8 +103,8 @@ internal static partial class Program
                     map = JsonSerializer.Deserialize<CeresFlightMapDocument>(input,
                         MapPresentationFormat.JsonOptions)
                         ?? throw new InvalidDataException("Ceres Mode-7 map is empty.");
-                map.FrontTiles[0] = (map.FrontTiles[0] + 1) & 255;
-                map.RearTiles[0] = (map.RearTiles[0] + 1) & 255;
+                map.FrontTiles[0] = unchecked((byte)(map.FrontTiles[0] + 1));
+                map.RearTiles[0] = unchecked((byte)(map.RearTiles[0] + 1));
                 using var output = File.Create(overridePath);
                 CeresFlightArtworkCatalog.WriteMap(output, map);
             }
@@ -164,7 +164,7 @@ internal static partial class Program
             persistentMap = JsonSerializer.Deserialize<CeresFlightMapDocument>(input,
                 MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Ceres Mode-7 map is empty.");
-        persistentMap.FrontTiles[0] = (persistentMap.FrontTiles[0] + 1) & 255;
+        persistentMap.FrontTiles[0] = unchecked((byte)(persistentMap.FrontTiles[0] + 1));
         using (var output = File.Create(invalidMap))
             CeresFlightArtworkCatalog.WriteMap(output, persistentMap);
         CeresFlightArtworkCatalog selected = installation.LoadIntroCinematicArt().CeresFlight;

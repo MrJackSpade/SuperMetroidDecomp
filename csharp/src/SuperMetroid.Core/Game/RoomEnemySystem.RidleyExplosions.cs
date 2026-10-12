@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -83,8 +84,8 @@ public sealed partial class RoomEnemySystem
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
-                (((tail.Angle & 0x00ff) +
-                    (state.TailSegments[5].Angle & 0x00ff) + 8) & 0x00f0) >> 4;
+                ((unchecked((byte)tail.Angle) +
+                    unchecked((byte)state.TailSegments[5].Angle) + 8) & 0x00f0) >> 4;
             fragment.CurrentInstruction = RidleyExplosionDefinitions.SelectTailInstructionList(
                 part,
                 tailTipOrientation);

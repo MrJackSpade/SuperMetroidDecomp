@@ -140,7 +140,7 @@ internal static partial class Program
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.PoseHistory.PreviousPose = retainedPose;
             samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(
-                ((byte)samus.ReadMovementType(bus) << 8) | (samus.IsFacingLeft(bus) ? 4 : 8));
+                SnesLittleEndian.Word((byte)(samus.IsFacingLeft(bus) ? 4 : 8), (byte)samus.ReadMovementType(bus)));
             samus.PoseHistory.LastDifferentPose = SamusPoseId.NormalLandingRightPose;
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.

@@ -39,7 +39,7 @@ internal static partial class Program
             AssertEqual(y, slot.Position.Y.Whole, "Actual detached orbit uses native radius and wrapped Y");
             SnesSignedSixteenSixteen actual = SnesSignedSixteenSixteen.FromParts(
                 unchecked((short)(ushort.MaxValue - raw)), (ushort)raw) + gravity;
-            uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + ((uint)high << 16 | low));
+            uint expected = unchecked(((uint)(ushort.MaxValue - raw) << 16 | (uint)raw) + (SnesSixteenSixteen.Compose(high, low)));
             AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), actual.WholeWord, "Native gravity whole carry");
             AssertEqual((ushort)expected, actual.Fraction, "Native gravity fraction wrap");
         }

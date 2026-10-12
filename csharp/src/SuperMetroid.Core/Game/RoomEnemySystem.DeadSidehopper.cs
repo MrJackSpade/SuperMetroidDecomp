@@ -294,11 +294,9 @@ public sealed partial class RoomEnemySystem
     {
         ushort position = horizontal ? slot.Position.X.Whole : slot.Position.Y.Whole;
         ushort subposition = horizontal ? slot.Position.X.Fraction : slot.Position.Y.Fraction;
-        int carry = (subposition >> 8) + (byte)velocity;
-        subposition = unchecked((ushort)(
-            (subposition & 0x00ff) | ((carry & 0xff) << 8)));
-        position = unchecked((ushort)(
-            position + unchecked((sbyte)(SnesEightEight.WholeOf(velocity))) + (carry >> 8)));
+        SnesFixedPosition moved = new SnesFixedPosition(position, subposition).AddEightEightToHighFraction(velocity);
+        position = moved.Whole;
+        subposition = moved.Fraction;
         if (horizontal)
         {
             slot.Position = slot.Position.WithX(new(position, subposition));

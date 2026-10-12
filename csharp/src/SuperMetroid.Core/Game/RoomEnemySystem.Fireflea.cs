@@ -149,14 +149,14 @@ public sealed partial class RoomEnemySystem
     {
         if (state.UsesCircularMovement)
         {
-            ushort angle = unchecked((ushort)(state.Angle >> 8));
+            ushort angle = SnesAngle.FromRaw(state.Angle).TableIndex;
             slot.Position = slot.Position.WithWhole(state.Center + CircleOffset(angle, state.Radius));
 
             // `$A3:8E2D` performs an unaligned word read at var0+1. Combining the high byte
             // of sub-angle with the low byte of whole-angle reproduces that exact signed 8.8
             // delta, including negative half-speeds such as `$FF80`.
             ushort packedDelta = unchecked((ushort)(
-                (state.AngleDelta << 8) | (state.SubAngleDelta >> 8)));
+                SnesEightEight.FromWhole(state.AngleDelta) | SnesLittleEndian.HighByte(state.SubAngleDelta)));
             state.Angle = unchecked((ushort)(state.Angle + packedDelta));
             return;
         }

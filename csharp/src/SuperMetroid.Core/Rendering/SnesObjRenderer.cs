@@ -179,7 +179,7 @@ public static class SnesObjRenderer
                 // subtiles increment the low nibble and vertical subtiles add $10. The
                 // ninth name-select bit stays fixed if the low byte wraps at $FF.
                 int tileNumber = (entry.TileNumber & 0x100)
-                    | ((entry.TileNumber + tileRow * 16 + tileColumn) & 0xff);
+                    | unchecked((byte)(entry.TileNumber + tileRow * 16 + tileColumn));
                 byte colorIndex = Decode4BppPixel(
                     vram,
                     ResolveTileByteAddress(tileNumber, obsel),
@@ -237,7 +237,7 @@ public static class SnesObjRenderer
         // ((bits 3-4) + 1) * $1000 words. Each 4-bpp 8x8 tile occupies 16 VRAM words.
         int baseWord = (obsel & 7) << 13;
         int nameSelectWordOffset = (((obsel >> 3) & 3) + 1) << 12;
-        int tileWord = baseWord + (tileNumber & 0xff) * 16;
+        int tileWord = baseWord + unchecked((byte)tileNumber) * 16;
         if ((tileNumber & 0x100) != 0)
             tileWord += nameSelectWordOffset;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
@@ -265,7 +266,7 @@ public sealed partial class RoomEnemySystem
                 CrocomireBg2Scroll.Y + adjustedY - currentY));
             uint sum = fraction + death.DistortionStep;
             bool carry = sum > 0xffff;
-            fraction = sum & 0xffff;
+            fraction = SnesSixteenSixteen.FractionOf(sum);
             if (!carry)
                 adjustedY++;
             currentY++;

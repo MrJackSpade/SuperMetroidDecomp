@@ -551,7 +551,7 @@ public sealed partial class RoomEnemySystem
         uint subSum = (uint)velocity.Fraction + state.XSubAcceleration;
         ushort oldWhole = velocity.WholeWord;
         ushort newWhole = unchecked((ushort)(
-            oldWhole + state.XAcceleration + (subSum >> 16)));
+            oldWhole + state.XAcceleration + (SnesCarry.OutOfWord(subSum))));
 
         int magnitude = Math.Abs((int)unchecked((short)newWhole));
         ushort cappedWhole = magnitude < MamaTurtleMaximumHoveringSpeed
@@ -793,7 +793,7 @@ public sealed partial class RoomEnemySystem
         short contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? (short)1
             : MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
-        MoveEnemyVertically(level, baby, contourOffset << 16);
+        MoveEnemyVertically(level, baby, SnesSixteenSixteen.FromWhole(contourOffset));
 
         if (carryingSamus)
         {

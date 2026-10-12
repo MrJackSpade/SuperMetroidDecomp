@@ -632,7 +632,7 @@ internal static partial class Program
             (ushort)(IntroEyeAnimationDefinitions.StartPointer + 2)),IntroEyeAnimationDefinitions.ReadByte(
                 (ushort)(IntroEyeAnimationDefinitions.StartPointer + 3)));
         int destination = IntroCinematicRomData.Layers.PortraitTilemapWord +
-            (packedPosition >> 8) * IntroCinematicRomData.Layers.TilemapWidth +
+            SnesLittleEndian.HighByte(unchecked((ushort)packedPosition)) * IntroCinematicRomData.Layers.TilemapWidth +
             (packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask);
         AssertEqual(edited.FrameWords(0)[0], installedVram.ReadWord(destination),
             "eye JSON edit reaches the active portrait tile");

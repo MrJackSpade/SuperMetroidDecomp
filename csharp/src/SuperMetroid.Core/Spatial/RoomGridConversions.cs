@@ -29,6 +29,9 @@ public static class RoomGridConversions
     public static Position16<RoomPixels> ToRoomPixels(this Position16<RoomScreens> screen) =>
         new(unchecked((ushort)(screen.X << 8)), unchecked((ushort)(screen.Y << 8)));
 
+    /// <summary>The room-pixel offset of a screen index along one axis: a room screen is 256 pixels.</summary>
+    public static int ScreenToPixels(int screen) => screen << 8;
+
     /// <summary>A screen-grid size measured in blocks.</summary>
     public static Extent16<RoomBlocks> ToRoomBlocks(this Extent16<RoomScreens> size) =>
         new(checked((ushort)(size.X * BlocksPerScreen)), checked((ushort)(size.Y * BlocksPerScreen)));

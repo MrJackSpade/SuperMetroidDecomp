@@ -286,7 +286,7 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                step.HorizontalPixels << 16))
+                SnesSixteenSixteen.FromWhole(step.HorizontalPixels)))
         {
             state.LaserCooldown = unchecked((ushort)(state.LaserCooldown + 8));
             return step.WallInstruction;

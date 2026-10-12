@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -60,7 +61,7 @@ public sealed partial class RoomEnemySystem
             uint acceleratedFraction = (uint)projectile.Velocity.X.RawValue + 0x4000;
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)acceleratedFraction)));
             ushort acceleratedWhole = unchecked((ushort)(
-                projectile.Velocity.Y.RawValue + (acceleratedFraction >> 16)));
+                projectile.Velocity.Y.RawValue + SnesCarry.OutOfWord(acceleratedFraction)));
 
             // CMP #$0004 / BCS deliberately stops storing the whole word once it reaches
             // four. The fractional word still received its $4000 increment immediately
@@ -82,7 +83,7 @@ public sealed partial class RoomEnemySystem
         uint fraction = (uint)projectile.Position.Y.Fraction + projectile.Velocity.X.RawValue;
         projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fraction));
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-            projectile.Position.Y.Whole + projectile.Velocity.Y.RawValue + (fraction >> 16))));
+            projectile.Position.Y.Whole + projectile.Velocity.Y.RawValue + SnesCarry.OutOfWord(fraction))));
     }
 
     private static void AddFallingSparkHorizontalVelocity(
@@ -91,7 +92,7 @@ public sealed partial class RoomEnemySystem
         uint fraction = (uint)projectile.Position.X.Fraction + projectile.Variable0;
         projectile.Position = projectile.Position.WithFractionX(unchecked((ushort)fraction));
         projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
-            projectile.Position.X.Whole + projectile.Variable1 + (fraction >> 16))));
+            projectile.Position.X.Whole + projectile.Variable1 + SnesCarry.OutOfWord(fraction))));
     }
 
     private static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
@@ -106,7 +107,7 @@ public sealed partial class RoomEnemySystem
             uint doubledFraction = (uint)projectile.Variable0 << 1;
             projectile.Variable0 = unchecked((ushort)doubledFraction);
             projectile.Variable1 = unchecked((ushort)(
-                ((uint)projectile.Variable1 << 1) | (doubledFraction >> 16)));
+                ((uint)projectile.Variable1 << 1) | SnesCarry.OutOfWord(doubledFraction)));
         }
 
         // The same aliased pair now represents vertical -0.5 in 16.16. Because the whole

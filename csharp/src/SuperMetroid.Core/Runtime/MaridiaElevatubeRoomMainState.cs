@@ -91,7 +91,7 @@ public sealed class MaridiaElevatubeRoomMainState
         activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new SnesFixedPosition(MaridiaElevatubeRomData.SamusCenterX, 0));
 
         int displacement = SnesSixteenSixteen.FromEightEight((short)Velocity);
-        uint trackedPosition = ((uint)Position << 16) | scratch.Var1;
+        uint trackedPosition = SnesSixteenSixteen.Compose(Position, scratch.Var1);
         trackedPosition = unchecked(trackedPosition + (uint)displacement);
         Position = SnesFixedPosition.WholeOf(unchecked((int)trackedPosition));
         scratch.Var1 = unchecked((ushort)trackedPosition);

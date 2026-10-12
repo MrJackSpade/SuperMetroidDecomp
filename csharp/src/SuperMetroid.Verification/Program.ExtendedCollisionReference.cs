@@ -18,7 +18,7 @@ internal static partial class Program
         ushort radiusX = radius.X, radiusY = radius.Y;
         bool shot = (bool)arguments[3]!;
         arguments[4] = (ushort)0;
-        int bank = enemy.Definition.Bank << 16;
+        int bank = (int)new SnesAddress(enemy.Definition.Bank, 0);
         byte Byte(int offset) => source.ReadCartridgeByte(bank | (ushort)offset);
         ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         static bool Negative(int value) => unchecked((short)value) < 0;

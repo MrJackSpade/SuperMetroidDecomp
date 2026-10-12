@@ -14,5 +14,5 @@ internal static class D3D11ConstantPacking
         (uint)(byte0 | byte1 << 8 | byte2 << 16 | byte3 << 24);
 
     /// <summary>Two sixteen-bit halves in one constant word, <paramref name="low"/> in the lower half.</summary>
-    public static uint Halves(ushort low, ushort high) => (uint)(low | high << 16);
+    public static uint Halves(ushort low, ushort high) => (uint)(unchecked((int)SnesSixteenSixteen.Compose(high, low)));
 }

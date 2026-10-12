@@ -76,7 +76,7 @@ internal static class CrocomireSkeletonResourceChecks
             int record = address + 2 + index * 8;
             source.SetWord(record, index);
             source.SetWord(record + 2, -index);
-            source.SetWord(record + 4, sprite & 0xffff);
+            source.SetWord(record + 4, SnesAddressMath.OffsetInBank(sprite));
             // No hitbox bytes: extracting editable art must not read native mechanics.
         }
         source.SetWord(sprite, 1);

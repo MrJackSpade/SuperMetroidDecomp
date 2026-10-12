@@ -30,7 +30,7 @@ internal static partial class Program
             AssertTrue(TorizoJumpBackInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        TorizoJumpBackInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, unchecked((ushort)(word.Address + 1))))),
                 $"Torizo jump-back control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(52, mechanicsAddresses.Count,
@@ -145,7 +145,7 @@ internal static partial class Program
             AssertTrue(TorizoJumpBackLeftInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        TorizoJumpBackLeftInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, unchecked((ushort)(word.Address + 1))))),
                 $"left-facing Torizo jump-back control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(52, mechanicsAddresses.Count,

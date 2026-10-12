@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -426,7 +427,7 @@ public sealed class BackgroundScrollState
         // its high product byte, and factor*high contributes its low product word. Together
         // they equal floor(position * (mode & $FE) / $100), modulo 16 bits.
         uint factor = (uint)(scrollMode & 0xfe);
-        result = unchecked((ushort)(((uint)layer1Position * factor) >> 8));
+        result = unchecked((ushort)SnesEightEight.WholeOf((uint)layer1Position * factor));
         return true;
     }
 

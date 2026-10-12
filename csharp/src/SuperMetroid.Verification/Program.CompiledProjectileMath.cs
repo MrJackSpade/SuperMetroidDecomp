@@ -48,8 +48,8 @@ internal static partial class Program
         foreach (int rawAngle in AngleHighByteSamples())
         for (int radius = 0; radius <= byte.MaxValue; radius++)
         {
-            int xAngle = rawAngle >> 8;
-            int yAngle = ((rawAngle - 16384) & 65535) >> 8;
+            int xAngle = SnesAngle.FromRaw(unchecked((ushort)rawAngle)).TableIndex;
+            int yAngle = SnesAngle.FromRaw(unchecked((ushort)(rawAngle - 16384))).TableIndex;
             ushort xMagnitude = (ushort)(native[(xAngle & 127) + 64] * radius / 256);
             ushort yMagnitude = (ushort)(native[(yAngle & 127) + 64] * radius / 256);
             ushort x = xAngle < 128 ? xMagnitude : unchecked((ushort)-xMagnitude);
@@ -68,7 +68,7 @@ internal static partial class Program
             ushort expected = sample < 0 ? unchecked((ushort)-magnitude) : magnitude;
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
-            var cosineAngle = SnesAngle.FromRaw(unchecked((ushort)(((angle - 64) << 8) | 255)));
+            var cosineAngle = SnesAngle.FromTableIndex(unchecked((byte)(angle - 64))).AddRaw(255);
             if (EnemyTrigonometryTables.MultiplySignedSine((ushort)speed, (byte)angle) != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)
@@ -81,8 +81,8 @@ internal static partial class Program
         }
         for (int index = short.MinValue; index <= ushort.MaxValue; index++)
         {
-            AssertEqual((short)(native[(index & 255) + 64] >> 4), eye(index), "eye arithmetic shift and angle wrapping");
-            AssertEqual(unchecked((ushort)native[((index - 64) & 255) + 64]), shaktool(index), "Shaktool full-index wrapping");
+            AssertEqual((short)(native[unchecked((byte)index) + 64] >> 4), eye(index), "eye arithmetic shift and angle wrapping");
+            AssertEqual(unchecked((ushort)native[unchecked((byte)(index - 64)) + 64]), shaktool(index), "Shaktool full-index wrapping");
         }
         for (int angle = 0; angle < 256; angle++)
         {
@@ -114,7 +114,7 @@ internal static partial class Program
             projectile.Variable1 = SnesFixedPosition.WholeOf(unchecked((int)initial));
             projectile.Variable0 = unchecked((ushort)initial);
             arc(projectile, step);
-            if (projectile.Variable1 != expected >> 16 || projectile.Variable0 != (expected & 65535) ||
+            if (projectile.Variable1 != SnesSixteenSixteen.WholeOf(expected) || projectile.Variable0 != SnesSixteenSixteen.FractionOf(expected) ||
                 projectile.Velocity.X.RawValue != unchecked((ushort)(phase + step)))
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, step={step}, initial={initial:X8}.");
         }

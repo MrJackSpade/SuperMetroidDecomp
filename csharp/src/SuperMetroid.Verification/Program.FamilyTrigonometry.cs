@@ -38,8 +38,8 @@ internal static partial class Program
 
         ushort MawReference(int angle, int length)
         {
-            short sample = native[(-angle) & 255];
-            int product = (Math.Abs((int)sample) / 256) * (length & 255);
+            short sample = native[unchecked((byte)-angle)];
+            int product = (Math.Abs((int)sample) / 256) * unchecked((byte)length);
             if (product == 0) return 0;
             if (sample >= 0) return (ushort)((product / 256) * 2);
             return unchecked((ushort)(((ushort)-product / 256 * 2) | 65280));
@@ -64,7 +64,7 @@ internal static partial class Program
             int product = (Math.Abs((int)sample) / 256) * speed;
             int displacement = product;
             if (sample < 0 && product != 0)
-                displacement = -product - ((product & 65535) == 0 ? 1 : 0);
+                displacement = -product - (SnesSixteenSixteen.FractionOf(product) == 0 ? 1 : 0);
             return unchecked(initial + (uint)displacement);
         }
         foreach (uint initial in new uint[] { 0, 0xffffff37 })
@@ -77,7 +77,7 @@ internal static partial class Program
             bullMove(bull, bullState);
             uint x = bull.Position.X.RawValue;
             uint y = bull.Position.Y.RawValue;
-            if (x != BullReference(initial, native[(angle + 64) & 255], speed) ||
+            if (x != BullReference(initial, native[unchecked((byte)(angle + 64))], speed) ||
                 y != BullReference(initial, native[angle], speed))
                 throw new InvalidDataException($"Bull movement differs: angle={angle}, speed={speed}, origin={initial:X8}.");
         }
@@ -98,8 +98,8 @@ internal static partial class Program
             previous.Position = new(new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
             segmentState.OrbitAngle = (ushort)angle;
             place(segment, segmentState);
-            uint expectedX = unchecked(initial + (uint)(orbit[(angle >> 8) + 64] << 8));
-            uint expectedY = unchecked(initial + (uint)(orbit[angle >> 8] << 8));
+            uint expectedX = unchecked(initial + (uint)SnesSixteenSixteen.FromEightEight(orbit[SnesAngle.FromRaw(unchecked((ushort)angle)).TableIndex + 64]));
+            uint expectedY = unchecked(initial + (uint)SnesSixteenSixteen.FromEightEight(orbit[SnesAngle.FromRaw(unchecked((ushort)angle)).TableIndex]));
             if ((segment.Position.X.RawValue) != expectedX ||
                 (segment.Position.Y.RawValue) != expectedY ||
                 segmentState.OrbitAngle != angle)

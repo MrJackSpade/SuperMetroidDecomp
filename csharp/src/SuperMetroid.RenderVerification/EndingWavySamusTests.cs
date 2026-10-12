@@ -58,7 +58,7 @@ internal static class EndingWavySamusTests
                 {
                     int index = y * 256 + x;
                     if (main[index].A == 0) continue; // CGADSUB enables BG2, not backdrop.
-                    Rgba32 first = main[index], second = sub[((y + age * 2) & 255) * 256 + ((x + NativeX(age, y)) & 255)];
+                    Rgba32 first = main[index], second = sub[unchecked((byte)(y + age * 2)) * 256 + unchecked((byte)(x + NativeX(age, y)))];
                     expected[index] = second.A == 0 ? first : new(Add(first.R, second.R), Add(first.G, second.G), Add(first.B, second.B));
                     if (expected[index] != first) changed++;
                 }
@@ -98,7 +98,7 @@ internal static class EndingWavySamusTests
             if (age < 2) return 0;
             int offset = (-2 + (age - 1) * 16 + (line % 64) * 4) & 0x1ff;
             short sample = NativeWaveSample(rom, offset);
-            int displacement = Math.Abs((int)sample) * 0x4000 >> 16;
+            int displacement = SnesSixteenSixteen.Multiply(Math.Abs((int)sample), 0x4000);
             if (sample < 0) displacement = -displacement;
             if ((line / 64 & 1) != 0) displacement = -displacement;
             return unchecked((ushort)displacement);

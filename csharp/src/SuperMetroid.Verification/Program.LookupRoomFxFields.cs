@@ -102,7 +102,7 @@ internal static partial class Program
             // bytes belong to another record and are not part of that caller-visible view.
             byte OriginalByte(int index) => terminator && index >= 2 ? (byte)0 : RoomFxFieldRomByte(rom, address + index);
             int expected = OriginalByte(offset);
-            if (width == 2) expected |= OriginalByte(offset + 1) << 8;
+            if (width == 2) expected |= SnesLittleEndian.Word(0, OriginalByte(offset + 1));
             RoomFxRecordDefinition actual = RoomFxRecordDefinitions.Get(pointer);
             AssertEqual(expected, field(actual), $"FX {pointer:X4} field at {offset}");
             AssertEqual(expected, field(enumerated[pointer]), "FX enumeration field view");

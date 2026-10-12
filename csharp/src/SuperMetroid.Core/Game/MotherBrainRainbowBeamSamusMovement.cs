@@ -197,16 +197,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         ushort velocity,
         out ushort newSubposition)
     {
-        // SEP #$20 leaves the velocity's high byte in B while the low accumulator adds only
-        // to WRAM subposition byte +1. Byte +0 is never read or written by `$A9:BBFD/BC3F`.
-        int fractionalSum = (subposition >> 8) + (SnesEightEight.FractionOf(velocity));
-        byte newHighFraction = unchecked((byte)fractionalSum);
-        newSubposition = unchecked((ushort)((newHighFraction << 8) | (subposition & 0x00ff)));
-
-        // REP #$20, AND #$FF00, XBA, sign extension reconstruct the signed whole byte. The
-        // carry left by the 8-bit ADC is still set and participates in the final ADC.
-        int wholeDelta = unchecked((sbyte)(SnesEightEight.WholeOf(velocity))) + (fractionalSum > 0xff ? 1 : 0);
-        return unchecked((ushort)(wholePosition + wholeDelta));
+        // `$A9:BBFD/BC3F` add only to WRAM subposition byte +1; byte +0 is never read or written.
+        SnesFixedPosition moved = new SnesFixedPosition(wholePosition, subposition).AddEightEightToHighFraction(velocity);
+        newSubposition = moved.Fraction;
+        return moved.Whole;
     }
 
     private static FixedPosition<RoomPixels> Capture(SamusState samus) => samus.Position;

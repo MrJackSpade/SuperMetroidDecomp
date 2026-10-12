@@ -98,8 +98,8 @@ public sealed partial class RoomEnemySystem
 
     private static void RunDraygonProjectileFlight(RoomEnemyProjectileSlot projectile)
     {
-        int xMagnitude = unchecked((projectile.Velocity.X.RawValue << 16) | projectile.Variable0);
-        int yMagnitude = unchecked((projectile.Velocity.Y.RawValue << 16) | projectile.Variable1);
+        int xMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.X.RawValue, projectile.Variable0)));
+        int yMagnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, projectile.Variable1)));
         int xDisplacement = ((projectile.DirectionParameter + 64) & 0x80) != 0
             ? -xMagnitude
             : xMagnitude;

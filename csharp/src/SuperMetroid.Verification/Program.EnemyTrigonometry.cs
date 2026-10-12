@@ -362,7 +362,7 @@ internal static partial class Program
         int ExpectedPixel(int angle, int radius)
         {
             angle &= 255;
-            int magnitude = bytes[angle & 127] * (radius & 255) >> 8;
+            int magnitude = SnesEightEight.Multiply(bytes[angle & 127], unchecked((byte)radius));
             return angle < 128 ? magnitude : -magnitude;
         }
         for (int angle = 0; angle < 256; angle++)
@@ -372,17 +372,17 @@ internal static partial class Program
             // production helpers. The fractional negation deliberately has no carry.
             ushort a = (ushort)(0xff00 | angle), r = (ushort)(0xab00 | radius);
             int product = bytes[angle & 127] * radius;
-            var expected = ((short)(angle < 128 ? product >> 8 : -(product >> 8)),
-                unchecked((ushort)(angle < 128 ? product << 8 : -(product << 8))));
+            var expected = ((short)(angle < 128 ? SnesEightEight.WholeOf(product) : -SnesEightEight.WholeOf(product)),
+                unchecked((ushort)(angle < 128 ? SnesSixteenSixteen.FromEightEight(product) : -SnesSixteenSixteen.FromEightEight(product))));
             if (pixel(a, r) != ExpectedPixel(angle, radius) || fixedProduct(a, r) != expected ||
                 cosine(a, r) != ExpectedPixel(angle + 64, radius) || negative(a, r) != ExpectedPixel(angle + 128, radius))
                 throw new InvalidDataException($"Compiled byte sine result differs at angle={angle}, radius={radius}.");
             foreach (int phase in new[] { 64, 128 })
             {
-                int shiftedAngle = (angle + phase) & 255;
+                int shiftedAngle = unchecked((byte)(angle + phase));
                 int shiftedProduct = bytes[shiftedAngle & 127] * radius;
-                short whole = (short)(shiftedAngle < 128 ? shiftedProduct >> 8 : -(shiftedProduct >> 8));
-                ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? shiftedProduct << 8 : -(shiftedProduct << 8)));
+                short whole = (short)(shiftedAngle < 128 ? SnesEightEight.WholeOf(shiftedProduct) : -SnesEightEight.WholeOf(shiftedProduct));
+                ushort fraction = unchecked((ushort)(shiftedAngle < 128 ? SnesSixteenSixteen.FromEightEight(shiftedProduct) : -SnesSixteenSixteen.FromEightEight(shiftedProduct)));
                 var fixedActual = phase == 64 ? fixedCosine(a, r) : fixedNegative(a, r);
                 var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
                 var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
@@ -449,11 +449,11 @@ internal static partial class Program
                 phaseField.SetValue(tide, (ushort)phase);
                 offsetField.SetValue(tide, 12345);
                 step();
-                short sample = Reference(phase >> 8);
+                short sample = Reference(SnesAngle.FromRaw(unchecked((ushort)phase)).TableIndex);
                 bool small = (option & 0x80) != 0;
                 int scale = option == 0 ? 0 : small ? 8 : 32;
                 int delta = option == 0 ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
-                if ((int)offsetField.GetValue(tide)! != (sample * scale << 8) ||
+                if ((int)offsetField.GetValue(tide)! != SnesSixteenSixteen.FromEightEight(sample * scale) ||
                     (ushort)phaseField.GetValue(tide)! != unchecked((ushort)(phase + delta)))
                     throw new InvalidDataException($"Native tide differs at options={option:X2}, phase={phase:X4}.");
             }

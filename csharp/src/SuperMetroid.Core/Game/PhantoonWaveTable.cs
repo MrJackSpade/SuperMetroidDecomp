@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Scroll-data calculation performed by the wavy Phantoon HDMA pre-instruction.</summary>
@@ -28,7 +29,7 @@ public static class PhantoonWaveTable
         short sine = PhantoonWaveRomData.ReadSineAtBytePhase(phase);
         // Native unsigned byte products truncate BEFORE restoring sign. Its final
         // AND $FF00 / XBA retains only product bits 16..23, even for unaligned samples.
-        int magnitude = (Math.Abs((int)sine) * amplitude >> 16) & byte.MaxValue;
+        int magnitude = unchecked((byte)SnesSixteenSixteen.Multiply(Math.Abs((int)sine), amplitude));
         return sine < 0 ? -magnitude : magnitude;
     }
 }

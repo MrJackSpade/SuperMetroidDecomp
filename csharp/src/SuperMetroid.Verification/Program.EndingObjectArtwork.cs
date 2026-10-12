@@ -20,7 +20,7 @@ internal static partial class Program
             int load = 0x8bd5af + 17 * index;
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load), "native fragment bank LDA");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load + 5), "native fragment address LDA");
-            int source = (bus.ReadCartridgeByte(load + 2) << 16|CartridgeImportSource.Require(bus).ReadCartridgeWord(load + 6));
+            int source = (int)new SnesAddress(bus.ReadCartridgeByte(load + 2), CartridgeImportSource.Require(bus).ReadCartridgeWord(load + 6));
             AssertEqual(source, EndingCreditsRomData.Assets.ObjectFragmentSource((EndingObjectFragmentId)index), "native fragment compressed source");
             AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
         }

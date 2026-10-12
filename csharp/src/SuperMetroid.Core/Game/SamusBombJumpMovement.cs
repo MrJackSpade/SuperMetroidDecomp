@@ -132,7 +132,7 @@ public static class SamusBombJumpMovement
     {
         SamusKinematicsState state = samus.Kinematics;
         uint oldSpeed = state.VerticalSpeedFixed;
-        uint acceleration = ((uint)state.YAcceleration << 16) | state.YSubacceleration;
+        uint acceleration = SnesSixteenSixteen.Compose(state.YAcceleration, state.YSubacceleration);
         uint nextSpeed = unchecked(oldSpeed - acceleration);
         state.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(nextSpeed)));
         state.YSubspeed = unchecked((ushort)nextSpeed);

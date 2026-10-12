@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Game;
@@ -53,7 +54,7 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
             return;
         }
         int? bank = catalog.DeclaredBank is { } declared
-            ? declared <= byte.MaxValue ? declared : declared >> 16
+            ? declared <= byte.MaxValue ? declared : SnesAddressMath.BankNumber(declared)
             : null;
         // Existing catalogs often encode their bank only in the source ownership
         // guard. Read its compiler-resolved constants, never probe possible banks
@@ -75,8 +76,8 @@ internal sealed class ProgramOperandAudit(ResourceIndex exports, AuditReport rep
                 foreach (var side in new[] { comparison.Left, comparison.Right })
                 {
                     if (partModel.GetConstantValue(side) is { HasValue: true, Value: int value } &&
-                        (value & 0xffff) == 0 && value >> 16 is >= 0x80 and <= 0xbf)
-                        guardBanks.Add(value >> 16);
+                        SnesAddressMath.OffsetInBank(value) == 0 && SnesAddressMath.BankNumber(value) is >= 0x80 and <= 0xbf)
+                        guardBanks.Add(SnesAddressMath.BankNumber(value));
                 }
             }
         }

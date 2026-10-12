@@ -162,7 +162,7 @@ public sealed partial class RoomEnemySystem
         int velocityFractionSum = (SnesEightEight.FractionOf(projectile.Velocity.X.RawValue)) + (SnesLittleEndian.HighByte(acceleration));
         byte velocityFraction = unchecked((byte)velocityFractionSum);
         byte velocityWhole = unchecked((byte)(
-            (SnesEightEight.WholeOf(projectile.Velocity.X.RawValue)) + (velocityFractionSum >> 8)));
+            (SnesEightEight.WholeOf(projectile.Velocity.X.RawValue)) + (SnesCarry.OutOfByte(velocityFractionSum))));
         byte maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
@@ -170,14 +170,12 @@ public sealed partial class RoomEnemySystem
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
-        int subpositionSum = (projectile.Position.X.Fraction >> 8) + velocityFraction;
-        projectile.Position = projectile.Position.WithFractionX(unchecked((ushort)(
-            (projectile.Position.X.Fraction & 0x00ff) | ((subpositionSum & 0xff) << 8))));
-        int wholeDelta = unchecked((sbyte)velocityWhole) + (subpositionSum >> 8);
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(projectile.Position.X.Whole + wholeDelta)));
+        SnesFixedPosition x = new SnesFixedPosition(projectile.Position.X.Whole, projectile.Position.X.Fraction)
+            .AddEightEightToHighFraction(SnesLittleEndian.Word(velocityFraction, velocityWhole));
+        projectile.Position = projectile.Position.WithFractionX(x.Fraction).WithWholeX(x.Whole);
 
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.
-        uint velocity = unchecked(((uint)projectile.Velocity.Y.RawValue << 16) | projectile.Variable1);
+        uint velocity = unchecked(SnesSixteenSixteen.Compose(projectile.Velocity.Y.RawValue, projectile.Variable1));
         velocity = unchecked(velocity + 0x00003000u);
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)))));
         projectile.Variable1 = unchecked((ushort)velocity);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -24,7 +25,7 @@ internal static partial class AssetTools
     {
         IGrouping<int, KeyValuePair<int, ushort>>[] banks = selectors
             .Where(pair => !CompiledEnemyVisualSelectors.IsCalculatedSelector(pair.Key))
-            .GroupBy(pair => pair.Key >> 16)
+            .GroupBy(pair => SnesAddressMath.BankNumber(pair.Key))
             .OrderBy(group => group.Key)
             .ToArray();
         foreach (IGrouping<int, KeyValuePair<int, ushort>> bank in banks)

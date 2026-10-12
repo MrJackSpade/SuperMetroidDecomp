@@ -292,9 +292,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports $86:9BA2/$9BF3: unsigned half-wave multiplication followed by whole-result negation.</summary>
     private static int ReadPhantoonFlameComponent(ushort angle, ushort radius)
     {
-        int byteAngle = angle & 255;
+        int byteAngle = unchecked((byte)angle);
         int sample = EnemyTrigonometryTables.SignedSine((byte)(byteAngle & 127));
-        int magnitude = ((sample & 255) * (SnesLittleEndian.LowByte(radius)) >> 8) + (sample >> 8) * (SnesLittleEndian.LowByte(radius));
+        int magnitude = (SnesEightEight.Multiply(unchecked((byte)sample), SnesLittleEndian.LowByte(radius))) + SnesEightEight.WholeOf(sample) * (SnesLittleEndian.LowByte(radius));
         return byteAngle < 128 ? magnitude : -magnitude;
     }
 

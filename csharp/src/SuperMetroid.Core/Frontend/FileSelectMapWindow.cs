@@ -32,8 +32,8 @@ public sealed class FileSelectMapWindow
             "Map-window positions require installed world-map labels.");
         ushort x = (ushort)installedLabels.Get(area).X;
         ushort y = (ushort)installedLabels.Get(area).Y;
-        edges[0] = edges[1] = (uint)x << 16;
-        edges[2] = edges[3] = (uint)y << 16;
+        edges[0] = edges[1] = SnesSixteenSixteen.FromWhole((uint)x);
+        edges[2] = edges[3] = SnesSixteenSixteen.FromWhole((uint)y);
         timer = motion.Timer;
         if ((short)timer < 0)
             throw new InvalidDataException("Map-window timer must begin before signed underflow.");
@@ -63,9 +63,9 @@ public sealed class FileSelectMapWindow
         window.IsReturning = true;
         window.timer = unchecked((ushort)(window.timer - FileSelectMapRomData.ReturnWindowTimerReduction));
         int inset = FileSelectMapRomData.ReturnWindowInset;
-        window.edges[0] = window.edges[2] = (uint)inset << 16;
-        window.edges[1] = (uint)(FrontendFrame.Width - inset) << 16;
-        window.edges[3] = (uint)(FrontendFrame.Height - inset) << 16;
+        window.edges[0] = window.edges[2] = SnesSixteenSixteen.FromWhole((uint)inset);
+        window.edges[1] = SnesSixteenSixteen.FromWhole((uint)(FrontendFrame.Width - inset));
+        window.edges[3] = SnesSixteenSixteen.FromWhole((uint)(FrontendFrame.Height - inset));
         return window;
     }
 
@@ -94,8 +94,8 @@ public sealed class FileSelectMapWindow
 
     private void ClampWholeWord(int edge, ushort limit, bool lowerBound)
     {
-        short position = unchecked((short)(edges[edge] >> 16));
+        short position = unchecked((short)SnesSixteenSixteen.WholeOf(edges[edge]));
         if (lowerBound ? position < limit : position > limit)
-            edges[edge] = (edges[edge] & ushort.MaxValue) | ((uint)limit << 16);
+            edges[edge] = SnesSixteenSixteen.Compose(limit, (ushort)SnesSixteenSixteen.FractionOf(edges[edge]));
     }
 }

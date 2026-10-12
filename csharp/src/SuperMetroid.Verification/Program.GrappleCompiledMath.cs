@@ -55,17 +55,17 @@ internal static partial class Program
             int doubled = 2 * Math.Abs(velocity);
             short vertical = native[angle + 64];
             uint expectedY = (uint)(Math.Abs(vertical) * doubled);
-            int horizontalIndex = ((angle - 64 + 3 * (doubled / 512)) & 255) + 64;
+            int horizontalIndex = unchecked((byte)(angle - 64 + 3 * (doubled / 512))) + 64;
             uint expectedX = (uint)(Math.Abs(native[horizontalIndex]) * doubled);
             SamusVerticalDirection direction = velocity < 0
                 ? vertical < 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up
                 : vertical >= 0 ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
-            state.Grapple.Angle = SnesAngle.FromRaw((ushort)((angle << 8) | 0xff));
+            state.Grapple.Angle = SnesAngle.FromTableIndex(unchecked((byte)angle)).AddRaw(0xff);
             state.Grapple.AngularVelocity = (short)velocity;
             release(state, state.Grapple);
-            if (state.Kinematics.YSpeed != expectedY >> 16 || state.Kinematics.YSubspeed != (expectedY & 65535) ||
-                state.Kinematics.YDirection != direction || state.HorizontalSpeed.BaseSpeed != expectedX >> 16 ||
-                state.HorizontalSpeed.BaseSubspeed != (expectedX & 65535) || state.HorizontalSpeed.AccelerationMode != 2)
+            if (state.Kinematics.YSpeed != SnesSixteenSixteen.WholeOf(expectedY) || state.Kinematics.YSubspeed != SnesSixteenSixteen.FractionOf(expectedY) ||
+                state.Kinematics.YDirection != direction || state.HorizontalSpeed.BaseSpeed != SnesSixteenSixteen.WholeOf(expectedX) ||
+                state.HorizontalSpeed.BaseSubspeed != SnesSixteenSixteen.FractionOf(expectedX) || state.HorizontalSpeed.AccelerationMode != 2)
                 throw new InvalidDataException($"Compiled grapple release differs: angle={angle:X2}, velocity={velocity}.");
             releaseCount++;
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
@@ -81,7 +82,7 @@ public sealed partial class RoomEnemySystem
                 projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
                 if (((before ^ (TourianStatueWaterY - projectile.Position.Y.Whole)) & 0x8000) != 0)
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
-                if ((projectile.Position.Y.Whole & 0xff00) == 0x100)
+                if (SnesLittleEndian.HighByte(projectile.Position.Y.Whole) == 1)
                 {
                     projectile.InstructionPointer = TourianStatueRomData.DeleteProjectile;
                     projectile.InstructionTimer = 1;

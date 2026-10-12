@@ -282,7 +282,7 @@ public sealed partial class RoomEnemySystem
         ushort distanceAccumulator = 0;
         PuyoHopDefinition hop = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex);
         ushort xSpeed = hop.XSpeed;
-        ushort swappedJumpHeight = SwapBytes(hop.Height);
+        ushort swappedJumpHeight = SnesLittleEndian.SwapBytes(hop.Height);
 
         for (int guard = 0; guard <= ushort.MaxValue; guard++)
         {
@@ -394,7 +394,7 @@ public sealed partial class RoomEnemySystem
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         ushort packed = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).YIndexDelta;
-        int displacement = packed << 8;
+        int displacement = SnesSixteenSixteen.FromEightEight(packed);
         if (!MoveEnemyVertically(level, slot, displacement))
             return;
 
@@ -540,9 +540,6 @@ public sealed partial class RoomEnemySystem
 
         SetPuyoInstructionList(slot, instructionList);
     }
-
-    private static ushort SwapBytes(ushort value) =>
-        unchecked((ushort)((value << 8) | (SnesLittleEndian.HighByte(value))));
 
     private static PuyoDirection Opposite(PuyoDirection direction) => direction switch
     {

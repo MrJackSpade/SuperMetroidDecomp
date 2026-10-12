@@ -56,7 +56,7 @@ internal static class LibraryBackgroundProgramImporter
 
         byte Byte(ushort offset) => ReadImportByte(source, RoomAssetRomData.LibraryBackground.CommandBank | offset);
         ushort Word(ushort offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte((ushort)(offset + 1))));
-        int Long(ushort offset) => SnesLittleEndian.Word(Byte(offset), Byte((ushort)(offset + 1))) | Byte((ushort)(offset + 2)) << 16;
+        int Long(ushort offset) => (int)new SnesAddress(Byte((ushort)(offset + 2)), SnesLittleEndian.Word(Byte(offset), Byte((ushort)(offset + 1))));
     }
 
     /// <summary>

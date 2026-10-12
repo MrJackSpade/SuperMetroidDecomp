@@ -147,7 +147,7 @@ public sealed partial class RoomEnemySystem
         int denominator = 13 - step;
         int fixedDelta = Math.Abs(target - current) * 256 / denominator;
         int signedDelta = target < current ? -fixedDelta : fixedDelta;
-        return (signedDelta + current * 256) >> 8;
+        return SnesEightEight.WholeOf(signedDelta + SnesEightEight.FromWhole(current));
     }
 
     private void FinishKraidGrowth(RoomEnemySlot body, KraidEnemyState state)

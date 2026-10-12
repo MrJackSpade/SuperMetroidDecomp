@@ -232,7 +232,7 @@ public sealed partial class RoomEnemySystem
         }
         else
         {
-            int displacement = state.WalkDelta << 16;
+            int displacement = SnesSixteenSixteen.FromWhole(state.WalkDelta);
             reverse = MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,

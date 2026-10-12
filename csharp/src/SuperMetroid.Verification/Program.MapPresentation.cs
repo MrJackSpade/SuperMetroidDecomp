@@ -298,7 +298,7 @@ internal static partial class Program
             var installed = new SnesCgram();
             int pointer = MotherBrainRainbowPaletteRomData.PointerTable + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
-                CpuBusRegionRead.Read(bus, pointer) | CpuBusRegionRead.Read(bus, pointer + 1) << 8;
+                SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
                 MotherBrainRainbowPaletteRomData.BodyColor);
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, MotherBrainRainbowPaletteRomData.ColorCount,
@@ -331,7 +331,7 @@ internal static partial class Program
                 MotherBrainDrainedPaletteRomData.RevivalColors;
             int pointer = table + frame * sizeof(ushort);
             int palette = MotherBrainRainbowPaletteRomData.SourceBank |
-                CpuBusRegionRead.Read(bus, pointer) | CpuBusRegionRead.Read(bus, pointer + 1) << 8;
+                SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, pointer), CpuBusRegionRead.Read(bus, pointer + 1));
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BodyColor);
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette, count, MotherBrainRainbowPaletteRomData.BrainColor);
             SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),

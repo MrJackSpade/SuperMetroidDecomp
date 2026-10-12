@@ -224,7 +224,7 @@ private static void WriteLibraryLong(byte[] rom, ushort pointer, int value)
 {
     WriteLibraryByte(rom, pointer, (byte)value);
     WriteLibraryByte(rom, unchecked((ushort)(pointer + 1)), SnesLittleEndian.HighByte(unchecked((ushort)value)));
-    WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), (byte)(value >> 16));
+    WriteLibraryByte(rom, unchecked((ushort)(pointer + 2)), SnesLittleEndian.BankByte(value));
 }
 
 private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)

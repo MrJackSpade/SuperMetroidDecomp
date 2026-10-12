@@ -37,7 +37,7 @@ internal static partial class Program
             var ordinary = new SnesCgram();
             SamusProjectileSystem.LoadBeamTilesAndPalette(bus, new SnesVram(), ordinary, beam, artwork);
             int table = SamusProjectileRomData.Beams.PalettePointers + beam * 2;
-            int source = 0x900000 | CpuBusRegionRead.Read(bus, table) | CpuBusRegionRead.Read(bus, table + 1) << 8;
+            int source = (int)new SnesAddress(0x90, SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
                 AssertEqual((SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source + color * 2), CpuBusRegionRead.Read(bus, source + color * 2 + 1))) & 0x7fff,
                     ordinary.Colors[0xe0 + color], $"ordinary beam {beam} palette remains unchanged");

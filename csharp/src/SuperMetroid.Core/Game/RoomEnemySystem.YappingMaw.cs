@@ -446,7 +446,7 @@ public sealed partial class RoomEnemySystem
     private static ushort AddWithCarry(ushort value, ushort addend, ref int carry)
     {
         int sum = value + addend + carry;
-        carry = sum >> 16;
+        carry = SnesCarry.OutOfWord(sum);
         return unchecked((ushort)sum);
     }
 
@@ -687,7 +687,7 @@ public sealed partial class RoomEnemySystem
             return 0;
 
         if (!negative)
-            return unchecked((ushort)(2 * ((SnesLittleEndian.HighByteInPlace(product)) >> 8)));
+            return unchecked((ushort)(2 * (SnesLittleEndian.HighByte(product))));
 
         ushort negatedProduct = unchecked((ushort)-product);
         return unchecked((ushort)((2 * (SnesLittleEndian.HighByte(negatedProduct))) | 0xff00));

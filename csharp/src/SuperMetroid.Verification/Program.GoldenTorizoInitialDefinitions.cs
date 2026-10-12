@@ -21,7 +21,7 @@ internal static partial class Program
             AssertTrue(GoldenTorizoInitialInstructionProgramDefinitions
                     .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoInitialInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo initial word $AA:{word.Address:X4} owns both bytes");
         }
 
@@ -88,7 +88,7 @@ internal static partial class Program
             AssertTrue(GoldenTorizoAwakeningInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoAwakeningInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo awakening word $AA:{word.Address:X4} owns both bytes");
             if (word.Value == (ushort)CommonEnemyInstruction.CopyToVram)
                 transfers++;

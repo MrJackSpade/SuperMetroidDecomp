@@ -27,7 +27,7 @@ internal static partial class Program
         var effect = method.CreateDelegate<Action<ManagedSpcMusicChannel, byte>>(player);
         // Distinguish low-byte aliases from incorrectly carrying into later RAM pages.
         for (int address = nativeBase; address < nativeBase + 2048; address++)
-            ram[address] = (byte)((address >> 8) ^ (address & 255));
+            ram[address] = (byte)(SnesLittleEndian.HighByte(unchecked((ushort)address)) ^ unchecked((byte)address));
         for (int preset = 32; preset < 288; preset++)
         {
             byte commandPreset = (byte)preset;

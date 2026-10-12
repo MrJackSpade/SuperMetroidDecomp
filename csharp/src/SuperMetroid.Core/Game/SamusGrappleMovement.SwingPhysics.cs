@@ -129,7 +129,7 @@ public static partial class SamusGrappleMovement
     /// the release-time drop test ($9B:C7AC) instead requires exactly $8000.
     /// </summary>
     private static bool HangsStraightDown(SamusGrappleState grapple) =>
-        (grapple.Angle.RawValue & 0xff00) == SnesAngle.HalfTurn.RawValue;
+        grapple.Angle.TableIndex == SnesAngle.HalfTurn.TableIndex;
 
     private static void CalculateGravity(SamusGrappleState grapple)
     {
@@ -233,7 +233,7 @@ public static partial class SamusGrappleMovement
         // within the same byte has no sweep, exactly as the target-byte equality branch.
         int combined = unchecked((short)(grapple.AngularVelocity + grapple.JumpImpulse));
         int factor = grapple.Submerged ? 160 : 256;
-        int magnitude = (Math.Abs(combined) * factor) >> 8;
+        int magnitude = SnesEightEight.Multiply(Math.Abs(combined), factor);
         if (magnitude == 0)
             return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
 
@@ -262,7 +262,7 @@ public static partial class SamusGrappleMovement
                 // fractional half-byte `$80`. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
                 grapple.Angle = SnesAngle.FromRaw(
-                    unchecked((ushort)((lastSafeAngleByte << 8) | 0x80)));
+                    SnesAngle.FromTableIndex(unchecked((byte)lastSafeAngleByte)).AddRaw(0x80).RawValue);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&
@@ -364,7 +364,7 @@ public static partial class SamusGrappleMovement
         // within that domain; preserving the mask matters at 16-bit world-coordinate wrap.
         return new GrappleCollisionPoint(
             Pixel: point,
-            Block: new((ushort)((point.X >> 4) & 0xff), (ushort)((point.Y >> 4) & 0xff)));
+            Block: new(unchecked((byte)(point.X >> 4)), unchecked((byte)(point.Y >> 4))));
     }
 
     private static bool IsSwingCollision(

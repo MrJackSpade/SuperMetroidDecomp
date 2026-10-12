@@ -894,7 +894,7 @@ public sealed partial class RoomEnemySystem
             var request = new BotwoonDropRequest(
                 Position: new Position16<RoomPixels>(
                     unchecked((ushort)((random & 0x007f) + 64)),
-                    unchecked((ushort)(((random & 0x3f00) >> 8) + 128))),
+                    unchecked((ushort)(((SnesLittleEndian.HighByte(random) & 0x3f)) + 128))),
                 ItemDropChancesPointer: head.Definition.ItemDropChancesPointer);
             _botwoonDropRequests.Add(request);
             LastBotwoonDropRequest = request;

@@ -429,7 +429,7 @@ public static partial class SamusGrappleMovement
         int quadrant = (xNegative ? 2 : 0) | (yNegative ? 1 : 0);
         if (absoluteY < absoluteX)
         {
-            int eighths = ((absoluteY << 8) / absoluteX) >> 3;
+            int eighths = (SnesEightEight.FromWhole(absoluteY) / absoluteX) >> 3;
             return SnesAngle.NormalizeTableIndex(quadrant switch
             {
                 0 => eighths + SnesAngle.QuarterTurn.TableIndex,
@@ -439,7 +439,7 @@ public static partial class SamusGrappleMovement
             });
         }
 
-        int reciprocalEighths = ((absoluteX << 8) / absoluteY) >> 3;
+        int reciprocalEighths = (SnesEightEight.FromWhole(absoluteX) / absoluteY) >> 3;
         return SnesAngle.NormalizeTableIndex(quadrant switch
         {
             0 => SnesAngle.HalfTurn.TableIndex - reciprocalEighths,

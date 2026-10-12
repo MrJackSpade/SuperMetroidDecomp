@@ -23,7 +23,7 @@ internal static partial class Program
     private static int VerifyDraygonPartTilemap(SuperMetroidRuntime runtime, RoomEnemySlot body)
     {
         if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)) return 0;
-        int bank = body.Definition.Bank << 16;
+        int bank = (int)new SnesAddress(body.Definition.Bank, 0);
         // Installed gameplay has no cartridge; the reference words come from a separate import.
         var rom = draygonReferenceRom.Value;
         int Word(int pointer) => rom.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(pointer)));
@@ -121,7 +121,7 @@ internal static partial class Program
         int start = (characters + (entry & 1023) * 16) * 2 + py * 2;
         int color = 0;
         for (int plane = 0; plane < 4; plane++)
-            color |= ((memory.Vram[(start + plane / 2 * 16 + plane % 2) & 65535] >> (7 - px)) & 1) << plane;
+            color |= ((memory.Vram[unchecked((ushort)(start + plane / 2 * 16 + plane % 2))] >> (7 - px)) & 1) << plane;
         return (color != 0, (entry & 0x2000) != 0, (entry >> 10 & 7) * 16 + color);
     }
 }

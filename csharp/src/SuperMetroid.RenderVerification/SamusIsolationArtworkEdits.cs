@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -16,7 +17,7 @@ internal static class SamusIsolationArtworkEdits
             Shift(document["drainedYOffsets"]!, 3, signed: true);
             foreach (JsonNode? map in document["spritemaps"]!.AsArray())
             foreach (JsonNode? part in map!["parts"]!.AsArray())
-                part!["x"] = (part["x"]!.GetValue<int>() + 2) & 0xffff;
+                part!["x"] = unchecked((ushort)(part["x"]!.GetValue<int>() + 2));
             // Keep the native frame-list identities and animation-frame count. Replace
             // only each valid DMA character selection, not the compiled delay program.
             foreach (JsonNode? frame in document["frames"]!.AsArray())

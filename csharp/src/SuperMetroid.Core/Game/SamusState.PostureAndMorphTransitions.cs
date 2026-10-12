@@ -215,7 +215,7 @@ public sealed partial class SamusState
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = ProbeChangedPoseVertical(
-                bus, level, SamusPostureDefinitions.CrouchEntryDownwardPixels << 16,
+                bus, level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixels),
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
             Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
                 Kinematics.Position.Y.Whole + (SnesSixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
@@ -326,7 +326,7 @@ public sealed partial class SamusState
                     $"Morph entry ${(int)targetPose:X2} expanded radius {previousRadius} -> {Kinematics.Radius.Y}.");
             }
             BlockMoveResult alignment = ProbeChangedPoseVertical(
-                bus, level, SamusPostureDefinitions.MorphEntryDownwardPixels << 16,
+                bus, level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
             Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
                 Kinematics.Position.Y.Whole + (SnesSixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));

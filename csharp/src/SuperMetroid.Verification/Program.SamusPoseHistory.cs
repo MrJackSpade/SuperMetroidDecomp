@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
 internal static partial class Program
@@ -24,7 +25,7 @@ internal static partial class Program
 
         for (int movement = 0; movement <= byte.MaxValue; movement++)
         {
-            history.LastDifferentDirectionAndMovement = (ushort)((movement << 8) | 0xa5);
+            history.LastDifferentDirectionAndMovement = SnesLittleEndian.Word(0xa5, unchecked((byte)movement));
             AssertEqual(movement is 3 or 20, history.AllowsWallJumpProbe,
                 "native wall probe movement-byte gate ignores direction byte");
         }

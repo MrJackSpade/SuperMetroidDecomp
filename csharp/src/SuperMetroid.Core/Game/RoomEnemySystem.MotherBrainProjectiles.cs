@@ -109,7 +109,7 @@ public sealed partial class RoomEnemySystem
     private static void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)
     {
         byte currentDirection = unchecked((byte)turret.Position.Y.Fraction);
-        sbyte rotationDelta = unchecked((sbyte)(turret.Position.Y.Fraction >> 8));
+        sbyte rotationDelta = unchecked((sbyte)SnesLittleEndian.HighByte(turret.Position.Y.Fraction));
         byte candidate = unchecked((byte)((currentDirection + rotationDelta) & 7));
         bool allowed = MotherBrainTurretDefinitions.IsRotationAllowed(
             turret.Position.X.Fraction,
@@ -117,8 +117,7 @@ public sealed partial class RoomEnemySystem
 
         if (allowed)
         {
-            turret.Position = turret.Position.WithFractionY(unchecked((ushort)(
-                (turret.Position.Y.Fraction & 0xff00) | candidate)));
+            turret.Position = turret.Position.WithFractionY(SnesLittleEndian.Word(candidate, SnesLittleEndian.HighByte(turret.Position.Y.Fraction)));
             return;
         }
 

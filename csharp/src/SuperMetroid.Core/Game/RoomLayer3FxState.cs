@@ -242,7 +242,7 @@ public sealed class RoomLayer3FxState
         ushort random = system.RandomNumber;
         AdvanceLiquidMotion(random, system.MainGameLoopCarry);
         QueueLavaAmbientSound(random);
-        system.SetRandomNumber(unchecked((ushort)((random << 8) | (random >> 8))));
+        system.SetRandomNumber(SnesLittleEndian.SwapBytes(random));
     }
 
     /// <summary>
@@ -652,7 +652,7 @@ public sealed class RoomLayer3FxState
 
         short velocity = unchecked((short)PackedYVelocity);
         int delta = SnesSixteenSixteen.FromEightEight(velocity);
-        uint fixedPosition = ((uint)BaseYPosition << 16) | baseYSubposition;
+        uint fixedPosition = SnesSixteenSixteen.Compose(BaseYPosition, baseYSubposition);
         fixedPosition = unchecked(fixedPosition + (uint)delta);
         ushort candidate = SnesFixedPosition.WholeOf(unchecked((int)fixedPosition));
         baseYSubposition = unchecked((ushort)fixedPosition);
@@ -709,14 +709,14 @@ public sealed class RoomLayer3FxState
 
         // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
         short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(SnesLittleEndian.HighByte(tidePhase));
-        tideFixedOffset = sample * scale << 8;
+        tideFixedOffset = SnesSixteenSixteen.FromEightEight(sample * scale);
         tidePhase = unchecked((ushort)(
             tidePhase + (sample >= 0 ? positiveDelta : negativeDelta)));
     }
 
     private ushort ComputeTidalYPosition()
     {
-        uint baseFixed = ((uint)BaseYPosition << 16) | baseYSubposition;
+        uint baseFixed = SnesSixteenSixteen.Compose(BaseYPosition, baseYSubposition);
         return SnesFixedPosition.WholeOf(unchecked((int)(baseFixed + (uint)tideFixedOffset)));
     }
 
@@ -734,7 +734,7 @@ public sealed class RoomLayer3FxState
         if (relative <= 0)
             return unchecked((ushort)(((relative ^ 0x001f) & 0x001f) | 0x0100));
         return relative < 0x0100
-            ? unchecked((ushort)((~relative) & 0x00ff))
+            ? unchecked((ushort)(byte)~relative)
             : (ushort)0;
     }
 

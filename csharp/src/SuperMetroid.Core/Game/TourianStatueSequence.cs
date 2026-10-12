@@ -27,7 +27,7 @@ public sealed class TourianStatueSequence
     /// frame. As a signed 16.16 value its whole word floors toward negative infinity, so
     /// the first quarter-pixel step already reads -1.
     /// </summary>
-    public short VerticalOffset => unchecked((short)((-descent) >> 16));
+    public short VerticalOffset => unchecked((short)SnesSixteenSixteen.WholeOf(-descent));
     /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
     public short DisplayedVerticalOffset { get; private set; }
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
@@ -49,7 +49,7 @@ public sealed class TourianStatueSequence
         SpawnAnimatedObjects();
         if (runtime.UnlockTourianEnabled || runtime.System.HasEvent(EventNumber.TourianUnlocked))
         {
-            descent = TourianStatueRomData.DescentDistance << 16;
+            descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
             runtime.Enemies.TourianEntranceStatueVerticalOffset = VerticalOffset;
             runtime.Plms.TrySpawnTourianAccess(runtime.LevelData!, clear: true);
             EnableScrolling(runtime);

@@ -567,9 +567,9 @@ public sealed partial class SamusLiquidPhysicsState
             // whole-damage low byte. Shifting that 8.8 quantity and splitting it back is not
             // equivalent to independently shifting both 16-bit words when a carry crosses.
             ushort overlappingDamage = unchecked((ushort)(
-                (SnesLittleEndian.HighByte(PeriodicSubDamage)) | ((SnesLittleEndian.LowByte(PeriodicDamage)) << 8)));
+                SnesLittleEndian.Word(SnesLittleEndian.HighByte(PeriodicSubDamage), SnesLittleEndian.LowByte(PeriodicDamage))));
             overlappingDamage = unchecked((ushort)(overlappingDamage >> divisorShift));
-            appliedSubDamage = unchecked((ushort)((SnesLittleEndian.LowByte(overlappingDamage)) << 8));
+            appliedSubDamage = SnesLittleEndian.Word(0, SnesLittleEndian.LowByte(overlappingDamage));
             appliedDamage = unchecked((ushort)(SnesLittleEndian.HighByte(overlappingDamage)));
         }
 
@@ -611,7 +611,7 @@ public sealed partial class SamusLiquidPhysicsState
         uint fractional = (uint)PeriodicSubDamage + subDamage;
         PeriodicSubDamage = unchecked((ushort)fractional);
         PeriodicDamage = unchecked((ushort)(
-            PeriodicDamage + wholeDamage + (fractional >> 16)));
+            PeriodicDamage + wholeDamage + SnesCarry.OutOfWord(fractional)));
     }
 
     private void SpawnWaterSplash(
@@ -723,7 +723,7 @@ public sealed partial class SamusLiquidPhysicsState
 
         if (useWetFootsteps)
             SpawnFootstepPair(bus, samus, type: 1);
-        else if ((samus.HorizontalSpeed.SpeedBoostCounter & 0xff00) == 0x0400 &&
+        else if ((SnesLittleEndian.HighByteInPlace(samus.HorizontalSpeed.SpeedBoostCounter)) == 0x0400 &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
             SpawnFootstepPair(bus, samus, type: 7);
 

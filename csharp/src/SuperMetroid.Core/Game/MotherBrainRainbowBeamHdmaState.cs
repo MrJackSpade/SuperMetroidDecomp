@@ -83,7 +83,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
             throw new InvalidDataException($"Mother Brain beam mouth Y={originY} is outside its native scanline work area.");
         // DE20 reads XPosition-1, then masks after adding: this is the low X byte,
         // not a camera-relative coordinate or the enemy header pointer in the C decompile.
-        int origin = unchecked((byte)(head.X + MotherBrainBeamRomData.MouthXOffset)) << 8;
+        int origin = SnesEightEight.FromWhole(unchecked((byte)(head.X + MotherBrainBeamRomData.MouthXOffset)));
         var data = new ushort[MotherBrainBeamRomData.EndLine];
         Array.Fill(data, MotherBrainBeamRomData.EmptyWindow);
         int count = originY - MotherBrainBeamRomData.FirstLine;
@@ -107,7 +107,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
             {
                 left = Math.Clamp(left + leftStep, 0, ushort.MaxValue);
                 rightEdge = Math.Clamp(rightEdge + rightStep, 0, ushort.MaxValue);
-                ushort word = (ushort)((left >> 8) | (rightEdge & MotherBrainBeamRomData.RightScreenEdge));
+                ushort word = (ushort)(SnesEightEight.WholeOf(left) | (rightEdge & MotherBrainBeamRomData.RightScreenEdge));
                 // Down-left uses zero as its off-screen sentinel; the other routines
                 // test FFFF. Keep that asymmetry instead of normalizing the native edges.
                 bool empty = down && leftNegative && rightNegative ? word == 0 : word == ushort.MaxValue;
@@ -134,7 +134,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
             {
                 edge += slope;
                 if (edge > ushort.MaxValue) break;
-                data[index] = (ushort)((edge >> 8) | MotherBrainBeamRomData.RightScreenEdge);
+                data[index] = (ushort)(SnesEightEight.WholeOf(edge) | MotherBrainBeamRomData.RightScreenEdge);
             }
         }
     }

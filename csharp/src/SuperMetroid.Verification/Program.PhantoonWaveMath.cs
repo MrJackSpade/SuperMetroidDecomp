@@ -20,12 +20,12 @@ internal static partial class Program
             // Literal four byte products and word-width intermediates from
             // $88:E5CF-E63E/$E65A-E6C9, including the final AND $FF00 / XBA.
             int magnitude = Math.Abs((int)sample);
-            int low = magnitude & 255, high = magnitude >> 8;
+            int low = unchecked((byte)magnitude), high = SnesLittleEndian.HighByte(unchecked((ushort)magnitude));
             int amplitudeLow = SnesLittleEndian.LowByte(amplitude), amplitudeHigh = SnesLittleEndian.HighByte(amplitude);
-            ushort temp16 = (ushort)((low * amplitudeLow >> 8) + high * amplitudeLow);
+            ushort temp16 = (ushort)((SnesEightEight.Multiply(low, amplitudeLow)) + high * amplitudeLow);
             ushort temp18 = (ushort)(low * amplitudeHigh);
             temp16 = unchecked((ushort)(temp16 + temp18));
-            int result = ((temp16 + ((high * amplitudeHigh & 255) << 8)) & 65280) >> 8;
+            int result = SnesLittleEndian.HighByte(unchecked((ushort)(temp16 + SnesLittleEndian.Word(0, unchecked((byte)(high * amplitudeHigh))))));
             return sample < 0 ? -result : result;
         }
 

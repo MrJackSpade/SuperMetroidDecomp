@@ -1160,7 +1160,7 @@ internal static partial class Program
         {
             state.AimAngle = angle;
             begin(slot, state);
-            int direction = ((angle + 16) & 255) >> 5;
+            int direction = unchecked((byte)(angle + 16)) >> 5;
             AssertEqual((ushort)(direction * 2), state.DirectionTableByteOffset,
                 "Actual angle quantization/wrap retained");
             Check(direction, "Actual begin-extension held offset");
@@ -1416,7 +1416,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             busField.SetValue(enemies, NewPhantoonPatternReadGuard(rom));
-            ushort random = (ushort)((high << 8) | 0xf8 | pattern);
+            ushort random = SnesLittleEndian.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { calls++; return random; }));
             var body = enemies.Slots[0];
@@ -1608,7 +1608,7 @@ internal static partial class Program
             var layout = CeresFlightActorLayout.Load(encoded);
             return (layout, index => layout[index], layout.ContentIdentity);
         }, value => (value.Id, value.X, value.Y),
-            (value, x) => x ? value with { X = (value.X + 1) & 65535 } : value with { Y = (value.Y + 1) & 65535 });
+            (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var reveal = Enumerable.Range(0, 6).Select(index =>
         {
             var source = CeresDestructionActorDefinitions.ZebesPlacementSource(index);
@@ -1624,7 +1624,7 @@ internal static partial class Program
             var layout = CeresRevealActorLayout.Load(encoded);
             return (layout, index => layout[index], layout.ContentIdentity);
         }, value => (value.Id, value.X, value.Y),
-            (value, x) => x ? value with { X = (value.X + 1) & 65535 } : value with { Y = (value.Y + 1) & 65535 });
+            (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         var destruction = Enumerable.Range(0, 3).Select(index =>
         {
             var inherited = flight[index == 0 ? 0 : index == 1 ? 2 : 3];
@@ -1639,7 +1639,7 @@ internal static partial class Program
             var layout = CeresDestructionActorLayout.Load(encoded);
             return (layout, index => layout[index], layout.ContentIdentity);
         }, value => (value.Id, value.X, value.Y),
-            (value, x) => x ? value with { X = (value.X + 1) & 65535 } : value with { Y = (value.Y + 1) & 65535 });
+            (value, x) => x ? value with { X = unchecked((ushort)(value.X + 1)) } : value with { Y = unchecked((ushort)(value.Y + 1)) });
         Console.WriteLine("Ceres layouts: all14 original actor placements/28 coordinate operands, no stored stock rows, all28 independent coordinate edits, complete identity preservation and bounds pass.");
 
         static void Check<T>(T[] original,

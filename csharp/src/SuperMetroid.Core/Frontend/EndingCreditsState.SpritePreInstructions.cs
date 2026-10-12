@@ -75,7 +75,7 @@ internal sealed partial class EndingCreditsState
                 }
                 break;
             case EndingSpritePreInstruction.MoveFlyawayStars:
-                int velocity = unchecked((int)(((uint)sprite.GeneralTimer << 16) | sprite.Position.Y.Fraction)) - 32;
+                int velocity = unchecked((int)(SnesSixteenSixteen.Compose(sprite.GeneralTimer, sprite.Position.Y.Fraction))) - 32;
                 sprite.GeneralTimer = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
                 uint position = unchecked(IntroCinematicMotion.Packed(sprite.Position.X) + (uint)velocity);
                 sprite.Position = new(

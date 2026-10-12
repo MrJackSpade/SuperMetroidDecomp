@@ -239,23 +239,23 @@ public sealed class Bank80SystemState
         RandomCallObserver?.Invoke();
         // The ROM performs two separate 8x8 multiplies through the SNES hardware
         // multiplier ($4202/$4203). This first product is retained as a 16-bit word.
-        int lowByteProduct = (RandomNumber & 0xff) * 5;
+        int lowByteProduct = (SnesLittleEndian.LowByte(RandomNumber)) * 5;
 
         // The second hardware multiplication is read through an 8-bit accumulator, so
         // only its low result byte participates directly in the next addition.
-        int highByteProductLow = ((RandomNumber >> 8) * 5) & 0xff;
+        int highByteProductLow = unchecked((byte)(SnesLittleEndian.HighByte(RandomNumber) * 5));
 
         // SEC makes the addition start with carry=1. It modifies the high byte of the
         // first product. The ninth bit is retained separately as the processor carry.
-        int highByteSum = ((lowByteProduct >> 8) & 0xff) + highByteProductLow + 1;
+        int highByteSum = SnesLittleEndian.HighByte(unchecked((ushort)lowByteProduct)) + highByteProductLow + 1;
 
         // STA $02,S replaces the saved product's high byte but, naturally, stores only
         // eight bits. Reconstruct that post-STA stack word explicitly.
-        int savedProduct = (lowByteProduct & 0xff) | ((highByteSum & 0xff) << 8);
+        int savedProduct = SnesLittleEndian.Word(unchecked((byte)lowByteProduct), unchecked((byte)highByteSum));
 
         // After PLA restores 16-bit A, ADC #$0011 consumes the carry left by the 8-bit
         // addition. That extra carry is the reason this is only *roughly* r*5+$0111.
-        int result = savedProduct + 0x0011 + (highByteSum >> 8);
+        int result = savedProduct + 0x0011 + (SnesCarry.OutOfByte(highByteSum));
 
         // A 65C816 accumulator wraps at 16 bits. The explicit unchecked cast documents
         // that overflow is required behavior rather than an accidental omission.

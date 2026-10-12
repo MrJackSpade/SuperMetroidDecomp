@@ -90,7 +90,7 @@ internal static partial class Program
         {
             state.PaletteTimerAndPhase = (ushort)((frame + 7) & 7);
             step.Invoke(enemies, [state]);
-            AssertEqual((ushort)((state.PaletteDelay << 8) | frame),
+            AssertEqual(SnesLittleEndian.Word(unchecked((byte)frame), unchecked((byte)state.PaletteDelay)),
                 state.PaletteTimerAndPhase,
                 $"Shitroid normal frame {frame} retains native timer/phase selection");
             for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)

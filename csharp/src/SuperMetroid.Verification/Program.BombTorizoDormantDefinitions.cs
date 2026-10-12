@@ -30,7 +30,7 @@ internal static partial class Program
             AssertTrue(BombTorizoDormantInstructionProgramDefinitions
                     .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        BombTorizoDormantInstructionProgramDefinitions
-                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, unchecked((ushort)(word.Address + 1))))),
                 $"Bomb Torizo dormant word $AA:{word.Address:X4} owns both bytes");
         }
 

@@ -930,7 +930,7 @@ public sealed partial class RoomEnemySystem
     {
         uint lowSum = (uint)fraction + deltaFraction;
         return (
-            unchecked((ushort)(whole + deltaWhole + (lowSum >> 16))),
+            unchecked((ushort)(whole + deltaWhole + (SnesCarry.OutOfWord(lowSum)))),
             unchecked((ushort)lowSum));
     }
 

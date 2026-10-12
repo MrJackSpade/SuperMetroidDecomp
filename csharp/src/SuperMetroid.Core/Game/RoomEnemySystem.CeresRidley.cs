@@ -562,7 +562,7 @@ public sealed partial class RoomEnemySystem
         // Both targets use ADC without CLC. Carry is clear on entry (the enemy AI dispatcher's
         // CLC/ADC at $A0:9083 and $A6:A7BA's in-range compare), so the X sum carries into Y.
         int xSum = state.FireballBasePosition.X + jitter;
-        int carry = xSum >> 16;
+        int carry = SnesCarry.OutOfWord(xSum);
         AccelerateRidleyToward(
             slot,
             state,
@@ -910,12 +910,11 @@ public sealed partial class RoomEnemySystem
         ushort minimum,
         ushort maximum)
     {
-        // Ridley's velocities are signed 8.8 values, but the original routine accumulates
-        // their fractional byte into the *high* byte of the ordinary 16-bit subposition.
-        // Reproduce the byte carry explicitly; a generic 16.16 helper would be off by 256.
-        int fraction = (position.Fraction >> 8) + (SnesEightEight.FractionOf(velocityWord));
-        ushort subposition = unchecked((ushort)((position.Fraction & 0x00ff) | ((fraction & 0xff) << 8)));
-        ushort next = unchecked((ushort)(position.Whole + (sbyte)(SnesEightEight.WholeOf(velocityWord)) + (fraction >> 8)));
+        // Ridley's velocities are signed 8.8 values that the original routine accumulates into the
+        // *high* byte of the ordinary 16-bit subposition.
+        SnesFixedPosition moved = position.AddEightEightToHighFraction(velocityWord);
+        ushort subposition = moved.Fraction;
+        ushort next = moved.Whole;
 
         if (unchecked((short)(next - minimum)) < 0)
             return (new(minimum, subposition), 0);
@@ -929,12 +928,8 @@ public sealed partial class RoomEnemySystem
         ushort subposition,
         ushort velocityWord)
     {
-        int fraction = (subposition >> 8) + (SnesEightEight.FractionOf(velocityWord));
-        ushort nextSubposition = unchecked((ushort)(
-            (subposition & 0x00ff) | ((fraction & 0xff) << 8)));
-        ushort nextPosition = unchecked((ushort)(
-            position + (sbyte)(SnesEightEight.WholeOf(velocityWord)) + (fraction >> 8)));
-        return (nextPosition, nextSubposition);
+        SnesFixedPosition moved = new SnesFixedPosition(position, subposition).AddEightEightToHighFraction(velocityWord);
+        return (moved.Whole, moved.Fraction);
     }
 
     private static bool IsWithinRidleyRectangle(

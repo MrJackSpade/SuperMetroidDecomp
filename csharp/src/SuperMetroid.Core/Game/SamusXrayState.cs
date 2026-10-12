@@ -452,12 +452,12 @@ public sealed class SamusXrayState
                 // Four 16-bit words reproduce ADC carry propagation exactly. Fractional
                 // widening velocity gains `$0800` per call; both velocity and width can
                 // carry into their whole components before the ten-unit clamp.
-                uint delta = ((uint)AngularWidthDelta << 16) | AngularSubwidthDelta;
+                uint delta = SnesSixteenSixteen.Compose(AngularWidthDelta, AngularSubwidthDelta);
                 delta = unchecked(delta + SamusXrayRomData.Window.WideningStep);
                 AngularWidthDelta = SnesFixedPosition.WholeOf(unchecked((int)delta));
                 AngularSubwidthDelta = unchecked((ushort)delta);
 
-                uint width = ((uint)AngularWidth << 16) | AngularSubwidth;
+                uint width = SnesSixteenSixteen.Compose(AngularWidth, AngularSubwidth);
                 width = unchecked(width + delta);
                 AngularWidth = SnesFixedPosition.WholeOf(unchecked((int)width));
                 AngularSubwidth = unchecked((ushort)width);

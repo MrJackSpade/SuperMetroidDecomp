@@ -30,7 +30,7 @@ internal static partial class Program
             AssertTrue(TorizoFallingLeftInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        TorizoFallingLeftInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, unchecked((ushort)(word.Address + 1))))),
                 $"Torizo falling-left control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(14, addresses.Count, "Torizo falling-left control-word count");

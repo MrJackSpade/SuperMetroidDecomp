@@ -736,7 +736,7 @@ public sealed partial class SamusState
             return;
         }
 
-        if ((HorizontalSpeed.SpeedBoostCounter & 0xff00) != 0x0400)
+        if ((SnesLittleEndian.HighByteInPlace(HorizontalSpeed.SpeedBoostCounter)) != 0x0400)
             return;
 
         // `$90:87C7` draws slot one before slot zero. OAM order is observable when their

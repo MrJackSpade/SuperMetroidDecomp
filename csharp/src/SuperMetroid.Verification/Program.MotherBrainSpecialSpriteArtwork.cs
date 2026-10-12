@@ -127,8 +127,8 @@ internal static partial class Program
             AssertEqual(MotherBrainSpecialSpriteSheetDefinition.PageByteCount,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
                 $"Baby tile record {page} size");
-            uint source = (uint)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2) |
-                rom.ReadCartridgeByte(record + 4) << 16);
+            uint source = (uint)(int)new SnesAddress(rom.ReadCartridgeByte(record + 4),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2));
             AssertEqual((uint)(baby.SourceAddress +
                 page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount), source,
                 $"Baby tile record {page} source");
@@ -177,8 +177,8 @@ internal static partial class Program
                 MotherBrainLegTileTransferDefinitions.Get(page);
             AssertEqual(compiled.Size, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record),
                 $"Mother Brain leg transfer {page} size");
-            uint nativeSource = (uint)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2) |
-                rom.ReadCartridgeByte(record + 4) << 16);
+            uint nativeSource = (uint)(int)new SnesAddress(rom.ReadCartridgeByte(record + 4),
+                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), record + 2));
             AssertEqual(compiled.SourceAddress, nativeSource,
                 $"Mother Brain leg transfer {page} source");
             AssertEqual(compiled.VramDestination,

@@ -82,8 +82,8 @@ internal static partial class Program
                     // Anchor the trajectory at the spawn origin: the fire-frame position less
                     // that frame's unaccelerated ignition step, which the update below re-adds.
                     var fired = projectiles.Slots[0];
-                    x = unchecked((new SnesFixedPosition(fired.Position.X.Whole, fired.Position.X.Fraction).RawValue) - (uint)(vx << 8));
-                    y = unchecked((new SnesFixedPosition(fired.Position.Y.Whole, fired.Position.Y.Fraction).RawValue) - (uint)(vy << 8));
+                    x = unchecked((new SnesFixedPosition(fired.Position.X.Whole, fired.Position.X.Fraction).RawValue) - (uint)SnesSixteenSixteen.FromEightEight(vx));
+                    y = unchecked((new SnesFixedPosition(fired.Position.Y.Whole, fired.Position.Y.Fraction).RawValue) - (uint)SnesSixteenSixteen.FromEightEight(vy));
                 }
                 else
                 {
@@ -93,8 +93,8 @@ internal static partial class Program
                     vy = unchecked((short)(vy + (short)retail.ReadCartridgeWord((table + direction * 4 + 2)) +
                         (weapon == 1 ? (short)retail.ReadCartridgeWord((0x90c367 + direction * 2)) : 0)));
                 }
-                x = unchecked(x + (uint)(vx << 8));
-                y = unchecked(y + (uint)(vy << 8));
+                x = unchecked(x + (uint)SnesSixteenSixteen.FromEightEight(vx));
+                y = unchecked(y + (uint)SnesSixteenSixteen.FromEightEight(vy));
                 var owner = projectiles.Slots[0];
                 AssertTrue(owner.IsActive, "Motion fixture retains its visible missile owner");
                 AssertEqual((short)vx, owner.Velocity.X.SignedRawValue, "Native missile acceleration X across ignition and movement");

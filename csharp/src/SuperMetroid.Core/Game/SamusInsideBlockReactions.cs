@@ -92,7 +92,7 @@ public static class SamusInsideBlockReactions
                             if ((ushort)(SnesEightEight.WholeOf(body.VerticalSpeedFixed)) > limit)
                             {
                                 body.YSpeed = (ushort)(SnesLittleEndian.HighByte(limit));
-                                body.YSubspeed = unchecked((ushort)(limit << 8));
+                                body.YSubspeed = unchecked((ushort)SnesSixteenSixteen.FromEightEight(limit));
                             }
                             SetExtra(SnesEightEight.FromWhole(physics.MovingDisplacement));
                             break;

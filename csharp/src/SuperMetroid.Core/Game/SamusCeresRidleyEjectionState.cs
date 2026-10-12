@@ -139,8 +139,7 @@ public sealed class SamusCeresRidleyEjectionState
         {
             uint accelerated = unchecked(
                 samus.Kinematics.VerticalSpeedFixed +
-                (((uint)samus.Kinematics.YAcceleration << 16) |
-                 samus.Kinematics.YSubacceleration));
+                (SnesSixteenSixteen.Compose(samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration)));
             samus.Kinematics.YSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
             samus.Kinematics.YSubspeed = unchecked((ushort)accelerated);
         }

@@ -319,7 +319,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // `$A9:C1A7` ignores every pose except standing (zero) and leaning (six), and its
         // low-byte threshold is inclusive at `$C0`. A request still executes as body
         // instruction bytecode later in the enemy-processing stage.
-        if ((randomNumberSeed & 0x00ff) < 0x00c0)
+        if ((SnesLittleEndian.LowByte(randomNumberSeed)) < 0x00c0)
             return false;
 
         if (Body.Pose == MotherBrainBodyPose.Standing)

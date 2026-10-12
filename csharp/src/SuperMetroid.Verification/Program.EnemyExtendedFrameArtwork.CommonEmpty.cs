@@ -14,7 +14,7 @@ internal static partial class Program
         var blockedRom = NewFrontendCartridgeReadGuard(rom);
         foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
         {
-            int emptyOam = ((int)new SnesAddress(bank ,                CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap));
+            int emptyOam = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap));
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(emptyOam),
                 $"bank ${bank:X2} shared ordinary empty OAM part count");
             // Exercise the ordinary draw entry point too: unlike the extended
@@ -31,7 +31,7 @@ internal static partial class Program
                     [emptyDraw, new EnemySpritemapDraw { Bank = (byte)bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true }]);
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
-            int root = ((int)new SnesAddress(bank ,                CommonEnemyEmptyExtendedFrameDefinitions.Frame));
+            int root = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameDefinitions.Frame));
             AssertEqual((byte)1, rom.ReadCartridgeByte(root),
                 $"bank ${bank:X2} shared empty extended component count");
             AssertEqual((byte)0, rom.ReadCartridgeByte(root + 1),
@@ -45,7 +45,7 @@ internal static partial class Program
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.PointHitboxList,
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 8)),
                 $"bank ${bank:X2} shared empty hitbox pointer");
-            int hitbox = ((int)new SnesAddress(bank ,                CommonEnemyEmptyExtendedFrameDefinitions.PointHitboxList));
+            int hitbox = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameDefinitions.PointHitboxList));
             AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord(hitbox),
                 $"bank ${bank:X2} shared point-hitbox count");
             for (int offset = 2; offset < 10; offset += 2)

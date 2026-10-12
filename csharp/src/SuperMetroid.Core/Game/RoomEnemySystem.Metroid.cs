@@ -218,14 +218,14 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         int yDifference = unchecked((short)(slot.Position.Y.Whole - targetY));
-        int yVelocity = unchecked(state.Velocity.Y.RawValue - ((yDifference >> 2) << 8));
+        int yVelocity = unchecked(state.Velocity.Y.RawValue - SnesEightEight.FromWhole(yDifference >> 2));
         yVelocity = ClampMetroidVelocity(yVelocity);
         StoreMetroidYVelocity(state, yVelocity);
         if (MoveEnemyVertically(level, slot, yVelocity))
             StoreMetroidYVelocity(state, 0);
 
         int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
-        int xVelocity = unchecked(state.Velocity.X.RawValue - ((xDifference >> 2) << 8));
+        int xVelocity = unchecked(state.Velocity.X.RawValue - SnesEightEight.FromWhole(xDifference >> 2));
         xVelocity = ClampMetroidVelocity(xVelocity);
         StoreMetroidXVelocity(state, xVelocity);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity))
@@ -476,7 +476,7 @@ public sealed partial class RoomEnemySystem
             // Each axis adds a five-bit random byte minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
                 unchecked((short)((random & 0x001f) - 16)),
-                unchecked((short)(((random & 0x1f00) >> 8) - 16)));
+                unchecked((short)(((SnesLittleEndian.HighByte(random) & 0x1f)) - 16)));
             _metroidDropRequests.Add(new MetroidDropRequest());
             SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
         }
@@ -486,9 +486,9 @@ public sealed partial class RoomEnemySystem
     {
         short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
         if (whole >= MetroidMaximumVelocity)
-            return MetroidMaximumVelocity << 16;
+            return SnesSixteenSixteen.FromWhole(MetroidMaximumVelocity);
         if (whole < -MetroidMaximumVelocity)
-            return -MetroidMaximumVelocity << 16;
+            return SnesSixteenSixteen.FromWhole(-MetroidMaximumVelocity);
         return velocity;
     }
 

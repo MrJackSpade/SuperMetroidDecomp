@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -116,7 +117,7 @@ public sealed partial class RoomEnemySystem
 
         ushort random = EnemyRandom.Generate();
         ushort x = unchecked((ushort)((random & 0x007f) + 0x00c0));
-        ushort y = unchecked((ushort)(((random & 0x3f00) >> 8) + 0x0190));
+        ushort y = unchecked((ushort)(((SnesLittleEndian.HighByte(random) & 0x3f)) + 0x0190));
         if (SpawnRoomSpriteObject(new(x, y), RoomSpriteObjectKind.DustCloud, graphicsIndex: 0) is not null)
             state.DeathSmokeObjectsSpawned++;
     }
@@ -127,7 +128,7 @@ public sealed partial class RoomEnemySystem
     {
         ushort random = EnemyRandom.Generate();
         short xOffset = unchecked((short)((random & 0x007f) - 0x0040));
-        short yOffset = unchecked((short)(((random & 0x7f00) >> 8) - 0x0040));
+        short yOffset = unchecked((short)(((SnesLittleEndian.HighByte(random) & 0x7f)) - 0x0040));
         if (SpawnRoomSpriteObject(
                 new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(state.Body.Position.Y.Whole + yOffset))),
                 kind,

@@ -40,10 +40,10 @@ internal static partial class Program
             bool crossed = false;
             for (int frame = 0; frame < 200 && particle.IsActive; frame++)
             {
-                int previousY = (y >> 16) & 0xffff;
-                x = unchecked(x + (unchecked((short)nativeX) << 8));
-                y = unchecked(y + (vy << 8));
-                bool crosses = (((216 - previousY) ^ (216 - ((y >> 16) & 0xffff))) & 0x8000) != 0;
+                int previousY = unchecked((ushort)SnesSixteenSixteen.WholeOf(y));
+                x = unchecked(x + SnesSixteenSixteen.FromEightEight(unchecked((short)nativeX)));
+                y = unchecked(y + SnesSixteenSixteen.FromEightEight(vy));
+                bool crosses = (((216 - previousY) ^ (216 - unchecked((ushort)SnesSixteenSixteen.WholeOf(y)))) & 0x8000) != 0;
                 enemies.StepEnemyProjectiles(assets.LevelData, null);
                 if (crosses)
                 {

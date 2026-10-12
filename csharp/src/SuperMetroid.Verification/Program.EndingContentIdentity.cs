@@ -16,7 +16,7 @@ internal static partial class Program
         {
             AssertEqual(0xa9, (int)rom.ReadCartridgeByte(instruction), "native source bank LDA");
             AssertEqual(0xa9, (int)rom.ReadCartridgeByte(instruction + 5), "native source offset LDA");
-            return (rom.ReadCartridgeByte(instruction + 2) << 16|rom.ReadCartridgeWord(instruction + 6));
+            return (int)new SnesAddress(rom.ReadCartridgeByte(instruction + 2), rom.ReadCartridgeWord(instruction + 6));
         }
         foreach (var native in new[]
         {

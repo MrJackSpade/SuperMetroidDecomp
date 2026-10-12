@@ -174,7 +174,7 @@ public sealed partial class RoomEnemySystem
 
         // `$B2:F632` truncates the half-span to one byte before moving it to the high byte.
         // The do/while always executes once, including a zero-span debug population.
-        ushort distanceInSubpixels = unchecked((ushort)((byte)requestedHalfSpan << 8));
+        ushort distanceInSubpixels = unchecked((ushort)SnesEightEight.FromWhole((byte)requestedHalfSpan));
         ushort speed = 0;
         ushort accumulatedDistance = 0;
         do
@@ -530,7 +530,7 @@ public sealed partial class RoomEnemySystem
         if (!landed)
         {
             state.Speed = unchecked((ushort)(state.Speed - 0x0040));
-            landed = unchecked((short)state.Speed) < 0 || (state.Speed & 0xff00) == 0;
+            landed = unchecked((short)state.Speed) < 0 || SnesUnsignedEightEight.Whole(state.Speed) == 0;
         }
         if (!landed)
             return;

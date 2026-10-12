@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -53,6 +54,6 @@ public readonly record struct SamusMode7Transform(
     private static ushort MultiplySigned8Point8(ushort left, ushort right)
     {
         int product = unchecked((short)left) * unchecked((short)right);
-        return unchecked((ushort)(product >> 8));
+        return unchecked((ushort)SnesEightEight.WholeOf(product));
     }
 }

@@ -94,7 +94,7 @@ internal static partial class Program
         {
             state.SpeedOrTimer = 8;
             state.Subspeed = 0;
-            state.PaletteAnimationTimer = (ushort)((frame << 8) | 1);
+            state.PaletteAnimationTimer = SnesLittleEndian.Word(1, unchecked((byte)frame));
             accelerate.Invoke(enemies, [slot, state, empty]);
             CheckLive(DachoraPalettePhase.Speed, frame);
         }
@@ -102,10 +102,10 @@ internal static partial class Program
         MethodInfo shine = type.GetMethod("StepDachoraShinePalette", flags)!;
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         {
-            state.PaletteAnimationTimer = (ushort)(frame << 8);
+            state.PaletteAnimationTimer = SnesLittleEndian.Word(0, unchecked((byte)frame));
             shine.Invoke(enemies, [slot, state]);
             CheckLive(DachoraPalettePhase.Shine, frame);
-            AssertEqual((ushort)(((frame + 1) % 4) << 8),
+            AssertEqual(SnesLittleEndian.Word(0, unchecked((byte)((frame + 1) % 4))),
                 state.PaletteAnimationTimer,
                 $"Dachora shine frame {frame} retains native next-frame selection");
         }

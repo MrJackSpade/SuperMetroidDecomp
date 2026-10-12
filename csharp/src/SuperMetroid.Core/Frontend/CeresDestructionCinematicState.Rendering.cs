@@ -112,7 +112,7 @@ internal sealed partial class CeresDestructionCinematicState
     private static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
     private static short Scale(short component, ushort scalar) =>
-        unchecked((short)((component * unchecked((short)scalar)) >> 8));
+        unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
 
     private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
     {

@@ -1116,7 +1116,7 @@ internal static partial class Program
             for (int index = 0; index < 16; index++)
             {
                 AssertTrue(catalog.TryLandingYOffset(index, out ushort actual), "Landing word admission");
-                AssertEqual((ushort)(expectedLanding[index] | expectedLanding[index + 1] << 8), actual, "Native unaligned landing word including adjacent byte");
+                AssertEqual(SnesLittleEndian.Word(unchecked((byte)expectedLanding[index]), unchecked((byte)expectedLanding[index + 1])), actual, "Native unaligned landing word including adjacent byte");
             }
             for (int index = 0; index < 24; index++)
             {
@@ -1134,7 +1134,7 @@ internal static partial class Program
             };
             samus.TileTransfers.BindArtwork(stock);
             samus.Draw(rom, new OamBuffer(), layer1: new(0, 0));
-            ushort nativeWord = (ushort)(landing[index] | landing[index + 1] << 8);
+            ushort nativeWord = SnesLittleEndian.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
             AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
         }
@@ -2405,7 +2405,7 @@ internal static partial class Program
                 {
                     var actual = mechanics(index++);
                     AssertEqual((ushort)pointer, actual.Address, "Nuclear Waffle control ordering");
-                    AssertEqual((ushort)(SnesLittleEndian.Word(LookupStream1NuclearWaffleRomByte(rom, bank << 16 | pointer), LookupStream1NuclearWaffleRomByte(rom, bank << 16 | (pointer + 1)))),
+                    AssertEqual((ushort)(SnesLittleEndian.Word(LookupStream1NuclearWaffleRomByte(rom, (int)new SnesAddress((byte)bank, (ushort)pointer)), LookupStream1NuclearWaffleRomByte(rom, (int)new SnesAddress((byte)bank, (ushort)(pointer + 1))))),
                         actual.Value, "Nuclear Waffle native controls");
                 }
                 else AssertThrows<InvalidDataException>(() => read((ushort)pointer), "Nuclear Waffle noncontrol rejection");
@@ -3704,7 +3704,7 @@ internal static partial class Program
             {
                 var value = groups[set][position];
                 int address = 0x920000 | (Word((upper ? 0x92d91e : 0x92d938) + set * 2) + position * 7);
-                int source = Word(address) | LookupStream1BodyTransfersRomByte(rom, address + 2) << 16;
+                int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), (ushort)Word(address));
                 ushort first = Word(address + 3), second = Word(address + 5);
                 AssertEqual(source, SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position), "Direct native packed allocation source");
                 AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out ushort calculated), "Every native record has a direct row calculation");
@@ -3777,7 +3777,7 @@ internal static partial class Program
             var actual = new SnesVram(); var expected = new SnesVram();
             void Copy(int address, int destination)
             {
-                int source = Word(address) | LookupStream1BodyTransfersRomByte(rom, address + 2) << 16;
+                int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), (ushort)Word(address));
                 int first = Word(address + 3), second = Word(address + 5);
                 expected.LoadBytes(destination * 2, Enumerable.Range(0, first).Select(index => LookupStream1BodyTransfersRomByte(rom, source + index)).ToArray());
                 expected.LoadBytes((destination + 0x100) * 2, Enumerable.Range(0, second).Select(index => LookupStream1BodyTransfersRomByte(rom, source + first + index)).ToArray());

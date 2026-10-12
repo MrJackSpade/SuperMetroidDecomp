@@ -27,7 +27,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             busField.SetValue(enemies, NewPhantoonPatternReadGuard(rom));
-            ushort random = (ushort)((high << 8) | 0xf8 | pattern);
+            ushort random = SnesLittleEndian.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { calls++; return random; }));
             var body = enemies.Slots[0];

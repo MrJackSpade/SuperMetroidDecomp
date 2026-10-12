@@ -167,7 +167,7 @@ internal static partial class Program
             int address = phase == 0 ? 0xa9d583 : 0xa9d549;
             for (int index = 0; index < 7; index++, address += 8)
                 nativeTransfers.Add(new VramWriteEntry(rom.ReadCartridgeWord(address),
-                    ((rom.ReadCartridgeWord((address + 2)) & 0xff00) << 8) | rom.ReadCartridgeWord((address + 4)),
+                    (int)new SnesAddress(SnesLittleEndian.HighByte(rom.ReadCartridgeWord(address + 2)), rom.ReadCartridgeWord(address + 4)),
                     rom.ReadCartridgeWord((address + 6))));
             AssertEqual((ushort)0, rom.ReadCartridgeWord(address), "native corpse queue terminates after seven entries");
             buildInstalled(installed.DeadTorizo!);

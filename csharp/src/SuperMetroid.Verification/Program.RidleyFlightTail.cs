@@ -11,7 +11,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $A0:B443 sine table used by Ridley's swoop")]
     private static short ReadRetailSwoopSine(ISnesAddressSpace rom, int angle)
     {
-        int address = 0xa0b443 + (angle & 255) * 2;
+        int address = 0xa0b443 + unchecked((byte)angle) * 2;
         return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
     }
 
@@ -28,12 +28,12 @@ internal static partial class Program
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int phase = 0; phase < 256; phase++)
         {
-            state.SwoopAngleAccumulator = (ushort)(phase << 8);
-            update(state, 0, phase << 8, 0x500);
+            state.SwoopAngleAccumulator = (ushort)SnesEightEight.FromWhole(phase);
+            update(state, 0, SnesEightEight.FromWhole(phase), 0x500);
             ushort NativeComponent(int angle)
             {
                 short sample = ReadRetailSwoopSine(rom, angle);
-                return unchecked((ushort)(Math.Sign(sample) * (0x500 * Math.Abs((int)sample) >> 8)));
+                return unchecked((ushort)(Math.Sign(sample) * (SnesEightEight.Multiply(0x500, Math.Abs((int)sample)))));
             }
             AssertEqual(NativeComponent(phase), state.Velocity.X.RawValue, "native swoop X table multiplication");
             AssertEqual(NativeComponent(phase + 64), state.Velocity.Y.RawValue, "native swoop Y table multiplication");

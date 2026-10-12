@@ -22,7 +22,7 @@ internal static partial class Program
             AssertEqual((decimal)original, decimal.Truncate(value + error), $"Orbit upper bound {index}");
         }
         for (int angle = 0; angle < 256; angle++)
-            AssertEqual((Original(angle + 64) << 8, Original(angle) << 8),
+            AssertEqual((SnesEightEight.FromWhole(Original(angle + 64)), SnesEightEight.FromWhole(Original(angle))),
                 ShaktoolOrbitTables.Displacement((byte)angle), $"Shaktool displacement {angle}");
         foreach (int invalid in new[] { int.MinValue, -1, 320, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => ShaktoolOrbitTables.Sample(invalid),

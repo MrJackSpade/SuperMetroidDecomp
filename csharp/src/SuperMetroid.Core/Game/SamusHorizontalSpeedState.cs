@@ -309,7 +309,7 @@ public sealed class SamusHorizontalSpeedState
 
         byte stage = SnesLittleEndian.HighByte(tableSelection);
         ushort nextLowByte = SamusRunningCadenceDefinitions.ReadResetWord(stage);
-        SpeedBoostCounter = unchecked((ushort)((SpeedBoostCounter & 0xff00) | nextLowByte));
+        SpeedBoostCounter = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) | nextLowByte));
 
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
         animationFrame = 0;
@@ -402,7 +402,7 @@ public sealed class SamusHorizontalSpeedState
             return true;
         }
 
-        if ((SpeedBoostCounter & 0xff00) != 0x0400)
+        if ((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) != 0x0400)
             return paletteCopied;
 
         // DEC is a full 16-bit operation. BEQ/BPL mean zero and signed underflow both reload
@@ -487,7 +487,7 @@ public sealed class SamusHorizontalSpeedState
         ushort gameTimeFrames,
         Position16<RoomPixels> position)
     {
-        if ((SpeedBoostCounter & 0xff00) != 0x0400 ||
+        if ((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) != 0x0400 ||
             (SpeedEchoIndex & 0x8000) != 0 ||
             (gameTimeFrames & 3) != 0)
         {
@@ -555,14 +555,14 @@ public sealed class SamusHorizontalSpeedState
 
     private void AddExtraRunAcceleration()
     {
-        uint accelerated = unchecked(Compose(ExtraRunSpeed, ExtraRunSubspeed) + 0x00001000u);
+        uint accelerated = unchecked(SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed) + SamusMovementRomData.HorizontalMotion.ExtraRunAcceleration);
         ExtraRunSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
         ExtraRunSubspeed = unchecked((ushort)accelerated);
     }
 
     private void PublishBoostContactDamage()
     {
-        if ((SpeedBoostCounter & 0xff00) == 0x0400)
+        if ((SnesLittleEndian.HighByteInPlace(SpeedBoostCounter)) == 0x0400)
             ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
     }
 
@@ -666,7 +666,7 @@ public sealed class SamusHorizontalSpeedState
     {
         if (selectedMomentumCommand && BaseFixed != 0)
         {
-            SetBaseFixed(unchecked(BaseFixed + Compose(ExtraRunSpeed, ExtraRunSubspeed)));
+            SetBaseFixed(unchecked(BaseFixed + SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed)));
             ExtraRunSpeed = ExtraRunSubspeed = 0;
             AccelerationMode = 2;
         }
@@ -819,7 +819,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 int highProduct = DecelerationMultiplier * entry.Deceleration;
                 int lowProduct = DecelerationMultiplier * (SnesEightEight.WholeOf(entry.DecelerationSubspeed));
-                deltaSpeed = unchecked((ushort)(highProduct >> 8));
+                deltaSpeed = unchecked((ushort)SnesEightEight.WholeOf(highProduct));
                 deltaSubspeed = unchecked((ushort)lowProduct);
             }
             else
@@ -828,7 +828,7 @@ public sealed class SamusHorizontalSpeedState
                 deltaSubspeed = entry.DecelerationSubspeed;
             }
 
-            SetBaseFixed(unchecked(BaseFixed - Compose(deltaSpeed, deltaSubspeed)));
+            SetBaseFixed(unchecked(BaseFixed - SnesSixteenSixteen.Compose(deltaSpeed, deltaSubspeed)));
 
             // The native BMI tests only the signed high word. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
@@ -841,7 +841,7 @@ public sealed class SamusHorizontalSpeedState
         }
         else
         {
-            SetBaseFixed(unchecked(BaseFixed + Compose(entry.Acceleration, entry.AccelerationSubspeed)));
+            SetBaseFixed(unchecked(BaseFixed + SnesSixteenSixteen.Compose(entry.Acceleration, entry.AccelerationSubspeed)));
 
             // $90:9A7E does not use a normal unsigned 32-bit >= comparison. Preserve its
             // signed word-subtraction quirk, including the fact that exact equality does
@@ -884,7 +884,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 int highProduct = DecelerationMultiplier * entry.Deceleration;
                 int lowProduct = DecelerationMultiplier * (SnesEightEight.WholeOf(entry.DecelerationSubspeed));
-                deltaSpeed = unchecked((ushort)(highProduct >> 8));
+                deltaSpeed = unchecked((ushort)SnesEightEight.WholeOf(highProduct));
                 deltaSubspeed = unchecked((ushort)lowProduct);
             }
             else
@@ -893,7 +893,7 @@ public sealed class SamusHorizontalSpeedState
                 deltaSubspeed = entry.DecelerationSubspeed;
             }
 
-            SetBaseFixed(unchecked(BaseFixed - Compose(deltaSpeed, deltaSubspeed)));
+            SetBaseFixed(unchecked(BaseFixed - SnesSixteenSixteen.Compose(deltaSpeed, deltaSubspeed)));
             if (unchecked((short)BaseSpeed) < 0)
             {
                 BaseSpeed = 0;
@@ -905,7 +905,7 @@ public sealed class SamusHorizontalSpeedState
             return new AerialBaseSpeedResult(BaseFixed, ReachedMaximum: false);
         }
 
-        SetBaseFixed(unchecked(BaseFixed + Compose(entry.Acceleration, entry.AccelerationSubspeed)));
+        SetBaseFixed(unchecked(BaseFixed + SnesSixteenSixteen.Compose(entry.Acceleration, entry.AccelerationSubspeed)));
 
         // CMP/BMI performs signed 16-bit comparisons. Exact equality in both halves is
         // deliberately *not* considered a cap: $90:9B5A returns carry clear in that case.
@@ -928,7 +928,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public uint CalculateTotalSpeed(uint baseSpeed)
     {
-        uint total = unchecked(baseSpeed + Compose(ExtraRunSpeed, ExtraRunSubspeed));
+        uint total = unchecked(baseSpeed + SnesSixteenSixteen.Compose(ExtraRunSpeed, ExtraRunSubspeed));
         int shift = Math.Min(SpeedDivisor, (ushort)4);
         total >>= shift;
         TotalSpeed = SnesFixedPosition.WholeOf(unchecked((int)total));
@@ -952,7 +952,7 @@ public sealed class SamusHorizontalSpeedState
         ClampDisplacement(unchecked(extraDisplacement - (int)CalculateTotalSpeed(baseSpeed)));
 
     /// <summary>Current base speed as the native high-word/low-word unsigned 16.16 pair.</summary>
-    public uint BaseFixed => Compose(BaseSpeed, BaseSubspeed);
+    public uint BaseFixed => SnesSixteenSixteen.Compose(BaseSpeed, BaseSubspeed);
 
     private void SetBaseFixed(uint value)
     {
@@ -988,10 +988,9 @@ public sealed class SamusHorizontalSpeedState
             high = 15;
         }
 
-        return unchecked((int)(((uint)(ushort)high << 16) | low));
+        return unchecked((int)(SnesSixteenSixteen.Compose((ushort)high, low)));
     }
 
-    private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
 }
 

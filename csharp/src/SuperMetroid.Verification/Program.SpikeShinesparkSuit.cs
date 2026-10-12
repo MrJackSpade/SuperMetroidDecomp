@@ -174,7 +174,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
-            (ushort)(((byte)SamusMovementType.MorphBallGround << 8) | 8);
+            SnesLittleEndian.Word(8, (byte)SamusMovementType.MorphBallGround);
         samus.PoseHistory.LastDifferentPose = 0;
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(

@@ -409,7 +409,7 @@ public sealed partial class RoomEnemySystem
         uint fraction = (uint)state.AngleSubposition + state.AngularSpeedFraction;
         state.AngleSubposition = unchecked((ushort)fraction);
         state.CurrentAngle = unchecked((ushort)(
-            state.CurrentAngle + state.AngularSpeedWhole + (fraction >> 16)));
+            state.CurrentAngle + state.AngularSpeedWhole + SnesCarry.OutOfWord(fraction)));
     }
 
     private static bool SignedWordDifferenceIsNegative(ushort left, ushort right) =>

@@ -125,7 +125,7 @@ internal static partial class Program
         foreach (var load in loads)
         {
             AssertEqual(load.Long ? 0xbf : 0xbd, (int)rom.ReadCartridgeByte(load.Load), "native palette indexed load opcode");
-            int address = ((load.Long ? rom.ReadCartridgeByte(load.Load + 3) << 16 : load.Load & 0xff0000)|rom.ReadCartridgeWord(load.Load + 1));
+            int address = (int)new SnesAddress(load.Long ? rom.ReadCartridgeByte(load.Load + 3) : (byte)SnesAddressMath.BankNumber(load.Load), rom.ReadCartridgeWord(load.Load + 1));
             AssertEqual(address, EndingPaletteDefinitions.SourceAddress(load.Role), "native palette source role");
         }
         // Allocation boundaries in pinned bank8C, independent of partial runtime transfers.

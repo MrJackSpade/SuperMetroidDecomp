@@ -197,7 +197,7 @@ internal static partial class Program
             persistentMap = JsonSerializer.Deserialize<EndingMode7MapDocument>(input,
                 MapPresentationFormat.JsonOptions)
                 ?? throw new InvalidDataException("Stock ending map is empty.");
-        persistentMap.Tiles[0] = (persistentMap.Tiles[0] + 1) & 255;
+        persistentMap.Tiles[0] = unchecked((byte)(persistentMap.Tiles[0] + 1));
         using (var output = File.Create(invalidMapPath))
             EndingMode7SceneArtwork.WriteMap(output, persistentMap);
         byte[] selectedMap = installation.LoadEndingMode7Art()[EndingMode7SceneId.EscapeA]

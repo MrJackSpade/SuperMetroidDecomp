@@ -51,7 +51,7 @@ internal static class EnemySpritemapFiles
         {
             ushort address = unchecked((ushort)(pointer + 2 + index * 5));
             var x = new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, address))));
-            byte y = bus.ReadCartridgeByte(((int)new SnesAddress(bank ,                unchecked((ushort)(address + 2)))));
+            byte y = bus.ReadCartridgeByte(((int)new SnesAddress(bank, unchecked((ushort)(address + 2)))));
             var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(address + 3))))));
             parts[index] = new SpriteVisualPart
             {

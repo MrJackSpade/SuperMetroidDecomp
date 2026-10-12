@@ -57,13 +57,13 @@ public static class SnesMode7Renderer
             // each start-product's low six bits before adding, as the PPU does; one
             // algebraically combined matrix expression loses these hardware roundings.
             int startX = ((registers.MatrixA * clippedH) & ~63) + ((registers.MatrixB * (screenY + 1)) & ~63)
-                + ((registers.MatrixB * clippedV) & ~63) + (signedCenterX << 8);
+                + ((registers.MatrixB * clippedV) & ~63) + SnesEightEight.FromWhole(signedCenterX);
             int startY = ((registers.MatrixC * clippedH) & ~63) + ((registers.MatrixD * (screenY + 1)) & ~63)
-                + ((registers.MatrixD * clippedV) & ~63) + (signedCenterY << 8);
+                + ((registers.MatrixD * clippedV) & ~63) + SnesEightEight.FromWhole(signedCenterY);
             for (int screenX = 0; screenX < width; screenX++)
             {
-                int sourceX = (startX + registers.MatrixA * screenX) >> 8;
-                int sourceY = (startY + registers.MatrixC * screenX) >> 8;
+                int sourceX = SnesEightEight.WholeOf(startX + registers.MatrixA * screenX);
+                int sourceY = SnesEightEight.WholeOf(startY + registers.MatrixC * screenX);
 
                 bool outside = (uint)sourceX >= 1024 || (uint)sourceY >= 1024;
                 if (outside && !registers.WrapOutsideMap && !registers.FillOutsideWithCharacterZero)

@@ -648,14 +648,14 @@ public static class SamusAerialMovement
             // clamped; preserving that oddity matters for externally scripted velocities.
             if (state.YSpeed != 5)
             {
-                SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed + Compose(
+                SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed + SnesSixteenSixteen.Compose(
                     state.YAcceleration,
                     state.YSubacceleration)));
             }
         }
         else
         {
-            SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed - Compose(
+            SetVerticalSpeed(state, unchecked(state.VerticalSpeedFixed - SnesSixteenSixteen.Compose(
                 state.YAcceleration,
                 state.YSubacceleration)));
         }
@@ -853,7 +853,6 @@ public static class SamusAerialMovement
         state.YSubspeed = unchecked((ushort)speed);
     }
 
-    private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 }
 
 /// <summary>Both collision scans and collision state produced by one aerial frame.</summary>

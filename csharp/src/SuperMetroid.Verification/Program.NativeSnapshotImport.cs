@@ -256,7 +256,7 @@ internal static partial class Program
         typeof(RoomLayer3FxState).GetField("liquidHdmaObjectsDeleted", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, !lavaAcidObjectLive);
         typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.TidePhase));
         typeof(RoomLayer3FxState).GetField("tideFixedOffset", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx,
-            unchecked((int)((uint)W(NativeSnapshotMemory.TideOffset) << 16 | W(NativeSnapshotMemory.TideOffsetFraction))));
+            unchecked((int)(SnesSixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction)))));
         typeof(RoomLayer3FxState).GetField("baseYSubposition", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.LiquidBaseFraction));
         typeof(RoomLayer3FxState).GetProperty(nameof(RoomLayer3FxState.CurrentYPosition))!.SetValue(runtime.RoomLayer3Fx, W(NativeSnapshotMemory.AcidSurface));
         runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
@@ -351,7 +351,7 @@ internal static partial class Program
             // The current frame record is [timer][operand]; the list pointer already follows it.
             PrivateState.InvokeStatic(typeof(RoomEnemySystem), "SetEnemyProjectileVisualOperand",
                 projectile, unchecked((ushort)(projectile.InstructionPointer - 2)));
-            AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), (ushort)(projectile.Radius.X | projectile.Radius.Y << 8),
+            AssertEqual(W(NativeSnapshotMemory.EnemyProjectileRadius + index), SnesLittleEndian.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)),
                 $"initial enemy projectile {projectile.SlotIndex} radii");
             ushort properties = projectile.Damage;
             if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= NativeSnapshotMemory.EnemyProjectileHighDraw;

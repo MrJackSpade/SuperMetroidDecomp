@@ -34,7 +34,7 @@ public sealed partial class RoomEnemySystem
             // to the hardware divider. Preserve overflow rather than extending
             // its intended +/-255 range with a more accurate host calculation.
             int divided = SnesUnsignedDivision.Quotient(
-                unchecked((ushort)(absoluteY << 8)), unchecked((byte)absoluteX));
+                unchecked((ushort)SnesEightEight.FromWhole(absoluteY)), unchecked((byte)absoluteX));
             return quadrant switch
             {
                 0 => unchecked((byte)((divided >> 3) + SnesAngle.QuarterTurn.TableIndex)),
@@ -45,7 +45,7 @@ public sealed partial class RoomEnemySystem
         }
 
         int inverseDivided = SnesUnsignedDivision.Quotient(
-            unchecked((ushort)(absoluteX << 8)), unchecked((byte)absoluteY));
+            unchecked((ushort)SnesEightEight.FromWhole(absoluteX)), unchecked((byte)absoluteY));
         return quadrant switch
         {
             0 => unchecked((byte)(SnesAngle.HalfTurn.TableIndex - (inverseDivided >> 3))),
@@ -121,9 +121,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static int ReadEightBitSineProduct(ushort angle, ushort radius)
     {
-        int byteAngle = angle & 0xff;
+        int byteAngle = unchecked((byte)angle);
         int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
-        int magnitude = sample * (SnesLittleEndian.LowByte(radius)) >> 8;
+        int magnitude = SnesEightEight.Multiply(sample, SnesLittleEndian.LowByte(radius));
         return byteAngle < 0x80 ? magnitude : -magnitude;
     }
 
@@ -156,11 +156,11 @@ public sealed partial class RoomEnemySystem
         ushort angle,
         ushort radius)
     {
-        int byteAngle = angle & 0xff;
+        int byteAngle = unchecked((byte)angle);
         int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
         ushort product = unchecked((ushort)(sample * (SnesLittleEndian.LowByte(radius))));
         ushort whole = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
-        ushort fraction = unchecked((ushort)(product << 8));
+        ushort fraction = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
         if (byteAngle >= 0x80)
         {
             // $A0:B11B and $B125 negate each word independently instead of carrying the

@@ -78,7 +78,7 @@ internal static partial class Program
                 {
                     int address = 0x920000 | (pointers[set] + position * 7);
                     if (!bus.HasSeededByte(address)) continue;
-                    int source = Word(address) | bus.ReadByte(address + 2) << 16;
+                    int source = (int)new SnesAddress(bus.ReadByte(address + 2), Word(address));
                     ushort first = Word(address + 3), second = Word(address + 5);
                     byte[] bytes = Enumerable.Range(0, first + second).Select(index => bus.ReadByte(source + index)).ToArray();
                     groups[set][position] = new(source, first, second, bytes);

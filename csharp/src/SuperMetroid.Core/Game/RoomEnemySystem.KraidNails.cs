@@ -126,7 +126,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static int CombineKraidVelocity(ushort low, ushort high) =>
-        unchecked((int)(((uint)high << 16) | low));
+        unchecked((int)(SnesSixteenSixteen.Compose(high, low)));
 
     /// <summary>
     /// Native horizontal wall/contour reflections at $A7:BE9E and BEE2 negate

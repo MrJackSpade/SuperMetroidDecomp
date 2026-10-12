@@ -32,7 +32,7 @@ internal static class MaridiaPipeTerrainAudit
             for (int screenX = 0; screenX < 256; screenX += 8)
             {
                 int mapX = (registerX + screenX) & 511;
-                int mapY = (registerY + screenY + 1) & 255;
+                int mapY = unchecked((byte)(registerY + screenY + 1));
                 int worldX = unchecked((ushort)(registerX - offsetX + screenX));
                 int worldY = unchecked((ushort)(registerY - offsetY + screenY + 1));
                 int blockX = worldX / 16, blockY = worldY / 16;

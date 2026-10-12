@@ -151,7 +151,7 @@ internal static partial class Program
                 bool negative = phase >= 128;
                 int index = negative ? unchecked((byte)(phase + 128)) : phase;
                 int address = SamusComboRomData.PositiveSine + index * 2;
-                int magnitude = (rom.ReadCartridgeByte(address) * (byte)amplitude >> 8) +
+                int magnitude = (SnesEightEight.Multiply(rom.ReadCartridgeByte(address), (byte)amplitude)) +
                     rom.ReadCartridgeByte(address + 1) * (byte)amplitude;
                 return unchecked((ushort)(negative ? -magnitude : magnitude));
             }

@@ -1317,7 +1317,7 @@ public sealed partial class RoomEnemySystem
         ushort position = horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
         ushort subposition = horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
         short velocity = unchecked((short)(horizontal ? projectile.Velocity.X.RawValue : projectile.Velocity.Y.RawValue));
-        int fixedPosition = (position << 16) | subposition;
+        int fixedPosition = unchecked((int)SnesSixteenSixteen.Compose(position, subposition));
         fixedPosition = unchecked(fixedPosition + (SnesSixteenSixteen.FromEightEight(velocity)));
         ushort nextPosition = SnesFixedPosition.WholeOf(fixedPosition);
         ushort nextSubposition = unchecked((ushort)fixedPosition);
@@ -2404,7 +2404,7 @@ public sealed partial class RoomEnemySystem
         ushort x = unchecked((ushort)(
             projectile.Position.X.Whole + (random & mask) - center));
         ushort y = unchecked((ushort)(
-            projectile.Position.Y.Whole + ((random & (mask << 8)) >> 8) - center));
+            projectile.Position.Y.Whole + (SnesLittleEndian.HighByte(unchecked((ushort)random)) & mask) - center));
         RoomSpriteObjectKind kind = (RoomSpriteObjectKind)
             ReadEnemyProjectileInstructionMechanicsWord(
                 projectile,
@@ -2502,7 +2502,7 @@ public sealed partial class RoomEnemySystem
     private void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
         byte lowCount = unchecked((byte)(source.RemainingAfterburns - 1));
-        source.RemainingAfterburns = unchecked((ushort)((source.RemainingAfterburns & 0xff00) | lowCount));
+        source.RemainingAfterburns = SnesLittleEndian.Word(lowCount, SnesLittleEndian.HighByte(source.RemainingAfterburns));
         if ((lowCount & 0x80) != 0)
             return;
         SpawnDirectionalAfterburn(

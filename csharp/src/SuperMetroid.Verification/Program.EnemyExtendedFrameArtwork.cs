@@ -1512,10 +1512,9 @@ internal static partial class Program
         for (int index = 0; index < count; index++)
         {
             ushort component = unchecked((ushort)(pointer + 2 + index * 8));
-            ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank ,                    unchecked((ushort)(component + 4)))));
+            ushort sprite = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, unchecked((ushort)(component + 4)))));
             int spriteAddress = ((int)new SnesAddress(bank, sprite));
-            int parts = SnesLittleEndian.Word(source.ReadCartridgeByte(spriteAddress), source.ReadCartridgeByte((bank << 16) |
-                    unchecked((ushort)(sprite + 1))));
+            int parts = SnesLittleEndian.Word(source.ReadCartridgeByte(spriteAddress), source.ReadCartridgeByte((int)new SnesAddress(bank, unchecked((ushort)(sprite + 1)))));
             if (parts == EnemyBg2FrameLayout.StreamMarker)
             {
                 Block(bank, sprite, 2);

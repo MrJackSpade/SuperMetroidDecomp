@@ -43,7 +43,7 @@ internal static partial class Program
             slot.Properties = 0;
             runMain(slot, state);
 
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((random >> 8) & 6))), state.YVelocity,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((SnesLittleEndian.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity,
                 $"Norfair lava jumper production velocity {random:X4}");
             AssertEqual(NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch,
                 state.Function, $"Norfair lava jumper production handoff {random:X4}");

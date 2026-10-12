@@ -13,7 +13,7 @@ internal static partial class Program
         for (int offset = 0; offset <= 758; offset++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic native word window");
         for (int offset = 0; offset <= 756; offset++)
-            AssertEqual((unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2))) << 16) | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset),
+            AssertEqual(unchecked((int)SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))),
                 EnemyQuadraticSpeedDefinitions.ReadDisplacement(offset), "quadratic native displacement window");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(-1), "quadratic negative offset");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(759), "quadratic partial word");
@@ -29,7 +29,7 @@ internal static partial class Program
         foreach (bool negative in new[] { false, true })
         {
             int offset = index * 8 + (negative ? 4 : 0);
-            uint expected = unchecked(origin + ((uint)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)) << 16 | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset)));
+            uint expected = unchecked(origin + (SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset))));
             rock.Position = rock.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
             rock.Variable1 = 0xdead;
             addRock(rock, index, negative);
@@ -41,7 +41,7 @@ internal static partial class Program
         foreach (bool negative in new[] { false, true })
         {
             int offset = index * 8 + (negative ? 4 : 0);
-            AssertEqual((unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2))) << 16) | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset), shared(index, negative),
+            AssertEqual(unchecked((int)SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))), shared(index, negative),
                 "quadratic shared production reader");
         }
         var beetom = Method<Func<ushort, ushort, ushort>>("CalculateInitialBeetomYSpeedIndex");
@@ -81,7 +81,7 @@ internal static partial class Program
             maw.ExtensionWhole = SnesFixedPosition.WholeOf(unchecked((int)start));
             maw.ExtensionFraction = unchecked((ushort)start);
             maw.QuadraticSpeedByteOffset = (ushort)offset;
-            uint expected = unchecked(start + ((uint)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)) << 16 | CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset)));
+            uint expected = unchecked(start + (SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))));
             addMaw(maw);
             AssertEqual(expected, new SnesFixedPosition(maw.ExtensionWhole, maw.ExtensionFraction).RawValue, "Yapping Maw real split-word integration");
             AssertEqual(offset + 8, maw.QuadraticSpeedByteOffset, "Yapping Maw byte offset advance");

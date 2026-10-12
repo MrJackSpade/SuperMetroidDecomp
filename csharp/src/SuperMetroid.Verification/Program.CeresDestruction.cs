@@ -182,7 +182,7 @@ static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
     rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
     int offset = SnesAddressMath.OffsetInBank(snesAddress);
     snesAddress = offset == 0xffff
-        ? ((((SnesAddressMath.BankNumber(snesAddress)) + 1) & 0xff) << 16) | 0x8000
+        ? (int)new SnesAddress(unchecked((byte)(SnesAddressMath.BankNumber(snesAddress) + 1)), 0x8000)
         : snesAddress + 1;
 }
 

@@ -36,7 +36,7 @@ internal static partial class Program
 
         for (byte stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
         {
-            speed.SpeedBoostCounter = (ushort)(stage << 8);
+            speed.SpeedBoostCounter = SnesLittleEndian.Word(0, unchecked((byte)stage));
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2));
             for (ushort index = 0; index <= 10; index++)
             {
@@ -62,7 +62,7 @@ internal static partial class Program
         for (int stage = 0; stage <= 4; stage++)
         for (int low = 0; low <= byte.MaxValue; low++)
         {
-            int raw = stage << 8 | low;
+            int raw = SnesLittleEndian.Word(unchecked((byte)low), unchecked((byte)stage));
             bool admitted = momentum && running && dash;
             ushort decremented = unchecked((ushort)(raw - 1));
             bool intercept = admitted && (byte)decremented == 0;
@@ -97,7 +97,7 @@ internal static partial class Program
         for (int stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
         for (int low = 0; low <= byte.MaxValue; low++)
         {
-            int accumulator = stage << 8 | low;
+            int accumulator = SnesLittleEndian.Word(unchecked((byte)low), unchecked((byte)stage));
             bus.MutableDelay = (byte)accumulator;
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = 0x0301;
             ushort frame = 9;
@@ -202,7 +202,7 @@ internal static partial class Program
         // Restored indexes can reach unimplemented hardware. A constructed address
         // signature checks exact fallback routing, not native I/O-register semantics.
         public byte ReadUncompiledByte(int address) => address == 0x910303 ? MutableDelay :
-            address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ (address >> 8))) : ReadSourceByte(address);
+            address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ SnesLittleEndian.HighByte(unchecked((ushort)address)))) : ReadSourceByte(address);
         public byte ReadWorkRamByte(int address) => address == 0x910303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
         public byte ReadSaveRamByte(int address) => SourceMemory.ReadSaveRamByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);

@@ -113,7 +113,7 @@ public static class PcmWaveFile
     private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) =>
         unchecked((ushort)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1])));
 
+    // RIFF stores 32-bit fields little-endian.
     private static uint ReadDword(ReadOnlySpan<byte> bytes, int offset) =>
-        unchecked((uint)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]) |
-            (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24)));
+        System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(bytes[offset..]);
 }

@@ -161,7 +161,7 @@ public sealed partial class RoomEnemySystem
     private void RunRipper2Main(RoomEnemySlot slot, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
-        int displacement = unchecked(((short)slot.VariableD << 16) | slot.VariableC);
+        int displacement = unchecked((int)SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableC));
         if (!MoveEnemyHorizontallyIgnoringNonSquareSlopes(level!, slot, displacement))
             return;
 
@@ -198,7 +198,7 @@ public sealed partial class RoomEnemySystem
         // $A0:C6AB consumes a signed 16.16 displacement whose high and low words are kept
         // in Variables D/C. On collision the native helper aligns the actor flush with the
         // wall before Ripper swaps direction and animation.
-        int displacement = unchecked(((short)slot.VariableD << 16) | slot.VariableC);
+        int displacement = unchecked((int)SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableC));
         if (!MoveEnemyHorizontallyIgnoringNonSquareSlopes(level!, slot, displacement))
             return;
 

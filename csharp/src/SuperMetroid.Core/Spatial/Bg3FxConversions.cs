@@ -1,6 +1,8 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>The bank-$88 room-FX relations between layer one and the BG3 effect plane.</summary>
+[SnesEncodingOwner]
 public static class Bg3FxConversions
 {
     /// <summary>

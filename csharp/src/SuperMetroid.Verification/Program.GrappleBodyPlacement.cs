@@ -36,7 +36,7 @@ internal static partial class Program
             // The physical rope uses Angle; the body mapping uses the remembered mirror.
             g.Angle = SnesAngle.FromRaw(unchecked((ushort)(raw ^ 0x4080)));
             g.MirroredAngle = SnesAngle.FromRaw((ushort)raw);
-            byte nativeFrame = GrappleBodyPlacementRomByte(rom, 0x9bc1c2 + (raw >> 8));
+            byte nativeFrame = GrappleBodyPlacementRomByte(rom, 0x9bc1c2 + SnesAngle.FromRaw(unchecked((ushort)raw)).TableIndex);
             int table = left ? 0x9bc2c2 : 0x9bc302;
             sbyte x = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2));
             sbyte y = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2 + 1));
@@ -59,8 +59,8 @@ internal static partial class Program
         {
             var native = PrepareRetailSamusFixture(new SamusState()); var changed = PrepareRetailSamusFixture(new SamusState());
             native.Grapple.SwingFrames = stock; changed.Grapple.SwingFrames = edited;
-            SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
-            SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
+            SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);
+            SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);
             for (int tick = 0; tick < 16; tick++)
             {
                 ushort input = (ushort)(SuperMetroid.Core.Input.SnesButton.X | (tick < 8 ? SuperMetroid.Core.Input.SnesButton.Left : SuperMetroid.Core.Input.SnesButton.Right));

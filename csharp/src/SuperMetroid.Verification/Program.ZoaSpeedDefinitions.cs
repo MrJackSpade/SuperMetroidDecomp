@@ -12,7 +12,7 @@ internal static partial class Program
         for (ushort offset = 0; offset <= 16; offset++)
         {
             int address = ZoaSpeedDefinitions.ReferenceAddress + offset;
-            int expected = unchecked((Word(address) << 16) | Word(address + 2));
+            int expected = unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(address), Word(address + 2))));
             AssertEqual(expected, ZoaSpeedDefinitions.Displacement(offset), "Zoa byte-indexed native split velocity");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => ZoaSpeedDefinitions.Displacement(17), "Zoa incomplete record rejected");
@@ -31,7 +31,7 @@ internal static partial class Program
         for (ushort offset = 0; offset <= 16; offset += 4)
         {
             int address = 0xa3b415 + offset;
-            int magnitude = unchecked((Word(address) << 16) | Word(address + 2));
+            int magnitude = unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(address), Word(address + 2))));
             state.XSpeedTableIndex = offset;
             for (ushort direction = 0; direction <= 2; direction += 2)
             {
@@ -59,7 +59,7 @@ internal static partial class Program
             ZoaAnimationSelector.None;
         state.SpawnPosition = new(0x560, 0xd8);
         actor.Position = new(new(128, 0x8000), new(128, 0x4000));
-        int resetDisplacement = -unchecked((Word(0xa3b415) << 16) | Word(0xa3b417));
+        int resetDisplacement = -unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(0xa3b415), Word(0xa3b417))));
         uint movedX = unchecked(0x00808000u + (uint)resetDisplacement);
         shoot(actor, state, new(0x1000, 0x1000));
         AssertEqual((ushort)0x560, actor.Position.X.Whole, "off-screen Zoa returns to its spawn X");

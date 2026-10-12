@@ -32,6 +32,9 @@ public static class SnesLittleEndian
     /// <summary>The byte stored second (at the word's address + 1).</summary>
     public static byte HighByte(ushort word) => unchecked((byte)(word >> BitsPerByte));
 
+    /// <summary>The word with its two bytes exchanged, as the 65816's <c>XBA</c> does.</summary>
+    public static ushort SwapBytes(ushort word) => Word(HighByte(word), unchecked((byte)word));
+
     /// <summary>The third byte of a 24-bit long: the bank byte of a long pointer.</summary>
     public static byte BankByte(int value) => unchecked((byte)(value >> BitsPerWord));
 

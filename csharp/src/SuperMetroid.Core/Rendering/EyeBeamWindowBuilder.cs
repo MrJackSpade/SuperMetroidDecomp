@@ -29,14 +29,14 @@ internal static class EyeBeamWindowBuilder
         int ta = Tangent(a < half ? a : a - half);
         int tb = Tangent(b < half ? b : b - half);
         bool offScreen = x is < 0 or >= SnesGameplayFrameRenderer.Width;
-        int origin = unchecked((ushort)(x << 8));
+        int origin = unchecked((ushort)SnesEightEight.FromWhole(x));
         int apex = y - EyeWindowRenderDefinitions.ApexYOffset;
         int up = offScreen ? apex : apex - 1;
 
         if (width == 0 && (angle == quarter || angle == threeQuarter))
         {
             Set(rows, apex, offScreen ? EyeWindowRenderDefinitions.FullWindow :
-                (ushort)(angle == quarter ? x | EyeWindowRenderDefinitions.FullRightEdge : x << 8));
+                (ushort)(angle == quarter ? x | EyeWindowRenderDefinitions.FullRightEdge : SnesEightEight.FromWhole(x)));
         }
         else if (a < quarter && b >= quarter)
         {
@@ -48,7 +48,7 @@ internal static class EyeBeamWindowBuilder
         }
         else if (a >= half && a < threeQuarter && b >= threeQuarter)
         {
-            if (!offScreen) Set(rows, apex, (ushort)(x << 8));
+            if (!offScreen) Set(rows, apex, (ushort)SnesEightEight.FromWhole(x));
             int right = offScreen ? origin + EyeWindowRenderDefinitions.FixedPointSpan : origin;
             Ramp(rows, up, -1, new RampEdges(0, -1, right, -tb), 1);
             Ramp(rows, y, 1, new RampEdges(0, -1, right, -ta), -1);
@@ -144,7 +144,7 @@ internal static class EyeBeamWindowBuilder
             bool leftOutside = left is < 0 or > ushort.MaxValue;
             bool rightOutside = right is < 0 or > ushort.MaxValue;
             ushort window = (right < 0 && rightStep >= 0) || (left > ushort.MaxValue && leftStep <= 0) ? EyeWindowRenderDefinitions.EmptyWindow :
-                (ushort)((Math.Clamp(left, 0, ushort.MaxValue) >> 8) |
+                (ushort)(SnesEightEight.WholeOf(Math.Clamp(left, 0, ushort.MaxValue)) |
                          (Math.Clamp(right, 0, ushort.MaxValue) & EyeWindowRenderDefinitions.FullRightEdge));
             Set(rows, y, window);
             if (!offScreenDiagonal && leftOutside && rightOutside && (leftStep ^ left) >= 0 && (rightStep ^ right) >= 0)

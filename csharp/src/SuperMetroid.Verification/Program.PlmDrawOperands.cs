@@ -10,7 +10,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
     private static ushort ReadImportedPlmWord(SuperMetroidAddressSpace source, ushort offset)
     {
-        int bank = RoomPlmMemoryLayout.ProgramBank << 16;
+        int bank = (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, 0);
         return CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(bank | offset);
     }
 

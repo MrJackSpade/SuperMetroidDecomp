@@ -45,7 +45,7 @@ internal static partial class Program
         WriteRomByte(
             rom,
             0x828500 + secretMapByte,
-            (byte)(0xff & ~secretAndExploredSecretMasks));
+            unchecked((byte)~secretAndExploredSecretMasks));
         foreach (int mapX in new[] { secretMapX, publicMapX, exploredSecretMapX })
         {
             WriteRomWord(
@@ -275,7 +275,7 @@ internal static partial class Program
         int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
         rom[offset] = unchecked((byte)value);
         rom[offset + 1] = SnesLittleEndian.HighByte(unchecked((ushort)value));
-        rom[offset + 2] = unchecked((byte)(value >> 16));
+        rom[offset + 2] = SnesLittleEndian.BankByte(value);
     }
 
     private static void WriteRomByte(byte[] rom, int snesAddress, byte value) =>

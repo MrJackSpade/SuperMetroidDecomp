@@ -302,10 +302,10 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
             samus.PoseHistory.PreviousPose = pose;
             ushort direction = samus.ReadPoseXDirection(bus);
-            ushort spinMovement = (ushort)(((ushort)SamusMovementType.SpinJumping << 8) | direction);
+            ushort spinMovement = SnesLittleEndian.Word(unchecked((byte)direction), (byte)SamusMovementType.SpinJumping);
             samus.PoseHistory.PreviousDirectionAndMovement = spinMovement;
             samus.PoseHistory.LastDifferentPose = SamusPoseId.RunningAimUpRightPose;
-            samus.PoseHistory.LastDifferentDirectionAndMovement = (ushort)(((ushort)SamusMovementType.Running << 8) | direction);
+            samus.PoseHistory.LastDifferentDirectionAndMovement = SnesLittleEndian.Word(unchecked((byte)direction), (byte)SamusMovementType.Running);
             runtime.StepFrame(0);
             AssertEqual(pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
             AssertEqual(pose, samus.PoseHistory.LastDifferentPose, "fallback commits same-pose history");
@@ -1520,7 +1520,7 @@ internal static partial class Program
                         mismatches.Add(owner + $" composition differs from native ${nativeMap:X4}");
                 }
                 Check(owner + " InstructionTimer", projectile.InstructionTimer, NativeSnapshotMemory.EnemyProjectileInstructionTimer + index);
-                Check(owner + " radii", (ushort)(projectile.Radius.X | projectile.Radius.Y << 8), NativeSnapshotMemory.EnemyProjectileRadius + index);
+                Check(owner + " radii", SnesLittleEndian.Word(unchecked((byte)projectile.Radius.X), unchecked((byte)projectile.Radius.Y)), NativeSnapshotMemory.EnemyProjectileRadius + index);
                 ushort properties = projectile.Damage;
                 if (projectile.DrawPriority == EnemyProjectileDrawPriority.High) properties |= NativeSnapshotMemory.EnemyProjectileHighDraw;
                 if (!projectile.CanDamageSamus) properties |= NativeSnapshotMemory.EnemyProjectileNoContact;

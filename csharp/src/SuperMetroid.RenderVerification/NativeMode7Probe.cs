@@ -18,11 +18,11 @@ internal static class NativeMode7Probe
         var colors = snapshot.Memory.Cgram;
         for (int y = 0; y < 224; y++)
         {
-            int startX = ((bg.MatrixA * h) & ~63) + ((bg.MatrixB * (y + scanlineBias)) & ~63) + ((bg.MatrixB * v) & ~63) + (cx << 8);
-            int startY = ((bg.MatrixC * h) & ~63) + ((bg.MatrixD * (y + scanlineBias)) & ~63) + ((bg.MatrixD * v) & ~63) + (cy << 8);
+            int startX = ((bg.MatrixA * h) & ~63) + ((bg.MatrixB * (y + scanlineBias)) & ~63) + ((bg.MatrixB * v) & ~63) + SnesEightEight.FromWhole(cx);
+            int startY = ((bg.MatrixC * h) & ~63) + ((bg.MatrixD * (y + scanlineBias)) & ~63) + ((bg.MatrixD * v) & ~63) + SnesEightEight.FromWhole(cy);
             for (int x = 0; x < 256; x++)
             {
-                int sx = (startX + bg.MatrixA * x) >> 8, sy = (startY + bg.MatrixC * x) >> 8;
+                int sx = SnesEightEight.WholeOf(startX + bg.MatrixA * x), sy = SnesEightEight.WholeOf(startY + bg.MatrixC * x);
                 int color = 0;
                 if ((uint)sx < 1024 && (uint)sy < 1024)
                 {

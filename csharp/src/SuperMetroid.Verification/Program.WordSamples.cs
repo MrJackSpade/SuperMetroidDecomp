@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>
@@ -29,9 +30,9 @@ internal static partial class Program
     {
         for (int high = 0; high < 0x100; high++)
         {
-            yield return high << 8;
-            yield return high << 8 | 0x7f;
-            yield return high << 8 | 0xff;
+            yield return SnesLittleEndian.Word(0, unchecked((byte)high));
+            yield return SnesLittleEndian.Word(0x7f, unchecked((byte)high));
+            yield return SnesLittleEndian.Word(0xff, unchecked((byte)high));
         }
     }
 }

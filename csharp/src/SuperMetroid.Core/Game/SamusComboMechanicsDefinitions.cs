@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The four special beam attacks: one per beam equipped alone.</summary>
@@ -81,7 +82,7 @@ internal static class SamusComboMechanicsDefinitions
         ushort Component(byte phase)
         {
             short sample = EnemyTrigonometryTables.SignedSine(phase);
-            int magnitude = Math.Abs((int)sample) * (byte)amplitude >> 8;
+            int magnitude = SnesEightEight.Multiply(Math.Abs((int)sample), (byte)amplitude);
             return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
         }
 

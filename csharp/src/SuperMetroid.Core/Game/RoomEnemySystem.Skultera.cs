@@ -211,7 +211,7 @@ public sealed partial class RoomEnemySystem
         // Parameter two packs radius in its low byte and unsigned initial angle delta in
         // its high byte. The delta becomes a signed word only when a turn negates it.
         state.Radius = unchecked((ushort)(SnesLittleEndian.LowByte(slot.Parameter2)));
-        state.AngleDelta = unchecked((short)((SnesLittleEndian.HighByte(slot.Parameter2)) & 0x00ff));
+        state.AngleDelta = (short)SnesLittleEndian.HighByte(slot.Parameter2);
         state.Angle = 0;
         state.TurnFinished = false;
         state.CurrentYOffset = 0;
@@ -276,7 +276,7 @@ public sealed partial class RoomEnemySystem
             state.Radius));
         short yDifference = unchecked((short)(
             state.CurrentYOffset - state.PreviousYOffset));
-        if (MoveEnemyVertically(level, slot, yDifference << 16))
+        if (MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(yDifference)))
         {
             BeginSkulteraTurn(slot, state, currentlyMovingLeft: movingLeft);
         }
@@ -284,7 +284,7 @@ public sealed partial class RoomEnemySystem
         {
             // Only unobstructed movement advances the low-byte phase. The AND is not
             // cosmetic: native AI discards any high word produced by signed delta wrapping.
-            state.Angle = unchecked((ushort)((state.Angle + state.AngleDelta) & 0x00ff));
+            state.Angle = unchecked((ushort)(unchecked((byte)(state.Angle + state.AngleDelta))));
         }
 
         // Both successful movement and vertical collision retain the newly calculated

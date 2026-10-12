@@ -50,7 +50,7 @@ internal static class EnemyExtendedFrameFiles
         ushort pointer = definition.Pointer;
         int baseAddress = ((int)new SnesAddress(bank, pointer));
         int count = bus.ReadCartridgeByte(baseAddress);
-        byte padding = bus.ReadCartridgeByte(((int)new SnesAddress(bank ,            unchecked((ushort)(pointer + 1)))));
+        byte padding = bus.ReadCartridgeByte(((int)new SnesAddress(bank, unchecked((ushort)(pointer + 1)))));
         // Ceres steam's header is $1001: the generic drawing/collision
         // walkers consume its low byte as one component and retain the
         // high byte as native presentation metadata.

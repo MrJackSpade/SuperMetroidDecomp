@@ -411,7 +411,7 @@ public sealed partial class RoomEnemySystem
         // The instruction callbacks pass INT16_SHL16(±4) into the ordinary ignore-slopes
         // enemy mover; retaining 16.16 here preserves collision-edge alignment.
         slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
-        MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, pixels << 16);
+        MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SnesSixteenSixteen.FromWhole(pixels));
 
     private ushort ReadCrocomireRandom() => RequireRandomNumber();
 

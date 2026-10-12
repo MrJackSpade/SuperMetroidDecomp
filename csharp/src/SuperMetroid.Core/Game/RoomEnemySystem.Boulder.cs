@@ -292,7 +292,7 @@ public sealed partial class RoomEnemySystem
             ReadQuadraticEnemySpeed(
                 unchecked((byte)(SnesEightEight.WholeOf(state.TravelSpeedAccumulator))),
                 negative: false) +
-            (state.VerticalCompensation << 16));
+            SnesSixteenSixteen.FromWhole(state.VerticalCompensation));
         MoveEnemyVertically(level, slot, verticalDisplacement);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - state.VerticalCompensation)));
 

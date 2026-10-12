@@ -62,7 +62,7 @@ public sealed partial class RoomEnemySystem
         int spanMinusOne = unchecked((ushort)(bottomPixel - (topPixel & 0xfff0))) >> 4;
         // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
         // column is added unbounded, and each scanned row adds the width again.
-        int firstIndex = ((topPixel >> 4) & 0xff) * level.Size.X + (targetEdge >> 4);
+        int firstIndex = unchecked((byte)(topPixel >> 4)) * level.Size.X + (targetEdge >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -128,7 +128,7 @@ public sealed partial class RoomEnemySystem
         int spanMinusOne = unchecked((ushort)(rightPixel - (leftPixel & 0xfff0))) >> 4;
         // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
         // scanned column steps to the next native block index.
-        int firstIndex = ((targetEdge >> 4) & 0xff) * level.Size.X + (leftPixel >> 4);
+        int firstIndex = unchecked((byte)(targetEdge >> 4)) * level.Size.X + (leftPixel >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -340,7 +340,7 @@ public sealed partial class RoomEnemySystem
     /// The movers index <c>LevelData,X</c> with a 16-bit byte offset, so the block index
     /// wraps at $8000 blocks.
     /// </summary>
-    private static int EnemyMoverBlockIndex(int index) => ((index << 1) & 0xffff) >> 1;
+    private static int EnemyMoverBlockIndex(int index) => unchecked((ushort)(index << 1)) >> 1;
 
     /// <summary>
     /// Reads a block for the bank-$A0 movers, which never bound the index to the authored

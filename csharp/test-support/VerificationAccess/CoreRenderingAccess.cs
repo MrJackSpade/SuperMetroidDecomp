@@ -171,8 +171,8 @@ internal static class SnesGameplayFrameRendererAccess
                 (movementType == SamusMovementType.Crouching ? 12 : 16);
             int centerAngle = xray.Angle.TableIndex;
             int angularWidth = SnesLittleEndian.LowByte(xray.AngularWidth);
-            int leftEdgeAngle = (centerAngle - angularWidth) & 0x00ff;
-            int rightEdgeAngle = (centerAngle + angularWidth) & 0x00ff;
+            int leftEdgeAngle = unchecked((byte)(centerAngle - angularWidth));
+            int rightEdgeAngle = unchecked((byte)(centerAngle + angularWidth));
 
             // State zero calculates a genuinely zero-width horizontal table before changing
             // state to one. `$91:C901` special-cases exactly right/left so it produces a single

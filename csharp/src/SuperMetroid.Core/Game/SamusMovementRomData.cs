@@ -74,6 +74,9 @@ public static class SamusMovementRomData
 
         /// <summary>Stage-four value that marks an actively speed-boosting Samus.</summary>
         public const ushort ActiveSpeedBoostStage = 0x0400;
+
+        /// <summary>Per-frame 16.16 extra-run acceleration while charging the Speed Booster: 1/16 pixel.</summary>
+        public const uint ExtraRunAcceleration = 0x00001000u;
     }
 
     /// <summary>Liquid damage, splashes, footsteps, and atmospheric-effect animation data.</summary>

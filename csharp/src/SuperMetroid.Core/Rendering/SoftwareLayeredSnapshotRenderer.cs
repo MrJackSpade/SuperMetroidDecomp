@@ -107,7 +107,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     for (int y = 0; y < SnesPpuLayout.ScreenHeightPixels; y++)
                         SnesLayerCompositor.Composite(output.AsSpan(y * SnesPpuLayout.ScreenWidthPixels,
                             SnesPpuLayout.ScreenWidthPixels), plane.AsSpan(
-                            ((y + bg.VerticalScroll) & 255) * SnesPpuLayout.ScreenWidthPixels,
+                            unchecked((byte)(y + bg.VerticalScroll)) * SnesPpuLayout.ScreenWidthPixels,
                             SnesPpuLayout.ScreenWidthPixels));
                     break;
                 case FixedColorAddRenderLayer color:
@@ -212,8 +212,8 @@ public static class SoftwareLayeredSnapshotRenderer
         var result = scratch.Colors(256 * 224);
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
-            result[y * 256 + x] = source[((y + layer.Scrolls[y].Y) & 255) * 256 +
-                ((x + layer.Scrolls[y].X) & 255)];
+            result[y * 256 + x] = source[unchecked((byte)(y + layer.Scrolls[y].Y)) * 256 +
+                unchecked((byte)(x + layer.Scrolls[y].X))];
         return result;
     }
     private static byte AddFixed(byte component, byte addend)

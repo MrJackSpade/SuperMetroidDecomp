@@ -42,7 +42,7 @@ internal static class DisplayPassTests
                     Rgba32 expected = x < left || x >= left + w || y < top || y >= top + h
                         ? new(0,0,0) : native[((y - top) * 224 / h) * 256 + (x - left) * 256 / w];
                     uint actual = *(uint*)((byte*)mapped.DataPointer + y * mapped.RowPitch + x * 4);
-                    uint packed = (uint)(SnesLittleEndian.Word(expected.B, expected.G) | expected.R << 16 | 255 << 24);
+                    uint packed = System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian([expected.B, expected.G, expected.R, 255]);
                     if (actual != packed) throw new InvalidOperationException(
                         $"{device.Kind}: display {width}x{height} at ({x},{y}): expected {packed:X8}, actual {actual:X8}.");
                 }

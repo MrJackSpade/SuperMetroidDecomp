@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
@@ -130,7 +131,7 @@ internal sealed class DoorOpeningScrollState
         int distance = unchecked((short)door.SamusDistance);
         if (distance < 0)
             distance = door.Orientation.IsVertical ? 384 : 200;
-        int magnitude = distance << 8;
+        int magnitude = SnesSixteenSixteen.FromEightEight(distance);
         var step = SnesSignedSixteenSixteen.FromRaw(magnitude);
         var back = SnesSignedSixteenSixteen.FromRaw(-magnitude);
         return door.Orientation.Direction switch

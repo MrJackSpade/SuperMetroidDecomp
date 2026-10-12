@@ -64,7 +64,7 @@ internal static partial class Program
                 {
                     AssertEqual((ushort)count, header, "Tube native horizontal run");
                     AssertEqual(count, shape.WordCount(run), "Tube native calculated count");
-                    AssertEqual((ushort)(unchecked((byte)shape.NextY(run)) << 8), offset, "Tube native calculated continuation");
+                    AssertEqual(SnesLittleEndian.Word(0, unchecked((byte)shape.NextY(run))), offset, "Tube native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];

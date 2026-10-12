@@ -25,8 +25,7 @@ internal static partial class Program
             {
                 int source = 0x88aec1 + index * 8;
                 int slot = (ReadVerificationWord(rom, source + 6) - 0x9f80) / 4;
-                uint velocity = (uint)ReadVerificationWord(rom, source + 2) |
-                    ((uint)ReadVerificationWord(rom, source + 4) << 16);
+                uint velocity = SnesSixteenSixteen.Compose(ReadVerificationWord(rom, source + 4), ReadVerificationWord(rom, source + 2));
                 expectedSlots[slot] = unchecked(expectedSlots[slot] + velocity);
             }
             expectedSlots[22] = 0;

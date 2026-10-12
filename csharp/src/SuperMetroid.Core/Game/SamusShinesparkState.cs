@@ -229,7 +229,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     public bool TryStoreFromSpeedBooster(ushort speedBoostCounter)
     {
-        if (unchecked((short)((speedBoostCounter & 0xff00) -
+        if (unchecked((short)((SnesLittleEndian.HighByteInPlace(speedBoostCounter)) -
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter)) < 0)
             return false;
 
@@ -795,9 +795,9 @@ false,             CrashSequenceFinished: true);
         RoomPlmSystem? plms)
     {
         ShineTimer = 15;
-        uint accelerated = unchecked(Compose(
+        uint accelerated = unchecked(SnesSixteenSixteen.Compose(
             samus.HorizontalSpeed.ExtraRunSpeed,
-            samus.HorizontalSpeed.ExtraRunSubspeed) + Compose(
+            samus.HorizontalSpeed.ExtraRunSubspeed) + SnesSixteenSixteen.Compose(
                 samus.Kinematics.YAcceleration,
                 samus.Kinematics.YSubacceleration));
         samus.HorizontalSpeed.ExtraRunSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
@@ -820,15 +820,15 @@ false,             CrashSequenceFinished: true);
         RoomPlmSystem? plms)
     {
         ShineTimer = 15;
-        uint acceleration = unchecked(Compose(
+        uint acceleration = unchecked(SnesSixteenSixteen.Compose(
             VerticalAccelerationSpeed,
-            VerticalAccelerationSubspeed) + Compose(
+            VerticalAccelerationSubspeed) + SnesSixteenSixteen.Compose(
                 samus.Kinematics.YAcceleration,
                 samus.Kinematics.YSubacceleration));
         VerticalAccelerationSpeed = SnesFixedPosition.WholeOf(unchecked((int)acceleration));
         VerticalAccelerationSubspeed = unchecked((ushort)acceleration);
 
-        uint speed = unchecked(Compose(
+        uint speed = unchecked(SnesSixteenSixteen.Compose(
             samus.Kinematics.YSpeed,
             samus.Kinematics.YSubspeed) + acceleration);
         samus.Kinematics.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed)));
@@ -837,7 +837,7 @@ false,             CrashSequenceFinished: true);
         // The native clamp operates on a temporary displacement, not stored velocity.
         // Keep accumulating the wrapped speed words even after movement reaches its cap.
         uint displacementSpeed = unchecked((short)(samus.Kinematics.YSpeed - 14)) >= 0
-            ? Compose(14, samus.Kinematics.YSubspeed)
+            ? SnesSixteenSixteen.Compose(14, samus.Kinematics.YSubspeed)
             : speed;
         int upwardDisplacement = unchecked(-(int)displacementSpeed);
         upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
@@ -849,7 +849,7 @@ false,             CrashSequenceFinished: true);
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
         int collisionMagnitude = unchecked(-upwardDisplacement);
-        short collisionMagnitudeWhole = unchecked((short)(collisionMagnitude >> 16));
+        short collisionMagnitudeWhole = unchecked((short)SnesSixteenSixteen.WholeOf(collisionMagnitude));
         if (unchecked((short)(collisionMagnitudeWhole - 15)) >= 0)
         {
             collisionMagnitude = unchecked((int)(
@@ -869,7 +869,6 @@ false,             CrashSequenceFinished: true);
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 
-    private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
     /// <summary>
     /// Mutable storage corresponding to one of native fixed projectile slots three/four.

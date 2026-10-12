@@ -54,7 +54,7 @@ internal static partial class Program
                 if (!addresses.Contains(address))
                     AssertThrows<InvalidDataException>(() => MotherBrainGlassInstructionProgramDefinitions.ReadMechanicsWord(address), "Glass rejects nonmechanics word starts");
                 foreach (int bank in new[] {0x860000,0x01860000,0x850000,0,unchecked((int)0xff860000)})
-                    AssertEqual((bank & 0xff0000) == 0x860000 && bytes.Contains(raw),
+                    AssertEqual(SnesAddressMath.BankBase(bank) == 0x860000 && bytes.Contains(raw),
                         MotherBrainGlassInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(bank | raw), "Glass byte ownership and bank-mask aliases");
             }
         }

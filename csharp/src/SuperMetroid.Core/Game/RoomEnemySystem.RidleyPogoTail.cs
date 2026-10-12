@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
@@ -50,7 +51,7 @@ public sealed partial class RoomEnemySystem
     private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, bool stabbing)
     {
         if (state.TailSegments.All(segment => segment.Active) &&
-            ((RequireRandomNumber() & 0xff) >= 0xf0 ||
+            ((SnesLittleEndian.LowByte(RequireRandomNumber())) >= 0xf0 ||
              samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128) &&
             (state.TailWhipTargetClockwiseAngle & state.TailWhipTargetCounterClockwiseAngle & 0x8000) != 0)
         {

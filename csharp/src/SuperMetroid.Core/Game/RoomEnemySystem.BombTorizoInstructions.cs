@@ -572,7 +572,7 @@ public sealed partial class RoomEnemySystem
         ushort tableOffset)
     {
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(GoldenTorizoWalkDefinitions.Velocity(tableOffset)));
-        int displacement = state.Velocity.X.SignedRawValue << 16;
+        int displacement = SnesSixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.AirTransitionTimer = 0;
@@ -626,7 +626,7 @@ public sealed partial class RoomEnemySystem
     private ushort ProcessBombTorizoWalkInstruction(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, ushort cursor, TorizoWalkStep step)
     {
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(BombTorizoMovementDefinitions.WalkVelocity(step.TableOffset)));
-        int displacement = state.Velocity.X.SignedRawValue << 16;
+        int displacement = SnesSixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.AirTransitionTimer = 0;

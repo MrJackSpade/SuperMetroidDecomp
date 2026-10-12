@@ -386,8 +386,8 @@ public static class SamusMorphBallMovement
 
         // `$90:90E5` moves by the OLD magnitude, then updates stored speed for next frame.
         // This one-frame lag is observable on both bounce launch and the falling speed cap.
-        uint oldSpeed = Compose(state.YSpeed, state.YSubspeed);
-        uint acceleration = Compose(state.YAcceleration, state.YSubacceleration);
+        uint oldSpeed = SnesSixteenSixteen.Compose(state.YSpeed, state.YSubspeed);
+        uint acceleration = SnesSixteenSixteen.Compose(state.YAcceleration, state.YSubacceleration);
         uint newSpeed;
         if (state.YDirection == SamusVerticalDirection.Down)
         {
@@ -437,7 +437,6 @@ public static class SamusMorphBallMovement
         return result;
     }
 
-    private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
 
     private static void Validate(
         ISnesAddressSpace bus,

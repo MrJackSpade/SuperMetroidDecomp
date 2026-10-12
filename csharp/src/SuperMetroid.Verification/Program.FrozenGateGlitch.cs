@@ -102,7 +102,7 @@ internal static partial class Program
                 zero.Properties),
         ];
 
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = expected.Distance << 16 });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = SnesSixteenSixteen.FromWhole(expected.Distance) });
         AssertTrue(movement.Collided,
             $"{expected.Distance}-pixel native case collides with enemy or terrain");
         AssertEqual(expected.EnemyCollision, movement.EnemyCollision.HasValue,

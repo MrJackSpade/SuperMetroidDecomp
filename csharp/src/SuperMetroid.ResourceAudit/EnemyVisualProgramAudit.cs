@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -167,7 +168,7 @@ internal static class EnemyVisualProgramAudit
     {
         if (EnemyVisualProgramSpecializations.IsMotherBrain(type)) return MotherBrainVisualDefinitions.Bank;
         if (catalog.DeclaredBank is { } declared)
-            return declared <= byte.MaxValue ? declared : declared >> 16;
+            return declared <= byte.MaxValue ? declared : SnesAddressMath.BankNumber(declared);
         var banks = new HashSet<int>();
         foreach (var part in parts)
         {
@@ -178,8 +179,8 @@ internal static class EnemyVisualProgramAudit
                 expression.IsKind(SyntaxKind.EqualsExpression) || expression.IsKind(SyntaxKind.NotEqualsExpression)))
             foreach (var side in new[] { comparison.Left, comparison.Right })
                 if (model.GetConstantValue(side) is { HasValue: true, Value: int value } &&
-                    (value & 0xffff) == 0 && value >> 16 is >= 0x80 and <= 0xbf)
-                    banks.Add(value >> 16);
+                    SnesAddressMath.OffsetInBank(value) == 0 && SnesAddressMath.BankNumber(value) is >= 0x80 and <= 0xbf)
+                    banks.Add(SnesAddressMath.BankNumber(value));
         }
         return banks.Count == 1 ? banks.Single() : null;
     }

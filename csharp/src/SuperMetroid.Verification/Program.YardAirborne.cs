@@ -62,13 +62,13 @@ internal static partial class Program
                 {
                     x = unchecked(x + vx);
                     uint changed = unchecked(vx + ((vx & 0x80000000) != 0 ? 0x1000u : 0xFFFFF000u));
-                    vx = (changed & 0xFFFF0000) == 0
-                        ? (vx & 0xFFFF0000) | (changed & 0xFFFF) : changed;
+                    vx = SnesSixteenSixteen.WholeOf(changed) == 0
+                        ? SnesSixteenSixteen.Compose((ushort)SnesSixteenSixteen.WholeOf(vx), (ushort)SnesSixteenSixteen.FractionOf(changed)) : changed;
                 }
                 y = unchecked(y + vy);
                 uint accelerated = unchecked(vy + 0x2000);
-                vy = unchecked((short)((accelerated >> 16) - 4)) < 0
-                    ? accelerated : (vy & 0xFFFF0000) | (accelerated & 0xFFFF);
+                vy = unchecked((short)(SnesSixteenSixteen.WholeOf(accelerated) - 4)) < 0
+                    ? accelerated : SnesSixteenSixteen.Compose((ushort)SnesSixteenSixteen.WholeOf(vy), (ushort)SnesSixteenSixteen.FractionOf(accelerated));
                 enemies.StepFrame(new RoomEnemyFrame { Camera = new(384, 384), TimeIsFrozen = false, Samus = samus, Level = level });
                 AssertEqual(x, actor.Position.X.RawValue, "Yard airborne X trajectory");
                 AssertEqual(y, actor.Position.Y.RawValue, "Yard airborne Y trajectory");

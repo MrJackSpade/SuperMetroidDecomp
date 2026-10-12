@@ -79,26 +79,26 @@ internal static partial class Program
         foreach (ushort[] snapshot in snapshots)
         {
             var inheritance = new ProjectileInheritanceMemory(memory) { CameraYSubspeed = snapshot[0] };
-            inheritance.Record(SamusCollisionDirection.Left, snapshot[1] << 16 | snapshot[2]);
-            inheritance.Record(SamusCollisionDirection.Right, snapshot[3] << 16 | snapshot[4]);
-            inheritance.Record(SamusCollisionDirection.Up, snapshot[5] << 16 | snapshot[6]);
-            inheritance.Record(SamusCollisionDirection.Down, snapshot[7] << 16 | snapshot[8]);
+            inheritance.Record(SamusCollisionDirection.Left, unchecked((int)SnesSixteenSixteen.Compose(snapshot[1], snapshot[2])));
+            inheritance.Record(SamusCollisionDirection.Right, unchecked((int)SnesSixteenSixteen.Compose(snapshot[3], snapshot[4])));
+            inheritance.Record(SamusCollisionDirection.Up, unchecked((int)SnesSixteenSixteen.Compose(snapshot[5], snapshot[6])));
+            inheritance.Record(SamusCollisionDirection.Down, unchecked((int)SnesSixteenSixteen.Compose(snapshot[7], snapshot[8])));
             for (ushort direction = 0; direction < 10; direction++)
             {
                 short speed = (short)(direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400);
                 // These overlapping words are a native load across adjacent fields, not net displacement.
-                int upward = SnesLittleEndian.HighByte(snapshot[4]) | snapshot[5] << 8;
-                int up = (upward & 0xff00) == 0 ? 0 : ((upward & 0xffff) >> 2) | 0xc000;
+                int upward = SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[4]), unchecked((byte)snapshot[5]));
+                int up = SnesLittleEndian.HighByte(unchecked((ushort)upward)) == 0 ? 0 : (unchecked((ushort)upward) >> 2) | 0xc000;
                 short x = unchecked((short)(direction switch
                 {
-                    1 or 2 or 3 => speed + (SnesLittleEndian.HighByte(snapshot[2]) | snapshot[3] << 8),
-                    6 or 7 or 8 => -speed + (SnesLittleEndian.HighByte(snapshot[0]) | snapshot[1] << 8),
+                    1 or 2 or 3 => speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[2]), unchecked((byte)snapshot[3])),
+                    6 or 7 or 8 => -speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[0]), unchecked((byte)snapshot[1])),
                     _ => 0,
                 }));
                 short y = unchecked((short)(direction switch
                 {
                     0 or 1 or 8 or 9 => -speed + up,
-                    3 or 4 or 5 or 6 => speed + (SnesLittleEndian.HighByte(snapshot[6]) | snapshot[7] << 8),
+                    3 or 4 or 5 or 6 => speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[6]), unchecked((byte)snapshot[7])),
                     _ => 0,
                 }));
                 AssertEqual(new EightEightVector<RoomPixels>(x, y), SamusProjectileInheritance.ReadVelocity(memory, direction, speed),

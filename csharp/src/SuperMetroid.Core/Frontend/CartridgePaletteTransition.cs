@@ -79,6 +79,6 @@ internal sealed class CartridgePaletteTransition
                          (denominator - zeroBasedStep);
         if (destination < current)
             fixedDelta = -fixedDelta;
-        return SnesEightEight.WholeOf((current << 8) + fixedDelta);
+        return SnesEightEight.WholeOf(SnesEightEight.FromWhole(current) + fixedDelta);
     }
 }

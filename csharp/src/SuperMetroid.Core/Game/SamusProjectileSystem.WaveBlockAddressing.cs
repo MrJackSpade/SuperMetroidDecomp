@@ -39,7 +39,7 @@ public sealed partial class SamusProjectileSystem
                     ushort next = level.GetCollisionBlockByIndex(index + 1).LevelWord;
                     // Dispatch consumes the unaligned word; BTS and PLM setup
                     // still use floor(byteOffset / 2), including aligned writes.
-                    block = block with { LevelWord = unchecked((ushort)((SnesLittleEndian.HighByte(block.LevelWord)) | (next << 8))) };
+                    block = block with { LevelWord = SnesLittleEndian.Word(SnesLittleEndian.HighByte(block.LevelWord), unchecked((byte)next)) };
                 }
                 RunShotReaction(level, slot, block, roomPlms, new ShotSpan(span, remaining, targetX), out bool endSpan);
                 // Wave discards collision carry, but still honors PLM scan termination.

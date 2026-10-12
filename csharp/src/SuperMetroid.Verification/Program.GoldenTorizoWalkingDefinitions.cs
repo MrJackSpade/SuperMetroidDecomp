@@ -28,7 +28,7 @@ internal static partial class Program
             AssertTrue(GoldenTorizoWalkingInstructionProgramDefinitionsTooling
                     .IsCompiledMechanicsByte(((int)new SnesAddress(bank, word.Address))) &&
                        GoldenTorizoWalkingInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank ,                        unchecked((ushort)(word.Address + 1))))),
+                    .IsCompiledMechanicsByte(((int)new SnesAddress(bank, unchecked((ushort)(word.Address + 1))))),
                 $"Golden Torizo walking control $AA:{word.Address:X4} owns both bytes");
         }
         AssertEqual(70, mechanicsAddresses.Count,

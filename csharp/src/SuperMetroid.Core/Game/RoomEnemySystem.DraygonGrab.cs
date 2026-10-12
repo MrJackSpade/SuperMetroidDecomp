@@ -143,7 +143,7 @@ public sealed partial class RoomEnemySystem
 
         // The current RNG word is sampled without advancing it. Turret cadence and other
         // actors are the producers; a low byte of zero inserts one 64-frame tail whip.
-        if ((RequireRandomNumber() & 0x00ff) == 0)
+        if ((SnesLittleEndian.LowByte(RequireRandomNumber())) == 0)
         {
             state.TailWhipTimer = DraygonTailWhipDuration;
             state.Function = DraygonAiFunction.TailWhipWithSamus;
@@ -167,7 +167,7 @@ public sealed partial class RoomEnemySystem
                 graphicsIndex: 0);
         }
 
-        uint radius = ((uint)state.SpiralXRadius << 16) | state.SpiralXSubradius;
+        uint radius = SnesSixteenSixteen.Compose(state.SpiralXRadius, state.SpiralXSubradius);
         radius = unchecked(radius + 0x00002000u);
         state.SpiralXRadius = SnesFixedPosition.WholeOf(unchecked((int)radius));
         state.SpiralXSubradius = unchecked((ushort)radius);
@@ -179,7 +179,7 @@ public sealed partial class RoomEnemySystem
 
         state.SpiralAngleDelta = unchecked((ushort)(state.SpiralAngleDelta - 1));
         state.SpiralAngle = unchecked((byte)(
-            state.SpiralAngle + (state.SpiralAngleDelta >> 8)));
+            state.SpiralAngle + SnesUnsignedEightEight.Whole(state.SpiralAngleDelta)));
 
         state.SpiralCenter = state.SpiralCenter.AdvanceY(DraygonSpiralCenterLift);
         if (unchecked((short)(state.SpiralCenter.Y.Whole - DraygonMinimumSpiralCenterY)) < 0)

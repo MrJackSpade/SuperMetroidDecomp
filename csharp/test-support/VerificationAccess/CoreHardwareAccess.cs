@@ -101,7 +101,7 @@ internal static class SnesSignedEightEightAccess
     {
         /// <summary>Creates an exact whole-pixel velocity and rejects values outside 8.8 range.</summary>
         internal static SnesSignedEightEight FromWholePixels(int pixels) =>
-            new(unchecked((ushort)(checked((sbyte)pixels) << 8)));
+            new(unchecked((ushort)SnesEightEight.FromWhole(checked((sbyte)pixels))));
     }
 
     extension(SnesSignedEightEight self)

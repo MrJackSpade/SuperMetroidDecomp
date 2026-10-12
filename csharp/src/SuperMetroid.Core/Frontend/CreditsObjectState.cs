@@ -40,7 +40,7 @@ internal sealed class CreditsObjectState
             return new CreditsObjectStepResult(false, Finished);
 
         // AddToHiLo($198F,$198D,$00008000): half a pixel per accepted frame.
-        uint fixedScroll = ((uint)VerticalScroll << 16) | scrollSubposition;
+        uint fixedScroll = SnesSixteenSixteen.Compose(VerticalScroll, scrollSubposition);
         fixedScroll = unchecked(
             fixedScroll + EndingCreditsRomData.Motion.CreditsScrollDelta16Point16);
         VerticalScroll = SnesFixedPosition.WholeOf(unchecked((int)fixedScroll));

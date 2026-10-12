@@ -687,7 +687,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     (frame.RandomNumberSeed & 0x8000) == 0)
                     break;
 
-                if ((frame.RandomNumberSeed & 0x00ff) < 0x0080)
+                if ((SnesLittleEndian.LowByte(frame.RandomNumberSeed)) < 0x0080)
                 {
                     SetHeadInstructionList(HeadAttackingBombPhase3InstructionList);
                 }

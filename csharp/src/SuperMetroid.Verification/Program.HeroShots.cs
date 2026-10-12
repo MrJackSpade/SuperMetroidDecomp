@@ -41,13 +41,13 @@ internal static partial class Program
                     {
                         uint next = unchecked((new SnesFixedPosition(shot.Position.Y.Whole, shot.Position.Y.Fraction).RawValue)
                             + (uint)((short)(shot.Velocity.Y.SignedRawValue - 16) * 256));
-                        cameraY = unchecked((ushort)((next >> 16) + (cameraMode == 2 ? 64u : 65u)));
+                        cameraY = unchecked((ushort)(SnesSixteenSixteen.WholeOf(next) + (cameraMode == 2 ? 64u : 65u)));
                     }
                     else
                     {
                         uint next = unchecked((new SnesFixedPosition(shot.Position.X.Whole, shot.Position.X.Fraction).RawValue)
                             + (uint)((short)(shot.Velocity.X.SignedRawValue + 16) * 256));
-                        cameraX = unchecked((ushort)((next >> 16) - (cameraMode == 2 ? 319u : 320u)));
+                        cameraX = unchecked((ushort)(SnesSixteenSixteen.WholeOf(next) - (cameraMode == 2 ? 319u : 320u)));
                     }
                 }
                 shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, input, input);

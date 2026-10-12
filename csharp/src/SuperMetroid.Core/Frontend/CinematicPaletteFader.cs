@@ -35,9 +35,9 @@ public sealed class CinematicPaletteFader
 
             // The first triplet is the live 8.8 value. The second is 1/32 of the target,
             // also in 8.8 form. These shifts are literals from $8B:8C19-$8C59.
-            currentRed[color] = (ushort)(red << 8);
-            currentGreen[color] = (ushort)(green << 8);
-            currentBlue[color] = (ushort)(blue << 8);
+            currentRed[color] = (ushort)SnesEightEight.FromWhole(red);
+            currentGreen[color] = (ushort)SnesEightEight.FromWhole(green);
+            currentBlue[color] = (ushort)SnesEightEight.FromWhole(blue);
             redStep[color] = (ushort)(red << 3);
             greenStep[color] = (ushort)(green << 3);
             blueStep[color] = (ushort)(blue << 3);

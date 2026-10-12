@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
@@ -52,7 +53,7 @@ internal static partial class Program
         MethodInfo product = typeof(RoomEnemySystem).GetMethod("ReadUnsignedSineMagnitudeProduct",
             BindingFlags.Static | BindingFlags.NonPublic)!;
         int expectedX = (int)product.Invoke(null, [afterTurret.Angle, DraygonProjectileSpeeds.Goop, (ushort)0x40])!;
-        AssertEqual(expectedX, (afterTurret.X << 16) | afterTurret.XSub, "goop X velocity is speed two");
+        AssertEqual(expectedX, unchecked((int)SnesSixteenSixteen.Compose(afterTurret.X, afterTurret.XSub)), "goop X velocity is speed two");
 
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
         // its ID and Samus's XSpeedDivisor clears, but the routine still moves the slot.

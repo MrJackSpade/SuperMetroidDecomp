@@ -82,8 +82,8 @@ internal static partial class Program
         int ReadLong(ushort pointer)
         {
             int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-            return SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)) |
-                (CompiledLibraryBackgroundProgramsRomByte(bus, address + 2) << 16);
+            return (int)new SnesAddress(CompiledLibraryBackgroundProgramsRomByte(bus, address + 2),
+                SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)));
         }
     }
 

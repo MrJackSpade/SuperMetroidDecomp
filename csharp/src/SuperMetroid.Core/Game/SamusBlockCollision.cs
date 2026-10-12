@@ -107,7 +107,7 @@ public static partial class SamusBlockCollision
             {
                 // On enemy collision the bank-$90 wrapper skips bank-$94 block detection and
                 // invokes the corresponding no-collision position adder with `$12.0000`.
-                int clippedMagnitude = probe.Distance << 16;
+                int clippedMagnitude = SnesSixteenSixteen.FromWhole(probe.Distance);
                 acceptedDisplacement = entersLeft
                     ? -clippedMagnitude
                     : clippedMagnitude;
@@ -426,7 +426,7 @@ public static partial class SamusBlockCollision
                 // Solid-enemy success bypasses the block dispatcher and moves only to the
                 // current enemy boundary. This is also how native vertical-collision flags
                 // distinguish an enemy stop from an unobstructed terrain move.
-                int clippedMagnitude = probe.Distance << 16;
+                int clippedMagnitude = SnesSixteenSixteen.FromWhole(probe.Distance);
                 acceptedDisplacement = acceptedDisplacement < 0
                     ? -clippedMagnitude
                     : clippedMagnitude;

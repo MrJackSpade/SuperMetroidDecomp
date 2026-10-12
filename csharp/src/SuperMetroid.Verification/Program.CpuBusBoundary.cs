@@ -165,7 +165,7 @@ internal static partial class Program
         new WramByte(bus, CpuBusCell.WramByte("Home", 0x7e0123)).Write(0x9c);
         foreach (int mirror in new[] { 0x000123, 0x3f0123, 0x800123, 0xbf0123 })
             AssertEqual((byte)0x9c, new WramByte(bus, CpuBusCell.WramByte("Mirror", mirror)).Read(),
-                $"${mirror >> 16:X2}:0123 reads bank-$7E WRAM");
+                $"${SnesAddressMath.BankNumber(mirror):X2}:0123 reads bank-$7E WRAM");
         new WramWord(bus, CpuBusCell.WramWord("MirrorWord", 0x801ffe)).Write(0x5a6b);
         AssertEqual((ushort)0x5a6b, new WramWord(bus, CpuBusCell.WramWord("HomeWord", 0x7e1ffe)).Read(),
             "a mirror write lands in bank-$7E WRAM");
@@ -183,7 +183,7 @@ internal static partial class Program
         new SramBytes(bus, CpuBusCell.SramBytes("Home", 0x700010, 2)).WriteWord(0, 0xc3d4);
         foreach (int window in new[] { 0xf00010, 0x7d0010, 0xff0010, 0x702010, 0x706010 })
             AssertEqual((ushort)0xc3d4, new SramBytes(bus, CpuBusCell.SramBytes("Window", window, 2)).ReadWord(0),
-                $"${window >> 16:X2}:{window & 0xffff:X4} reads the same SRAM bytes");
+                $"${SnesAddressMath.BankNumber(window):X2}:{SnesAddressMath.OffsetInBank(window):X4} reads the same SRAM bytes");
         AssertEqual((byte)0xd4, SaveRamImage.Capture(bus)[0x10], "the SRAM image codec sees the window write");
         AssertThrows<ArgumentOutOfRangeException>(() => new SramBytes(bus, CpuBusCell.SramBytes("Rom", 0x708000, 1)).Read(0),
             "offset $8000 of an SRAM bank is cartridge ROM");

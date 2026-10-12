@@ -79,9 +79,9 @@ public static partial class SamusGrappleMovement
         int angleHigh = grapple.Angle.TableIndex;
         int flipBits = (angleHigh & 0x80) >> 1;
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 0x40) ^ 0x40));
-        ushort flipAttributes = unchecked((ushort)(flipBits << 8));
-        int screenXFixed = unchecked((grapple.BeamStart.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
-        int screenYFixed = unchecked((grapple.BeamStart.Y - layer1.Y - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
+        ushort flipAttributes = SnesLittleEndian.Word(0, unchecked((byte)flipBits));
+        int screenXFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.X - layer1.X - SamusGrappleRomData.Rendering.CharacterCenterOffset));
+        int screenYFixed = unchecked(SnesSixteenSixteen.FromWhole(grapple.BeamStart.Y - layer1.Y - SamusGrappleRomData.Rendering.CharacterCenterOffset));
         // Native enters the loop before decrementing quotient-minus-one: even a
         // positive length whose masked quotient is zero visits one segment.
         int segmentCount = Math.Max(1, (grapple.RopeLength / SamusGrappleRomData.Rendering.SegmentSpacing)

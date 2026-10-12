@@ -30,7 +30,7 @@ internal static partial class Program
             int destination = copy.DestinationWord - 0x4000;
             for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
                 expected[destination + index] = rom.ReadCartridgeByte(
-                    ((int)new SnesAddress(pass.SourceBank ,                    unchecked((ushort)(copy.SourceWord + index)))));
+                    ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
         }
         return expected;
     }

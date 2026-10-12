@@ -63,7 +63,7 @@ public sealed partial class FileSelectMenuState
         SelectedItem = saveRam.ReadSelectedSlot();
 
         BuildSaveTilemap();
-        ppu.Vram.ExecuteWordTransfer(bg1Tilemap, MenuPpuState.Bg1TilemapWord, 1);
+        new MenuVram(ppu.Vram).Bg1Tilemap.Write(bg1Tilemap);
 
         // Host-side loading above is atomic, but the native dispatches are not: indices
         // zero and two each wait for an NMI inside their dispatch before returning.
@@ -193,15 +193,16 @@ public sealed partial class FileSelectMenuState
     }
 
     /// <summary>Composes the menu's BG2, BG1, and OBJ main-screen layers.</summary>
+    [PpuLayoutBoundary("backend: file-select software PPU composition")]
     public Rgba32[] Render()
     {
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
+            ppu.Vram, ppu.Cgram, MenuVramLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
+            ppu.Vram, ppu.Cgram, MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
 
         PrepareRenderOam();
         Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];

@@ -427,7 +427,7 @@ internal static partial class Program
         for (int word = 0; word < CeresFlightRomData.Vram.Mode7MapSliceByteCount; word++)
             expected[word * 2] = artwork.Mode7Maps.Span[mapOffset + word];
         artwork.ObjectCharacters.Span.CopyTo(expected.AsSpan(
-            CeresFlightRomData.Vram.ObjectCharacterDestinationByte));
+            (CeresVramLayout.ObjectCharacters.Offset * 2)));
         return expected;
     }
 }

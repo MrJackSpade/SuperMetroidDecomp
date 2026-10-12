@@ -89,12 +89,7 @@ internal sealed class IntroMotherBrainSpriteState
             return;
 
         bool normalPalette = (hurtFlashTimer & 1) != 0;
-        for (int color = 0; color < 16; color++)
-        {
-            cgram.SetColor(240 + color, normalPalette
-                ? introPalette[240 + color]
-                : Bgr555.White);
-        }
+        new FrontendPalettes(cgram).WriteIntroMotherBrain(introPalette, flashWhite: !normalPalette);
         hurtFlashTimer--;
     }
 

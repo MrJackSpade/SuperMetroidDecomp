@@ -501,9 +501,10 @@ internal sealed partial class EndingCreditsState
     private void SetupPlanetEscape()
     {
         // Func120 clears the explosion flash's backdrop and transparent palette entries.
-        cgram.SetColor(0, Bgr555.Black);
-        cgram.SetColor(16, Bgr555.Black);
-        cgram.SetColor(128, Bgr555.Black);
+        var palettes = new FrontendPalettes(cgram);
+        palettes.EndingBackdrop.Write(0, Bgr555.Black);
+        palettes.EndingLogoBackground.Write(0, Bgr555.Black);
+        palettes.EndingObjectTransparent.Write(0, Bgr555.Black);
         paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GunshipEmergence, 0);
         mode7 = new(mode7.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
@@ -616,16 +617,16 @@ internal sealed partial class EndingCreditsState
     {
         EndingMode7ArtworkCatalog artwork = mode7Artwork ?? throw new InvalidOperationException(
             "Ending Mode-7 scene requires installed artwork.");
-        vram.Clear();
+        new VramStore(vram).Clear();
         UploadMode7Artwork(artwork[scene]);
     }
 
     private void UploadMode7Artwork(EndingMode7SceneArtwork scene)
     {
-        vram.LoadMode7MapBytes(scene.Map.Span);
-        vram.LoadMode7MapBytes(scene.Map.Span,
-            destinationWord: EndingMode7ArtworkFormat.MapByteCount);
-        vram.LoadMode7CharacterBytes(scene.Characters.Span);
+        var mode7 = new Mode7Vram(vram);
+        mode7.LoadMap(scene.Map.Span);
+        mode7.LoadMap(scene.Map.Span, cell: EndingMode7ArtworkFormat.MapByteCount);
+        mode7.LoadCharacters(scene.Characters.Span);
     }
 
     private void LoadEscapeCloudCharacters()
@@ -633,8 +634,7 @@ internal sealed partial class EndingCreditsState
         byte[] clouds = (objectArtwork ?? throw new InvalidOperationException(
             "Escape clouds require installed object artwork.")).Clouds.Transfer.ToArray();
         RequireMinimum(clouds, EndingCreditsRomData.Rendering.Mode7Bytes, "escape cloud characters");
-        vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsObjectDestination,
-            clouds.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        new EndingVram(vram).PostCreditsObjects.Load(clouds.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
     }
 
     private void LoadEndingObjectCharacters()
@@ -644,38 +644,24 @@ internal sealed partial class EndingCreditsState
         // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
         RequireMinimum(main, EndingCreditsRomData.Rendering.ExplosionObjectBytes,
             "ending OBJ characters");
-        vram.LoadBytes(
-            EndingCreditsRomData.Rendering.ObjectCharactersDestination,
-            main.AsSpan(0, EndingCreditsRomData.Rendering.ExplosionObjectBytes));
-        LoadObjectFragment(
-            EndingCreditsRomData.Rendering.Fragment70Destination,
-            EndingObjectFragmentId.Segment70);
-        LoadObjectFragment(
-            EndingCreditsRomData.Rendering.Fragment74Destination,
-            EndingObjectFragmentId.Segment74);
-        LoadObjectFragment(
-            EndingCreditsRomData.Rendering.Fragment78Destination,
-            EndingObjectFragmentId.Segment78);
-        LoadObjectFragment(
-            EndingCreditsRomData.Rendering.Fragment7CDestination,
-            EndingObjectFragmentId.Segment7C);
+        new EndingVram(vram).ExplosionObjects.Load(main.AsSpan(0, EndingCreditsRomData.Rendering.ExplosionObjectBytes));
+        LoadObjectFragment(EndingObjectFragmentId.Segment70);
+        LoadObjectFragment(EndingObjectFragmentId.Segment74);
+        LoadObjectFragment(EndingObjectFragmentId.Segment78);
+        LoadObjectFragment(EndingObjectFragmentId.Segment7C);
         ReadOnlyMemory<byte> font = ResolveEndingFont().Transfer;
         RequireMinimum(font, EndingCreditsRomData.Rendering.ObjectFragmentLimit,
             "ending font characters");
-        vram.LoadBytes(
-            EndingCreditsRomData.Rendering.FontCharactersDestination,
-            font.Span[..EndingCreditsRomData.Rendering.ObjectFragmentLimit]);
+        new EndingVram(vram).EndingFont.Load(font.Span[..EndingCreditsRomData.Rendering.ObjectFragmentLimit]);
     }
 
-    private void LoadObjectFragment(int destinationByte,
-        EndingObjectFragmentId fragmentId)
+    private void LoadObjectFragment(EndingObjectFragmentId fragmentId)
     {
         byte[] fragment = (objectArtwork ?? throw new InvalidOperationException(
             "Ending object fragments require installed artwork.")).Fragment(fragmentId).Transfer.ToArray();
         RequireMinimum(fragment, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
             "ending OBJ fragment");
-        vram.LoadBytes(
-            destinationByte,
+        new EndingVram(vram).ObjectFragment(fragmentId).Load(
             fragment.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
     }
 
@@ -690,10 +676,8 @@ internal sealed partial class EndingCreditsState
         RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
             "credits font");
 
-        vram.Clear();
-        vram.LoadBytes(
-            EndingCreditsRomData.Rendering.ObjectCharactersDestination,
-            font.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes]);
+        new VramStore(vram).Clear();
+        new EndingVram(vram).CreditsFont.Load(font.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes]);
         LoadCreditsCharacterArt();
 
         creditsAssetsLoaded = true;
@@ -727,19 +711,15 @@ internal sealed partial class EndingCreditsState
             "post-credits tile fragment B");
         RequireMinimum(result, EndingCreditsRomData.Rendering.Mode7Bytes,
             "post-credits reward characters");
-        vram.LoadBytes(EndingCreditsRomData.Rendering.FontCharactersDestination,
-            waiting.AsSpan(0, EndingCreditsRomData.Rendering.WaitingCharacterBytes));
-        vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsObjectDestination,
-            shooting.AsSpan(0, EndingCreditsRomData.Rendering.ShootingCharacterBytes));
-        vram.LoadBytes(EndingCreditsRomData.Rendering.WaitingTilemapDestination,
-            waitingMap.AsSpan(0, EndingCreditsRomData.Rendering.WaitingTilemapBytes));
+        var ending = new EndingVram(vram);
+        ending.WaitingCharacters.Load(waiting.AsSpan(0, EndingCreditsRomData.Rendering.WaitingCharacterBytes));
+        ending.PostCreditsObjects.Load(shooting.AsSpan(0, EndingCreditsRomData.Rendering.ShootingCharacterBytes));
+        ending.WaitingTilemap.Load(waitingMap.AsSpan(0, EndingCreditsRomData.Rendering.WaitingTilemapBytes));
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the
         // latter deliberately reuses the waiting-scene sheet, not Mode-7 art.
-        vram.LoadBytes(0, result.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
-        vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsFragmentADestination,
-            fragmentA.AsSpan(0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes));
-        vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination,
-            fragmentB.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
+        ending.RewardCharacters.Load(result.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        ending.PostCreditsFragmentA.Load(fragmentA.AsSpan(0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes));
+        ending.PostCreditsFragmentB.Load(fragmentB.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
     }
 
     private void StepEscapeClouds()
@@ -790,14 +770,14 @@ internal sealed partial class EndingCreditsState
         {
             case EndingSpriteInstruction.FadeExplosionPalette:
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.FadePlanet, 0);
-                cgram.SetColor(254, new Bgr555(1, 0, 0));
+                new FrontendPalettes(cgram).EndingExplosionGlow.Write(0, new Bgr555(1, 0, 0));
                 return cursor;
 
             case EndingSpriteInstruction.SpawnExplosionSilhouette:
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionSilhouette,
                     EndingSpriteRole.ExplosionSilhouette);
-                cgram.SetColor(0, EndingCreditsRomData.Rendering.WhiteColor);
+                new FrontendPalettes(cgram).EndingBackdrop.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
                 return cursor;
 
             case EndingSpriteInstruction.StartZebesExplosion:
@@ -824,10 +804,10 @@ internal sealed partial class EndingCreditsState
             case EndingSpriteInstruction.EndZebesExplosion:
                 // F32B disables TM/TS without deleting the actors: the stars must still
                 // advance and become visible again when Func120 starts the flyaway.
-                cgram.SetColor(0, EndingCreditsRomData.Rendering.WhiteColor);
-                cgram.SetColor(128, EndingCreditsRomData.Rendering.WhiteColor);
-                for (int color = 16; color < 32; color++)
-                    cgram.SetColor(color, EndingCreditsRomData.Rendering.WhiteColor);
+                var flash = new FrontendPalettes(cgram);
+                flash.EndingBackdrop.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
+                flash.EndingObjectTransparent.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
+                flash.EndingLogoBackground.Fill(EndingCreditsRomData.Rendering.WhiteColor);
                 phaseTimer = 120;
                 Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return cursor;
@@ -910,6 +890,7 @@ internal sealed partial class EndingCreditsState
         }
     }
 
+    [PpuLayoutBoundary("codec: post-credits staging tilemap DMA to its scene-selected VMADD")]
     private void UploadPostCreditsTilemap() =>
         vram.ExecuteWordTransfer(
             postCreditsTilemap,

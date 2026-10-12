@@ -13,8 +13,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class MenuPpuState
 {
-    public const ushort Bg1TilemapWord = MenuVramLayout.Bg1TilemapWord;
-    public const ushort Bg2TilemapWord = MenuVramLayout.Bg2TilemapWord;
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
     public const int SpritemapPointerTableAddress = 0x82c569;
 
@@ -60,8 +58,8 @@ internal sealed class MenuPpuState
     {
         MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException(
             "Menu PPU requires installed palettes.");
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            Cgram.SetColor(color, palettes.FileSelect[color]);
+        for (int color = 0; color < CgramPalettes.ColorCount; color++)
+            new CgramPalettes(Cgram).All.Write(color, palettes.FileSelect[color]);
     }
 
     public SnesCgram Cgram { get; } = new();
@@ -70,6 +68,6 @@ internal sealed class MenuPpuState
     {
         if (tilemapBytes.Length != 0x0800)
             throw new ArgumentException("Menu BG1 must contain one 32x32 two-byte tilemap.", nameof(tilemapBytes));
-        Vram.LoadBytes(Bg1TilemapWord * 2, tilemapBytes);
+        new MenuVram(Vram).Bg1Tilemap.Load(tilemapBytes);
     }
 }

@@ -3408,14 +3408,14 @@ internal static partial class Program
             byte[] nativeFont = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
-                IntroCinematicRomData.Vram.FontOneDestinationByte, nativeFont.Length).SequenceEqual(nativeFont),
+                (IntroVramLayout.FontOne.Offset * 2), nativeFont.Length).SequenceEqual(nativeFont),
                 "actual opening constructor transfers all calculated font bytes");
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
-                IntroCinematicRomData.Vram.NarrationTilemapDestinationByte, native.Length).SequenceEqual(native),
+                (IntroVramLayout.NarrationTilemap.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor transfers calculated narration to native VRAM destination");
             typeof(IntroCinematicState).GetMethod("SetupFirstIllustratedPage", flags)!.Invoke(intro, null);
             var subtitleUpload = intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
-                IntroCinematicRomData.Vram.NarrationTilemapDestinationByte + IntroCinematicRomData.Text.FinalLineDestinationStart * 2,
+                (IntroVramLayout.NarrationTilemap.Offset * 2) + IntroCinematicRomData.Text.FinalLineDestinationStart * 2,
                 IntroFinalLineTilemapFormat.CellCount * 2);
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
                 AssertEqual(ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + index * 2),
@@ -3628,7 +3628,7 @@ internal static partial class Program
             var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
-                IntroCinematicRomData.Vram.BackgroundPagesDestinationByte, native.Length).SequenceEqual(native),
+                (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor uploads all four calculated background pages");
             Console.WriteLine("Intro backgrounds: 4096 native words, 4096 independent edits, owned fallback, canonical hash and actual four-page VRAM upload pass.");
         }
@@ -3767,7 +3767,7 @@ internal static partial class Program
             var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
-                IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte, native.Length).SequenceEqual(native),
+                (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),
                 "actual opening constructor uploads calculated portrait map");
             Console.WriteLine("Portrait map: 1024 native words, 1024 independent edits, owned fallback, canonical hash and actual VRAM upload pass.");
         }

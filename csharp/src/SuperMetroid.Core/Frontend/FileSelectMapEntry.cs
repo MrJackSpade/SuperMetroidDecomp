@@ -36,9 +36,9 @@ public sealed class FileSelectMapEntry
     public FileSelectMapEntry(MapStaticPalettes mapPalettes)
     {
         ArgumentNullException.ThrowIfNull(mapPalettes);
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            Cgram.SetColor(color, mapPalettes.FileSelect[color]);
-        Bgr555[] target = Cgram.Colors.ToArray();
+        for (int color = 0; color < CgramPalettes.ColorCount; color++)
+            new CgramPalettes(Cgram).All.Write(color, mapPalettes.FileSelect[color]);
+        Bgr555[] target = new CgramPalettes(Cgram).All.Colors.ToArray();
         target[14] = target[30] = Bgr555.Black;
         // File select runs outside gameplay; no other fade advances the counter meanwhile.
         palette = new CartridgePaletteTransition(
@@ -53,7 +53,7 @@ public sealed class FileSelectMapEntry
         if (content is null) return;
         // Update the destination without restarting the ongoing fade or replacing
         // current interpolated colors. The native two cleared entries stay black.
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
+        for (int color = 0; color < CgramPalettes.ColorCount; color++)
             palette.SetTargetColor(color, color is 14 or 30 ? Bgr555.Black : content.FileSelect[color]);
     }
 

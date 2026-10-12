@@ -10,7 +10,6 @@ internal sealed partial class PauseMenuState
     {
         // Pause owns an isolated PPU image. Mirror the native mutable HUD range,
         // leaving its static first row and deliberately cleared FX rows untouched.
-        int offset = HudState.VramDestination * 2;
-        vram.LoadBytes(offset, gameplayVram.Bytes.Slice(offset, HudState.MutableByteCount));
+        new PauseVram(vram).AcceptedHudRows.Load(new PauseVram(gameplayVram).AcceptedHudRows);
     }
 }

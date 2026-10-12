@@ -24,7 +24,7 @@ internal sealed class EndingPostShot
     {
         ArgumentNullException.ThrowIfNull(fontAtlas);
         this.bus = bus;
-        sourcePalette = cgram.Colors.ToArray();
+        sourcePalette = new CgramPalettes(cgram).All.Colors.ToArray();
         BindArtwork(artwork);
         font = fontAtlas.Transfer.ToArray();
     }
@@ -51,6 +51,7 @@ internal sealed class EndingPostShot
     /// handed off to the white flash or assembling-logo actors. The subtitle
     /// font transfer is unchanged and is intentionally excluded.
     /// </summary>
+    [PpuLayoutBoundary("codec: post-shot upload records' VMADD destinations")]
     internal static void RebindCompletedLogoArtwork(SnesVram vram,
         EndingObjectArtworkCatalog artwork)
     {
@@ -111,11 +112,12 @@ internal sealed class EndingPostShot
         {
             // The native 8.8 accumulator subtracts component<<3 on every call;
             // taking the high byte is exactly floor(component * remaining / 32).
-            cgram.SetColor(index, sourcePalette[index].Map((_, channel) =>
+            new CgramPalettes(cgram).All.Write(index, sourcePalette[index].Map((_, channel) =>
                 channel * remaining / EndingPostShotDefinitions.FadeFrames));
         }
     }
 
+    [PpuLayoutBoundary("codec: post-shot upload records' VMADD destinations")]
     private void Upload(SnesVram vram, int index)
     {
         EndingPostShotUploadDefinition transfer = EndingPostShotUploadDefinitions.Get(index);

@@ -356,9 +356,9 @@ internal static partial class Program
             scene.BindObjectArtwork(edited);
             LayeredRenderSnapshot changed = scene.CaptureRenderSnapshot();
             AssertTrue(!baseline.Memory.Vram.SequenceEqual(changed.Memory.Vram) &&
-                    baseline.Memory.Vram[..EndingCreditsRomData.Rendering.ObjectCharactersDestination]
+                    baseline.Memory.Vram[..(EndingVramLayout.ExplosionObjects.Offset * 2)]
                         .SequenceEqual(changed.Memory.Vram
-                            [..EndingCreditsRomData.Rendering.ObjectCharactersDestination]) &&
+                            [..(EndingVramLayout.ExplosionObjects.Offset * 2)]) &&
                     baseline.Memory.Cgram.SequenceEqual(changed.Memory.Cgram) &&
                     scene.Phase == baselinePhase,
                 $"edited {name} changes OBJ VRAM without touching Mode-7 graphics or CGRAM");

@@ -98,7 +98,7 @@ internal static partial class Program
                 AssertEqual(expected == 0, region.HighlightWhenJapanese == japanese, "language selection polarity");
                 for (int offset = originalOffset; offset < originalOffset + originalCount; offset += 2)
                 {
-                    int runtimePalette = PaletteAt(vram, MenuPpuState.Bg1TilemapWord * 2 + offset);
+                    int runtimePalette = PaletteAt(vram, MenuVramLayout.Bg1TilemapWord * 2 + offset);
                     int editablePalette = PaletteAt(editablePage, offset);
                     AssertEqual(expected, runtimePalette,
                         $"ROM options language={language}, region={regionIndex}, offset={offset:X4}");

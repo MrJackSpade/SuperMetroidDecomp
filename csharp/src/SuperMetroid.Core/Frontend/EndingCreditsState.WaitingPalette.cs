@@ -30,7 +30,7 @@ internal sealed partial class EndingCreditsState
         for (int index = start; index < start + count; index++)
         {
             Bgr555 target = StaticPaletteColor(EndingPaletteId.PostCredits, index);
-            cgram.SetColor(index, target.Map((_, channel) => (channel << 3) * step >> 8));
+            new CgramPalettes(cgram).All.Write(index, target.Map((_, channel) => (channel << 3) * step >> 8));
         }
     }
 }

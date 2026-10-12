@@ -161,14 +161,14 @@ public sealed class DoorTransitionState
                 // PLMs, FX, backgrounds, and then yields once per NMI until the IRQ raises
                 // door_transition_flag bit $8000. The host room constructor performs that
                 // setup atomically; its following calls now run the real coordinate path.
-                fadedSourcePalette = runtime.Cgram.Colors.ToArray();
+                fadedSourcePalette = new CgramPalettes(runtime.Cgram).All.Colors.ToArray();
                 runtime.LoadPendingDoorDestinationForTransition(sourceSamus);
                 // Enemy loading resets room-private host gates. Restore the native
                 // $0795 transition ownership before any destination EnemyMain call;
                 // elevator AI must remain frozen through the final palette fade.
                 runtime.Enemies.ElevatorDoorTransitionActive = true;
                 runtime.Enemies.EnemyDoorTransitionActive = true;
-                Bgr555[] destinationTarget = runtime.Cgram.Colors.ToArray();
+                Bgr555[] destinationTarget = new CgramPalettes(runtime.Cgram).All.Colors.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
                 // UpdateBeamTilesAndPalette writes live colors during loading, unlike
                 // the destination room/enemy/suit target palettes used by the fade.
@@ -296,8 +296,8 @@ public sealed class DoorTransitionState
 
     private static Bgr555[] BuildSourceFadeTarget(SuperMetroidRuntime runtime)
     {
-        var target = new Bgr555[SnesCgram.ColorCount];
-        ReadOnlySpan<Bgr555> current = runtime.Cgram.Colors;
+        var target = new Bgr555[CgramPalettes.ColorCount];
+        ReadOnlySpan<Bgr555> current = new CgramPalettes(runtime.Cgram).All.Colors;
 
         // Keep HUD colors legible while the source room palette disappears.
         DoorTransitionPaletteDefinitions.PreserveHud(current, target);
@@ -318,8 +318,8 @@ public sealed class DoorTransitionState
 
     private static void RestorePalette(SnesCgram cgram, ReadOnlySpan<Bgr555> colors)
     {
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            cgram.SetColor(color, colors[color]);
+        for (int color = 0; color < CgramPalettes.ColorCount; color++)
+            new CgramPalettes(cgram).All.Write(color, colors[color]);
     }
 }
 

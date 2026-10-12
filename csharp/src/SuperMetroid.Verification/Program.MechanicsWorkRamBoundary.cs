@@ -24,8 +24,7 @@ internal static partial class Program
             const int origin = 3 * 16 + 3;
             var words = new ushort[16 * 16];
             words[origin] = 0xc456;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), words, new byte[words.Length],
-                new ushort[words.Length], new byte[1024 * 8]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[1024 * 8]);
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer();
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, origin, 1), "allocate bounded mechanics fixture");

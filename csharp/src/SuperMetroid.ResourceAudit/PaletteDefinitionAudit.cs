@@ -29,13 +29,14 @@ internal static class PaletteDefinitionAudit
             // Its single compiled instruction is Delete: no presentation words.
             if (catalog == typeof(PaletteFxDeleteProgramMechanicsDefinitions)) continue;
             string source = FindSource(root, catalog.Name);
+            var audit = new PaletteCatalogAudit(catalog, source, exports, report);
             bool covered = false;
             foreach (MethodInfo method in ToolingTypes.WithAdapter(catalog)
                 .SelectMany(type => type.GetMethods(BindingFlags.Public | BindingFlags.Static))
                 .Where(IsColorMethod).OrderBy(method => method.Name, StringComparer.Ordinal))
             {
                 string prefix = method.Name[..^"ColorPointer".Length];
-                covered |= CheckColorMethod(catalog, null, method, prefix, catalog, source, exports, report);
+                covered |= CheckColorMethod(catalog, null, method, prefix, audit);
             }
             if (ToolingTypes.WithAdapter(catalog).Select(type => type.GetProperty("All", BindingFlags.Public | BindingFlags.Static | BindingFlags.NonPublic))
                     .SingleOrDefault(property => property is not null)?.GetValue(null) is IEnumerable rows)
@@ -44,7 +45,7 @@ internal static class PaletteDefinitionAudit
                 {
                     foreach (MethodInfo method in row.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)
                         .Where(IsColorMethod))
-                        covered |= CheckColorMethod(row.GetType(), row, method, string.Empty, catalog, source, exports, report);
+                        covered |= CheckColorMethod(row.GetType(), row, method, string.Empty, audit);
                     if (row is PaletteFxHeatProgramDefinition heat)
                     {
                         foreach (PaletteFxHeatProgramFrameDefinition frame in heat.Frames)
@@ -96,8 +97,9 @@ internal static class PaletteDefinitionAudit
         first == typeof(int) && second == typeof(int);
 
     private static bool CheckColorMethod(Type rowType, object? row, MethodInfo method, string prefix,
-        Type catalog, string source, ResourceIndex exports, AuditReport report)
+        PaletteCatalogAudit audit)
     {
+        (Type catalog, string source, ResourceIndex exports, AuditReport report) = audit;
         int? frames = ReadCount(rowType, row, "FrameCount") ?? ReadCount(catalog, null, prefix + "FrameCount");
         int? colors = ReadCount(rowType, row, "ColorsPerFrame") ?? ReadCount(catalog, null, prefix + "ColorsPerFrame");
         if (frames is null && rowType.GetProperty("Frames")?.GetValue(row) is IEnumerable frameRows)
@@ -146,4 +148,7 @@ internal static class PaletteDefinitionAudit
         recorder.DeclareZero(TitleSequenceRomData.Assets.PaletteAddress, CgramPalettes.ByteCount);
         return recorder;
     }
+
+    /// <summary>One palette-FX catalog under audit, with where its findings and exported identities go (#633).</summary>
+    private readonly record struct PaletteCatalogAudit(Type Catalog, string Source, ResourceIndex Exports, AuditReport Report);
 }

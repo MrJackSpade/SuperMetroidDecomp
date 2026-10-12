@@ -91,12 +91,7 @@ internal static partial class Program
         MethodInfo processWalk = typeof(RoomEnemySystem).GetMethod(
             "ProcessBombTorizoWalkInstruction",
             instanceFlags)!;
-        var level = new RoomLevelData(
-            new Extent16<RoomBlocks>(64, 64),
-            new ushort[4096],
-            new byte[4096],
-            new ushort[4096],
-            new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new ushort[4096], new byte[4096], new ushort[4096]), new byte[8]);
 
         for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)
         {

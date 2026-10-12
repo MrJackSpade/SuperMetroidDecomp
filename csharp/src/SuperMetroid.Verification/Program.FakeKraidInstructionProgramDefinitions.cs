@@ -40,12 +40,7 @@ internal static partial class Program
             .Observe(IsFakeKraidSelectorByte, _ => forbiddenPresentationReadAttempts++)
             .Forbid(IsFakeKraidSelectorByte,
                 address => $"Production read installed Fake Kraid selector ${address:X6}.");
-        var level = new RoomLevelData(
-            new Extent16<RoomBlocks>(32, 32),
-            new ushort[1024],
-            new byte[1024],
-            new ushort[1024],
-            new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
 
         Suite(nameof(VerifyInitializer), () => VerifyInitializer(movingRight: false));
         Suite(nameof(VerifyInitializer), () => VerifyInitializer(movingRight: true));

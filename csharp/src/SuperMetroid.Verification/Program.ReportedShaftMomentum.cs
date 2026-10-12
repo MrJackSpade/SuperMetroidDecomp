@@ -11,8 +11,7 @@ internal static partial class Program
         // mode two, base speed 1.6000. $90:906C retains horizontal movement when
         // the native speed calculation returns carry even without forward input.
         var memory = new SuperMetroidAddressSpace();
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new ushort[32 * 32],
-            new byte[32 * 32], new ushort[32 * 32], new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[32 * 32], new byte[32 * 32], new ushort[32 * 32]), new byte[0x400 * 8]);
         var samus = new SamusState
         {
             Pose = SamusPoseId.SpinJumpLeftPose,

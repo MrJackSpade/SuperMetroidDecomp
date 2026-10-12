@@ -856,7 +856,7 @@ static void VerifyRoomLevelData()
     byte[] behavior = [0x00, 0x45, 0x80, 0x11, 0x22, 0x33];
     ushort[] background = [0, 1, 2, 3, 4, 5];
     var definitions = new byte[8 * 4];
-    var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), foreground, behavior, background, definitions);
+    var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background), definitions);
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(4, block.Index, "room collision row-major index");

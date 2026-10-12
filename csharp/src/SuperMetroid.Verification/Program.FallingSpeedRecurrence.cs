@@ -8,7 +8,7 @@ internal static partial class Program
     private static void VerifyRetailFallingSpeedRecurrence()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256], new ushort[256], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         foreach (ushort extraWhole in new ushort[] { 0, 1 })
         foreach (ushort extraFraction in new ushort[] { 0, 1 })
         foreach (ushort previousMode in new ushort[] { 0, 1, 2 })

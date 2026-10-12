@@ -75,9 +75,7 @@ internal static partial class Program
             byte[] blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[originalVisual * 8] = 0x04;
             blockDefinitions[0x53 * 8] = 0x53;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
-                new ushort[width * width], new byte[width * width],
-                new ushort[width * width], blockDefinitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             var plms = new RoomPlmSystem
             {
                 ColoredDoorVisuals = header == PlmHeaderId.GreenDoorFacingLeft
@@ -152,9 +150,7 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored door ${(int)header:X4} completes without program/draw ROM reads");
 
-            var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
-                new ushort[width * width], new byte[width * width],
-                new ushort[width * width], blockDefinitions);
+            var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             BackgroundTilemapStreamer reopenedStreamer = reopenedLevel.CreateBackgroundStreamer();
             var reopened = new RoomPlmSystem { ColoredDoorVisuals = stock };
             AssertEqual(1, reopened.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),

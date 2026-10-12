@@ -16,12 +16,7 @@ internal static partial class Program
     {
         var bus = NewProjectileSoundRoutingForbiddenBus(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-        var level = new RoomLevelData(
-            new Extent16<RoomBlocks>(16, 16),
-            new ushort[256],
-            new byte[256],
-            new ushort[256],
-            new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,

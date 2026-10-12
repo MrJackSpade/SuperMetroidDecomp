@@ -26,11 +26,8 @@ public static class RoomPlmNoobTubeVisualFiles
     public static RoomPlmNoobTubeVisualCatalog Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "n00b-tube", NoobTubePlmDrawDefinitions.All,
-            NoobTubePlmDrawDefinitions.VisualId,
-            entries => new RoomPlmNoobTubeVisualCatalog(entries.Select(entry =>
-                new RoomPlmNoobTubeVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block));
+            new RoomPlmVisualFamily<RoomPlmNoobTubeVisualCatalog>(VisualFileName, "n00b-tube", NoobTubePlmDrawDefinitions.All, NoobTubePlmDrawDefinitions.VisualId, entries => new RoomPlmNoobTubeVisualCatalog(entries.Select(entry =>
+                new RoomPlmNoobTubeVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled n00b-tube visuals.</summary>
     /// <param name="stockDirectory">Stock n00b-tube directory; overrides are ignored.</param>

@@ -189,11 +189,7 @@ public sealed partial class RoomPlmSystem
         slot.GreyDoor = new GreyDoorPlmState(
             orientation,
             condition,
-            initialList,
-            closedBlueList,
-            closedGreyDraw,
-            flashList,
-            openingList,
+            new GreyDoorPrograms(initialList, closedBlueList, closedGreyDraw, flashList, openingList),
             wasOpened ? GreyDoorPhase.ConvertToBlue : GreyDoorPhase.Locked);
     }
 
@@ -276,23 +272,23 @@ public enum GreyDoorPhase : byte
     Closing,
 }
 
+/// <summary>The bank-$84 instruction lists and draw a grey door runs through its lifetime (#633).</summary>
+internal readonly record struct GreyDoorPrograms(
+    ushort InitialList, ushort ClosedBlueList, ushort ClosedGreyDraw, ushort FlashList, ushort OpeningList);
+
 internal sealed class GreyDoorPlmState(
     ColoredDoorOrientation orientation,
     GreyDoorCondition condition,
-    ushort initialList,
-    ushort closedBlueList,
-    ushort closedGreyDraw,
-    ushort flashList,
-    ushort openingList,
+    GreyDoorPrograms programs,
     GreyDoorPhase phase)
 {
     public ColoredDoorOrientation Orientation { get; } = orientation;
     public GreyDoorCondition Condition { get; } = condition;
-    public ushort InitialList { get; } = initialList;
-    public ushort ClosedBlueList { get; } = closedBlueList;
-    public ushort ClosedGreyDraw { get; } = closedGreyDraw;
-    public ushort FlashList { get; } = flashList;
-    public ushort OpeningList { get; } = openingList;
+    public ushort InitialList { get; } = programs.InitialList;
+    public ushort ClosedBlueList { get; } = programs.ClosedBlueList;
+    public ushort ClosedGreyDraw { get; } = programs.ClosedGreyDraw;
+    public ushort FlashList { get; } = programs.FlashList;
+    public ushort OpeningList { get; } = programs.OpeningList;
     public GreyDoorPhase Phase { get; set; } = phase;
     public bool InitialDrawCompleted { get; set; }
     public bool HasPendingHit { get; set; }

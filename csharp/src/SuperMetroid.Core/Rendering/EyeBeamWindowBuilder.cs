@@ -42,16 +42,16 @@ internal static class EyeBeamWindowBuilder
         {
             if (!offScreen) Set(rows, apex, (ushort)(x | EyeWindowRenderDefinitions.FullRightEdge));
             int left = offScreen ? origin - EyeWindowRenderDefinitions.FixedPointSpan : origin;
-            Ramp(rows, up, -1, left, ta, ushort.MaxValue, 1, 1);
-            Ramp(rows, y, 1, left, tb, ushort.MaxValue, 1, -1);
+            Ramp(rows, up, -1, new RampEdges(left, ta, ushort.MaxValue, 1), 1);
+            Ramp(rows, y, 1, new RampEdges(left, tb, ushort.MaxValue, 1), -1);
             if (offScreen) FillOffScreenMiddle(rows, up, y, origin, ta, tb, positive: true);
         }
         else if (a >= half && a < threeQuarter && b >= threeQuarter)
         {
             if (!offScreen) Set(rows, apex, (ushort)(x << 8));
             int right = offScreen ? origin + EyeWindowRenderDefinitions.FixedPointSpan : origin;
-            Ramp(rows, up, -1, 0, -1, right, -tb, 1);
-            Ramp(rows, y, 1, 0, -1, right, -ta, -1);
+            Ramp(rows, up, -1, new RampEdges(0, -1, right, -tb), 1);
+            Ramp(rows, y, 1, new RampEdges(0, -1, right, -ta), -1);
             if (offScreen) FillOffScreenMiddle(rows, up, y, origin, tb, ta, positive: false);
         }
         else if (a < quarter || a >= threeQuarter)
@@ -59,10 +59,7 @@ internal static class EyeBeamWindowBuilder
             if (!offScreen) Set(rows, apex, (ushort)(x * EyeWindowRenderDefinitions.ReplicateByte));
             bool leftPositive = a < threeQuarter;
             bool rightPositive = b < threeQuarter;
-            Ramp(rows, up, -1,
-                OffsetOrigin(origin, offScreen, leftPositive), leftPositive ? ta : -ta,
-                OffsetOrigin(origin, offScreen, rightPositive), rightPositive ? tb : -tb,
-                rightPositive ? 0 : 1, offScreen);
+            Ramp(rows, up, -1, new RampEdges(OffsetOrigin(origin, offScreen, leftPositive), leftPositive ? ta : -ta, OffsetOrigin(origin, offScreen, rightPositive), rightPositive ? tb : -tb), rightPositive ? 0 : 1, offScreen);
             if (offScreen && !leftPositive && !rightPositive)
                 PreserveOffScreenUpLeftEntry(rows, up, origin + EyeWindowRenderDefinitions.FixedPointSpan, ta, tb);
         }
@@ -71,10 +68,7 @@ internal static class EyeBeamWindowBuilder
             if (!offScreen) Set(rows, apex, (ushort)(x * EyeWindowRenderDefinitions.ReplicateByte));
             bool leftPositive = b < half;
             bool rightPositive = a < half;
-            Ramp(rows, y, 1,
-                OffsetOrigin(origin, offScreen, leftPositive), leftPositive ? tb : -tb,
-                OffsetOrigin(origin, offScreen, rightPositive), rightPositive ? ta : -ta,
-                rightPositive ? 0 : -1, offScreen);
+            Ramp(rows, y, 1, new RampEdges(OffsetOrigin(origin, offScreen, leftPositive), leftPositive ? tb : -tb, OffsetOrigin(origin, offScreen, rightPositive), rightPositive ? ta : -ta), rightPositive ? 0 : -1, offScreen);
             if (offScreen && !leftPositive && rightPositive && tb == 0)
             {
                 // Native down-split zero-gradient branch clears whole words first;
@@ -139,9 +133,10 @@ internal static class EyeBeamWindowBuilder
     /// early-exit adjustment can erase the final saturated row in the side-facing
     /// branches; preserving that detail avoids a one-pixel tail on the cone.
     /// </summary>
-    private static void Ramp(ushort[] rows, int y, int direction,
-        int left, int leftStep, int right, int rightStep, int finishAdjustment, bool offScreenDiagonal = false)
+    private static void Ramp(ushort[] rows, int y, int direction, RampEdges edges, int finishAdjustment,
+        bool offScreenDiagonal = false)
     {
+        (int left, int leftStep, int right, int rightStep) = edges;
         while (direction < 0 ? y >= 0 : y < rows.Length)
         {
             left += leftStep;
@@ -163,4 +158,7 @@ internal static class EyeBeamWindowBuilder
             y += direction;
         }
     }
+
+    /// <summary>A ramp's starting left and right edges and how far each moves per row (#633).</summary>
+    private readonly record struct RampEdges(int Left, int LeftStep, int Right, int RightStep);
 }

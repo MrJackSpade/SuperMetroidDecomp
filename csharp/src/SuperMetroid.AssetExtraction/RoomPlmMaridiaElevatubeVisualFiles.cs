@@ -35,12 +35,8 @@ public static class RoomPlmMaridiaElevatubeVisualFiles
     public static RoomPlmMaridiaElevatubeVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "Maridia elevatube",
-            MaridiaElevatubePlmDefinitions.AllDraws,
-            MaridiaElevatubePlmDefinitions.DrawVisualId,
-            entries => new RoomPlmMaridiaElevatubeVisualCatalog(entries.Select(entry =>
-                new RoomPlmMaridiaElevatubeVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block));
+            new RoomPlmVisualFamily<RoomPlmMaridiaElevatubeVisualCatalog>(VisualFileName, "Maridia elevatube", MaridiaElevatubePlmDefinitions.AllDraws, MaridiaElevatubePlmDefinitions.DrawVisualId, entries => new RoomPlmMaridiaElevatubeVisualCatalog(entries.Select(entry =>
+                new RoomPlmMaridiaElevatubeVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Runs the elevatube stock checks from <see cref="Load"/> with no override, cartridge reads, or writes.</summary>
     /// <param name="directory">Family directory containing elevatube stock JSON and manifest.</param>

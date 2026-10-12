@@ -47,11 +47,7 @@ public sealed partial class RoomPlmSystem
         slot.ColoredDoor = new ColoredDoorPlmState(
             color,
             orientation,
-            initialList,
-            closedBlueList,
-            hitList,
-            openingList,
-            coloredClosedDraw,
+            new ColoredDoorPrograms(initialList, closedBlueList, hitList, openingList, coloredClosedDraw),
             hitThreshold,
             wasOpened ? ColoredDoorPhase.ConvertToBlue : ColoredDoorPhase.Waiting);
     }

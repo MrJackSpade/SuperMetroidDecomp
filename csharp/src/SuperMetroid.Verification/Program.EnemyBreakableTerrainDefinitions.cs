@@ -32,12 +32,7 @@ internal static partial class Program
                 EnemyBreakableTerrainDefinitions.IsEnemyBreakable(behavior),
                 $"compiled enemy spike reaction ${behavior:X2}");
 
-            var level = new RoomLevelData(
-                new Extent16<RoomBlocks>(1, 1),
-                [RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock).Raw],
-                [behavior],
-                [0],
-                []);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomLevelWord.Create(0, LevelBlockFlipFlags.None, RoomCollisionType.SpikeBlock).Raw], [behavior], [0]), []);
             var plms = new RoomPlmSystem();
             var enemies = new RoomEnemySystem();
             busField.SetValue(enemies, guarded);

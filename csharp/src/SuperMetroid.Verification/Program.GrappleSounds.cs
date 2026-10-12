@@ -10,10 +10,8 @@ internal static partial class Program
     private static void VerifyGrappleSounds()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var air = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new ushort[256], new byte[256], new ushort[256], new byte[8]);
-        var anchors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
-            Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(),
-            new byte[256], new ushort[256], new byte[8]);
+        var air = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
+        var anchors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(), new byte[256], new ushort[256]), new byte[8]);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         samus.RefreshCollisionRadii(bus);
         PrepareRetailSamusFixture(samus);

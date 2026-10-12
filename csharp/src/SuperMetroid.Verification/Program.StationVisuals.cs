@@ -43,9 +43,7 @@ internal static partial class Program
                 definitions[0x053 * 8 + tile * 2] = 0x53;
             }
 
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
-                new ushort[width * width], new byte[width * width],
-                new ushort[width * width], definitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), definitions);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem { StationVisuals = visuals };
             plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });

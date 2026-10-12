@@ -36,9 +36,7 @@ internal static partial class Program
         ]);
         var guarded = NewMotherBrainGlassProgramReadGuard(source);
         const int width = 32;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 16),
-            new ushort[width * 16], new byte[width * 16],
-            new ushort[width * 16], new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 16), new RoomLevelPlanes(new ushort[width * 16], new byte[width * 16], new ushort[width * 16]), new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         bool eventSet = false;
         var plms = new RoomPlmSystem();

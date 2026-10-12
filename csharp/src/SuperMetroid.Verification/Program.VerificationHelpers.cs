@@ -224,12 +224,7 @@ internal static partial class Program
             ? new byte[8]
             : blockDefinitions.ToArray();
 
-        return new RoomLevelData(
-            size,
-            foreground,
-            behavior,
-            clearedBackground,
-            clearedDefinitions);
+        return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground), clearedDefinitions);
     }
 
     /// <summary>

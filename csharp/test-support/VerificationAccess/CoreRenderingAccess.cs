@@ -315,14 +315,7 @@ internal static class SnesObjRendererAccess
 
             var pixels = new Rgba32[frame.X * frame.Y];
             var priorities = new byte[pixels.Length];
-            SnesObjRenderer.RenderResolved(
-                oam,
-                vram,
-                cgram,
-                obsel,
-                pixels,
-                priorities,
-                frame);
+            SnesObjRenderer.RenderResolved(oam, vram, cgram, obsel, new ObjRasterTargets(pixels, priorities), frame);
 
             return new ResolvedObjFrame(pixels, priorities);
         }

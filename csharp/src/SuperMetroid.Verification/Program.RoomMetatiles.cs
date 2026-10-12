@@ -77,10 +77,8 @@ internal static partial class Program
         var levelWord = RoomLevelWord.Create(0, LevelBlockFlipFlags.None,
             RoomCollisionType.SolidBlock);
         byte[] bts = [0x46];
-        var originalLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), [levelWord.Raw], bts,
-            [0], cre);
-        var modifiedLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), [levelWord.Raw], bts,
-            [0], modified.Transfer.Span);
+        var originalLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), cre);
+        var modifiedLevel = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([levelWord.Raw], bts, [0]), modified.Transfer.Span);
         AssertTrue(originalLevel.ForegroundEntries.Span.SequenceEqual(modifiedLevel.ForegroundEntries.Span) &&
             originalLevel.BehaviorBytes.Span.SequenceEqual(modifiedLevel.BehaviorBytes.Span),
             "visual metatile edit leaves room collision nibble and BTS unchanged");

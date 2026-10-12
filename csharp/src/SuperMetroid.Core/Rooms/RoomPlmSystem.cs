@@ -1900,24 +1900,24 @@ public sealed partial class RoomPlmSystem
     }
 }
 
+/// <summary>The bank-$84 instruction lists and draw a coloured door runs through its lifetime (#633).</summary>
+internal readonly record struct ColoredDoorPrograms(
+    ushort InitialList, ushort ClosedBlueList, ushort HitList, ushort OpeningList, ushort ColoredClosedDraw);
+
 internal sealed class ColoredDoorPlmState(
     ColoredDoorColor color,
     ColoredDoorOrientation orientation,
-    ushort initialList,
-    ushort closedBlueList,
-    ushort hitList,
-    ushort openingList,
-    ushort coloredClosedDraw,
+    ColoredDoorPrograms programs,
     byte hitThreshold,
     ColoredDoorPhase phase)
 {
     public ColoredDoorColor Color { get; } = color;
     public ColoredDoorOrientation Orientation { get; } = orientation;
-    public ushort InitialList { get; } = initialList;
-    public ushort ClosedBlueList { get; } = closedBlueList;
-    public ushort HitList { get; } = hitList;
-    public ushort OpeningList { get; } = openingList;
-    public ushort ColoredClosedDraw { get; } = coloredClosedDraw;
+    public ushort InitialList { get; } = programs.InitialList;
+    public ushort ClosedBlueList { get; } = programs.ClosedBlueList;
+    public ushort HitList { get; } = programs.HitList;
+    public ushort OpeningList { get; } = programs.OpeningList;
+    public ushort ColoredClosedDraw { get; } = programs.ColoredClosedDraw;
     public byte HitThreshold { get; } = hitThreshold;
     public ColoredDoorPhase Phase { get; set; } = phase;
     public byte HitCounter { get; set; }

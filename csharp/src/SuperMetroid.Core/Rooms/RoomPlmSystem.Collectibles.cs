@@ -172,15 +172,14 @@ public sealed partial class RoomPlmSystem
     /// loader. The setup remains table-driven by the cartridge header and presentation.
     /// </summary>
     private void SetupCollectibleSlot(
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        SnesVram vram,
-        Bank80SystemState system,
+        PlmRoom room,
         PlmSlot slot,
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation,
         RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
     {
+        (RoomLevelData level, BackgroundTilemapStreamer streamer, SnesVram vram, Bank80SystemState system) =
+            (room.Level, room.Streamer, room.Vram, room.System);
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasCollectedItemBit(slot.RoomArgument);

@@ -28,11 +28,8 @@ public static class RoomPlmDraygonCannonVisualFiles
     public static RoomPlmDraygonCannonVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "Draygon cannon", DraygonCannonPlmDrawDefinitions.All,
-            DraygonCannonPlmDrawDefinitions.VisualId,
-            entries => new RoomPlmDraygonCannonVisualCatalog(entries.Select(entry =>
-                new RoomPlmDraygonCannonVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block));
+            new RoomPlmVisualFamily<RoomPlmDraygonCannonVisualCatalog>(VisualFileName, "Draygon cannon", DraygonCannonPlmDrawDefinitions.All, DraygonCannonPlmDrawDefinitions.VisualId, entries => new RoomPlmDraygonCannonVisualCatalog(entries.Select(entry =>
+                new RoomPlmDraygonCannonVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Checks stock cannon provenance, digest, schema, twelve-frame coverage, and equality with compiled visual words; ignores overrides.</summary>
     /// <param name="directory">Installed stock Draygon cannon directory.</param>

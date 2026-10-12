@@ -48,13 +48,13 @@ internal static class RoomPlmDoorVisualFileCodec
                 Convert.ToHexString(SHA256.HashData(json))), JsonOptions);
     }
 
-    internal static TCatalog Load<TCatalog>(string stockDirectory,
-        string? overrideDirectory, string visualFileName, string family,
-        IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
-        Func<ushort, string> visualId,
-        Func<Entry[], TCatalog> createCatalog,
-        Func<TCatalog, ushort, int, int, ushort> getWord)
+    internal static TCatalog Load<TCatalog>(string stockDirectory, string? overrideDirectory,
+        RoomPlmVisualFamily<TCatalog> visuals)
     {
+        ArgumentNullException.ThrowIfNull(visuals);
+        (string visualFileName, string family, IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
+            Func<ushort, string> visualId, Func<Entry[], TCatalog> createCatalog,
+            Func<TCatalog, ushort, int, int, ushort> getWord) = visuals;
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath, family);
@@ -197,3 +197,16 @@ internal static class RoomPlmDoorVisualFileCodec
         string VisualSha256);
     private sealed record VisualDocument(int Version, Entry[] Entries);
 }
+/// <summary>
+/// One room-PLM visual family as the shared door-visual codec loads it (#633): its JSON file name,
+/// the family name used in diagnostics, the compiled draw lists it covers, how a draw list is
+/// named in JSON, and how its catalog is built and read back for the parity check.
+/// </summary>
+internal sealed record RoomPlmVisualFamily<TCatalog>(
+    string FileName,
+    string Name,
+    IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Definitions,
+    Func<ushort, string> VisualId,
+    Func<RoomPlmDoorVisualFileCodec.Entry[], TCatalog> CreateCatalog,
+    Func<TCatalog, ushort, int, int, ushort> GetWord);
+

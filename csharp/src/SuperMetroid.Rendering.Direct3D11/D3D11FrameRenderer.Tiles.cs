@@ -25,11 +25,10 @@ public sealed partial class D3D11FrameRenderer
         owner.Context.CSSetShaderResource(0, memoryView);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
-        DispatchTile(D3D11TileOperation.Backdrop);
+        DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
         bool needsObjects = false;
         foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer or OrdinaryGameplayRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or BgSubscreenAddRenderLayer { IncludeObjects: true };
-        if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, objectCount: (uint)scene.Memory.ModeledSpriteCount,
-            objectSelection: scene.ObjectSelection);
+        if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, new D3D11TileDispatch { ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = scene.ObjectSelection });
         foreach (RenderLayer layer in scene.Layers)
         {
             switch (layer)
@@ -63,58 +62,44 @@ public sealed partial class D3D11FrameRenderer
                         objectCount: scene.Memory.ModeledSpriteCount, objectSelection: scene.ObjectSelection);
                     break;
                 case ObjRenderLayer objLayer:
-                    DispatchTile(D3D11TileOperation.InsertObj, red: objLayer.AddToScreen ? 1u : 0u,
-                        green: objLayer.FixedColor is not null ? 1u : 0u,
-                        blue: objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0,
-                        objectCount: (uint)scene.Memory.ModeledSpriteCount, objectSelection: scene.ObjectSelection);
+                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Red = objLayer.AddToScreen ? 1u : 0u, Green = objLayer.FixedColor is not null ? 1u : 0u, Blue = objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0, ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = scene.ObjectSelection });
                     break;
                 case ObjPriorityRenderLayer obj:
-                    DispatchTile(D3D11TileOperation.InsertObj, priority: (uint)obj.Priority + 1,
-                        green: obj.FixedColor is not null ? 1u : 0u,
-                        blue: obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0,
-                        objectCount: (uint)scene.Memory.ModeledSpriteCount, objectSelection: scene.ObjectSelection);
+                    DispatchTile(D3D11TileOperation.InsertObj, new D3D11TileDispatch { Priority = (uint)obj.Priority + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0, ObjectCount = (uint)scene.Memory.ModeledSpriteCount, ObjectSelection = scene.ObjectSelection });
                     break;
                 case Bg4BppRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg4, bg.TilemapWord, bg.CharacterWord,
-                        bg.Scroll, bg.MapSize, Priority(bg.Priority));
+                    DispatchTile(D3D11TileOperation.Bg4, new D3D11TileDispatch { Map = bg.TilemapWord, Characters = bg.CharacterWord, Scroll = bg.Scroll, MapSize = bg.MapSize, Priority = Priority(bg.Priority) });
                     break;
                 case Bg2BppRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg2, bg.TilemapWord, bg.CharacterWord, priority: Priority(bg.Priority));
+                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = bg.TilemapWord, Characters = bg.CharacterWord, Priority = Priority(bg.Priority) });
                     break;
                 case Bg2BppViewportRenderLayer bg:
-                    DispatchTile(D3D11TileOperation.Bg2, bg.TilemapWord, bg.CharacterWord,
-                        scroll: new Position16<BgPlanePixels>(0, bg.VerticalScroll), priority: Priority(bg.Priority),
-                        transparentZero: bg.TransparentColorZero ? 1u : 0u);
+                    DispatchTile(D3D11TileOperation.Bg2, new D3D11TileDispatch { Map = bg.TilemapWord, Characters = bg.CharacterWord, Scroll = new Position16<BgPlanePixels>(0, bg.VerticalScroll), Priority = Priority(bg.Priority), TransparentZero = bg.TransparentColorZero ? 1u : 0u });
                     break;
                 case FixedColorAddRenderLayer add:
-                    DispatchTile(D3D11TileOperation.FixedAdd, red: add.Red, green: add.Green, blue: add.Blue);
+                    DispatchTile(D3D11TileOperation.FixedAdd, new D3D11TileDispatch { Red = add.Red, Green = add.Green, Blue = add.Blue });
                     break;
             }
         }
         if (!gradient.IsEmpty) DispatchTitleGradient(gradient, scene.Memory.ModeledSpriteCount, scene.ObjectSelection);
-        DispatchTile(D3D11TileOperation.Brightness, level: scene.Brightness);
-        foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, level: level);
+        DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = scene.Brightness });
+        foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = level });
     }
 
-    private unsafe void DispatchTile(D3D11TileOperation operation, uint map = 0, uint characters = 0,
-        Position16<BgPlanePixels> scroll = default, Extent16<TilemapCells>? mapSize = null, uint priority = 0,
-        uint transparentZero = 1, uint level = 15, uint red = 0, uint green = 0, uint blue = 0,
-        uint objectCount = 0, uint objectSelection = 0, uint firstScanline = 0, uint endScanline = 224,
-        SnesWindowRegisters windows = default, SnesMainScreenLayers windowMask = SnesMainScreenLayers.None,
-        SnesWindowTarget windowTarget = SnesWindowTarget.Bg1)
+    private unsafe void DispatchTile(D3D11TileOperation operation, D3D11TileDispatch tile)
     {
         // Upload the complete allocated cbuffer, so UpdateSubresource cannot read past
         // a short managed array. The trailing header words supply scanline clipping.
         // The tile shader's header words three through six are the BG scroll and map size;
         // unmapped operations keep the shader's default 32x32-cell plane.
-        Extent16<TilemapCells> size = mapSize ?? new Extent16<TilemapCells>(32, 32);
+        Extent16<TilemapCells> size = tile.MapSize ?? new Extent16<TilemapCells>(32, 32);
         var data = ClearUploadConstants();
-        data[0] = (uint)operation; data[1] = map; data[2] = characters; data[3] = scroll.X;
-        data[4] = scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = priority;
-        data[8] = transparentZero; data[9] = level; data[10] = red; data[11] = green; data[12] = blue;
-        data[13] = objectCount; data[14] = objectSelection;
-        data[25] = firstScanline; data[26] = endScanline;
-        SetWindowConstants(data, windows, windowMask, windowTarget);
+        data[0] = (uint)operation; data[1] = tile.Map; data[2] = tile.Characters; data[3] = tile.Scroll.X;
+        data[4] = tile.Scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = tile.Priority;
+        data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
+        data[13] = tile.ObjectCount; data[14] = tile.ObjectSelection;
+        data[25] = tile.FirstScanline; data[26] = tile.EndScanline;
+        SetWindowConstants(data, tile.Windows, tile.WindowMask, tile.WindowTarget);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

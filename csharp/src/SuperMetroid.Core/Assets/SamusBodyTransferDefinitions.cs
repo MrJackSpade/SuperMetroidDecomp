@@ -87,9 +87,10 @@ internal static class SamusBodyTransferDefinitions
     }
 
     /// <summary>Import binding reuses its transient calculated snapshot across records; no snapshot is retained by the installed catalog.</summary>
-    internal static bool TryFirstSize(SamusBodyArtworkCatalog body, bool upper, int set, int position,
+    internal static bool TryFirstSize(SamusBodyArtworkCatalog body, SamusBodyTileSlot slot,
         int payloadBytes, ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames, out ushort firstSize)
     {
+        (bool upper, int set, int position) = slot;
         if (TrySelectedPacking(upper, set, position, payloadBytes, out firstSize)) return true;
         int firstTiles = 0;
         for (int pose = 0; pose < pointers.Length; pose++)
@@ -154,3 +155,6 @@ internal static class SamusBodyTransferDefinitions
         return balanced;
     }
 }
+
+/// <summary>One Samus body tile allocation: the upper or lower half, its tile set, and the position within that set (#633).</summary>
+internal readonly record struct SamusBodyTileSlot(bool Upper, int Set, int Position);

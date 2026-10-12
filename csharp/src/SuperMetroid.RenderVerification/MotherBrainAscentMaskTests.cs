@@ -40,9 +40,7 @@ internal static class MotherBrainAscentMaskTests
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
             var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
             PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "ascent mask packet round trip");
-            var math = new GameplayColorMathRenderLayer(layer,
-                Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
-                SnesColorMathControl.None, false, 0, 0, 0);
+            var math = new GameplayColorMathRenderLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.None, AddSubscreen = false, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 });
             var mathScene = new LayeredRenderSnapshot(memory, [math], 0, 15);
             var mathPacket = new RenderFrameSnapshot(new(2, 1, 0), mathScene);
             PixelComparison.Verify(mathPacket, pixels, SoftwareLayeredSnapshotRenderer.Render(mathScene), "CPU source-aware ascent mask");

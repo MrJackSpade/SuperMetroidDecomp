@@ -28,11 +28,8 @@ public static class RoomPlmEyeDoorVisualFiles
     public static RoomPlmEyeDoorVisualCatalog Load(string stockDirectory,
         string? overrideDirectory = null) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "eye-door", EyeDoorPlmDrawDefinitions.Editable,
-            EyeDoorPlmDrawDefinitions.VisualId,
-            entries => new RoomPlmEyeDoorVisualCatalog(entries.Select(entry =>
-                new RoomPlmEyeDoorVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, _, block) => catalog.GetWord(pointer, block));
+            new RoomPlmVisualFamily<RoomPlmEyeDoorVisualCatalog>(VisualFileName, "eye-door", EyeDoorPlmDrawDefinitions.Editable, EyeDoorPlmDrawDefinitions.VisualId, entries => new RoomPlmEyeDoorVisualCatalog(entries.Select(entry =>
+                new RoomPlmEyeDoorVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, _, block) => catalog.GetWord(pointer, block)));
 
     /// <summary>Checks stock eye-door provenance, digest, schema, twenty-three-frame coverage, and equality with compiled visual words; ignores overrides.</summary>
     /// <param name="stockDirectory">Installed stock eye-door directory.</param>

@@ -29,12 +29,7 @@ internal static partial class Program
 
         var blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
-        var level = new RoomLevelData(
-            new Extent16<RoomBlocks>(width, height),
-            new ushort[width * height],
-            new byte[width * height],
-            new ushort[width * height],
-            blockDefinitions);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState();
         var plms = new RoomPlmSystem();

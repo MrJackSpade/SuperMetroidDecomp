@@ -39,8 +39,7 @@ internal static partial class Program
         foreach (byte darkness in new byte[] { 0, 6, 12, 18, 24, 25, 31 })
         {
             var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray();
-            var layer = new GameplayColorMathRenderLayer(objects, closed, false,
-                actualDarkness.ColorMath, false, darkness, darkness, darkness);
+            var layer = new GameplayColorMathRenderLayer(objects, closed, false, new ColorMathRegisters { ColorMath = actualDarkness.ColorMath, AddSubscreen = false, FixedRed = darkness, FixedGreen = darkness, FixedBlue = darkness });
             var pixels = SoftwareLayeredSnapshotRenderer.Render(new(memory, new RenderLayer[] { layer }, source.ObjectSelection, source.Brightness));
             bright ??= pixels;
             AssertTrue(pixels.SequenceEqual(bright), "native A2 darkness leaves retail eye OBJ colors unchanged");

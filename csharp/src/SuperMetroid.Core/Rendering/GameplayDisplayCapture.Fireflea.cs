@@ -15,9 +15,6 @@ public static partial class GameplayDisplayCapture
         // every pixel is eligible. Native CGADSUB enables only BG2 and the backdrop:
         // foreground and Samus must not be tinted by a whole-frame darkening overlay.
         var closed = Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray();
-        return new(ordinary, closed, revealBlocks: false,
-            SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract,
-            addSubscreen: false,
-            fixedColor.RedIntensity, fixedColor.GreenIntensity, fixedColor.BlueIntensity);
+        return new(ordinary, closed, revealBlocks: false, math: new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = fixedColor.RedIntensity, FixedGreen = fixedColor.GreenIntensity, FixedBlue = fixedColor.BlueIntensity });
     }
 }

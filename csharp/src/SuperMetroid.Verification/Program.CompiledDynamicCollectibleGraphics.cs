@@ -19,9 +19,7 @@ internal static partial class Program
         // then exercise the real sequential room loader and assert its resulting VRAM.
         var guarded = NewRetailCollectibleGraphicsReadGuard(rom);
         const int width = 64;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64),
-            new ushort[width * 64], new byte[width * 64],
-            new ushort[width * 64], new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new byte[0x400 * 8]);
         var vram = new SnesVram();
         var plms = new RoomPlmSystem();
         plms.LoadRoomPopulation(new PlmRoom(guarded, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });

@@ -131,12 +131,7 @@ static void VerifySamusStoredShineAndShinespark()
     // Exercise all six stable direction poses through the public install and movement
     // handlers. The pose definition's literal X-direction byte—not target-pose parity in
     // production—selects horizontal sign, while the phase selects which block axes run.
-    RoomLevelData directionLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        new ushort[width * height],
-        new byte[width * height],
-        new ushort[width * height],
-        new byte[8]);
+    RoomLevelData directionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
     foreach ((SamusPoseId windupPose, SamusPoseId targetPose, ShinesparkPhase expectedPhase,
         bool expectsHorizontal, bool expectsVertical) in new[]
     {

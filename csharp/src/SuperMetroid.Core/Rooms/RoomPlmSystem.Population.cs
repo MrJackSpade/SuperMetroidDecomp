@@ -203,7 +203,7 @@ recordIndex,
                 out InWorldCollectibleKind kind,
                 out CollectiblePresentation presentation))
         {
-            SetupCollectibleSlot(level, streamer, vram, system, slot, kind,
+            SetupCollectibleSlot(room, slot, kind,
                 presentation, placement.DynamicGraphic);
             return true;
         }

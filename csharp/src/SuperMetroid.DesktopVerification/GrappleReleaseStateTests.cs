@@ -24,7 +24,7 @@ internal static partial class Program
                 words[row * 12 + column] = (ushort)(v[0] << 12);
                 bts[row * 12 + column] = (byte)v[1];
             }
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(12, 8), words, bts, new ushort[words.Length], new byte[8]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(12, 8), new RoomLevelPlanes(words, bts, new ushort[words.Length]), new byte[8]);
             var body = new SamusKinematicsState { Position = new(new((ushort)v[2], 0), new((ushort)v[3], 0)), Radius = new(5, (ushort)v[4])};
             SamusBlockCollision.EjectAfterGrapple(loaded.AddressSpace, level, body);
             if (body.Position.Y.Whole != v[6])

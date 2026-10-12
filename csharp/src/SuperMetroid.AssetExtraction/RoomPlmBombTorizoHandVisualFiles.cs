@@ -26,11 +26,8 @@ public static class RoomPlmBombTorizoHandVisualFiles
     public static RoomPlmBombTorizoHandVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "Bomb Torizo hand", BombTorizoHandPlmDrawDefinitions.All,
-            BombTorizoHandPlmDrawDefinitions.VisualId,
-            entries => new RoomPlmBombTorizoHandVisualCatalog(entries.Select(entry =>
-                new RoomPlmBombTorizoHandVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block));
+            new RoomPlmVisualFamily<RoomPlmBombTorizoHandVisualCatalog>(VisualFileName, "Bomb Torizo hand", BombTorizoHandPlmDrawDefinitions.All, BombTorizoHandPlmDrawDefinitions.VisualId, entries => new RoomPlmBombTorizoHandVisualCatalog(entries.Select(entry =>
+                new RoomPlmBombTorizoHandVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Bomb Torizo hand visuals.</summary>
     /// <param name="directory">Stock Bomb Torizo hand directory; overrides are ignored.</param>

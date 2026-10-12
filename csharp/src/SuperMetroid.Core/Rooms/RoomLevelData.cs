@@ -29,13 +29,10 @@ public sealed class RoomLevelData
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>
     /// <param name="size">Room size in 16-pixel blocks: the width is the row-major stride, 1..255, and the height is positive.</param>
-    /// <param name="foregroundEntries">Exactly width times height complete native BG1 words, including collision nibble, block selector, and parent flips.</param>
-    /// <param name="behaviorBytes">Exactly one native BTS byte per logical foreground block, in the same row-major order.</param>
-    /// <param name="backgroundEntries">Exactly width times height native BG2 block words, independent of foreground collision.</param>
+    /// <param name="planes">The logical BG1, BTS and BG2 planes, each exactly width times height entries in row-major order.</param>
     /// <param name="blockDefinitions">Combined CRE then area definitions: four little-endian 8-by-8 BG tilemap words per 16-pixel visual block; length must be divisible by eight bytes.</param>
-    /// <param name="streamingForegroundAllocation">Optional copied native BG1 allocation including decompressed overread tails; empty uses the logical foreground plane, and a supplied allocation cannot be shorter.</param>
+    /// <param name="streaming">Optional copied native BG1/BG2 allocations including decompressed overread tails; an empty allocation uses its logical plane, and a supplied allocation cannot be shorter.</param>
     /// <param name="doorListPointer">Optional bank-$8F door-pointer table identity; null is suitable only for fixtures that never resolve a type-$9 door collision.</param>
-    /// <param name="streamingBackgroundAllocation">Optional copied native BG2 allocation and overread tail; empty uses the logical background plane, and a supplied allocation cannot be shorter.</param>
     /// <param name="visualLayout">Optional matching-sized initial BG1/BG2 artwork; collision words, BTS, and native allocation tails remain unchanged.</param>
     /// <exception cref="ArgumentOutOfRangeException">Width is outside 1..255 or height is nonpositive.</exception>
     /// <exception cref="ArgumentException">A logical plane, streaming allocation, or block-definition byte extent has an invalid size.</exception>
@@ -43,15 +40,17 @@ public sealed class RoomLevelData
     /// <exception cref="OverflowException">The logical dimension product exceeds the signed 32-bit range.</exception>
     public RoomLevelData(
         Extent16<RoomBlocks> size,
-        ReadOnlySpan<ushort> foregroundEntries,
-        ReadOnlySpan<byte> behaviorBytes,
-        ReadOnlySpan<ushort> backgroundEntries,
+        RoomLevelPlanes planes,
         ReadOnlySpan<byte> blockDefinitions,
-        ReadOnlySpan<ushort> streamingForegroundAllocation = default,
+        RoomLevelStreaming streaming = default,
         ushort? doorListPointer = null,
-        ReadOnlySpan<ushort> streamingBackgroundAllocation = default,
         RoomVisualLayout? visualLayout = null)
     {
+        ReadOnlySpan<ushort> foregroundEntries = planes.Foreground;
+        ReadOnlySpan<byte> behaviorBytes = planes.Behavior;
+        ReadOnlySpan<ushort> backgroundEntries = planes.Background;
+        ReadOnlySpan<ushort> streamingForegroundAllocation = streaming.Foreground;
+        ReadOnlySpan<ushort> streamingBackgroundAllocation = streaming.Background;
         if (size.X is <= 0 or > 0xff)
             throw new ArgumentOutOfRangeException(nameof(size), "Room width must be 1..255 blocks.");
         if (size.Y <= 0)
@@ -59,11 +58,11 @@ public sealed class RoomLevelData
 
         int expectedBlocks = size.Area;
         if (foregroundEntries.Length != expectedBlocks)
-            throw new ArgumentException("BG1 must contain exactly one word per room block.", nameof(foregroundEntries));
+            throw new ArgumentException("BG1 must contain exactly one word per room block.", nameof(planes));
         if (behaviorBytes.Length != expectedBlocks)
-            throw new ArgumentException("BTS must contain exactly one byte per room block.", nameof(behaviorBytes));
+            throw new ArgumentException("BTS must contain exactly one byte per room block.", nameof(planes));
         if (backgroundEntries.Length != expectedBlocks)
-            throw new ArgumentException("BG2 must contain exactly one word per room block.", nameof(backgroundEntries));
+            throw new ArgumentException("BG2 must contain exactly one word per room block.", nameof(planes));
         if ((blockDefinitions.Length & 7) != 0)
             throw new ArgumentException("Each visual block definition is exactly eight bytes.", nameof(blockDefinitions));
 
@@ -85,7 +84,7 @@ public sealed class RoomLevelData
         {
             throw new ArgumentException(
                 "The streaming BG1 allocation cannot be shorter than logical BG1.",
-                nameof(streamingForegroundAllocation));
+                nameof(streaming));
         }
 
         // Room PLM coordinates are converted to a row-major native block index before
@@ -115,7 +114,7 @@ public sealed class RoomLevelData
         {
             throw new ArgumentException(
                 "The streaming BG2 allocation cannot be shorter than logical BG2.",
-                nameof(streamingBackgroundAllocation));
+                nameof(streaming));
         }
 
         // Collision and PLM scripts retain the unmodified native words. Only bank $80's

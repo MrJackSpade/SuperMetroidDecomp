@@ -92,8 +92,8 @@ internal sealed partial class InstalledSamusIsolationTests
                 blocks[FloorRow * RoomWidth + x] = (ushort)((int)RoomCollisionType.SolidBlock << 12);
                 if (lowCeiling) blocks[(FloorRow - 3) * RoomWidth + x] = (ushort)((int)RoomCollisionType.SolidBlock << 12);
             }
-            Level = new(new(RoomWidth, RoomHeight), blocks, new byte[blocks.Length],
-                new ushort[blocks.Length], new byte[8]);
+            Level = new(new(RoomWidth, RoomHeight),
+                new RoomLevelPlanes(blocks, new byte[blocks.Length], new ushort[blocks.Length]), new byte[8]);
         }
     }
 

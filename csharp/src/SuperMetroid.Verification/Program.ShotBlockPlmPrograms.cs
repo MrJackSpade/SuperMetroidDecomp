@@ -364,8 +364,7 @@ internal static partial class Program
         (ushort physical, ushort immediate, ushort streamed) Render(
             RoomPlmShotBlockVisualCatalog visuals)
         {
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), words,
-                new byte[words.Length], new ushort[words.Length], definitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), definitions);
             var streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
@@ -479,9 +478,7 @@ internal static partial class Program
         const int blockIndex = 3 + 3 * width;
         var words = new ushort[width * height];
         words[blockIndex] = 0xc321;
-        var level = new RoomLevelData(
-            new Extent16<RoomBlocks>(width, height), words, new byte[words.Length],
-            new ushort[words.Length], new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnProjectileShotBlock(
                 level, blockIndex, behavior, 0, solidBlock: true),

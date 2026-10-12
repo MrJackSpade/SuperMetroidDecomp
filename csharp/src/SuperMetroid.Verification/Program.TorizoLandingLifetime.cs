@@ -82,7 +82,7 @@ internal static partial class Program
         body.Properties=0x2000;body.CurrentInstruction=0xbc80;body.InstructionTimer=5;
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
-        var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16),words,new byte[256],new ushort[256],new byte[8]);
+        var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8]);
         typeof(SuperMetroidRuntime).GetProperty("LevelData")!.SetValue(runtime,level);
         var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;

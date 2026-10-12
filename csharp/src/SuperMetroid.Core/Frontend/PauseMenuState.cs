@@ -238,8 +238,7 @@ internal sealed partial class PauseMenuState
         PrepareRenderOam();
         objScratchPixels ??= new Rgba32[256 * 224];
         objScratchPriorities ??= new byte[256 * 224];
-        SnesObjRenderer.RenderResolved(oam, vram, cgram, PauseMenuLayout.ObjectSelection,
-            objScratchPixels, objScratchPriorities);
+        SnesObjRenderer.RenderResolved(oam, vram, cgram, PauseMenuLayout.ObjectSelection, new ObjRasterTargets(objScratchPixels, objScratchPriorities));
         var objects = new ResolvedObjFrame(objScratchPixels, objScratchPriorities);
 
         // Back to front for BGMODE=$09:

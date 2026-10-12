@@ -427,12 +427,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     // X=88 and reverses when its positive leading edge first enters this wall.
     for (int row = 0; row < roomHeight; row++)
         foreground[row * roomWidth + 6] = 0x8000;
-    RoomLevelData level = new RoomLevelData(
-        new(roomWidth, roomHeight),
-        foreground,
-        new byte[foreground.Length],
-        new ushort[foreground.Length],
-        new byte[8]);
+    RoomLevelData level = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(foreground, new byte[foreground.Length], new ushort[foreground.Length]), new byte[8]);
 
     var paletteDocument = new EnemyPaletteSheetDocument
     {
@@ -1086,12 +1081,7 @@ static void VerifyCeresRidleyRoomEntry()
 
     const int roomWidth = 32;
     const int roomHeight = 16;
-    RoomLevelData air = new RoomLevelData(
-        new(roomWidth, roomHeight),
-        new ushort[roomWidth * roomHeight],
-        new byte[roomWidth * roomHeight],
-        new ushort[roomWidth * roomHeight],
-        new byte[8]);
+    RoomLevelData air = new RoomLevelData(new(roomWidth, roomHeight), new RoomLevelPlanes(new ushort[roomWidth * roomHeight], new byte[roomWidth * roomHeight], new ushort[roomWidth * roomHeight]), new byte[8]);
     var sharedProjectiles = CreateBombFixture();
     var projectiles = CreateProjectileFixture();
 

@@ -42,7 +42,7 @@ internal static class XrayGameplayTests
                 | (half ? SnesColorMathControl.Half : 0) | (subtract ? SnesColorMathControl.Subtract : 0);
             var bg3 = sub ? new Bg2BppColorMathRenderLayer(0x5C00, 0x1000, 32, 32,
                 ExpandedColorMathOperation.Add, new Position16<BgPlanePixels>[224]) : null;
-            var layer = new GameplayColorMathRenderLayer(new(registers), lines, reveal, controls, true, 7, 7, 7, bg3);
+            var layer = new GameplayColorMathRenderLayer(new(registers), lines, reveal, new ColorMathRegisters { ColorMath = controls, AddSubscreen = true, FixedRed = 7, FixedGreen = 7, FixedBlue = 7 }, bg3);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 0, 15);
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
             var pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
@@ -88,9 +88,7 @@ internal static class XrayGameplayTests
                 var additive = new GameplayColorMathRenderLayer(new(registers with
                 {
                     MainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj,
-                }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
-                    SnesColorMathControl.Bg1 | SnesColorMathControl.Bg3 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop,
-                    true, 0, 0, 0, subscreenUsesBg2: true);
+                }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg3 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, subscreenUsesBg2: true);
                 foreach (bool blackBody in new[] { false, true })
                 {
                     var bodyColors = cgram.Colors.ToArray();
@@ -113,10 +111,7 @@ internal static class XrayGameplayTests
                 // native Fireflea source selection from a whole-frame dark overlay.
                 vram.ExecuteWordTransfer(new ushort[] { 4, 4 }, GameplayVramLayout.Bg1TilemapWord + 8 * 32 + 8, 1);
                 vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
-                var dark = new GameplayColorMathRenderLayer(new(registers),
-                    Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
-                    SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract,
-                    false, 18, 18, 18);
+                var dark = new GameplayColorMathRenderLayer(new(registers), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract, AddSubscreen = false, FixedRed = 18, FixedGreen = 18, FixedBlue = 18 });
                 var darkScene = new LayeredRenderSnapshot(new(vram.Bytes, cgram.Colors, oam, 1), new RenderLayer[] { dark }, 0, 15);
                 var darkPixels = SoftwareLayeredSnapshotRenderer.Render(darkScene);
                 Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
@@ -145,9 +140,7 @@ internal static class XrayGameplayTests
             var bg3 = new Bg2BppColorMathRenderLayer(Word(), Word(), frame % 2 == 0 ? 32 : 64, 32,
                 ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new Position16<BgPlanePixels>(Word(), Word())).ToArray());
             bool bg2Subscreen = frame % 4 == 0;
-            var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, (SnesColorMathControl)random.Next(256),
-                bg2Subscreen || frame % 3 != 0, (byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32),
-                bg2Subscreen ? null : bg3, bg2Subscreen);
+            var layer = new GameplayColorMathRenderLayer(gameplay, lines, frame % 2 == 0, new ColorMathRegisters { ColorMath = (SnesColorMathControl)random.Next(256), AddSubscreen = bg2Subscreen || frame % 3 != 0, FixedRed = (byte)random.Next(32), FixedGreen = (byte)random.Next(32), FixedBlue = (byte)random.Next(32) }, bg2Subscreen ? null : bg3, bg2Subscreen);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, (byte)random.Next(256), (byte)(frame % 16));
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
             var expected = SoftwareLayeredSnapshotRenderer.Render(scene);

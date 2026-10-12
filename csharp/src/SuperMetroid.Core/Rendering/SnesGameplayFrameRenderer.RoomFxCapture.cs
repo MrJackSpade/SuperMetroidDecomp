@@ -13,8 +13,7 @@ public static partial class SnesGameplayFrameRenderer
             throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
         var windows = new XrayWindowLine[Height];
         Array.Fill(windows, new XrayWindowLine(255, 0));
-        return new(gameplay, windows, false, WaterfallRoomDisplayRules.ColorMath,
-            true, 0, 0, 0, CaptureRoomLayer3Fx(fx), subscreenUsesBg2: true);
+        return new(gameplay, windows, false, new ColorMathRegisters { ColorMath = WaterfallRoomDisplayRules.ColorMath, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx), subscreenUsesBg2: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
@@ -68,7 +67,6 @@ public static partial class SnesGameplayFrameRenderer
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
         var emptyWindows = new XrayWindowLine[Height];
         Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
-        return new(gameplay, emptyWindows, false, (SnesColorMathControl)RoomFxRomData.Spores.ColorMathSources,
-            true, 0, 0, 0, CaptureRoomLayer3Fx(fx));
+        return new(gameplay, emptyWindows, false, new ColorMathRegisters { ColorMath = (SnesColorMathControl)RoomFxRomData.Spores.ColorMathSources, AddSubscreen = true, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 }, CaptureRoomLayer3Fx(fx));
     }
 }

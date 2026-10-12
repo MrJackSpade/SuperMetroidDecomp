@@ -27,12 +27,8 @@ public static class RoomPlmBotwoonWallVisualFiles
     public static RoomPlmBotwoonWallVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "Botwoon wall",
-            BotwoonWallPlmDrawDefinitions.All,
-            BotwoonWallPlmDrawDefinitions.VisualId,
-            entries => new RoomPlmBotwoonWallVisualCatalog(entries.Select(entry =>
-                new RoomPlmBotwoonWallVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block));
+            new RoomPlmVisualFamily<RoomPlmBotwoonWallVisualCatalog>(VisualFileName, "Botwoon wall", BotwoonWallPlmDrawDefinitions.All, BotwoonWallPlmDrawDefinitions.VisualId, entries => new RoomPlmBotwoonWallVisualCatalog(entries.Select(entry =>
+                new RoomPlmBotwoonWallVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Botwoon wall visuals.</summary>
     /// <param name="directory">Stock Botwoon wall directory; overrides are ignored.</param>

@@ -23,12 +23,7 @@ internal static partial class Program
         AssertThrows<InvalidOperationException>(() => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(0x010000),
             "word carry must return to the mutable-memory owner");
         var gameplayBus = NewSpacetimeMutableOnlyBus(bus);
-        var level = new RoomLevelData(
-            new Extent16<RoomBlocks>(16, 16),
-            new ushort[256],
-            new byte[256],
-            new ushort[256],
-            new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
 
         // Exercise the production pause input that creates Charge + Ice + Spazer + Plasma
         // without Wave; accepting the raw word only in the projectile test would miss the

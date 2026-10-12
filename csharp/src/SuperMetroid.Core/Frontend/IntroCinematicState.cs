@@ -1124,12 +1124,7 @@ public sealed partial class IntroCinematicState
         // $8B:AF30 clears the complete 512-byte word-addressable BTS allocation. BG2 and
         // block-definition data are irrelevant to bank-$94 collision in this visual room;
         // their arrays exist only to satisfy the shared RoomLevelData ownership contract.
-        return new RoomLevelData(
-            new Extent16<RoomBlocks>(width, height),
-            foreground,
-            new byte[width * height],
-            new ushort[width * height],
-            Array.Empty<byte>());
+        return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[width * height], new ushort[width * height]), Array.Empty<byte>());
     }
 
     private Rgba32[] RenderMotherBrainFlashback()

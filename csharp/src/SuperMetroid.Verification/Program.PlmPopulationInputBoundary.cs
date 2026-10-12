@@ -27,7 +27,7 @@ internal static partial class Program
             "decoded population owns its record ordering independently of caller mutation");
 
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new ushort[64], new byte[64], new ushort[64], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new ushort[64], new byte[64], new ushort[64]), new byte[8]);
         var plms = new RoomPlmSystem();
         var streamer = level.CreateBackgroundStreamer();
         AssertEqual(3, plms.LoadRoomPopulation(new PlmRoom(memory, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),

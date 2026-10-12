@@ -97,9 +97,7 @@ internal static partial class Program
             definitions[i * 2] = (byte)i;
             definitions[i * 2 + 1] = (byte)(i >> 8);
         }
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
-            Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024],
-            new ushort[1024], definitions);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
         level.SetPlmForegroundEntry(33, (ushort)((int)RoomCollisionType.ShootableBlock << 12));
         level.SetPlmBehavior(33, 2);
         RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);
@@ -117,8 +115,7 @@ internal static partial class Program
 
         var item = new CollectiblePlmSnapshot(PlmHeaderId.ExposedEnergyTank, 33, 1,
             InWorldCollectibleKind.Bombs, 0);
-        var overlayLevel = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new ushort[1024], new byte[1024],
-            new ushort[1024], definitions);
+        var overlayLevel = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), definitions);
         var noRomVisualData = new TestAddressSpace();
         ushort[] itemMap = new ushort[XrayTilemapLayout.BufferWords];
         XrayRevealOverlays.Apply(overlayLevel, itemMap, [item],

@@ -16,8 +16,7 @@ internal static partial class Program
             var words = new ushort[16 * 16];
             const int block = 3 * 16 + 3;
             words[block] = 0xc321;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), words, new byte[words.Length],
-                new ushort[words.Length], new byte[1024 * 8]);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[1024 * 8]);
             var streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem();
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, block, 1), "spawn restore-word PLM");

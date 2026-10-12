@@ -369,7 +369,7 @@ internal static partial class Program
                 "_visualStreamingForegroundAllocation" and not
                 "_visualStreamingBackgroundAllocation"),
             "pre-layout debugger state selects exactly its prior room fields");
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), [0x8000], [0], [0x8000], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([0x8000], [0], [0x8000]), new byte[8]);
         foreach (string name in new[] { "_visualStreamingForegroundAllocation",
                      "_visualStreamingBackgroundAllocation" })
             type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!

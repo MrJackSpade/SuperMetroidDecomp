@@ -414,7 +414,7 @@ public sealed class SamusBodyTileDefinition
         int source = supplied.SourceAddress;
         ushort first = supplied.FirstSize;
         sourceAddressOverride = source == SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position) ? null : source;
-        if (SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, PayloadLength, pointers, frames, out ushort calculated))
+        if (SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), PayloadLength, pointers, frames, out ushort calculated))
             calculatedFirstSize = calculated;
         firstSizeOverride = calculatedFirstSize == first ? null : first;
     }

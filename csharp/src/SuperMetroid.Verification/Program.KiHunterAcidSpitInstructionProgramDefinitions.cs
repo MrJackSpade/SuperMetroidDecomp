@@ -64,8 +64,7 @@ internal static partial class Program
 
         var blocks = new ushort[64];
         Array.Fill(blocks, (ushort)0x8000, 32, 32);
-        var level = new RoomLevelData(
-            new Extent16<RoomBlocks>(8, 8), blocks, new byte[64], new ushort[64], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(blocks, new byte[64], new ushort[64]), new byte[8]);
         left.Position = left.Position.WithWhole(new(64, 63));
         left.Radius = new(2, 2);
         left.Velocity = left.Velocity.WithY(new SnesSignedEightEight(0x0100));

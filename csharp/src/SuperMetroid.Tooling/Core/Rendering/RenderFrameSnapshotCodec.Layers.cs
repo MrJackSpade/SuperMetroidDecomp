@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.Core.Rendering;
 
 public static partial class RenderFrameSnapshotCodec
@@ -190,7 +190,7 @@ public static partial class RenderFrameSnapshotCodec
         bool bg2 = version >= RenderPacketFormat.Bg2GameplaySubscreenVersion && ReadBoolean(reader);
         if (bg2 && sub is not null && version < RenderPacketFormat.CombinedGameplaySubscreenVersion)
             throw new InvalidDataException("Combined BG2/BG3 subscreen requires display fixture version 27.");
-        return new(gameplay, lines, reveal, control, addSubscreen, red, green, blue, sub, bg2);
+        return new(gameplay, lines, reveal, new SuperMetroid.Core.Rendering.ColorMathRegisters { ColorMath = control, AddSubscreen = addSubscreen, FixedRed = red, FixedGreen = green, FixedBlue = blue }, sub, bg2);
     }
 
     private static WindowedSceneRenderLayer ReadWindowedScene(BinaryReader reader, ushort version)

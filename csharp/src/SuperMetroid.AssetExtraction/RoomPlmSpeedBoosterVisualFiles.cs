@@ -26,11 +26,8 @@ public static class RoomPlmSpeedBoosterVisualFiles
     public static RoomPlmSpeedBoosterVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "Speed Booster", SpeedBoosterBlockPlmDrawDefinitions.All,
-            SpeedBoosterBlockPlmDrawDefinitions.VisualId,
-            entries => new RoomPlmSpeedBoosterVisualCatalog(entries.Select(entry =>
-                new RoomPlmSpeedBoosterVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block));
+            new RoomPlmVisualFamily<RoomPlmSpeedBoosterVisualCatalog>(VisualFileName, "Speed Booster", SpeedBoosterBlockPlmDrawDefinitions.All, SpeedBoosterBlockPlmDrawDefinitions.VisualId, entries => new RoomPlmSpeedBoosterVisualCatalog(entries.Select(entry =>
+                new RoomPlmSpeedBoosterVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with the compiled Speed Booster visual.</summary>
     /// <param name="directory">Stock Speed Booster directory; overrides are ignored.</param>

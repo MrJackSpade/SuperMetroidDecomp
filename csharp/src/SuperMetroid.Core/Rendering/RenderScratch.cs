@@ -66,7 +66,7 @@ internal sealed class RenderScratch : IDisposable
         int count = screen.X * screen.Y;
         Rgba32[] pixels = Colors(count);
         byte[] priorities = Bytes(count);
-        SnesObjRenderer.RenderResolved(oam, vram, cgram, objectSelection, pixels, priorities, screen);
+        SnesObjRenderer.RenderResolved(oam, vram, cgram, objectSelection, new ObjRasterTargets(pixels, priorities), screen);
         return new ResolvedObjFrame(pixels, priorities);
     }
 

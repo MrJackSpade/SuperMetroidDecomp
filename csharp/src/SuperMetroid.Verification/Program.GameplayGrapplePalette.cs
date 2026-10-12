@@ -78,7 +78,7 @@ internal static partial class Program
         foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
         var words = new ushort[32 * 16];
         for (int i = 12 * 32; i < 13 * 32; i++) words[i] = 0x8000;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), words, new byte[512], new ushort[512], new byte[8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new byte[512], new ushort[512]), new byte[8]);
         typeof(SuperMetroidRuntime).GetProperty(nameof(SuperMetroidRuntime.LevelData))!.SetValue(runtime, level);
         var samus = runtime.Samus!;
         var expected = new SnesCgram();

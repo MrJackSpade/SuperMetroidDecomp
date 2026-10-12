@@ -1835,7 +1835,7 @@ internal static partial class Program
         {
             ushort[] blocks = new ushort[2];
             blocks[solidRow] = 0x8000;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), blocks, new byte[2], new ushort[2], []);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 2), new RoomLevelPlanes(blocks, new byte[2], new ushort[2]), []);
             for (int segmentIndex = 0; segmentIndex < 7; segmentIndex++)
             foreach (ushort y in new ushort[] { 13, 14, 15, 0xfff0, 0xfff1 })
             {

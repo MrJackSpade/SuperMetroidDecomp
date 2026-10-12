@@ -538,7 +538,7 @@ internal static class SamusBodyTransferDefinitionsAccess
                 firstSize = (ushort)packing[4]!;
                 return true;
             }
-            return SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, payloadBytes, body.PosePointers, body.Frames, out firstSize);
+            return SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), payloadBytes, body.PosePointers, body.Frames, out firstSize);
         }
     }
 }

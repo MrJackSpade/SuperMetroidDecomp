@@ -63,7 +63,7 @@ public static class SnesObjRenderer
         for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
         {
             OamEntry entry = oam.GetEntry(spriteIndex);
-            DrawSprite(output, frame, entry, vram, cgram, obsel, priority);
+            DrawSprite(frame, entry, vram, cgram, obsel, priority, new ObjRasterTargets(output));
         }
     }
 
@@ -85,8 +85,8 @@ public static class SnesObjRenderer
             throw new ArgumentException("Unexpected OBJ composition buffer dimensions.");
         palettes.Fill(TransparentPriority);
         for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
-            DrawSprite(pixels, frame, oam.GetEntry(spriteIndex), vram, cgram, obsel,
-                selectedPriority: null, resolvedPalettes: palettes);
+            DrawSprite(frame, oam.GetEntry(spriteIndex), vram, cgram, obsel,
+                selectedPriority: null, new ObjRasterTargets(pixels, palettes: palettes));
     }
 
     /// <summary>
@@ -100,11 +100,12 @@ public static class SnesObjRenderer
         SnesVram vram,
         SnesCgram cgram,
         byte obsel,
-        Span<Rgba32> pixels,
-        Span<byte> priorities,
-        Extent16<ScreenPixels>? size = null,
-        Span<byte> palettes = default)
+        ObjRasterTargets targets,
+        Extent16<ScreenPixels>? size = null)
     {
+        Span<Rgba32> pixels = targets.Pixels;
+        Span<byte> priorities = targets.Priorities;
+        Span<byte> palettes = targets.Palettes;
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -128,32 +129,24 @@ public static class SnesObjRenderer
         for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
         {
             OamEntry entry = oam.GetEntry(spriteIndex);
-            DrawSprite(
-                pixels,
-                frame,
-                entry,
-                vram,
-                cgram,
-                obsel,
-                selectedPriority: null,
-                priorities,
-                palettes);
+            DrawSprite(frame, entry, vram, cgram, obsel, selectedPriority: null, targets);
         }
 
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void DrawSprite(
-        Span<Rgba32> output,
         Extent16<ScreenPixels> frame,
         OamEntry entry,
         SnesVram vram,
         SnesCgram cgram,
         byte obsel,
         int? selectedPriority,
-        Span<byte> resolvedPriorities = default,
-        Span<byte> resolvedPalettes = default)
+        ObjRasterTargets targets)
     {
+        Span<Rgba32> output = targets.Pixels;
+        Span<byte> resolvedPriorities = targets.Priorities;
+        Span<byte> resolvedPalettes = targets.Palettes;
         int frameWidth = frame.X;
         int frameHeight = frame.Y;
         var mode = SizeModes[(obsel >> 5) & 7];

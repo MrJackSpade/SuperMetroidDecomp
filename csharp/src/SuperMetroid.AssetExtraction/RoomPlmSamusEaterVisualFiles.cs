@@ -27,12 +27,8 @@ public static class RoomPlmSamusEaterVisualFiles
     public static RoomPlmSamusEaterVisualCatalog Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
-            VisualFileName, "Samus Eater plant",
-            SamusEaterPlmDrawDefinitions.All,
-            SamusEaterPlmDrawDefinitions.VisualId,
-            entries => new RoomPlmSamusEaterVisualCatalog(entries.Select(entry =>
-                new RoomPlmSamusEaterVisualEntry(entry.Id, entry.Blocks))),
-            (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block));
+            new RoomPlmVisualFamily<RoomPlmSamusEaterVisualCatalog>(VisualFileName, "Samus Eater plant", SamusEaterPlmDrawDefinitions.All, SamusEaterPlmDrawDefinitions.VisualId, entries => new RoomPlmSamusEaterVisualCatalog(entries.Select(entry =>
+                new RoomPlmSamusEaterVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Samus Eater visuals.</summary>
     /// <param name="directory">Stock Samus Eater directory; overrides are ignored.</param>

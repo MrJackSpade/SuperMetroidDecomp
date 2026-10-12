@@ -57,9 +57,7 @@ internal static partial class Program
             byte[] blockDefinitions = new byte[0x400 * 8];
             blockDefinitions[originalVisual * 8] = 0x0d;
             blockDefinitions[0x53 * 8] = 0x53;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width),
-                new ushort[width * width], new byte[width * width],
-                new ushort[width * width], blockDefinitions);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]), blockDefinitions);
             var plms = new RoomPlmSystem
             {
                 BlueDoorVisuals = orientation == ColoredDoorOrientation.Left ? edited : stock,

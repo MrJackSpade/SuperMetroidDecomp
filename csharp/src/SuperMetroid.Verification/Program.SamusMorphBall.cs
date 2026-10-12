@@ -75,12 +75,7 @@ static void VerifySamusMorphBallMovement()
     var floorBlocks = new ushort[width * height];
     for (int x = 0; x < width; x++)
         floorBlocks[4 * width + x] = 0x8000;
-    RoomLevelData floor = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        floorBlocks,
-        new byte[floorBlocks.Length],
-        new ushort[floorBlocks.Length],
-        new byte[8]);
+    RoomLevelData floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(floorBlocks, new byte[floorBlocks.Length], new ushort[floorBlocks.Length]), new byte[8]);
 
     var samus = new SamusState
     {
@@ -181,12 +176,7 @@ static void VerifySamusMorphBallMovement()
 
     // Remove the floor and execute the stable grounded handler. Its failed +1 probe drives
     // the explicit `$1D/$41 -> $31/$32` walk-off transition and starts downward gravity.
-    RoomLevelData empty = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        new ushort[width * height],
-        new byte[width * height],
-        new ushort[width * height],
-        new byte[8]);
+    RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
     samus.ApplyMorphBallPoseChange(bus, SamusPoseId.MorphBallGroundLeftPose);
     samus.HorizontalSpeed.AccelerationMode = 0;
     MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
@@ -426,12 +416,7 @@ static void VerifySamusMorphBallMovement()
     var tunnelBlocks = (ushort[])floorBlocks.Clone();
     for (int x = 0; x < width; x++)
         tunnelBlocks[2 * width + x] = 0x8000;
-    RoomLevelData tunnel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        tunnelBlocks,
-        new byte[tunnelBlocks.Length],
-        new ushort[tunnelBlocks.Length],
-        new byte[8]);
+    RoomLevelData tunnel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(tunnelBlocks, new byte[tunnelBlocks.Length], new ushort[tunnelBlocks.Length]), new byte[8]);
     var boxedBall = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
@@ -1041,12 +1026,7 @@ static void VerifySamusMorphBallMovement()
     reactionWords[reactionExtensionIndex] = 0x5058;
     reactionBts[reactionExtensionIndex] = 0xff;
     var reactionDefinitions = new byte[0x400 * 8];
-    RoomLevelData reactionLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        reactionWords,
-        reactionBts,
-        new ushort[reactionWords.Length],
-        reactionDefinitions);
+    RoomLevelData reactionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(reactionWords, reactionBts, new ushort[reactionWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer reactionStreamer = reactionLevel.CreateBackgroundStreamer();
     var reactionPlms = new RoomPlmSystem();
     var reactionBombs = CreateBombFixture();
@@ -1118,12 +1098,7 @@ static void VerifySamusMorphBallMovement()
     const int integratedRevealIndex = 3 * width + 3;
     integratedRevealWords[integratedRevealIndex] = 0xc000;
     integratedRevealBts[integratedRevealIndex] = 8;
-    RoomLevelData integratedRevealLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        integratedRevealWords,
-        integratedRevealBts,
-        new ushort[integratedRevealWords.Length],
-        reactionDefinitions);
+    RoomLevelData integratedRevealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedRevealWords, integratedRevealBts, new ushort[integratedRevealWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer integratedRevealStreamer =
         integratedRevealLevel.CreateBackgroundStreamer();
     var integratedRevealPlms = new RoomPlmSystem();
@@ -1165,12 +1140,7 @@ static void VerifySamusMorphBallMovement()
     const int bombDoorIndex = 3 * width + 3;
     bombDoorWords[bombDoorIndex] = 0xc000;
     bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.Value;
-    RoomLevelData bombDoorLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        bombDoorWords,
-        bombDoorBts,
-        new ushort[bombDoorWords.Length],
-        reactionDefinitions);
+    RoomLevelData bombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new ushort[bombDoorWords.Length]), reactionDefinitions);
     var bombDoorPlms = new RoomPlmSystem();
     var bombDoorBombs = CreateBombFixture();
     var bombDoorSamus = new SamusState
@@ -1191,12 +1161,7 @@ static void VerifySamusMorphBallMovement()
         bombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
         "normal bomb synchronously runs blue-door setup");
 
-    RoomLevelData powerBombDoorLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        bombDoorWords,
-        bombDoorBts,
-        new ushort[bombDoorWords.Length],
-        reactionDefinitions);
+    RoomLevelData powerBombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new ushort[bombDoorWords.Length]), reactionDefinitions);
     var powerBombDoorPlms = new RoomPlmSystem();
     AssertTrue(!powerBombDoorPlms.TrySpawnBlueDoorOpening(
             powerBombDoorLevel,
@@ -1215,12 +1180,7 @@ static void VerifySamusMorphBallMovement()
     var shotWords = new ushort[width * height];
     const int shotIndex = 3 * width + 3;
     shotWords[shotIndex] = 0xc321;
-    RoomLevelData shotLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        shotWords,
-        new byte[shotWords.Length],
-        new ushort[shotWords.Length],
-        reactionDefinitions);
+    RoomLevelData shotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer shotStreamer = shotLevel.CreateBackgroundStreamer();
     var shotPlms = new RoomPlmSystem();
     AssertTrue(
@@ -1257,12 +1217,7 @@ static void VerifySamusMorphBallMovement()
     // max-one sound opcode rather than ordinary shot block `$8C79`. Following the entire
     // reverse animation proves RestoreLevelWord is the setup-produced `$C057`, never the
     // fixture's original visual block `$C321`.
-    RoomLevelData powerBombShotLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        shotWords,
-        new byte[shotWords.Length],
-        new ushort[shotWords.Length],
-        reactionDefinitions);
+    RoomLevelData powerBombShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer powerBombShotStreamer =
         powerBombShotLevel.CreateBackgroundStreamer();
     var powerBombShotPlms = new RoomPlmSystem();
@@ -1301,12 +1256,7 @@ static void VerifySamusMorphBallMovement()
     var integratedPowerBombBts = new byte[integratedPowerBombWords.Length];
     integratedPowerBombWords[shotIndex] = 0xc321;
     integratedPowerBombBts[shotIndex] = 8;
-    RoomLevelData integratedPowerBombLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        integratedPowerBombWords,
-        integratedPowerBombBts,
-        new ushort[integratedPowerBombWords.Length],
-        reactionDefinitions);
+    RoomLevelData integratedPowerBombLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(integratedPowerBombWords, integratedPowerBombBts, new ushort[integratedPowerBombWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer integratedPowerBombStreamer =
         integratedPowerBombLevel.CreateBackgroundStreamer();
     var integratedPowerBombPlms = new RoomPlmSystem();
@@ -1350,12 +1300,7 @@ static void VerifySamusMorphBallMovement()
     var collisionProbeBts = new byte[collisionProbeWords.Length];
     collisionProbeWords[shotIndex] = 0xc321;
     collisionProbeBts[shotIndex] = 0x10;
-    RoomLevelData collisionProbeLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        collisionProbeWords,
-        collisionProbeBts,
-        new ushort[collisionProbeWords.Length],
-        reactionDefinitions);
+    RoomLevelData collisionProbeLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(collisionProbeWords, collisionProbeBts, new ushort[collisionProbeWords.Length]), reactionDefinitions);
     var collisionProbePlms = new RoomPlmSystem();
     RunPowerBombToInitialBoundary(
             bus,
@@ -1374,12 +1319,7 @@ static void VerifySamusMorphBallMovement()
     // synthesizes `$C09F`, and retains `$CB71`'s max-six sound plus the same 384-frame
     // blank hold. An ordinary missile must fail that setup without touching terrain or
     // leaving an apparently occupied host PLM slot.
-    RoomLevelData superShotLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        shotWords,
-        new byte[shotWords.Length],
-        new ushort[shotWords.Length],
-        reactionDefinitions);
+    RoomLevelData superShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer superShotStreamer = superShotLevel.CreateBackgroundStreamer();
     var superShotPlms = new RoomPlmSystem();
     AssertTrue(!superShotPlms.TrySpawnProjectileShotBlock(
@@ -1425,12 +1365,7 @@ static void VerifySamusMorphBallMovement()
         ((byte)11, (ushort)0x0200, "Super-Missile"),
     })
     {
-        RoomLevelData permanentWeaponLevel = new RoomLevelData(
-            new Extent16<RoomBlocks>(width, height),
-            shotWords,
-            new byte[shotWords.Length],
-            new ushort[shotWords.Length],
-            reactionDefinitions);
+        RoomLevelData permanentWeaponLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
         BackgroundTilemapStreamer permanentWeaponStreamer =
             permanentWeaponLevel.CreateBackgroundStreamer();
         var permanentWeaponPlms = new RoomPlmSystem();
@@ -1456,12 +1391,7 @@ static void VerifySamusMorphBallMovement()
     // has a collision-nibble asymmetry instead: type C allocates an area-table no-op, while
     // type four returns before Spawn_PLM. These slots are visually invisible, but retaining
     // their one-handler lifetime prevents the finite 40-slot pool from behaving differently.
-    RoomLevelData noOpShotLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        shotWords,
-        new byte[shotWords.Length],
-        new ushort[shotWords.Length],
-        reactionDefinitions);
+    RoomLevelData noOpShotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new byte[shotWords.Length], new ushort[shotWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer noOpShotStreamer = noOpShotLevel.CreateBackgroundStreamer();
     var noOpShotPlms = new RoomPlmSystem();
     AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
@@ -1511,12 +1441,7 @@ static void VerifySamusMorphBallMovement()
     revealWords[powerRevealIndex] = 0x4000;
     revealWords[superRevealIndex] = 0xc000;
     revealWords[areaNoOpIndex] = 0xc222;
-    RoomLevelData revealLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        revealWords,
-        new byte[revealWords.Length],
-        new ushort[revealWords.Length],
-        reactionDefinitions);
+    RoomLevelData revealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(revealWords, new byte[revealWords.Length], new ushort[revealWords.Length]), reactionDefinitions);
     BackgroundTilemapStreamer revealStreamer = revealLevel.CreateBackgroundStreamer();
     var revealPlms = new RoomPlmSystem();
     AssertTrue(
@@ -1555,12 +1480,7 @@ static void VerifySamusMorphBallMovement()
     const int speedIndex = 5 * width + 5;
     specialWords[crumbleIndex] = 0xb000;
     specialWords[speedIndex] = 0xb000;
-    RoomLevelData specialLevel = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        specialWords,
-        new byte[specialWords.Length],
-        new ushort[specialWords.Length],
-        reactionDefinitions);
+    RoomLevelData specialLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(specialWords, new byte[specialWords.Length], new ushort[specialWords.Length]), reactionDefinitions);
         BackgroundTilemapStreamer specialStreamer = specialLevel.CreateBackgroundStreamer();
     // #320: the cartridge's normal table extends through BTS $4F, not $0F.
     // Exercise actual bomb collision dispatch and assert the resulting terrain.
@@ -1570,8 +1490,7 @@ static void VerifySamusMorphBallMovement()
         var behaviors = new byte[words.Length];
         words[crumbleIndex] = 0xb000;
         behaviors[crumbleIndex] = behavior;
-        var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), words, behaviors,
-            new ushort[words.Length], reactionDefinitions);
+        var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new ushort[words.Length]), reactionDefinitions);
         var tablePlms = new RoomPlmSystem();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
             new(2, 2), new(), tablePlms, AreaId.Crateria, 0x0500);
@@ -1674,12 +1593,7 @@ static void VerifySamusMorphBallMovement()
     var ceilingBlocks = new ushort[width * height];
     for (int x = 0; x < width; x++)
         ceilingBlocks[2 * width + x] = 0x8000;
-    RoomLevelData ceiling = new RoomLevelData(
-        new Extent16<RoomBlocks>(width, height),
-        ceilingBlocks,
-        new byte[ceilingBlocks.Length],
-        new ushort[ceilingBlocks.Length],
-        new byte[8]);
+    RoomLevelData ceiling = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(ceilingBlocks, new byte[ceilingBlocks.Length], new ushort[ceilingBlocks.Length]), new byte[8]);
     var straightBombJump = new SamusState
     {
         Pose = SamusPoseId.MorphBallGroundLeftPose,

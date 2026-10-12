@@ -52,13 +52,7 @@ public static partial class SnesGameplayFrameRenderer
         {
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
-            SnesObjRenderer.RenderResolved(
-                oam,
-                vram,
-                cgram,
-                obsel,
-                objectPixels,
-                objectPriorities);
+            SnesObjRenderer.RenderResolved(oam, vram, cgram, obsel, new ObjRasterTargets(objectPixels, objectPriorities));
             CompositeOrdinaryGameplayViewport(output, vram, cgram, objectPixels, objectPriorities, layer, windowMasks);
         }
         finally
@@ -965,13 +959,7 @@ public static partial class SnesGameplayFrameRenderer
         {
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
-            SnesObjRenderer.RenderResolved(
-                oam,
-                vram,
-                cgram,
-                obsel,
-                objectPixels,
-                objectPriorities);
+            SnesObjRenderer.RenderResolved(oam, vram, cgram, obsel, new ObjRasterTargets(objectPixels, objectPriorities));
             for (int pixel = HudHeight * Width; pixel < output.Length; pixel++)
             {
                 // Every resolved OBJ priority is above Mode 7 in this PPU configuration.

@@ -58,33 +58,26 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
     /// <param name="gameplay">The ordinary gameplay source planes and sprites.</param>
     /// <param name="lines">Exactly one color-window interval per physical scanline.</param>
     /// <param name="revealBlocks">Whether to substitute eligible level blocks with their X-ray reveal characters.</param>
-    /// <param name="colorMath">CGADSUB source and operation bits.</param>
-    /// <param name="addSubscreen">Whether arithmetic uses the winning subscreen pixel instead of fixed color.</param>
-    /// <param name="fixedRed">Five-bit fixed-color red component.</param>
-    /// <param name="fixedGreen">Five-bit fixed-color green component.</param>
-    /// <param name="fixedBlue">Five-bit fixed-color blue component.</param>
+    /// <param name="math">The colour-math registers one composition uses: CGADSUB's sources and operation, CGWSEL's subscreen-or-fixed operand select, and COLDATA's five-bit fixed colour (#633).</param>
     /// <param name="subscreen">Optional captured 2-bpp plane competing on the subscreen.</param>
     /// <param name="subscreenUsesBg2">Whether gameplay BG2 also competes on the subscreen.</param>
-    public GameplayColorMathRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines,
-        bool revealBlocks, SnesColorMathControl colorMath, bool addSubscreen,
-        byte fixedRed, byte fixedGreen, byte fixedBlue, Bg2BppColorMathRenderLayer? subscreen = null,
-        bool subscreenUsesBg2 = false)
+    public GameplayColorMathRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines, bool revealBlocks, ColorMathRegisters math, Bg2BppColorMathRenderLayer? subscreen = null, bool subscreenUsesBg2 = false)
     {
         ArgumentNullException.ThrowIfNull(gameplay);
-        if (subscreenUsesBg2 && !addSubscreen)
+        if (subscreenUsesBg2 && !math.AddSubscreen)
             throw new ArgumentException("BG2 subscreen requires subscreen arithmetic.", nameof(subscreenUsesBg2));
         if (lines.Length != SnesPpuLayout.ScreenHeightPixels)
             throw new ArgumentException("Gameplay color math requires one interval for each physical scanline.", nameof(lines));
-        if (fixedRed > 31 || fixedGreen > 31 || fixedBlue > 31)
-            throw new ArgumentOutOfRangeException(nameof(fixedRed), "COLDATA components must be five-bit values.");
+        if (math.FixedRed > 31 || math.FixedGreen > 31 || math.FixedBlue > 31)
+            throw new ArgumentOutOfRangeException(nameof(math.FixedRed), "COLDATA components must be five-bit values.");
         Gameplay = gameplay;
         this.lines = lines.ToArray();
         RevealBlocks = revealBlocks;
-        ColorMath = colorMath;
-        AddSubscreen = addSubscreen;
-        FixedRed = fixedRed;
-        FixedGreen = fixedGreen;
-        FixedBlue = fixedBlue;
+        ColorMath = math.ColorMath;
+        AddSubscreen = math.AddSubscreen;
+        FixedRed = math.FixedRed;
+        FixedGreen = math.FixedGreen;
+        FixedBlue = math.FixedBlue;
         Subscreen = subscreen;
         SubscreenUsesBg2 = subscreenUsesBg2;
     }

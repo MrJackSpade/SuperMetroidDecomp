@@ -121,9 +121,7 @@ internal static partial class Program
             RoomPlmDynamicCollectibleArtCatalog art)
     {
         const int width = 64;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64),
-            new ushort[width * 64], new byte[width * 64],
-            new ushort[width * 64], new byte[0x400 * 8]);
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 64), new RoomLevelPlanes(new ushort[width * 64], new byte[width * 64], new ushort[width * 64]), new byte[0x400 * 8]);
         var vram = new SnesVram();
         var plms = new RoomPlmSystem { DynamicCollectibleArt = art };
         plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });

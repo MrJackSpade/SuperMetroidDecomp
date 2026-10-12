@@ -90,7 +90,8 @@ internal static class SamusBodyTransferDefinitions
     internal static bool TryFirstSize(SamusBodyArtworkCatalog body, SamusBodyTileSlot slot,
         int payloadBytes, ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames, out ushort firstSize)
     {
-        (bool upper, int set, int position) = slot;
+        bool upper = slot.Upper;
+        int set = slot.Set, position = slot.Position;
         if (TrySelectedPacking(upper, set, position, payloadBytes, out firstSize)) return true;
         int firstTiles = 0;
         for (int pose = 0; pose < pointers.Length; pose++)

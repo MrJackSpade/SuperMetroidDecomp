@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>
 /// The host services translated enemy AI uses, read from the <see cref="IRoomEnemyServices"/> that
 /// <see cref="RoomEnemySystem.Load"/> installed. A host without a service supplies one that fails at
-/// the exact dependency (see <see cref="StandaloneRoomEnemyServices"/>).
+/// the exact dependency (standalone fixtures install only the services they model).
 /// </summary>
 public sealed partial class RoomEnemySystem
 {

@@ -14,7 +14,7 @@ internal static class PlmInterpreterSourceContract
         // #1269 adds the compiled escape-passage and shaft-wall clear draws; no program reads.
         // #142 reads the installed visuals through auto-properties; no program reads.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "DrawPlmInstruction/8",
+        "DrawPlmInstruction/6",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         "ConvertEyeToBlueDoor/3",
         // #1269 adds $84:BB25, a two-byte record with no operands (PlmInstructionFormats).
@@ -22,13 +22,13 @@ internal static class PlmInterpreterSourceContract
         // #628 $84:AB51 names its two scroll cells as typed screen positions; same writes, no program reads.
         // #628 $84:AB51 names its two scroll cells as typed screen positions; same writes, no program reads.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "ExecuteInstructionStream/8",
+        "ExecuteInstructionStream/7",
         // #1273 drops the verification-only instruction source; the remaining sources are unchanged.
         "ReadProgramByte/2",
         "ReadProgramWord/2",
         // Saved item-load counter increment adds no program reads or operand-width changes;
         // #1269 Chozo orb phases change collectible state only.
-        "SetupCollectibleSlot/8",
+        "SetupCollectibleSlot/5",
         // #1273 makes the door setups static; no reads or widths change.
         "SetupColoredDoorSlot/6",
         // #627 selects the grey-door condition through GreyDoorConditions.AtTableIndex; no program reads change.
@@ -53,21 +53,21 @@ internal static class PlmInterpreterSourceContract
         "TryExecuteMotherBrainGlassInstruction/3",
         "TryExecuteNoobTubeInstruction/3",
         // #142 drops the unused Samus accessor; no program reads or operand widths change.
-        "TryRunRoomPopulationSetup/10",
+        "TryRunRoomPopulationSetup/5",
         // #1255 suspends before the existing Empty draw/delete continuation; no new program reads or operand widths;
         // #1269 releases an emptied Chozo slot without reading its program.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryStepCollectible/6",
+        "TryStepCollectible/5",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryStepColoredDoor/6",
+        "TryStepColoredDoor/5",
         // #1266 resets LoopTimer for a rejected shot; no program reads or operand widths change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryStepGreyDoor/8",
+        "TryStepGreyDoor/7",
         "TryStepScrollPlm/3",
         // #1269 station lock timing; the unpause-release change drops the second lock; no
         // program reads or operand widths change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryStepStation/6",
+        "TryStepStation/5",
         "TryStepWreckedShipTreadmill/3",
     };
 }

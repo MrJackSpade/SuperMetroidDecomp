@@ -27,6 +27,8 @@ internal static partial class Program
             VerifyPpuLayoutAccessAnalyzer();
             VerifyDspRegisterAccessAnalyzer();
             VerifySpcMemoryAccessAnalyzer();
+            VerifyParameterListAnalyzer();
+            VerifyParameterContracts();
             VerifyPaletteFxDependencyContract();
             Console.WriteLine("Ensure API, analyzer and palette-FX dependency checks passed.");
             return 0;

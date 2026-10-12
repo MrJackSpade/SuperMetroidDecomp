@@ -290,3 +290,13 @@ internal static class CartridgeAudioStateQueueAccess
              PrivateState.Field<byte[]>(self, "_soundStates")[queue]);
     }
 }
+internal static class SuperMetroidRuntimeFrameAccess
+{
+    extension(SuperMetroid.Core.Runtime.SuperMetroidRuntime self)
+    {
+        /// <summary>One ordinary state-eight frame: departure allowed, game time advancing, deferred audio (#633).</summary>
+        internal SuperMetroid.Core.Runtime.RuntimeFrameResult StepFrame(ushort controller1Input) =>
+            self.StepFrame(controller1Input, new SuperMetroid.Core.Runtime.RuntimeFrameRequest());
+    }
+}
+

@@ -43,5 +43,5 @@ internal static class CompiledEnemyDisplayAudit
             access.Expression.ToString() == nameof(CommonEnemyEmptyExtendedFrameDefinitions) &&
             access.Name.Identifier.ValueText == nameof(CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap) &&
             invocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString())
-                .SequenceEqual(new[] { "bank", "pointer" }));
+                .SequenceEqual(new[] { "draw.Bank", "draw.Pointer" }));
 }

@@ -34,8 +34,8 @@ internal sealed class ShallowWaterJumpScenario
         samus.EquippedItems = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        runtime.StepFrame(0);
-        runtime.StepFrame(0);
+        runtime.StepFrame(0, new RuntimeFrameRequest());
+        runtime.StepFrame(0, new RuntimeFrameRequest());
     }
 
     /// <summary>Native WRAM seed words for the takeoff state, in the capture tool's order.</summary>
@@ -49,7 +49,7 @@ internal sealed class ShallowWaterJumpScenario
         uint apex = Samus.Kinematics.Position.Y.RawValue;
         for (int frame = 0; frame < JumpFrameCount; frame++)
         {
-            Runtime.StepFrame((ushort)SnesButton.A);
+            Runtime.StepFrame((ushort)SnesButton.A, new RuntimeFrameRequest());
             apex = Math.Min(apex, Samus.Kinematics.Position.Y.RawValue);
             rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.Position.Y.RawValue:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
         }

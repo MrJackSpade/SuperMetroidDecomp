@@ -1041,11 +1041,6 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Counter incremented by every NMI, accepted or lagged.</summary>
     public ushort NmiCounterIncludingLag { get; private set; }
 
-    /// <summary>Runs one ordinary accepted NMI followed by the translated per-frame timer logic.</summary>
-    /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
-    public RuntimeFrameResult StepFrame(ushort controller1Input) =>
-        StepFrame(controller1Input, RuntimeFrameRequest.Ordinary);
-
     /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic, as <paramref name="request"/> asks.</summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
     /// <param name="request">The state policy, audio calls and post-NMI host work for this frame.</param>

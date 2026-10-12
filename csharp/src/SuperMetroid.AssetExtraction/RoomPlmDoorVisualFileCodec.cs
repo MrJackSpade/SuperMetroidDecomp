@@ -52,9 +52,12 @@ internal static class RoomPlmDoorVisualFileCodec
         RoomPlmVisualFamily<TCatalog> visuals)
     {
         ArgumentNullException.ThrowIfNull(visuals);
-        (string visualFileName, string family, IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
-            Func<ushort, string> visualId, Func<Entry[], TCatalog> createCatalog,
-            Func<TCatalog, ushort, int, int, ushort> getWord) = visuals;
+        string visualFileName = visuals.FileName;
+        string family = visuals.Name;
+        IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions = visuals.Definitions;
+        Func<ushort, string> visualId = visuals.VisualId;
+        Func<Entry[], TCatalog> createCatalog = visuals.CreateCatalog;
+        Func<TCatalog, ushort, int, int, ushort> getWord = visuals.GetWord;
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath, family);

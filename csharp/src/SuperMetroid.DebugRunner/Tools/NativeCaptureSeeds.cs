@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 
 internal static partial class AssetTools
@@ -19,7 +20,7 @@ internal static partial class AssetTools
             for (int frame = 0; frame < scenario.FrameCount; frame++, frames++)
             {
                 ushort input = scenario.Input(frame);
-                scenario.Runtime.StepFrame(input);
+                scenario.Runtime.StepFrame(input, new RuntimeFrameRequest());
                 output.WriteLine(scenario.Row(frame, input));
                 if (!scenario.RecordsBombs(frame))
                     continue;

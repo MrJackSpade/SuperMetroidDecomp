@@ -1,0 +1,4296 @@
+{
+  "issue": 633,
+  "description": "Repository-wide inventory of oversized and forwarded parameter lists, the typed operation contexts that replaced them, and their migration status. Generated from the analyzer findings at the baseline commit and the current source; the analyzer (SME6330-SME6332, errors) prevents recurrence.",
+  "ceiling": 7,
+  "nullableCallbackCluster": 3,
+  "rules": {
+    "SME6330": "Signature above the seven-parameter ceiling (methods, constructors, delegates, local functions).",
+    "SME6331": "Three or more nullable delegate parameters toggling capabilities.",
+    "SME6332": "Parameter typed with a broad context when a narrower implemented capability interface covers every member read."
+  },
+  "exemptions": [
+    "overrides and interface implementations (signature owned by the declaration)",
+    "extern members",
+    "positional record primary constructors and deconstructors",
+    "members declaring [ParameterListContract(\"reason\")] for an immutable external contract"
+  ],
+  "baselineCommit": "7dc7381e3",
+  "occurrences": [
+    {
+      "operation": "ProjectilePresentationFiles.Identity",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.AssetExtraction/ProjectilePresentationFiles.cs:166",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 13,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ProjectileFile composition",
+        "Dictionary<string, ProjectileFile> beams",
+        "ProjectileFile palettes",
+        "ProjectileFile hyperBeamFxColors",
+        "ProjectileFile trails",
+        "ProjectileFile trailTiles",
+        "ProjectileFile flarePlacement",
+        "ProjectileFile flareCompositions",
+        "ProjectileFile grappleTiles",
+        "ProjectileFile grappleSprites",
+        "ProjectileFile grappleFlare",
+        "ProjectileFile grappleSwing",
+        "ProjectileFile frameBindings"
+      ],
+      "parametersAfter": [
+        "ProjectilePresentationSourceFiles files"
+      ],
+      "contracts": [
+        "ProjectilePresentationSourceFiles"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmDoorVisualFileCodec.Load",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.AssetExtraction/RoomPlmDoorVisualFileCodec.cs:51",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "string stockDirectory",
+        "string? overrideDirectory",
+        "string visualFileName",
+        "string family",
+        "IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions",
+        "Func<ushort, string> visualId",
+        "Func<Entry[], TCatalog> createCatalog",
+        "Func<TCatalog, ushort, int, int, ushort> getWord"
+      ],
+      "parametersAfter": [
+        "string stockDirectory",
+        "string? overrideDirectory",
+        "RoomPlmVisualFamily<TCatalog> visuals"
+      ],
+      "contracts": [
+        "RoomPlmVisualFamily<TCatalog>"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmPresentationIdentity.Create",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.AssetExtraction/RoomPlmPresentationIdentity.cs:9",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 27,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomPlmShotBlockVisualCatalog shotBlock",
+        "RoomPlmGrappleBlockVisualCatalog grappleBlock",
+        "RoomPlmStationVisualCatalog station",
+        "RoomPlmBlueDoorVisualCatalog blueDoor",
+        "RoomPlmColoredDoorVisualCatalog coloredDoor",
+        "RoomPlmGreyDoorVisualCatalog greyDoor",
+        "RoomPlmEyeDoorVisualCatalog eyeDoor",
+        "RoomPlmMotherBrainGlassVisualCatalog motherBrainGlass",
+        "RoomPlmNoobTubeVisualCatalog noobTube",
+        "RoomPlmDownwardGateVisualCatalog downwardGate",
+        "RoomPlmElevatorPlatformVisualCatalog elevatorPlatform",
+        "RoomPlmEscapeGateVisualCatalog escapeGate",
+        "RoomPlmBombTorizoHandVisualCatalog bombTorizoHand",
+        "RoomPlmDraygonCannonVisualCatalog draygonCannon",
+        "RoomPlmChozoStatueVisualCatalog chozoStatue",
+        "RoomPlmLinkedRestoreVisualCatalog linkedRestore",
+        "RoomPlmTourianAccessVisualCatalog tourianAccess",
+        "RoomPlmSpeedBoosterVisualCatalog speedBooster",
+        "RoomPlmMaridiaElevatubeVisualCatalog maridiaElevatube",
+        "RoomPlmSporeSpawnCeilingVisualCatalog sporeSpawnCeiling",
+        "RoomPlmSamusEaterVisualCatalog samusEater",
+        "RoomPlmBotwoonWallVisualCatalog botwoonWall",
+        "RoomPlmKraidVisualCatalog kraid",
+        "RoomPlmCrocomireVisualCatalog crocomire",
+        "RoomPlmMotherBrainFakeDeathVisualCatalog motherBrainFakeDeath",
+        "RoomPlmCollectibleVisualCatalog collectible",
+        "RoomPlmDynamicCollectibleArtCatalog dynamicCollectibleArt"
+      ],
+      "parametersAfter": [
+        "RoomPlmVisualCatalogSet catalogs"
+      ],
+      "contracts": [
+        "RoomPlmVisualCatalogSet"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "AreaMapPresentationCatalog constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/AreaMapPresentationCatalog.cs:14",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 56,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "IAreaMapView[] areas",
+        "string contentIdentity",
+        "MapTileAtlas tiles",
+        "HudTileAtlas hudTiles",
+        "MapPaletteCycle highlightCycle",
+        "MapStaticPalettes palettes",
+        "WorldMapLabelLayout labels",
+        "MapStationLayout stations",
+        "MapLandmarkLayout landmarks",
+        "MapSaveMarkerLayout saveMarkers",
+        "MapArrowPresentation arrows",
+        "MapScreenPresentation screens",
+        "WorldMapArtwork worldArtwork",
+        "MapSpriteCatalog sprites",
+        "MapTileAtlas pauseTiles",
+        "PauseBackdropPresentation pauseBackdrops",
+        "PauseWireframePresentation pauseWireframes",
+        "PauseSelectorPresentation pauseSelectors",
+        "PauseReserveTankPresentation pauseReserveTanks",
+        "PauseReserveUiPresentation pauseReserveUi",
+        "PauseEquipmentBasePresentation pauseEquipmentBase",
+        "PauseEquipmentLabelPresentation pauseEquipmentLabels",
+        "EscapeTimerPresentation escapeTimer",
+        "EscapeTimerTileAtlas escapeTimerTiles",
+        "GameplayHudPresentation gameplayHud",
+        "GameOverPresentation gameOver",
+        "GameOptionsPresentation gameOptions",
+        "FileSelectPresentation fileSelect",
+        "GameplayMessageTitlePresentation gameplayMessageTitles",
+        "GameplayMessagePanelPresentation gameplayMessagePanels",
+        "GameplayMessageNoticePresentation gameplayMessageNotices",
+        "EscapeTypewriterPresentation escapeTypewriter",
+        "IntroNarrationPresentation introNarration",
+        "IntroFontAtlas introFont",
+        "EndingTextPresentation endingText",
+        "EndingFontAtlas endingFont",
+        "CreditsPresentation staffCredits",
+        "TitleGraphicsPresentation titleGraphics",
+        "TitlePalettePresentation titlePalette",
+        "TitleGradientPresentation titleGradient",
+        "RoomPaletteFxPresentation roomPaletteFx",
+        "MotherBrainHealthPalettePresentation motherBrainHealthPalette",
+        "MotherBrainRainbowPalettePresentation motherBrainRainbowPalette",
+        "RoomFxAnimatedTileAtlas roomFxAnimatedTiles",
+        "RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps",
+        "RoomFxPaletteBlendCatalog roomFxPaletteBlends",
+        "PowerBombFixedColorCatalog powerBombFixedColors",
+        "SamusVisorColorCatalog samusVisorColors",
+        "SamusHurtColorCatalog samusHurtColors",
+        "SamusSuitColorCatalog samusSuitColors",
+        "SamusFullBodyCycleColorCatalog samusFullBodyCycleColors",
+        "CrystalFlashColorCatalog crystalFlashColors",
+        "SamusChargeColorCatalog samusChargeColors",
+        "CeresRidleyColorCatalog ceresRidleyColors",
+        "CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors",
+        "SamusHyperBeamColorCatalog samusHyperBeamColors"
+      ],
+      "parametersAfter": [
+        "AreaMapPresentationParts parts"
+      ],
+      "contracts": [
+        "AreaMapPresentationParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "CeresRidleyColorCatalog constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/CeresRidleyColorCatalog.cs:21",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Bgr555[] start",
+        "CeresRidleyFadeColorDefinitions eyeFade",
+        "CeresRidleyFadeColorDefinitions bodyFade",
+        "Bgr555[][] health",
+        "CeresRidleyAlarmColorDefinitions alarm",
+        "Bgr555[] retreatBg",
+        "Bgr555[] retreatShared",
+        "CeresBabyPaintDefinitions baby"
+      ],
+      "parametersAfter": [
+        "CeresRidleyColorParts parts"
+      ],
+      "contracts": [
+        "CeresRidleyColorParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "EndingObjectArtworkCatalog constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/EndingObjectArtworkCatalog.cs:72",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 16,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomCharacterAtlas clouds",
+        "RoomCharacterAtlas explosion",
+        "IReadOnlyList<RoomCharacterAtlas> fragments",
+        "RoomCharacterAtlas waitingSamus",
+        "RoomCharacterAtlas shootingScreen",
+        "RoomCharacterAtlas suitlessSamus",
+        "RoomBackgroundTilemapAtlas waitingTilemap",
+        "RoomCharacterAtlas postCreditsFragmentA",
+        "RoomCharacterAtlas postCreditsFragmentB",
+        "RoomCharacterAtlas postShotLogoTiles",
+        "RoomBackgroundTilemapAtlas postShotLogoMap",
+        "EndingCloudSpritePresentation cloudSprites",
+        "EndingExplosionSpritePresentation explosionSprites",
+        "EndingCompletionTextSpritePresentation completionTextSprites",
+        "EndingRewardSpritePresentation rewardSprites",
+        "EndingLogoSpritePresentation logoSprites"
+      ],
+      "parametersAfter": [
+        "EndingObjectArtworkParts parts"
+      ],
+      "contracts": [
+        "EndingObjectArtworkParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "EnemyTileArtworkCatalog.FromInstalledArtwork",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.Construction.cs:14",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 38,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets",
+        "IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes",
+        "CrocomireMeltingArtwork? crocomireMelting = null",
+        "EnemySpritemapCatalog? spritemaps = null",
+        "EnemyExtendedFrameCatalog? extendedFrames = null",
+        "KraidBackgroundArtwork? kraidBackground = null",
+        "KraidColorCatalog? kraidColors = null",
+        "GunshipLiftoffArtworkCatalog? gunshipLiftoff = null",
+        "CeresDoorVisualCatalog? ceresDoorVisual = null",
+        "IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null",
+        "EnemyProjectileSpritemapCatalog? projectileSpritemaps = null",
+        "MagdollitePaletteCycle? magdollitePaletteCycle = null",
+        "WorkRobotPaletteCycle? workRobotPaletteCycle = null",
+        "CrocomireColorCatalog? crocomireColors = null",
+        "DraygonColorCatalog? draygonColors = null",
+        "PhantoonColorCatalog? phantoonColors = null",
+        "ChozoAndTubeColorCatalog? chozoAndTubeColors = null",
+        "SporeSpawnColorCatalog? sporeSpawnColors = null",
+        "DachoraColorCatalog? dachoraColors = null",
+        "ShitroidColorCatalog? shitroidColors = null",
+        "BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null",
+        "BotwoonColorCatalog? botwoonColors = null",
+        "MotherBrainDeathColorCatalog? motherBrainDeathColors = null",
+        "ZebetiteColorCatalog? zebetiteColors = null",
+        "NorfairRidleyColorCatalog? norfairRidleyColors = null",
+        "TourianStatueColorCatalog? tourianStatueColors = null",
+        "PhantoonBg2FrameCatalog? phantoonBg2Frames = null",
+        "DraygonBg2FrameCatalog? draygonBg2Frames = null",
+        "RoomCharacterAtlas? motherBrainCorpse = null",
+        "RoomCharacterAtlas? motherBrainEscapeText = null",
+        "MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null",
+        "CrocomireSkeletonArtwork? crocomireSkeleton = null",
+        "CrocomireBg2FrameCatalog? crocomireBg2Frames = null",
+        "TorizoInstructionVramArtwork? torizoInstructionVram = null",
+        "CeresEscapeTileArtwork? ceresEscapeTiles = null",
+        "CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null",
+        "EnemyAuxiliaryColorCatalog? auxiliaryColors = null",
+        "MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null"
+      ],
+      "parametersAfter": [
+        "EnemyTileArtworkParts parts"
+      ],
+      "contracts": [
+        "EnemyTileArtworkParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "EnemyTileArtworkCatalog constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/EnemyTileArtworkCatalog.Construction.cs:75",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 38,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets",
+        "IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes",
+        "CrocomireMeltingArtwork? crocomireMelting = null",
+        "EnemySpritemapCatalog? spritemaps = null",
+        "EnemyExtendedFrameCatalog? extendedFrames = null",
+        "KraidBackgroundArtwork? kraidBackground = null",
+        "KraidColorCatalog? kraidColors = null",
+        "GunshipLiftoffArtworkCatalog? gunshipLiftoff = null",
+        "CeresDoorVisualCatalog? ceresDoorVisual = null",
+        "IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null",
+        "EnemyProjectileSpritemapCatalog? projectileSpritemaps = null",
+        "MagdollitePaletteCycle? magdollitePaletteCycle = null",
+        "WorkRobotPaletteCycle? workRobotPaletteCycle = null",
+        "CrocomireColorCatalog? crocomireColors = null",
+        "DraygonColorCatalog? draygonColors = null",
+        "PhantoonColorCatalog? phantoonColors = null",
+        "ChozoAndTubeColorCatalog? chozoAndTubeColors = null",
+        "SporeSpawnColorCatalog? sporeSpawnColors = null",
+        "DachoraColorCatalog? dachoraColors = null",
+        "ShitroidColorCatalog? shitroidColors = null",
+        "BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null",
+        "BotwoonColorCatalog? botwoonColors = null",
+        "MotherBrainDeathColorCatalog? motherBrainDeathColors = null",
+        "ZebetiteColorCatalog? zebetiteColors = null",
+        "NorfairRidleyColorCatalog? norfairRidleyColors = null",
+        "TourianStatueColorCatalog? tourianStatueColors = null",
+        "PhantoonBg2FrameCatalog? phantoonBg2Frames = null",
+        "DraygonBg2FrameCatalog? draygonBg2Frames = null",
+        "RoomCharacterAtlas? motherBrainCorpse = null",
+        "RoomCharacterAtlas? motherBrainEscapeText = null",
+        "MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null",
+        "CrocomireSkeletonArtwork? crocomireSkeleton = null",
+        "CrocomireBg2FrameCatalog? crocomireBg2Frames = null",
+        "TorizoInstructionVramArtwork? torizoInstructionVram = null",
+        "CeresEscapeTileArtwork? ceresEscapeTiles = null",
+        "CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null",
+        "EnemyAuxiliaryColorCatalog? auxiliaryColors = null",
+        "MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null"
+      ],
+      "parametersAfter": [
+        "EnemyTileArtworkParts parts"
+      ],
+      "contracts": [
+        "EnemyTileArtworkParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "IntroCinematicArtworkCatalog constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/IntroCinematicArtworkCatalog.cs:30",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 18,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomCharacterAtlas backgroundCharacters",
+        "RoomCharacterAtlas introObjectCharacters",
+        "RoomCharacterAtlas cinematicObjectCharacters",
+        "IReadOnlyList<RoomBackgroundTilemapAtlas> backgroundPages",
+        "RoomBackgroundTilemapAtlas portraitTilemap",
+        "RoomBackgroundTilemapAtlas initialNarrationTilemap",
+        "IntroFinalLineTilemap finalLine",
+        "IntroEyeTilemapPresentation eyeFrames",
+        "IntroCaretSpritePresentation caretSprites",
+        "IntroMotherBrainSpritePresentation motherBrainSprites",
+        "IntroMotherBrainExplosionSpritePresentation motherBrainExplosionSprites",
+        "IntroRinkaSpritePresentation rinkaSprites",
+        "IntroEggEffectSpritePresentation eggEffectSprites",
+        "IntroDiscoveryActorSpritePresentation discoveryActorSprites",
+        "IntroScientistSpritePresentation scientistSprites",
+        "IntroCinematicPalette palette",
+        "CeresFlightArtworkCatalog ceresFlight",
+        "CeresDestructionArtworkCatalog ceresDestruction"
+      ],
+      "parametersAfter": [
+        "IntroCinematicArtworkParts parts"
+      ],
+      "contracts": [
+        "IntroCinematicArtworkParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SharedBodyChannels constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs:463",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "BodyColors source",
+        "BodyColors selected",
+        "MotherBrainRainbowShadeProfile profile",
+        "bool red",
+        "bool green",
+        "bool blue",
+        "int redAddition",
+        "int greenAddition"
+      ],
+      "parametersAfter": [
+        "BodyColors source",
+        "BodyColors selected",
+        "MotherBrainRainbowShadeProfile profile",
+        "RainbowChannelSelection channels"
+      ],
+      "contracts": [
+        "RainbowChannelSelection"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SharedBodyChannels.TryCreate",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Assets/MotherBrainRainbowPalettePresentation.cs:479",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "BodyColors source",
+        "BodyColors selected",
+        "MotherBrainRainbowShadeProfile profile",
+        "bool red",
+        "bool green",
+        "bool blue",
+        "int redAddition",
+        "int greenAddition"
+      ],
+      "parametersAfter": [
+        "BodyColors source",
+        "BodyColors selected",
+        "MotherBrainRainbowShadeProfile profile",
+        "RainbowChannelSelection channels"
+      ],
+      "contracts": [
+        "RainbowChannelSelection"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "PauseReserveUiPresentation constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/PauseReserveUiPresentation.cs:20",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Dictionary<string, ReserveLabel> labels",
+        "int digitOffset",
+        "byte[][] digits",
+        "int[] arrowOffsets",
+        "int enabledPalette",
+        "int disabledPalette",
+        "Bgr555 solidColor6",
+        "Bgr555 solidColor11",
+        "(Bgr555, Bgr555)[] arrowFrames"
+      ],
+      "parametersAfter": [
+        "PauseReserveUiParts parts"
+      ],
+      "contracts": [
+        "PauseReserveUiParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "PauseSelectorPresentation constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/PauseSelectorPresentation.cs:20",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Dictionary<string, (int? X, int? Y)> anchorOverrides",
+        "PhaseComposition reserve",
+        "PhaseComposition beam",
+        "PhaseComposition equipment",
+        "int phaseCount",
+        "Dictionary<int, int>? durationOverrides",
+        "int initialDuration",
+        "int palette"
+      ],
+      "parametersAfter": [
+        "PauseSelectorParts parts"
+      ],
+      "contracts": [
+        "PauseSelectorParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomFxPaletteBlendCatalog constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/RoomFxPaletteBlendCatalog.cs:20",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomFxBlendColors lava",
+        "RoomFxBlendColors landingSiteRain",
+        "RoomFxBlendColors maridiaWaterA",
+        "RoomFxBlendColors waterAndAcid",
+        "RoomFxBlendColors fog",
+        "RoomFxBlendColors maridiaWaterB",
+        "RoomFxBlendColors maridiaWaterC",
+        "RoomFxBlendColors maridiaWaterD",
+        "PaletteRgb5 ceresHazeBlue",
+        "PaletteRgb5 ceresHazeRed"
+      ],
+      "parametersAfter": [
+        "RoomFxPaletteBlendParts parts"
+      ],
+      "contracts": [
+        "RoomFxPaletteBlendParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusBodyArtworkCatalog constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Assets/SamusBodyArtworkCatalog.cs:78",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 15,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ushort[] topPointers",
+        "ushort[] bottomPointers",
+        "ushort[] posePointers",
+        "sbyte[] graphicsYOffsets",
+        "SamusBodyFrameSelection[] frames",
+        "SamusBodyTileDefinition[][] top",
+        "SamusBodyTileDefinition[][] bottom",
+        "SamusSpritemapArtworkCatalog spritemaps",
+        "SamusAtmosphericArtworkCatalog atmosphere",
+        "SamusDeathPaletteArtworkCatalog deathPalettes",
+        "SamusDeathTileAtlas deathTiles",
+        "SamusArmCannonArtworkCatalog armCannon",
+        "ushort[] landingYOffsets",
+        "sbyte[] postureYOffsets",
+        "sbyte[] drainedYOffsets"
+      ],
+      "parametersAfter": [
+        "SamusBodyArtworkParts parts"
+      ],
+      "contracts": [
+        "SamusBodyArtworkParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusBodyTransferDefinitions.TryFirstSize",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Assets/SamusBodyTransferDefinitions.cs:90",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SamusBodyArtworkCatalog body",
+        "bool upper",
+        "int set",
+        "int position",
+        "int payloadBytes",
+        "ReadOnlySpan<ushort> pointers",
+        "ReadOnlySpan<SamusBodyFrameSelection> frames",
+        "out ushort firstSize"
+      ],
+      "parametersAfter": [
+        "SamusBodyArtworkCatalog body",
+        "SamusBodyTileSlot slot",
+        "int payloadBytes",
+        "ReadOnlySpan<ushort> pointers",
+        "ReadOnlySpan<SamusBodyFrameSelection> frames",
+        "out ushort firstSize"
+      ],
+      "contracts": [
+        "SamusBodyTileSlot"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "ExtractedAudioAssetCatalog constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Audio/ExtractedAudioAssetCatalog.cs:23",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "IReadOnlyDictionary<int, byte[]> streams",
+        "IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks",
+        "IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>> instrumentBanks",
+        "IReadOnlyDictionary<int, AudioBankMetadata> musicBanks",
+        "IReadOnlyList<AudioSoundProgramMetadata> soundPrograms",
+        "IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries",
+        "int canonicalSampleCount",
+        "string contentIdentity"
+      ],
+      "parametersAfter": [
+        "ExtractedAudioAssetParts parts"
+      ],
+      "contracts": [
+        "ExtractedAudioAssetParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "EndingBackgroundTextState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Frontend/EndingBackgroundTextState.cs:31",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "ushort[] tilemap",
+        "ushort instructionPointer",
+        "EndingInventorySnapshot inventory",
+        "bool japaneseText",
+        "ushort tilemapDestination = EndingCreditsRomData.Rendering.PostCreditsTilemapWord",
+        "EndingTextPresentation? presentation = null",
+        "EndingTextSequence? installedSequence = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "EndingBackgroundTextSetup setup"
+      ],
+      "contracts": [
+        "EndingBackgroundTextSetup"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "EndingCreditsState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Frontend/EndingCreditsState.cs:65",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "CartridgeAudioState audio",
+        "ushort gameTimeHours",
+        "ushort gameTimeMinutes",
+        "EndingInventorySnapshot inventory = default",
+        "bool japaneseText = false",
+        "EndingTextPresentation? endingText = null",
+        "bool crittersEscaped = false"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "CartridgeAudioState audio",
+        "EndingCreditsSetup setup"
+      ],
+      "contracts": [
+        "EndingCreditsSetup"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "PauseMenuState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Frontend/PauseMenuState.cs:55",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "Bank80SystemState system",
+        "AreaId areaIndex",
+        "Position16<MapTiles> roomMapPosition",
+        "CartridgeAudioState? audio = null",
+        "SnesVram? gameplayVram = null",
+        "MapRevealMode mapRevealMode = MapRevealMode.None",
+        "AreaMapPresentationCatalog? mapPresentation = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "PauseMenuEntry entry"
+      ],
+      "contracts": [
+        "PauseMenuEntry"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "HudState.UpdateMinimap",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/HudState.cs:211",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "Bank80SystemState system",
+        "AreaId areaIndex",
+        "Position16<MapTiles> roomMap",
+        "Extent16<RoomBlocks> roomSize",
+        "Position16<RoomPixels> samus",
+        "byte nmiFrameCounter",
+        "MapRevealMode mapRevealMode = MapRevealMode.None",
+        "IAreaMapView? presentationMap = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "Bank80SystemState system",
+        "MinimapFrame frame"
+      ],
+      "contracts": [
+        "MinimapFrame"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "MotherBrainNeckKinematics.CalculateGeometry",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/MotherBrainNeckKinematics.cs:154",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Position16<RoomPixels> body",
+        "ushort lowerAngle",
+        "ushort upperAngle",
+        "ushort segment0Distance = 2",
+        "ushort segment1Distance = 10",
+        "ushort segment2Distance = 20",
+        "ushort segment3Distance = 10",
+        "ushort segment4Distance = 20"
+      ],
+      "parametersAfter": [
+        "Position16<RoomPixels> body",
+        "ushort lowerAngle",
+        "ushort upperAngle",
+        "MotherBrainNeckSegmentDistances distances"
+      ],
+      "contracts": [
+        "MotherBrainNeckSegmentDistances"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "MotherBrainRainbowBeamAttackSequence.Step",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.StateMachine.cs:14",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 1,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "ushort enemyFrameCounter",
+        "ushort mainEnemyExecutionCounter",
+        "bool powerBombActive = false",
+        "ushort randomNumberSeed = 0",
+        "Func<ushort>? nextRandomNumber = null",
+        "bool alternateEscapeText = false",
+        "bool typewriterFinished = false",
+        "ushort? globalEarthquakeTimer = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "RainbowBeamAttackFrame frame"
+      ],
+      "contracts": [
+        "RainbowBeamAttackFrame"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "MotherBrainRainbowBeamAttackSequence.SynchronizeLiveActor",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/MotherBrainRainbowBeamAttackSequence.cs:400",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 16,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Position16<RoomPixels> body",
+        "MotherBrainBodyPose bodyPose",
+        "ushort form",
+        "ushort bodyProperties",
+        "ushort bodyExtraProperties",
+        "Position16<RoomPixels> brain",
+        "ushort brainHealth",
+        "ushort brainProperties",
+        "ushort brainExtraProperties",
+        "ushort lowerNeckAngle",
+        "ushort upperNeckAngle",
+        "bool neckMovementEnabled",
+        "MotherBrainNeckMovement lowerNeckMovementIndex",
+        "MotherBrainNeckMovement upperNeckMovementIndex",
+        "ushort bombCounter",
+        "bool hitboxesEnabled"
+      ],
+      "parametersAfter": [
+        "MotherBrainLiveActorSnapshot actor"
+      ],
+      "contracts": [
+        "MotherBrainLiveActorSnapshot"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "BeetomEnemyState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Beetom.cs:86",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "ushort[] installedInstructionLists",
+        "ushort[] initialShortLeapYSpeedIndexes",
+        "ushort[] initialLongLeapYSpeedIndexes",
+        "ushort[] initialLungeYSpeedIndexes",
+        "ushort[] fallingFlags",
+        "ushort[] attachedFlags",
+        "ushort[] directions",
+        "Offset16<RoomPixels>[] initialAttachmentOffsets"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "BeetomSharedTables tables"
+      ],
+      "contracts": [
+        "BeetomSharedTables"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.TryProcessBombTorizoInstruction",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizoInstructions.cs:17",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot torizo",
+        "SamusState? samus",
+        "RoomLevelData? level",
+        "ushort opcode",
+        "ref ushort cursor",
+        "ushort controllerInput",
+        "byte frameCounterLow",
+        "out bool pauseInterpreter"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot torizo",
+        "TorizoInstructionInputs inputs",
+        "ushort opcode",
+        "ref ushort cursor",
+        "out bool pauseInterpreter"
+      ],
+      "contracts": [
+        "TorizoInstructionInputs"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.ProcessBombTorizoWalkInstruction",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.BombTorizoInstructions.cs:650",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot torizo",
+        "TorizoEnemyState state",
+        "SamusState? samus",
+        "RoomLevelData level",
+        "ushort cursor",
+        "ushort tableOffset",
+        "ushort collisionFacingRight",
+        "ushort collisionFacingLeft"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot torizo",
+        "TorizoEnemyState state",
+        "SamusState? samus",
+        "RoomLevelData level",
+        "ushort cursor",
+        "TorizoWalkStep step"
+      ],
+      "contracts": [
+        "TorizoWalkStep"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "BullEnemyState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Bull.cs:33",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "ushort[] maxSpeeds",
+        "ushort[] anglesToSamus",
+        "ushort[] angles",
+        "ushort[] shotReactionDisableFlags",
+        "ushort[] accelerationTimerResets",
+        "ushort[] decelerationTimerResets",
+        "ushort[] shotReactionDisableTimers",
+        "ushort[] previousHealth"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "BullSharedTables tables"
+      ],
+      "contracts": [
+        "BullSharedTables"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.EnemyVerticalProbeIsSolid",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.CommonMovement.cs:308",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomLevelData level",
+        "RoomEnemySlot slot",
+        "int nativeIndex",
+        "ushort targetCenter",
+        "ushort targetEdge",
+        "bool movingUp",
+        "int remaining",
+        "int spanMinusOne"
+      ],
+      "parametersAfter": [
+        "RoomLevelData level",
+        "RoomEnemySlot slot",
+        "int nativeIndex",
+        "EnemyVerticalProbe probe"
+      ],
+      "contracts": [
+        "EnemyVerticalProbe"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "DeadSidehopperEnemyState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadSidehopper.cs:593",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 13,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "ushort graphicsVariant",
+        "ushort configurationPointer",
+        "ushort tablePointer",
+        "ushort vramTablePointer",
+        "ushort copyFunction",
+        "ushort moveFunction",
+        "ushort rotationTablePointer",
+        "ushort finishFunction",
+        "ushort entryCount",
+        "ushort yLimit",
+        "ushort lateMoveEntryIndex",
+        "ushort wrapOffset"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "ushort graphicsVariant",
+        "ushort configurationPointer",
+        "CorpseRottingProgram rotting"
+      ],
+      "contracts": [
+        "CorpseRottingProgram"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "DeadTorizoEnemyState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTorizo.cs:387",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "ushort tablePointer",
+        "ushort vramTablePointer",
+        "ushort copyFunction",
+        "ushort moveFunction",
+        "ushort rotationTablePointer",
+        "ushort finishFunction",
+        "ushort entryCount",
+        "ushort yLimit",
+        "ushort lateMoveEntryIndex",
+        "ushort wrapOffset"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "CorpseRottingProgram rotting"
+      ],
+      "contracts": [
+        "CorpseRottingProgram"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "DeadTourianCorpseEnemyState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs:352",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 16,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "DeadTourianCorpseSpecies species",
+        "int variantIndex",
+        "ushort configurationPointer",
+        "ushort tablePointer",
+        "ushort vramTablePointer",
+        "ushort copyFunction",
+        "ushort moveFunction",
+        "ushort rotationTablePointer",
+        "ushort finishFunction",
+        "ushort entryCount",
+        "ushort yLimit",
+        "ushort lateMoveEntryIndex",
+        "ushort wrapOffset",
+        "RoomEnemySystem.DeadTourianCorpseProfile profile",
+        "RoomEnemySystem.DeadTourianCorpseVariant variant"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "DeadTourianCorpseSpecies species",
+        "int variantIndex",
+        "ushort configurationPointer",
+        "CorpseRottingProgram rotting",
+        "RoomEnemySystem.DeadTourianCorpseProfile profile",
+        "RoomEnemySystem.DeadTourianCorpseVariant variant"
+      ],
+      "contracts": [
+        "CorpseRottingProgram"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.TryProcessOwnedEnemyInstruction",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.EnemyInstructionDispatch.cs:89",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "SamusState? samus",
+        "RoomLevelData? level",
+        "ushort word",
+        "ref ushort cursor",
+        "Position16<RoomPixels> camera",
+        "ushort controllerInput",
+        "out bool yieldInterpreter"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "EnemyInstructionContext context",
+        "ushort word",
+        "ref ushort cursor",
+        "out bool yieldInterpreter"
+      ],
+      "contracts": [
+        "EnemyInstructionContext"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.OverlapsExtendedHitbox",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.OrdinaryCombat.cs:3090",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ushort targetLeft",
+        "ushort targetRight",
+        "ushort targetTop",
+        "ushort targetBottom",
+        "ushort left",
+        "ushort top",
+        "ushort right",
+        "ushort bottom",
+        "bool selectShotCallback"
+      ],
+      "parametersAfter": [
+        "ExtendedHitboxTarget target",
+        "ushort left",
+        "ushort top",
+        "ushort right",
+        "ushort bottom"
+      ],
+      "contracts": [
+        "ExtendedHitboxTarget"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "PlatformEnemyState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.Platforms.cs:60",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "PlatformMovementFunctions[] movementFunctions",
+        "ushort[] previousPositions",
+        "ushort[] verticallyMovingFlags",
+        "ushort[] verticallyStillFlags",
+        "ushort[] maximumYSpeedTableIndexes",
+        "ushort[] previousYMovementFunctions",
+        "ushort[] suspensorPlatformFlags"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "PlatformSharedTables tables"
+      ],
+      "contracts": [
+        "PlatformSharedTables"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.MoveWorkRobot",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.WorkRobot.cs:318",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 12,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "WorkRobotEnemyState state",
+        "SamusState? samus",
+        "RoomLevelData? level",
+        "ushort nextCursor",
+        "int horizontalPixels",
+        "ushort facingLaserVelocity",
+        "ushort wallInstruction",
+        "bool checkLedge",
+        "int ledgeProbeDirection",
+        "ushort fallInstruction",
+        "ushort fallLaserVelocity"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "WorkRobotEnemyState state",
+        "SamusState? samus",
+        "RoomLevelData? level",
+        "ushort nextCursor",
+        "WorkRobotMoveStep step"
+      ],
+      "contracts": [
+        "WorkRobotMoveStep"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.StepFrame",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs:528",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 16,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Position16<RoomPixels> camera",
+        "bool timeIsFrozen",
+        "SamusState? samus = null",
+        "ushort newlyPressedControllerInput = 0",
+        "RoomLevelData? level = null",
+        "ushort controllerInput = 0",
+        "SamusProjectileSystem? samusProjectiles = null",
+        "byte? nmiFrameCounter8 = null",
+        "SamusMode7Transform? mode7Transform = null",
+        "SamusBombProjectileSystem? sharedProjectiles = null",
+        "VramWriteQueue? vramWriteQueue = null",
+        "bool resolveSamusContactBeforeAi = false",
+        "RoomPlmSystem? collisionPlms = null",
+        "ushort? nmiFrameCounter = null",
+        "bool processingListPrepared = false",
+        "FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint = null"
+      ],
+      "parametersAfter": [
+        "RoomEnemyFrame frame"
+      ],
+      "contracts": [
+        "RoomEnemyFrame"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.RunMainAi",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs:1653",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomEnemySlot slot",
+        "SamusState? samus",
+        "ushort newlyPressedControllerInput",
+        "ushort controllerInput",
+        "RoomLevelData? level",
+        "Position16<RoomPixels> camera",
+        "SamusProjectileSystem? samusProjectiles",
+        "byte nmiFrameCounter8",
+        "SamusMode7Transform? mode7Transform = null",
+        "SamusBombProjectileSystem? sharedProjectiles = null",
+        "VramWriteQueue? vramWriteQueue = null"
+      ],
+      "parametersAfter": [
+        "RoomEnemySlot slot",
+        "IEnemyAiFrame frame",
+        "byte nmiFrameCounter8"
+      ],
+      "contracts": [
+        "IEnemyAiFrame"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomEnemySystem.DrawEnemySpritemap",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.cs:2570",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "OamBuffer oam",
+        "byte bank",
+        "ushort pointer",
+        "Position16<OamPixels> origin",
+        "ushort paletteBits",
+        "ushort baseTileIndex",
+        "bool clipVerticalWrap = false",
+        "bool originYIsOnScreen = true"
+      ],
+      "parametersAfter": [
+        "OamBuffer oam",
+        "EnemySpritemapDraw draw"
+      ],
+      "contracts": [
+        "EnemySpritemapDraw"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomLayer3FxState.LoadCore",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomLayer3FxState.cs:124",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "ushort fxPointer",
+        "ushort doorPointer",
+        "ushort randomNumber",
+        "ushort roomHeaderPointer",
+        "RoomFxRecordDefinition? suppliedDefinition"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "RoomFxLoadSource source"
+      ],
+      "contracts": [
+        "RoomFxLoadSource"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomLayer3FxState.Step",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomLayer3FxState.cs:270",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "Position16<RoomPixels> camera",
+        "bool timeIsFrozen",
+        "bool mainGameLoopCarry",
+        "ushort randomNumber = 0",
+        "ushort firefleaDarknessLevel = 0",
+        "SamusPowerBombExplosionState? powerBomb = null",
+        "bool liquidMotionAlreadyAdvanced = false"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "RoomLayer3FxFrame frame"
+      ],
+      "contracts": [
+        "RoomLayer3FxFrame"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPaletteFxSystem.Step",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs:122",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SnesCgram cgram",
+        "IPaletteFxColorSource colors",
+        "ushort samusY",
+        "ushort equippedItems",
+        "bool enemyZeroIsDead",
+        "bool areaMiniBossDefeated",
+        "SamusState? samus = null",
+        "ushort nmiFrameCounter = 0",
+        "SamusPowerBombExplosionState? powerBomb = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SnesCgram cgram",
+        "IPaletteFxColorSource colors",
+        "PaletteFxConditions conditions",
+        "SamusPowerBombExplosionState? powerBomb = null"
+      ],
+      "contracts": [
+        "PaletteFxConditions"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPaletteFxSystem.RunPreInstruction",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/RoomPaletteFxSystem.cs:231",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "PaletteFxSlot slot",
+        "int slotIndex",
+        "ushort samusY",
+        "ushort equippedItems",
+        "bool enemyZeroIsDead",
+        "bool areaMiniBossDefeated",
+        "SamusState? samus",
+        "ushort nmiFrameCounter"
+      ],
+      "parametersAfter": [
+        "PaletteFxSlot slot",
+        "int slotIndex",
+        "PaletteFxConditions conditions"
+      ],
+      "contracts": [
+        "PaletteFxConditions"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusAerialMovement.StepVerticalWithSpeedCalculations",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusAerialMovement.cs:676",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "SamusState samus",
+        "ushort nmiFrameCounter",
+        "out bool hitCeiling",
+        "out bool downwardDisplacement",
+        "bool canBreakBombBlocks = false",
+        "RoomPlmSystem? plms = null",
+        "bool deferCeilingResponse = false"
+      ],
+      "parametersAfter": [
+        "SamusTerrain terrain",
+        "SamusState samus",
+        "ushort nmiFrameCounter",
+        "out bool hitCeiling",
+        "out bool downwardDisplacement",
+        "bool canBreakBombBlocks = false",
+        "bool deferCeilingResponse = false"
+      ],
+      "contracts": [
+        "SamusTerrain"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusAnimationSegment constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs:44",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ushort address",
+        "byte[] delays",
+        "SamusAnimationCommand command",
+        "ushort repeatTarget = 0",
+        "SamusEquipmentFlags item = 0",
+        "SamusPoseId unequippedGrounded = 0",
+        "SamusPoseId unequippedAirborne = 0",
+        "SamusPoseId equippedGrounded = 0",
+        "SamusPoseId equippedAirborne = 0",
+        "bool wordPose = false"
+      ],
+      "parametersAfter": [
+        "ushort address",
+        "byte[] delays",
+        "SamusAnimationCommand command",
+        "SamusAnimationTransition transition"
+      ],
+      "contracts": [
+        "SamusAnimationTransition"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusBlockCollision.MoveHorizontal",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusBlockCollision.cs:86",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "SamusKinematicsState state",
+        "int displacement",
+        "bool canBreakBombBlocks = false",
+        "RoomPlmSystem? plms = null",
+        "bool publishDoorSideEffects = true",
+        "bool alignToSlopeAfterMovement = true",
+        "SamusCollisionDirection? blockReactionDirection = null",
+        "SamusCollisionDirection? collisionMovementDirection = null"
+      ],
+      "parametersAfter": [
+        "SamusTerrain terrain",
+        "SamusKinematicsState state",
+        "HorizontalBlockMove move"
+      ],
+      "contracts": [
+        "HorizontalBlockMove",
+        "SamusTerrain"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusBlockCollision.MoveVertical",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusBlockCollision.cs:415",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "SamusKinematicsState state",
+        "int displacement",
+        "bool scanLeftToRight",
+        "bool canBreakBombBlocks = false",
+        "bool includeSolidEnemies = true",
+        "RoomPlmSystem? plms = null",
+        "bool publishDoorSideEffects = true",
+        "bool publishQuicksandGrounding = true",
+        "SamusCollisionDirection? blockReactionDirection = null"
+      ],
+      "parametersAfter": [
+        "SamusTerrain terrain",
+        "SamusKinematicsState state",
+        "VerticalBlockMove move"
+      ],
+      "contracts": [
+        "SamusTerrain",
+        "VerticalBlockMove"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusBlockCollision.ScanVerticalTerrain",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusBlockCollision.cs:512",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "SamusKinematicsState state",
+        "int displacement",
+        "bool scanLeftToRight",
+        "bool canBreakBombBlocks",
+        "RoomPlmSystem? plms",
+        "bool publishDoorSideEffects",
+        "SamusCollisionDirection? blockReactionDirection"
+      ],
+      "parametersAfter": [
+        "SamusTerrain terrain",
+        "SamusKinematicsState state",
+        "VerticalTerrainProbe move"
+      ],
+      "contracts": [
+        "SamusTerrain",
+        "VerticalTerrainProbe"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusBombProjectileSystem.StepFrame",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusBombProjectileSystem.cs:124",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "SamusState samus",
+        "ushort controllerInput",
+        "ushort controllerNewInput",
+        "RoomPlmSystem? roomPlms = null",
+        "bool deferSamusOverlap = false",
+        "bool advancePowerBombHdma = true"
+      ],
+      "parametersAfter": [
+        "SamusTerrain terrain",
+        "SamusState samus",
+        "ushort controllerInput",
+        "ushort controllerNewInput",
+        "bool deferSamusOverlap = false",
+        "bool advancePowerBombHdma = true"
+      ],
+      "contracts": [
+        "SamusTerrain"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusGrappleMovement.Step",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusGrappleMovement.cs:405",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 1,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "SamusState samus",
+        "ushort controllerInput",
+        "ushort newlyPressedInput",
+        "ushort nmiFrameCounter = 0",
+        "Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null",
+        "RoomPlmSystem? plms = null",
+        "bool deferDropPoseChange = false"
+      ],
+      "parametersAfter": [
+        "SamusTerrain terrain",
+        "SamusState samus",
+        "ushort controllerInput",
+        "ushort newlyPressedInput",
+        "ushort nmiFrameCounter = 0",
+        "Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null",
+        "bool deferDropPoseChange = false"
+      ],
+      "contracts": [
+        "SamusTerrain"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusHorizontalSpeedState.UpdateSpeedBoosterPalette",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusHorizontalSpeedState.cs:338",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SnesCgram cgram",
+        "SamusMovementType movementType",
+        "ushort animationFrame",
+        "ushort equippedItems",
+        "bool suppressActiveSpeedBoosterPalette = false",
+        "bool bottomBoundarySubmerged = false",
+        "SamusSuitColorCatalog? suitColors = null",
+        "SamusFullBodyCycleColorCatalog? cycleColors = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SnesCgram cgram",
+        "SpeedBoosterPaletteFrame frame",
+        "SamusSuitColorCatalog? suitColors = null",
+        "SamusFullBodyCycleColorCatalog? cycleColors = null"
+      ],
+      "contracts": [
+        "SpeedBoosterPaletteFrame"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusKnockbackMovement.Start",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusKnockbackMovement.cs:80",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "ushort controllerInput",
+        "ushort knockbackXDirection",
+        "ushort knockbackTimer = 5",
+        "RoomLevelData? level = null",
+        "ushort nmiFrameCounter = 0",
+        "RoomPlmSystem? plms = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "ushort controllerInput",
+        "KnockbackLaunch launch",
+        "RoomLevelData? level = null",
+        "ushort nmiFrameCounter = 0",
+        "RoomPlmSystem? plms = null"
+      ],
+      "contracts": [
+        "KnockbackLaunch"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusProjectileSystem.DrawFlareComponent",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.Animation.cs:137",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "OamBuffer oam",
+        "SamusState samus",
+        "Position16<RoomPixels> layer1",
+        "int component",
+        "SamusMode7Transform? mode7Transform",
+        "Assets.ChargeFlarePlacementCatalog? placement",
+        "Assets.ChargeFlareSpriteCatalog? compositions"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "OamBuffer oam",
+        "SamusState samus",
+        "Position16<RoomPixels> layer1",
+        "int component",
+        "SamusMode7Transform? mode7Transform",
+        "ChargeFlareArtwork artwork"
+      ],
+      "contracts": [
+        "ChargeFlareArtwork"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusProjectileSystem.DrawFlareComponentWithMetadata",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.Animation.cs:157",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "OamBuffer oam",
+        "SamusState samus",
+        "Position16<RoomPixels> layer1",
+        "int component",
+        "SamusMode7Transform? mode7Transform",
+        "Assets.ChargeFlarePlacementCatalog? placement",
+        "Assets.ChargeFlareSpriteCatalog? compositions",
+        "byte direction",
+        "bool running",
+        "byte poseYOffset",
+        "bool facingLeft"
+      ],
+      "parametersAfter": [
+        "OamBuffer oam",
+        "SamusState samus",
+        "Position16<RoomPixels> layer1",
+        "int component",
+        "SamusMode7Transform? mode7Transform",
+        "ChargeFlareArtwork artwork",
+        "ChargeFlarePose pose"
+      ],
+      "contracts": [
+        "ChargeFlareArtwork",
+        "ChargeFlarePose"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusProjectileSystem.StepFrame",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusProjectileSystem.cs:367",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "SamusState samus",
+        "ushort controllerInput",
+        "ushort controllerNewInput",
+        "Position16<RoomPixels> layer1",
+        "SamusBombProjectileSystem sharedProjectiles",
+        "bool projectileProducerEnabled = true",
+        "RoomPlmSystem? roomPlms = null",
+        "ushort controllerPreviousNewInput = 0",
+        "bool? producerSoundSuppressed = null"
+      ],
+      "parametersAfter": [
+        "SamusTerrain terrain",
+        "SamusState samus",
+        "ProjectileButtonInput buttons",
+        "Position16<RoomPixels> layer1",
+        "SamusBombProjectileSystem sharedProjectiles",
+        "bool projectileProducerEnabled = true",
+        "bool? producerSoundSuppressed = null"
+      ],
+      "contracts": [
+        "ProjectileButtonInput",
+        "SamusTerrain"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusShinesparkState.Step",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusShinesparkState.cs:374",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "SamusState samus",
+        "ushort nmiFrameCounter",
+        "ushort projectileCounter = 0",
+        "RoomPlmSystem? plms = null",
+        "bool playerInvincibilityEnabled = false",
+        "SamusProjectileSystem? projectiles = null",
+        "ushort gameTimeFrames = 0",
+        "bool deferTimeoutPoseChange = false",
+        "FixedPosition<RoomPixels>? previousCheckpoint = null"
+      ],
+      "parametersAfter": [
+        "SamusTerrain terrain",
+        "SamusState samus",
+        "ShinesparkFrame frame"
+      ],
+      "contracts": [
+        "SamusTerrain",
+        "ShinesparkFrame"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusState.AnimateNoFx",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusState.Rendering.cs:167",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 1,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "ushort controllerInput = 0",
+        "ushort nmiFrameCounter = 0",
+        "Bank80SystemState? system = null",
+        "bool beginLiquidSoundRequestFrame = true",
+        "SamusPoseId? prospectiveInputPose = null",
+        "bool demoPoseInput = false",
+        "Func<ushort>? queueEchoSound = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SamusAnimationStep step"
+      ],
+      "contracts": [
+        "SamusAnimationStep"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SamusXrayState.TryBegin",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SamusXrayState.cs:141",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "SamusMovementType previousMovementType",
+        "ushort gameState = 8",
+        "ushort powerBombExplosionStatus = 0",
+        "ushort projectileCooldownTimer = 0",
+        "ushort bombCounter = 0",
+        "bool deferActivation = false"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "SamusMovementType previousMovementType",
+        "XrayBeginConditions conditions",
+        "bool deferActivation = false"
+      ],
+      "contracts": [
+        "XrayBeginConditions"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SuperMetroidSaveSnapshot.Capture",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Game/SuperMetroidSaveRam.cs:696",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SamusState samus",
+        "Bank80SystemState system",
+        "ushort area",
+        "ushort saveStation",
+        "GameTimeState? gameTime = null",
+        "ControllerBindings? controllerBindings = null",
+        "bool moonwalkEnabled = false",
+        "bool iconCancelEnabled = false",
+        "bool japaneseText = false"
+      ],
+      "parametersAfter": [
+        "SamusState samus",
+        "Bank80SystemState system",
+        "SaveSnapshotContext context"
+      ],
+      "contracts": [
+        "SaveSnapshotContext"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "TourianStatueAnimatedTileProgramDefinition constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs:119",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 12,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "AnimatedTileObject objectPointer",
+        "ushort programStart",
+        "ushort transferByteCount",
+        "ushort encodedVramDestination",
+        "ushort statueStateBit",
+        "ushort greyEventNumber",
+        "ushort firstFrameDuration",
+        "ushort packedBossTest",
+        "ushort clearPaletteByteIndex",
+        "ushort unlockEffectParameter",
+        "ushort paletteFxDefinition",
+        "ushort targetPaletteByteIndex"
+      ],
+      "parametersAfter": [
+        "TourianStatueAnimatedTileProgramParts parts"
+      ],
+      "contracts": [
+        "TourianStatueAnimatedTileProgramParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "DemoInputState.Step",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Input/DemoInputState.cs:197",
+      "rules": [
+        "SME6331"
+      ],
+      "parameterCount": 4,
+      "nullableCallbacks": 3,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "Action<DemoInputState, ushort>? preInstruction = null",
+        "Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction = null",
+        "Func<ushort, ushort>? instructionWord = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "IDemoInputProgram program"
+      ],
+      "contracts": [
+        "IDemoInputProgram"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "EyeBeamWindowBuilder.Ramp",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/EyeBeamWindowBuilder.cs:142",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ushort[] rows",
+        "int y",
+        "int direction",
+        "int left",
+        "int leftStep",
+        "int right",
+        "int rightStep",
+        "int finishAdjustment",
+        "bool offScreenDiagonal = false"
+      ],
+      "parametersAfter": [
+        "ushort[] rows",
+        "int y",
+        "int direction",
+        "RampEdges edges",
+        "int finishAdjustment",
+        "bool offScreenDiagonal = false"
+      ],
+      "contracts": [
+        "RampEdges"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "GameplayColorMathRenderLayer constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/GameplayColorMathRenderLayer.cs:68",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "OrdinaryGameplayRenderLayer gameplay",
+        "ReadOnlySpan<XrayWindowLine> lines",
+        "bool revealBlocks",
+        "SnesColorMathControl colorMath",
+        "bool addSubscreen",
+        "byte fixedRed",
+        "byte fixedGreen",
+        "byte fixedBlue",
+        "Bg2BppColorMathRenderLayer? subscreen = null",
+        "bool subscreenUsesBg2 = false"
+      ],
+      "parametersAfter": [
+        "OrdinaryGameplayRenderLayer gameplay",
+        "ReadOnlySpan<XrayWindowLine> lines",
+        "bool revealBlocks",
+        "ColorMathRegisters math",
+        "Bg2BppColorMathRenderLayer? subscreen = null",
+        "bool subscreenUsesBg2 = false"
+      ],
+      "contracts": [
+        "ColorMathRegisters"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesBgTilemapRenderer.Composite4BppViewport",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesBgTilemapRenderer.cs:16",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "ushort tilemapBaseWord",
+        "ushort characterBaseWord",
+        "Position16<BgPlanePixels> scroll",
+        "Extent16<ScreenPixels> size",
+        "Extent16<TilemapCells>? tilemapSize = null",
+        "IReadOnlyList<ushort>? horizontalScrollByLine = null",
+        "bool? priority = null"
+      ],
+      "parametersAfter": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "BgVramAddresses addresses",
+        "BgViewport viewport",
+        "bool? priority = null"
+      ],
+      "contracts": [
+        "BgViewport",
+        "BgVramAddresses"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesBgTilemapRenderer.Render2Bpp",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesBgTilemapRenderer.cs:125",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "ushort tilemapBaseWord",
+        "ushort characterBaseWord",
+        "int rowCount",
+        "bool transparentColorZero = false",
+        "bool? priority = null"
+      ],
+      "parametersAfter": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "BgVramAddresses addresses",
+        "int rowCount",
+        "bool transparentColorZero = false",
+        "bool? priority = null"
+      ],
+      "contracts": [
+        "BgVramAddresses"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs:24",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 21,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "OamBuffer oam",
+        "Position16<RoomPixels> bg1Scroll",
+        "Position16<Bg2Pixels> bg2Scroll",
+        "IReadOnlyList<ushort>? bg2HorizontalScrollByLine = null",
+        "IReadOnlyList<ushort>? bg2VerticalScrollByLine = null",
+        "Extent16<TilemapCells>? bg2TilemapSize = null",
+        "ushort bg2TilemapBaseWord = GameplayVramLayout.Bg2TilemapWord",
+        "ushort bg1CharacterBaseWord = 0",
+        "ushort bg2CharacterBaseWord = 0",
+        "ushort bg3CharacterBaseWord = GameplayVramLayout.HudCharacterWord",
+        "byte obsel = 0x03",
+        "SnesMainScreenLayers mainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj",
+        "Rgba32[]? outputBuffer = null",
+        "int bg2FirstScanline = 32",
+        "int bg2EndScanline = 224",
+        "SnesWindowRegisters windowRegisters = default",
+        "SnesMainScreenLayers mainScreenWindowMask = SnesMainScreenLayers.None",
+        "BackgroundMosaicSampling bg2Mosaic = default",
+        "ReadOnlySpan<ushort> mainScreenLayersByLine = default"
+      ],
+      "parametersAfter": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "OamBuffer oam",
+        "OrdinaryGameplayRenderLayer layer",
+        "byte obsel = 0x03",
+        "Rgba32[]? outputBuffer = null"
+      ],
+      "contracts": [
+        "OrdinaryGameplayRenderLayer"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesGameplayFrameRenderer.CompositeOrdinaryGameplayViewport",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs:121",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 19,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "ReadOnlySpan<Rgba32> objectPixels",
+        "ReadOnlySpan<byte> objectPriorities",
+        "ushort bg1CharacterBaseWord",
+        "ushort bg2CharacterBaseWord",
+        "Position16<RoomPixels> bg1Scroll",
+        "Position16<Bg2Pixels> bg2Scroll",
+        "IReadOnlyList<ushort>? bg2HorizontalScrollByLine",
+        "IReadOnlyList<ushort>? bg2VerticalScrollByLine",
+        "Extent16<TilemapCells> bg2TilemapSize",
+        "ushort bg2TilemapBaseWord",
+        "SnesMainScreenLayers mainScreenLayers",
+        "int bg2FirstScanline",
+        "int bg2EndScanline",
+        "ReadOnlySpan<SnesMainScreenLayers> windowMasks",
+        "BackgroundMosaicSampling bg2Mosaic",
+        "ReadOnlySpan<ushort> mainScreenLayersByLine"
+      ],
+      "parametersAfter": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "ReadOnlySpan<Rgba32> objectPixels",
+        "ReadOnlySpan<byte> objectPriorities",
+        "OrdinaryGameplayRenderLayer layer",
+        "ReadOnlySpan<SnesMainScreenLayers> windowMasks"
+      ],
+      "contracts": [
+        "OrdinaryGameplayRenderLayer"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesGameplayFrameRenderer.RenderHudMode7AndObjs",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs:400",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "OamBuffer oam",
+        "short matrixA",
+        "short matrixB",
+        "short matrixC",
+        "short matrixD",
+        "Offset16<Mode7Pixels> center",
+        "Offset16<Mode7Pixels> scroll",
+        "byte obsel = 0x03",
+        "Rgba32[]? outputBuffer = null"
+      ],
+      "parametersAfter": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "OamBuffer oam",
+        "Mode7RenderRegisters registers",
+        "byte obsel = 0x03",
+        "Rgba32[]? outputBuffer = null"
+      ],
+      "contracts": [
+        "Mode7RenderRegisters"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesGameplayFrameRenderer.cs:439",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 13,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "OamBuffer oam",
+        "short matrixA",
+        "short matrixB",
+        "short matrixC",
+        "short matrixD",
+        "Offset16<Mode7Pixels> center",
+        "Offset16<Mode7Pixels> scroll",
+        "Position16<Bg2Pixels> bg2Scroll",
+        "ushort bg2CharacterBaseWord",
+        "byte obsel = 0x03",
+        "Rgba32[]? outputBuffer = null"
+      ],
+      "parametersAfter": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "OamBuffer oam",
+        "Mode7RenderRegisters registers",
+        "CeresGetawayFloor floor",
+        "byte obsel = 0x03",
+        "Rgba32[]? outputBuffer = null"
+      ],
+      "contracts": [
+        "CeresGetawayFloor",
+        "Mode7RenderRegisters"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesMode7Renderer.CompositeViewport",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesMode7Renderer.cs:27",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 12,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "short matrixA",
+        "short matrixB",
+        "short matrixC",
+        "short matrixD",
+        "Offset16<Mode7Pixels> center",
+        "Offset16<Mode7Pixels> scroll",
+        "Extent16<ScreenPixels>? size = null",
+        "bool fillOutsideWithCharacterZero = false",
+        "bool wrapOutsideMap = false"
+      ],
+      "parametersAfter": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "Mode7RenderRegisters registers",
+        "Extent16<ScreenPixels>? size = null"
+      ],
+      "contracts": [
+        "Mode7RenderRegisters"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesObjRenderer.RenderResolved",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesObjRenderer.cs:98",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "OamBuffer oam",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "byte obsel",
+        "Span<Rgba32> pixels",
+        "Span<byte> priorities",
+        "Extent16<ScreenPixels>? size = null",
+        "Span<byte> palettes = default"
+      ],
+      "parametersAfter": [
+        "OamBuffer oam",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "byte obsel",
+        "ObjRasterTargets targets",
+        "Extent16<ScreenPixels>? size = null"
+      ],
+      "contracts": [
+        "ObjRasterTargets"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SnesObjRenderer.DrawSprite",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rendering/SnesObjRenderer.cs:146",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Span<Rgba32> output",
+        "Extent16<ScreenPixels> frame",
+        "OamEntry entry",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "byte obsel",
+        "int? selectedPriority",
+        "Span<byte> resolvedPriorities = default",
+        "Span<byte> resolvedPalettes = default"
+      ],
+      "parametersAfter": [
+        "Extent16<ScreenPixels> frame",
+        "OamEntry entry",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "byte obsel",
+        "int? selectedPriority",
+        "ObjRasterTargets targets"
+      ],
+      "contracts": [
+        "ObjRasterTargets"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "LibraryBackgroundLoader.Execute",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundLoader.cs:18",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "ushort listPointer",
+        "ushort activeDoorPointer",
+        "RoomBackgroundTilemapCatalog? tilemapArt = null",
+        "RoomSkyTilemapCatalog? skyArt = null",
+        "HudTileAtlas? hudArt = null",
+        "RoomCharacterAtlasCatalog? characterArt = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "ushort listPointer",
+        "ushort activeDoorPointer",
+        "LibraryBackgroundArtwork artwork"
+      ],
+      "contracts": [
+        "LibraryBackgroundArtwork"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "LibraryBackgroundLoader.ExecuteProgram",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundLoader.cs:50",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "LibraryBackgroundProgram program",
+        "ushort activeDoorPointer",
+        "RoomBackgroundTilemapCatalog? tilemapArt = null",
+        "RoomSkyTilemapCatalog? skyArt = null",
+        "HudTileAtlas? hudArt = null",
+        "RoomCharacterAtlasCatalog? characterArt = null"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "LibraryBackgroundProgram program",
+        "ushort activeDoorPointer",
+        "LibraryBackgroundArtwork artwork"
+      ],
+      "contracts": [
+        "LibraryBackgroundArtwork"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "LibraryBackgroundLoader.TransferToVram",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundLoader.cs:107",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "int sourceAddress",
+        "ushort destinationWord",
+        "ushort byteCount",
+        "RoomSkyTilemapCatalog? skyArt",
+        "HudTileAtlas? hudArt",
+        "RoomCharacterAtlasCatalog? characterArt"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "SnesVram vram",
+        "LibraryBackgroundTransfer transfer",
+        "RoomSkyTilemapCatalog? skyArt",
+        "HudTileAtlas? hudArt",
+        "RoomCharacterAtlasCatalog? characterArt"
+      ],
+      "contracts": [
+        "LibraryBackgroundTransfer"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomLevelData constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomLevelData.cs:44",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Extent16<RoomBlocks> size",
+        "ReadOnlySpan<ushort> foregroundEntries",
+        "ReadOnlySpan<byte> behaviorBytes",
+        "ReadOnlySpan<ushort> backgroundEntries",
+        "ReadOnlySpan<byte> blockDefinitions",
+        "ReadOnlySpan<ushort> streamingForegroundAllocation = default",
+        "ushort? doorListPointer = null",
+        "ReadOnlySpan<ushort> streamingBackgroundAllocation = default",
+        "RoomVisualLayout? visualLayout = null"
+      ],
+      "parametersAfter": [
+        "Extent16<RoomBlocks> size",
+        "RoomLevelPlanes planes",
+        "ReadOnlySpan<byte> blockDefinitions",
+        "RoomLevelStreaming streaming = default",
+        "ushort? doorListPointer = null",
+        "RoomVisualLayout? visualLayout = null"
+      ],
+      "contracts": [
+        "RoomLevelPlanes",
+        "RoomLevelStreaming"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.SetupCollectibleSlot",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Collectibles.cs:179",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "SnesVram vram",
+        "Bank80SystemState system",
+        "PlmSlot slot",
+        "InWorldCollectibleKind kind",
+        "CollectiblePresentation presentation",
+        "RoomPlmDynamicCollectibleGraphic? suppliedGraphic"
+      ],
+      "parametersAfter": [
+        "PlmRoom room",
+        "PlmSlot slot",
+        "InWorldCollectibleKind kind",
+        "CollectiblePresentation presentation",
+        "RoomPlmDynamicCollectibleGraphic? suppliedGraphic"
+      ],
+      "contracts": [
+        "PlmRoom"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.TryStepGreyDoor",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.GreyDoors.cs:14",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "PlmSlot slot",
+        "Position16<RoomPixels> layer1Position",
+        "ushort bg1XOffset",
+        "ushort enemyDeaths",
+        "byte enemyDeathQuota"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "PlmSlot slot",
+        "PlmView view",
+        "ushort enemyDeaths",
+        "byte enemyDeathQuota"
+      ],
+      "contracts": [
+        "PlmView"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "GreyDoorPlmState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.GreyDoors.cs:301",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ColoredDoorOrientation orientation",
+        "GreyDoorCondition condition",
+        "ushort initialList",
+        "ushort closedBlueList",
+        "ushort closedGreyDraw",
+        "ushort flashList",
+        "ushort openingList",
+        "GreyDoorPhase phase"
+      ],
+      "parametersAfter": [
+        "ColoredDoorOrientation orientation",
+        "GreyDoorCondition condition",
+        "GreyDoorPrograms programs",
+        "GreyDoorPhase phase"
+      ],
+      "contracts": [
+        "GreyDoorPrograms"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.LoadRoomPopulation",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Population.cs:20",
+      "rules": [
+        "SME6330",
+        "SME6331"
+      ],
+      "parameterCount": 20,
+      "nullableCallbacks": 10,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "SnesVram vram",
+        "RoomPlmPopulationDefinition population",
+        "Bank80SystemState system",
+        "AreaId areaIndex",
+        "Func<SamusState?> getSamus",
+        "Func<bool> isAreaTorizoDefeated",
+        "Func<bool>? isTourianStatueFinished = null",
+        "Func<BossBits, bool>? hasAreaBossBit = null",
+        "Func<EventNumber, bool>? hasEvent = null",
+        "Action<EventNumber>? setEvent = null",
+        "RoomLayer3FxState? roomFx = null",
+        "Action<ushort>? setEarthquakeTimer = null",
+        "Action<ushort>? setEarthquakeType = null",
+        "Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null",
+        "Action<EyeDoorProjectileRequest>? spawnEyeDoorProjectile = null",
+        "Action? spawnOldTourianEscapeShaftWallExplosion = null",
+        "Action<ushort>? disableDraygonCannon = null"
+      ],
+      "parametersAfter": [
+        "PlmRoom room",
+        "RoomPlmPopulationDefinition population",
+        "RoomPlmServices services"
+      ],
+      "contracts": [
+        "PlmRoom",
+        "RoomPlmServices"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.TryRunRoomPopulationSetup",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.Population.cs:199",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "SnesVram vram",
+        "Bank80SystemState system",
+        "AreaId areaIndex",
+        "Func<bool> isAreaTorizoDefeated",
+        "RoomPlmPopulationRecord record",
+        "PlmSlot slot",
+        "RoomPlmPlacement placement"
+      ],
+      "parametersAfter": [
+        "PlmRoom room",
+        "IAreaBossFlagReader bosses",
+        "RoomPlmPopulationRecord record",
+        "PlmSlot slot",
+        "RoomPlmPlacement placement"
+      ],
+      "contracts": [
+        "IAreaBossFlagReader",
+        "PlmRoom"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.Step",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs:1052",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "Position16<RoomPixels> layer1Position",
+        "ushort bg1XOffset",
+        "RoomScrollGrid? scrolls",
+        "ushort enemyDeaths",
+        "byte enemyDeathQuota",
+        "ushort controllerNewInput",
+        "ushort collectedItems = 0",
+        "ushort powerBombExplosionStatus = 0"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "PlmView view",
+        "PlmFrameInputs frame"
+      ],
+      "contracts": [
+        "PlmFrameInputs",
+        "PlmView"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.ExecuteInstructionStream",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs:1168",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "PlmSlot slot",
+        "Position16<RoomPixels> layer1Position",
+        "ushort bg1XOffset",
+        "RoomScrollGrid? scrolls",
+        "ushort collectedItems"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "PlmSlot slot",
+        "PlmView view",
+        "RoomScrollGrid? scrolls",
+        "ushort collectedItems"
+      ],
+      "contracts": [
+        "PlmView"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.DrawPlmInstruction",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs:1483",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "PlmHeaderId headerPointer",
+        "int blockIndex",
+        "ushort drawPointer",
+        "Position16<RoomPixels> layer1Position",
+        "ushort bg1XOffset"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "PlmHeaderId headerPointer",
+        "int blockIndex",
+        "ushort drawPointer",
+        "PlmView view"
+      ],
+      "contracts": [
+        "PlmView"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.DrawCompiledBlockInstruction",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs:1921",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 28,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "RoomPlmShotBlockDrawDefinitions.DrawList definition",
+        "Position16<RoomBlocks> origin",
+        "Position16<RoomPixels> layer1Position",
+        "ushort bg1XOffset",
+        "bool useShotBlockVisuals",
+        "RoomPlmStationVisualCatalog? customVisuals = null",
+        "RoomPlmDownwardGateVisualCatalog? gateVisuals = null",
+        "RoomPlmElevatorPlatformVisualCatalog? elevatorPlatformVisuals = null",
+        "RoomPlmBlueDoorVisualCatalog? blueDoorVisuals = null",
+        "RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals = null",
+        "RoomPlmGreyDoorVisualCatalog? greyDoorVisuals = null",
+        "RoomPlmEyeDoorVisualCatalog? eyeDoorVisuals = null",
+        "RoomPlmMotherBrainGlassVisualCatalog? motherBrainGlassVisuals = null",
+        "RoomPlmNoobTubeVisualCatalog? noobTubeVisuals = null",
+        "RoomPlmEscapeGateVisualCatalog? escapeGateVisuals = null",
+        "RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals = null",
+        "RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals = null",
+        "RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals = null",
+        "RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals = null",
+        "RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals = null",
+        "RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals = null",
+        "RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals = null",
+        "RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null",
+        "RoomPlmSamusEaterVisualCatalog? samusEaterVisuals = null",
+        "RoomPlmCrocomireVisualCatalog? crocomireVisuals = null",
+        "RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals = null"
+      ],
+      "parametersAfter": [
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "RoomPlmShotBlockDrawDefinitions.DrawList definition",
+        "Position16<RoomBlocks> origin",
+        "PlmView view"
+      ],
+      "contracts": [
+        "PlmView"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RoomPlmSystem.DrawPlmWordAt",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs:1997",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "ushort drawPointer",
+        "Position16<RoomBlocks> block",
+        "ushort levelWord",
+        "Position16<RoomPixels> layer1Position",
+        "ushort bg1XOffset",
+        "ushort? visualWord = null"
+      ],
+      "parametersAfter": [
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "ushort drawPointer",
+        "Position16<RoomBlocks> block",
+        "ushort levelWord",
+        "PlmView view",
+        "ushort? visualWord = null"
+      ],
+      "contracts": [
+        "PlmView"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "ColoredDoorPlmState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Rooms/RoomPlmSystem.cs:2137",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ColoredDoorColor color",
+        "ColoredDoorOrientation orientation",
+        "ushort initialList",
+        "ushort closedBlueList",
+        "ushort hitList",
+        "ushort openingList",
+        "ushort coloredClosedDraw",
+        "byte hitThreshold",
+        "ColoredDoorPhase phase"
+      ],
+      "parametersAfter": [
+        "ColoredDoorColor color",
+        "ColoredDoorOrientation orientation",
+        "ColoredDoorPrograms programs",
+        "byte hitThreshold",
+        "ColoredDoorPhase phase"
+      ],
+      "contracts": [
+        "ColoredDoorPrograms"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "DoorOpeningScrollState constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Runtime/DoorOpeningScrollState.cs:20",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "DoorDirection direction",
+        "FixedVector<RoomPixels> samusIrqStep",
+        "int remainingFrames",
+        "Position16<RoomPixels> cameraPosition",
+        "Position16<Bg2Pixels> layer2Position",
+        "FixedPosition<RoomPixels> samusPosition",
+        "Position16<RoomPixels> finalCameraPosition",
+        "Position16<Bg2Pixels> finalLayer2Position",
+        "FixedPosition<RoomPixels> finalSamusPosition"
+      ],
+      "parametersAfter": [
+        "DoorOpeningScrollSetup setup"
+      ],
+      "contracts": [
+        "DoorOpeningScrollSetup"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SuperMetroidRuntime constructor",
+      "kind": "constructor",
+      "location": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs:47",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace addressSpace",
+        "bool playerInvincibilityEnabled = false",
+        "bool infiniteAmmoEnabled = false",
+        "MapRevealMode mapRevealMode = MapRevealMode.None",
+        "bool preventEscapeTimeout = false",
+        "GameplayBasePaletteCatalog? initialPaletteArt = null",
+        "bool grantAllEquipment = false",
+        "bool unlockTourian = false"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace addressSpace",
+        "HostGameplayOverrides overrides",
+        "GameplayBasePaletteCatalog? initialPaletteArt = null"
+      ],
+      "contracts": [
+        "HostGameplayOverrides"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SuperMetroidRuntime.StepFrame",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs:1094",
+      "rules": [
+        "SME6330",
+        "SME6331"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 5,
+      "parametersBefore": [
+        "ushort controller1Input",
+        "Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null",
+        "Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null",
+        "bool allowCeresElevatorDeparture = true",
+        "Action? afterAcceptedNmi = null",
+        "bool advanceGameTime = true",
+        "Func<ushort>? queueEchoSound = null",
+        "Action? checkLowHealth = null"
+      ],
+      "parametersAfter": [
+        "ushort controller1Input",
+        "RuntimeFrameRequest request"
+      ],
+      "contracts": [
+        "RuntimeFrameRequest"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "SuperMetroidRuntime.StepFrameGuarded",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs:1131",
+      "rules": [
+        "SME6330",
+        "SME6331"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 5,
+      "parametersBefore": [
+        "ushort controller1Input",
+        "Action<OamBuffer>? drawHighPriorityEnemyProjectiles",
+        "Action<OamBuffer>? drawLowPriorityEnemyProjectiles",
+        "bool allowCeresElevatorDeparture",
+        "Action? afterAcceptedNmi",
+        "bool advanceGameTime",
+        "HostInfiniteAmmoFrameGuard infiniteAmmoGuard",
+        "Func<ushort>? queueEchoSound",
+        "Action? checkLowHealth"
+      ],
+      "parametersAfter": [
+        "ushort controller1Input",
+        "RuntimeFrameRequest frameRequest",
+        "HostInfiniteAmmoFrameGuard infiniteAmmoGuard"
+      ],
+      "contracts": [
+        "RuntimeFrameRequest"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "ManagedAudioRegressionSmokeTest.RunMusicScenario",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.DesktopVerification/ManagedAudioRegressionSmokeTest.cs:149",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "string name",
+        "AudioUploadAssetDefinition bank",
+        "int frameCount",
+        "IncrementalHash pcmHash",
+        "IncrementalHash acknowledgementHash",
+        "ref int scenarios",
+        "ref int frames",
+        "ref int samples"
+      ],
+      "parametersAfter": [
+        "string name",
+        "AudioUploadAssetDefinition bank",
+        "int frameCount",
+        "AudioCorpusTally tally"
+      ],
+      "contracts": [
+        "AudioCorpusTally"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "ManagedAudioRegressionSmokeTest.RunSoundScenario",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.DesktopVerification/ManagedAudioRegressionSmokeTest.cs:175",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "string name",
+        "IReadOnlyList<(ApuPort Port, byte Command)> startCommands",
+        "IncrementalHash pcmHash",
+        "IncrementalHash acknowledgementHash",
+        "ref int scenarios",
+        "ref int frames",
+        "ref int samples",
+        "bool cancelHalfway = false"
+      ],
+      "parametersAfter": [
+        "string name",
+        "IReadOnlyList<(ApuPort Port, byte Command)> startCommands",
+        "AudioCorpusTally tally",
+        "bool cancelHalfway = false"
+      ],
+      "contracts": [
+        "AudioCorpusTally"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RetailDoorCaptureTests.VerifyTransition",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.RenderVerification/RetailDoorCaptureTests.cs:32",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 1,
+      "parametersBefore": [
+        "D3D11RenderDevice device",
+        "D3D11FrameRenderer renderer",
+        "SuperMetroidRuntime runtime",
+        "ISnesAddressSpace bus",
+        "ushort door",
+        "ushort destination",
+        "string context",
+        "Action<RenderFrameSnapshot>? publish = null"
+      ],
+      "parametersAfter": [
+        "D3D11RenderDevice device",
+        "D3D11FrameRenderer renderer",
+        "SuperMetroidRuntime runtime",
+        "ISnesAddressSpace bus",
+        "RetailDoorCase doorCase",
+        "string context",
+        "Action<RenderFrameSnapshot>? publish = null"
+      ],
+      "contracts": [
+        "RetailDoorCase"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "D3D11FrameRenderer.DispatchTile",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Rendering.Direct3D11/D3D11FrameRenderer.Tiles.cs:99",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 18,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "D3D11TileOperation operation",
+        "uint map = 0",
+        "uint characters = 0",
+        "Position16<BgPlanePixels> scroll = default",
+        "Extent16<TilemapCells>? mapSize = null",
+        "uint priority = 0",
+        "uint transparentZero = 1",
+        "uint level = 15",
+        "uint red = 0",
+        "uint green = 0",
+        "uint blue = 0",
+        "uint objectCount = 0",
+        "uint objectSelection = 0",
+        "uint firstScanline = 0",
+        "uint endScanline = 224",
+        "SnesWindowRegisters windows = default",
+        "SnesMainScreenLayers windowMask = SnesMainScreenLayers.None",
+        "SnesWindowTarget windowTarget = SnesWindowTarget.Bg1"
+      ],
+      "parametersAfter": [
+        "D3D11TileOperation operation",
+        "D3D11TileDispatch tile"
+      ],
+      "contracts": [
+        "D3D11TileDispatch"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "PaletteDefinitionAudit.CheckColorMethod",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.ResourceAudit/PaletteDefinitionAudit.cs:98",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Type rowType",
+        "object? row",
+        "MethodInfo method",
+        "string prefix",
+        "Type catalog",
+        "string source",
+        "ResourceIndex exports",
+        "AuditReport report"
+      ],
+      "parametersAfter": [
+        "Type rowType",
+        "object? row",
+        "MethodInfo method",
+        "string prefix",
+        "PaletteCatalogAudit audit"
+      ],
+      "contracts": [
+        "PaletteCatalogAudit"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "local function VerifyWrappedActor",
+      "kind": "local function",
+      "location": "csharp/src/SuperMetroid.Verification/Program.CeresFlightActorMetadata.cs:94",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace source",
+        "CeresFlightActorDefinition actor",
+        "int xAddress",
+        "int yAddress",
+        "int attributeAddress",
+        "int deltaAddress",
+        "int maskAddress",
+        "string name"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace source",
+        "CeresFlightActorDefinition actor",
+        "WrappedActorRomFields fields",
+        "string name"
+      ],
+      "contracts": [
+        "WrappedActorRomFields"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "local function VerifyWrappedActor",
+      "kind": "local function",
+      "location": "csharp/src/SuperMetroid.Verification/Program.CeresInitialActorMetadata.cs:63",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace source",
+        "CeresDestructionActorDefinition actor",
+        "int xAddress",
+        "int yAddress",
+        "int attributeAddress",
+        "int deltaAddress",
+        "int maskAddress",
+        "string name"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace source",
+        "CeresDestructionActorDefinition actor",
+        "WrappedActorRomFields fields",
+        "string name"
+      ],
+      "contracts": [
+        "WrappedActorRomFields"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "delegate FlareMetadataDraw",
+      "kind": "delegate",
+      "location": "csharp/src/SuperMetroid.Verification/Program.ChargeFlarePlacement.cs:107",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "OamBuffer oam",
+        "SamusState samus",
+        "Position16<RoomPixels> layer1",
+        "int component",
+        "SamusMode7Transform? transform",
+        "ChargeFlarePlacementCatalog? placement",
+        "ChargeFlareSpriteCatalog? sprites",
+        "byte direction",
+        "bool running",
+        "byte poseYOffset",
+        "bool facingLeft"
+      ],
+      "parametersAfter": [
+        "OamBuffer oam",
+        "SamusState samus",
+        "Position16<RoomPixels> layer1",
+        "int component",
+        "SamusMode7Transform? transform",
+        "ChargeFlareArtwork artwork",
+        "ChargeFlarePose pose"
+      ],
+      "contracts": [
+        "ChargeFlareArtwork",
+        "ChargeFlarePose"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.LoadCollectible",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.Collectibles.cs:269",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "TestAddressSpace bus",
+        "ushort header",
+        "ushort roomArgument",
+        "bool precollected",
+        "bool preopenedChozo = false",
+        "RoomLayer3FxState? roomFx = null",
+        "Extent16<RoomBlocks>? roomSize = null",
+        "Position16<RoomBlocks>? block = null"
+      ],
+      "parametersAfter": [
+        "TestAddressSpace bus",
+        "ushort header",
+        "ushort roomArgument",
+        "bool precollected",
+        "bool preopenedChozo = false",
+        "RoomLayer3FxState? roomFx = null",
+        "CollectibleRoomLayout layout = default"
+      ],
+      "contracts": [
+        "CollectibleRoomLayout"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.SeedShieldedCannonList",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.DraygonCannonPlms.cs:134",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "TestAddressSpace bus",
+        "ushort list",
+        "ushort hitList",
+        "ushort destroyedList",
+        "ushort damageInstruction",
+        "ushort idleDraw",
+        "ushort hitDraw",
+        "ushort destroyedDraw"
+      ],
+      "parametersAfter": [
+        "TestAddressSpace bus",
+        "ShieldedCannonLists lists"
+      ],
+      "contracts": [
+        "ShieldedCannonLists"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.VerifyFrontendRomFreeRoom",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.FrontendRomFree.cs:560",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 1,
+      "parametersBefore": [
+        "SuperMetroidGame native",
+        "SuperMetroidGame installed",
+        "ushort roomPointer",
+        "string roomName",
+        "int frameCount = 90",
+        "Action<SuperMetroidGame, SuperMetroidGame>? setup = null",
+        "ushort? forcedGoldenSonicStart = null",
+        "bool forcedGoldenStun = false",
+        "ushort? forcedGoldenLeftTurnStart = null",
+        "bool forcedGoldenLeftFootOrb = false",
+        "ushort heldInput = 0"
+      ],
+      "parametersAfter": [
+        "SuperMetroidGame native",
+        "SuperMetroidGame installed",
+        "RomFreeRoom room",
+        "int frameCount = 90",
+        "Action<SuperMetroidGame, SuperMetroidGame>? setup = null",
+        "GoldenTorizoForcing golden = default",
+        "ushort heldInput = 0"
+      ],
+      "contracts": [
+        "GoldenTorizoForcing",
+        "RomFreeRoom"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.VerifyGeneratedBg2Catalog",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.GeneratedBossBg2Catalogs.cs:93",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SuperMetroidAddressSpace rom",
+        "byte bank",
+        "string family",
+        "EnemyBg2FrameDefinition[] expected",
+        "EnemyBg2FrameDefinitionSequence frames",
+        "Func<ushort, bool> isFrame",
+        "Func<int, EnemyBg2FrameDefinition> frameAt",
+        "Func<byte[]> extract"
+      ],
+      "parametersAfter": [
+        "SuperMetroidAddressSpace rom",
+        "byte bank",
+        "string family",
+        "EnemyBg2FrameDefinition[] expected",
+        "EnemyBg2FrameDefinitionSequence frames",
+        "Bg2CatalogAccess access"
+      ],
+      "contracts": [
+        "Bg2CatalogAccess"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.VerifyBombTorizoGreyDoorLifecycle",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.GreyDoorPlmDrawDefinitions.cs:186",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "CartridgeReadGuard guarded",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "RoomPlmSystem plms",
+        "Bank80SystemState system",
+        "ushort population",
+        "int origin",
+        "byte[] blockDefinitions"
+      ],
+      "parametersAfter": [
+        "CartridgeReadGuard guarded",
+        "TorizoGreyDoorRoom room",
+        "ushort population",
+        "int origin",
+        "byte[] blockDefinitions"
+      ],
+      "contracts": [
+        "TorizoGreyDoorRoom"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.DrawImportedEnemySpritemap",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.ImportedSpritemaps.cs:11",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "OamBuffer oam",
+        "byte bank",
+        "ushort spritemapPointer",
+        "Position16<OamPixels> origin",
+        "ushort paletteBits",
+        "ushort baseTileIndex",
+        "bool clipVerticalWrap = false",
+        "bool originYIsOnScreen = true"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "OamBuffer oam",
+        "EnemySpritemapDraw draw"
+      ],
+      "contracts": [
+        "EnemySpritemapDraw"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.NewIntroArtworkSourceReadGuard",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.IntroCinematicArtwork.cs:991",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace source",
+        "bool blockIntroMotherBrainExplosions = false",
+        "bool blockIntroRinkas = false",
+        "bool blockIntroEggEffects = false",
+        "bool blockIntroDiscoveryActors = false",
+        "bool blockIntroScientistSprites = false",
+        "bool blockCeresFlightSprites = false",
+        "bool blockCeresDestructionSprites = false"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace source",
+        "IntroArtworkSources blocked = IntroArtworkSources.None"
+      ],
+      "contracts": [
+        "IntroArtworkSources"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.IntroArtworkForbiddenRead",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.IntroCinematicArtwork.cs:1008",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "int address",
+        "bool blockIntroMotherBrainExplosions",
+        "bool blockIntroRinkas",
+        "bool blockIntroEggEffects",
+        "bool blockIntroDiscoveryActors",
+        "bool blockIntroScientistSprites",
+        "bool blockCeresFlightSprites",
+        "bool blockCeresDestructionSprites"
+      ],
+      "parametersAfter": [
+        "int address",
+        "IntroArtworkSources blocked"
+      ],
+      "contracts": [
+        "IntroArtworkSources"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.VerifyKraidDraw",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.KraidRoomVisuals.cs:154",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "PlmHeaderId header",
+        "ushort drawPointer",
+        "int blockOffset",
+        "ushort physicalWord",
+        "ushort visualWord",
+        "RoomPlmKraidVisualCatalog? kraid",
+        "RoomPlmMaridiaElevatubeVisualCatalog tube",
+        "ushort layer1X"
+      ],
+      "parametersAfter": [
+        "PlmHeaderId header",
+        "ushort drawPointer",
+        "int blockOffset",
+        "ushort physicalWord",
+        "ushort visualWord",
+        "KraidRoomVisualCatalogs catalogs",
+        "ushort layer1X"
+      ],
+      "contracts": [
+        "KraidRoomVisualCatalogs"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "local function Check",
+      "kind": "local function",
+      "location": "csharp/src/SuperMetroid.Verification/Program.LookupStream1.cs:2119",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "int bank",
+        "int first",
+        "int end",
+        "int mechanicsCount",
+        "int presentationCount",
+        "Func<int, (ushort Address, ushort Value)> mechanics",
+        "Func<int, ushort> presentation",
+        "Func<ushort, ushort> read",
+        "Func<int, bool> owns",
+        "Func<int, bool> isVisual"
+      ],
+      "parametersAfter": [
+        "int bank",
+        "int first",
+        "int end",
+        "int mechanicsCount",
+        "int presentationCount",
+        "CompiledProgramSplit split"
+      ],
+      "contracts": [
+        "CompiledProgramSplit"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "local function Check",
+      "kind": "local function",
+      "location": "csharp/src/SuperMetroid.Verification/Program.LookupStream1.cs:2251",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "int first",
+        "int end",
+        "int mechanicsCount",
+        "int presentationCount",
+        "Func<int, bool> isVisual",
+        "Func<int, (ushort Address, ushort Value)> mechanics",
+        "Func<int, ushort> presentation",
+        "Func<ushort, ushort> read",
+        "Func<int, bool> owns"
+      ],
+      "parametersAfter": [
+        "int bank",
+        "int first",
+        "int end",
+        "int count",
+        "int visualCount",
+        "CompiledProgramSplit split"
+      ],
+      "contracts": [
+        "CompiledProgramSplit"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "local function Check",
+      "kind": "local function",
+      "location": "csharp/src/SuperMetroid.Verification/Program.LookupStream1.cs:2328",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "int bank",
+        "int first",
+        "int end",
+        "int count",
+        "int visualCount",
+        "Func<int, bool> isVisual",
+        "Func<int, (ushort Address, ushort Value)> mechanics",
+        "Func<int, ushort> presentation",
+        "Func<ushort, ushort> read",
+        "Func<int, bool> owns"
+      ],
+      "parametersAfter": [
+        "int bank",
+        "int first",
+        "int end",
+        "int count",
+        "int visualCount",
+        "CompiledProgramSplit split"
+      ],
+      "contracts": [
+        "CompiledProgramSplit"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "local function Check",
+      "kind": "local function",
+      "location": "csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs:2357",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "int bank",
+        "int first",
+        "int end",
+        "int mechanicsCount",
+        "int presentationCount",
+        "Func<int, (ushort Address, ushort Value)> mechanics",
+        "Func<int, ushort> presentation",
+        "Func<ushort, ushort> read",
+        "Func<int, bool> owns",
+        "Func<int, bool> isVisual"
+      ],
+      "parametersAfter": [
+        "int bank",
+        "int first",
+        "int end",
+        "int mechanicsCount",
+        "int presentationCount",
+        "CompiledProgramSplit split"
+      ],
+      "contracts": [
+        "CompiledProgramSplit"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.CreateRetailPauseFixture",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.RetailPresentationFixture.cs:31",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "Bank80SystemState system",
+        "AreaId areaIndex",
+        "Position16<MapTiles> roomMapPosition",
+        "CartridgeAudioState? audio = null",
+        "SnesVram? gameplayVram = null",
+        "MapRevealMode mapRevealMode = MapRevealMode.None"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "PauseMenuEntry entry"
+      ],
+      "contracts": [
+        "PauseMenuEntry"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "local function NativeCallback",
+      "kind": "local function",
+      "location": "csharp/src/SuperMetroid.Verification/Program.RidleyCollisionDefinitions.cs:173",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ushort frame",
+        "ushort originX",
+        "ushort originY",
+        "ushort x",
+        "ushort y",
+        "ushort radiusX",
+        "ushort radiusY",
+        "bool shot",
+        "out ushort callback"
+      ],
+      "parametersAfter": [
+        "ushort frame",
+        "Position16<RoomPixels> origin",
+        "Position16<RoomPixels> target",
+        "Extent16<RoomPixels> radius",
+        "bool shot",
+        "out ushort callback"
+      ],
+      "contracts": [
+        "Extent16<RoomPixels>",
+        "Position16<RoomPixels>"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.WriteEnemyDefinition",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.RoomEnemies.cs:1507",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "TestAddressSpace bus",
+        "EnemyDefinitionId definitionPointer",
+        "ushort tileDataSize",
+        "ushort palettePointer",
+        "byte bank",
+        "int tileDataAddress",
+        "ushort bossId",
+        "ushort namePointer",
+        "ushort fieldSeed"
+      ],
+      "parametersAfter": [
+        "TestAddressSpace bus",
+        "EnemyDefinitionId definitionPointer",
+        "EnemyDefinitionFields fields"
+      ],
+      "contracts": [
+        "EnemyDefinitionFields"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.VerifyInstalledPaletteFxFamily",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.RoomPaletteFxPresentation.cs:895",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomPaletteFxPresentation presentation",
+        "string description",
+        "int frameCount",
+        "int colorsPerFrame",
+        "Func<int, int, ushort> colorPointer",
+        "IReadOnlyList<ushort> definitions",
+        "int framesToRun",
+        "ushort samusY = 0"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "RoomPaletteFxPresentation presentation",
+        "string description",
+        "PaletteFxFamilyShape shape",
+        "int framesToRun",
+        "ushort samusY = 0"
+      ],
+      "contracts": [
+        "PaletteFxFamilyShape"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "Program.ExecuteShitroidProgram",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/Program.ShitroidInstructionProgramDefinitions.cs:150",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SuperMetroidAddressSpace rom",
+        "HashSet<ushort> executedOperands",
+        "RoomEnemySystem enemies",
+        "MethodInfo process",
+        "object?[] processArguments",
+        "RoomEnemySlot shitroid",
+        "ushort program",
+        "int callCount"
+      ],
+      "parametersAfter": [
+        "SuperMetroidAddressSpace rom",
+        "HashSet<ushort> executedOperands",
+        "ShitroidInterpreter interpreter",
+        "RoomEnemySlot shitroid",
+        "ushort program",
+        "int callCount"
+      ],
+      "contracts": [
+        "ShitroidInterpreter"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "ViewportReference.Composite4BppViewport",
+      "kind": "method",
+      "location": "csharp/src/SuperMetroid.Verification/ViewportReference.cs:9",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 10,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "ushort tilemapBaseWord",
+        "ushort characterBaseWord",
+        "Position16<BgPlanePixels> scroll",
+        "Extent16<ScreenPixels> size",
+        "Extent16<TilemapCells> tilemapSize",
+        "IReadOnlyList<ushort>? horizontalScrollByLine = null",
+        "bool? priority = null"
+      ],
+      "parametersAfter": [
+        "Span<Rgba32> output",
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "BgVramAddresses addresses",
+        "BgViewport viewport",
+        "bool? priority = null"
+      ],
+      "contracts": [
+        "BgViewport",
+        "BgVramAddresses"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "ImportedSpritemapOracle.DrawEnemy",
+      "kind": "method",
+      "location": "csharp/test-support/ImportedSpritemapOracle.cs:42",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "IImportCartridgeSource source",
+        "OamBuffer oam",
+        "byte bank",
+        "ushort spritemapPointer",
+        "Position16<OamPixels> origin",
+        "ushort paletteBits",
+        "ushort baseTileIndex",
+        "bool clipVerticalWrap = false",
+        "bool originYIsOnScreen = true"
+      ],
+      "parametersAfter": [
+        "IImportCartridgeSource source",
+        "OamBuffer oam",
+        "EnemySpritemapDraw draw"
+      ],
+      "contracts": [
+        "EnemySpritemapDraw"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": "RepositoryInstallation.CreatePause",
+      "kind": "method",
+      "location": "csharp/test-support/RepositoryInstallation.Verification.cs:123",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "SamusState samus",
+        "Bank80SystemState system",
+        "AreaId areaIndex",
+        "Position16<MapTiles> roomMapPosition",
+        "CartridgeAudioState? audio = null",
+        "SnesVram? gameplayVram = null",
+        "MapRevealMode mapRevealMode = MapRevealMode.None"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "PauseMenuEntry entry"
+      ],
+      "contracts": [
+        "PauseMenuEntry"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": ".FromArtworkForVerification",
+      "kind": "method",
+      "location": "csharp/test-support/VerificationAccess/CoreAssetsAccess.cs:197",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 38,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets",
+        "IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes",
+        "CrocomireMeltingArtwork? crocomireMelting = null",
+        "EnemySpritemapCatalog? spritemaps = null",
+        "EnemyExtendedFrameCatalog? extendedFrames = null",
+        "KraidBackgroundArtwork? kraidBackground = null",
+        "KraidColorCatalog? kraidColors = null",
+        "GunshipLiftoffArtworkCatalog? gunshipLiftoff = null",
+        "CeresDoorVisualCatalog? ceresDoorVisual = null",
+        "IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null",
+        "EnemyProjectileSpritemapCatalog? projectileSpritemaps = null",
+        "MagdollitePaletteCycle? magdollitePaletteCycle = null",
+        "WorkRobotPaletteCycle? workRobotPaletteCycle = null",
+        "CrocomireColorCatalog? crocomireColors = null",
+        "DraygonColorCatalog? draygonColors = null",
+        "PhantoonColorCatalog? phantoonColors = null",
+        "ChozoAndTubeColorCatalog? chozoAndTubeColors = null",
+        "SporeSpawnColorCatalog? sporeSpawnColors = null",
+        "DachoraColorCatalog? dachoraColors = null",
+        "ShitroidColorCatalog? shitroidColors = null",
+        "BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null",
+        "BotwoonColorCatalog? botwoonColors = null",
+        "MotherBrainDeathColorCatalog? motherBrainDeathColors = null",
+        "ZebetiteColorCatalog? zebetiteColors = null",
+        "NorfairRidleyColorCatalog? norfairRidleyColors = null",
+        "TourianStatueColorCatalog? tourianStatueColors = null",
+        "PhantoonBg2FrameCatalog? phantoonBg2Frames = null",
+        "DraygonBg2FrameCatalog? draygonBg2Frames = null",
+        "RoomCharacterAtlas? motherBrainCorpse = null",
+        "RoomCharacterAtlas? motherBrainEscapeText = null",
+        "MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null",
+        "CrocomireSkeletonArtwork? crocomireSkeleton = null",
+        "CrocomireBg2FrameCatalog? crocomireBg2Frames = null",
+        "TorizoInstructionVramArtwork? torizoInstructionVram = null",
+        "CeresEscapeTileArtwork? ceresEscapeTiles = null",
+        "CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null",
+        "EnemyAuxiliaryColorCatalog? auxiliaryColors = null",
+        "MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null"
+      ],
+      "parametersAfter": [
+        "EnemyTileArtworkParts parts"
+      ],
+      "contracts": [
+        "EnemyTileArtworkParts"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": ".Render4BppViewport",
+      "kind": "method",
+      "location": "csharp/test-support/VerificationAccess/CoreRenderingAccess.cs:32",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 9,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "ushort tilemapBaseWord",
+        "ushort characterBaseWord",
+        "Position16<BgPlanePixels> scroll",
+        "Extent16<ScreenPixels> size",
+        "Extent16<TilemapCells>? tilemapSize = null",
+        "IReadOnlyList<ushort>? horizontalScrollByLine = null",
+        "bool? priority = null"
+      ],
+      "parametersAfter": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "BgVramAddresses addresses",
+        "BgViewport viewport",
+        "bool? priority = null"
+      ],
+      "contracts": [
+        "BgViewport",
+        "BgVramAddresses"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": ".RenderViewport",
+      "kind": "method",
+      "location": "csharp/test-support/VerificationAccess/CoreRenderingAccess.cs:261",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 11,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "short matrixA",
+        "short matrixB",
+        "short matrixC",
+        "short matrixD",
+        "Offset16<Mode7Pixels> center",
+        "Offset16<Mode7Pixels> scroll",
+        "Extent16<ScreenPixels>? size = null",
+        "bool fillOutsideWithCharacterZero = false",
+        "bool wrapOutsideMap = false"
+      ],
+      "parametersAfter": [
+        "SnesVram vram",
+        "SnesCgram cgram",
+        "Mode7RenderRegisters registers",
+        "Extent16<ScreenPixels>? size = null"
+      ],
+      "contracts": [
+        "Mode7RenderRegisters"
+      ],
+      "status": "resolved"
+    },
+    {
+      "operation": ".Step",
+      "kind": "method",
+      "location": "csharp/test-support/VerificationAccess/CoreRoomsAccess.cs:1497",
+      "rules": [
+        "SME6330"
+      ],
+      "parameterCount": 8,
+      "nullableCallbacks": 0,
+      "parametersBefore": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "Position16<RoomPixels> layer1Position",
+        "ushort bg1XOffset",
+        "RoomScrollGrid? scrolls = null",
+        "ushort enemyDeaths = 0",
+        "byte enemyDeathQuota = 0"
+      ],
+      "parametersAfter": [
+        "ISnesAddressSpace bus",
+        "RoomLevelData level",
+        "BackgroundTilemapStreamer streamer",
+        "PlmView view",
+        "RoomScrollGrid? scrolls = null",
+        "ushort enemyDeaths = 0",
+        "byte enemyDeathQuota = 0"
+      ],
+      "contracts": [
+        "PlmView"
+      ],
+      "status": "resolved"
+    }
+  ],
+  "precedingMigration": {
+    "operation": "RoomEnemySystem.Load",
+    "parameterCount": 30,
+    "status": "resolved",
+    "contracts": [
+      "IRoomEnemyLoad",
+      "IRoomEnemyPopulationSource",
+      "IRoomEnemyActorContext",
+      "IRoomEnemyServices",
+      "IChozoStatueRoomServices",
+      "IMotherBrainRoomServices",
+      "IRoomScrollServices",
+      "IEnemyRandomNumbers",
+      "IGlobalEventFlags",
+      "IAreaBossFlags",
+      "IRoomScrollZoneAccess",
+      "ISamusControlLock",
+      "IMotherBrainRoomEffects",
+      "IRoomPlmPresence",
+      "RoomEnemyLoadRequest",
+      "StandaloneRoomEnemyServices"
+    ],
+    "consumers": [
+      "SuperMetroidRuntime.RoomEnemyRuntimeServices",
+      "verification fixtures"
+    ]
+  },
+  "forwardingClusters": [
+    {
+      "cluster": "enemy frame inputs",
+      "from": "RoomEnemySystem.StepFrame",
+      "children": [
+        "RunCommonGrappleAi",
+        "RunMainAi"
+      ],
+      "contract": "RoomEnemyFrame (superset) : IEnemyAiFrame (children)",
+      "optional": "GrappleWrappedAiFrame masks four members by name"
+    },
+    {
+      "cluster": "Samus terrain",
+      "from": "SamusShinesparkState.Step, SamusGrappleMovement.Step, SamusAerialMovement, bomb and beam steps",
+      "children": [
+        "SamusBlockCollision.MoveHorizontal",
+        "SamusBlockCollision.MoveVertical",
+        "ScanVerticalTerrain"
+      ],
+      "contract": "SamusTerrain, HorizontalBlockMove, VerticalBlockMove, VerticalTerrainProbe"
+    },
+    {
+      "cluster": "BG1 view",
+      "from": "RoomPlmSystem.Step",
+      "children": [
+        "every PLM step and draw helper"
+      ],
+      "contract": "PlmView; PlmFrameInputs for the handler-only reads"
+    },
+    {
+      "cluster": "PLM room services",
+      "from": "RoomPlmSystem.LoadRoomPopulation",
+      "children": [
+        "PLM family fields"
+      ],
+      "contract": "PlmRoom, RoomPlmServices (IRoomSamusAccess, IAreaBossFlagReader, IGlobalEventFlags, ITourianStatueProgress, IRoomEarthquakeWriter, IRoomPlmEnemyEffects : INoobTubeProjectileSpawner, IEyeDoorProjectileSpawner, IOldTourianWallExplosion, IDraygonCannonControl)"
+    },
+    {
+      "cluster": "runtime frame hooks",
+      "from": "SuperMetroidRuntime.StepFrame",
+      "children": [
+        "StepFrameGuarded",
+        "StepMessageBoxFrame",
+        "FinishGameplayFrame"
+      ],
+      "contract": "RuntimeFrameRequest (RuntimeFramePolicy, RuntimeFrameAudio, AfterAcceptedNmi); children take RuntimeFramePolicy"
+    },
+    {
+      "cluster": "palette FX conditions",
+      "from": "RoomPaletteFxSystem.Step",
+      "children": [
+        "RunPreInstruction"
+      ],
+      "contract": "PaletteFxConditions; the step alone reads the power bomb"
+    },
+    {
+      "cluster": "enemy instruction inputs",
+      "from": "ProcessInstructions",
+      "children": [
+        "TryProcessOwnedEnemyInstruction",
+        "TryProcessBombTorizoInstruction"
+      ],
+      "contract": "EnemyInstructionContext, TorizoInstructionInputs"
+    },
+    {
+      "cluster": "demo input owner",
+      "from": "DemoInputState.Step",
+      "children": [
+        "ProcessInstructionList"
+      ],
+      "contract": "IDemoInputProgram, DemoInputListProgram"
+    }
+  ],
+  "fieldCopyingOperations": [
+    {
+      "operation": "RoomEnemySystem.Load",
+      "resolution": "one IRoomEnemyServices property installed from the load contract"
+    },
+    {
+      "operation": "RoomPlmSystem.LoadRoomPopulation",
+      "resolution": "family fields typed with narrow capability contracts installed from RoomPlmServices"
+    },
+    {
+      "operation": "asset catalog constructors",
+      "resolution": "parts records (for example AreaMapPresentationParts, EnemyTileArtworkParts)"
+    }
+  ],
+  "testHelpersMirroringProduction": [
+    {
+      "helper": "EnemyTileArtworkCatalog.FromArtworkForVerification",
+      "resolution": "takes EnemyTileArtworkParts"
+    },
+    {
+      "helper": "SnesBgTilemapRenderer.Render4BppViewport",
+      "resolution": "takes BgVramAddresses and BgViewport"
+    },
+    {
+      "helper": "SnesMode7Renderer.RenderViewport",
+      "resolution": "takes Mode7RenderRegisters"
+    },
+    {
+      "helper": "RoomPlmSystem.Step (verification)",
+      "resolution": "takes PlmView"
+    },
+    {
+      "helper": "RepositoryInstallation.CreatePause",
+      "resolution": "takes PauseMenuEntry"
+    },
+    {
+      "helper": "ImportedSpritemapOracle.DrawEnemy",
+      "resolution": "takes EnemySpritemapDraw"
+    }
+  ],
+  "overloadFamilies": []
+}

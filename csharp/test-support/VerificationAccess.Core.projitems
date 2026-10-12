@@ -26,5 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/DoorPointers.cs" Link="TestSupport/VerificationAccess/DoorPointers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/DraygonCannonVerificationMemory.cs" Link="TestSupport/VerificationAccess/DraygonCannonVerificationMemory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/StereoPcmContinuityMeter.cs" Link="TestSupport/VerificationAccess/StereoPcmContinuityMeter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/StandaloneRoomEnemyServices.cs" Link="TestSupport/VerificationAccess/StandaloneRoomEnemyServices.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/DemoInputListProgram.cs" Link="TestSupport/VerificationAccess/DemoInputListProgram.cs" />
   </ItemGroup>
 </Project>

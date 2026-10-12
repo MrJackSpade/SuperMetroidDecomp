@@ -65,6 +65,10 @@ dotnet_diagnostic.SME6311.severity = error
 # #632: SPC700 APU RAM and port layout is confined to the typed driver-memory views.
 dotnet_diagnostic.SME6320.severity = error
 dotnet_diagnostic.SME6321.severity = error
+# #633: parameter lists stay within the ceiling and pass capabilities as narrow typed contracts.
+dotnet_diagnostic.SME6330.severity = error
+dotnet_diagnostic.SME6331.severity = error
+dotnet_diagnostic.SME6332.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620: advisory until the existing reusable guards are migrated.

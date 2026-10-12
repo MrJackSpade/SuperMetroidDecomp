@@ -136,7 +136,7 @@ internal static class EyeBeamWindowBuilder
     private static void Ramp(ushort[] rows, int y, int direction, RampEdges edges, int finishAdjustment,
         bool offScreenDiagonal = false)
     {
-        (int left, int leftStep, int right, int rightStep) = edges;
+        int left = edges.Left, leftStep = edges.LeftStep, right = edges.Right, rightStep = edges.RightStep;
         while (direction < 0 ? y >= 0 : y < rows.Length)
         {
             left += leftStep;

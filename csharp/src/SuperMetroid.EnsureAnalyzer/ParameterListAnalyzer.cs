@@ -8,9 +8,11 @@ namespace SuperMetroid.EnsureAnalyzer;
 
 /// <summary>
 /// Reports oversized parameter lists (#633): methods, constructors, delegates and local functions above
-/// the repository ceiling, and signatures that pass a cluster of nullable callbacks to toggle
-/// capabilities. Overrides, interface implementations, extern members, positional record shapes and
-/// members declaring <c>[ParameterListContract("reason")]</c> for an immutable external contract are exempt.
+/// the repository ceiling, signatures that pass a cluster of nullable callbacks to toggle capabilities,
+/// and parameters typed with a broad context when a narrower capability interface that the context
+/// implements covers everything the operation reads. Overrides, interface implementations, extern
+/// members, positional record shapes and members declaring <c>[ParameterListContract("reason")]</c>
+/// for an immutable external contract are exempt.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
@@ -20,6 +22,9 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
 
     /// <summary>A signature carrying a cluster of nullable callbacks.</summary>
     public const string CallbackClusterId = "SME6331";
+
+    /// <summary>A parameter typed with a broad context whose narrower capability interface suffices.</summary>
+    public const string BroadContextId = "SME6332";
 
     /// <summary>The repository's maximum parameter count.</summary>
     public const int MaximumParameters = 7;
@@ -50,8 +55,19 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
         description: "Nullable delegates that switch behaviour on and off are an unstructured capability set; model the service " +
             "they represent as one interface, and make optional behaviour a named strategy or null object.");
 
+    private static readonly DiagnosticDescriptor BroadContextRule = new(
+        BroadContextId,
+        "Broad context parameter",
+        "Parameter '{0}' of {1} only reads members of the narrower capability interface {2} that {3} implements; accept {2}",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A child operation must accept only its own capability contract. When the context passed to it is a " +
+            "superset that implements a narrower interface covering every member the operation uses, accept that interface.");
+
     /// <inheritdoc />
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [OversizedRule, CallbackClusterRule];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+        [OversizedRule, CallbackClusterRule, BroadContextRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -61,6 +77,82 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
         context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
         context.RegisterSymbolAction(AnalyzeDelegate, SymbolKind.NamedType);
         context.RegisterSyntaxNodeAction(AnalyzeLocalFunction, SyntaxKind.LocalFunctionStatement);
+        context.RegisterSyntaxNodeAction(AnalyzeBroadContexts, SyntaxKind.MethodDeclaration,
+            SyntaxKind.ConstructorDeclaration, SyntaxKind.LocalFunctionStatement);
+    }
+
+    private static void AnalyzeBroadContexts(SyntaxNodeAnalysisContext context)
+    {
+        if (context.SemanticModel.GetDeclaredSymbol(context.Node) is not IMethodSymbol method ||
+            method.IsOverride || method.IsExtern || method.IsAbstract || method.ExplicitInterfaceImplementations.Length != 0 ||
+            ImplementsInterface(method) || IsExempt(method))
+            return;
+        SyntaxNode? body = context.Node switch
+        {
+            BaseMethodDeclarationSyntax declaration => (SyntaxNode?)declaration.Body ?? declaration.ExpressionBody,
+            LocalFunctionStatementSyntax local => (SyntaxNode?)local.Body ?? local.ExpressionBody,
+            _ => null,
+        };
+        if (body is null)
+            return;
+        foreach (IParameterSymbol parameter in method.Parameters)
+        {
+            if (parameter.RefKind != RefKind.None || parameter.Type is not INamedTypeSymbol type ||
+                !type.Locations.Any(location => location.IsInSource))
+                continue;
+            INamedTypeSymbol[] narrower = type.AllInterfaces
+                .Where(contract => contract.Locations.Any(location => location.IsInSource) && contract.GetMembers().Length != 0)
+                .ToArray();
+            if (narrower.Length == 0 || UsedMembers(context.SemanticModel, body, parameter) is not { Count: > 0 } used)
+                continue;
+            INamedTypeSymbol? covering = narrower
+                .Where(contract => used.All(member => Covers(type, contract, member)))
+                .OrderBy(contract => contract.GetMembers().Length + contract.AllInterfaces.Sum(parent => parent.GetMembers().Length))
+                .FirstOrDefault();
+            if (covering is not null)
+                context.ReportDiagnostic(Diagnostic.Create(BroadContextRule, parameter.Locations[0],
+                    parameter.Name, Describe(method), covering.Name, type.Name));
+        }
+    }
+
+    /// <summary>
+    /// The members the body reads through <paramref name="parameter"/>, or null when the body also uses
+    /// the parameter as a whole value (passing, returning, storing, comparing or pattern-matching it).
+    /// </summary>
+    private static HashSet<ISymbol>? UsedMembers(SemanticModel model, SyntaxNode body, IParameterSymbol parameter)
+    {
+        var used = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+        foreach (IdentifierNameSyntax name in body.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
+        {
+            if (name.Identifier.Text != parameter.Name ||
+                !SymbolEqualityComparer.Default.Equals(model.GetSymbolInfo(name).Symbol, parameter))
+                continue;
+            ISymbol? member = name.Parent switch
+            {
+                MemberAccessExpressionSyntax access when access.Expression == name => model.GetSymbolInfo(access).Symbol,
+                ConditionalAccessExpressionSyntax conditional when conditional.Expression == name &&
+                    conditional.WhenNotNull is MemberBindingExpressionSyntax binding => model.GetSymbolInfo(binding).Symbol,
+                ConditionalAccessExpressionSyntax conditional when conditional.Expression == name &&
+                    conditional.WhenNotNull is InvocationExpressionSyntax { Expression: MemberBindingExpressionSyntax binding } =>
+                    model.GetSymbolInfo(binding).Symbol,
+                _ => null,
+            };
+            if (member is not (IPropertySymbol or IMethodSymbol or IEventSymbol))
+                return null;
+            used.Add(member is IMethodSymbol { ReducedFrom: { } extension } ? extension : member);
+        }
+        return used;
+    }
+
+    /// <summary>Whether <paramref name="member"/>, read through <paramref name="type"/>, is a member of <paramref name="contract"/>.</summary>
+    private static bool Covers(INamedTypeSymbol type, INamedTypeSymbol contract, ISymbol member)
+    {
+        if (member is IMethodSymbol { IsExtensionMethod: true })
+            return false;
+        IEnumerable<ISymbol> contractMembers = contract.GetMembers().Concat(contract.AllInterfaces.SelectMany(parent => parent.GetMembers()));
+        return contractMembers.Any(candidate =>
+            SymbolEqualityComparer.Default.Equals(candidate, member) ||
+            SymbolEqualityComparer.Default.Equals(type.FindImplementationForInterfaceMember(candidate), member));
     }
 
     private static void AnalyzeMethod(SymbolAnalysisContext context)

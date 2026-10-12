@@ -19,7 +19,7 @@ internal static partial class AssetTools
         {
             if (frame == ShutterBombArcScenario.FirstArcFrame)
                 ExportShutterBombArcSeed(scenario.Runtime, Path.Combine(directory, "bomb-arc.wram"));
-            scenario.Runtime.StepFrame(scenario.Input(frame));
+            scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame < ShutterBombArcScenario.FirstArcFrame)
                 continue;
             foreach (var bomb in scenario.Runtime.BombProjectiles.Slots)
@@ -44,7 +44,7 @@ internal static partial class AssetTools
         var shutter = scenario.Runtime.Enemies.VerticalShutterStates[0]!;
         for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
         {
-            scenario.Runtime.StepFrame(scenario.Input(frame));
+            scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)scenario.Samus.Pose:X2} " +
                     $"shutter={(ushort)shutter.Function:X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
@@ -72,7 +72,7 @@ internal static partial class AssetTools
             var platform = scenario.Platform;
             for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
             {
-                scenario.Runtime.StepFrame(scenario.Input(frame));
+                scenario.Runtime.StepFrame(scenario.Input(frame), new RuntimeFrameRequest());
                 int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
                 if (Math.Abs(samus.Position.X.Whole - platform.Position.X.Whole) < platform.Radius.X + samus.Kinematics.Radius.X &&
                     samus.Position.Y.Whole < platform.Position.Y.Whole && gap < worstGap)

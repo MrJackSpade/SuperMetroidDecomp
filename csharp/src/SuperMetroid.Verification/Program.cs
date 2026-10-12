@@ -5029,6 +5029,11 @@ if (args is ["--room-enemy-load-contracts"])
     Suite(nameof(VerifyRoomEnemyLoadContracts), () => VerifyRoomEnemyLoadContracts());
     return 0;
 }
+if (args is ["--operation-contracts"])
+{
+    Suite(nameof(VerifyOperationContracts), () => VerifyOperationContracts());
+    return 0;
+}
 if (args is ["--spc-memory-boundary"])
 {
     Suite(nameof(VerifySpcMemoryBoundary), () => VerifySpcMemoryBoundary());

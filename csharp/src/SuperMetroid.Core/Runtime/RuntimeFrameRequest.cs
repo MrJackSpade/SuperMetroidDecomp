@@ -5,11 +5,9 @@ namespace SuperMetroid.Core.Runtime;
 /// the cartridge audio calls the frame makes at their native positions, and host work immediately
 /// after the accepted NMI. Nothing here is retained after the frame or serialized with the runtime.
 /// </summary>
+/// <remarks>A default request is an ordinary state-eight frame: departure allowed, game time advancing, deferred audio, no NMI work.</remarks>
 public sealed record RuntimeFrameRequest
 {
-    /// <summary>An ordinary state-eight frame: departure allowed, game time advancing, deferred audio, no NMI work.</summary>
-    public static RuntimeFrameRequest Ordinary { get; } = new();
-
     /// <summary>The outer dispatcher's state policy for this frame.</summary>
     public RuntimeFramePolicy Policy { get; init; } = RuntimeFramePolicy.Gameplay;
 

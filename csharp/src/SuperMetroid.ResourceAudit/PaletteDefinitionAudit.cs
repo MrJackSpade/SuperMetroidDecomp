@@ -99,7 +99,10 @@ internal static class PaletteDefinitionAudit
     private static bool CheckColorMethod(Type rowType, object? row, MethodInfo method, string prefix,
         PaletteCatalogAudit audit)
     {
-        (Type catalog, string source, ResourceIndex exports, AuditReport report) = audit;
+        Type catalog = audit.Catalog;
+        string source = audit.Source;
+        ResourceIndex exports = audit.Exports;
+        AuditReport report = audit.Report;
         int? frames = ReadCount(rowType, row, "FrameCount") ?? ReadCount(catalog, null, prefix + "FrameCount");
         int? colors = ReadCount(rowType, row, "ColorsPerFrame") ?? ReadCount(catalog, null, prefix + "ColorsPerFrame");
         if (frames is null && rowType.GetProperty("Frames")?.GetValue(row) is IEnumerable frameRows)

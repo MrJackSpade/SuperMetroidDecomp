@@ -241,9 +241,10 @@ public sealed partial class RoomEnemySystem
     {
         _ = ProcessKraidHeadInstruction(body, state);
         int completedChannels = 0;
-        for (int colorIndex = 113; colorIndex < 116; colorIndex++)
+        CgramPalette eyeColors = BossPalettes.KraidEye;
+        for (int colorIndex = 0; colorIndex < eyeColors.Count; colorIndex++)
         {
-            Bgr555 color = _cgram!.Colors[colorIndex];
+            Bgr555 color = eyeColors[colorIndex];
             int red = color.Red;
             int green = color.Green;
             if (red >= 30)
@@ -264,7 +265,7 @@ public sealed partial class RoomEnemySystem
             {
                 green++;
             }
-            _cgram.SetColor(colorIndex, new Bgr555(red, green, color.Blue));
+            eyeColors.Write(colorIndex, new Bgr555(red, green, color.Blue));
         }
         if (completedChannels >= 6)
             body.VariableA = (ushort)KraidAiFunction.UnglowEye;
@@ -281,10 +282,10 @@ public sealed partial class RoomEnemySystem
         }
         int sourceColor = 8 * (thresholdWordOffset + 2) + 1;
         int changedChannels = 0;
-        for (int eye = 0; eye < 3; eye++)
+        CgramPalette eyeColors = BossPalettes.KraidEye;
+        for (int eye = 0; eye < eyeColors.Count; eye++)
         {
-            int colorIndex = 113 + eye;
-            Bgr555 current = _cgram!.Colors[colorIndex];
+            Bgr555 current = eyeColors[eye];
             Bgr555 target = ReadKraidColor(KraidPaletteSource.Health, sourceColor + eye);
             int red = current.Red;
             int green = current.Green;
@@ -300,7 +301,7 @@ public sealed partial class RoomEnemySystem
                 green = (green - 1) & Bgr555.MaxChannel;
                 changedChannels++;
             }
-            _cgram.SetColor(colorIndex, new Bgr555(red, green, current.Blue));
+            eyeColors.Write(eye, new Bgr555(red, green, current.Blue));
         }
         if (changedChannels == 0)
         {

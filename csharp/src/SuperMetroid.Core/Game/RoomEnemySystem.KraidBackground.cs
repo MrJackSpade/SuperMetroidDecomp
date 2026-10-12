@@ -54,22 +54,18 @@ public sealed partial class RoomEnemySystem
     /// <summary>Uploads the upper 32x32 page exactly as <c>$A7:C874</c> requests.</summary>
     private void TransferKraidTopTilemap(KraidEnemyState state)
     {
-        _vram!.ExecuteWordTransfer(
-            state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords),
-            KraidBackgroundRomData.LiveBg2TilemapWord,
-            wordIncrement: 1);
+        new EnemyVram(_vram!).KraidTopPage.Write(
+            state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords));
         state.TopTilemapUploadCount++;
     }
 
     /// <summary>Uploads the lower 32x32 page exactly as <c>$A7:C8B6</c> requests.</summary>
     private void TransferKraidBottomTilemap(KraidEnemyState state)
     {
-        _vram!.ExecuteWordTransfer(
+        new EnemyVram(_vram!).KraidBottomPage.Write(
             state.BackgroundTilemapWords.AsSpan(
                 KraidBackgroundRomData.WorkingLowerHalfWord,
-                KraidBackgroundRomData.VisiblePageWords),
-            KraidBackgroundRomData.LiveLowerBg2TilemapWord,
-            wordIncrement: 1);
+                KraidBackgroundRomData.VisiblePageWords));
         state.BottomTilemapUploadCount++;
     }
 
@@ -98,10 +94,7 @@ public sealed partial class RoomEnemySystem
         }
         // $A7:AF5D queues this source directly to VRAM. Mirroring it into the
         // body's WRAM map changes later growth/sink uploads and is not native behavior.
-        _vram!.ExecuteWordTransfer(
-            source,
-            KraidBackgroundRomData.LiveBg2TilemapWord,
-            wordIncrement: 1);
+        new EnemyVram(_vram!).KraidTopPage.Write(source);
         state.HeadTilemapUploadCount++;
     }
 
@@ -131,10 +124,8 @@ public sealed partial class RoomEnemySystem
     {
         state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords)
             .Fill(KraidBackgroundRomData.BlankTile);
-        _vram!.ExecuteWordTransfer(
-            state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords / 2),
-            KraidBackgroundRomData.OrdinaryRoomBg2TilemapWord,
-            wordIncrement: 1);
+        new GameplayVram(_vram!).Bg2Tilemap.Write(
+            state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords / 2));
         state.OwnsBg2Tilemap = false;
         state.TopTilemapUploadCount++;
     }
@@ -142,12 +133,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Clears the second half of the restored ordinary 32x32 BG2 map.</summary>
     private void ClearKraidBottomTilemapForDeath(KraidEnemyState state)
     {
-        _vram!.ExecuteWordTransfer(
+        new GameplayVram(_vram!).Bg2Tilemap.Write(
             state.BackgroundTilemapWords.AsSpan(0, KraidBackgroundRomData.VisiblePageWords / 2),
-            unchecked((ushort)(
-                KraidBackgroundRomData.OrdinaryRoomBg2TilemapWord +
-                KraidBackgroundRomData.VisiblePageWords / 2)),
-            wordIncrement: 1);
+            KraidBackgroundRomData.VisiblePageWords / 2);
         state.BottomTilemapUploadCount++;
     }
 

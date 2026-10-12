@@ -153,6 +153,9 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     public ushort TransferByteCount { get; }
     /// <summary>The hardware-encoded VRAM destination for each timed frame.</summary>
     public ushort EncodedVramDestination { get; }
+    /// <summary>The queued-DMA destination <see cref="EncodedVramDestination"/> decodes to.</summary>
+    [PpuLayoutBoundary("codec: Tourian statue animated-tile program's native VRAM destination")]
+    public VramDmaDestination Destination => VramDmaDestination.FromNative(EncodedVramDestination);
     /// <summary>The statue-specific bit manipulated by $87:8349/$8352.</summary>
     public ushort StatueStateBit { get; }
     /// <summary>The event set once this statue has turned grey.</summary>

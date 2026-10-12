@@ -42,12 +42,6 @@ public static class KraidBackgroundRomData
     /// <summary>BG2 tilemap word base selected by native BG2SC value $43.</summary>
     public const ushort LiveBg2TilemapWord = 0x4000;
 
-    /// <summary>Second vertical page of the native 64x64 BG2 tilemap.</summary>
-    public const ushort LiveLowerBg2TilemapWord = 0x4800;
-
-    /// <summary>Ordinary room BG2 base restored after Kraid has sunk.</summary>
-    public const ushort OrdinaryRoomBg2TilemapWord = 0x4800;
-
     /// <summary>
     /// <c>Tiles_Standard_BG3</c> at <c>$9A:B200</c>, restored by Kraid death functions
     /// <c>$A7:C777-$C7EF</c> after the private BG2 map has overwritten VRAM word $4000.

@@ -155,7 +155,7 @@ public sealed partial class RoomEnemySystem
 
         ushort[] clearedTilemap = new ushort[0x0200];
         Array.Fill(clearedTilemap, PhantoonBlankBg2Tile);
-        _vram!.ExecuteWordTransfer(clearedTilemap, PhantoonBg2VramBase, wordIncrement: 1);
+        new EnemyVram(_vram!).EnemyBg2Tilemap.Write(clearedTilemap);
     }
 
     private void ActivateWreckedShipAfterPhantoon(
@@ -212,12 +212,13 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        for (int color = 0; color < 112; color++)
+        CgramPalette room = BossPalettes.WreckedShipPowerOn;
+        for (int color = 0; color < room.Count; color++)
         {
-            Bgr555 current = _cgram!.Colors[color];
+            Bgr555 current = room[color];
             Bgr555 target = (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Wrecked Ship power-on palette requires installed artwork.")).ResolvePowerOn(color);
-            _cgram.SetColor(
+            room.Write(
                 color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));
         }

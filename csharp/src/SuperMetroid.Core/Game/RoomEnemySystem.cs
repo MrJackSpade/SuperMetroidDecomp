@@ -526,13 +526,12 @@ public sealed partial class RoomEnemySystem
         EnsureLoaded();
         foreach (RoomEnemyGraphicsSetEntry entry in _graphicsSet)
         {
-            int destinationByteOffset = RoomEnemyRomLayout.VramByteBase + entry.StagingOffset;
-            if ((destinationByteOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
+            if ((entry.StagingOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
                 throw new InvalidDataException("Enemy tile DMA is not word-aligned or exceeds one native transfer.");
             queue.Enqueue(
                 unchecked((ushort)entry.TileByteCount),
                 entry.Definition.TileDataAddress,
-                unchecked(VramDmaDestination.FromNative((ushort)(destinationByteOffset / 2))));
+                EnemyVram.EnemyTilesDma(entry.StagingOffset / 2));
         }
     }
 
@@ -1123,7 +1122,7 @@ public sealed partial class RoomEnemySystem
                 ? (vramDestination & 0x3000) >> 3
                 : nextStagingOffset;
             int vramByteOffset = RoomEnemyRomLayout.VramByteBase + stagingOffset;
-            if (vramByteOffset < 0 || vramByteOffset + byteCount > SnesVram.ByteCount)
+            if (vramByteOffset < 0 || stagingOffset + byteCount > new EnemyVram(vram).EnemyTiles.ByteCount)
             {
                 throw new InvalidDataException(
                     $"Enemy ${(int)definitionPointer:X4} tile DMA would leave VRAM: " +
@@ -2499,6 +2498,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports gunship function 17 at <c>$A2:ABC7</c>.</summary>
+    [PpuLayoutBoundary("codec: gunship liftoff transfer records' native VRAM destinations ($A2:ABC7)")]
     private void QueueGunshipTakeoffTiles(
         RoomEnemySlot top,
         VramWriteQueue? vramWriteQueue)
@@ -2739,6 +2739,7 @@ public sealed partial class RoomEnemySystem
     /// resolves by its compiled descriptor. Unknown transfers cannot fall back
     /// to an address-based cartridge decoder.
     /// </summary>
+    [PpuLayoutBoundary("codec: Torizo instruction-list VRAM transfer records ($AA, bank-$A0 $814B)")]
     private void ApplyEnemyInstructionVramTransfer(RoomEnemySlot slot,
         ushort instruction)
     {

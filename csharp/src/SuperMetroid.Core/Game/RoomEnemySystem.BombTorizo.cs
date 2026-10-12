@@ -265,8 +265,8 @@ public sealed partial class RoomEnemySystem
         ReadOnlySpan<Bgr555> rows = TorizoPaletteDefinitions.SharedRows;
         for (int color = 0; color < 16; color++)
         {
-            _cgram!.SetColor(176 + color, rows[color]);
-            _cgram.SetColor(240 + color, rows[16 + color]);
+            BossPalettes.TorizoSharedFirst.Write(color, rows[color]);
+            BossPalettes.TorizoSharedSecond.Write(color, rows[16 + color]);
         }
     }
 
@@ -284,7 +284,7 @@ public sealed partial class RoomEnemySystem
 
     private CartridgePaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
         state.PaletteTransition ??= new CartridgePaletteTransition(
-            _cgram!.Colors, TorizoPaletteDefinitions.FadeDenominator, GradualColorChange);
+            CgramRows.All.Colors, TorizoPaletteDefinitions.FadeDenominator, GradualColorChange);
 
     private void SetTorizoPaletteTarget(TorizoEnemyState state, ReadOnlySpan<Bgr555> colors)
     {
@@ -305,12 +305,12 @@ public sealed partial class RoomEnemySystem
             "Golden Torizo health palettes require installed artwork.");
         for (int color = 0; color < 16; color++)
         {
-            _cgram!.SetColor(
-                144 + color,
+            BossPalettes.TorizoBody.Write(
+                color,
                 colors.Resolve(SuperMetroid.Core.Assets.EnemyAuxiliaryPalette.GoldenTorizoBody,
                     sourceWord / 16, color));
-            _cgram.SetColor(
-                160 + color,
+            BossPalettes.TorizoBelly.Write(
+                color,
                 colors.Resolve(SuperMetroid.Core.Assets.EnemyAuxiliaryPalette.GoldenTorizoBelly,
                     sourceWord / 16, color));
         }
@@ -322,8 +322,8 @@ public sealed partial class RoomEnemySystem
     {
         for (int color = 0; color < 16; color++)
         {
-            _cgram!.SetColor(144 + color, rowNine[color]);
-            _cgram.SetColor(160 + color, rowTen[color]);
+            BossPalettes.TorizoBody.Write(color, rowNine[color]);
+            BossPalettes.TorizoBelly.Write(color, rowTen[color]);
         }
     }
 
@@ -625,8 +625,8 @@ public sealed partial class RoomEnemySystem
         {
             for (int color = 0; color < 16; color++)
             {
-                _cgram!.SetColor(144 + color, Bgr555.White);
-                _cgram.SetColor(160 + color, Bgr555.White);
+                BossPalettes.TorizoBody.Write(color, Bgr555.White);
+                BossPalettes.TorizoBelly.Write(color, Bgr555.White);
             }
         }
     }

@@ -139,7 +139,7 @@ public sealed class SamusArmCannonState
         vramWrites.Enqueue(
             sizeInBytes: SamusRenderingRomData.ArmCannon.TileUploadByteCount,
             sourceAddress: SamusRenderingRomData.Banks.CharacterData | tileSource,
-            destination: VramDmaDestination.FromNative(SamusRenderingRomData.ArmCannon.TileVramDestination));
+            destination: SamusVram.ArmCannonTileDma);
 
         return new SamusArmCannonDrawResult();
     }

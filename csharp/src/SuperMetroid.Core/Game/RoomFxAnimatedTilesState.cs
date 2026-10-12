@@ -21,6 +21,10 @@ internal sealed class RoomFxAnimatedTilesState
     private ushort instructionTimer;
     private ushort transferByteCount;
     private ushort encodedVramDestination;
+
+    /// <summary>The queued-DMA destination the loaded animated-tile object's native word decodes to.</summary>
+    [PpuLayoutBoundary("codec: room-FX animated-tile object's native VRAM destination")]
+    private VramDmaDestination Destination => VramDmaDestination.FromNative(encodedVramDestination);
     private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
@@ -111,7 +115,7 @@ internal sealed class RoomFxAnimatedTilesState
                 instructionPointer = unchecked((ushort)(cursor + 4));
                 LastSourceAddress = sourceAddress;
                 if (writes is not null)
-                    writes.Enqueue(transferByteCount, sourceAddress, VramDmaDestination.FromNative(encodedVramDestination));
+                    writes.Enqueue(transferByteCount, sourceAddress, Destination);
                 else if (artwork is not null)
                     artwork.LoadFrame(vram, sourceAddress, transferByteCount, encodedVramDestination);
                 else

@@ -185,7 +185,7 @@ public sealed partial class RoomEnemySystem
             Bgr555 value = (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
             state.WriteTargetColor(SporeSpawnColorRomData.SporeDestination + color, value);
-            _cgram!.SetColor(SporeSpawnColorRomData.SporeDestination + color, value);
+            BossPalettes.SporeSpawnSpores.Write(color, value);
         }
 
         // SpawnEprojWithGfx searches the eighteen-slot pool downward. Four calls therefore

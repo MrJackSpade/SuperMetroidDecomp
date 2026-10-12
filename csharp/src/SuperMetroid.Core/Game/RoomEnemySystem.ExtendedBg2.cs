@@ -72,8 +72,6 @@ public sealed partial class RoomEnemySystem
             for (int index = 0; index < words.Length; index++)
                 bg2[destinationWord + index] = words[index];
         }
-        _vram!.ExecuteWordTransfer(words,
-            unchecked((ushort)(EnemyBg2FrameLayout.VramBase + destinationWord)),
-            wordIncrement: 1);
+        new EnemyVram(_vram!).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 }

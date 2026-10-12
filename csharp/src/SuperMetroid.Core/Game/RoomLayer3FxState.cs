@@ -136,12 +136,10 @@ public sealed class RoomLayer3FxState
         // above their surface. Retaining zeros or a previous room's HUD/effect words makes
         // the standard orange `1` glyph (and sometimes a displaced HUD clone) scroll with
         // the atmosphere.
-        var clearedTilemap = new ushort[RoomFxRomData.Layer3.ClearWordCount];
+        VramRegion layer3Area = new RoomFxVram(vram).Layer3Area;
+        var clearedTilemap = new ushort[layer3Area.WordCount];
         Array.Fill(clearedTilemap, RoomFxRomData.Layer3.ClearTilemapWord);
-        vram.ExecuteWordTransfer(
-            clearedTilemap,
-            RoomFxRomData.Layer3.ClearDestinationWord,
-            wordIncrement: 1);
+        layer3Area.Write(clearedTilemap);
 
         if (RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(roomHeaderPointer))
             earthquakeSoundTimer = ushort.MaxValue;
@@ -174,9 +172,9 @@ public sealed class RoomLayer3FxState
         if (!IsRenderable)
             return;
 
-        vram.ExecuteQueuedAssetWrite((Layer3Tilemaps ?? throw new InvalidOperationException(
+        new RoomFxVram(vram).Layer3Tilemap.Load((Layer3Tilemaps ?? throw new InvalidOperationException(
                 "Renderable room FX requires installed layer-3 tilemaps."))
-            .Resolve(Type).Span, RoomFxRomData.Layer3.TilemapDestinationWord);
+            .Resolve(Type).Span);
 
         if (RoomFxTypes.UsesWater(Type))
         {

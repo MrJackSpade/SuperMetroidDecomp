@@ -548,13 +548,11 @@ public sealed partial class RoomEnemySystem
     private void LoadDachoraPalette(
         RoomEnemySlot slot, DachoraPalettePhase phase, int frame)
     {
-        int objectPalette = (slot.PaletteIndex >> 9) & 7;
-        int destinationColor = 128 + objectPalette * 16;
+        CgramPalette destination = CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
         if (TileArtwork?.DachoraColors is { } colors)
         {
             for (int color = 0; color < DachoraColorRomData.ColorsPerFrame; color++)
-                _cgram!.SetColor(destinationColor + color,
-                    colors.Resolve(phase, frame, color));
+                destination.Write(color, colors.Resolve(phase, frame, color));
             return;
         }
         throw new InvalidOperationException("Dachora requires installed palette-cycle colors.");

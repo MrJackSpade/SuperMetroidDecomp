@@ -666,7 +666,7 @@ public sealed partial class RoomEnemySystem
         WorkRamWordTable bg2 = EnemyScratch.EnemyBg2Tilemap;
         for (int index = 0; index < words.Length; index++)
             words[index] = bg2[index];
-        _vram!.ExecuteWordTransfer(words, EnemyBg2FrameLayout.VramBase, wordIncrement: 1);
+        new EnemyVram(_vram!).EnemyBg2Tilemap.Write(words);
         state.EnemyBg2TilemapTransferRequested = true;
     }
 }

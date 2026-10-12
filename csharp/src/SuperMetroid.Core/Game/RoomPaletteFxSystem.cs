@@ -474,13 +474,14 @@ public sealed class RoomPaletteFxSystem
             PaletteRecordEntry entry = ReadPaletteRecordEntry(cursor, colors);
             if (entry.Color is Bgr555 color)
             {
-                if ((colorByteIndex & 1) != 0 || colorByteIndex >= SnesCgram.ByteCount)
+                if ((colorByteIndex & 1) != 0 || colorByteIndex >= CgramPalettes.ByteCount)
                 {
                     throw new InvalidDataException(
                         $"Palette-FX object $8D:{slot.Id:X4} selected invalid CGRAM byte " +
                         $"index ${colorByteIndex:X4} at $8D:{cursor:X4}.");
                 }
-                cgram.SetColor(colorByteIndex / 2, color);
+                // The colour index is palette-FX instruction data ($8D:xxxx SetColorIndex).
+                new CgramPalettes(cgram).All.Write(colorByteIndex / 2, color);
                 colorByteIndex = unchecked((ushort)(colorByteIndex + 2));
                 cursor = unchecked((ushort)(cursor + 2));
                 continue;

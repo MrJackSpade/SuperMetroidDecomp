@@ -170,8 +170,7 @@ public sealed partial class SamusProjectileSystem
         SamusBeamCombination beamType = SelectedCombination(equippedBeams);
         Assets.BeamTileCatalog installed = artwork ?? throw new InvalidOperationException(
             "Beam tiles require installed artwork.");
-        vram.LoadBytes(Assets.BeamTileAtlasDefinitions.DestinationWord * 2,
-            installed.Resolve(Assets.BeamTileCatalog.AssetFor(beamType)).Span);
+        new SamusVram(vram).BeamTiles.Load(installed.Resolve(Assets.BeamTileCatalog.AssetFor(beamType)).Span);
     }
 
     /// <summary>
@@ -196,7 +195,7 @@ public sealed partial class SamusProjectileSystem
         // beam combinations retain physical adjacent-table reads used by glitch paths.
         _ = artwork ?? throw new InvalidOperationException("Beam tiles require installed artwork.");
         writes.EnqueueAsset(Assets.BeamTileCatalog.AssetFor(beamType),
-            Assets.BeamTileAtlasDefinitions.ByteCount, VramDmaDestination.FromNative(Assets.BeamTileAtlasDefinitions.DestinationWord));
+            Assets.BeamTileAtlasDefinitions.ByteCount, SamusVram.BeamTilesDma);
 
         palettes ??= artwork?.Palettes;
         LoadSelectedBeamPalette(bus, cgram, beamType, palettes);
@@ -301,7 +300,7 @@ public sealed partial class SamusProjectileSystem
             // That is exactly colors 15..1: transparent color zero is intentionally left
             // untouched while every visible Samus color becomes yellow `$03FF`.
             for (int color = 1; color < 16; color++)
-                cgram.SetColor(SamusProjectileRomData.Palettes.SamusCgramIndex + color, new Bgr555(31, 31, 0));
+                new SamusPalettes(cgram).Suit.Write(color, new Bgr555(31, 31, 0));
 
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.OrdinaryWhite);

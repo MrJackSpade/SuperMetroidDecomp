@@ -332,8 +332,7 @@ public sealed partial class RoomEnemySystem
                 "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_cgram!);
             return;
         }
-        for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)
-            _cgram!.SetColor(CrocomirePaletteRomData.FightBodyDestination + color, Bgr555.White);
+        BossPalettes.CrocomireFightBody.Fill(Bgr555.White);
     }
 
     private static void InstallCrocomireInstructionList(RoomEnemySlot slot, ushort pointer)

@@ -21,10 +21,8 @@ public sealed partial class RoomEnemySystem
             throw new ArgumentOutOfRangeException(nameof(startWord));
         }
 
-        _vram!.ExecuteWordTransfer(
-            RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startWord, wordCount),
-            unchecked((ushort)(EnemyBg2FrameLayout.VramBase + startWord)),
-            wordIncrement: 1);
+        new EnemyVram(_vram!).EnemyBg2Tilemap.Write(
+            RequireCrocomireDeath().Bg2WorkingTilemap.Slice(startWord, wordCount), startWord);
     }
 
     private void FillCrocomireBg2ScrollTable(ushort verticalScroll) =>

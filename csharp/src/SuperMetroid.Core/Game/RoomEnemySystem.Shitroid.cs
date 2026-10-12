@@ -265,11 +265,11 @@ public sealed partial class RoomEnemySystem
         _shitroid = state;
 
         CopyShitroidTargetPalette(state, ShitroidColorTarget.Sidehopper,
-            destinationColor: 0x90);
+            ShitroidColorRomData.SidehopperDestination);
         CopyShitroidTargetPalette(state, ShitroidColorTarget.Shitroid,
-            destinationColor: 0xa0);
+            ShitroidColorRomData.ShitroidDestination);
         CopyShitroidTargetPalette(state, ShitroidColorTarget.DeadSidehopper,
-            destinationColor: 0xf0);
+            ShitroidColorRomData.DeadSidehopperDestination);
     }
 
     private void CopyShitroidTargetPalette(
@@ -286,7 +286,7 @@ public sealed partial class RoomEnemySystem
             // This runtime currently presents completed room fades directly in CGRAM.
             // Keep the separate target copy above, but install the same completed value so
             // the encounter does not wait on an untranslated global palette-fade owner.
-            _cgram!.SetColor(destinationColor + color, value);
+            BossPalettes.ShitroidTarget(target).Write(color, value);
         }
     }
 
@@ -914,7 +914,7 @@ public sealed partial class RoomEnemySystem
         {
             Bgr555 value = (TileArtwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid normal palette requires installed artwork.")).NormalColor(phase, color);
-            _cgram!.SetColor(165 + color, value);
+            BossPalettes.ShitroidMembrane.Write(color, value);
         }
     }
 

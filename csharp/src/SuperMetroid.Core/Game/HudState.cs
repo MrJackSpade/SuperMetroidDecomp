@@ -322,7 +322,7 @@ public sealed class HudState
         for (int tile = 0; tile < MutableTileCount; tile++)
             buffer[tile] = _tiles[tile];
 
-        HudMemory.EnqueueMutableTilemapUpload(queue, VramDestination);
+        HudMemory.EnqueueMutableTilemapUpload(queue);
     }
 
     private void DrawHealth(ushort health, ushort maxHealth)

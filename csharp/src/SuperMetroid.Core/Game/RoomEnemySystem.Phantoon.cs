@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort PhantoonBlankBg2Tile = 0x0338;
-    private const ushort PhantoonBg2VramBase = 0x4800;
-    private const int PhantoonBg2WordCount = 0x0800;
     private const ushort PhantoonInitialBodyInstruction =
         PhantoonInstructionProgramDefinitions.InvulnerableBody;
     private const ushort PhantoonInitialEyeInstruction = PhantoonInstructionProgramDefinitions.EyeClosed;
@@ -41,15 +39,15 @@ public sealed partial class RoomEnemySystem
         // Native clears all $1000 bytes of the enemy BG2 working image to tile $0338.
         // This renderer keeps the visible mirror in VRAM, so one exact word transfer gives
         // ProcessExtendedTilemap the same clean surface used by the subsequent body maps.
-        ushort[] clearedTilemap = new ushort[PhantoonBg2WordCount];
+        VramRegion bg2 = new EnemyVram(_vram!).EnemyBg2Tilemap;
+        ushort[] clearedTilemap = new ushort[bg2.WordCount];
         Array.Fill(clearedTilemap, PhantoonBlankBg2Tile);
-        _vram!.ExecuteWordTransfer(clearedTilemap, PhantoonBg2VramBase, wordIncrement: 1);
+        bg2.Write(clearedTilemap);
 
         // Target BG palette seven is black at fight start. In the software PPU CGRAM is the
         // renderer-visible incarnation of native current/target palette storage; clearing
         // these exact sixteen words makes the later health-palette interpolation observable.
-        for (int color = 112; color < 128; color++)
-            _cgram!.SetColor(color, Bgr555.Black);
+        BossPalettes.PhantoonBody.Fill(Bgr555.Black);
 
         body.VariableE = PhantoonTimerDefinitions.InitialFlameDelayFrames;
         body.VariableA = 0;
@@ -545,10 +543,10 @@ public sealed partial class RoomEnemySystem
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 current = _cgram!.Colors[112 + color];
+            Bgr555 current = BossPalettes.PhantoonBody[color];
             Bgr555 target = ReadPhantoonHealthColor(healthBand, color);
-            _cgram.SetColor(
-                112 + color,
+            BossPalettes.PhantoonBody.Write(
+                color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));
         }
         eye.VariableE = unchecked((ushort)(numerator + 1));

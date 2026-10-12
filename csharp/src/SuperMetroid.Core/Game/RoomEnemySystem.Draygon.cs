@@ -38,7 +38,7 @@ public sealed partial class RoomEnemySystem
             bg2Bytes[byteIndex] = 0x38;
             bg2Bytes[byteIndex + 1] = 0x03;
         }
-        _vram!.LoadBytes(0x9000, bg2Bytes); // VRAM word $4800 expressed as a byte address.
+        new EnemyVram(_vram!).EnemyBg2Tilemap.Load(bg2Bytes);
 
         body.PaletteIndex = EnemyPaletteBits.Palette7;
         body.CurrentInstruction = DraygonInstructionProgramDefinitions.BodyFacingLeftIdle;
@@ -256,9 +256,7 @@ public sealed partial class RoomEnemySystem
                         out ReadOnlyMemory<byte> installedTiles) != true)
                     throw new InvalidDataException(
                         "Installed Evir graphics are missing for Draygon's opening transfer.");
-                _vram!.LoadBytes(
-                    DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
-                    installedTiles.Span);
+                new EnemyVram(_vram!).DraygonEvirTiles.Load(installedTiles.Span);
                 state.IntroEvirGraphicsLoaded = true;
 
                 // CreateSpriteAtPos searches descending, so these become native indexes

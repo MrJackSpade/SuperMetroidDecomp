@@ -109,6 +109,7 @@ public sealed class EscapeTypewriterState
         return Completed = true;
     }
 
+    [PpuLayoutBoundary("codec: escape typewriter programs' native VRAM destinations")]
     private void WriteCharacter(byte character, SnesVram vram)
     {
         if (character != (byte)' ')

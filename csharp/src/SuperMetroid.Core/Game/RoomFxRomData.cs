@@ -329,8 +329,6 @@ public static class RoomFxRomData
                 index == 17 ? 0x7000 : index < 20 ? 0xc000 - (index - 18) * 0x4000 : 0);
             return new(top, subspeed, 0, index == 11 ? 8 : index);
         }
-        /// <summary>VRAM word base of the scrolling-sky BG2 tilemap.</summary>
-        public const ushort Bg2TilemapBaseWord = 0x4800;
         /// <summary>Number of horizontal-scroll accumulator and HDMA data slots.</summary>
         public const int DataSlotCount = 23;
         /// <summary>Exclusive vertical world position of the authored sky-band table.</summary>

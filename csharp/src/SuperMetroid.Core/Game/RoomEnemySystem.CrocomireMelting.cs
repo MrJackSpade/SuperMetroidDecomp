@@ -120,6 +120,7 @@ public sealed partial class RoomEnemySystem
         death.MeltingTransferOffset += 8;
     }
 
+    [PpuLayoutBoundary("codec: Crocomire melting VRAM transfer records' native destinations")]
     private void UploadCrocomireMeltingRecord(CrocomireMeltingUpload upload)
     {
         CrocomireDeathState death = RequireCrocomireDeath();

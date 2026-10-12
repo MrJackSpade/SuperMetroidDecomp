@@ -81,10 +81,7 @@ public sealed class SamusVisorPaletteState
         if (PresentationColors is null ||
             !PresentationColors.TryResolveByteOffset(sourceOffset, out Bgr555 color))
             throw new InvalidDataException($"Visor palette offset {sourceOffset} has no installed color.");
-        cgram.SetColor(
-            SamusPaletteRomData.Common.SamusObjPaletteStart +
-                SamusPaletteRomData.Common.VisorColorOffset,
-            color);
+        new SamusPalettes(cgram).Visor.Write(0, color);
 
         // Only offsets 6, 8, and 10 belong to the room-backdrop cycle. Offsets 0/2/4 are
         // X-ray widening colors and are selected by the separate X-ray palette handler.

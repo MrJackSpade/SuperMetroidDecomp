@@ -104,7 +104,7 @@ public static class SamusHurtFlashPalette
                 throw new InvalidOperationException(
                     "Hurt-flash palette requires installed Samus hurt colors.");
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
-                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
+                new SamusPalettes(cgram).Suit.Write(index,
                     presentationColors.Resolve(variant, index));
         }
     }

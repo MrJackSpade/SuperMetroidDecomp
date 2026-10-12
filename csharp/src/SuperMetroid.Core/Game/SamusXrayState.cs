@@ -565,7 +565,7 @@ public sealed class SamusXrayState
             !PresentationColors.TryResolveByteOffset(SpecialPaletteFrame, out Bgr555 visorColor))
             throw new InvalidDataException(
                 $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
-        cgram.SetColor(SamusXrayRomData.Palette.VisorCgramIndex, visorColor);
+        new SamusPalettes(cgram).Visor.Write(0, visorColor);
 
         if (BeamSizeFlag == 0)
         {

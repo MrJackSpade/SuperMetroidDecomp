@@ -122,11 +122,11 @@ public sealed partial class RoomEnemySystem
         {
             for (int color = 0; color < 16; color++)
             {
-                Bgr555 current = _cgram!.Colors[96 + color];
+                Bgr555 current = BossPalettes.KraidRoomBackdrop[color];
                 Bgr555 target = fadeToBlack
                     ? Bgr555.Black
                     : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
-                _cgram.SetColor(96 + color, TransitionKraidColor(step, current, target));
+                BossPalettes.KraidRoomBackdrop.Write(color, TransitionKraidColor(step, current, target));
             }
             GradualColorChange.Numerator = unchecked((ushort)(step + 1));
             return false;

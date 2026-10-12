@@ -46,8 +46,6 @@ public sealed partial class RoomEnemySystem
     private const ushort BlueBrinstarFaceBlockPalettePeriod = 16;
     private const int BlueBrinstarFaceBlockPaletteFrameCount = 8;
     private const int BlueBrinstarFaceBlockAnimatedColorCount = 4;
-    private const int FirstObjPaletteColor = 128;
-    private const int ColorsPerObjPalette = 16;
     private const int FirstAnimatedFaceBlockPaletteColor = 9;
 
     private readonly BlueBrinstarFaceBlockEnemyState?[] _blueBrinstarFaceBlockStates =
@@ -59,7 +57,7 @@ public sealed partial class RoomEnemySystem
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
     private ushort _blueBrinstarFaceBlockPaletteTimer;
     private ushort _blueBrinstarFaceBlockPaletteFrame;
-    private int _blueBrinstarFaceBlockPaletteDestination;
+    private int _blueBrinstarFaceBlockPaletteRow;
 
     /// <summary>Clears actor and singleton graphics-hook state at room-load time.</summary>
     private void ResetBlueBrinstarFaceBlockRoomState()
@@ -68,7 +66,7 @@ public sealed partial class RoomEnemySystem
         _blueBrinstarFaceBlockPaletteHookInstalled = false;
         _blueBrinstarFaceBlockPaletteTimer = 0;
         _blueBrinstarFaceBlockPaletteFrame = 0;
-        _blueBrinstarFaceBlockPaletteDestination = 0;
+        _blueBrinstarFaceBlockPaletteRow = 0;
     }
 
     /// <summary>Ports <c>BlueBrinstarFaceBlock_Init</c> at <c>$A8:E82E</c>.</summary>
@@ -160,11 +158,8 @@ public sealed partial class RoomEnemySystem
 
         // `((palette_index * 16) & $FF00) >> 8`, followed by `(offset >> 1) + 137`,
         // simplifies to OBJ palette N color nine. Keep that PPU meaning explicit so a
-        // debugger sees an actual CGRAM index rather than a mysterious WRAM byte offset.
-        int objPalette = (slot.PaletteIndex >> 9) & 7;
-        _blueBrinstarFaceBlockPaletteDestination =
-            FirstObjPaletteColor + objPalette * ColorsPerObjPalette +
-            FirstAnimatedFaceBlockPaletteColor;
+        // debugger sees an actual palette row rather than a mysterious WRAM byte offset.
+        _blueBrinstarFaceBlockPaletteRow = (slot.PaletteIndex >> 9) & 7;
     }
 
     /// <summary>
@@ -187,10 +182,12 @@ public sealed partial class RoomEnemySystem
         int frame = _blueBrinstarFaceBlockPaletteFrame & (BlueBrinstarFaceBlockPaletteFrameCount - 1);
         var colors = TileArtwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Face-block palette animation requires installed artwork.");
+        CgramPalette animated = CgramRows.ObjectRow(_blueBrinstarFaceBlockPaletteRow)
+            .Slice(FirstAnimatedFaceBlockPaletteColor, BlueBrinstarFaceBlockAnimatedColorCount);
         for (int color = 0; color < BlueBrinstarFaceBlockAnimatedColorCount; color++)
         {
-            _cgram!.SetColor(
-                _blueBrinstarFaceBlockPaletteDestination + color,
+            animated.Write(
+                color,
                 colors.Resolve(SuperMetroid.Core.Assets.EnemyAuxiliaryPalette.FaceBlock, frame, color));
         }
 

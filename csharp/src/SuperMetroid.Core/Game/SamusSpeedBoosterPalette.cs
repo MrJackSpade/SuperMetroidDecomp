@@ -22,7 +22,7 @@ internal static class SamusSpeedBoosterPalette
                     _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {(int)overrun}."),
                 };
                 // Arbitrary bus words reach CGRAM through its fifteen-bit data port.
-                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, Bgr555.FromCgramPortWord(word));
+                new SamusPalettes(cgram).Suit.Write(index, Bgr555.FromCgramPortWord(word));
             }
             return;
         }

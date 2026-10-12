@@ -213,7 +213,7 @@ public sealed class SamusDrainedState
         if (PresentationColors is null)
             throw new InvalidOperationException("Drained Samus requires installed Hyper Beam colors.");
         for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
-            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
+            new SamusPalettes(cgram).Suit.Write(index,
                 PresentationColors.Resolve(paletteFrame, index));
 
         NativeWordCounterStep timer = NativeWordCounter.Decrement(CommonPaletteTimer);

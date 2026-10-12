@@ -29,7 +29,7 @@ public static class SamusVramLayout
 
     /// <summary>VMADD $6200-$620F: the grapple endpoint character (<c>$9B:BFFB</c>).</summary>
     public static readonly PpuLayoutCell GrapplePoint = new(nameof(GrapplePoint), PpuLayoutRegion.Vram,
-        SamusGrappleRomData.Rendering.PointTileVramDestination, SamusGrappleRomData.Rendering.PointTileByteCount / sizeof(ushort),
+        Assets.GrappleTileDefinitions.PointDestination, SamusGrappleRomData.Rendering.PointTileByteCount / sizeof(ushort),
         "4-bpp OBJ character", GameplayVramLayout.ObjectCharacters);
 
     /// <summary>VMADD $6210-$624F: the four grapple rope-segment characters (<c>$9B:C02B</c>).</summary>

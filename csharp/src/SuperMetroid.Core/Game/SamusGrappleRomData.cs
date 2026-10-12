@@ -85,8 +85,6 @@ public static class SamusGrappleRomData
         public const int SwingFrameByAngle = 0x9bc1c2;
         /// <summary>Bytes uploaded for the single Grapple point character.</summary>
         public const ushort PointTileByteCount = 0x20;
-        /// <summary>Encoded VRAM destination for the Grapple point character.</summary>
-        public const ushort PointTileVramDestination = 0x6200;
         /// <summary>$94:B036, DrawGrappleBeam: distance between consecutive rope objects in pixels.</summary>
         public const int SegmentSpacing = 8;
         /// <summary>$94:AFD9-AFE4: convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>

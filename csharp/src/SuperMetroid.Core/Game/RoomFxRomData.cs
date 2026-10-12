@@ -45,12 +45,6 @@ public static class RoomFxRomData
     public static class Layer3
     {
         /// <summary>
-        /// First gameplay-region word of the ordinary BG3 page. Startup fills this range
-        /// with character $6F before any room effect is loaded.
-        /// </summary>
-        public const ushort PaddingDestinationWord = 0x5880;
-
-        /// <summary>
         /// Blank tilemap word copied through the gameplay portion of the first BG3 page by
         /// <c>Load_StandardBG3Tiles_SpriteTiles_ClearTilemaps</c> at $82:82E2.
         /// </summary>

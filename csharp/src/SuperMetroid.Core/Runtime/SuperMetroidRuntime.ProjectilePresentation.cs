@@ -143,8 +143,7 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider, IInstalled
         if (new Game.SamusBeamLoadoutWord(Samus.EquippedBeams).Combination is Game.SamusBeamCombination selection &&
             selection.IsRetail)
         {
-            Vram.ExecuteQueuedAssetWrite(BeamArtwork!.Resolve(BeamTileCatalog.AssetFor(selection)).Span,
-                BeamTileAtlasDefinitions.DestinationWord);
+            new Game.SamusVram(Vram).BeamTiles.Load(BeamArtwork!.Resolve(BeamTileCatalog.AssetFor(selection)).Span);
             // An in-flight effect owns these colors across frames. Its own completion
             // restores the selected normal palette; host rebind must not erase its phase.
             if (Samus.CrystalFlash.SpecialPaletteKind != Game.SamusSpecialPaletteType.CrystalFlash &&

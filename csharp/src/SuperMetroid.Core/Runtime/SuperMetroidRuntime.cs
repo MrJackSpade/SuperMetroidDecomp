@@ -687,10 +687,7 @@ public sealed partial class SuperMetroidRuntime
         // glyph whenever liquid HDMA exposed the above-surface portion of the BG3 page.
         var roomFxPadding = new ushort[RoomFxRomData.Layer3.PaddingWordCount];
         Array.Fill(roomFxPadding, RoomFxRomData.Layer3.PaddingTilemapWord);
-        Vram.ExecuteWordTransfer(
-            roomFxPadding,
-            RoomFxRomData.Layer3.PaddingDestinationWord,
-            wordIncrement: 1);
+        new RoomFxVram(Vram).Layer3Area.Write(roomFxPadding);
 
         // The original copies $2000 bytes even though the named standard BG3 graphics are
         // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
@@ -817,7 +814,7 @@ public sealed partial class SuperMetroidRuntime
         (BeamArtwork?.Palettes ?? throw new InvalidOperationException(
             "Grapple palette requires installed beam artwork."))
             .LoadTo(Cgram, SamusGrappleRomData.Palettes.FiringSelection);
-        Cgram.SetColor(SamusGrappleRomData.Palettes.FlareColorIndex, SamusGrappleRomData.Palettes.FlareColor);
+        new SamusPalettes(Cgram).GrappleFlare.Write(0, SamusGrappleRomData.Palettes.FlareColor);
     }
 
     /// <summary>

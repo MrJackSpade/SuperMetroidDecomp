@@ -17,16 +17,6 @@ public static class AssetVramLayout
         ProjectileTrailAtlasDefinitions.MissileDestinationWord, 0x40,
         "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
 
-    /// <summary>VMADD $6200-$620F: the Grapple endpoint character.</summary>
-    public static readonly PpuLayoutCell GrapplePoint = new(nameof(GrapplePoint), PpuLayoutRegion.Vram,
-        GrappleTileDefinitions.PointDestination, 0x10,
-        "4-bpp OBJ character", GameplayVramLayout.ObjectCharacters);
-
-    /// <summary>VMADD $6210-$624F: the four Grapple rope characters.</summary>
-    public static readonly PpuLayoutCell GrappleSegments = new(nameof(GrappleSegments), PpuLayoutRegion.Vram,
-        GrappleTileDefinitions.SegmentDestination, 0x40,
-        "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
-
     /// <summary>VMADD $7000-$71FF (bytes $E000): the 32 Ceres door characters replacing variant two's $B0:C400 DMA.</summary>
     public static readonly PpuLayoutCell CeresDoorTiles = new(nameof(CeresDoorTiles), PpuLayoutRegion.Vram,
         CeresDoorVisualRomData.TileVramDestination / sizeof(ushort), CeresDoorVisualRomData.TileByteCount / sizeof(ushort),
@@ -62,10 +52,6 @@ public readonly struct AssetVram(SnesVram vram)
     public static VramDmaDestination ProjectileIceWaveTrailDma => VramDmaDestination.At(AssetVramLayout.ProjectileIceWaveTrail);
     /// <summary>Queued-DMA destination of the missile trail characters.</summary>
     public static VramDmaDestination ProjectileMissileTrailDma => VramDmaDestination.At(AssetVramLayout.ProjectileMissileTrail);
-    /// <summary>Queued-DMA destination of the Grapple endpoint character.</summary>
-    public static VramDmaDestination GrapplePointDma => VramDmaDestination.At(AssetVramLayout.GrapplePoint);
-    /// <summary>Queued-DMA destination of the Grapple rope characters.</summary>
-    public static VramDmaDestination GrappleSegmentsDma => VramDmaDestination.At(AssetVramLayout.GrappleSegments);
     /// <summary>Queued-DMA destination of the standard BG3 upload (HUD characters then the cleared BG2 tilemap).</summary>
     public static VramDmaDestination HudCharacterUploadDma => VramDmaDestination.At(GameplayVramLayout.HudCharacterUpload);
 }

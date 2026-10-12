@@ -158,6 +158,7 @@ internal sealed class EndingBackgroundTextState
             unchecked((ushort)(EndingCreditsRomData.Text.DigitBottomTile + digit));
     }
 
+    [PpuLayoutBoundary("codec: ending text staging tilemap DMA to its scene-selected VMADD")]
     private void Upload(SnesVram vram) =>
         vram.ExecuteWordTransfer(
             tilemap,

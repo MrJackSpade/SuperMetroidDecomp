@@ -93,10 +93,7 @@ internal sealed partial class PauseMenuState
             // intentionally retained. A fresh host-side VRAM object used to discard that
             // state, removing the entire energy/ammo HUD from pause and exposing map BG1
             // pixels in the area that its BG3 plane normally covers.
-            var retainedHudTilemap = new byte[0x0800];
-            for (int index = 0; index < retainedHudTilemap.Length; index++)
-                retainedHudTilemap[index] = gameplayVram.ReadByte(0xb000 + index);
-            vram.LoadBytes(0xb000, retainedHudTilemap);
+            new PauseVram(vram).RetainedHudTilemap.Load(new PauseVram(gameplayVram).RetainedHudTilemap);
         }
 
         // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
@@ -108,12 +105,9 @@ internal sealed partial class PauseMenuState
         // consequently tiled `1` through every otherwise-empty map cell.
         var clearedFxTilemap = new ushort[PauseMenuLayout.Bg3FxClearWordCount];
         Array.Fill(clearedFxTilemap, PauseMenuLayout.Bg3FxClearTile);
-        vram.ExecuteWordTransfer(
-            clearedFxTilemap,
-            PauseMenuLayout.Bg3FxClearDestinationWord,
-            wordIncrement: 1);
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            cgram.SetColor(color, mapPresentation.Palettes.Pause[color]);
+        new PauseVram(vram).Bg3FxRows.Write(clearedFxTilemap);
+        for (int color = 0; color < CgramPalettes.ColorCount; color++)
+            new CgramPalettes(cgram).All.Write(color, mapPresentation.Palettes.Pause[color]);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
         // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
@@ -280,6 +274,7 @@ internal sealed partial class PauseMenuState
     }
 
     /// <summary>Prepares OAM on the simulation owner, then captures without raster work.</summary>
+    [PpuLayoutBoundary("codec: pause render packet layers")]
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderOam();
@@ -527,7 +522,7 @@ internal sealed partial class PauseMenuState
             "Pause map requires installed map presentation assets.")).Get(area);
         byte[] mapTilemap = AreaMapTilemapBuilder.Build(
             map, system, MapTileWords.PauseBlank, mapRevealMode);
-        vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, mapTilemap);
+        new PauseVram(vram).Bg1Tilemap.Load(mapTilemap);
 
         // Installed backdrops already contain their authored area lettering.
     }
@@ -761,8 +756,7 @@ internal sealed partial class PauseMenuState
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, "Pause label mode must be 0..2.");
         }
 
-        vram.LoadBytes(
-            PauseMenuLayout.ButtonRowsDestinationWord * 2,
+        new PauseVram(vram).ButtonRows.Load(
             pauseButtonTilemap.AsSpan(
                 PauseMenuLayout.ButtonRowsSourceOffset,
                 PauseMenuLayout.ButtonRowsByteCount));
@@ -778,7 +772,7 @@ internal sealed partial class PauseMenuState
     }
 
     private void UploadEquipmentTilemap() =>
-        vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, equipmentTilemap);
+        new PauseVram(vram).Bg1Tilemap.Load(equipmentTilemap);
 
     private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);

@@ -198,10 +198,8 @@ internal sealed class IntroCinematicObjectSystem
 
         // UpdateCinematicBgTilemap queues $780 bytes from $7E:3000 to VMADD $4C00.
         // Applying it immediately is the desktop equivalent of observing the following NMI.
-        vram.ExecuteWordTransfer(
-            textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount),
-            IntroCinematicRomData.Layers.NarrationTilemapWord,
-            1);
+        new IntroVram(vram).NarrationTilemap.Write(
+            textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount));
     }
 
     /// <summary>Rebinds host-owned narration content after override reload or state restore.</summary>
@@ -511,13 +509,11 @@ internal sealed class IntroCinematicObjectSystem
         ValidateRectangle(destination, size);
         if (source.Length != size.Area)
             throw new InvalidDataException("Opening eye frame does not match its native rectangle size.");
+        VramRegion portrait = new IntroVram(vram).PortraitTilemap;
         for (int row = 0; row < size.Y; row++)
         {
-            ushort destinationWord = (ushort)(
-                IntroCinematicRomData.Layers.PortraitTilemapWord +
-                (destination.Y + row) * IntroCinematicRomData.Layers.TilemapWidth +
-                destination.X);
-            vram.ExecuteWordTransfer(source.Slice(row * size.X, size.X), destinationWord, 1);
+            portrait.Write(source.Slice(row * size.X, size.X),
+                (destination.Y + row) * IntroCinematicRomData.Layers.TilemapWidth + destination.X);
         }
     }
 

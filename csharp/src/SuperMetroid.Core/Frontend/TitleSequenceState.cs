@@ -97,8 +97,7 @@ public sealed class TitleSequenceState
         babyMetroidCharacters = titleGraphicsPresentation.BabyCharacters.ToArray();
 
         LoadMode7InterleavedVram(mode7Characters, mode7Map);
-        vram.LoadBytes(
-            TitleSequenceRomData.Vram.ObjectCharacterDestinationByte,
+        new TitleVram(vram).ObjectCharacters.Load(
             objectCharacters.AsSpan(
                 0,
                 Math.Min(
@@ -161,9 +160,9 @@ public sealed class TitleSequenceState
         if (Phase is TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
-            cgram.SetColor(TitleSequenceRomData.Palette.CopyrightWhiteIndex,
+            new CgramPalettes(cgram).All.Write(TitleSequenceRomData.Palette.CopyrightWhiteIndex,
                 presentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite);
-            cgram.SetColor(TitleSequenceRomData.Palette.CopyrightRedIndex,
+            new CgramPalettes(cgram).All.Write(TitleSequenceRomData.Palette.CopyrightRedIndex,
                 presentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         }
     }
@@ -509,10 +508,10 @@ public sealed class TitleSequenceState
         gradientEnabled = true;
         // Skip transition `$8B:9A9C` explicitly overwrites the two glyph colors used by
         // the Nintendo copyright spritemap after restoring CGRAM's upper half.
-        cgram.SetColor(
+        new CgramPalettes(cgram).All.Write(
             TitleSequenceRomData.Palette.CopyrightWhiteIndex,
             titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite);
-        cgram.SetColor(
+        new CgramPalettes(cgram).All.Write(
             TitleSequenceRomData.Palette.CopyrightRedIndex,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
@@ -540,12 +539,13 @@ public sealed class TitleSequenceState
 
         // DMA mode zero to $2119 writes only high bytes and increments VMADD afterward.
         // The following $2118 fill and map DMA populate the corresponding low bytes.
-        vram.FillMode7MapBytes(
+        var mode7 = new Mode7Vram(vram);
+        mode7.FillMap(
             TitleSequenceRomData.Vram.Mode7InitialMapByte,
             TitleSequenceRomData.Vram.Mode7CharacterByteCount);
-        vram.LoadMode7CharacterBytes(
+        mode7.LoadCharacters(
             characterBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7CharacterByteCount));
-        vram.LoadMode7MapBytes(
+        mode7.LoadMap(
             mapBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7MapByteCount));
     }
 
@@ -569,17 +569,8 @@ public sealed class TitleSequenceState
             source + TitleSequenceRomData.Vram.BabyCharacterPageByteCount)
             throw new InvalidDataException("Title baby-Metroid stream is missing an animation page.");
 
-        for (int byteIndex = 0;
-             byteIndex < TitleSequenceRomData.Vram.BabyCharacterPageByteCount;
-             byteIndex++)
-        {
-            int word = TitleSequenceRomData.Vram.BabyCharacterDestinationWord + byteIndex;
-            ushort value = (ushort)(
-                (vram.ReadWord(word) & TitleSequenceRomData.Vram.Mode7MapLowByteMask) |
-                (babyMetroidCharacters[source + byteIndex] <<
-                    TitleSequenceRomData.Vram.Mode7CharacterByteShift));
-            vram.ExecuteWordTransfer([value], (ushort)word, 1);
-        }
+        new TitleVram(vram).LoadBabyMetroidPage(
+            babyMetroidCharacters.AsSpan(source, TitleSequenceRomData.Vram.BabyCharacterPageByteCount));
     }
 
     private static ushort ReadWord(int address) => TitleSequenceInstructionDefinitions.ReadWord(address);

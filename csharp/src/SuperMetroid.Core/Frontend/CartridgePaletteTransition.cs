@@ -19,7 +19,7 @@ internal sealed class CartridgePaletteTransition
     public CartridgePaletteTransition(ReadOnlySpan<Bgr555> target, int denominator, GradualColorChangeCounter numerator)
     {
         ArgumentNullException.ThrowIfNull(numerator);
-        if (target.Length != SnesCgram.ColorCount)
+        if (target.Length != CgramPalettes.ColorCount)
             throw new ArgumentException("A global palette transition requires 256 target colors.", nameof(target));
         if (denominator is <= 0 or > (ushort.MaxValue - 1))
             throw new ArgumentOutOfRangeException(nameof(denominator));
@@ -43,13 +43,14 @@ internal sealed class CartridgePaletteTransition
             return true;
         }
 
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
+        CgramPalette palette = new CgramPalettes(cgram).All;
+        for (int color = 0; color < palette.Count; color++)
         {
-            if ((paletteMask & (1 << (color / 16))) == 0)
+            if ((paletteMask & (1 << (color / PpuMemoryLayout.ColorsPerRow))) == 0)
                 continue;
-            Bgr555 current = cgram.Colors[color];
+            Bgr555 current = palette[color];
             if (current != target[color])
-                cgram.SetColor(color, CalculateColor(transitionNumber, current, target[color]));
+                palette.Write(color, CalculateColor(transitionNumber, current, target[color]));
         }
         numerator.Numerator = unchecked((ushort)(transitionNumber + 1));
         return false;

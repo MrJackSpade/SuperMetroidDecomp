@@ -57,7 +57,7 @@ public sealed class FileSelectPresentation
 
     internal void LoadBackground(SnesVram vram) =>
         vram.ExecuteWordTransfer(pages[FileSelectPresentationDefinitions.BackgroundPage],
-            MenuPpuState.Bg2TilemapWord, 1);
+            MenuVramLayout.Bg2TilemapWord, 1);
 
     internal void CopyPage(string name, Span<ushort> destination)
     {

@@ -152,18 +152,6 @@ public static class EndingCreditsRomData
         public const int ExplosionObjectBytes = 0x6000;
         /// <summary>Maximum decompressed byte length permitted when importing ending compressed assets.</summary>
         public const int DecompressionLimit = 0x8000;
-        /// <summary>VRAM byte address $8000 for explosion artwork and the credits character upload.</summary>
-        public const int ObjectCharactersDestination = 0x8000;
-        /// <summary>VRAM byte address $A000 for ending font or waiting-Samus BG2 character uploads, depending on the scene.</summary>
-        public const int FontCharactersDestination = 0xa000;
-        /// <summary>VRAM byte address $C000 for atmospheric cloud or post-credits shooting OBJ characters, depending on the scene.</summary>
-        public const int PostCreditsObjectDestination = 0xc000;
-        /// <summary>VRAM byte address $9800, corresponding to word $4C00, for the waiting-Samus BG2 tilemap.</summary>
-        public const int WaitingTilemapDestination = 0x9800;
-        /// <summary>VRAM byte address $4000 for the small BG3 transformation-character upload.</summary>
-        public const int PostCreditsFragmentADestination = 0x4000;
-        /// <summary>VRAM byte address $4800 for the BG3 transformation tilemap upload.</summary>
-        public const int PostCreditsFragmentBDestination = 0x4800;
         /// <summary>Byte length of each ending explosion tilemap fragment and the post-credits BG3 transformation tilemap upload.</summary>
         public const int ObjectFragmentBytes = 0x0800;
         /// <summary>Byte extent required of the ending font transfer before its $1000-byte upload.</summary>
@@ -178,14 +166,6 @@ public static class EndingCreditsRomData
         public const int WaitingTilemapBytes = 0x0800;
         /// <summary>Byte length of the small BG3 transformation-character upload.</summary>
         public const int PostCreditsFragmentABytes = 0x0100;
-        /// <summary>VRAM byte address $E000, corresponding to word $7000, for the wide explosion fragment.</summary>
-        public const int Fragment70Destination = 0xe000;
-        /// <summary>VRAM byte address $E800, corresponding to word $7400, for the concentric-wide explosion fragment.</summary>
-        public const int Fragment74Destination = 0xe800;
-        /// <summary>VRAM byte address $F000, corresponding to word $7800, for the eclipse explosion fragment.</summary>
-        public const int Fragment78Destination = 0xf000;
-        /// <summary>VRAM byte address $F800, corresponding to word $7C00, for the blank BG2 fragment.</summary>
-        public const int Fragment7CDestination = 0xf800;
         /// <summary>Half-palette extent of 128 color words, used as source, length, and CGRAM destination for explosion OBJ colors; the legacy Bytes suffix does not denote bytes.</summary>
         public const int PaletteHalfBytes = 128;
         /// <summary>Number of color words restored after credits, covering color indexes 4-255; the legacy Bytes suffix does not denote bytes.</summary>

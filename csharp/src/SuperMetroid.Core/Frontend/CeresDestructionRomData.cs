@@ -61,16 +61,12 @@ public static class CeresDestructionRomData
         public const int ClearMapSourceOffset = 0x0c00;
         /// <summary>Mode 7 map word destination of the cleared lower half.</summary>
         public const ushort ClearMapDestinationWord = 0x0300;
-        /// <summary>VRAM byte destination for shared cinematic OBJ characters.</summary>
-        public const int ObjectCharacterDestinationByte = 0xc000;
         /// <summary>Byte count of the shared cinematic OBJ character transfer.</summary>
         public const int SharedObjectCharacterBytes = 0x1a00;
         /// <summary>Initial character index written across the Mode 7 map.</summary>
         public const byte InitialMode7MapCharacter = 0x8c;
         /// <summary>Minimum decompressed byte count required of the Zebes tilemap.</summary>
         public const int ZebesTilemapMinimumBytes = 0x0800;
-        /// <summary>VRAM byte destination for the Zebes Mode 1 tilemap.</summary>
-        public const int ZebesTilemapDestinationByte = 0xb800;
     }
 
     /// <summary>Mode 7 centers and Mode 1 layer configuration for the two scenes.</summary>

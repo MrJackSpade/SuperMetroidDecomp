@@ -53,22 +53,6 @@ public static class IntroCinematicRomData
         public const int ObjectCharacterBytes = 0x2400;
         /// <summary>Byte count of one narration tilemap.</summary>
         public const int NarrationTilemapBytes = 0x0800;
-        /// <summary>VRAM byte destination for background character graphics.</summary>
-        public const int BackgroundCharacterDestinationByte = 0x0000;
-        /// <summary>VRAM byte destination for the first font.</summary>
-        public const int FontOneDestinationByte = 0x8000;
-        /// <summary>VRAM byte destination for the Samus portrait tilemap.</summary>
-        public const int SamusHeadTilemapDestinationByte = 0x9000;
-        /// <summary>VRAM byte destination for the active narration tilemap.</summary>
-        public const int NarrationTilemapDestinationByte = 0x9800;
-        /// <summary>VRAM byte destination for the background-page tilemaps.</summary>
-        public const int BackgroundPagesDestinationByte = 0xa000;
-        /// <summary>VRAM byte destination for intro-specific object characters.</summary>
-        public const int IntroObjectCharactersDestinationByte = 0xc000;
-        /// <summary>VRAM byte destination for cinematic object characters.</summary>
-        public const int CinematicObjectCharactersDestinationByte = 0xdc00;
-        /// <summary>VRAM byte destination cleared for Japanese blank characters.</summary>
-        public const int JapaneseBlankCharactersDestinationByte = 0x8300;
         /// <summary>Number of Japanese blank-character bytes cleared in VRAM.</summary>
         public const int JapaneseBlankCharactersByteCount = 0x0600;
     }

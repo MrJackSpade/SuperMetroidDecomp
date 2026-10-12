@@ -353,13 +353,13 @@ internal static partial class Program
                 // $8B:A395 copies the fixed OBJ sheet before the compressed sheet;
                 // the final $400 bytes of the first transfer are deliberately overwritten.
                 edited.BackgroundCharacters.Transfer.Span.CopyTo(expected.AsSpan(
-                    IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte));
+                    (IntroVramLayout.BackgroundCharacters.Offset * 2)));
                 edited.BackgroundPages.Span.CopyTo(expected.AsSpan(
-                    IntroCinematicRomData.Vram.BackgroundPagesDestinationByte));
+                    (IntroVramLayout.BackgroundPages.Offset * 2)));
                 edited.IntroObjectCharacters.Transfer.Span.CopyTo(expected.AsSpan(
-                    IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte));
+                    (IntroVramLayout.IntroObjectCharacters.Offset * 2)));
                 edited.CinematicObjectCharacters.Transfer.Span.CopyTo(expected.AsSpan(
-                    IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte));
+                    (IntroVramLayout.CinematicObjectCharacters.Offset * 2)));
                 // The final beam DMA wins over the $C600-$C6FF portion of the fixed
                 // OBJ sheet, including in a freshly constructed cinematic state.
                 nativeVram.AsSpan(BeamTileAtlasDefinitions.DestinationWord * 2,
@@ -411,7 +411,7 @@ internal static partial class Program
                 IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
                 edited.BackgroundPages.Span.CopyTo(expected.AsSpan(
-                    IntroCinematicRomData.Vram.BackgroundPagesDestinationByte));
+                    (IntroVramLayout.BackgroundPages.Offset * 2)));
                 AssertTrue(!expected.AsSpan().SequenceEqual(nativeVram) &&
                         CreateRetailIntroFixture(guarded, characterArtwork: edited)
                             .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
@@ -458,10 +458,10 @@ internal static partial class Program
                 in new (string, int, Func<IntroCinematicArtworkCatalog, ReadOnlyMemory<byte>>)[]
                 {
                     (IntroCinematicArtworkFormat.PortraitTilemapFileName,
-                        IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
+                        (IntroVramLayout.PortraitTilemap.Offset * 2),
                         artwork => artwork.PortraitTilemap),
                     (IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
-                        IntroCinematicRomData.Vram.NarrationTilemapDestinationByte,
+                        (IntroVramLayout.NarrationTilemap.Offset * 2),
                         artwork => artwork.InitialNarrationTilemap),
                 })
             {

@@ -290,7 +290,7 @@ internal static class PauseMenuStateAccess
             int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
             if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsByteCount / 2)
                 throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
-            int byteAddress = (PauseMenuLayout.ButtonRowsDestinationWord + uploadedWordOffset) * 2;
+            int byteAddress = (PauseVramLayout.ButtonRows.Offset + uploadedWordOffset) * 2;
             return unchecked((ushort)(
                 PrivateState.Field<SnesVram>(self, "vram").ReadByte(byteAddress) | (PrivateState.Field<SnesVram>(self, "vram").ReadByte(byteAddress + 1) << 8)));
         }

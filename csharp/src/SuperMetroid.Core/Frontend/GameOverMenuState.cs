@@ -52,7 +52,7 @@ public sealed class GameOverMenuState
         ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
             mapPresentation.WorldArtwork, mapPresentation.Sprites,
             loadInitialBackground: false);
-        mapPresentation.GameOver.LoadTilemapTo(ppu.Vram, MenuPpuState.Bg1TilemapWord);
+        LoadGameOverTilemap(mapPresentation.GameOver);
         Phase = GameOverMenuPhase.ConfigureGraphics;
     }
 
@@ -95,7 +95,7 @@ public sealed class GameOverMenuState
         ppu.BindMapTiles(catalog.Tiles);
         ppu.BindMapSprites(catalog.Sprites);
         ppu.BindMapPalettes(catalog.Palettes);
-        catalog.GameOver.LoadTilemapTo(ppu.Vram, MenuPpuState.Bg1TilemapWord);
+        LoadGameOverTilemap(catalog.GameOver);
         if (babyInstructionPointer != 0)
         {
             GameOverBabyInstruction instruction =
@@ -215,13 +215,14 @@ public sealed class GameOverMenuState
 
     /// <summary>Composites the current BG1, Baby, egg, and selection cursor into a brightness-filtered 256x224 frame without advancing menu timing.</summary>
     /// <returns>The scene-owned row-major RGBA buffer, valid only until this scene renders again; copy it before retaining a frame across later renders.</returns>
+    [PpuLayoutBoundary("backend: game-over software PPU composition")]
     public Rgba32[] Render()
     {
         // `TM=$11` enables BG1 and OBJ only. Game-over does not retain the menu starfield.
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
         SnesBgTilemapRenderer.Composite4BppViewport(
             output,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0),
+            ppu.Vram, ppu.Cgram, MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0),
             new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
             new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight));
 
@@ -234,11 +235,16 @@ public sealed class GameOverMenuState
         return output;
     }
 
+    [PpuLayoutBoundary("codec: word-addressed game-over tilemap upload into menu BG1")]
+    private void LoadGameOverTilemap(GameOverPresentation presentation) =>
+        presentation.LoadTilemapTo(ppu.Vram, MenuVramLayout.Bg1TilemapWord);
+
     /// <summary>Captures BG1/OBJ only; the game-over PPU does not enable BG2.</summary>
+    [PpuLayoutBoundary("codec: game-over render packet layers")]
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderOam();
-        RenderLayer[] layers = [new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, 0,
+        RenderLayer[] layers = [new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0,
             new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), null), new ObjRenderLayer()];
         return new(PpuMemorySnapshot.Capture(ppu.Vram, ppu.Cgram, oam), layers,
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));

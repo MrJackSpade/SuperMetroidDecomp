@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -53,9 +54,9 @@ internal sealed partial class EndingCreditsState
         int chunksPerLane = EndingCreditsRomData.Rendering.Mode7Bytes / EndingCreditsRomData.Rendering.FlyawayUploadBytes;
         int offset = index % chunksPerLane * EndingCreditsRomData.Rendering.FlyawayUploadBytes;
         if (index < chunksPerLane)
-            vram.LoadMode7CharacterBytes(flyawayCharacters.AsSpan(offset, EndingCreditsRomData.Rendering.FlyawayUploadBytes), (ushort)offset);
+            new Mode7Vram(vram).LoadCharacters(flyawayCharacters.AsSpan(offset, EndingCreditsRomData.Rendering.FlyawayUploadBytes), offset);
         else
-            vram.LoadMode7MapBytes(flyawayMap.AsSpan(offset, EndingCreditsRomData.Rendering.FlyawayUploadBytes), (ushort)offset);
+            new Mode7Vram(vram).LoadMap(flyawayMap.AsSpan(offset, EndingCreditsRomData.Rendering.FlyawayUploadBytes), offset);
     }
 
     private bool EscapeBackgroundEnabled => Phase is < EndingCreditsPhase.ZebesExplosionTileUpload

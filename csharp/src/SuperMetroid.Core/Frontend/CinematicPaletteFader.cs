@@ -15,17 +15,17 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class CinematicPaletteFader
 {
-    private readonly ushort[] currentRed = new ushort[SnesCgram.ColorCount];
-    private readonly ushort[] currentGreen = new ushort[SnesCgram.ColorCount];
-    private readonly ushort[] currentBlue = new ushort[SnesCgram.ColorCount];
-    private readonly ushort[] redStep = new ushort[SnesCgram.ColorCount];
-    private readonly ushort[] greenStep = new ushort[SnesCgram.ColorCount];
-    private readonly ushort[] blueStep = new ushort[SnesCgram.ColorCount];
+    private readonly ushort[] currentRed = new ushort[CgramPalettes.ColorCount];
+    private readonly ushort[] currentGreen = new ushort[CgramPalettes.ColorCount];
+    private readonly ushort[] currentBlue = new ushort[CgramPalettes.ColorCount];
+    private readonly ushort[] redStep = new ushort[CgramPalettes.ColorCount];
+    private readonly ushort[] greenStep = new ushort[CgramPalettes.ColorCount];
+    private readonly ushort[] blueStep = new ushort[CgramPalettes.ColorCount];
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
     public CinematicPaletteFader(ReadOnlySpan<Bgr555> targetPalette)
     {
-        if (targetPalette.Length != SnesCgram.ColorCount)
+        if (targetPalette.Length != CgramPalettes.ColorCount)
         {
             throw new ArgumentException(
                 "A cinematic fade target must contain all 256 CGRAM colors.",
@@ -98,11 +98,12 @@ public sealed class CinematicPaletteFader
     public void ComposeInto(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
+        CgramPalette palette = new CgramPalettes(cgram).All;
+        for (int color = 0; color < CgramPalettes.ColorCount; color++)
         {
             // High bytes supply the visible five-bit components. Writing through
             // SnesCgram matches the following native NMI upload into physical CGRAM.
-            cgram.SetColor(color, new Bgr555(
+            palette.Write(color, new Bgr555(
                 (currentRed[color] >> 8) & Bgr555.MaxChannel,
                 (currentGreen[color] >> 8) & Bgr555.MaxChannel,
                 (currentBlue[color] >> 8) & Bgr555.MaxChannel));
@@ -120,7 +121,7 @@ public sealed class CinematicPaletteFader
 
         int firstColor = paletteByteOffset / 2;
         int exclusiveEnd = firstColor + colorCount;
-        if (exclusiveEnd > SnesCgram.ColorCount)
+        if (exclusiveEnd > CgramPalettes.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(colorCount), "Palette range leaves the 256-color buffer.");
         return (firstColor, exclusiveEnd);
     }

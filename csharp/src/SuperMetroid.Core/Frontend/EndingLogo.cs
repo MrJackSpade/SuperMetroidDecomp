@@ -32,7 +32,7 @@ internal sealed class EndingLogo
                 definition.InstructionList);
             actors[i].PreInstructionPointerForDiscovery(definition.PreInstruction);
         }
-        for (int i = 0; i < 16; i++) cgram.SetColor(16 + i, Bgr555.Black);
+        new FrontendPalettes(cgram).EndingLogoBackground.Fill(Bgr555.Black);
         (paletteArtwork ?? throw new InvalidOperationException(
             "Ending logo requires installed palette artwork."))
             [EndingPaletteId.LogoInitial].LoadTo(cgram, 0, 16, 240);
@@ -51,7 +51,7 @@ internal sealed class EndingLogo
             for (int palette = 0; palette < 2; palette++)
             {
                 for (int i = 15; i >= 0; i--)
-                    cgram.SetColor((palette == 0 ? 16 : 240) + i,
+                    (palette == 0 ? new FrontendPalettes(cgram).EndingLogoBackground : new FrontendPalettes(cgram).EndingLogoObjects).Write(i,
                         (paletteArtwork ?? throw new InvalidOperationException(
                             "Ending logo requires installed palette artwork."))
                             [EndingPaletteId.LogoCrossfade].Color((PaletteStep * 2 + palette) * 16 + i));

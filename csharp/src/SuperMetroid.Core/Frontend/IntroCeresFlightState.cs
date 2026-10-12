@@ -68,14 +68,13 @@ internal sealed class IntroCeresFlightState
 
         // $BCCD writes all $4000 character bytes to $2119, fills every corresponding low
         // byte with tile $8C, then overwrites only the front-view map's first $300 bytes.
-        vram.LoadMode7CharacterBytes(characters.AsSpan(0,
+        new Mode7Vram(vram).LoadCharacters(characters.AsSpan(0,
             CeresFlightRomData.Vram.Mode7CharacterByteCount));
-        vram.FillMode7MapBytes(CeresFlightRomData.Vram.Mode7BlankMapTile,
+        new Mode7Vram(vram).FillMap(CeresFlightRomData.Vram.Mode7BlankMapTile,
             CeresFlightRomData.Vram.Mode7MapFillWordCount);
-        vram.LoadMode7MapBytes(tilemap.AsSpan(0,
+        new Mode7Vram(vram).LoadMap(tilemap.AsSpan(0,
             CeresFlightRomData.Vram.Mode7MapSliceByteCount));
-        vram.LoadBytes(CeresFlightRomData.Vram.ObjectCharacterDestinationByte,
-            objectCharacters.AsSpan(0, CeresFlightRomData.Vram.ObjectCharacterByteCount));
+        new CeresVram(vram).ObjectCharacters.Load(objectCharacters.AsSpan(0, CeresFlightRomData.Vram.ObjectCharacterByteCount));
         content.Palette.LoadTo(cgram);
         // The PPU loads above are invisible: the screen stays in forced blank until $8B:BDE4.
         // $8B:BCA0 itself runs as the next dispatch's cinematic function.
@@ -89,17 +88,16 @@ internal sealed class IntroCeresFlightState
         actorLayout = artwork?.Actors;
         if (artwork is null) return;
         tilemap = artwork.Mode7Maps.ToArray();
-        vram.LoadMode7CharacterBytes(artwork.Mode7Characters.Span);
-        vram.FillMode7MapBytes(CeresFlightRomData.Vram.Mode7BlankMapTile,
+        new Mode7Vram(vram).LoadCharacters(artwork.Mode7Characters.Span);
+        new Mode7Vram(vram).FillMap(CeresFlightRomData.Vram.Mode7BlankMapTile,
             CeresFlightRomData.Vram.Mode7MapFillWordCount);
         int mapOffset = Phase is IntroCeresFlightPhase.Initial or
             IntroCeresFlightPhase.WaitForMusicQueue or
             IntroCeresFlightPhase.FlyingIntoCamera
             ? 0 : CeresFlightRomData.Vram.Mode7MapSliceByteCount;
-        vram.LoadMode7MapBytes(tilemap.AsSpan(mapOffset,
+        new Mode7Vram(vram).LoadMap(tilemap.AsSpan(mapOffset,
             CeresFlightRomData.Vram.Mode7MapSliceByteCount));
-        vram.LoadBytes(CeresFlightRomData.Vram.ObjectCharacterDestinationByte,
-            artwork.ObjectCharacters.Span);
+        new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span);
         artwork.Palette.LoadTo(cgram);
     }
 
@@ -278,7 +276,7 @@ internal sealed class IntroCeresFlightState
         // $BE22 queues the second $300-byte map immediately behind the front view in the
         // same decompressed stream. Only low bytes change; the shared character plane and
         // the surrounding tile-$8C star field remain resident.
-        vram.LoadMode7MapBytes(tilemap.AsSpan(CeresFlightRomData.Vram.Mode7MapSliceByteCount,
+        new Mode7Vram(vram).LoadMap(tilemap.AsSpan(CeresFlightRomData.Vram.Mode7MapSliceByteCount,
             CeresFlightRomData.Vram.Mode7MapSliceByteCount));
         background = new(new(0xffe0, 0), new(0xff80, 0));
         angle = SnesAngle.FromTableIndex(0x20);
@@ -394,8 +392,7 @@ internal sealed class IntroCeresFlightState
         (int column, ushort tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
         const int CaptionRow = 0x18;
         spaceColonyTilemap[CaptionRow * 32 + column] = tile;
-        vram.ExecuteWordTransfer(spaceColonyTilemap,
-            CeresFlightRomData.Layers.SpaceColonyTilemapWord, 1);
+        new CeresVram(vram).SpaceColonyTilemap.Write(spaceColonyTilemap);
     }
 
     private void WriteSpaceColonyJapaneseCaption()
@@ -404,8 +401,7 @@ internal sealed class IntroCeresFlightState
         for (int index = 0; index < tiles.Length; index++)
             spaceColonyTilemap[(SpaceColonyCaptionDefinitions.JapaneseRow + index / SpaceColonyCaptionDefinitions.JapaneseWidth) * 32 +
                 SpaceColonyCaptionDefinitions.JapaneseColumn + index % SpaceColonyCaptionDefinitions.JapaneseWidth] = tiles[index];
-        vram.ExecuteWordTransfer(spaceColonyTilemap,
-            CeresFlightRomData.Layers.SpaceColonyTilemapWord, 1);
+        new CeresVram(vram).SpaceColonyTilemap.Write(spaceColonyTilemap);
     }
 
     private void StepFadeOut()

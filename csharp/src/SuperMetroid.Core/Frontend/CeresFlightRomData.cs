@@ -29,8 +29,6 @@ public static class CeresFlightRomData
         public const int Mode7MapSliceByteCount = 0x0300;
         /// <summary>$0600 decoded bytes containing consecutive $0300-byte front and rear gunship map slices; only one slice is installed at a time.</summary>
         public const int Mode7MapByteCount = 2 * Mode7MapSliceByteCount;
-        /// <summary>The Ceres OBJ transfer occupies VRAM bytes $C000-$FFFF.</summary>
-        public const int ObjectCharacterDestinationByte = 0xc000;
         /// <summary>$4000 bytes of 4-bpp space/gunship/Ceres OBJ characters, covering 512 8-by-8 tiles; the later Mode-1 SPACE COLONY BG1 caption reuses this transfer.</summary>
         public const int ObjectCharacterByteCount = 0x4000;
     }

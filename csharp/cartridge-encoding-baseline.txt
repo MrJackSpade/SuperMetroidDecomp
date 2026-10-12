@@ -1252,7 +1252,6 @@ csharp/src/SuperMetroid.Verification/Program.ElevatorInstructionProgramDefinitio
 csharp/src/SuperMetroid.Verification/Program.ElevatorPlatformVisuals.cs	SME6340	19
 csharp/src/SuperMetroid.Verification/Program.ElevatorStandUpContact.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Program.EmptyExtendedFrameShots.cs	SME6340	8
-csharp/src/SuperMetroid.Verification/Program.EndingCloudPlacement.cs	SME6345	2
 csharp/src/SuperMetroid.Verification/Program.EndingCompletionTextInstructions.cs	SME6340	33
 csharp/src/SuperMetroid.Verification/Program.EndingCompletionTextInstructions.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Program.EndingCompletionTextInstructions.cs	SME6342	2

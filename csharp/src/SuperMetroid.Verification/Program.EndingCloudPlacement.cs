@@ -104,10 +104,10 @@ internal static partial class Program
         for (int y = 0; y < 224; y++)
         for (int x = 0; x < 256; x++)
         {
-            int sx = ((((registers.MatrixA * h) & ~63) + ((registers.MatrixB * (y + 1)) & ~63)
-                + ((registers.MatrixB * v) & ~63) + SnesEightEight.FromWhole(cx) + registers.MatrixA * x) >> 8) & 1023;
-            int sy = ((((registers.MatrixC * h) & ~63) + ((registers.MatrixD * (y + 1)) & ~63)
-                + ((registers.MatrixD * v) & ~63) + SnesEightEight.FromWhole(cy) + registers.MatrixC * x) >> 8) & 1023;
+            int sx = SnesEightEight.WholeOf(((registers.MatrixA * h) & ~63) + ((registers.MatrixB * (y + 1)) & ~63)
+                + ((registers.MatrixB * v) & ~63) + SnesEightEight.FromWhole(cx) + registers.MatrixA * x) & 1023;
+            int sy = SnesEightEight.WholeOf(((registers.MatrixC * h) & ~63) + ((registers.MatrixD * (y + 1)) & ~63)
+                + ((registers.MatrixD * v) & ~63) + SnesEightEight.FromWhole(cy) + registers.MatrixC * x) & 1023;
             int tile = snapshot.Memory.Vram[((sy >> 3) * 128 + (sx >> 3)) * 2];
             int color = snapshot.Memory.Vram[(tile * 64 + (sy & 7) * 8 + (sx & 7)) * 2 + 1];
             if (color != 0) wrappedBackground[y * 256 + x] = memory.Cgram.GetRgba(color);

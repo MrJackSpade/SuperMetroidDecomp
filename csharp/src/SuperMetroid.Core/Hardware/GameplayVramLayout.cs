@@ -60,9 +60,6 @@ public static class GameplayVramLayout
 [PpuLayoutBoundary("rendering view: ordinary gameplay VRAM")]
 public readonly struct GameplayVram(SnesVram vram)
 {
-    /// <summary>BG1/BG2 4-bpp characters.</summary>
-    public VramRegion BackgroundCharacters => new(vram, GameplayVramLayout.BackgroundCharacters);
-
     /// <summary>BG3 HUD/FX characters.</summary>
     public VramRegion HudCharacters => new(vram, GameplayVramLayout.HudCharacters);
 
@@ -74,12 +71,6 @@ public readonly struct GameplayVram(SnesVram vram)
 
     /// <summary>BG2's background tilemap.</summary>
     public VramRegion Bg2Tilemap => new(vram, GameplayVramLayout.Bg2Tilemap);
-
-    /// <summary>BG3's HUD and layer-3 FX tilemap.</summary>
-    public VramRegion HudTilemap => new(vram, GameplayVramLayout.HudTilemap);
-
-    /// <summary>OBJ characters.</summary>
-    public VramRegion ObjectCharacters => new(vram, GameplayVramLayout.ObjectCharacters);
 
     /// <summary>The queued-DMA destination <paramref name="wordOffset"/> words into the BG3 HUD tilemap.</summary>
     public static VramDmaDestination HudTilemapDma(int wordOffset = 0) => VramDmaDestination.At(GameplayVramLayout.HudTilemap, wordOffset);

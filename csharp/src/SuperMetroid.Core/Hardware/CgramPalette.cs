@@ -53,14 +53,6 @@ public readonly struct CgramPalette
             cgram.SetColor(first + start + index, colors[index]);
     }
 
-    /// <summary>Copies the range's colours into <paramref name="destination"/>, which must hold exactly <see cref="Count"/>.</summary>
-    public void CopyTo(Span<Bgr555> destination)
-    {
-        if (destination.Length != Count)
-            throw new ArgumentException($"The destination holds {destination.Length} colours; the range has {Count}.", nameof(destination));
-        Colors.CopyTo(destination);
-    }
-
     /// <summary>Writes <paramref name="color"/> to every colour in the range.</summary>
     public void Fill(Bgr555 color)
     {

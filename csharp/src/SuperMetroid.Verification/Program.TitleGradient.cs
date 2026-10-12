@@ -234,7 +234,7 @@ internal static partial class Program
         Suite(nameof(VerifyTitlePaletteValidation), () => VerifyTitlePaletteValidation(extracted));
         var paletteAddresses = Enumerable.Range(
             TitleSequenceRomData.Assets.PaletteAddress,
-            SnesCgram.ByteCount).ToHashSet();
+            CgramPalettes.ByteCount).ToHashSet();
         var guardedBus = NewTitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
         var title = CreateTitlePresentationFixture(guardedBus, titlePalettePresentation: presentation);
         if (!title.PaletteColors.SequenceEqual(presentation.Colors) ||

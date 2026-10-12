@@ -159,9 +159,8 @@ internal static partial class Program
         var vram = new SnesVram();
         var bg1 = new GameplayVram(vram).Bg1Tilemap;
         SnesBgTilemapWord tile = SnesBgTilemapWord.Create(0x2a5, paletteIndex: 5, priority: true, SnesTileFlipFlags.Vertical);
-        ReadOnlySpan<SnesBgTilemapWord> tiles = [tile];
-        bg1.Write(tiles, wordOffset: 0x41);
-        AssertEqual(tile, bg1.ReadTilemapWord(0x41), "a tilemap word round-trips through the BG1 view");
+        bg1.Write(0x41, tile);
+        AssertEqual(tile, (SnesBgTilemapWord)bg1.ReadWord(0x41), "a tilemap word round-trips through the BG1 view");
         AssertEqual((byte)(tile.Raw & 0xff), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
         AssertEqual((byte)(tile.Raw >> 8), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2 + 1), "and the high byte after it");
 
@@ -192,7 +191,7 @@ internal static partial class Program
     private static void VerifyPpuViewBounds()
     {
         var vram = new SnesVram();
-        VramRegion hud = new GameplayVram(vram).HudTilemap;
+        VramRegion hud = new GameplayVram(vram).Bg2Tilemap;
         AssertThrows<ArgumentOutOfRangeException>(() => hud.ReadWord(hud.WordCount), "a region rejects the word past its end");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.ReadWord(-1), "a region rejects a negative word");
         AssertThrows<ArgumentOutOfRangeException>(() => hud.Load(new byte[hud.ByteCount + 2]), "a load cannot run past the region");
@@ -233,10 +232,10 @@ internal static partial class Program
         AssertEqual((ushort)0x3333, bg2.ReadWord(5 + 64), "column increment: VMADD +64");
         AssertEqual((ushort)0, bg2.ReadWord(6), "column increment leaves the next row word alone");
 
-        VramDmaDestination column = bg2.Dma(7, VramIncrement.Column);
+        VramDmaDestination column = VramDmaDestination.At(GameplayVramLayout.Bg2Tilemap, 7, VramIncrement.Column);
         AssertEqual((ushort)(0x8000 | (GameplayVramLayout.Bg2TilemapWord + 7)), column.Encoded, "a column destination sets queue bit 15");
-        AssertEqual(VramIncrement.Column, column.Increment, "the queue word decodes back to the column increment");
-        AssertEqual(VramIncrement.Row, VramDmaDestination.FromNative(0x6000).Increment, "bit 15 clear decodes to the row increment");
+        AssertEqual(GameplayVramLayout.Bg2TilemapWord, VramDmaDestination.At(GameplayVramLayout.Bg2Tilemap).Encoded,
+            "a row destination leaves queue bit 15 clear");
 
         vram.ExecuteQueuedAssetWrite([0xef, 0xbe, 0xfe, 0xca], column.Encoded);
         AssertEqual((ushort)0xbeef, bg2.ReadWord(7), "queued column DMA: first word");
@@ -336,7 +335,7 @@ internal static partial class Program
                 }
                 int sum = 0;
                 for (int word = 0; word < bg1.WordCount; word++)
-                    sum += bg1.ReadTilemapWord(word).CharacterIndex;
+                    sum += ((SnesBgTilemapWord)bg1.ReadWord(word)).CharacterIndex;
                 AssertTrue(sum >= 0, "tilemap reads complete");
                 new Mode7Vram(vram).LoadMap(mapRow, (frame & 127) * 128);
             }

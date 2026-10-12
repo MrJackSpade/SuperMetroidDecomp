@@ -1357,8 +1357,8 @@ internal static partial class Program
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
-                (address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + SnesCgram.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette + SnesCgram.ByteCount) ||
+                (address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + CgramPalettes.ByteCount) ||
+                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette + CgramPalettes.ByteCount) ||
                 (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd),
             address => $"Live presentation read static map palette ROM at {address:X6}.");
         guard.Forbid(address =>

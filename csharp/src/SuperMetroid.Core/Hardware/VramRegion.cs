@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>How VMADD advances after each word of a VRAM port transfer (VMAIN bit 0-1).</summary>
@@ -47,14 +45,6 @@ public readonly struct VramRegion
     /// <summary>The region's size in bytes.</summary>
     public int ByteCount => WordCount * sizeof(ushort);
 
-    /// <summary>The backing VRAM, for the PPU backend's rasterizers and codecs.</summary>
-    [PpuLayoutAccess]
-    public SnesVram Vram => vram;
-
-    /// <summary>The region's first VMADD word, for the PPU backend's rasterizers and codecs.</summary>
-    [PpuLayoutAccess]
-    public ushort FirstWord => (ushort)first;
-
     /// <summary>A sub-region of <paramref name="wordCount"/> words starting <paramref name="wordOffset"/> words in.</summary>
     public VramRegion Slice(int wordOffset, int wordCount)
     {
@@ -88,10 +78,6 @@ public readonly struct VramRegion
         vram.ExecuteWordTransfer(words, (ushort)(first + wordOffset), step);
     }
 
-    /// <summary>Writes tilemap words through the VMDATA port; see <see cref="Write(ReadOnlySpan{ushort}, int, VramIncrement)"/>.</summary>
-    public void Write(ReadOnlySpan<SnesBgTilemapWord> words, int wordOffset = 0, VramIncrement increment = VramIncrement.Row) =>
-        Write(MemoryMarshal.Cast<SnesBgTilemapWord, ushort>(words), wordOffset, increment);
-
     /// <summary>Writes one word at <paramref name="wordOffset"/>.</summary>
     public void Write(int wordOffset, ushort word)
     {
@@ -104,31 +90,6 @@ public readonly struct VramRegion
     {
         CheckWords(wordOffset, 1);
         return vram.ReadWord(first + wordOffset);
-    }
-
-    /// <summary>The tilemap entry at <paramref name="wordOffset"/>.</summary>
-    public SnesBgTilemapWord ReadTilemapWord(int wordOffset) => ReadWord(wordOffset);
-
-    /// <summary>The byte <paramref name="byteOffset"/> bytes into the region.</summary>
-    public byte ReadByte(int byteOffset)
-    {
-        CheckBytes(byteOffset, 1);
-        return vram.ReadByte(first * sizeof(ushort) + byteOffset);
-    }
-
-    /// <summary>Copies the region's bytes into <paramref name="destination"/>, which must hold exactly <see cref="ByteCount"/>.</summary>
-    public void CopyTo(Span<byte> destination)
-    {
-        if (destination.Length != ByteCount)
-            throw new ArgumentException($"The destination holds {destination.Length} bytes; the region has {ByteCount}.", nameof(destination));
-        vram.Bytes.Slice(first * sizeof(ushort), ByteCount).CopyTo(destination);
-    }
-
-    /// <summary>The queued-DMA destination for a transfer starting <paramref name="wordOffset"/> words in.</summary>
-    public VramDmaDestination Dma(int wordOffset = 0, VramIncrement increment = VramIncrement.Row)
-    {
-        CheckWords(wordOffset, 1);
-        return VramDmaDestination.At(first + wordOffset, increment);
     }
 
     /// <summary>The VMADD step for <paramref name="increment"/>.</summary>
@@ -170,9 +131,6 @@ public readonly record struct VramDmaDestination
     /// <summary>The native queue word: VMADD in bits 0-14, bit 15 set for the column increment.</summary>
     [PpuLayoutAccess]
     public ushort Encoded { get; }
-
-    /// <summary>The increment the transfer uses.</summary>
-    public VramIncrement Increment => (Encoded & ColumnFlag) == 0 ? VramIncrement.Row : VramIncrement.Column;
 
     /// <summary>The destination <paramref name="wordOffset"/> words into the VRAM described by <paramref name="cell"/>.</summary>
     [PpuLayoutAccess]

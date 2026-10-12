@@ -21,9 +21,6 @@ public sealed class OamBuffer
     /// <summary>Byte length of the 128 four-byte coordinate and attribute records.</summary>
     [PpuLayoutAccess]
     public const int LowTableByteCount = SnesPpuLayout.OamLowTableByteCount;
-    /// <summary>Byte length of the packed X-high and size-bit table.</summary>
-    [PpuLayoutAccess]
-    public const int HighTableByteCount = SnesPpuLayout.OamHighTableByteCount;
     /// <summary>Total 544-byte DMA payload containing the low table followed by the high table.</summary>
     [PpuLayoutAccess]
     public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;

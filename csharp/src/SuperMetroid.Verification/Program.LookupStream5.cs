@@ -1872,12 +1872,12 @@ internal static partial class Program
         }
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(-1), "Ceres palette lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ColorAt(SnesCgram.ColorCount), "Ceres palette upper bound");
-        AssertThrows<ArgumentException>(() => stock.CopyTransferTo(new byte[SnesCgram.ByteCount - 1]), "Ceres palette output extent");
+        AssertThrows<ArgumentException>(() => stock.CopyTransferTo(new byte[CgramPalettes.ByteCount - 1]), "Ceres palette output extent");
         IReadOnlyDictionary<string, byte[]> files = SuperMetroid.AssetExtraction.CeresFlightArtworkExtractor.Extract(rom);
         var catalog = CeresFlightArtworkCatalog.Load(Open(CeresFlightArtworkFormat.Mode7FileName),
             Open(CeresFlightArtworkFormat.MapFileName), Open(CeresFlightArtworkFormat.ObjectFileName),
             Open(CeresFlightPaletteFormat.FileName), Open(CeresFlightSpriteFormat.FileName), Open(CeresFlightActorLayoutFormat.FileName));
-        byte[] nativeBytes = new byte[SnesCgram.ByteCount];
+        byte[] nativeBytes = new byte[CgramPalettes.ByteCount];
         for (int index = 0; index < nativeBytes.Length; index++) nativeBytes[index] = rom.ReadCartridgeByte(CeresFlightRomData.Assets.Palette + index);
         string expectedHash = SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
         {
@@ -1898,7 +1898,7 @@ internal static partial class Program
             using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions));
             CeresFlightPalette actual = CeresFlightPalette.Load(json);
             var cgram = new SnesCgram(); actual.LoadTo(cgram);
-            Span<byte> bytes = stackalloc byte[SnesCgram.ByteCount]; actual.CopyTransferTo(bytes);
+            Span<byte> bytes = stackalloc byte[CgramPalettes.ByteCount]; actual.CopyTransferTo(bytes);
             for (int index = 0; index < colors.Length; index++)
             {
                 PaletteRgb5 color = colors[index];

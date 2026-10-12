@@ -98,7 +98,7 @@ internal static partial class Program
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
             AssertTrue(stock.Palette.Transfer.Span.SequenceEqual(
                     RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicRomData.Assets.Palette,
-                        SnesCgram.ByteCount)),
+                        CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
 
             var native = CreateRetailIntroFixture(bus);
@@ -1056,12 +1056,12 @@ internal static partial class Program
             return $"Cinematic reread character source ${address:X6}.";
         }
         if (address is >= CeresFlightRomData.Assets.Palette and
-            < (CeresFlightRomData.Assets.Palette + SnesCgram.ByteCount))
+            < (CeresFlightRomData.Assets.Palette + CgramPalettes.ByteCount))
         {
             return $"Cinematic reread Ceres flight palette ${address:X6}.";
         }
         if (address is >= IntroCinematicRomData.Assets.Palette and
-            < (IntroCinematicRomData.Assets.Palette + SnesCgram.ByteCount))
+            < (IntroCinematicRomData.Assets.Palette + CgramPalettes.ByteCount))
         {
             return $"Cinematic reread opening palette ${address:X6}.";
         }

@@ -33,10 +33,8 @@ internal static partial class Program
             definitionWord: NativeInputWord);
         for (int frame = 0; frame < 128; frame++)
         {
-            compiledInput.Step(retail, preInstruction: static (_, _) => { },
-                instructionWord: IntroBabyDiscoveryInputDefinitions.ReadWord);
-            cartridgeInput.Step(retail, preInstruction: static (_, _) => { },
-                instructionWord: NativeInputWord);
+            compiledInput.Step(retail, new InertPreInstructionDemoProgram(IntroBabyDiscoveryInputDefinitions.ReadWord));
+            cartridgeInput.Step(retail, new InertPreInstructionDemoProgram(NativeInputWord));
             AssertEqual(cartridgeInput.InstructionPointer, compiledInput.InstructionPointer,
                 $"SR388 initial demo loop cursor at frame {frame}");
             AssertEqual(cartridgeInput.InstructionTimer, compiledInput.InstructionTimer,
@@ -255,4 +253,15 @@ internal static partial class Program
                  address < (DemoInputRomData.BankBase |
                     IntroBabyDiscoveryInputDefinitions.HeaderEnd)),
             address => $"Intro egg/baby actor reread compiled byte ${address:X6}.");
+
+    /// <summary>A demo owner that accepts every pre-instruction without effect and has no private routines (#633).</summary>
+    private sealed class InertPreInstructionDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
+    {
+        public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
+
+        public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => true;
+
+        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
+            DemoInputInstructionResult.NotHandled(cursor);
+    }
 }

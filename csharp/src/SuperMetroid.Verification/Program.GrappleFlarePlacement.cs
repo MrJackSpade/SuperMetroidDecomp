@@ -120,7 +120,7 @@ internal static partial class Program
         runtime.Samus.Grapple.FlarePlacement = null;
         runtime.Samus.Grapple.SwingFrames = null;
         typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(runtime, new object?[] { false, null, null, false });
+            .Invoke(runtime, new object?[] { false, false });
         AssertTrue(ReferenceEquals(edited, runtime.Samus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");

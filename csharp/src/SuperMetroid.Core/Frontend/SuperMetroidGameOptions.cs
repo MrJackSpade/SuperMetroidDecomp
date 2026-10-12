@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 
@@ -87,6 +88,22 @@ public sealed record SuperMetroidGameOptions
 
     /// <summary>GitHub <c>owner/repository</c> receiving automatic private error reports.</summary>
     public string GitHubErrorRepository { get; init; } = "MrJackSpade/SuperMetroidDecomp";
+
+    /// <summary>
+    /// The runtime's share of these options. Attract playback is retail behavior, so it receives
+    /// <see cref="HostGameplayOverrides.None"/> whatever the host configured (#633).
+    /// </summary>
+    public HostGameplayOverrides RuntimeOverrides(bool forAttractDemo) => forAttractDemo
+        ? HostGameplayOverrides.None
+        : new HostGameplayOverrides
+        {
+            PlayerInvincibilityEnabled = Invincibility,
+            InfiniteAmmoEnabled = InfiniteAmmo,
+            MapRevealMode = MapReveal,
+            PreventEscapeTimeout = PreventEscapeTimeout,
+            GrantAllEquipment = GrantAllEquipment,
+            UnlockTourian = UnlockTourian,
+        };
 }
 
 /// <summary>Strict reader and documented template for the playable executable's INI file.</summary>

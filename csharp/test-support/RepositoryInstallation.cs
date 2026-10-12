@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -31,9 +31,7 @@ internal static partial class RepositoryInstallation
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false)
     {
-        var runtime = new SuperMetroidRuntime(addressSpace, playerInvincibilityEnabled,
-            infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout,
-            Installation.LoadGameplayBasePalettes());
+        var runtime = new SuperMetroidRuntime(addressSpace, new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
         runtimeBindings.Value(runtime);
         return runtime;
     }

@@ -53,8 +53,7 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Mode-7 color edit changes installed identity");
-        var runtime = new SuperMetroidRuntime(rom,
-            initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
         AssertTrue(ReferenceEquals(edited.CeresRidleyMode7Colors,
             runtime.Enemies.CeresRidleyMode7Colors),
             "installed runtime binds Ceres Mode-7 colors to enemy owner");

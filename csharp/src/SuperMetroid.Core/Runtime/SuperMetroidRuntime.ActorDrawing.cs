@@ -6,10 +6,7 @@ namespace SuperMetroid.Core.Runtime;
 public sealed partial class SuperMetroidRuntime
 {
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
-    private void DrawGameplayActors(bool deathOwnsSamus,
-        Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null,
-        Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null,
-        bool advanceSamusPalette = true)
+    private void DrawGameplayActors(bool deathOwnsSamus, bool advanceSamusPalette = true)
     {
         if (Samus is null || Camera is null) return;
         BindGrapplePresentation();
@@ -37,7 +34,6 @@ public sealed partial class SuperMetroidRuntime
                     Oam,
                     Camera.PixelPosition,                     TimeIsFrozen);
             }
-            drawHighPriorityEnemyProjectiles?.Invoke(Oam);
         }
 
         // The global layer loop emits layers zero through two before its phase-three
@@ -373,12 +369,6 @@ public sealed partial class SuperMetroidRuntime
             // ordinary enemy layers four and five follow without another insertion.
             Enemies.DrawLayers(Oam, Camera.PixelPosition, 3, 5);
         }
-
-        // Phase six inserts high-priority enemy projectiles before layer-six actors.
-        // Keep the historical delegate name for API compatibility even though the
-        // native source calls this pass DrawHighPriorityEprojs.
-        if (!deathOwnsSamus && Samus?.Xray.AreEnemyProjectilesSuspended != true)
-            drawLowPriorityEnemyProjectiles?.Invoke(Oam);
 
         if (!deathOwnsSamus && Enemies.IsLoaded &&
             Samus?.Xray.AreEnemyProjectilesSuspended != true)

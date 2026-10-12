@@ -368,10 +368,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.MadeItToCeresElevator:
-                runtime!.StepFrame(
-                    controllerInput,
-                    allowCeresElevatorDeparture: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
                 PublishGameplay(runtime);
                 // State $20 is only the departure hold. The arrival descent runs in
                 // ordinary state eight while the bank-$86 elevator objects lock Samus.
@@ -387,9 +384,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.ReserveTanksAuto:
                 SamusReserveAutoRecoveryStep reserveStep = default;
-                runtime!.StepFrame(
-                    controllerInput,
-                    afterAcceptedNmi: () =>
+                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(runtime), AfterAcceptedNmi = () =>
                     {
                         SamusState samus = runtime.Samus
                             ?? throw new InvalidOperationException(
@@ -408,8 +403,7 @@ public sealed partial class SuperMetroidGame
                             runtime.GameplayTimeFrozen = false;
                             GameState = SuperMetroidGameState.MainGameplay;
                         }
-                    },
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+                    } });
                 PublishGameplay(runtime);
                 // $82:DC2B invokes the external low-health check even while the
                 // locked Samus beta handler omits it. Publish prior gameplay sounds
@@ -423,8 +417,7 @@ public sealed partial class SuperMetroidGame
                 // State $13 deliberately completes one final state-eight pass under the
                 // global freeze word, then snapshots the visible palette and makes every
                 // target row black except Samus's sixteen-color suit row.
-                runtime!.StepFrame(controllerInput, advanceGameTime: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
                 PublishGameplay(runtime);
                 PrepareDeathPaletteFade();
                 SamusState dyingSamus = runtime.Samus
@@ -438,8 +431,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.DeathBlackOutSurroundings:
-                runtime!.StepFrame(controllerInput, advanceGameTime: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
                 bool paletteBlackoutComplete = StepDeathPaletteFade();
                 PublishGameplay(runtime);
                 if (paletteBlackoutComplete)
@@ -596,7 +588,7 @@ public sealed partial class SuperMetroidGame
                 // State $0C continues running ordinary gameplay while INIDISP darkens.
                 // This matters for moving enemies/projectiles and is why pause cannot be
                 // represented as a desktop-only frozen bitmap.
-                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(runtime) });
                 PublishGameplay(runtime);
                 if (runtime.HasPendingDoorTransition)
                     GameState = SuperMetroidGameState.HitDoorBlock;
@@ -727,10 +719,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.BlackoutFromCeres:
-                runtime!.StepFrame(
-                    controllerInput,
-                    allowCeresElevatorDeparture: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
                 PublishGameplay(runtime);
                 bool ceresReachedForcedBlank = ceresDeparture.StepFadeAfterGameplay();
                 ApplyDisplayBrightness(ceresDeparture.Brightness);
@@ -832,7 +821,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.MainGameplayFadeIn:
-                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(runtime) });
                 PublishGameplay(runtime);
                 ApplyDisplayBrightness(postCeresFadeBrightness);
                 HandleGunshipLandingSave();
@@ -926,8 +915,7 @@ public sealed partial class SuperMetroidGame
                 // State $26 calls the complete state-eight gameplay coroutine before
                 // HandleFadeOut. The fleeing gunship, room animations, and APU publishers
                 // therefore continue behind every darkening frame.
-                runtime!.StepFrame(controllerInput, advanceGameTime: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+                runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(runtime) });
                 PublishGameplay(runtime);
                 // HandleFadingOut ($80:8924) reloads the counter from ScreenFadeDelay, which
                 // $A2:AD26 zeroed, so the brightness falls one step on every call.
@@ -1332,7 +1320,7 @@ public sealed partial class SuperMetroidGame
         // frame. Retraction can restore normal input later in StepFrame, after the
         // cartridge's Samus-handler call site has already passed pause-check.
         bool samusInputLockedAtFrameStart = runtime.Samus?.InputLocked == true;
-        runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
+        runtime!.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(runtime) });
         bool timeUp = runtime.ConsumeTimeUpRequest();
         HandleSaveStationPersistence();
         PublishGameplay(runtime);
@@ -1501,15 +1489,7 @@ public sealed partial class SuperMetroidGame
         ushort incomingRandom = FrontendRandomOwner.RandomNumber;
         if (runtime is not null)
             RetainRuntimeNmiFrameCounters();
-        runtime = new SuperMetroidRuntime(
-            bus,
-            playerInvincibilityEnabled: !forAttractDemo && ConfiguredOptions.Invincibility,
-            infiniteAmmoEnabled: !forAttractDemo && ConfiguredOptions.InfiniteAmmo,
-            mapRevealMode: forAttractDemo ? MapRevealMode.None : ConfiguredOptions.MapReveal,
-            preventEscapeTimeout: !forAttractDemo && ConfiguredOptions.PreventEscapeTimeout,
-            initialPaletteArt: gameplayBasePalettes,
-            grantAllEquipment: !forAttractDemo && ConfiguredOptions.GrantAllEquipment,
-            unlockTourian: !forAttractDemo && ConfiguredOptions.UnlockTourian);
+        runtime = new SuperMetroidRuntime(bus, ConfiguredOptions.RuntimeOverrides(forAttractDemo), initialPaletteArt: gameplayBasePalettes);
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);

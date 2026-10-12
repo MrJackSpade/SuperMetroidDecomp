@@ -154,8 +154,7 @@ internal static partial class Program
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
-            initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
         roomAssets.Bind(runtime);
         runtime.ProjectileCompositions = stock;
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -169,7 +168,7 @@ internal static partial class Program
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            draw.Invoke(target, new object?[] { false, null, null, false });
+            draw.Invoke(target, new object?[] { false, false });
             return target.Oam.LowTable.ToArray().Concat(target.Oam.HighTable.ToArray()).ToArray();
         }
         // Seed only a visible timed composition. The shared production actor draw, not

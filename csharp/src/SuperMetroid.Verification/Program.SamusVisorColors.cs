@@ -167,8 +167,7 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom,
-            initialPaletteArt: initialPalettes)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
         {
             MapPresentation = edited,
         };

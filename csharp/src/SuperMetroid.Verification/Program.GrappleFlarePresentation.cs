@@ -135,8 +135,7 @@ internal static partial class Program
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var runtime = new SuperMetroidRuntime(bus,
-            initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
+        var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
         roomAssets.Bind(runtime);
         runtime.GrappleArtwork = grappleArtwork;
         runtime.ChargeFlareCompositions = stock;
@@ -169,7 +168,7 @@ internal static partial class Program
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, null, null, false });
+            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, false });
             return target.Oam.LowTable.ToArray().Concat(target.Oam.HighTable.ToArray()).Concat(BitConverter.GetBytes(target.Oam.NextByteOffset)).ToArray();
         }
     }

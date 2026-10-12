@@ -30,9 +30,8 @@ internal static partial class Program
         int endFrame = -1;
         for (int frame = 0; frame < 1024; frame++)
         {
-            compiled.Step(guarded, specialInstruction: HandleEnd,
-                instructionWord: IntroMotherBrainInputDefinitions.ReadWord);
-            reference.Step(bus, specialInstruction: HandleEnd, instructionWord: ReferenceWord);
+            compiled.Step(guarded, new FlashbackEndDemoProgram(IntroMotherBrainInputDefinitions.ReadWord));
+            reference.Step(bus, new FlashbackEndDemoProgram(ReferenceWord));
             AssertEqual(reference.InstructionPointer, compiled.InstructionPointer,
                 $"intro Mother Brain demo cursor frame {frame}");
             AssertEqual(reference.InstructionTimer, compiled.InstructionTimer,
@@ -68,7 +67,7 @@ internal static partial class Program
         nativeFirst.Clear();
         nativeFirst.Enable();
         nativeFirst.LoadObject(bus, IntroMotherBrainInputDefinitions.HeaderStart, definitionWord: ReferenceWord);
-        nativeFirst.Step(bus, instructionWord: ReferenceWord);
+        nativeFirst.Step(bus, new DemoInputListProgram(ReferenceWord));
         AssertEqual(nativeFirst.PreInstructionPointer, live.PreInstructionPointer,
             "production flashback owns the compiled demo header");
         AssertEqual(nativeFirst.InstructionPointer, live.InstructionPointer,
@@ -80,16 +79,24 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production flashback never rereads the Mother Brain demo program");
 
-        static DemoInputInstructionResult HandleEnd(DemoInputState state,
-            ushort instruction, ushort argumentPointer)
-        {
-            if (instruction != IntroCinematicRomData.Flashback.ExpectedEndInstruction)
-                return DemoInputInstructionResult.NotHandled(argumentPointer);
-            state.Disable();
-            return DemoInputInstructionResult.ContinueAt(argumentPointer);
-        }
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain demo input")]
     private static byte IntroMotherBrainDemoInputRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>The flashback demo's end routine over either instruction source (#633).</summary>
+    private sealed class FlashbackEndDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
+    {
+        public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
+
+        public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
+
+        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor)
+        {
+            if (opcode != IntroCinematicRomData.Flashback.ExpectedEndInstruction)
+                return DemoInputInstructionResult.NotHandled(cursor);
+            demo.Disable();
+            return DemoInputInstructionResult.ContinueAt(cursor);
+        }
+    }
 }

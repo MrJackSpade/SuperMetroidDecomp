@@ -484,8 +484,7 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "installed full-body cycles do not reread any of the 768 source color words");
 
-        var runtime = new SuperMetroidRuntime(guard,
-            initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
         fixtureAssets.Bind(runtime);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

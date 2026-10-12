@@ -69,8 +69,7 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Ceres Ridley palette edit changes installed identity");
-        var runtime = new SuperMetroidRuntime(rom,
-            initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(rom, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
         AssertTrue(ReferenceEquals(edited.CeresRidleyColors, runtime.Enemies.CeresRidleyColors),
             "installed runtime binds Ceres Ridley colors to enemy owner");
         runtime.MapPresentation = original;

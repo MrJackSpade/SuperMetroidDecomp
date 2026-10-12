@@ -192,21 +192,17 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Executes <c>$91:83C0/$83F2</c> once and publishes the resulting controller words.
-    /// The owner supplies a bounded compiled list reader.
+    /// The owning <paramref name="program"/> supplies the bounded compiled list and its private routines.
     /// </summary>
-    public void Step(
-        ISnesAddressSpace bus,
-        Action<DemoInputState, ushort>? preInstruction = null,
-        Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction = null,
-        Func<ushort, ushort>? instructionWord = null)
+    public void Step(ISnesAddressSpace bus, IDemoInputProgram program)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(program);
         if (!Enabled || InstructionPointer == 0)
             return;
 
-        if (preInstruction is not null)
-            preInstruction(this, PreInstructionPointer);
-        else if (!Enum.IsDefined((ReturnOnlyPreInstruction)PreInstructionPointer))
+        if (!program.TryRunPreInstruction(this, PreInstructionPointer) &&
+            !Enum.IsDefined((ReturnOnlyPreInstruction)PreInstructionPointer))
             throw UnsupportedRoutine("pre-instruction", PreInstructionPointer);
 
         // DEC is a 16-bit 65C816 operation. In particular, a zero duration wraps and lasts
@@ -216,7 +212,7 @@ public sealed class DemoInputState
             NativeWordCounter.Decrement(InstructionTimer);
         InstructionTimer = instructionTimer.Value;
         if (instructionTimer.IsZero)
-            ProcessInstructionList(specialInstruction, instructionWord);
+            ProcessInstructionList(program);
 
         // $91:83D3 publishes the old demo words to the drawing-input history before it
         // replaces the live joypad words and remembers the newly produced pair.
@@ -226,13 +222,9 @@ public sealed class DemoInputState
         PreviousNewlyPressed = NewlyPressed;
     }
 
-    private void ProcessInstructionList(
-        Func<DemoInputState, ushort, ushort, DemoInputInstructionResult>? specialInstruction,
-        Func<ushort, ushort>? instructionWord)
+    private void ProcessInstructionList(IDemoInputProgram program)
     {
-        Func<ushort, ushort> readInstruction = instructionWord ?? throw new InvalidOperationException(
-            "Demo input requires an installed instruction list.");
-        ushort Read(ushort pointer) => readInstruction(pointer);
+        ushort Read(ushort pointer) => program.ReadInstructionWord(pointer);
         ushort cursor = InstructionPointer;
         while (true)
         {
@@ -263,10 +255,7 @@ public sealed class DemoInputState
                 // routine and return its post-operand cursor; this prevents a handler
                 // with parameters from accidentally being treated as a no-argument
                 // instruction and desynchronizing the cartridge bytecode stream.
-                DemoInputInstructionResult result = specialInstruction?.Invoke(
-                    this,
-                    word,
-                    cursor) ?? DemoInputInstructionResult.NotHandled(cursor);
+                DemoInputInstructionResult result = program.RunSpecialInstruction(this, word, cursor);
                 if (!result.Handled)
                 {
                     // The reusable interpreter cannot infer an object's private

@@ -31,7 +31,7 @@ internal static partial class Program
         {
             input.Step(bus, SuperMetroidGameState.PlayingDemo, samus.ReadMovementType(bus));
             if ((input.Script.NewlyPressed & (ushort)SnesButton.X) != 0) scriptedShots++;
-            runtime.StepFrame(0, advanceGameTime: false);
+            runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } });
             if (frame == 164)
                 AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose,
                     "held shoulder aim survives independent grapple-release movement ownership");

@@ -405,8 +405,7 @@ internal static partial class Program
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom,
-            initialPaletteArt: initialPalettes)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
         {
             MapPresentation = edited,
         };

@@ -185,8 +185,7 @@ internal static partial class Program
             cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + 1],
             "Screw Attack recovery preserves edited Varia color");
 
-        var runtime = new SuperMetroidRuntime(guard,
-            initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
         fixtureAssets.Bind(runtime);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

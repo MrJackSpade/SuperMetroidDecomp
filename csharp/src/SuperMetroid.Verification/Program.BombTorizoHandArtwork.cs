@@ -52,7 +52,7 @@ internal static partial class Program
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var runtime = new SuperMetroidRuntime(memory, initialPaletteArt: BombTorizoHandFixturePalette());
+        var runtime = new SuperMetroidRuntime(memory, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
         runtime.Enemies.TileArtwork = stock;
         // Already-pending native-address descriptors must use the rebound current
         // PNG, not stale byte blobs captured with the original simulation graph.

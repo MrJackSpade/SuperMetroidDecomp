@@ -65,8 +65,7 @@ internal static partial class Program
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
         }
 
-        var runtime = new SuperMetroidRuntime(bus,
-            initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
+        var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes) { MapPresentation = maps };
         roomAssets.Bind(runtime);
         runtime.ChargeFlarePlacement = placement;
         runtime.ChargeFlareCompositions = stock;
@@ -106,7 +105,7 @@ internal static partial class Program
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, null, null, false });
+            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, false });
             return target.Oam.LowTable.ToArray().Concat(target.Oam.HighTable.ToArray()).Concat(BitConverter.GetBytes(target.Oam.NextByteOffset)).ToArray();
         }
         static SamusProjectileSystem Create()

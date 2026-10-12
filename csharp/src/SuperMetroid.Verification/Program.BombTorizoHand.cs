@@ -112,8 +112,7 @@ internal static partial class Program
             // Drain that exact production request through the runtime's installed-art
             // provider and RAM-only memory boundary, as the accepted NMI does.
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(memory,
-                initialPaletteArt: BombTorizoHandFixturePalette());
+            var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(memory, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Enemies.TileArtwork = installedArtwork;
             PlmVramWriteRequest request = plms.VramWriteRequests[0];
             runtime.VramWrites.Enqueue(request.SizeInBytes, request.SourceAddress,

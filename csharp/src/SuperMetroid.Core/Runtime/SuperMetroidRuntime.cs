@@ -37,33 +37,20 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
-    /// <param name="playerInvincibilityEnabled">Whether the frame-exit guard prevents lethal player energy.</param>
-    /// <param name="infiniteAmmoEnabled">Whether the frame-exit guard restores depleted unlocked ammunition.</param>
-    /// <param name="mapRevealMode">Host map-visibility override applied without changing saved exploration bits.</param>
-    /// <param name="preventEscapeTimeout">Whether the host suppresses the escape timer's terminal failure.</param>
+    /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
     /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
-    /// <param name="grantAllEquipment">Whether a new gameplay session receives the host all-equipment override.</param>
-    /// <param name="unlockTourian">Whether a new gameplay session receives the host Tourian-unlock override.</param>
-    public SuperMetroidRuntime(
-        ISnesAddressSpace addressSpace,
-        bool playerInvincibilityEnabled = false,
-        bool infiniteAmmoEnabled = false,
-        MapRevealMode mapRevealMode = MapRevealMode.None,
-        bool preventEscapeTimeout = false,
-        GameplayBasePaletteCatalog? initialPaletteArt = null,
-        bool grantAllEquipment = false,
-        bool unlockTourian = false)
+    public SuperMetroidRuntime(ISnesAddressSpace addressSpace, HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt = null)
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
         InitialPaletteArt = initialPaletteArt;
-        GrantAllEquipmentEnabled = grantAllEquipment;
-        UnlockTourianEnabled = unlockTourian;
-        PlayerInvincibilityEnabled = playerInvincibilityEnabled;
-        InfiniteAmmoEnabled = infiniteAmmoEnabled;
-        PreventEscapeTimeout = preventEscapeTimeout;
-        MapRevealMode = Enum.IsDefined(mapRevealMode)
-            ? mapRevealMode
-            : throw new ArgumentOutOfRangeException(nameof(mapRevealMode));
+        GrantAllEquipmentEnabled = overrides.GrantAllEquipment;
+        UnlockTourianEnabled = overrides.UnlockTourian;
+        PlayerInvincibilityEnabled = overrides.PlayerInvincibilityEnabled;
+        InfiniteAmmoEnabled = overrides.InfiniteAmmoEnabled;
+        PreventEscapeTimeout = overrides.PreventEscapeTimeout;
+        MapRevealMode = Enum.IsDefined(overrides.MapRevealMode)
+            ? overrides.MapRevealMode
+            : throw new ArgumentOutOfRangeException(nameof(overrides.MapRevealMode));
 
         // These two host objects represent the lower and upper halves of the cartridge's
         // parallel ten-slot projectile arrays. BombProjectiles remains the owner of shared
@@ -1054,51 +1041,23 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Counter incremented by every NMI, accepted or lagged.</summary>
     public ushort NmiCounterIncludingLag { get; private set; }
 
-    /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic.</summary>
+    /// <summary>Runs one ordinary accepted NMI followed by the translated per-frame timer logic.</summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
-    /// <param name="drawHighPriorityEnemyProjectiles">
-    /// Optional bank-$86 high-priority enemy-projectile draw pass. The generic runtime does
-    /// not own a room-specific enemy pool yet, so the Mother Brain debugger injects its
-    /// translated pool here while preserving `$A0:885D`'s exact position in global OAM order.
-    /// </param>
-    /// <param name="drawLowPriorityEnemyProjectiles">
-    /// Optional bank-$86 low-priority enemy-projectile draw pass at enemy layer six,
-    /// immediately after Samus/projectiles as selected by `$A0:887C`.
-    /// </param>
-    /// <param name="allowCeresElevatorDeparture">Allows the Ceres shaft room-main trigger to request departure; the outer dispatcher enables this only in state eight, not departure states $20/$21. Shaft rotation still advances independently.</param>
-    /// <param name="afterAcceptedNmi">Optional per-call hook immediately after the ordinary accepted NMI and before HDMA/main-loop owners; not retained or invoked by the suspended message-box frame path.</param>
-    /// <param name="advanceGameTime">Whether the normal frame tail advances the native four-word gameplay clock; disabling it does not suppress NMI, RNG, or gameplay-owner updates.</param>
-    /// <param name="queueEchoSound">
-    /// Immediate native echo sound call, including the CPU accumulator returned by
-    /// the queue operation. The caller must publish earlier frame sounds into the
-    /// same queue first. This per-call delegate is not retained in debugger states.
-    /// </param>
-    /// <param name="checkLowHealth">Optional per-call low-energy-check hook after Samus's periodic damage when her health-check handler is enabled and X-ray does not own control; not retained in runtime state.</param>
-    public RuntimeFrameResult StepFrame(
-        ushort controller1Input,
-        Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null,
-        Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null,
-        bool allowCeresElevatorDeparture = true,
-        Action? afterAcceptedNmi = null,
-        bool advanceGameTime = true,
-        Func<ushort>? queueEchoSound = null,
-        Action? checkLowHealth = null)
+    public RuntimeFrameResult StepFrame(ushort controller1Input) =>
+        StepFrame(controller1Input, RuntimeFrameRequest.Ordinary);
+
+    /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic, as <paramref name="request"/> asks.</summary>
+    /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
+    /// <param name="request">The state policy, audio calls and post-NMI host work for this frame.</param>
+    public RuntimeFrameResult StepFrame(ushort controller1Input, RuntimeFrameRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
         ApplyTesterInventory();
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
             HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
         try
         {
-            return StepFrameGuarded(
-                controller1Input,
-                drawHighPriorityEnemyProjectiles,
-                drawLowPriorityEnemyProjectiles,
-                allowCeresElevatorDeparture,
-                afterAcceptedNmi,
-                advanceGameTime,
-                infiniteAmmoGuard,
-                queueEchoSound,
-                checkLowHealth);
+            return StepFrameGuarded(controller1Input, request, infiniteAmmoGuard);
         }
         finally
         {
@@ -1113,14 +1072,8 @@ public sealed partial class SuperMetroidRuntime
 
     private RuntimeFrameResult StepFrameGuarded(
         ushort controller1Input,
-        Action<OamBuffer>? drawHighPriorityEnemyProjectiles,
-        Action<OamBuffer>? drawLowPriorityEnemyProjectiles,
-        bool allowCeresElevatorDeparture,
-        Action? afterAcceptedNmi,
-        bool advanceGameTime,
-        HostInfiniteAmmoFrameGuard infiniteAmmoGuard,
-        Func<ushort>? queueEchoSound,
-        Action? checkLowHealth)
+        RuntimeFrameRequest frameRequest,
+        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
 
         // Routing references are deliberately not serialized as duplicate native state.
@@ -1134,16 +1087,10 @@ public sealed partial class SuperMetroidRuntime
         // Bank $85's message routine runs on lag frames inside the suspended dispatch: the
         // NMI accepts no input and the main loop neither calls the RNG nor any owner.
         if (MessageBox.IsActive)
-            return StepMessageBoxFrame(
-                controller1Input,
-                drawHighPriorityEnemyProjectiles,
-                drawLowPriorityEnemyProjectiles,
-                allowCeresElevatorDeparture,
-                advanceGameTime,
-                infiniteAmmoGuard);
+            return StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
         Projectiles.BeginImpactAudioFrame(cinematicActive: false);
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
-        afterAcceptedNmi?.Invoke();
+        frameRequest.AfterAcceptedNmi();
         PrepareGameplayWindowRegisters();
 
         // HDMA owns shared RNG mutations before the main loop advances it. A
@@ -2343,7 +2290,7 @@ Landed: true, HitCeiling: false);
             // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
             else if (!stationaryScriptControlLocked && !refillStationLocked && !suitOwnsSamus)
             {
-                Samus.AnimateNoFx(_addressSpace, new SamusAnimationStep { ControllerInput = Controller1.Current, NmiFrameCounter = NmiFrameCounter, System = System, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose, DemoPoseInput = IsAttractDemo, QueueEchoSound = queueEchoSound });
+                Samus.AnimateNoFx(_addressSpace, new SamusAnimationStep { ControllerInput = Controller1.Current, NmiFrameCounter = NmiFrameCounter, System = System, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose, DemoPoseInput = IsAttractDemo, QueueEchoSound = frameRequest.Audio.QueueEchoSound });
                 StepSamusLoadAppearance();
             }
 
@@ -3409,7 +3356,7 @@ Landed: true, HitCeiling: false);
                 // check in the frontend.
                 if ((!Samus.InputLocked || Enemies.HasGunshipHealthHandler) &&
                     !Samus.Xray.OwnsSamusControl)
-                    checkLowHealth?.Invoke();
+                    frameRequest.Audio.CheckLowHealth?.Invoke();
             }
 
             if (!deathOwnsSamus)
@@ -3556,14 +3503,7 @@ Landed: true, HitCeiling: false);
             CompletedGameplayAudioPublication++;
             return Snapshot(infiniteAmmoGuard);
         }
-        return FinishGameplayFrame(
-            frameTail,
-            drawHighPriorityEnemyProjectiles,
-            drawLowPriorityEnemyProjectiles,
-            allowCeresElevatorDeparture,
-            advanceGameTime,
-            infiniteAmmoGuard,
-            resumedAfterMessageBox: false);
+        return FinishGameplayFrame(frameTail, frameRequest.Policy, infiniteAmmoGuard, resumedAfterMessageBox: false);
     }
 
     /// <summary>
@@ -3572,10 +3512,7 @@ Landed: true, HitCeiling: false);
     /// </summary>
     private RuntimeFrameResult FinishGameplayFrame(
         SuspendedGameplayFrameTail? frameTail,
-        Action<OamBuffer>? drawHighPriorityEnemyProjectiles,
-        Action<OamBuffer>? drawLowPriorityEnemyProjectiles,
-        bool allowCeresElevatorDeparture,
-        bool advanceGameTime,
+        RuntimeFramePolicy policy,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard,
         bool resumedAfterMessageBox)
     {
@@ -3699,8 +3636,7 @@ Landed: true, HitCeiling: false);
 
             RestoreAttractPlayerInput();
 
-            DrawGameplayActors(deathOwnsSamus, drawHighPriorityEnemyProjectiles,
-                drawLowPriorityEnemyProjectiles,
+            DrawGameplayActors(deathOwnsSamus,
                 // Command zero's `$90:E8DC` beta handler does not dispatch bank-$91
                 // palette effects. In particular, automatic Reserve recovery freezes a
                 // stored shine instead of consuming it while Samus is stationary.
@@ -3782,7 +3718,7 @@ Landed: true, HitCeiling: false);
             _addressSpace,
             Samus,
             Enemies.CeresStatus,
-            allowDeparture: allowCeresElevatorDeparture,
+            allowDeparture: policy.AllowCeresElevatorDeparture,
             RoomMainScratch);
         if (LastCeresElevatorShaftRoomMain.MatrixChanged)
             ActiveSamusMode7Transform = LastCeresElevatorShaftRoomMain.Transform;
@@ -3795,7 +3731,7 @@ Landed: true, HitCeiling: false);
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the
         // suspended native coroutine does, so item fanfare time is not counted here.
-        if (advanceGameTime)
+        if (policy.AdvanceGameTime)
             GameTime.Step();
 
         // `$82:8BAF` executes room shaking after room main ASM and game-time handling, but
@@ -4031,10 +3967,7 @@ Landed: true, HitCeiling: false);
     /// </summary>
     private RuntimeFrameResult StepMessageBoxFrame(
         ushort controller1Input,
-        Action<OamBuffer>? drawHighPriorityEnemyProjectiles,
-        Action<OamBuffer>? drawLowPriorityEnemyProjectiles,
-        bool allowCeresElevatorDeparture,
-        bool advanceGameTime,
+        RuntimeFramePolicy policy,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
         MessageBoxSelectionSoundRequestedThisFrame = false;
@@ -4059,14 +3992,7 @@ Landed: true, HitCeiling: false);
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;
-            return FinishGameplayFrame(
-                tail,
-                drawHighPriorityEnemyProjectiles,
-                drawLowPriorityEnemyProjectiles,
-                allowCeresElevatorDeparture,
-                advanceGameTime,
-                infiniteAmmoGuard,
-                resumedAfterMessageBox: true);
+            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard, resumedAfterMessageBox: true);
         }
         return Snapshot(infiniteAmmoGuard);
     }

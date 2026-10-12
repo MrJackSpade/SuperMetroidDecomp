@@ -84,11 +84,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             // $90:E91D: the demo pose-input handler runs DemoInputObjectHandler inside Samus's
             // current-state handler, ahead of her pose input and movement.
-            demo.Step(
-                bus,
-                preInstruction: (_, pointer) => RunDemoPreInstruction(pointer, introCrossfadeTimer),
-                specialInstruction: HandleDemoInstruction,
-                instructionWord: demoWordReader);
+            demo.Step(bus, new DiscoveryDemoProgram(this, introCrossfadeTimer));
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
             Samus.ClearPoseTransitionShotDirection();
@@ -422,4 +418,22 @@ internal sealed class IntroBabyDiscoveryState
             Array.Empty<byte>());
     }
 
+
+    /// <summary>
+    /// The discovery demo's owner for one frame: its compiled list, its pre-instructions (which read
+    /// this frame's crossfade timer) and its end-demo routine (#633).
+    /// </summary>
+    private sealed class DiscoveryDemoProgram(IntroBabyDiscoveryState owner, ushort introCrossfadeTimer) : IDemoInputProgram
+    {
+        public ushort ReadInstructionWord(ushort pointer) => owner.demoWordReader(pointer);
+
+        public bool TryRunPreInstruction(DemoInputState demo, ushort pointer)
+        {
+            owner.RunDemoPreInstruction(pointer, introCrossfadeTimer);
+            return true;
+        }
+
+        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
+            owner.HandleDemoInstruction(demo, opcode, cursor);
+    }
 }

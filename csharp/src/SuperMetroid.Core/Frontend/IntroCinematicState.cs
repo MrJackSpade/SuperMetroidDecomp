@@ -949,8 +949,7 @@ public sealed partial class IntroCinematicState
 
     private void StepMotherBrainDemo()
     {
-        flashbackDemoInput!.Step(bus, specialInstruction: HandleMotherBrainDemoInstruction,
-            instructionWord: IntroMotherBrainInputDefinitions.ReadWord);
+        flashbackDemoInput!.Step(bus, new FlashbackDemoProgram(this));
 
         // HandleHUDSpecificBehaviorAndProjectiles calls the shared cooldown owner before
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running
@@ -1494,6 +1493,17 @@ public sealed partial class IntroCinematicState
     {
         if (bytes.Length < minimum)
             throw new InvalidDataException($"The {name} stream expanded to ${bytes.Length:X}, expected at least ${minimum:X}.");
+    }
+
+    /// <summary>The flashback Mother Brain demo's owner: its compiled list and end routine; no private pre-instructions (#633).</summary>
+    private sealed class FlashbackDemoProgram(IntroCinematicState owner) : IDemoInputProgram
+    {
+        public ushort ReadInstructionWord(ushort pointer) => IntroMotherBrainInputDefinitions.ReadWord(pointer);
+
+        public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
+
+        public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
+            owner.HandleMotherBrainDemoInstruction(demo, opcode, cursor);
     }
 }
 

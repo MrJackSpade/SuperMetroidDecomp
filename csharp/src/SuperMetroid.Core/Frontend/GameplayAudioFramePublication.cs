@@ -76,4 +76,11 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         samus.HealthWarning.Update(samus.Health, audio,
             soundSuppressed: runtime.IsAttractDemo || runtime.PowerBombExplosionSuppressesSounds);
     }
+    /// <summary>The audio calls one gameplay frame of <paramref name="runtime"/> makes through this publication.</summary>
+    public RuntimeFrameAudio GameplayFrameAudio(SuperMetroidRuntime runtime) =>
+        RuntimeFrameAudio.Gameplay(() => QueueEcho(runtime), () => CheckLowHealth(runtime));
+
+    /// <summary>The audio calls one attract-playback frame of <paramref name="runtime"/> makes: the echo only.</summary>
+    public RuntimeFrameAudio AttractFrameAudio(SuperMetroidRuntime runtime) =>
+        RuntimeFrameAudio.EchoOnly(() => QueueEcho(runtime));
 }

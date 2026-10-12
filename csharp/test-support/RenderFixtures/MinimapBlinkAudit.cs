@@ -33,7 +33,7 @@ internal static class MinimapBlinkAudit
         {
             // Keep this a HUD fixture, not a boss fight or a moving map-cell test.
             runtime.Samus.Position = runtime.Samus.Position.WithWhole(new(128, 128));
-            runtime.StepFrame(0, allowCeresElevatorDeparture: false);
+            runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false } });
             var pixels = render(runtime);
             string cell = string.Join(',', Enumerable.Range(0, 64).Select(i => pixels[(16 + i / 8) * 256 + 224 + i % 8].ToString()));
             if (tick < 8) continue; // let the initial HUD publication reach VRAM

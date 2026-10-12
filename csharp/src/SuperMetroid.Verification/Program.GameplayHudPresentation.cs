@@ -28,8 +28,7 @@ internal static partial class Program
                 InHudRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||
                 InHudRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
-        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard,
-            initialPaletteArt: initialPalettes)
+        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
             { MapPresentation = original };
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
@@ -102,8 +101,7 @@ internal static partial class Program
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
-        var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard,
-            initialPaletteArt: initialPalettes)
+        var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
             { MapPresentation = edited };
         editedTopRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));

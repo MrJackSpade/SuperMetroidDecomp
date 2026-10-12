@@ -70,8 +70,7 @@ internal static partial class Program
             EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
             "Mother Brain synchronous second timer transfer uses installed artwork");
 
-        var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
-            initialPaletteArt: initialPalettes);
+        var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Runtime.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
             EscapeTimerTileRomData.FirstSourceAddress, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,

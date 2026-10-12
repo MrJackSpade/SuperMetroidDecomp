@@ -161,8 +161,7 @@ internal static partial class Program
             "stock room-FX atlas resolves the Wrecked Ship treadmill frame");
         AssertTrue(!editedTreadmill.Span.SequenceEqual(stockTreadmill.Span),
             "edited treadmill pixels compile to a distinct installed NMI frame");
-        var runtime = new SuperMetroidRuntime(guarded,
-            initialPaletteArt: initialPalettes) { MapPresentation = changed };
+        var runtime = new SuperMetroidRuntime(guarded, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = changed };
         runtime.WreckedShipTreadmill.Start(guarded,
             WreckedShipTreadmillDirection.Rightwards);
         runtime.WreckedShipTreadmill.Step(guarded, areaBossDefeated: true,

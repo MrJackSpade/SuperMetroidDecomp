@@ -74,7 +74,7 @@ internal static partial class Program
             samus.Grapple.SegmentAnimationTimers[15] = 1;
             runtime.Oam.BeginFrame();
             typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", BindingFlags.Instance | BindingFlags.NonPublic)!
-                .Invoke(runtime, new object?[] { false, null, null, false });
+                .Invoke(runtime, new object?[] { false, false });
             int endpoints = 0;
             for (int offset = 0; offset < runtime.Oam.NextByteOffset; offset += 4)
                 if (runtime.Oam.LowTable[offset + 2] == 0x20 && runtime.Oam.LowTable[offset + 3] == 0x3a)

@@ -32,7 +32,7 @@ internal static partial class Program
             var request = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
-            var runtime = new SuperMetroidRuntime(bus, initialPaletteArt: BombTorizoHandFixturePalette());
+            var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
             typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.Samus))!.SetValue(runtime, samus);
             var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Slots[0])
             {

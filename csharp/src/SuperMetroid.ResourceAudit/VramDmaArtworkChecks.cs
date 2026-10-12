@@ -14,7 +14,7 @@ internal static class VramDmaArtworkChecks
         using var paletteStream = File.OpenRead(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(mapDirectory))!,
             "gameplay-palettes", GameplayBasePaletteFormat.ArtworkFileName));
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var runtime = new SuperMetroidRuntime(memory, initialPaletteArt: GameplayBasePaletteCatalog.Load(paletteStream))
+        var runtime = new SuperMetroidRuntime(memory, HostGameplayOverrides.None, initialPaletteArt: GameplayBasePaletteCatalog.Load(paletteStream))
             { MapPresentation = maps, GrappleArtwork = Grapple(1) };
         var pairs = new List<(int Source, int Count, VramAssetId Asset)>
         {

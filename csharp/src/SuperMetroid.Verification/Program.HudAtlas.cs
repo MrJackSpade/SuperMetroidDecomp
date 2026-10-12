@@ -18,11 +18,11 @@ internal static partial class Program
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount);
         AssertTrue(source.AsSpan().SequenceEqual(original.Resolve(VramAssetId.StandardHudTiles).Span), "HUD PNG and compiled padding match all native transfer bytes");
         var guard = NewMapDataGuard(bus, rules);
-        var native = new SuperMetroidRuntime(bus, initialPaletteArt: initialPalettes)
+        var native = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
         {
             MapPresentation = original,
         };
-        var installed = new SuperMetroidRuntime(guard, initialPaletteArt: initialPalettes)
+        var installed = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
         {
             MapPresentation = original,
         };
@@ -68,7 +68,7 @@ internal static partial class Program
         AssertTrue(previousDisplay.AsSpan(0, characterStart).SequenceEqual(displayed.Vram.Bytes[..characterStart]) &&
             previousDisplay.AsSpan(characterEnd).SequenceEqual(displayed.Vram.Bytes[characterEnd..]),
             "HUD rebind preserves every VRAM byte outside characters, including live room tilemaps");
-        var pending = new SuperMetroidRuntime(guard, initialPaletteArt: initialPalettes)
+        var pending = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
         {
             MapPresentation = original,
         };
@@ -89,7 +89,7 @@ internal static partial class Program
             "already displayed HUD rebind renders the same edited pixels as a fresh pending upload");
         AssertTrue(Enumerable.Range(8, 24).Any(y => Enumerable.Range(216, 40).Any(x => baseline[y * 256 + x] != modified[y * 256 + x])),
             "edited HUD PNG changes rendered minimap region after accepted NMI");
-        var alreadyQueued = new SuperMetroidRuntime(bus, initialPaletteArt: initialPalettes)
+        var alreadyQueued = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
         {
             MapPresentation = original,
         };

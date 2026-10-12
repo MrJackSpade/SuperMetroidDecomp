@@ -441,8 +441,7 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain rainbow edit changes installed-content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
-            initialPaletteArt: initialPalettes)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
         {
             MapPresentation = edited,
         };
@@ -613,8 +612,7 @@ internal static partial class Program
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain health palette override changes installed-content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
-            initialPaletteArt: initialPalettes)
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
         {
             MapPresentation = edited,
         };
@@ -1026,13 +1024,11 @@ internal static partial class Program
         void AssertOverride(ushort definitionPointer, ushort colorByteIndex,
             string description)
         {
-            var stockRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
-                initialPaletteArt: initialPalettes)
+            var stockRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
             {
                 MapPresentation = original,
             };
-            var editedRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus,
-                initialPaletteArt: initialPalettes)
+            var editedRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: initialPalettes)
             {
                 MapPresentation = edited,
             };
@@ -1293,8 +1289,7 @@ internal static partial class Program
         AssertEqual(edited.ContentIdentity, restored.MapPresentationIdentity, "state rebind uses current override identity");
 
         var guard = NewMapDataGuard(bus, rules);
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard,
-            initialPaletteArt: initialPalettes) { MapPresentation = edited };
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: initialPalettes) { MapPresentation = edited };
         fixtureAssets.Bind(runtime);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();

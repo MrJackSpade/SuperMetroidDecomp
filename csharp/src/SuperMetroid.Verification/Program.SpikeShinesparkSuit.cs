@@ -59,8 +59,8 @@ internal static partial class Program
         ushort frozenShineTimer = frozenSamus.SharedShineTimer;
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer;
-        frozenRuntime.StepFrame(0, afterAcceptedNmi: () =>
-            shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.NmiFrameCounter));
+        frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
+            shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.NmiFrameCounter) });
         AssertEqual((frozenX, frozenY),
             (frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
             "Reserve command zero freezes spike-knockback position");
@@ -125,11 +125,11 @@ internal static partial class Program
             ushort input = samus.ReserveEnergy == 1 && launchAfter == 0
                 ? (ushort)SnesButton.A
                 : (ushort)0;
-            runtime.StepFrame(input, afterAcceptedNmi: () =>
+            runtime.StepFrame(input, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
             {
                 if (recovery.StepAfterNmi(samus, runtime.NmiFrameCounter).Completed)
                     runtime.GameplayTimeFrozen = false;
-            });
+            } });
         }
         for (int frame = 1; frame < 25; frame++)
             runtime.StepFrame(frame == launchAfter ? (ushort)SnesButton.A : (ushort)0);

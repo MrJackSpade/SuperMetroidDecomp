@@ -178,7 +178,7 @@ internal static partial class Program
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            target.GetType().GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, null, null, false });
+            target.GetType().GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, false });
             return target.Oam.LowTable.ToArray();
         }
         byte[] native = Draw(runtime);

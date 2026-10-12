@@ -75,7 +75,7 @@ internal static partial class Program
         static void Draw(SuperMetroidRuntime target)
         {
             target.Oam.BeginFrame();
-            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, null, null, false });
+            typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, false });
         }
     }
 }

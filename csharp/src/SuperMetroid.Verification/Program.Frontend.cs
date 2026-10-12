@@ -622,7 +622,7 @@ static void VerifyDemoInputObject()
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+            demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -646,7 +646,7 @@ static void VerifyDemoInputObject()
         retailDemo.Enable();
         retailDemo.LoadObject(retailBus, DemoInputRomDataIntroMotherBrain.Object, definitionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
         for (int frame = 0; frame < elapsed; frame++)
-            retailDemo.Step(retailBus, instructionWord: pointer => ReadDemoFixtureWord(retailBus, pointer));
+            retailDemo.Step(retailBus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(retailBus, pointer)));
         AssertEqual(demo.InstructionPointer, retailDemo.InstructionPointer,
             "retail old-Mother-Brain stream reaches catalogued record boundary");
         AssertEqual(demo.Held, retailDemo.Held,
@@ -674,13 +674,13 @@ static void VerifyDemoInputObject()
     demo.Clear();
     demo.Enable();
     demo.LoadObject(bus, 0x8720, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
-    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+    demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
     AssertEqual(fixtureHeld, demo.Held, "demo opcode fixture first held word");
     AssertEqual(2, demo.Timer, "demo set-timer opcode");
-    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+    demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
     AssertEqual(1, demo.Timer, "demo decrement/goto loops while nonzero");
     AssertEqual(fixtureHeld, demo.Held, "demo loop replays input record");
-    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer));
+    demo.Step(bus, new DemoInputListProgram(pointer => ReadDemoFixtureWord(bus, pointer)));
     AssertEqual(0, demo.Timer, "demo decrement/goto falls through at zero");
     AssertEqual(0, demo.InstructionPointer, "demo delete clears list pointer");
     AssertEqual(0, demo.Held, "demo delete clears held input");
@@ -698,15 +698,9 @@ static void VerifyDemoInputObject()
     demo.Clear();
     demo.Enable();
     demo.LoadObject(bus, 0x8730, definitionWord: pointer => ReadDemoFixtureWord(bus, pointer));
-    int specialInstructionCalls = 0;
-    demo.Step(bus, instructionWord: pointer => ReadDemoFixtureWord(bus, pointer), specialInstruction: (state, instruction, argumentPointer) =>
-    {
-        AssertEqual(0x8739, instruction, "demo special instruction pointer");
-        specialInstructionCalls++;
-        state.Disable();
-        return DemoInputInstructionResult.ContinueAt(argumentPointer);
-    });
-    AssertEqual(1, specialInstructionCalls, "demo special instruction callback count");
+    var disabling = new DisablingDemoProgram(pointer => ReadDemoFixtureWord(bus, pointer));
+    demo.Step(bus, disabling);
+    AssertEqual(1, disabling.Calls, "demo special instruction callback count");
     AssertEqual(false, demo.Enabled, "demo special instruction disable");
     AssertEqual(0, demo.InstructionPointer, "demo special instruction continues into delete");
 
@@ -722,5 +716,23 @@ static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
     rom[offset] = unchecked((byte)value);
     rom[offset + 1] = unchecked((byte)(value >> 8));
+}
+
+/// <summary>A demo owner whose one private routine ($8739) disables the object and continues (#633).</summary>
+private sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
+{
+    public int Calls { get; private set; }
+
+    public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
+
+    public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
+
+    public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor)
+    {
+        AssertEqual(0x8739, opcode, "demo special instruction pointer");
+        Calls++;
+        demo.Disable();
+        return DemoInputInstructionResult.ContinueAt(cursor);
+    }
 }
 }

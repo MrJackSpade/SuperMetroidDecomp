@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks D3D11 Mode 7 rendering against software output over native PPU geometry.</summary>
 internal static class Mode7SmokeTests
 {
+    /// <summary>Compares scale, offset, overflow, ordered-layer, HUD, and floor-band cases with exact software pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -24,7 +26,6 @@ internal static class Mode7SmokeTests
             var frame = new RenderFrameSnapshot(new(++count, 1, 0),
                 new Mode7ObjRenderSnapshot(memory, registers, 3, 13), new byte[] { 11 });
             Check(frame);
-            // Exercise Mode 7 as an ordered layer too, not just the special packet shape.
             Check(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new ObjRenderLayer(), new Mode7RenderLayer(registers),
                     new FixedColorAddRenderLayer(3, 7, 11) }, 3, 15)));

@@ -20,8 +20,10 @@ public enum RinkaEnemyFunction : ushort
 /// </summary>
 public sealed class RinkaEnemyState
 {
+    /// <summary>Physical enemy slot retaining Rinka's dispatch, velocity, spawn token, and timer words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Projects the bank-$A2 Rinka variables over its live native enemy slot.</summary>
     internal RinkaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Common variable A ($7E:0FA8 plus slot offset): same-bank $A2 routine word dispatched by main AI, changed by initialization, the fire instruction, aim completion, or the special death tail.</summary>

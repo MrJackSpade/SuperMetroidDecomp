@@ -23,8 +23,10 @@ public enum RioEnemyFunction : ushort
 /// </summary>
 public sealed class RioEnemyState
 {
+    /// <summary>Native enemy slot backing Rio's saved velocity, function, motion, and animation words.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds typed Rio state to its existing enemy slot.</summary>
     internal RioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Horizontal velocity retained while the hovering phase temporarily stops X.</summary>

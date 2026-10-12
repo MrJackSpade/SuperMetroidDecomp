@@ -11,8 +11,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class DeadMonsterFrame
 {
+    /// <summary>Room scratch memory and installed artwork shared by corpse-family actors.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Connects dead-monster work words and rot transfers to the active room.</summary>
     internal DeadMonsterFrame(EnemyRoomBinding room)
     {
         _room = room;
@@ -31,12 +33,15 @@ internal sealed class DeadMonsterFrame
         LastSoundEffect = null;
     }
 
+    /// <summary>Reads a word from the bank-$A9 corpse work area using a word index.</summary>
     internal ushort ReadWorkWord(int wordOffset) =>
         _room.Scratch.CorpseTiles.ReadWord(wordOffset * 2);
 
+    /// <summary>Writes a word into the corpse work area using the same word indexing as native rot tables.</summary>
     internal void WriteWorkWord(int wordOffset, ushort value) =>
         _room.Scratch.CorpseTiles.WriteWord(wordOffset * 2, value);
 
+    /// <summary>Appends the source, size, and destination of each rot DMA record in a compiled transfer table.</summary>
     internal void AppendVramTransfers(ushort vramTablePointer)
     {
         foreach (DeadMonsterVramTransferDefinition record in

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Hardware;
 using static GoldenTorizoRightOrbDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks the selected Boyon and Torizo control words and visual selectors against pinned native data.</summary>
 internal static class EnemyAnimationIsolationStockParityVerification
 {
     /// <summary>
@@ -57,6 +58,7 @@ internal static class EnemyAnimationIsolationStockParityVerification
             "separate native visual selectors match the pinned import source.");
     }
 
+    /// <summary>Runs the import-only animation word comparison command.</summary>
     [VerificationCommand("--enemy-animation-stock-parity")]
     internal static int EnemyAnimationStockParityCommand()
     {

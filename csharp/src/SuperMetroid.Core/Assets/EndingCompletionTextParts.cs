@@ -8,14 +8,18 @@ namespace SuperMetroid.Core.Assets;
 /// Font3 large glyphs occupy the OBJ atlas at tile$100 plus their reviewed font index.</summary>
 internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Native composition ordinal: revealed message prefix, digit, or colon.</summary>
     private readonly int frame;
+    /// <summary>Accepts one of the fifty-six ending text compositions.</summary>
     internal EndingCompletionTextParts(int frame)
     {
         if ((uint)frame >= 56) throw new ArgumentOutOfRangeException(nameof(frame));
         this.frame = frame;
     }
+    /// <summary>Revealed messages add paired glyph halves; a digit or colon always uses two parts.</summary>
     public int Count => frame < 15 ? 2 * (frame + 1) : frame < 36 ? 2 * (frame - 14) : frame < 45 ? 2 * (frame - 35) : 2;
 
+    /// <summary>Selects the bottom or top glyph half in reverse-letter OAM order for this reveal frame.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -56,9 +60,11 @@ internal sealed class EndingCompletionTextParts : IReadOnlyList<CompiledSpritePa
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
+    /// <summary>Yields all visible glyph halves in their native OAM order.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Exposes the same glyph halves to non-generic collection consumers.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

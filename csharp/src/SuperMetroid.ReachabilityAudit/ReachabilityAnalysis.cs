@@ -29,6 +29,7 @@ internal static class ReachabilityAnalysis
         ["SuperMetroid.Verification", "SuperMetroid.IntegrationVerification", "SuperMetroid.RenderVerification",
          "SuperMetroid.DesktopVerification", "SuperMetroid.EnsureVerification"];
 
+    /// <summary>Builds declarations and references from non-test projects, then computes all-root and production-only reachability.</summary>
     public static ReachabilityResult Run(LoadedSolution solution)
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);

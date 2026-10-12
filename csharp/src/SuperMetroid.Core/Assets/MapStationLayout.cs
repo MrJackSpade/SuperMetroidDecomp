@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Drawing positions only: moving an icon never changes its compiled discovery cell.</summary>
 public sealed class MapStationLayout
 {
+    /// <summary>Owned screen-position lookup by stable discovery marker ID, separate from compiled discovery cells.</summary>
     private readonly Dictionary<string, Position16<MapPixels>> points;
+    /// <summary>Stores a mapping already checked for the complete marker set and bounded screen coordinates.</summary>
     private MapStationLayout(Dictionary<string, Position16<MapPixels>> points) => this.points = points;
 
     /// <summary>Gets the screen-pixel drawing position for a named map-station marker.</summary>

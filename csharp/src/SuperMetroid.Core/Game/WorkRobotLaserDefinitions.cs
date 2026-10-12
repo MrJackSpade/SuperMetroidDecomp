@@ -39,14 +39,17 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions
     /// <c>Instruction_EnemyProjectile_GotoY</c> closing the laser loop at $86:D308.
     /// </summary>
     internal const ushort LoopCommand = 0xd308;
+    /// <summary>Three startup and four loop frames whose spritemaps are installed separately from laser timing.</summary>
     public static int PresentationWordCount => 7;
 
+    /// <summary>Finds the visual operand following a four-tick frame word in the bank-$86 laser program.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(Initial + 4 * index + 2);
     }
+    /// <summary>Admits the five directional robot-laser definitions that share this animation program.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.WorkRobotLaserUpLeft or
         RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
@@ -54,6 +57,7 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions
         RoomEnemyProjectileKind.WorkRobotLaserUpRight or
         RoomEnemyProjectileKind.WorkRobotLaserDownRight;
 
+    /// <summary>Returns four-tick frame waits and the loop goto while rejecting visual operands and unknown addresses.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == LoopCommand)

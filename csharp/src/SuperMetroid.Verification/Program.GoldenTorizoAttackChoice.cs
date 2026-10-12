@@ -12,11 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks Golden Torizo's landing attack selection with the native 16-bit NMI counter.</summary>
 internal static class GoldenTorizoAttackChoiceVerification
 {
-    // #1269: Instruction_GoldenTorizo_CallY_OrY2_ForAttack ($AA:D53B) adds NMI_FrameCounter
-    // ($05B6), not the 8-bit counter at $05B5. In the 100% movie the two disagree in bit 3
-    // when the Torizo lands from a backward jump: native throws sonic booms, not chozo orbs.
+    /// <summary>Confirms $AA:D53B adds $05B6 to the landing chooser, selecting sonic booms at the 100% movie's backward-jump landing.</summary>
     internal static void VerifyGoldenTorizoAttackChoice()
     {
         const ushort landedFacingLeft = 0xcdaf;
@@ -32,8 +31,6 @@ internal static class GoldenTorizoAttackChoiceVerification
         RoomEnemySlot torizo = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
 
-        // Native inputs at the movie's landing: (X >> 1) + carry + $05B6 has bit 3 clear,
-        // while the same sum with $05B5 ($2D) has it set.
         samus.Position = samus.Position.WithWholeX(0x01b8);
         samus.Missiles = 187;
         torizo.CurrentInstruction = landedFacingLeft;
@@ -46,6 +43,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         Console.WriteLine("Golden Torizo attack choice: the landing chooser adds NMI_FrameCounter, not the 8-bit counter.");
     }
 
+    /// <summary>Runs the focused landing attack-choice reproduction from the verification command line.</summary>
     [VerificationCommand("--golden-torizo-attack-choice")]
     internal static int GoldenTorizoAttackChoiceCommand()
     {

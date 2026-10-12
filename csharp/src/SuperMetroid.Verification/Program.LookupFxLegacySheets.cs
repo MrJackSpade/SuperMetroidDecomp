@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Assets;
 
+/// <summary>Checks legacy room-FX sheet widths against full stock artwork and stream requirements.</summary>
 internal static class LookupFxLegacySheetsVerification
 {
+    /// <summary>Confirms five legacy widths inherit an unchanged stock tail, neighboring widths fail, and rewinding is required only for legacy fallback.</summary>
     internal static void VerifyRoomFxLegacySheetSelection()
     {
-        // Pre-conversion widths at1fefba07, independently fixed compatibility contract.
-        // Uniform pixel1 encodes FF/00 per row; pixel2 encodes 00/FF.
         using var stockPng = Sheet(1808, 1);
         var stock = RoomFxAnimatedTileAtlas.Load(stockPng);
         foreach (int width in new[] { 1544, 776, 712, 1616, 1808 })
@@ -48,10 +48,14 @@ internal static class LookupFxLegacySheetsVerification
         }
     }
 
+    /// <summary>Fixture stream that exposes bytes but rejects positioning used by legacy-sheet fallback.</summary>
     internal sealed class FxAtlasForwardOnlyStream(byte[] bytes) : MemoryStream(bytes)
     {
+        /// <summary>Forces the loader to treat this input as forward-only.</summary>
         public override bool CanSeek => false;
+        /// <summary>Rejects both position inspection and reassignment to catch hidden rewinds.</summary>
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        /// <summary>Rejects seeking while permitting sequential reads through the base stream.</summary>
         public override long Seek(long offset, SeekOrigin loc) => throw new NotSupportedException();
     }
 }

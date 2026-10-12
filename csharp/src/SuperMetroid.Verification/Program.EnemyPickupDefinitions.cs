@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Checks the six native enemy pickup selectors and five live pickup initializers.</summary>
 internal static class EnemyPickupDefinitionsVerification
 {
+    /// <summary>Compares compiled animation offsets and pointers with bank-$86, then confirms production spawn timing, pre-instruction, lifetime, and contact behavior.</summary>
     internal static void VerifyEnemyPickupDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)

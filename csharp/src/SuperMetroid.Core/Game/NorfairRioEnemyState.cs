@@ -26,8 +26,10 @@ public enum NorfairRioEnemyFunction : ushort
 /// </summary>
 public sealed class NorfairRioEnemyState
 {
+    /// <summary>Native Rio slot holding the common velocities, function pointer, and population parameter.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds typed Rio state to its existing enemy slot.</summary>
     internal NorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Extra word $00: last instruction list installed by function seven.</summary>

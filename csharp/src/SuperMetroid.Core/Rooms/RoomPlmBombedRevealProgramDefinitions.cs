@@ -21,6 +21,7 @@ internal static class RoomPlmBombedRevealProgramDefinitions
     /// <summary>Bytes in each list: a duration/draw pair followed by deletion.</summary>
     private const int ListLength = 6;
 
+    /// <summary>Maps a supported reveal variant to its native bank-$84 list pointer.</summary>
     private static ushort StartOf(Reveal reveal) => reveal switch
     {
         Reveal.Crumble1x1 => RoomPlmInstructionLists.CrumbleReveal1x1,
@@ -32,6 +33,7 @@ internal static class RoomPlmBombedRevealProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 
+    /// <summary>Selects the draw command for the reveal list's single display frame.</summary>
     private static ushort DrawOf(Reveal reveal) => reveal switch
     {
         Reveal.Crumble1x1 => (ushort)RoomPlmBombedRevealDraw.CrumbleSingle,
@@ -43,6 +45,7 @@ internal static class RoomPlmBombedRevealProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 
+    /// <summary>Reads a bounded one-frame reveal list while excluding intervening unowned lists.</summary>
     internal static bool TryReadWord(ushort address, out ushort value)
     {
         // The intervening four unused bomb-reveal lists are outside this owner.

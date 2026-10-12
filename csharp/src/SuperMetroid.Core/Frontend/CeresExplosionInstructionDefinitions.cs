@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Four native Ceres explosion programs expressed as frame, loop and deletion operations.</summary>
 internal static class CeresExplosionInstructionDefinitions
 {
+    /// <summary>Reads any byte of the four compiled bank-$8B explosion lists, including overlapping native word windows.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         int offset;
@@ -33,12 +34,14 @@ internal static class CeresExplosionInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Builds a six-frame station or small-blast sequence with fixed duration and terminal sprite deletion.</summary>
     private static ushort SinglePassWord(int word, ushort duration, bool station)
     {
         if (word == 12) return (ushort)CinematicSpriteInstruction.Delete;
         return (word & 1) == 0 ? duration : station ? CeresDestructionSpriteDefinitions.StationFrame(word / 2) : CeresDestructionSpriteDefinitions.SmallFrame(word / 2);
     }
 
+    /// <summary>Builds the timed small or large explosion loop, including blank-frame delay, repeat counter, and deletion.</summary>
     private static ushort RepeatingWord(int word, bool large)
     {
         if (word == 0) return (ushort)CinematicSpriteInstruction.SetTimer;

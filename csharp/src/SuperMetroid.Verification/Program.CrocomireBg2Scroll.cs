@@ -3,14 +3,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Checks Crocomire BG2 frame pointers and pose-relative vertical scroll against native data.</summary>
 internal static class CrocomireBg2ScrollVerification
 {
+    /// <summary>Runs the pointer-order and body-position correction checks for all seventeen BG2 entries.</summary>
     internal static void VerifyCrocomireBg2ScrollDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireBg2FramePositions), () => VerifyCrocomireBg2FramePositions(rom));
         Suite(nameof(VerifyCrocomireBg2PoseCorrections), () => VerifyCrocomireBg2PoseCorrections(rom));
     }
 
+    /// <summary>Confirms all seventeen native BG2 spritemap pointers are unique and remain in authored order.</summary>
     private static void VerifyCrocomireBg2FramePositions(SuperMetroidAddressSpace rom)
     {
         AssertEqual(17, CrocomireBg2ScrollDefinitions.EntryCount, "all native BG2 frame pointers");
@@ -26,6 +29,7 @@ internal static class CrocomireBg2ScrollVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBg2ScrollDefinitions.Entry(17), "BG2 entry past end");
     }
 
+    /// <summary>Compares per-pose offsets and wrapped body-Y scroll, including all unselected or misaligned pointers in the 16-bit domain.</summary>
     private static void VerifyCrocomireBg2PoseCorrections(SuperMetroidAddressSpace rom)
     {
         var originalOffsets = new Dictionary<ushort, ushort>();
@@ -42,8 +46,6 @@ internal static class CrocomireBg2ScrollVerification
                     "Crocomire BG2 mapped pose and wrapped body position");
             }
         }
-        // The new cases must match the native search for every possible identity,
-        // including misaligned pointers and other poses in the same frame bank.
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             ushort offset = originalOffsets.GetValueOrDefault((ushort)pointer);

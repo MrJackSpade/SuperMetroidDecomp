@@ -15,9 +15,12 @@ internal abstract class ZeroInstructionProgramDefinitions
     /// <summary><c>UNUSED_InstList_Zero_UpsideUp_FacingRight_A3990B</c> at $A3:990B.</summary>
     internal const ushort UpsideUp = 0x990b;
 
+    /// <summary>Four surface loops each contribute ten compiled control words.</summary>
     public static int MechanicsWordCount => 40;
+    /// <summary>Four surface loops each display six spritemap operands.</summary>
     public static int PresentationWordCount => 24;
 
+    /// <summary>Selects the native instruction-list entry for a crawler surface orientation.</summary>
     private static ushort Entry(CrawlerSurfaceOrientation surface) => surface switch
     {
         CrawlerSurfaceOrientation.UpsideRight => UpsideRight,
@@ -46,12 +49,16 @@ internal abstract class ZeroInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Locates the spritemap operand following a frame duration within
+    /// the selected surface loop, leaving artwork resolution to presentation data.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(Entry(CrawlerSurfaceOrientations.AtTableIndex(index / 6)) + 6 + 4 * (index % 6));
     }
+    /// <summary>Resolves a compiled control address and rejects pointers into
+    /// presentation operands or outside Zero's instruction loops.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

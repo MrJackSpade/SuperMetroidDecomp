@@ -12,12 +12,14 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks that a directionless jump skips horizontal movement and its slope alignment.</summary>
 internal static class JumpNoXMovementVerification
 {
-    // #1269: with no direction held and acceleration mode zero, Samus_Jumping_Movement clears
-    // base speed and branches past MoveSamus_Horizontally ($90:902B), so no post-move slope
-    // alignment runs. Calling the mover with zero aligned Samus to a slope under her: in the
-    // 100% movie's Red Fish room she dropped two pixels the frame after a ceiling hit.
+    /// <summary>
+    /// Reproduces issue #1269 after the Red Fish ceiling hit: with no held direction and
+    /// acceleration mode zero, jumping skips $90:902B and preserves Samus's Y position
+    /// instead of aligning her two pixels downward to a slope.
+    /// </summary>
     internal static void VerifyJumpNoXMovement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -27,7 +29,6 @@ internal static class JumpNoXMovementVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RedFish);
         var samus = runtime.Player.Samus!;
-        // Native state after update 366219's ceiling hit.
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
@@ -46,6 +47,7 @@ internal static class JumpNoXMovementVerification
         Console.WriteLine("Jump without X movement: Samus_Jumping_Movement skips the horizontal mover and its slope alignment.");
     }
 
+    /// <summary>Runs the focused Red Fish jump-without-horizontal-motion check.</summary>
     [VerificationCommand("--jump-no-x-movement")]
     internal static int JumpNoXMovementCommand()
     {

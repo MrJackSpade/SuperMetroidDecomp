@@ -4,14 +4,20 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
 
+/// <summary>Checks calculated black liquid-blend third colors and preservation of supplied overrides.</summary>
 internal static class LookupFxBlendBlackColorsVerification
 {
+    /// <summary>The six native blend selectors whose third CGRAM color is black.</summary>
     private static byte[] OriginalBlackBlendIds() => [0x02, 0x42, 0x48, 0xe2, 0xe8, 0xee];
 
+    /// <summary>Compares red components of native, resolved, and applied third colors.</summary>
     internal static void VerifyFxBlendBlackRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 0);
+    /// <summary>Compares green components of native, resolved, and applied third colors.</summary>
     internal static void VerifyFxBlendBlackGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 5);
+    /// <summary>Compares blue components of native, resolved, and applied third colors.</summary>
     internal static void VerifyFxBlendBlackBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 10);
 
+    /// <summary>Checks one five-bit channel for all six liquid blends in native words and CGRAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFxBlendBlackComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
     {
@@ -26,6 +32,7 @@ internal static class LookupFxBlendBlackColorsVerification
         }
     }
 
+    /// <summary>Checks black stays calculated, weather colors remain independent, and custom third colors survive output edits.</summary>
     internal static void VerifyFxBlendBlackStorageAndEdits(RoomFxPaletteBlendCatalog stock)
     {
         for (int value = 0; value <= byte.MaxValue; value++)
@@ -57,6 +64,7 @@ internal static class LookupFxBlendBlackColorsVerification
         }
     }
 
+    /// <summary>Forbids extraction reads of the six calculated native black words.</summary>
     internal static CartridgeReadGuard NewBlackBlendSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => OriginalBlackBlendIds().Any(id => address == 0x89aa06 + id || address == 0x89aa07 + id),

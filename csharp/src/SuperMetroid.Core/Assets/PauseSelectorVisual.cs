@@ -13,8 +13,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class PauseSelectorVisual
 {
+    /// <summary>Recognized cursor, beam, or equipment selector group; minus one selects preserved authored OAM.</summary>
     private readonly int group;
+    /// <summary>Caller-supplied composition retained when it differs from every calculated native selector.</summary>
     private readonly SpriteComposition? authored;
+    /// <summary>Stores either a recognized calculated selector group or an independently supplied composition.</summary>
     private PauseSelectorVisual(int group, SpriteComposition? authored) { this.group = group; this.authored = authored; }
 
     /// <summary>Original beam highlight paint order expressed as row-major grid cells, not coordinates or tiles.</summary>
@@ -22,9 +25,11 @@ internal sealed class PauseSelectorVisual
     /// <summary>Original equipment highlight paint order; the middle cells have a distinct non-spatial order.</summary>
     private static ReadOnlySpan<byte> EquipmentOrder => [18, 8, 15, 17, 16, 7, 6, 5, 14, 4, 10, 11, 12, 13, 19, 9, 3, 2, 1, 0];
 
+    /// <summary>Returns the native part count for the cursor, beam grid, or equipment grid.</summary>
     private static int Count(int group) => group switch
     { 0 => 1, 1 => 12, 2 => 20, _ => throw new ArgumentOutOfRangeException(nameof(group)) };
 
+    /// <summary>Calculates one selector cell's geometry and edge tile while preserving the authored visitation order.</summary>
     private static CompiledSpritePart Part(int group, int index)
     {
         if ((uint)index >= (uint)Count(group)) throw new ArgumentOutOfRangeException(nameof(index));
@@ -38,6 +43,7 @@ internal sealed class PauseSelectorVisual
             SnesObjAttributeWord.Create(tile, 0, 3), true);
     }
 
+    /// <summary>Recognizes an exact native selector or compiles and retains edited OAM when its paint or order differs.</summary>
     internal static PauseSelectorVisual Compile(SpriteVisualPart[] parts, string name)
     {
         for (int group = 0; group < 3; group++)
@@ -56,6 +62,7 @@ internal sealed class PauseSelectorVisual
         return new(-1, MenuSpriteCompiler.Compile(parts, name));
     }
 
+    /// <summary>Draws the recognized selector in native OAM order or delegates an edited composition, applying caller palette bits.</summary>
     internal void DrawOnScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }

@@ -13,13 +13,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Checks shared WRAM word $0FF2 across Mother Brain's ascent dust and death explosion sequence.</summary>
 internal static class MotherBrainInheritedExplosionIndexVerification
 {
-    // #1269: native word $0FF2 is one word under three names: the fake-death ascent dust's
-    // body sub-function timer, the death-explosion index ($A9:B046) and the escape-door dust
-    // index ($A9:B355). The ascent dust leaves it at 2, so the first death burst decrements it
-    // to row 1. The port's sequence kept its own index starting at 0, wrapped to row 6, and in
-    // the 100% movie spawned both death explosions at the wrong offsets.
+    /// <summary>Confirms ascent dust leaves $0FF2 at two so the first death burst uses row one, preserving the offsets lost by issue #1269's separate index.</summary>
     internal static void VerifyMotherBrainInheritedExplosionIndex()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -49,6 +46,7 @@ internal static class MotherBrainInheritedExplosionIndexVerification
         Console.WriteLine("Mother Brain inherited explosion index: the death explosions continue word $0FF2.");
     }
 
+    /// <summary>Runs the focused Mother Brain shared-explosion-index check.</summary>
     [VerificationCommand("--mother-brain-inherited-explosion-index")]
     internal static int MotherBrainInheritedExplosionIndexCommand()
     {

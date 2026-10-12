@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class TesterTools
 {
+    /// <summary>Destination for the suit palette after test inventory is granted.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Current Samus actor receiving tester inventory once per initialization.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Persistent item, event, boss, and door bits adjusted by tester options.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Source used to reload the granted suit's presentation palette.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Connects tester options to the current player, system state, and palette owners.</summary>
     internal TesterTools(SnesCgram cgram, SamusFrameState player, Bank80SystemState system, ISnesAddressSpace addressSpace)
     {
         _cgram = cgram;
@@ -19,6 +24,7 @@ internal sealed class TesterTools
         _system = system;
         _addressSpace = addressSpace;
     }
+    /// <summary>Clears saved boss, Shaktool, and eye-door progression after save restoration and before room selection.</summary>
     internal void ResetSavedEncounters()
     {
         // Run after the saved mirror is restored and before any room-state or
@@ -34,6 +40,7 @@ internal sealed class TesterTools
             doors[bit >> 3] &= unchecked((byte)~(1 << (bit & 7)));
         _system.LoadOpenedDoorBytes(doors);
     }
+    /// <summary>Tracks the Samus instance already granted full inventory to avoid reapplying it after ammo use.</summary>
     internal SamusState? testerInventoryRecipient;
     /// <summary>Whether the host's tester option grants the configured full inventory once to each initialized or restored Samus actor.</summary>
     public bool GrantAllEquipmentEnabled { get; internal set; }

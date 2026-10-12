@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Checks compiled grounded slope multipliers and packed displacement arithmetic against native values.</summary>
 internal static class SlopeSpeedDefinitionsVerification
 {
+    /// <summary>Compares all slope shapes and BTS orientations, including signed byte packing and airborne early return.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for slope speeds")]
     internal static void VerifyCompiledSlopeSpeeds(SuperMetroidAddressSpace rom)
     {

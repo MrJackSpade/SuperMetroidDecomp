@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class DraygonHealthPaintDefinitions
 {
+    /// <summary>Four belly shades are copied in each health band.</summary>
     private const int Shades = 4;
+    /// <summary>Eight health-band rows span healthy gold through critical red.</summary>
     private const int Bands = 8;
+    /// <summary>Five-bit red channel ceiling used by the critical endpoint.</summary>
     private const int Maximum = (1 << 5) - 1;
     /// <summary>
     /// $A5:96AF-96B6 (also normal palette slots9..12 at $A5:A289-A290):
@@ -21,9 +24,13 @@ internal sealed class DraygonHealthPaintDefinitions
     /// invent different health-indicator artwork; the uniform copy supplies no
     /// rule selecting alternate paint. Pixels and health thresholds are separate.
     /// </summary>
-    private const int HealthyRedStep = 5, HealthyGreenStep = 6;
+    private const int HealthyRedStep = 5;
+    /// <summary>Healthy gold shades step down green by six per shade.</summary>
+    private const int HealthyGreenStep = 6;
+    /// <summary>Extracted belly colors that differ from the interpolated gold-to-red ramp.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Retains only differences from the four-shade, eight-band paint calculation.</summary>
     internal DraygonHealthPaintDefinitions(Bgr555[][] rows)
     {
         for (int band = 0; band < Bands; band++)
@@ -31,6 +38,7 @@ internal sealed class DraygonHealthPaintDefinitions
                 if (rows[band][shade] != Calculate(band, shade)) edits.Add(band * Shades + shade, rows[band][shade]);
     }
 
+    /// <summary>Uses an extracted edit when present, otherwise interpolates the requested belly shade.</summary>
     internal Bgr555 Color(int band, int shade) => edits.TryGetValue(band * Shades + shade, out Bgr555 edited)
         ? edited : Calculate(band, shade);
 
@@ -57,6 +65,7 @@ internal sealed class DraygonHealthPaintDefinitions
         return Calculate(0, shade);
     }
 
+    /// <summary>Moves a color channel across seven health transitions with nearest-integer rounding.</summary>
     private static int Interpolate(int first, int last, int band)
     {
         int delta = last - first;

@@ -21,6 +21,8 @@ internal static class TripperKamerVisualDefinitions
     /// Every nonzero value chooses the right map, including values outside the normal dispatcher domain.</summary>
     internal static ushort FrozenFrame(PlatformHorizontalMovement direction) =>
         direction == PlatformHorizontalMovement.Left ? FrozenMovingLeft : FrozenMovingRight;
+    /// <summary>Enumerates the moving, stationary, and frozen Tripper maps followed by
+    /// the four Kamer platform poses for artwork extraction.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, MovingTripperFrame(0, 0), "tripper_moving_left_0"),
@@ -64,10 +66,13 @@ internal static class TripperKamerVisualDefinitions
         // Still maps have four, three, four entries: 22/17/22 bytes.
         return StillTripperFrame(facing, pose);
     }
-    // These record-layout calculations serve runtime selection and export identities.
+    /// <summary>Locates one Kamer pose in the contiguous two-entry OAM records.</summary>
     private static ushort KamerFrame(int frame) => (ushort)(0xa021 + 12 * frame);
+    /// <summary>Locates a three-entry moving Tripper pose; each facing has three records.</summary>
     private static ushort MovingTripperFrame(int facing, int pose) =>
         (ushort)(0x9f29 + 51 * facing + 17 * pose);
+    /// <summary>Locates a stationary Tripper pose within each facing's
+    /// four-entry, three-entry, four-entry record sequence.</summary>
     private static ushort StillTripperFrame(int facing, int pose) =>
         (ushort)(0x9f8f + 61 * facing + 22 * pose - (pose == 2 ? 5 : 0));
 }

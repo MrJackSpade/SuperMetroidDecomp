@@ -19,6 +19,7 @@ public static class ChozoCarryMotionDefinitions
     /// </remarks>
     private const int FootTransferAdvance = 2, FinalPlantSlide = 1;
 
+    /// <summary>Derives the authored statue stride burst from adjacent planted-foot positions.</summary>
     private static short Magnitude(int local)
     {
         if (local is < 4 or >= 12) return 0;

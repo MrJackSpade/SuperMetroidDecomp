@@ -6,8 +6,10 @@ using static AssertionsVerification;
 using static ProjectileTrailCoordinatesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Checks compiled projectile trail selector words and actual left/right spawn selections.</summary>
 internal static class ProjectileTrailDefinitionsVerification
 {
+    /// <summary>Compares all reachable selector words and 64 spawn choices with retail data while forbidding runtime reads of the migrated selector window.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
     internal static void VerifyProjectileTrailDefinitions(ISnesAddressSpace bus)
     {
@@ -39,11 +41,9 @@ internal static class ProjectileTrailDefinitionsVerification
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
+    /// <summary>Forbids selector ROM reads and writes while a sparse work-RAM fixture supplies unrelated visual and coordinate inputs.</summary>
     internal static MutableCartridgeReadGuard NewTrailSelectorGuard(int start, int end)
     {
-        // Unrelated visual offsets and a wrapped trail-coordinate pointer into the low WRAM
-        // mirror read the zero-filled sparse fixture, so all low-six-bit combinations have
-        // deterministic origins without weakening the selector guard.
         var guard = new MutableCartridgeReadGuard(new TestAddressSpace());
         guard.Forbid(address => address >= start && address < end,
                 _ => new InvalidDataException("Trail spawn still reads authored selector ROM."))

@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Bounded, ordered PCM delivery that isolates a host's blocking device writes.</summary>
 public sealed class QueuedPcmSink : IDisposable
 {
+    /// <summary>Bounded FIFO of copied PCM buffers waiting for the device writer.</summary>
     private readonly BlockingCollection<short[]> queue;
+    /// <summary>Serial device-writer task, kept alive until accepted buffers drain.</summary>
     private readonly Task worker;
+    /// <summary>Captures a writer failure so submitters and disposal see the original exception.</summary>
     private ExceptionDispatchInfo? failure;
     /// <summary>Waiting frames only; excludes the frame currently owned by the device writer.</summary>
     public int PendingFrameCount => queue.Count;

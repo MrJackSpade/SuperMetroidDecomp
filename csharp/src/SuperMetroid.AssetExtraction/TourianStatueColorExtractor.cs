@@ -39,6 +39,7 @@ public static class TourianStatueColorExtractor
         });
     }
 
+    /// <summary>Reads fixed-bank BGR555 words into RGB5 channels and rejects invalid high bits.</summary>
     private static PaletteRgb5[] Read(ISnesAddressSpace bus, int source, int count)
     {
         var result = new PaletteRgb5[count];

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Checks falling-pose dash carryover and base-speed recurrence against the retail movement code.</summary>
 internal static class FallingSpeedRecurrenceVerification
 {
+    /// <summary>Confirms extra fractional run speed selects mode two on fall entry and CPU-observed air/water deceleration alternates before clamping.</summary>
     internal static void VerifyRetailFallingSpeedRecurrence()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -21,8 +23,6 @@ internal static class FallingSpeedRecurrenceVerification
             samus.HorizontalSpeed.ExtraRunSpeed = extraWhole;
             samus.HorizontalSpeed.ExtraRunSubspeed = extraFraction;
             samus.PoseTransitions.ApplyWalkedOffFloorTransition(bus, level, SamusPoseId.FallingLeftPose);
-            // $91:F60D replaces the prior grounded mode on falling-pose entry.
-            // Fractional extra speed matters even when its whole word is zero.
             AssertEqual(extraWhole != 0 || extraFraction != 0 ? 2 : 0,
                 samus.HorizontalSpeed.AccelerationMode, "fall entry selects acceleration mode from extra speed");
             AssertEqual(0x2c000u, samus.HorizontalSpeed.BaseFixed, "fall entry does not clamp base speed");
@@ -40,9 +40,6 @@ internal static class FallingSpeedRecurrenceVerification
             speed.SelectEnvironmentSpeedTable(medium);
             for (int frame = 0; frame < 20; frame++)
             {
-                // Captured by executing original $90:9B1F instructions in the CPU probe,
-                // not generated from the C# comparison helper. The fractional signed
-                // comparison allows 1.C000 on alternate calls before clamping to 1.0000.
                 uint expected = (frame & 1) == 0 ? 0x10000u : 0x1c000u;
                 var result = speed.CalculateBaseSpeedDecelerationDisallowed(bus, SamusMovementType.Falling);
                 AssertEqual(expected, result.Speed, $"retail falling speed medium={medium} frame={frame}");

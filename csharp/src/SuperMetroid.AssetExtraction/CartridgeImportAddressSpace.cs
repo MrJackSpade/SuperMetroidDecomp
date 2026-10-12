@@ -13,8 +13,9 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     /// <summary>Size in bytes of the unheadered retail Super Metroid ROM image: 3 MiB.</summary>
     public const int RetailRomByteCount = 0x300000;
 
-    // The immutable image is shared through CartridgeImageCache; debugger graphs carry its digest.
+    /// <summary>Immutable image shared through the cartridge cache and reattached after debugger restore.</summary>
     [NonSerialized] internal byte[] _rom;
+    /// <summary>Digest identifying the cached cartridge image across debugger graph restores.</summary>
     private readonly byte[] _romSha256;
 
     /// <summary>Creates mutable import memory backed by a shared immutable LoROM image.</summary>
@@ -31,6 +32,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
         _rom = CartridgeImageCache.Share(unheaderedRom, out _romSha256);
     }
 
+    /// <summary>Reattaches the cached immutable image after a debugger graph restore.</summary>
     void IRestoredSharedContent.ReattachSharedContent() => _rom = CartridgeImageCache.Resolve(_romSha256);
 
     /// <summary>Reads the immutable image through an upper-window LoROM CPU address and its mirrored banks.</summary>

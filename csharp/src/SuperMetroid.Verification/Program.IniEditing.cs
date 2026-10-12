@@ -12,8 +12,10 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 
+/// <summary>Checks INI editing preserves surrounding settings and supports every Android menu value.</summary>
 internal static class IniEditingVerification
 {
+    /// <summary>Confirms existing and missing keys or sections round-trip, CRLF and comments survive, and invalid or multiline values fail before write.</summary>
     internal static void VerifyIniEditing()
     {
         string original = "; preserved comment\r\n[Audio]\r\nMasterVolumePercent=37\r\n[Game]\r\nInvincibility=false\r\n";
@@ -27,8 +29,6 @@ internal static class IniEditingVerification
         AssertEqual("Secret", SuperMetroidGameOptionsIni.Parse(added).MapReveal.ToString(), "missing section added");
         AssertThrows<System.IO.InvalidDataException>(() => SuperMetroidGameOptionsIni.WithValue(original, "Audio", "MasterVolumePercent", "101"), "invalid value rejected before write");
         AssertThrows<ArgumentException>(() => SuperMetroidGameOptionsIni.WithValue(original, "Game", "Invincibility", "true\nInfiniteAmmo=true"), "multiline injection rejected");
-        // Exercise the actual handheld menu catalog, not a parallel list of settings.
-        // Every selectable value must round-trip through the same parser the host loads.
         foreach (var definition in SuperMetroid.Android.AndroidSettingDefinitions.All)
         {
             foreach (string value in definition.Values)
@@ -45,6 +45,7 @@ internal static class IniEditingVerification
         Console.WriteLine("INI edits: preservation, existing/missing keys, section insertion, and invalid input checks pass.");
     }
 
+    /// <summary>Runs the focused host and handheld INI editing check.</summary>
     [VerificationCommand("--ini-edit")]
     internal static int IniEditCommand()
     {

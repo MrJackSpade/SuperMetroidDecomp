@@ -18,8 +18,10 @@ public enum ZoaEnemyFunction : ushort
 /// </summary>
 public sealed class ZoaEnemyState
 {
+    /// <summary>Native Zoa slot whose variables A, B, C, D, and F hold movement and animation state.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Binds typed Zoa state to its existing native enemy slot.</summary>
     internal ZoaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

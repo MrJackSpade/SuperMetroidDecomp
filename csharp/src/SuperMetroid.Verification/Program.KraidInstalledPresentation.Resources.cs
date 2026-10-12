@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static KraidInstalledPresentationHeadClockVerification;
 using static TilemapJsonContractsVerification;
 
+/// <summary>Checks Kraid live head tilemap DMA and required installed artwork files.</summary>
 internal static class KraidInstalledPresentationResourcesVerification
 {
+    /// <summary>Confirms the low-bank alias reads live WRAM without altering body tilemap or source memory.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyKraidLiveHeadAlias(EnemyTileArtworkCatalog art)
     {
@@ -29,6 +31,7 @@ internal static class KraidInstalledPresentationResourcesVerification
         Console.WriteLine("PASS Kraid live head alias: exact WRAM-to-VRAM words, no body-map or source-RAM mutation.");
     }
 
+    /// <summary>Seeds the native low-half WRAM mirror used as Kraid's head tilemap DMA source.</summary>
     [CpuBusBoundary("exact bus test: seeds Kraid's live head tilemap through the bank-$A7 low-half WRAM mirror")]
     private static void WriteKraidLowBankHeadTilemap(
         SuperMetroidAddressSpace memory, ushort pointer, ReadOnlySpan<byte> source)
@@ -37,6 +40,7 @@ internal static class KraidInstalledPresentationResourcesVerification
             memory.WriteByte(KraidBackgroundRomData.NativeBank | (pointer + index), source[index]);
     }
 
+    /// <summary>Removes each required generated asset in turn and checks that validation and loading reject it.</summary>
     internal static void VerifyKraidRequiredFiles(string directory)
     {
         IEnumerable<string> files = new[] { KraidBackgroundArtworkFormat.UpperFileName,

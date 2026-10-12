@@ -49,6 +49,7 @@ public static class GameplayMessageBoxRenderer
         CompositeTilemap(frame, tilemap, rowCount, messageBox.RadiusPixels, vram, cgram);
     }
 
+    [PpuLayoutBoundary("backend: software PPU BG3 message-box rasterizer")]
     private static void CompositeTilemap(Span<Rgba32> frame, ReadOnlySpan<ushort> tilemap,
         int rowCount, int radiusPixels, SnesVram vram, SnesCgram cgram)
     {

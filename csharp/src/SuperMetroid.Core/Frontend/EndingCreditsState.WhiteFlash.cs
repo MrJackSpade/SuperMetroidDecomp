@@ -33,7 +33,7 @@ internal sealed partial class EndingCreditsState
     {
         // E504 copies the same staging map into the lower screen before the logo
         // actors enter. Subsequent percentage writes target the upper screen again.
-        vram.ExecuteWordTransfer(postCreditsTilemap, EndingPostShotDefinitions.FinalLowerTilemapWord, 1);
+        new EndingVram(vram).PostShotLowerTilemap.Write(postCreditsTilemap);
         rewardJump = null;
         sprites.Clear();
         endingLogo = new EndingLogo(bus, cgram,

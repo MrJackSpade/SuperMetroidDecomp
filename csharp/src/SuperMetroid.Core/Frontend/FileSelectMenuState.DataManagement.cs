@@ -244,12 +244,12 @@ public sealed partial class FileSelectMenuState
         if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
             return;
         copyArrowPaletteTimer = FileCopyArrowDefinitions.PaletteDelay;
-        int first = FileCopyArrowDefinitions.FirstColor;
-        int last = first + FileCopyArrowDefinitions.ColorCount - 1;
-        Bgr555 color = ppu.Cgram.Colors[first];
-        for (int index = first; index < last; index++)
-            ppu.Cgram.SetColor(index, ppu.Cgram.Colors[index + 1]);
-        ppu.Cgram.SetColor(last, color);
+        CgramPalette arrow = new FrontendPalettes(ppu.Cgram).FileCopyArrow;
+        int last = arrow.Count - 1;
+        Bgr555 color = arrow[0];
+        for (int index = 0; index < last; index++)
+            arrow.Write(index, arrow[index + 1]);
+        arrow.Write(last, color);
     }
 
     private void StepConfirmation(SnesButton pressed, bool copy)
@@ -492,7 +492,7 @@ public sealed partial class FileSelectMenuState
     }
 
     private void UploadBg1Tilemap() =>
-        ppu.Vram.ExecuteWordTransfer(bg1Tilemap, MenuPpuState.Bg1TilemapWord, 1);
+        new MenuVram(ppu.Vram).Bg1Tilemap.Write(bg1Tilemap);
 
     private void QueueCursorSound() =>
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);

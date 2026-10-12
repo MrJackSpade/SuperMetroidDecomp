@@ -54,16 +54,12 @@ public sealed partial class SuperMetroidRuntime
                 (Enemies.MotherBrain?.DeathBg2Hidden == true
                     ? SnesMainScreenLayers.None
                     : SnesMainScreenLayers.Bg2));
-        registers.WriteByte(
-            GameplayWindowRegisterAddresses.MainScreen,
-            (byte)mainScreen);
+        registers.MainScreen = mainScreen;
         if (DoorTransitionMainScreenLayers is null &&
             RoomLayer3Fx.LayerBlendConfiguration == LayerBlendingConfiguration.WaterfallSubtractive)
         {
-            registers.WriteByte(GameplayWindowRegisterAddresses.MainScreen,
-                (byte)WaterfallRoomDisplayRules.MainScreen);
-            registers.WriteByte(GameplayWindowRegisterAddresses.Subscreen,
-                (byte)WaterfallRoomDisplayRules.Subscreen);
+            registers.MainScreen = WaterfallRoomDisplayRules.MainScreen;
+            registers.Subscreen = WaterfallRoomDisplayRules.Subscreen;
         }
     }
 }

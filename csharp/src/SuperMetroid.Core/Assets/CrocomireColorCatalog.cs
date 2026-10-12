@@ -71,22 +71,21 @@ public sealed class CrocomireColorCatalog
     /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then seventeen projectile words at 208–224, retaining each source overlap word.</summary>
     public void ApplyInitial(SnesCgram cgram)
     {
-        Apply(cgram, Band.InitialWall, CrocomirePaletteRomData.InitialWallDestination);
-        Apply(cgram, Band.InitialProjectile,
-            CrocomirePaletteRomData.InitialProjectileDestination);
+        Apply(new BossPalettes(cgram).CrocomireInitialWall, Band.InitialWall);
+        Apply(new BossPalettes(cgram).CrocomireInitialProjectile, Band.InitialProjectile);
     }
 
     /// <summary>Restores the eight selected body/head BG inks from the $A4:B89D role at CGRAM 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
     public void ApplyFightBody(SnesCgram cgram) =>
-        Apply(cgram, Band.FightBody, CrocomirePaletteRomData.FightBodyDestination);
+        Apply(new BossPalettes(cgram).CrocomireFightBody, Band.FightBody);
 
     /// <summary>Installs the sixteen skeleton-arm OBJ inks corresponding to $A4:B8FD at CGRAM 144–159 when the wall-break sequence begins.</summary>
     public void ApplySkeletonArm(SnesCgram cgram) =>
-        Apply(cgram, Band.SkeletonArm, CrocomirePaletteRomData.SkeletonArmDestination);
+        Apply(new BossPalettes(cgram).CrocomireSkeletonArm, Band.SkeletonArm);
 
     /// <summary>Installs the sixteen wall-spike OBJ inks corresponding to $A4:B91D at CGRAM 176–191 when the rumble script reaches its terminator.</summary>
     public void ApplyWallSpikes(SnesCgram cgram) =>
-        Apply(cgram, Band.WallSpikes, CrocomirePaletteRomData.WallSpikesDestination);
+        Apply(new BossPalettes(cgram).CrocomireWallSpikes, Band.WallSpikes);
 
     /// <summary>Loads version-1 <c>crocomire-colors.json</c>, validating the five native transfer lengths and RGB5 channel bounds while keeping hurt-flash and death transitions in actor code.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -134,11 +133,10 @@ public sealed class CrocomireColorCatalog
         return edits.TryGetValue((band, index), out Bgr555 edited) ? edited : Stock(band, index);
     }
 
-    private void Apply(SnesCgram cgram, Band band, int destination)
+    private void Apply(CgramPalette destination, Band band)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < Count(band); color++)
-            cgram.SetColor(destination + color, Get(band, color));
+            destination.Write(color, Get(band, color));
     }
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {

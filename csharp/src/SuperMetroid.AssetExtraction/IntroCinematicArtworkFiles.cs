@@ -119,10 +119,10 @@ public static class IntroCinematicArtworkFiles
 
         void WritePalette()
         {
-            var native = new byte[SnesCgram.ByteCount];
+            var native = new byte[CgramPalettes.ByteCount];
             for (int index = 0; index < native.Length; index++)
                 native[index] = bus.ReadCartridgeByte(IntroCinematicRomData.Assets.Palette + index);
-            var colors = new PaletteRgb5[SnesCgram.ColorCount];
+            var colors = new PaletteRgb5[CgramPalettes.ColorCount];
             for (int index = 0; index < colors.Length; index++)
             {
                 ushort word = BinaryPrimitives.ReadUInt16LittleEndian(

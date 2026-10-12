@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Renders SNES 8x8-tile background regions directly from VRAM and CGRAM.</summary>
+[PpuLayoutBoundary("backend: software PPU background rasterizer (BGnSC/BGnNBA tilemap and character fetch)")]
 public static class SnesBgTilemapRenderer
 {
     /// <summary>

@@ -45,7 +45,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     {
         ArgumentNullException.ThrowIfNull(destination);
         for (int index = 0; index < colors.Length; index++)
-            destination.SetColor(index, colors[index]);
+            new CgramPalettes(destination).All.Write(index, colors[index]);
     }
 
     /// <summary>Validates initial, ambient-animation and skip-only RGB5 colors and compiles independently owned native palette words.</summary>
@@ -60,14 +60,14 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
 
         if (document.Version != TitlePaletteFormat.Version ||
             document.Colors is null ||
-            document.Colors.Length != SnesCgram.ColorCount)
+            document.Colors.Length != CgramPalettes.ColorCount)
         {
             throw new InvalidDataException(
                 $"Title palette requires version {TitlePaletteFormat.Version} and " +
-                $"{SnesCgram.ColorCount} RGB5 colors.");
+                $"{CgramPalettes.ColorCount} RGB5 colors.");
         }
 
-        var colors = new Bgr555[SnesCgram.ColorCount];
+        var colors = new Bgr555[CgramPalettes.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];

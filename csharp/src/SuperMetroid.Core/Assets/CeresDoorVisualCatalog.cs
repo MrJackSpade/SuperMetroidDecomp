@@ -107,7 +107,7 @@ public sealed class CeresDoorVisualCatalog
 
     /// <summary>Loads $0400 selected 4bpp bytes, or 32 characters, at VRAM byte $E000, replacing variant two's native $B0:C400 DMA source.</summary>
     public void LoadTiles(SnesVram vram) =>
-        tiles.LoadTo(vram, CeresDoorVisualRomData.TileVramDestination);
+        tiles.LoadTo(new AssetVram(vram).CeresDoorTiles);
 
     /// <summary>Installs fifteen normal nontransparent inks corresponding to $A6:F4EE in current CGRAM, exposing the native completed setup-fade target directly.</summary>
     /// <param name="cgram">Current palette receiving the setup image.</param>
@@ -115,10 +115,10 @@ public sealed class CeresDoorVisualCatalog
     public void LoadNormalColors(SnesCgram cgram, int destination)
     {
         Ensure.NotNull(cgram);
-        if (destination < 0 || destination + CeresDoorVisualRomData.SetupColorCount > SnesCgram.ColorCount)
+        if (destination < 0 || destination + CeresDoorVisualRomData.SetupColorCount > CgramPalettes.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(destination));
         for (int color = 0; color < CeresDoorVisualRomData.SetupColorCount; color++)
-            cgram.SetColor(destination + color, normal.ColorAt(color));
+            new CgramPalettes(cgram).All.Write(destination + color, normal.ColorAt(color));
     }
 
     /// <summary>Installs fifteen escape-state nontransparent inks corresponding to $A6:F50E in current CGRAM; escape-state selection remains actor-owned.</summary>
@@ -127,10 +127,10 @@ public sealed class CeresDoorVisualCatalog
     public void LoadEscapeColors(SnesCgram cgram, int destination)
     {
         Ensure.NotNull(cgram);
-        if (destination < 0 || destination + CeresDoorVisualRomData.SetupColorCount > SnesCgram.ColorCount)
+        if (destination < 0 || destination + CeresDoorVisualRomData.SetupColorCount > CgramPalettes.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(destination));
         for (int color = 0; color < CeresDoorVisualRomData.SetupColorCount; color++)
-            cgram.SetColor(destination + color, EscapeColor(color));
+            new CgramPalettes(cgram).All.Write(destination + color, EscapeColor(color));
     }
 
     private Bgr555 EscapeColor(int color) => escape.ColorAt(color);
@@ -141,7 +141,7 @@ public sealed class CeresDoorVisualCatalog
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)row >= CeresDoorVisualRomData.AnimationRowCount) throw new IndexOutOfRangeException();
         for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
-            cgram.SetColor(CeresDoorVisualRomData.AnimationTargetColor + color, AnimationColor(row, color));
+            new BossPalettes(cgram).CeresDoorAnimation.Write(color, AnimationColor(row, color));
     }
 
     private Bgr555 AnimationColor(int row, int color) => animation.ColorAt(row, color);
@@ -159,7 +159,7 @@ public sealed class CeresDoorVisualCatalog
         ArgumentNullException.ThrowIfNull(vram);
         Span<byte> transfer = stackalloc byte[CeresDoorVisualRomData.Mode7FrameByteCount];
         for (int index = 0; index < transfer.Length; index++) transfer[index] = PlatformTile(frame, index);
-        vram.LoadMode7MapBytes(transfer, CeresDoorVisualRomData.Mode7DestinationWord);
+        new Mode7Vram(vram).LoadMap(transfer, CeresDoorVisualRomData.Mode7DestinationWord);
     }
 
     private static byte[][] CompileMode7Frames(int[][]? source)

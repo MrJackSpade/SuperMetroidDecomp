@@ -29,7 +29,7 @@ internal static partial class Program
             AssertEqual(hidden ? (byte)224 : (byte)sum, installed.LowTable[1], "typed sprite Y clipping");
             AssertEqual((byte)3, (byte)(installed.HighTable[0] & 3), "typed sprite preserves high X and large size");
         }
-        var vram = new SnesVram(); original.Sprites.LoadArtworkTo(vram, MapSpriteFormat.FileSelectDestination);
+        var vram = new SnesVram(); original.Sprites.LoadArtworkTo(new VramStore(vram).All.Slice(MapSpriteFormat.FileSelectDestination / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(MapSpriteFormat.FileSelectDestination, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, NewMapSpriteGuard(bus), original, original));

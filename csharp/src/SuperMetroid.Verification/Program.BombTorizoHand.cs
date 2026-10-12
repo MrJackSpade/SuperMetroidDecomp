@@ -116,7 +116,7 @@ internal static partial class Program
             runtime.Enemies.TileArtwork = installedArtwork;
             PlmVramWriteRequest request = plms.VramWriteRequests[0];
             runtime.VramWrites.Enqueue(request.SizeInBytes, request.SourceAddress,
-                request.EncodedVramDestination);
+                VramDmaDestination.FromNative(request.EncodedVramDestination));
             runtime.VramWrites.DrainTo(runtime.Vram, memory, runtime);
             AssertTrue(installedArtwork.TryResolve(request.SourceAddress,
                 request.SizeInBytes, out ReadOnlyMemory<byte> expected),

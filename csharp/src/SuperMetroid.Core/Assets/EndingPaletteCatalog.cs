@@ -74,13 +74,13 @@ public sealed class EndingPalette
         if (sourceColor < 0 || count < 0 || sourceColor > ColorCount - count)
             throw new ArgumentOutOfRangeException(nameof(sourceColor));
         if (nativeBytes is not null)
-            cgram.LoadBytes(nativeBytes.AsSpan(sourceColor * Bgr555.ByteCount,
+            new CgramPalettes(cgram).All.LoadPortBytes(nativeBytes.AsSpan(sourceColor * Bgr555.ByteCount,
                 count * Bgr555.ByteCount), destinationColor);
         else
         {
             Span<byte> transfer = stackalloc byte[count * Bgr555.ByteCount];
             WriteColors(transfer, sourceColor, count);
-            cgram.LoadBytes(transfer, destinationColor);
+            new CgramPalettes(cgram).All.LoadPortBytes(transfer, destinationColor);
         }
     }
 
@@ -232,7 +232,7 @@ public static class EndingPaletteDefinitions
     public static int ColorCount(EndingPaletteId id) => id switch
     {
         EndingPaletteId.Escape or EndingPaletteId.PostCredits or EndingPaletteId.Credits or
-            EndingPaletteId.Explosion => SnesCgram.ColorCount,
+            EndingPaletteId.Explosion => CgramPalettes.ColorCount,
         EndingPaletteId.FinalGunship => 16,
         EndingPaletteId.LogoInitial => 16,
         EndingPaletteId.LogoCrossfade => EndingLogoDefinitions.PaletteSteps * 2 * 16,

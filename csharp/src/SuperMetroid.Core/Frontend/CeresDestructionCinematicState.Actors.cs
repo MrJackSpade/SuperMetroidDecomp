@@ -76,14 +76,13 @@ internal sealed partial class CeresDestructionCinematicState
     private void LoadFinalExplosionMaps()
     {
         int upperSource = withSamus ? CeresDestructionRomData.Vram.ClearMapSourceOffset : 0;
-        vram.LoadMode7MapBytes(
-            ceresTilemaps.AsSpan(upperSource, CeresDestructionRomData.Vram.MapHalfBytes),
-            destinationWord: 0);
-        vram.LoadMode7MapBytes(
+        var mode7 = new Mode7Vram(vram);
+        mode7.LoadMap(ceresTilemaps.AsSpan(upperSource, CeresDestructionRomData.Vram.MapHalfBytes));
+        mode7.LoadMap(
             ceresTilemaps.AsSpan(
                 CeresDestructionRomData.Vram.ClearMapSourceOffset,
                 CeresDestructionRomData.Vram.MapHalfBytes),
-            destinationWord: CeresDestructionRomData.Vram.ClearMapDestinationWord);
+            cell: CeresDestructionRomData.Vram.ClearMapDestinationWord);
     }
 
     private void SpawnFinalCeresExplosion()

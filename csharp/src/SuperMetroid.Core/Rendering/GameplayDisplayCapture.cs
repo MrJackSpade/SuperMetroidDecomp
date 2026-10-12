@@ -68,6 +68,7 @@ public static partial class GameplayDisplayCapture
     /// suit effects are deliberately excluded; this is not a substitute for a complete frame.
     /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
     /// </summary>
+    [PpuLayoutBoundary("codec: ordinary gameplay render packet (BG base registers)")]
     public static LayeredRenderSnapshot CaptureOrdinaryBase(SuperMetroidRuntime runtime)
     {
         ArgumentNullException.ThrowIfNull(runtime);
@@ -118,7 +119,7 @@ public static partial class GameplayDisplayCapture
                 : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? new Extent16<TilemapCells>(32, 32)
                 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)
                 : new Extent16<TilemapCells>(32, 64),
-            kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : SnesPpuLayout.GameplayBg2TilemapWord,
+            kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : GameplayVramLayout.Bg2TilemapWord,
             character, character, runtime.GameplayHudCharacterBaseWord,
             runtime.DoorTransitionMainScreenLayers ??
                 (runtime.Enemies.MotherBrain?.DeathBg2Hidden == true

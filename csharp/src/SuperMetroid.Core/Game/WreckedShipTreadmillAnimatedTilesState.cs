@@ -28,6 +28,10 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     private ushort _instructionTimer;
     private ushort _transferByteCount;
     private ushort _encodedVramDestination;
+
+    /// <summary>The queued-DMA destination the treadmill object's native word decodes to.</summary>
+    [PpuLayoutBoundary("codec: Wrecked Ship treadmill animated-tile object's native VRAM destination")]
+    private VramDmaDestination Destination => VramDmaDestination.FromNative(_encodedVramDestination);
     private WreckedShipTreadmillObjectDefinition? _compiledMechanics;
 
     /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
@@ -142,7 +146,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
                 writes.Enqueue(
                     _transferByteCount,
                     LastSourceAddress.Value,
-                    _encodedVramDestination);
+                    Destination);
                 NextFrameIndex = (NextFrameIndex + 1) & 3;
                 return;
             }

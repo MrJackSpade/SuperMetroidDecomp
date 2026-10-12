@@ -14,7 +14,7 @@ internal sealed partial class EndingCreditsState
         // Func115 clears the previous cloud palette programs before taking its source
         // snapshot; otherwise their next instruction can overwrite the new OBJ fade.
         ResetPaletteFx();
-        explosionFadeSource = cgram.Colors.ToArray();
+        explosionFadeSource = new CgramPalettes(cgram).All.Colors.ToArray();
         explosionFadeStep = 0;
         ApplyExplosionFade(EndingExplosionFadeDefinitions.FirstObjectStart, 0);
         ApplyExplosionFade(EndingExplosionFadeDefinitions.SecondObjectStart, 0);
@@ -44,7 +44,7 @@ internal sealed partial class EndingCreditsState
     {
         for (int i = start; i < start + EndingExplosionFadeDefinitions.Colors; i++)
         {
-            cgram.SetColor(i, explosionFadeSource[i].Map((_, channel) =>
+            new CgramPalettes(cgram).All.Write(i, explosionFadeSource[i].Map((_, channel) =>
                 channel * factor / EndingExplosionFadeDefinitions.Steps));
         }
     }

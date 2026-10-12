@@ -24,14 +24,7 @@ public sealed partial class SuperMetroidRuntime
         // not current VRAM: each page was read on a different setup call.
         var captured = new SnesVram();
         var xrayMemory = new XrayMemory(MemoryBus);
-        ushort[] saved = xrayMemory.SavedBg1.ToArray();
-        var bytes = new byte[saved.Length * 2];
-        for (int i = 0; i < saved.Length; i++)
-        {
-            bytes[i * 2] = (byte)saved[i];
-            bytes[i * 2 + 1] = (byte)(saved[i] >> 8);
-        }
-        captured.LoadBytes(SnesPpuLayout.GameplayBg1TilemapWord * 2, bytes);
+        new GameplayVram(captured).Bg1Tilemap.Write(xrayMemory.SavedBg1.ToArray());
         Position16<RoomPixels> layer1 = BackgroundScroll.Layer1Position;
         Position16<RoomPixels> bg1Scroll = layer1 + BackgroundScroll.Bg1Offset;
         var map = XrayRevealTilemap.Build(level, captured, bg1Scroll, layer1,
@@ -49,22 +42,22 @@ public sealed partial class SuperMetroidRuntime
         // SetupStage already names the NEXT main-thread call. Calls two and three enqueue
         // reads; the following NMI performs them before call four consumes the captured
         // pages. In particular, queued writes must win first.
-        (int Source, int SavedScreen)? read = xray.SetupStage switch
+        (int SourceScreen, int SavedScreen)? read = xray.SetupStage switch
         {
-            XraySetupStage.ReadBg1FirstScreen => (
-                SnesPpuLayout.GameplayBg1TilemapWord + XrayTilemapLayout.ScreenWords, 1),
-            XraySetupStage.BuildRevealReadBg2FirstScreen => (
-                SnesPpuLayout.GameplayBg1TilemapWord, 0),
+            XraySetupStage.ReadBg1FirstScreen => (1, 1),
+            XraySetupStage.BuildRevealReadBg2FirstScreen => (0, 0),
             XraySetupStage.Complete or XraySetupStage.FreezeTimeBackupBg2Registers or
                 XraySetupStage.ReadBg1SecondScreen or XraySetupStage.ReadBg2SecondScreen or
                 XraySetupStage.TransferRevealFirstScreen or XraySetupStage.InitializeTransferRevealSecondScreen or
                 XraySetupStage.BackdropColor => null,
             _ => throw new InvalidOperationException($"Undefined X-ray setup stage {xray.SetupStage}."),
         };
-        if (read is not (int source, int savedScreen)) return;
+        if (read is not (int sourceScreen, int savedScreen)) return;
         WorkRamWordTable saved = new XrayMemory(MemoryBus).SavedBg1;
+        VramRegion bg1 = new GameplayVram(Vram).Bg1Tilemap;
         int firstWord = savedScreen * XrayTilemapLayout.ScreenWords;
+        int sourceWord = sourceScreen * XrayTilemapLayout.ScreenWords;
         for (int i = 0; i < XrayTilemapLayout.ScreenWords; i++)
-            saved[firstWord + i] = Vram.ReadWord(source + i);
+            saved[firstWord + i] = bg1.ReadWord(sourceWord + i);
     }
 }

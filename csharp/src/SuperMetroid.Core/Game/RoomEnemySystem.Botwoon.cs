@@ -805,8 +805,7 @@ public sealed partial class RoomEnemySystem
                     $"Botwoon palette destination {destinationColor} is outside the retail sprite palette.");
             int band = state.PalettePhaseByteOffset / sizeof(ushort);
             for (int color = 0; color < colorCount; color++)
-                _cgram!.SetColor(destinationColor + color,
-                    colors.HealthColor(band, color));
+                BossPalettes.BotwoonBody.Write(color, colors.HealthColor(band, color));
         }
         else throw new InvalidOperationException("Botwoon requires installed health colors.");
         state.PalettePhaseByteOffset = unchecked((ushort)(state.PalettePhaseByteOffset + 2));

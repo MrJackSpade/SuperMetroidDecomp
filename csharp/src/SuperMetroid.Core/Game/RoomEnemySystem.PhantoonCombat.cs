@@ -425,11 +425,11 @@ public sealed partial class RoomEnemySystem
 
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 current = _cgram!.Colors[112 + color];
+            Bgr555 current = BossPalettes.PhantoonBody[color];
             Bgr555 target = (TileArtwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Phantoon fade palette requires installed artwork.")).ResolveFadeOut(color);
-            _cgram.SetColor(
-                112 + color,
+            BossPalettes.PhantoonBody.Write(
+                color,
                 CalculatePhantoonTransitionColor(numerator, denominator, current, target));
         }
         eye.VariableE = unchecked((ushort)(numerator + 1));

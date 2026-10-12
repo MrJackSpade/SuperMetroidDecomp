@@ -67,25 +67,25 @@ public sealed class SamusTileTransferState
         // the pose spritemaps' tile numbers under gameplay OBSEL=$03.
         SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(
             "Samus tile transfer requires installed body artwork.");
+        var samusVram = new SamusVram(vram);
         if (TopTransferEnabled)
-            ExecuteInstalledDefinition(vram, installed.DefinitionAt(TopDefinitionAddress),
-                SamusRenderingRomData.TileTransfers.TopDestinations);
+            ExecuteInstalledDefinition(installed.DefinitionAt(TopDefinitionAddress),
+                samusVram.BodyTopFirst, samusVram.BodyTopSecond);
         if (BottomTransferEnabled)
-            ExecuteInstalledDefinition(vram, installed.DefinitionAt(BottomDefinitionAddress),
-                SamusRenderingRomData.TileTransfers.BottomDestinations);
+            ExecuteInstalledDefinition(installed.DefinitionAt(BottomDefinitionAddress),
+                samusVram.BodyBottomFirst, samusVram.BodyBottomSecond);
 
         // These flags are intentionally not cleared. The original NMI routine leaves them
         // set, and Samus_Draw refreshes the selected definitions during each main-loop pass.
     }
 
-    private static void ExecuteInstalledDefinition(SnesVram vram,
-        SamusBodyTileDefinition definition,
-        SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
+    private static void ExecuteInstalledDefinition(SamusBodyTileDefinition definition,
+        VramRegion first, VramRegion second)
     {
         ReadOnlySpan<byte> planar = definition.Planar.Span;
-        vram.LoadBytes(destinations.First * 2, planar[..definition.FirstSize]);
+        first.Load(planar[..definition.FirstSize]);
         if (definition.SecondSize != 0)
-            vram.LoadBytes(destinations.Second * 2, planar[definition.FirstSize..]);
+            second.Load(planar[definition.FirstSize..]);
     }
 
 }

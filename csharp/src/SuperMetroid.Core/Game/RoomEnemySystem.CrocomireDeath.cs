@@ -580,8 +580,8 @@ public sealed partial class RoomEnemySystem
             return;
         // The native OBSEL base contributes $6000 words. Only character
         // pixels are editable; the transfer order and VRAM position are not.
-        _vram!.LoadBytes((CrocomireSkeletonTransferDefinitions.ObselBaseWord +
-            frame.DestinationOffset) * 2, artwork.Chunk(entry).Span);
+        new EnemyVram(_vram!).CrocomireSkeletonTiles.Load(artwork.Chunk(entry).Span,
+            frame.DestinationOffset * sizeof(ushort));
         death.TargetHeightOrSkeletonTileIndex += 2;
     }
 

@@ -66,7 +66,7 @@ public sealed class CeresRidleyColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.StartColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.StartCgramIndex + color, start.Resolve(color));
+            new RidleyPalettes(cgram).CeresStart.Write(color, start.Resolve(color));
     }
 
     /// <summary>Copies one eye-fade row, index 0..15, to CGRAM entries 252..254; native $A6:E2AA's three-color rows fade from full eye paint to black.</summary>
@@ -75,7 +75,7 @@ public sealed class CeresRidleyColorCatalog
         eyeFade.ValidateRow(row);
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.EyeFadeColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.EyeFadeCgramIndex + color, eyeFade.Resolve(row, color));
+            new RidleyPalettes(cgram).CeresEyeFade.Write(color, eyeFade.Resolve(row, color));
     }
 
     /// <summary>Copies one eleven-color body-fade row, index 0..15, to both BG CGRAM entries 145..155 and OBJ entries 241..251; native $A6:E30A progresses from black to full body paint.</summary>
@@ -84,9 +84,9 @@ public sealed class CeresRidleyColorCatalog
         bodyFade.ValidateRow(row);
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.BodyFadeBgCgramIndex + color, bodyFade.Resolve(row, color));
+            new RidleyPalettes(cgram).CeresBodyFadeShadow.Write(color, bodyFade.Resolve(row, color));
         for (int color = 0; color < CeresRidleyPaletteRomData.BodyFadeColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.BodyFadeObjCgramIndex + color, bodyFade.Resolve(row, color));
+            new RidleyPalettes(cgram).CeresBodyFade.Write(color, bodyFade.Resolve(row, color));
     }
     /// <summary>Copies one fourteen-color health row, index 0..2, from the shared $A6:E46A palette family to CGRAM entries 241..254; encounter AI separately selects by Ceres shot count or Norfair health.</summary>
     public void ApplyHealth(SnesCgram cgram, int row)
@@ -94,7 +94,7 @@ public sealed class CeresRidleyColorCatalog
         _ = health.Resolve(row, 0);
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.HealthColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.HealthCgramIndex + color, health.Resolve(row, color));
+            new RidleyPalettes(cgram).Health.Write(color, health.Resolve(row, color));
     }
 
     /// <summary>Copies one self-destruct EMERGENCY-text phase, index 0..15, to CGRAM entries 97..99, preserving the reflected three-color cycle at native $A6:C1DF.</summary>
@@ -103,7 +103,7 @@ public sealed class CeresRidleyColorCatalog
         _ = CeresRidleyAlarmColorDefinitions.SourceRow(row);
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.AlarmColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.AlarmCgramIndex + color, alarm.Resolve(row, color));
+            new RidleyPalettes(cgram).CeresAlarm.Write(color, alarm.Resolve(row, color));
     }
 
     /// <summary>Installs the retreat's fifteen BG colors at CGRAM 81..95 and eight shared colors at both BG 33..40 and OBJ 241..248, matching $A6:A9E3/$AA01.</summary>
@@ -111,12 +111,12 @@ public sealed class CeresRidleyColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.RetreatBgColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.RetreatBgCgramIndex + color, ResolveRetreatBg(color));
+            new RidleyPalettes(cgram).CeresRetreatBackground.Write(color, ResolveRetreatBg(color));
         for (int color = 0; color < CeresRidleyPaletteRomData.RetreatSharedColorCount; color++)
         {
             Bgr555 selected = ResolveRetreatShared(color);
-            cgram.SetColor(CeresRidleyPaletteRomData.RetreatSharedBgCgramIndex + color, selected);
-            cgram.SetColor(CeresRidleyPaletteRomData.RetreatSharedObjCgramIndex + color, selected);
+            new RidleyPalettes(cgram).CeresRetreatSharedBackground.Write(color, selected);
+            new RidleyPalettes(cgram).CeresRetreatSharedObject.Write(color, selected);
         }
     }
 
@@ -126,7 +126,7 @@ public sealed class CeresRidleyColorCatalog
         _ = baby.Resolve(row, 0);
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.BabyColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.BabyCgramIndex + color, baby.Resolve(row, color));
+            new RidleyPalettes(cgram).CeresBaby.Write(color, baby.Resolve(row, color));
     }
 
     /// <summary>Compiles RGB5 JSON into a validated immutable color catalog, rejecting unknown/duplicate properties, unsupported versions, wrong row dimensions, and channels outside 0..31.</summary>

@@ -90,11 +90,10 @@ public sealed partial class RoomEnemySystem
 
     private void LoadBabyMetroidCutsceneInitialPalette()
     {
-        int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
         var colors = TileArtwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid cutscene requires installed colors.");
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
-            _cgram!.SetColor(destination + color, colors.InitialColor(color));
+            BossPalettes.BabyMetroidCutscene.Write(color, colors.InitialColor(color));
     }
 
     /// <summary>Runs one physical Baby main-AI call at <c>$A9:C779</c>.</summary>
@@ -258,11 +257,10 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException(
                 $"Cutscene Baby fade {palette.PaletteIndex} has a non-native transfer layout.");
 
-        int destination = palette.DestinationColorIndex / 2;
         var colors = TileArtwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid fade requires installed colors.");
         for (int color = 0; color < palette.ColorCount; color++)
-            _cgram!.SetColor(destination + color,
+            BossPalettes.BabyMetroidCutscene.Write(color,
                 colors.FadeColor(palette.PaletteIndex, color));
     }
 

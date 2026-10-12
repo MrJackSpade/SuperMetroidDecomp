@@ -525,9 +525,9 @@ internal static partial class Program
             ConfirmArea(selected, AreaId.Crateria, PauseTileGrid.Compile(document.Areas[AreaId.Crateria.ToString()], "Unchanged area"));
         }
         var invalidVram = new SnesVram();
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidVram, -1, AreaId.Crateria), "Backdrop negative VRAM destination");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidVram, SnesVram.ByteCount - 2047, AreaId.Crateria), "Backdrop end-of-VRAM bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidVram, 0, (AreaId)7), "Backdrop area bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(-1, PauseBackdropDefinitions.Cells), AreaId.Crateria), "Backdrop negative VRAM destination");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(SnesVram.WordCount - PauseBackdropDefinitions.Cells + 1, PauseBackdropDefinitions.Cells), AreaId.Crateria), "Backdrop end-of-VRAM bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new VramStore(invalidVram).All.Slice(0, PauseBackdropDefinitions.Cells), (AreaId)7), "Backdrop area bound");
         AssertTrue(invalidVram.Bytes.ToArray().All(value => value == 0), "Invalid load fails before any VRAM mutation");
         Console.WriteLine($"Backdrop geometry:7680native words, exact{areaResiduals.Sum(cells => cells.Count)}area/{buttonResiduals.Count}button residuals,53actual VRAM loads,10independent edits and bounds pass; selected layout/art/style inputs remain required.");
 
@@ -537,7 +537,7 @@ internal static partial class Program
             byte[] expected = Enumerable.Repeat((byte)0x55, SnesVram.ByteCount).ToArray();
             vram.LoadBytes(0, expected);
             native.CopyTo(expected, 0x7000);
-            presentation.LoadTo(vram, 0x7000, area);
+            presentation.LoadTo(new VramStore(vram).All.Slice(0x7000 / sizeof(ushort), PauseBackdropDefinitions.Cells), area);
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes), "Actual area load preserves every selected word and untouched VRAM byte");
         }
     }

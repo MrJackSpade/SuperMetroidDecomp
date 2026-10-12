@@ -15,9 +15,9 @@ public sealed partial class RoomEnemySystem
         return colors.Resolve(source, index);
     }
 
-    private void LoadKraidColorBand(KraidPaletteSource source, int cgramDestination)
+    private void LoadKraidColorBand(KraidPaletteSource source, CgramPalette destination)
     {
         for (int color = 0; color < KraidPaletteRomData.BandColors; color++)
-            _cgram!.SetColor(cgramDestination + color, ReadKraidColor(source, color));
+            destination.Write(color, ReadKraidColor(source, color));
     }
 }

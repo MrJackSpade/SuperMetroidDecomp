@@ -77,10 +77,7 @@ internal sealed class CreditsObjectState
     public void UploadTilemap(SnesVram vram)
     {
         ArgumentNullException.ThrowIfNull(vram);
-        vram.ExecuteWordTransfer(
-            tilemap,
-            EndingCreditsRomData.Rendering.CreditsTilemapWord,
-            wordIncrement: 1);
+        new EndingVram(vram).CreditsTilemap.Write(tilemap);
     }
 
 }

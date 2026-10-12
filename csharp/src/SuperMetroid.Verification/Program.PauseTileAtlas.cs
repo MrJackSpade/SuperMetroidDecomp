@@ -12,7 +12,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause UI tile artwork")]
     private static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
-        var vram = new SnesVram(); original.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
+        var vram = new SnesVram(); original.PauseTiles.LoadTo(new VramStore(vram).All.Slice(PauseTileAtlasFormat.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormat.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount)), "pause UI PNG round-trips all native character bytes");
         Directory.CreateDirectory(overrides);
@@ -26,7 +26,7 @@ internal static partial class Program
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "pause-only PNG edit changes content identity");
         var firstMap = new SnesVram(); var editedMap = new SnesVram();
-        original.Tiles.LoadTo(firstMap, 0); edited.Tiles.LoadTo(editedMap, 0);
+        original.Tiles.LoadTo(new VramStore(firstMap).All.Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort))); edited.Tiles.LoadTo(new VramStore(editedMap).All.Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(firstMap.Bytes.SequenceEqual(editedMap.Bytes), "pause UI override does not alter shared map characters");
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {

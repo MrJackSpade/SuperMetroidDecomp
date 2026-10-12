@@ -33,7 +33,7 @@ internal static partial class Program
             IntroCinematicRomData.Layers.TilemapWidth * IntroCinematicRomData.Layers.TilemapWidth,
             "intro text tilemap is 32x32 words");
         AssertTrue(
-            IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte +
+            (IntroVramLayout.CinematicObjectCharacters.Offset * 2) +
                 IntroCinematicRomData.Vram.ObjectCharacterBytes <= SnesVram.ByteCount,
             "intro object DMA fits VRAM");
 

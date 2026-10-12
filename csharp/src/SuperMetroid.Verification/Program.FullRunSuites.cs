@@ -46,6 +46,7 @@ internal static partial class Program
         new(nameof(VerifyDebuggerVersionCompatibility), () => VerifyDebuggerVersionCompatibility()),
         new(nameof(VerifyCpuOperandOpenBus), () => VerifyCpuOperandOpenBus()),
         new(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary()),
+        new(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary()),
         new(nameof(VerifyAndroidHostPolicies), () => VerifyAndroidHostPolicies()),
         new(nameof(VerifyBoostFloorScroll), () => VerifyBoostFloorScroll()),
         new(nameof(VerifyXrayControls), () => VerifyXrayControls()),

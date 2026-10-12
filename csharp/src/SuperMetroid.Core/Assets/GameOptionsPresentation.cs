@@ -76,8 +76,7 @@ public sealed class GameOptionsPresentation
             : throw new InvalidDataException($"Unknown options page {name}.");
 
     internal void LoadBackground(SnesVram vram) =>
-        vram.LoadBytes(MenuPpuState.Bg2TilemapWord * sizeof(ushort),
-            pages[GameOptionsPresentationDefinitions.BackgroundPage]);
+        new MenuVram(vram).Bg2Tilemap.Load(pages[GameOptionsPresentationDefinitions.BackgroundPage]);
 
     internal void ApplyLanguage(Span<byte> primaryPage, bool japanese)
     {

@@ -107,7 +107,7 @@ public sealed class TourianStatueSequence
                     runtime.VramWrites.Enqueue(
                         tile.Definition.TransferByteCount,
                         sourceAddress,
-                        tile.Definition.EncodedVramDestination);
+                        tile.Definition.Destination);
                     tile.Pointer += 4;
                     break;
                 }
@@ -148,8 +148,8 @@ public sealed class TourianStatueSequence
                         break;
                     case AnimatedTileInstruction.ClearThreePaletteColors:
                         ushort clearPaletteByteIndex = MechanicsWord(tile, operand);
-                        for (int color = 0; color < 3; color++)
-                            runtime.Cgram.SetColor(clearPaletteByteIndex / 2 + color, Bgr555.Black);
+                        // The colour index is animated-tile instruction data.
+                        new CgramPalettes(runtime.Cgram).All.Slice(clearPaletteByteIndex / 2, 3).Fill(Bgr555.Black);
                         break;
                     case AnimatedTileInstruction.WriteEightTargetPaletteColors:
                         int greyDestination = MechanicsWord(tile, operand) / 2;

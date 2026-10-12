@@ -148,8 +148,8 @@ public sealed partial class RoomEnemySystem
         if (state.HurtFrame != 0)
             return;
         for (int color = 0; color < 16; color++)
-            _cgram!.SetColor(
-                112 + color,
+            BossPalettes.KraidBody.Write(
+                color,
                 ReadKraidColor(KraidPaletteSource.DeathArm, color));
         _slots[1].CurrentInstruction = KraidArmRetractedInstruction;
         _slots[1].InstructionTimer = 1;
@@ -241,9 +241,7 @@ public sealed partial class RoomEnemySystem
         if ((uint)transferIndex >= KraidBackgroundRomData.StandardBg3TransferCount)
             throw new ArgumentOutOfRangeException(nameof(transferIndex));
 
-        ushort destinationWord = checked((ushort)(
-            KraidBackgroundRomData.StandardBg3VramWord +
-            transferIndex * (KraidBackgroundRomData.StandardBg3TransferBytes / 2)));
+        int destinationWord = transferIndex * (KraidBackgroundRomData.StandardBg3TransferBytes / 2);
 
         // `$A7:C777-$C7EF` deliberately spreads the $1000-byte restoration over four
         // enemy frames. The runtime path appends the same four native seven-byte DMA
@@ -255,10 +253,10 @@ public sealed partial class RoomEnemySystem
         if (vramWriteQueue is not null)
             vramWriteQueue.EnqueueAsset(
                 KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
-                KraidBackgroundRomData.StandardBg3TransferBytes, destinationWord);
+                KraidBackgroundRomData.StandardBg3TransferBytes, EnemyVram.KraidBg3RestoreDma(destinationWord));
         else
-            _vram!.ExecuteQueuedAssetWrite(hud.KraidRestoreQuarter(transferIndex).Span,
-                destinationWord);
+            new EnemyVram(_vram!).KraidBg3Restore.Load(hud.KraidRestoreQuarter(transferIndex).Span,
+                destinationWord * sizeof(ushort));
 
         state.DeathBg3TransferCount++;
         body.VariableA = (ushort)next;

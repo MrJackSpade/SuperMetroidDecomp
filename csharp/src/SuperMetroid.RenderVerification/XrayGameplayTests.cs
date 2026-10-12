@@ -27,14 +27,14 @@ internal static class XrayGameplayTests
                 vram.LoadBytes(64 + y * 2, new byte[] { 0, 255 }); // BG2 character two, green.
                 vram.LoadBytes(0x2000 + 48 + y * 2, new byte[] { 255, 255 }); // BG3 character three, blue.
             }
-            vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)1, 2048).ToArray(), SnesPpuLayout.GameplayBg1TilemapWord, 1);
-            vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)2, 2048).ToArray(), SnesPpuLayout.GameplayBg2TilemapWord, 1);
+            vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)1, 2048).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
+            vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)2, 2048).ToArray(), GameplayVramLayout.Bg2TilemapWord, 1);
             vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)3, 1024).ToArray(), 0x5C00, 1);
             var oam = new byte[SnesPpuLayout.OamUploadByteCount];
             oam[0] = 16; oam[1] = 64; oam[3] = (byte)(0x30 | palette << 1);
             var memory = new PpuMemorySnapshot(vram.Bytes, cgram.Colors, oam, 1);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-                SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, 0x1000,
+                GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x1000,
                 SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
             var lines = Enumerable.Repeat(new XrayWindowLine(128, 255), 224).ToArray();
             var controls = SnesColorMathControl.Bg1 | SnesColorMathControl.Bg2 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop
@@ -110,8 +110,8 @@ internal static class XrayGameplayTests
                 // Expose BG2 at x64 and the backdrop at x72 using transparent tile
                 // four. Keep foreground at x80 and the OBJ at x16. This distinguishes
                 // native Fireflea source selection from a whole-frame dark overlay.
-                vram.ExecuteWordTransfer(new ushort[] { 4, 4 }, SnesPpuLayout.GameplayBg1TilemapWord + 8 * 32 + 8, 1);
-                vram.ExecuteWordTransfer(new ushort[] { 4 }, SnesPpuLayout.GameplayBg2TilemapWord + 8 * 32 + 9, 1);
+                vram.ExecuteWordTransfer(new ushort[] { 4, 4 }, GameplayVramLayout.Bg1TilemapWord + 8 * 32 + 8, 1);
+                vram.ExecuteWordTransfer(new ushort[] { 4 }, GameplayVramLayout.Bg2TilemapWord + 8 * 32 + 9, 1);
                 var dark = new GameplayColorMathRenderLayer(new(registers),
                     Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
                     SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract,

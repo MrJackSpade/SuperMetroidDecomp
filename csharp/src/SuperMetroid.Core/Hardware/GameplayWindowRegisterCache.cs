@@ -42,6 +42,37 @@ public sealed class GameplayWindowRegisterCache
         _bytes[index + 1] = (byte)(value >> 8);
     }
 
+    /// <summary>The main-loop-owned cached value of <paramref name="register"/>.</summary>
+    [PpuLayoutAccess]
+    public byte Read(PpuLayoutCell register) => ReadByte(GameplayWindowRegisterLayout.ShadowAddress(register));
+
+    /// <summary>Writes <paramref name="register"/>'s cached value without changing <see cref="Displayed"/>.</summary>
+    [PpuLayoutAccess]
+    public void Write(PpuLayoutCell register, byte value) => WriteByte(GameplayWindowRegisterLayout.ShadowAddress(register), value);
+
+    /// <summary>The cached main-screen designation (TM) the next accepted NMI uploads.</summary>
+    public SnesMainScreenLayers MainScreen
+    {
+        get => (SnesMainScreenLayers)Read(GameplayWindowRegisterLayout.MainScreen);
+        set => Write(GameplayWindowRegisterLayout.MainScreen, (byte)value);
+    }
+
+    /// <summary>The cached subscreen designation (TS).</summary>
+    public SnesMainScreenLayers Subscreen
+    {
+        get => (SnesMainScreenLayers)Read(GameplayWindowRegisterLayout.Subscreen);
+        set => Write(GameplayWindowRegisterLayout.Subscreen, (byte)value);
+    }
+
+    /// <summary>
+    /// The misaligned <c>STA $60,X</c> word store of the Chainsaw callback at <c>$90:B0AC</c>:
+    /// <paramref name="value"/> lands <paramref name="projectileByteIndex"/> bytes past W12SEL's
+    /// shadow, overwriting whichever two cached registers sit there.
+    /// </summary>
+    public void StoreProjectileIndexedWord(int projectileByteIndex, ushort value) =>
+        WriteWord(checked((ushort)(GameplayWindowRegisterLayout.ShadowAddress(GameplayWindowRegisterLayout.Window12Selection) +
+            projectileByteIndex)), value);
+
     /// <summary>
     /// The window/screen subset of InitializeLayerBlending ($88:8075). Window
     /// edges and logic survive this initialization; color math has a separate owner.
@@ -49,14 +80,13 @@ public sealed class GameplayWindowRegisterCache
     /// </summary>
     public void InitializeWindowAndScreenSelection()
     {
-        WriteByte(GameplayWindowRegisterAddresses.Window12Selection, 0);
-        WriteByte(GameplayWindowRegisterAddresses.Window34Selection, 0);
-        WriteByte(GameplayWindowRegisterAddresses.ObjectColorSelection, 0);
-        WriteByte(GameplayWindowRegisterAddresses.MainScreen,
-            (byte)(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj));
-        WriteByte(GameplayWindowRegisterAddresses.Subscreen, (byte)SnesMainScreenLayers.Bg3);
-        WriteByte(GameplayWindowRegisterAddresses.MainScreenWindow, 0);
-        WriteByte(GameplayWindowRegisterAddresses.SubscreenWindow, 0);
+        Write(GameplayWindowRegisterLayout.Window12Selection, 0);
+        Write(GameplayWindowRegisterLayout.Window34Selection, 0);
+        Write(GameplayWindowRegisterLayout.ObjectColorSelection, 0);
+        MainScreen = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
+        Subscreen = SnesMainScreenLayers.Bg3;
+        Write(GameplayWindowRegisterLayout.MainScreenWindow, 0);
+        Write(GameplayWindowRegisterLayout.SubscreenWindow, 0);
     }
 
     /// <summary>
@@ -66,20 +96,19 @@ public sealed class GameplayWindowRegisterCache
     public void LatchNmi(bool mainLoopRequestedNmi)
     {
         if (!mainLoopRequestedNmi) return;
-        WriteByte(GameplayWindowRegisterAddresses.GameplayMainScreen,
-            ReadByte(GameplayWindowRegisterAddresses.MainScreen));
+        Write(GameplayWindowRegisterLayout.GameplayMainScreen, Read(GameplayWindowRegisterLayout.MainScreen));
         Displayed = new(new(
-            ReadByte(GameplayWindowRegisterAddresses.Window12Selection),
-            ReadByte(GameplayWindowRegisterAddresses.Window34Selection),
-            ReadByte(GameplayWindowRegisterAddresses.ObjectColorSelection),
-            ReadByte(GameplayWindowRegisterAddresses.FirstLeft),
-            ReadByte(GameplayWindowRegisterAddresses.FirstRight),
-            ReadByte(GameplayWindowRegisterAddresses.SecondLeft),
-            ReadByte(GameplayWindowRegisterAddresses.SecondRight),
-            ReadByte(GameplayWindowRegisterAddresses.BackgroundLogic),
-            ReadByte(GameplayWindowRegisterAddresses.ObjectColorLogic)),
-            ReadByte(GameplayWindowRegisterAddresses.MainScreen),
-            ReadByte(GameplayWindowRegisterAddresses.MainScreenWindow));
+            Read(GameplayWindowRegisterLayout.Window12Selection),
+            Read(GameplayWindowRegisterLayout.Window34Selection),
+            Read(GameplayWindowRegisterLayout.ObjectColorSelection),
+            Read(GameplayWindowRegisterLayout.FirstLeft),
+            Read(GameplayWindowRegisterLayout.FirstRight),
+            Read(GameplayWindowRegisterLayout.SecondLeft),
+            Read(GameplayWindowRegisterLayout.SecondRight),
+            Read(GameplayWindowRegisterLayout.BackgroundLogic),
+            Read(GameplayWindowRegisterLayout.ObjectColorLogic)),
+            Read(GameplayWindowRegisterLayout.MainScreen),
+            Read(GameplayWindowRegisterLayout.MainScreenWindow));
     }
 
     private int Index(ushort address)

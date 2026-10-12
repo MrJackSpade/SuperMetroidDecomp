@@ -46,7 +46,7 @@ public sealed class MapStaticPalettes
 
     private static Bgr555[] Compile(PaletteRgb5[]? colors, string name)
     {
-        if (colors is null || colors.Length != SnesCgram.ColorCount)
+        if (colors is null || colors.Length != CgramPalettes.ColorCount)
             throw new InvalidDataException($"Map palette {name} requires 256 RGB colors.");
         var result = new Bgr555[colors.Length];
         for (int i = 0; i < colors.Length; i++)

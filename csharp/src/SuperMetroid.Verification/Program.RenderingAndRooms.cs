@@ -111,11 +111,11 @@ static void VerifyHudStateAndBg3Rendering()
     runtime.InitializeHud(HudSnapshot.CeresDebug);
     runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
     AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,
-        runtime.Vram.ReadWord(RoomFxRomData.Layer3.PaddingDestinationWord),
+        runtime.Vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
         "gameplay BG3 first padding word uses cartridge blank character");
     AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,
         runtime.Vram.ReadWord(unchecked((ushort)(
-            RoomFxRomData.Layer3.PaddingDestinationWord +
+            RoomFxRomData.Layer3.ClearDestinationWord +
             RoomFxRomData.Layer3.PaddingWordCount - 1))),
         "gameplay BG3 final padding word uses cartridge blank character");
 

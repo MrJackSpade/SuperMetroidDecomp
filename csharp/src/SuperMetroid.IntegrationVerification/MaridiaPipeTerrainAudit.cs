@@ -22,7 +22,7 @@ internal static class MaridiaPipeTerrainAudit
             int offsetY = unchecked((ushort)(background ? scroll.Bg2Offset.Y : scroll.Bg1Offset.Y));
             int registerX = background ? r.Bg2Scroll.X : r.Bg1Scroll.X;
             int registerY = background ? r.Bg2Scroll.Y : r.Bg1Scroll.Y;
-            int tilemap = background ? r.Bg2TilemapWord : SnesPpuLayout.GameplayBg1TilemapWord;
+            int tilemap = background ? r.Bg2TilemapWord : GameplayVramLayout.Bg1TilemapWord;
             var source = background ? level.BackgroundEntries.Span : level.ForegroundEntries.Span;
             int differences = 0;
             var rows = new SortedSet<int>();

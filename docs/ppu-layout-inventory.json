@@ -1,0 +1,2607 @@
+{
+  "cells": [
+    {
+      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
+      "name": "CeresDoorTiles",
+      "region": "Vram",
+      "offset": "$7000",
+      "count": 512,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
+      "name": "ProjectileIceWaveTrail",
+      "region": "Vram",
+      "offset": "$6380",
+      "count": 128,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
+      "name": "ProjectileMissileTrail",
+      "region": "Vram",
+      "offset": "$6480",
+      "count": 64,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
+      "name": "WorldMapBackground",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 768,
+      "encoding": "2-bpp BG characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.AssetVramLayout",
+      "name": "WorldMapForeground",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 11008,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "CeresDoorAnimation",
+      "region": "Cgram",
+      "offset": "$0029",
+      "count": 6,
+      "encoding": "Bgr555 door animation",
+      "aliasOf": "PpuMemoryLayout.BgPalette2",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "ChozoAndTube",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 32,
+      "encoding": "Bgr555 OBJ palettes 1-2",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "CrocomireFightBody",
+      "region": "Cgram",
+      "offset": "$0070",
+      "count": 8,
+      "encoding": "Bgr555 body inks",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs",
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "CrocomireInitialProjectile",
+      "region": "Cgram",
+      "offset": "$00D0",
+      "count": 17,
+      "encoding": "Bgr555 projectile inks",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "CrocomireInitialWall",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 17,
+      "encoding": "Bgr555 wall inks",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "CrocomireSkeletonArm",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 1",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "CrocomireWallSpikes",
+      "region": "Cgram",
+      "offset": "$00B0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 3",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "DraygonBackground",
+      "region": "Cgram",
+      "offset": "$0050",
+      "count": 16,
+      "encoding": "Bgr555 BG palette 5",
+      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "DraygonHealth",
+      "region": "Cgram",
+      "offset": "$0059",
+      "count": 4,
+      "encoding": "Bgr555 health band",
+      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "DraygonIntro",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 25,
+      "encoding": "Bgr555 opening colours",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "DraygonSprite",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 7",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "TourianStatue",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 2",
+      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "TourianStatueBase",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 7",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.BossCgramLayout",
+      "name": "TourianStatueEye",
+      "region": "Cgram",
+      "offset": "$00F9",
+      "count": 4,
+      "encoding": "Bgr555 eye glow",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.GameOverPaletteLayout",
+      "name": "Baby",
+      "region": "Cgram",
+      "offset": "$00C0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 4",
+      "aliasOf": "PpuMemoryLayout.ObjPalette4",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/PresentationPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "Body",
+      "region": "Cgram",
+      "offset": "$0041",
+      "count": 15,
+      "encoding": "Bgr555 body",
+      "aliasOf": "PpuMemoryLayout.BgPalette4",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "Brain",
+      "region": "Cgram",
+      "offset": "$0091",
+      "count": 15,
+      "encoding": "Bgr555 body mirror",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "DrainedRearLegs",
+      "region": "Cgram",
+      "offset": "$00B4",
+      "count": 5,
+      "encoding": "Bgr555 rear-leg fade",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "FakeDeathBrain",
+      "region": "Cgram",
+      "offset": "$0091",
+      "count": 3,
+      "encoding": "Bgr555 brain fade",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "GlassShards",
+      "region": "Cgram",
+      "offset": "$00B1",
+      "count": 15,
+      "encoding": "Bgr555 glass shards",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "PhaseTwoAttack",
+      "region": "Cgram",
+      "offset": "$00A1",
+      "count": 15,
+      "encoding": "Bgr555 attack sprites",
+      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "PhaseTwoRearLegs",
+      "region": "Cgram",
+      "offset": "$00B1",
+      "count": 15,
+      "encoding": "Bgr555 rear legs",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "RearLegs",
+      "region": "Cgram",
+      "offset": "$00B1",
+      "count": 15,
+      "encoding": "Bgr555 rear legs",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "RecoveryLightsFirst",
+      "region": "Cgram",
+      "offset": "$0031",
+      "count": 14,
+      "encoding": "Bgr555 room lights",
+      "aliasOf": "PpuMemoryLayout.BgPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "RecoveryLightsSecond",
+      "region": "Cgram",
+      "offset": "$0051",
+      "count": 14,
+      "encoding": "Bgr555 room lights",
+      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "RoomFirst",
+      "region": "Cgram",
+      "offset": "$0034",
+      "count": 12,
+      "encoding": "Bgr555 room flash",
+      "aliasOf": "PpuMemoryLayout.BgPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "RoomSecond",
+      "region": "Cgram",
+      "offset": "$0053",
+      "count": 12,
+      "encoding": "Bgr555 room flash",
+      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "RoomSecondMirror",
+      "region": "Cgram",
+      "offset": "$0073",
+      "count": 12,
+      "encoding": "Bgr555 room flash",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.MotherBrainCgramLayout",
+      "name": "TubeProjectiles",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 tube projectiles",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresAlarm",
+      "region": "Cgram",
+      "offset": "$0061",
+      "count": 3,
+      "encoding": "Bgr555 alarm text",
+      "aliasOf": "PpuMemoryLayout.BgPalette6",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresBaby",
+      "region": "Cgram",
+      "offset": "$00B1",
+      "count": 15,
+      "encoding": "Bgr555 Baby shade",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresBodyFade",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 11,
+      "encoding": "Bgr555 body fade",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresBodyFadeShadow",
+      "region": "Cgram",
+      "offset": "$0091",
+      "count": 11,
+      "encoding": "Bgr555 body fade",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresEyeFade",
+      "region": "Cgram",
+      "offset": "$00FC",
+      "count": 3,
+      "encoding": "Bgr555 eye shade",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresMode7Zoom",
+      "region": "Cgram",
+      "offset": "$0051",
+      "count": 15,
+      "encoding": "Bgr555 zoom shade",
+      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresRetreatBackground",
+      "region": "Cgram",
+      "offset": "$0051",
+      "count": 15,
+      "encoding": "Bgr555 getaway backdrop",
+      "aliasOf": "PpuMemoryLayout.BgPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresRetreatSharedBackground",
+      "region": "Cgram",
+      "offset": "$0021",
+      "count": 8,
+      "encoding": "Bgr555 retreat shade",
+      "aliasOf": "PpuMemoryLayout.BgPalette2",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresRetreatSharedObject",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 8,
+      "encoding": "Bgr555 retreat shade",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "CeresStart",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 32,
+      "encoding": "Bgr555 OBJ palettes 2-3",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "Health",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 14,
+      "encoding": "Bgr555 health shade",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "NorfairInitial",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 32,
+      "encoding": "Bgr555 OBJ palettes 2-3",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RidleyCgramLayout",
+      "name": "NorfairReveal",
+      "region": "Cgram",
+      "offset": "$0071",
+      "count": 14,
+      "encoding": "Bgr555 reveal fade",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/BossPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RoomFxPaletteLayout",
+      "name": "Layer3Blend",
+      "region": "Cgram",
+      "offset": "$0019",
+      "count": 3,
+      "encoding": "Bgr555 layer-3 blend",
+      "aliasOf": "PpuMemoryLayout.BgPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/PresentationPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Assets.RoomFxPaletteLayout",
+      "name": "Layer3Empty",
+      "region": "Cgram",
+      "offset": "$001B",
+      "count": 1,
+      "encoding": "Bgr555 layer-3 blend colour",
+      "aliasOf": "PpuMemoryLayout.BgPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/PresentationPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.CeresVramLayout",
+      "name": "ObjectCharacters",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 8192,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.CeresDestruction.cs",
+        "csharp/src/SuperMetroid.Verification/Program.CeresFlightArtwork.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.CeresVramLayout",
+      "name": "SpaceColonyTilemap",
+      "region": "Vram",
+      "offset": "$5C00",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.CeresVramLayout",
+      "name": "ZebesTilemap",
+      "region": "Vram",
+      "offset": "$5C00",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "CeresVramLayout.SpaceColonyTilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "CreditsFont",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 2048,
+      "encoding": "2-bpp BG characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "CreditsTilemap",
+      "region": "Vram",
+      "offset": "$4800",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "EndingFont",
+      "region": "Vram",
+      "offset": "$5000",
+      "count": 2048,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "ExplosionObjects",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 12288,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.EndingObjectArtwork.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "Fragment70",
+      "region": "Vram",
+      "offset": "$7000",
+      "count": 1024,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "Fragment74",
+      "region": "Vram",
+      "offset": "$7400",
+      "count": 1024,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "Fragment78",
+      "region": "Vram",
+      "offset": "$7800",
+      "count": 1024,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "Fragment7C",
+      "region": "Vram",
+      "offset": "$7C00",
+      "count": 1024,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "PostCreditsFragmentA",
+      "region": "Vram",
+      "offset": "$2000",
+      "count": 128,
+      "encoding": "4-bpp characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PostCreditsCharacterArtwork.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "PostCreditsFragmentB",
+      "region": "Vram",
+      "offset": "$2400",
+      "count": 1024,
+      "encoding": "4-bpp characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PostCreditsCharacterArtwork.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "PostCreditsObjects",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 8192,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "PostShotLowerTilemap",
+      "region": "Vram",
+      "offset": "$5000",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "RewardCharacters",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 8192,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "WaitingCharacters",
+      "region": "Vram",
+      "offset": "$5000",
+      "count": 4096,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.EndingVramLayout",
+      "name": "WaitingTilemap",
+      "region": "Vram",
+      "offset": "$4C00",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "EndingBackdrop",
+      "region": "Cgram",
+      "offset": "$0000",
+      "count": 1,
+      "encoding": "Bgr555 backdrop",
+      "aliasOf": "PpuMemoryLayout.BgPalette0",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "EndingExplosionGlow",
+      "region": "Cgram",
+      "offset": "$00FE",
+      "count": 1,
+      "encoding": "Bgr555 OBJ palette 7 colour 14",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "EndingLogoBackground",
+      "region": "Cgram",
+      "offset": "$0010",
+      "count": 16,
+      "encoding": "Bgr555 BG palette 1",
+      "aliasOf": "PpuMemoryLayout.BgPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "EndingLogoObjects",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 7",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "EndingObjectTransparent",
+      "region": "Cgram",
+      "offset": "$0080",
+      "count": 1,
+      "encoding": "Bgr555 OBJ colour 0",
+      "aliasOf": "PpuMemoryLayout.ObjPalette0",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "FileCopyArrow",
+      "region": "Cgram",
+      "offset": "$0091",
+      "count": 7,
+      "encoding": "Bgr555 rotating arrow colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "FileSelectEntryBlackFirst",
+      "region": "Cgram",
+      "offset": "$000E",
+      "count": 1,
+      "encoding": "Bgr555 BG palette 0 colour 14",
+      "aliasOf": "PpuMemoryLayout.BgPalette0",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "FileSelectEntryBlackSecond",
+      "region": "Cgram",
+      "offset": "$001E",
+      "count": 1,
+      "encoding": "Bgr555 BG palette 1 colour 14",
+      "aliasOf": "PpuMemoryLayout.BgPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "IntroMotherBrain",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 7",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.FrontendPaletteLayout",
+      "name": "TitleCopyright",
+      "region": "Cgram",
+      "offset": "$00C9",
+      "count": 2,
+      "encoding": "Bgr555 white, red",
+      "aliasOf": "PpuMemoryLayout.ObjPalette4",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.IntroVramLayout",
+      "name": "BackgroundCharacters",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 16384,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.IntroCinematicArtwork.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.IntroVramLayout",
+      "name": "BackgroundPages",
+      "region": "Vram",
+      "offset": "$5000",
+      "count": 4096,
+      "encoding": "BG tilemap words (four 32x32 pages)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.IntroCinematicArtwork.cs",
+        "csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.IntroVramLayout",
+      "name": "CinematicObjectCharacters",
+      "region": "Vram",
+      "offset": "$6E00",
+      "count": 4608,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.IntroCinematicArtwork.cs",
+        "csharp/src/SuperMetroid.Verification/Program.IntroCinematicRomData.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.IntroVramLayout",
+      "name": "FontOne",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 1152,
+      "encoding": "2-bpp BG3 characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.IntroNarrationPresentation.cs",
+        "csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.IntroVramLayout",
+      "name": "IntroObjectCharacters",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 4096,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.IntroCinematicArtwork.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.IntroVramLayout",
+      "name": "JapaneseBlankCharacters",
+      "region": "Vram",
+      "offset": "$4180",
+      "count": 768,
+      "encoding": "2-bpp BG3 characters",
+      "aliasOf": "IntroVramLayout.FontOne",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.IntroVramLayout",
+      "name": "NarrationTilemap",
+      "region": "Vram",
+      "offset": "$4C00",
+      "count": 1024,
+      "encoding": "BG3 tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.IntroCinematicArtwork.cs",
+        "csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.IntroVramLayout",
+      "name": "PortraitTilemap",
+      "region": "Vram",
+      "offset": "$4800",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.IntroCinematicArtwork.cs",
+        "csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.MenuVramLayout",
+      "name": "AreaBackgroundTilemap",
+      "region": "Vram",
+      "offset": "$5C00",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/MenuVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.MenuVramLayout",
+      "name": "AreaMapTilemap",
+      "region": "Vram",
+      "offset": "$5000",
+      "count": 2048,
+      "encoding": "BG tilemap words (64x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/MenuVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.MenuVramLayout",
+      "name": "Bg1Tilemap",
+      "region": "Vram",
+      "offset": "$5000",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/MenuVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.MenuVramLayout",
+      "name": "Bg2Tilemap",
+      "region": "Vram",
+      "offset": "$5800",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/MenuVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.MenuVramLayout",
+      "name": "MapCharacters",
+      "region": "Vram",
+      "offset": "$3000",
+      "count": 4096,
+      "encoding": "4-bpp BG characters (map atlas)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/MenuVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.MenuVramLayout",
+      "name": "ObjectCharacters",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 4096,
+      "encoding": "4-bpp OBJ characters (map objects)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/MenuVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "AcceptedHudRows",
+      "region": "Vram",
+      "offset": "$5820",
+      "count": 96,
+      "encoding": "BG3 tilemap words",
+      "aliasOf": "PauseVramLayout.RetainedHudTilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "Bg1Tilemap",
+      "region": "Vram",
+      "offset": "$3000",
+      "count": 2048,
+      "encoding": "BG tilemap words (64x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "Bg2Tilemap",
+      "region": "Vram",
+      "offset": "$3800",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "Bg3FxRows",
+      "region": "Vram",
+      "offset": "$5880",
+      "count": 1920,
+      "encoding": "BG3 tilemap words",
+      "aliasOf": "GameplayVramLayout.HudTilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "ButtonRows",
+      "region": "Vram",
+      "offset": "$3B20",
+      "count": 64,
+      "encoding": "BG tilemap words (two 32-word rows)",
+      "aliasOf": "PauseVramLayout.Bg2Tilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs",
+        "csharp/test-support/VerificationAccess/CoreFrontendAccess.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "InterfaceCharacters",
+      "region": "Vram",
+      "offset": "$1000",
+      "count": 4096,
+      "encoding": "4-bpp BG characters (pause interface)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "MapCharacters",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 4096,
+      "encoding": "4-bpp BG characters (map atlas)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "ObjectCharacters",
+      "region": "Vram",
+      "offset": "$2000",
+      "count": 4096,
+      "encoding": "4-bpp OBJ characters (map objects)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.PauseVramLayout",
+      "name": "RetainedHudTilemap",
+      "region": "Vram",
+      "offset": "$5800",
+      "count": 1024,
+      "encoding": "BG3 tilemap words (32x32)",
+      "aliasOf": "GameplayVramLayout.HudTilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.TitleVramLayout",
+      "name": "BabyMetroidCharacters",
+      "region": "Vram",
+      "offset": "$3800",
+      "count": 256,
+      "encoding": "Mode 7 8-bpp pixels (u8, VRAM high bytes)",
+      "aliasOf": "Mode7VramLayout.Characters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/TitleVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Frontend.TitleVramLayout",
+      "name": "ObjectCharacters",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 8192,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/TitleVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "BabyMetroidCutscene",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "BotwoonBody",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "CeresRidleyRevealedObjects",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "DeadSidehopper",
+      "region": "Cgram",
+      "offset": "$0091",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "EscapeTypewriterSource",
+      "region": "Cgram",
+      "offset": "$007D",
+      "count": 2,
+      "encoding": "Bgr555 BG palette colours",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "EscapeTypewriterText",
+      "region": "Cgram",
+      "offset": "$009D",
+      "count": 2,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "KraidBody",
+      "region": "Cgram",
+      "offset": "$0070",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "KraidEye",
+      "region": "Cgram",
+      "offset": "$0071",
+      "count": 3,
+      "encoding": "Bgr555 BG palette colours",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "KraidRoomBackdrop",
+      "region": "Cgram",
+      "offset": "$0060",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BgPalette6",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "KraidSecondary",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "KraidSprites",
+      "region": "Cgram",
+      "offset": "$00B0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "MotherBrainBody",
+      "region": "Cgram",
+      "offset": "$0041",
+      "count": 14,
+      "encoding": "Bgr555 BG palette colours",
+      "aliasOf": "PpuMemoryLayout.BgPalette4",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "MotherBrainBrain",
+      "region": "Cgram",
+      "offset": "$0091",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "MotherBrainCorpse",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "MotherBrainLegs",
+      "region": "Cgram",
+      "offset": "$00B1",
+      "count": 14,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "NinjaSpacePirate",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "NorfairRidleyBody",
+      "region": "Cgram",
+      "offset": "$0071",
+      "count": 15,
+      "encoding": "Bgr555 BG palette colours",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "NorfairRidleyTail",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "PhantoonBody",
+      "region": "Cgram",
+      "offset": "$0070",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "ShitroidBody",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "ShitroidDeadSidehopper",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "ShitroidMembrane",
+      "region": "Cgram",
+      "offset": "$00A5",
+      "count": 4,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "ShitroidSidehopper",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "SporeSpawnBody",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "SporeSpawnDeathBackground",
+      "region": "Cgram",
+      "offset": "$0070",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BgPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "SporeSpawnDeathLevel",
+      "region": "Cgram",
+      "offset": "$0040",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BgPalette4",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "SporeSpawnSpores",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "TorizoBelly",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette2",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "TorizoBody",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette1",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "TorizoSharedFirst",
+      "region": "Cgram",
+      "offset": "$00B0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette3",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "TorizoSharedSecond",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyPaletteLayout",
+      "name": "WreckedShipPowerOn",
+      "region": "Cgram",
+      "offset": "$0000",
+      "count": 112,
+      "encoding": "Bgr555 BG palettes",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "CeresEmergencyText",
+      "region": "Vram",
+      "offset": "$50CB",
+      "count": 9,
+      "encoding": "BG tilemap words",
+      "aliasOf": "GameplayVramLayout.Bg1Tilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "CrocomireSkeletonTiles",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 8192,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "DraygonEvirTiles",
+      "region": "Vram",
+      "offset": "$6D00",
+      "count": 768,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "EnemyVramLayout.EnemyTiles",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "EnemyBg2Tilemap",
+      "region": "Vram",
+      "offset": "$4800",
+      "count": 2048,
+      "encoding": "BG tilemap words (32x64)",
+      "aliasOf": "GameplayVramLayout.Bg2Tilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "EnemyTiles",
+      "region": "Vram",
+      "offset": "$6C00",
+      "count": 5120,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "KraidBg2Tilemap",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 4096,
+      "encoding": "BG tilemap words (64x64)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "KraidBg3Restore",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 2048,
+      "encoding": "2-bpp BG3 characters",
+      "aliasOf": "GameplayVramLayout.HudCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "KraidBottomPage",
+      "region": "Vram",
+      "offset": "$4800",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "EnemyVramLayout.KraidBg2Tilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "KraidRoomBackgroundTiles",
+      "region": "Vram",
+      "offset": "$3F00",
+      "count": 256,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "GameplayVramLayout.BackgroundCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyVramLayout",
+      "name": "KraidTopPage",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 1024,
+      "encoding": "BG tilemap words (32x32)",
+      "aliasOf": "EnemyVramLayout.KraidBg2Tilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.RoomFxVramLayout",
+      "name": "HudMutableRows",
+      "region": "Vram",
+      "offset": "$5820",
+      "count": 96,
+      "encoding": "BG3 tilemap words",
+      "aliasOf": "GameplayVramLayout.HudTilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/RoomFxVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.RoomFxVramLayout",
+      "name": "Layer3Area",
+      "region": "Vram",
+      "offset": "$5880",
+      "count": 1920,
+      "encoding": "BG3 tilemap words",
+      "aliasOf": "GameplayVramLayout.HudTilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/RoomFxVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.RoomFxVramLayout",
+      "name": "Layer3Tilemap",
+      "region": "Vram",
+      "offset": "$5BE0",
+      "count": 1056,
+      "encoding": "BG3 tilemap words",
+      "aliasOf": "RoomFxVramLayout.Layer3Area",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/RoomFxVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.RoomFxVramLayout",
+      "name": "ScrollingSkyRows",
+      "region": "Vram",
+      "offset": "$4800",
+      "count": 2080,
+      "encoding": "BG tilemap words (32-wide rows)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/RoomFxVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "Beam",
+      "region": "Cgram",
+      "offset": "$00E0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette6",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/DoorTransitionPalettes.cs",
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "CrystalFlashBody",
+      "region": "Cgram",
+      "offset": "$00E0",
+      "count": 10,
+      "encoding": "Bgr555 Crystal Flash body",
+      "aliasOf": "PpuMemoryLayout.ObjPalette6",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "CrystalFlashBubble",
+      "region": "Cgram",
+      "offset": "$00EA",
+      "count": 6,
+      "encoding": "Bgr555 Crystal Flash bubble",
+      "aliasOf": "PpuMemoryLayout.ObjPalette6",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "DeathWhiteoutBelowSuit",
+      "region": "Cgram",
+      "offset": "$0000",
+      "count": 192,
+      "encoding": "Bgr555 colours",
+      "aliasOf": "PpuMemoryLayout.Cgram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "DeathWhiteoutBetweenSuits",
+      "region": "Cgram",
+      "offset": "$00D0",
+      "count": 32,
+      "encoding": "Bgr555 OBJ palettes",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "GrappleFlare",
+      "region": "Cgram",
+      "offset": "$00DF",
+      "count": 1,
+      "encoding": "Bgr555 OBJ palette colour",
+      "aliasOf": "PpuMemoryLayout.ObjPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "Suit",
+      "region": "Cgram",
+      "offset": "$00C0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette4",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "Suitless",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjPalette7",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusPaletteLayout",
+      "name": "Visor",
+      "region": "Cgram",
+      "offset": "$00C4",
+      "count": 1,
+      "encoding": "Bgr555 OBJ palette colour",
+      "aliasOf": "PpuMemoryLayout.ObjPalette4",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/DoorTransitionPalettes.cs",
+        "csharp/src/SuperMetroid.Core/Game/SamusPaletteLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusVramLayout",
+      "name": "ArmCannonTile",
+      "region": "Vram",
+      "offset": "$61F0",
+      "count": 16,
+      "encoding": "4-bpp OBJ character",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusVramLayout",
+      "name": "BeamTiles",
+      "region": "Vram",
+      "offset": "$6300",
+      "count": 128,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusVramLayout",
+      "name": "BodyBottomFirst",
+      "region": "Vram",
+      "offset": "$6080",
+      "count": 128,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusVramLayout",
+      "name": "BodyBottomSecond",
+      "region": "Vram",
+      "offset": "$6180",
+      "count": 128,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusVramLayout",
+      "name": "BodyTopFirst",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 128,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusVramLayout",
+      "name": "BodyTopSecond",
+      "region": "Vram",
+      "offset": "$6100",
+      "count": 128,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusVramLayout",
+      "name": "GrapplePoint",
+      "region": "Vram",
+      "offset": "$6200",
+      "count": 16,
+      "encoding": "4-bpp OBJ character",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SamusVramLayout",
+      "name": "GrappleSegments",
+      "region": "Vram",
+      "offset": "$6210",
+      "count": 64,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
+      "name": "BackgroundCharacters",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 16384,
+      "encoding": "4-bpp BG characters (16 words each)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Rooms/RoomGraphicsLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
+      "name": "Bg1Tilemap",
+      "region": "Vram",
+      "offset": "$5000",
+      "count": 2048,
+      "encoding": "BG tilemap words (64x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
+      "name": "Bg2Tilemap",
+      "region": "Vram",
+      "offset": "$4800",
+      "count": 2048,
+      "encoding": "BG tilemap words (64x32)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
+      "name": "HudCharacterUpload",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 4096,
+      "encoding": "2-bpp BG3 characters then zeroed BG2 tilemap words",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
+      "name": "HudCharacters",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 2048,
+      "encoding": "2-bpp BG3 characters (8 words each)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
+      "name": "HudTilemap",
+      "region": "Vram",
+      "offset": "$5800",
+      "count": 2048,
+      "encoding": "BG3 tilemap words (32x64)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Game/RoomFxVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayVramLayout",
+      "name": "ObjectCharacters",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 8192,
+      "encoding": "4-bpp OBJ characters (16 words each)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Game/SamusVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "BackgroundLogic",
+      "region": "Register",
+      "offset": "$212A",
+      "count": 1,
+      "encoding": "SnesWindowLogic x4 (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "FirstLeft",
+      "region": "Register",
+      "offset": "$2126",
+      "count": 1,
+      "encoding": "screen X (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "FirstRight",
+      "region": "Register",
+      "offset": "$2127",
+      "count": 1,
+      "encoding": "screen X (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "GameplayMainScreen",
+      "region": "Register",
+      "offset": "$212C",
+      "count": 1,
+      "encoding": "SnesMainScreenLayers (u8), NMI-latched IRQ copy",
+      "aliasOf": "GameplayWindowRegisterLayout.MainScreen",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "MainScreen",
+      "region": "Register",
+      "offset": "$212C",
+      "count": 1,
+      "encoding": "SnesMainScreenLayers (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "MainScreenWindow",
+      "region": "Register",
+      "offset": "$212E",
+      "count": 1,
+      "encoding": "SnesMainScreenLayers (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "ObjectColorLogic",
+      "region": "Register",
+      "offset": "$212B",
+      "count": 1,
+      "encoding": "SnesWindowLogic x2 (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "ObjectColorSelection",
+      "region": "Register",
+      "offset": "$2125",
+      "count": 1,
+      "encoding": "SnesWindowSelection pair (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "SecondLeft",
+      "region": "Register",
+      "offset": "$2128",
+      "count": 1,
+      "encoding": "screen X (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "SecondRight",
+      "region": "Register",
+      "offset": "$2129",
+      "count": 1,
+      "encoding": "screen X (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "Subscreen",
+      "region": "Register",
+      "offset": "$212D",
+      "count": 1,
+      "encoding": "SnesMainScreenLayers (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "SubscreenWindow",
+      "region": "Register",
+      "offset": "$212F",
+      "count": 1,
+      "encoding": "SnesMainScreenLayers (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "Window12Selection",
+      "region": "Register",
+      "offset": "$2123",
+      "count": 1,
+      "encoding": "SnesWindowSelection pair (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.GameplayWindowRegisterLayout",
+      "name": "Window34Selection",
+      "region": "Register",
+      "offset": "$2124",
+      "count": 1,
+      "encoding": "SnesWindowSelection pair (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayWindowRegisterCache.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.Mode7VramLayout",
+      "name": "Characters",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 16384,
+      "encoding": "Mode 7 8-bpp pixels (u8, VRAM high bytes)",
+      "aliasOf": "Mode7VramLayout.Map",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/TitleVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/Mode7VramLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.Mode7VramLayout",
+      "name": "Map",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 16384,
+      "encoding": "Mode 7 tile numbers (u8, VRAM low bytes)",
+      "aliasOf": "PpuMemoryLayout.Vram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/Mode7VramLayout.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BackgroundPalettes",
+      "region": "Cgram",
+      "offset": "$0000",
+      "count": 128,
+      "encoding": "Bgr555 background palettes",
+      "aliasOf": "PpuMemoryLayout.Cgram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/CgramPalette.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BgPalette0",
+      "region": "Cgram",
+      "offset": "$0000",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BgPalette1",
+      "region": "Cgram",
+      "offset": "$0010",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BgPalette2",
+      "region": "Cgram",
+      "offset": "$0020",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BgPalette3",
+      "region": "Cgram",
+      "offset": "$0030",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BgPalette4",
+      "region": "Cgram",
+      "offset": "$0040",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BgPalette5",
+      "region": "Cgram",
+      "offset": "$0050",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BgPalette6",
+      "region": "Cgram",
+      "offset": "$0060",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "BgPalette7",
+      "region": "Cgram",
+      "offset": "$0070",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "Cgram",
+      "region": "Cgram",
+      "offset": "$0000",
+      "count": 256,
+      "encoding": "Bgr555 colours",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/CgramPalette.cs",
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "OamHigh",
+      "region": "OamHigh",
+      "offset": "$0000",
+      "count": 128,
+      "encoding": "SnesOamHighTablePair (2 bits per OBJ)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/OamBuffer.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "OamLow",
+      "region": "OamLow",
+      "offset": "$0000",
+      "count": 128,
+      "encoding": "OBJ records (X low, Y, SnesObjAttributeWord)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/OamBuffer.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjPalette0",
+      "region": "Cgram",
+      "offset": "$0080",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjPalette1",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjPalette2",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjPalette3",
+      "region": "Cgram",
+      "offset": "$00B0",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjPalette4",
+      "region": "Cgram",
+      "offset": "$00C0",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjPalette5",
+      "region": "Cgram",
+      "offset": "$00D0",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjPalette6",
+      "region": "Cgram",
+      "offset": "$00E0",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": []
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjPalette7",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 4-bpp palette row",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Verification/Program.PpuLayoutBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "ObjectPalettes",
+      "region": "Cgram",
+      "offset": "$0080",
+      "count": 128,
+      "encoding": "Bgr555 OBJ palettes",
+      "aliasOf": "PpuMemoryLayout.Cgram",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/CgramPalette.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
+      "name": "Vram",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 32768,
+      "encoding": "VRAM words (u16 little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Assets/AssetVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/CeresVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/EndingVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/IntroVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/MenuVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/PauseVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Frontend/TitleVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Game/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Game/RoomFxVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/GameplayVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/Mode7VramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Hardware/VramStore.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Rooms.RoomGraphicsLayout",
+      "name": "AreaCharacters",
+      "region": "Vram",
+      "offset": "$0000",
+      "count": 16384,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "GameplayVramLayout.BackgroundCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomGraphicsLayout.cs",
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Rooms.RoomGraphicsLayout",
+      "name": "CollectibleCharacters",
+      "region": "Vram",
+      "offset": "$3E00",
+      "count": 512,
+      "encoding": "4-bpp BG characters, four 8-character slots",
+      "aliasOf": "GameplayVramLayout.BackgroundCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomGraphicsLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Rooms.RoomGraphicsLayout",
+      "name": "CommonRoomElementCharacters",
+      "region": "Vram",
+      "offset": "$2800",
+      "count": 6144,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "GameplayVramLayout.BackgroundCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomGraphicsLayout.cs",
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
+        "csharp/src/SuperMetroid.Verification/Program.RoomArtworkRenderParity.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Rooms.RoomGraphicsLayout",
+      "name": "TilesetPalette",
+      "region": "Cgram",
+      "offset": "$0000",
+      "count": 128,
+      "encoding": "Bgr555 BG palettes (CGDATA words)",
+      "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/RoomGraphicsLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Runtime.NewGamePaletteLayout",
+      "name": "CeresElevatorConcealer",
+      "region": "Cgram",
+      "offset": "$00DF",
+      "count": 1,
+      "encoding": "Bgr555 colour",
+      "aliasOf": "PpuMemoryLayout.ObjPalette5",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Runtime/NewGamePaletteLayout.cs"
+      ]
+    }
+  ]
+}

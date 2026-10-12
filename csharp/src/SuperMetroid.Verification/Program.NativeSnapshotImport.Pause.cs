@@ -22,7 +22,7 @@ internal static partial class Program
             "pause import covers the stable pause menu");
         AssertEqual((ushort)0, W(PauseMemory.MenuIndex), "imported pause menu is on its map page");
         AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");
-        runtime.Cgram.LoadBytes(memory.AsSpan(PauseMemory.GameplayPaletteBackup, SnesCgram.ByteCount));
+        runtime.Cgram.LoadBytes(memory.AsSpan(PauseMemory.GameplayPaletteBackup, CgramPalettes.ByteCount));
 
         CartridgeRoomHeader room = runtime.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
         var menu = new PauseMenuState(

@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Composes the currently modeled gameplay PPU layers into one desktop frame.</summary>
+[PpuLayoutBoundary("backend: software PPU gameplay frame compositor")]
 public static partial class SnesGameplayFrameRenderer
 {
     /// <summary>Visible SNES viewport width in pixels.</summary>
@@ -29,10 +30,10 @@ public static partial class SnesGameplayFrameRenderer
         IReadOnlyList<ushort>? bg2HorizontalScrollByLine = null,
         IReadOnlyList<ushort>? bg2VerticalScrollByLine = null,
         Extent16<TilemapCells>? bg2TilemapSize = null,
-        ushort bg2TilemapBaseWord = SnesPpuLayout.GameplayBg2TilemapWord,
+        ushort bg2TilemapBaseWord = GameplayVramLayout.Bg2TilemapWord,
         ushort bg1CharacterBaseWord = 0,
         ushort bg2CharacterBaseWord = 0,
-        ushort bg3CharacterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord,
+        ushort bg3CharacterBaseWord = GameplayVramLayout.HudCharacterWord,
         byte obsel = 0x03,
         SnesMainScreenLayers mainScreenLayers =
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
@@ -264,7 +265,7 @@ public static partial class SnesGameplayFrameRenderer
                 if (bg1Enabled && bg1TileX != previousBg1TileX)
                 {
                     int bg1MapWord = (
-                        SnesPpuLayout.GameplayBg1TilemapWord +
+                        GameplayVramLayout.Bg1TilemapWord +
                         (bg1TileX >> 5) * SnesPpuLayout.TilemapPageWordCount +
                         bg1TileY * 32 +
                         (bg1TileX & 31)) & 0x7fff;
@@ -375,13 +376,13 @@ public static partial class SnesGameplayFrameRenderer
         Span<Rgba32> output,
         SnesVram vram,
         SnesCgram cgram,
-        ushort characterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord)
+        ushort characterBaseWord = GameplayVramLayout.HudCharacterWord)
     {
         SnesBgTilemapRenderer.Render2Bpp(
             output[..(HudHeight * Width)],
             vram,
             cgram,
-            tilemapBaseWord: SnesPpuLayout.GameplayHudTilemapWord,
+            tilemapBaseWord: GameplayVramLayout.HudTilemapWord,
             characterBaseWord,
             rowCount: 4);
     }

@@ -52,7 +52,7 @@ internal static partial class Program
         displayedSnapshot.Position = 0;
         var displayed = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(displayedSnapshot);
         fixtureAssets.Bind(displayed);
-        int characterStart = HudTileAtlasFormat.DestinationWord * 2;
+        int characterStart = GameplayVramLayout.HudCharacterWord * 2;
         int characterEnd = characterStart + HudTileAtlasFormat.CharacterByteCount;
         displayed.Vram.LoadBytes(characterEnd, Enumerable.Repeat((byte)0x5a, HudTileAtlasFormat.CharacterByteCount).ToArray());
         byte[] previousDisplay = displayed.Vram.Bytes.ToArray();
@@ -81,7 +81,7 @@ internal static partial class Program
         restored.MapPresentation = edited;
         restored.RunNmi(0, mainLoopRequestedNmi: true);
         AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span.SequenceEqual(
-            restored.Vram.Bytes.Slice(HudTileAtlasFormat.DestinationWord * 2, HudTileAtlasFormat.TransferByteCount)),
+            restored.Vram.Bytes.Slice(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.TransferByteCount)),
             "restored pending HUD upload uses newly bound PNG, not captured old pixels");
         Rgba32[] modified = Render(restored);
         AssertTrue(Render(displayed).AsSpan().SequenceEqual(modified),
@@ -115,6 +115,6 @@ internal static partial class Program
             runtime.Hud.QueueUpload(guard, runtime.VramWrites);
         }
         static Rgba32[] Render(SuperMetroidRuntime runtime) => SnesBgTilemapRenderer.Render2Bpp(runtime.Vram, runtime.Cgram,
-            SnesPpuLayout.GameplayHudTilemapWord, HudTileAtlasFormat.DestinationWord, 4);
+            GameplayVramLayout.HudTilemapWord, GameplayVramLayout.HudCharacterWord, 4);
     }
 }

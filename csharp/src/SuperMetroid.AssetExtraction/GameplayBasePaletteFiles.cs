@@ -21,7 +21,7 @@ public static class GameplayBasePaletteFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         var document = new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
-            ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, SnesCgram.ColorCount),
+            ReadColors(bus, GameplayBasePaletteFormat.InitialSourceAddress, CgramPalettes.ColorCount),
             ReadColors(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress,
                 GameplayBasePaletteFormat.SpriteColorCount));
         byte[] bytes = GameplayBasePaletteCatalog.Write(document);

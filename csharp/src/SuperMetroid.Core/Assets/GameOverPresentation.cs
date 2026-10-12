@@ -65,20 +65,19 @@ public sealed class GameOverPresentation
     public int CursorFrameDuration { get; }
 
     /// <summary>Copies the complete game-over tilemap into VRAM, calculating stock text words when the loaded page has no edits.</summary>
-    /// <param name="vram">Mutable destination video memory.</param>
-    /// <param name="destinationWord">Starting VRAM word address, converted to a byte offset for the 2048-byte transfer.</param>
-    public void LoadTilemapTo(SnesVram vram, int destinationWord)
+    /// <param name="destination">The menu BG1 tilemap receiving the 2048-byte transfer.</param>
+    public void LoadTilemapTo(VramRegion destination)
     {
         if (tilemap is not null)
         {
-            vram.LoadBytes(destinationWord * sizeof(ushort), tilemap);
+            destination.Load(tilemap);
             return;
         }
         Span<byte> transfer = stackalloc byte[GameOverPresentationDefinitions.TilemapByteCount];
         for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
             BinaryPrimitives.WriteUInt16LittleEndian(transfer.Slice(cell * sizeof(ushort)),
                 GameOverPresentationDefinitions.TilemapWord(cell));
-        vram.LoadBytes(destinationWord * sizeof(ushort), transfer);
+        destination.Load(transfer);
     }
 
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor using its OBJ palette selector.</summary>
@@ -119,7 +118,7 @@ public sealed class GameOverPresentation
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
         for (int index = 0; index < GameOverRomData.BabyAnimation.PaletteColorCount; index++)
-            cgram.SetColor(GameOverRomData.BabyAnimation.PaletteDestinationIndex + index,
+            new GameOverPalettes(cgram).Baby.Write(index,
                 babyPalettes.Read(palette, index));
     }
 

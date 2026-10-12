@@ -43,24 +43,22 @@ public sealed class VramWriteQueue
     /// <summary>
     /// Appends the typed equivalent of one packed seven-byte record.
     /// </summary>
-    [PpuLayoutAccess]
-    public void Enqueue(ushort sizeInBytes, int sourceAddress, ushort encodedVramDestination)
+    public void Enqueue(ushort sizeInBytes, int sourceAddress, VramDmaDestination destination)
     {
         if (sizeInBytes == 0)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "Zero is reserved for the queue terminator.");
         if ((uint)sourceAddress > 0x00ff_ffff)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "Source must be a 24-bit SNES CPU address.");
 
-        Append(new VramWriteEntry(sizeInBytes, sourceAddress, encodedVramDestination));
+        Append(new VramWriteEntry(sizeInBytes, sourceAddress, destination.Encoded));
     }
 
     /// <summary>Queues a typed installed resource without copying artwork into emulated/debugger state.</summary>
-    [PpuLayoutAccess]
-    public void EnqueueAsset(VramAssetId asset, ushort sizeInBytes, ushort encodedVramDestination)
+    public void EnqueueAsset(VramAssetId asset, ushort sizeInBytes, VramDmaDestination destination)
     {
         if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        Append(new VramWriteEntry(sizeInBytes, 0, encodedVramDestination) { AssetId = asset });
+        Append(new VramWriteEntry(sizeInBytes, 0, destination.Encoded) { AssetId = asset });
     }
 
     private void Append(VramWriteEntry entry)

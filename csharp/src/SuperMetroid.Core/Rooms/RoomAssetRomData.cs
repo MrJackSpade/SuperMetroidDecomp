@@ -34,12 +34,6 @@ public static class RoomAssetRomData
     public static class GraphicsLayout
     {
 
-        /// <summary>VRAM byte destination used for area-specific BG characters.</summary>
-        public const int AreaCharactersVramByteOffset = 0x0000;
-
-        /// <summary>VRAM byte destination used for common-room-element BG characters.</summary>
-        public const int CreCharactersVramByteOffset = 0x5000;
-
         /// <summary>Bytes in one 16x16 block definition (four packed tilemap words).</summary>
         public const int BytesPerBlockDefinition = 8;
 

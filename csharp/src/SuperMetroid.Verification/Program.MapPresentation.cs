@@ -1329,7 +1329,7 @@ internal static partial class Program
         AssertTrue(!expected.AsSpan().SequenceEqual(unchanged), "override changes a visible file-select cell");
         for (int i = 0; i < expected.Length / 2; i++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
-                installed.Vram.ReadWord(SuperMetroid.Core.Frontend.MenuPpuState.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
+                installed.Vram.ReadWord(SuperMetroid.Core.Frontend.MenuVramLayout.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
         using var snapshot = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
         snapshot.Position = 0;
@@ -1357,8 +1357,8 @@ internal static partial class Program
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
-                (address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + SnesCgram.ByteCount) ||
-                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette + SnesCgram.ByteCount) ||
+                (address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + CgramPalettes.ByteCount) ||
+                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette + CgramPalettes.ByteCount) ||
                 (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd),
             address => $"Live presentation read static map palette ROM at {address:X6}.");
         guard.Forbid(address =>

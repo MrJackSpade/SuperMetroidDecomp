@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 public static partial class GameplayDisplayCapture
 {
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
+    [PpuLayoutBoundary("codec: X-ray render packet, reveal tilemap written into the snapshot BG2 image")]
     private static LayeredRenderSnapshot? CaptureXray(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
     {
         bool finishedThisFrame = runtime.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };
@@ -28,14 +29,14 @@ public static partial class GameplayDisplayCapture
             ushort[] map = new XrayMemory(memoryBus).RevealTilemap.ToArray();
             for (int i = 0; i < map.Length; i++)
             {
-                int offset = (SnesPpuLayout.GameplayBg2TilemapWord + i) * 2;
+                int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
                 bytes[offset] = (byte)map[i]; bytes[offset + 1] = (byte)(map[i] >> 8);
             }
             registers = registers with
             {
                 // The reveal map is drawn on BG2 at BG1's fine scroll within one 16-pixel block.
                 Bg2Scroll = new Position16<Bg2Pixels>((ushort)(ppu.Bg1Scroll.X & 15), (ushort)(ppu.Bg1Scroll.Y & 15)),
-                Bg2MapSize = new Extent16<TilemapCells>(64, 32), Bg2TilemapWord = SnesPpuLayout.GameplayBg2TilemapWord,
+                Bg2MapSize = new Extent16<TilemapCells>(64, 32), Bg2TilemapWord = GameplayVramLayout.Bg2TilemapWord,
             };
         }
         registers = registers with

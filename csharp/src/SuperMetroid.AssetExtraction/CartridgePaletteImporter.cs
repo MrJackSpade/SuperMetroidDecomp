@@ -16,6 +16,7 @@ public static class CartridgePaletteImporter
     /// <param name="sourceAddress">Initial SNES bus address, advanced within its bank for each source byte.</param>
     /// <param name="colorCount">Number of consecutive color words to copy.</param>
     /// <param name="destinationIndex">First zero-based CGRAM color slot to replace.</param>
+    [PpuLayoutBoundary("codec: decodes cartridge CGRAM DMA words into an import scratch CGRAM")]
     public static void LoadToCgram(
         SnesCgram destination,
         ISnesAddressSpace bus,

@@ -57,7 +57,7 @@ internal static partial class Program
         // PNG, not stale byte blobs captured with the original simulation graph.
         var queue = new VramWriteQueue();
         queue.Enqueue(checked((ushort)page.ByteCount), page.SourceAddress,
-            BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord);
+            VramDmaDestination.FromNative(BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord));
         runtime.Enemies.TileArtwork = edited;
         queue.DrainTo(runtime.Vram, memory, runtime);
         AssertTrue(stock.TryResolve(page.SourceAddress, page.ByteCount, out ReadOnlyMemory<byte> original),

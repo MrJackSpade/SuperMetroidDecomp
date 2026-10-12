@@ -426,8 +426,21 @@ public sealed partial class SuperMetroidRuntime
     /// background command list. Kraid temporarily selects word $2000; ordinary rooms use
     /// word $4000.
     /// </summary>
+    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
     public ushort GameplayHudCharacterBaseWord { get; private set; } =
-        SnesPpuLayout.GameplayHudCharacterBaseWord;
+        GameplayVramLayout.HudCharacterWord;
+
+    /// <summary>The BG3 character region at the base BG34NBA currently selects (Kraid's room moves it to word $2000).</summary>
+    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
+    private VramRegion HudCharactersAtCurrentBase()
+    {
+        VramRegion ordinary = new GameplayVram(Vram).HudCharacters;
+        return new VramStore(Vram).All.Slice(GameplayHudCharacterBaseWord, ordinary.WordCount);
+    }
+
+    /// <summary>Selects the ordinary BG3 character base (BG34NBA=$04), as gameplay PPU initialization does.</summary>
+    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
+    private void SelectGameplayHudCharacterBase() => GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
 
     /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
     public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx { get; private set; }
@@ -682,25 +695,22 @@ public sealed partial class SuperMetroidRuntime
         // glyph whenever liquid HDMA exposed the above-surface portion of the BG3 page.
         var roomFxPadding = new ushort[RoomFxRomData.Layer3.PaddingWordCount];
         Array.Fill(roomFxPadding, RoomFxRomData.Layer3.PaddingTilemapWord);
-        Vram.ExecuteWordTransfer(
-            roomFxPadding,
-            RoomFxRomData.Layer3.PaddingDestinationWord,
-            wordIncrement: 1);
+        new RoomFxVram(Vram).Layer3Area.Write(roomFxPadding);
 
         // The original copies $2000 bytes even though the named standard BG3 graphics are
         // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
         // VRAM $4000-$4FFF with zeroes.
         if (MapPresentation is null)
-            VramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.DestinationWord);
+            VramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, Assets.AssetVram.HudCharacterUploadDma);
         else
-            VramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.DestinationWord);
+            VramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, Assets.AssetVram.HudCharacterUploadDma);
 
         // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
         // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
         VramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
             sourceAddress: StandardObjectArtworkAddresses.Source,
-            encodedVramDestination: StandardObjectArtworkFormat.EncodedVramDestination);
+            destination: GameplayVram.ObjectCharactersDma());
         TrailArtwork?.Tiles?.QueueTo(VramWrites);
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
@@ -712,7 +722,7 @@ public sealed partial class SuperMetroidRuntime
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
         VramWrites.Enqueue(sizeInBytes: GameplayHudDefinitions.TopRowByteCount,
             sourceAddress: GameplayHudDefinitions.TopRowAddress,
-            encodedVramDestination: 0x5800);
+            destination: GameplayVram.HudTilemapDma());
 
         Hud.Initialize(_addressSpace, snapshot);
         Hud.QueueUpload(_addressSpace, VramWrites);
@@ -812,7 +822,7 @@ public sealed partial class SuperMetroidRuntime
         (BeamArtwork?.Palettes ?? throw new InvalidOperationException(
             "Grapple palette requires installed beam artwork."))
             .LoadTo(Cgram, SamusGrappleRomData.Palettes.FiringSelection);
-        Cgram.SetColor(SamusGrappleRomData.Palettes.FlareColorIndex, SamusGrappleRomData.Palettes.FlareColor);
+        new SamusPalettes(Cgram).GrappleFlare.Write(0, SamusGrappleRomData.Palettes.FlareColor);
     }
 
     /// <summary>

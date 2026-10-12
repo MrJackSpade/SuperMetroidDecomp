@@ -27,21 +27,15 @@ public sealed class PauseBackdropPresentation
     }
 
     /// <summary>Writes the selected area's complete 32-by-32 backdrop, including its authored area lettering, directly into VRAM.</summary>
-    /// <param name="vram">Destination video memory; bytes outside the 2048-byte tilemap image remain unchanged.</param>
-    /// <param name="destinationByteAddress">Physical VRAM byte offset, from 0 through <see cref="SnesVram.ByteCount"/> minus 2048; this is not a native word address.</param>
+    /// <param name="destination">The pause BG2 tilemap; words outside the 32-by-32 image remain unchanged.</param>
     /// <param name="area">Retail area whose installed backdrop is selected; the native Ceres label is COLONY.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area.</exception>
-    public void LoadTo(SnesVram vram, int destinationByteAddress, AreaId area)
+    public void LoadTo(VramRegion destination, AreaId area)
     {
         var selected = areas[AreaIds.ToIndex(area)];
-        Ensure.BetweenInclusive(0, SnesVram.ByteCount - PauseBackdropDefinitions.ByteCount, destinationByteAddress);
-        Span<byte> wordBytes = stackalloc byte[sizeof(ushort)];
+        Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.WordCount);
         for (int cell = 0; cell < PauseBackdropDefinitions.Cells; cell++)
-        {
-            ushort word = selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell);
-            BinaryPrimitives.WriteUInt16LittleEndian(wordBytes, word);
-            vram.LoadBytes(destinationByteAddress + cell * sizeof(ushort), wordBytes);
-        }
+            destination.Write(cell, selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell));
     }
 
     private static Dictionary<int, ushort> Differences(byte[] selected, Func<int, ushort> calculate)

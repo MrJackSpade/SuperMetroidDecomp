@@ -46,14 +46,9 @@ public sealed class RoomCharacterAtlas
         return new(encoded.AsSpan(0, nativeByteCount).ToArray());
     }
 
-    /// <summary>Uploads the compiled characters without exposing mutable backing bytes.</summary>
-    /// <param name="vram">VRAM receiving the complete character stream.</param>
-    /// <param name="destinationByteAddress">Destination offset in VRAM bytes, not the PPU's word-address units.</param>
-    public void LoadTo(SnesVram vram, int destinationByteAddress)
-    {
-        ArgumentNullException.ThrowIfNull(vram);
-        vram.LoadBytes(destinationByteAddress, planar);
-    }
+    /// <summary>Uploads the compiled characters to a fixed catalog destination.</summary>
+    /// <param name="destination">VRAM region receiving the complete character stream.</param>
+    public void LoadTo(VramRegion destination) => destination.Load(planar);
 }
 
 /// <summary>Host-file geometry for the CRE and graphics-set 4-bpp character streams.</summary>

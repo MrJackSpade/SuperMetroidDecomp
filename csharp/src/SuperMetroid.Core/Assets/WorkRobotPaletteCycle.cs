@@ -79,10 +79,10 @@ public sealed class WorkRobotPaletteCycle
     {
         ArgumentNullException.ThrowIfNull(cgram);
         if (destination < 0 ||
-            destination + WorkRobotPaletteRomData.ColorCount > SnesCgram.ColorCount)
+            destination + WorkRobotPaletteRomData.ColorCount > CgramPalettes.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(destination));
         for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)
-            cgram.SetColor(destination + color, Resolve(frame, color));
+            new CgramPalettes(cgram).All.Write(destination + color, Resolve(frame, color));
     }
 
     /// <summary>Loads and validates the six four-color Work Robot frames from JSON.</summary>

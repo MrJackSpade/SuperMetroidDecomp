@@ -5,6 +5,7 @@ using System.Buffers;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Source-aware reference for native Mode-1/window/color-math configurations.</summary>
+[PpuLayoutBoundary("backend: software PPU gameplay colour-math compositor")]
 public static class SoftwareGameplayColorMathRenderer
 {
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, GameplayColorMathRenderLayer layer,
@@ -41,9 +42,9 @@ public static class SoftwareGameplayColorMathRenderer
         Rgba32 backdrop = memory.Cgram.GetRgba(0);
         var colors = new Rgba32[256];
         for (int color = 0; color < colors.Length; color++) colors[color] = memory.Cgram.GetRgba(color);
-        var hud = new SnesBackgroundPixelSampler(memory.Vram, colors, SnesPpuLayout.GameplayHudTilemapWord,
+        var hud = new SnesBackgroundPixelSampler(memory.Vram, colors, GameplayVramLayout.HudTilemapWord,
             r.HudCharacterWord, new Extent16<TilemapCells>(32, 32), false);
-        var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, SnesPpuLayout.GameplayBg1TilemapWord,
+        var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, GameplayVramLayout.Bg1TilemapWord,
             r.Bg1CharacterWord, new Extent16<TilemapCells>(64, 32), true);
         var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, r.Bg2TilemapWord,
             r.Bg2CharacterWord, r.Bg2MapSize, true);

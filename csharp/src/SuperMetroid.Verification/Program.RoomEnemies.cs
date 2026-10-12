@@ -198,10 +198,10 @@ static void VerifyRoomEnemyLoading()
     AssertThrows<InvalidDataException>(() =>
         EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
             new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>())
-            .LoadTo(primaryDefinitionPointer, 0x40, new SnesVram(), 0xe000),
+            .LoadTo(primaryDefinitionPointer, 0x40, new VramStore(new SnesVram()).All, 0xe000),
         "missing installed enemy sheet fails at its actual upload");
     AssertThrows<InvalidDataException>(() =>
-        installedEnemies.TileArtwork!.LoadTo(primaryDefinitionPointer, 0x20, new SnesVram(), 0xe000),
+        installedEnemies.TileArtwork!.LoadTo(primaryDefinitionPointer, 0x20, new VramStore(new SnesVram()).All, 0xe000),
         "wrong-size enemy sheet cannot silently truncate its native transfer");
 
     // Reload the same object with an empty population and a deliberately invalid tileset.

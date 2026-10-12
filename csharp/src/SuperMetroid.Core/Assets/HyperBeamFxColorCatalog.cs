@@ -200,7 +200,7 @@ public sealed class HyperBeamFxColorCatalog
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= HyperBeamFxColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < HyperBeamFxColorFormat.ColorsPerFrame; color++)
-            cgram.SetColor(destination + color, Resolve(frame, color));
+            new CgramPalettes(cgram).All.Write(destination + color, Resolve(frame, color));
     }
 
     /// <summary>Serializes the projectile-color document as indented camel-case UTF-8 JSON, then validates it through <see cref="Load"/> before returning the bytes.</summary>

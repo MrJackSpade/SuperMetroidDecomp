@@ -200,11 +200,13 @@ internal static partial class Program
             case KraidPaletteConsumer.BackdropLoad:
             case KraidPaletteConsumer.InitialTargetLoad:
                 typeof(RoomEnemySystem).GetMethod("LoadKraidColorBand", flags)!
-                    .CreateDelegate<Action<KraidPaletteSource, int>>(enemies)(
+                    .CreateDelegate<Action<KraidPaletteSource, CgramPalette>>(enemies)(
                         consumer == KraidPaletteConsumer.BackdropLoad
                             ? KraidPaletteSource.RoomBackdrop
                             : KraidPaletteSource.InitialTarget,
-                        consumer == KraidPaletteConsumer.BackdropLoad ? 96 : 176);
+                        consumer == KraidPaletteConsumer.BackdropLoad
+                            ? new EnemyPalettes(cgram).KraidRoomBackdrop
+                            : new EnemyPalettes(cgram).KraidSprites);
                 break;
             case KraidPaletteConsumer.BackdropFade:
                 enemies.GradualColorChange.Numerator = 13;

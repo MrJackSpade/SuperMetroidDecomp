@@ -56,7 +56,7 @@ internal static partial class Program
             level.SetBehavior(index, memory[NativeSnapshotMemory.Bts + index]);
         }
 
-        runtime.Cgram.LoadBytes(memory.AsSpan(NativeSnapshotMemory.PaletteBuffer, SnesCgram.ByteCount));
+        runtime.Cgram.LoadBytes(memory.AsSpan(NativeSnapshotMemory.PaletteBuffer, CgramPalettes.ByteCount));
         var initialPaletteSlots = (Array)typeof(RoomPaletteFxSystem)
             .GetField("slots", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(runtime.RoomPaletteFx)!;
         for (int slot = 0; slot < initialPaletteSlots.Length; slot++)

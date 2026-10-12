@@ -71,7 +71,7 @@ public sealed class BeamPaletteCatalog
     {
         if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Color(selection, i));
+            new SamusPalettes(cgram).Beam.Write(i, Color(selection, i));
     }
 
     /// <summary>Serializes a beam-palette document as indented camel-case UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>

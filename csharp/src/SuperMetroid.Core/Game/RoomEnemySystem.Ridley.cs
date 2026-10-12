@@ -231,10 +231,8 @@ public sealed partial class RoomEnemySystem
         (TileArtwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley requires installed colors."))
             .ApplyInitial(_cgram!);
-        for (int color = 113; color <= 127; color++)
-            _cgram!.SetColor(color, Bgr555.Black);
-        for (int color = 241; color <= 255; color++)
-            _cgram!.SetColor(color, Bgr555.Black);
+        BossPalettes.NorfairRidleyBody.Fill(Bgr555.Black);
+        BossPalettes.NorfairRidleyTail.Fill(Bgr555.Black);
     }
 
     /// <summary>

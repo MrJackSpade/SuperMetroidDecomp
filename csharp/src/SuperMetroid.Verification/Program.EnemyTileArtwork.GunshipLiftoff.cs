@@ -49,7 +49,7 @@ internal static partial class Program
                 stockQueue.Entries[index].EncodedVramDestination,
                 $"takeoff frame {index} keeps the compiled VRAM target");
             nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
-                transfer.SourceAddress, transfer.DestinationWord);
+                transfer.SourceAddress, VramDmaDestination.FromNative(transfer.DestinationWord));
         }
         var installedVram = new SnesVram();
         var nativeVram = new SnesVram();
@@ -88,7 +88,7 @@ internal static partial class Program
             "gunship PNG edit changes only its selected planar pixel");
         var legacyQueue = new VramWriteQueue();
         legacyQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
-            transfers[0].SourceAddress, transfers[0].DestinationWord);
+            transfers[0].SourceAddress, VramDmaDestination.FromNative(transfers[0].DestinationWord));
         var legacyVram = new SnesVram();
         legacyQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(bus), runtime);
         AssertEqual(editedVram.ReadByte(firstDestinationByte),

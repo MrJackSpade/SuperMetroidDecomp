@@ -190,7 +190,7 @@ internal static partial class Program
     private static bool IsFileSelectPresentationAddress(int address) =>
         InFileSelectRange(address, FileSelectMapRomData.InitialMenuBackground,
             FileSelectMapRomData.TilemapBytes) ||
-        InFileSelectRange(address, FileSelectMapRomData.EntryPalette, SnesCgram.ByteCount) ||
+        InFileSelectRange(address, FileSelectMapRomData.EntryPalette, CgramPalettes.ByteCount) ||
         InFileSelectRange(address, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount) ||
         InFileSelectRange(address, WorldMapArtworkFormat.ForegroundSource,
             WorldMapArtworkFormat.ForegroundBytes) ||

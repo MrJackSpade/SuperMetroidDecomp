@@ -72,28 +72,4 @@ public static class SnesPpuLayout
     /// <summary>Complete low-plus-high OAM DMA payload.</summary>
     [PpuLayoutAccess]
     public const int OamUploadByteCount = OamLowTableByteCount + OamHighTableByteCount;
-
-    /// <summary>Ordinary gameplay BG1's first VMADD tilemap word.</summary>
-    [PpuLayoutAccess]
-    public const ushort GameplayBg1TilemapWord = 0x5000;
-
-    /// <summary>Ordinary gameplay BG2's first VMADD tilemap word.</summary>
-    [PpuLayoutAccess]
-    public const ushort GameplayBg2TilemapWord = 0x4800;
-
-    /// <summary>IRQ-visible gameplay HUD BG3's first VMADD tilemap word.</summary>
-    [PpuLayoutAccess]
-    public const ushort GameplayHudTilemapWord = 0x5800;
-
-    /// <summary>Ordinary gameplay BG3 character base selected by BG34NBA=$04.</summary>
-    [PpuLayoutAccess]
-    public const ushort GameplayHudCharacterBaseWord = 0x4000;
-
-    /// <summary>Shared menu BG1 tilemap location.</summary>
-    [PpuLayoutAccess]
-    public const ushort MenuBg1TilemapWord = 0x5000;
-
-    /// <summary>Shared menu BG2 tilemap location.</summary>
-    [PpuLayoutAccess]
-    public const ushort MenuBg2TilemapWord = 0x5800;
 }

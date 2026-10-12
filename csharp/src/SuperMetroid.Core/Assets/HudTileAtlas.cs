@@ -30,14 +30,14 @@ public sealed class HudTileAtlas : IInstalledArtworkTransferSource
             index * Game.KraidBackgroundRomData.StandardBg3TransferBytes,
             Game.KraidBackgroundRomData.StandardBg3TransferBytes);
     }
-    /// <summary>Writes all $2000 bytes: standard BG3 characters followed by the zero-filled tilemap-clearing half.</summary>
+    /// <summary>Writes all $2000 bytes at the standard BG3 character base: the characters followed by the zero-filled BG2 tilemap-clearing half.</summary>
     /// <param name="vram">Destination VRAM whose existing bytes are overwritten.</param>
-    /// <param name="destinationByteAddress">Physical VRAM byte offset, normally twice <see cref="HudTileAtlasFormat.DestinationWord"/>; not a native word address.</param>
-    public void LoadTo(SnesVram vram, int destinationByteAddress) => vram.LoadBytes(destinationByteAddress, transfer);
+    public void LoadTo(SnesVram vram) => new GameplayVram(vram).HudCharacterUpload.Load(transfer);
 
     /// <summary>Refreshes artwork without replaying the initial transfer's room-tilemap clearing half.</summary>
-    public void LoadCharactersTo(SnesVram vram, int destinationByteAddress) =>
-        vram.LoadBytes(destinationByteAddress, transfer.AsSpan(0, HudTileAtlasFormat.CharacterByteCount));
+    /// <param name="destination">The BG3 character region at the current character base.</param>
+    public void LoadCharactersTo(VramRegion destination) =>
+        destination.Load(transfer.AsSpan(0, HudTileAtlasFormat.CharacterByteCount));
 
     /// <summary>Compiles a 256-by-64 indexed PNG into 256 row-major 8-by-8 2-bpp HUD/minimap characters and appends the native zero-filled clearing half.</summary>
     /// <param name="png">Readable PNG stream at its current position; it remains open and caller-owned. Pixel indices must be 0..3; PNG RGB palette colors do not replace runtime CGRAM.</param>
@@ -63,8 +63,6 @@ public static class HudTileAtlasFormat
     public const int CharacterByteCount = MapTileAtlasFormat.Width * MapTileAtlasFormat.Height / 4;
     /// <summary>$2000-byte native upload: the character data plus the equal-sized all-zero BG2 tilemap-clearing region.</summary>
     public const ushort TransferByteCount = CharacterByteCount * 2;
-    /// <summary>VRAM word $4000, the standard BG3 character base; multiply by two for direct byte-addressed loads.</summary>
-    public const ushort DestinationWord = SnesPpuLayout.GameplayHudCharacterBaseWord;
     /// <summary>$9A:B200, Tiles_Standard_BG3; the installed transfer supplies these characters and the following Clear BG2 tilemap region rather than rereading cartridge bytes.</summary>
     public const int SourceAddress = MapTileAtlasRomData.HudCharacterData;
 }

@@ -108,8 +108,8 @@ public sealed partial class RoomEnemySystem
             sourceByteOffset, SporeSpawnColorRomData.HealthFrameCount);
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            _cgram!.SetColor(
-                SporeSpawnColorRomData.SpriteDestination + color,
+            BossPalettes.SporeSpawnBody.Write(
+                color,
                 (TileArtwork?.SporeSpawnColors ?? throw new InvalidDataException(
                     "Spore Spawn health palette requires installed artwork.")).ResolveHealth(frame, color));
         }
@@ -154,7 +154,7 @@ public sealed partial class RoomEnemySystem
             if (targetOnly)
                 state.WriteTargetColor(destination + color, value);
             else
-                _cgram!.SetColor(destination + color, value);
+                BossPalettes.SporeSpawnDeath(layer).Write(color, value);
         }
     }
 

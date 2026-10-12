@@ -107,7 +107,7 @@ public sealed class CrystalFlashColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-            cgram.SetColor(SamusPaletteRomData.CrystalFlash.BodyCgramStart + color,
+            new SamusPalettes(cgram).CrystalFlashBody.Write(color,
                 ResolveBody(frame, color));
     }
     /// <summary>Copies one bubble frame to CGRAM colors $EA-$EF without changing the body colors or advancing any gameplay timer.</summary>
@@ -119,7 +119,7 @@ public sealed class CrystalFlashColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-            cgram.SetColor(SamusPaletteRomData.CrystalFlash.BubbleCgramStart + color,
+            new SamusPalettes(cgram).CrystalFlashBubble.Write(color,
                 ResolveBubble(frame, color));
     }
 

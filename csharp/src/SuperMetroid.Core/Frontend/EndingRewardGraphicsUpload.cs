@@ -35,6 +35,7 @@ internal sealed class EndingRewardGraphicsUpload
             UploadChunk(vram, index);
     }
 
+    [PpuLayoutBoundary("codec: reward-icon chunk records' VMADD destinations")]
     private void UploadChunk(SnesVram vram, int index)
     {
         int source = EndingRewardGraphicsUploadDefinitions.SourceWord(index);

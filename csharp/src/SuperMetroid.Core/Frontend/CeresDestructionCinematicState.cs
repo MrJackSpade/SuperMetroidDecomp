@@ -121,28 +121,24 @@ internal sealed partial class CeresDestructionCinematicState
             value.CeresFlight.Palette.LoadTo(cgram);
         if (Phase <= CeresDestructionPhase.FadeOutCeres)
         {
-            vram.LoadMode7CharacterBytes(value.CeresFlight.Mode7Characters.Span);
-            vram.LoadBytes(CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
-                value.CeresFlight.ObjectCharacters.Span);
-            vram.LoadBytes(CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
-                value.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
+            new Mode7Vram(vram).LoadCharacters(value.CeresFlight.Mode7Characters.Span);
+            new CeresVram(vram).ObjectCharacters.Load(value.CeresFlight.ObjectCharacters.Span);
+            new CeresVram(vram).ObjectCharacters.Load(value.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
             int offset = Phase < CeresDestructionPhase.FlyingAwayFromExplosion
                 ? CeresDestructionRomData.Vram.CeresSceneTilemapOffset : 0;
-            vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(offset,
+            new Mode7Vram(vram).LoadMap(ceresTilemaps.AsSpan(offset,
                 CeresDestructionRomData.Vram.CeresSceneTilemapBytes));
             if (Phase >= CeresDestructionPhase.FlyingAwayFromExplosion)
                 LoadFinalExplosionMaps();
         }
         else
         {
-            vram.LoadMode7CharacterBytes(value.CeresFlight.Mode7Characters.Span);
-            vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(
+            new Mode7Vram(vram).LoadCharacters(value.CeresFlight.Mode7Characters.Span);
+            new Mode7Vram(vram).LoadMap(ceresTilemaps.AsSpan(
                 CeresDestructionRomData.Vram.MapHalfBytes,
                 CeresDestructionRomData.Vram.MapHalfBytes));
-            vram.LoadBytes(CeresDestructionRomData.Vram.ZebesTilemapDestinationByte,
-                value.CeresDestruction.ZebesMap.Transfer.Span);
-            vram.LoadBytes(CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
-                value.CeresDestruction.ZebesCharacters.Transfer.Span);
+            new CeresVram(vram).ZebesTilemap.Load(value.CeresDestruction.ZebesMap.Transfer.Span);
+            new CeresVram(vram).ObjectCharacters.Load(value.CeresDestruction.ZebesCharacters.Transfer.Span);
         }
     }
 
@@ -402,23 +398,21 @@ internal sealed partial class CeresDestructionCinematicState
         // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair. The
         // intro uses offsets zero and $300, so reusing either intro slice produces a
         // coherent but completely incorrect destruction shot.
-        vram.LoadMode7CharacterBytes(
+        new Mode7Vram(vram).LoadCharacters(
             characters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
-        vram.FillMode7MapBytes(
+        new Mode7Vram(vram).FillMap(
             CeresDestructionRomData.Vram.InitialMode7MapCharacter,
             CeresDestructionRomData.Vram.Mode7MapCapacityBytes);
-        vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(
+        new Mode7Vram(vram).LoadMap(ceresTilemaps.AsSpan(
             CeresDestructionRomData.Vram.CeresSceneTilemapOffset,
             CeresDestructionRomData.Vram.CeresSceneTilemapBytes));
-        vram.LoadBytes(
-            CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+        new CeresVram(vram).ObjectCharacters.Load(
             objectCharacters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
 
         // The final C11B DMA overwrites the first $1A00 OBJ bytes with the standard
         // cinematic sheet at $9A:D200. Preserve that overlap instead of displaying the
         // decompressed source's stale characters for explosion spritemaps.
-        vram.LoadBytes(
-            CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+        new CeresVram(vram).ObjectCharacters.Load(
             content.IntroObjectCharacters.Transfer.Span
                 [..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
         content.CeresFlight.Palette.LoadTo(cgram);
@@ -455,14 +449,12 @@ internal sealed partial class CeresDestructionCinematicState
 
         // C699 starts in Mode 1. It also stages the rear-gunship low-byte map at VRAM
         // zero; that dormant map becomes visible only when C7CA later selects Mode 7.
-        vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(
+        new Mode7Vram(vram).LoadMap(ceresTilemaps.AsSpan(
             CeresDestructionRomData.Vram.MapHalfBytes,
             CeresDestructionRomData.Vram.MapHalfBytes));
-        vram.LoadBytes(
-            CeresDestructionRomData.Vram.ZebesTilemapDestinationByte,
+        new CeresVram(vram).ZebesTilemap.Load(
             zebesTilemap.AsSpan(0, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes));
-        vram.LoadBytes(
-            CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+        new CeresVram(vram).ObjectCharacters.Load(
             zebesCharacters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
 
         actors.Clear();

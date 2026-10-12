@@ -25,8 +25,8 @@ public sealed class MapSpriteCatalog
             oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), origin);
         }
     }
-    /// <summary>Loads the compiled shared 4-bpp map-object characters at a byte-addressed VRAM destination.</summary>
-    public void LoadArtworkTo(SnesVram vram, int destinationByte) => characters.LoadTo(vram, destinationByte);
+    /// <summary>Loads the compiled shared 4-bpp map-object characters into the screen's OBJ character region.</summary>
+    public void LoadArtworkTo(VramRegion destination) => characters.LoadTo(destination);
     /// <summary>Selects an installed composition by its named native drawing role.</summary>
     private SpriteComposition? GetFrame(MapSpriteId id) => id switch
     {

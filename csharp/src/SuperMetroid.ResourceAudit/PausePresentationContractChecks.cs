@@ -18,6 +18,7 @@ internal static class PausePresentationContractChecks
         const string consumer = """
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Game;
+            using SuperMetroid.Core.Frontend;
             using SuperMetroid.Core.Hardware;
             class PauseConsumer {
                 void Inspect(PauseEquipmentBasePresentation baseImage, PauseBackdropPresentation backdrop,
@@ -27,8 +28,8 @@ internal static class PausePresentationContractChecks
                     baseImage.CreateTilemap();
                     baseImage.RebindBaseInto(page, labels);
                     baseImage.RebindBeforeInventoryRefreshInto(page);
-                    backdrop.LoadTo(vram, 0, AreaId.Ceres);
-                    backdrop.LoadTo(vram, 0, (AreaId)99);
+                    backdrop.LoadTo(new PauseVram(vram).Bg2Tilemap, AreaId.Ceres);
+                    backdrop.LoadTo(new PauseVram(vram).Bg2Tilemap, (AreaId)99);
                     backdrop.CreateButtonTilemap();
                     wireframe.ApplyTo(page, PauseWireframeKind.VariaSuitHiJump);
                     wireframe.ApplyTo(page, (PauseWireframeKind)99);

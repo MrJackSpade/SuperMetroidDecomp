@@ -55,8 +55,8 @@ public sealed partial class FileSelectAreaMapGraphics
             loadInitialBackground: false);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
-        ppu.Cgram.SetColor(14, Bgr555.Black);
-        ppu.Cgram.SetColor(30, Bgr555.Black);
+        new FrontendPalettes(ppu.Cgram).FileSelectEntryBlackFirst.Write(0, Bgr555.Black);
+        new FrontendPalettes(ppu.Cgram).FileSelectEntryBlackSecond.Write(0, Bgr555.Black);
         SelectArea(selectedArea);
     }
 
@@ -83,14 +83,13 @@ public sealed partial class FileSelectAreaMapGraphics
     private void LoadForeground()
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
-            .LoadTo(Vram, MenuPpuState.Bg1TilemapWord * 2, MapScreenDefinitions.WorldForeground);
+            .LoadTo(new MenuVram(Vram).Bg1Tilemap, MapScreenDefinitions.WorldForeground);
     }
 
     private void LoadBackground(AreaId selectedArea)
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
-            .LoadTo(Vram, FileSelectMapRomData.AreaBackgroundVram * 2,
-                MapScreenDefinitions.WorldBackground(selectedArea));
+            .LoadTo(new MenuVram(Vram).AreaBackgroundTilemap, MapScreenDefinitions.WorldBackground(selectedArea));
     }
 
     /// <summary>Refresh current layer artwork without selecting another area or restarting its palette fade.</summary>
@@ -112,7 +111,7 @@ public sealed partial class FileSelectAreaMapGraphics
     private void LoadInstalledPalette(AreaId selectedArea)
     {
         var colors = palettes!.World(selectedArea);
-        for (int color = 0; color < colors.Length; color++) Cgram.SetColor(color, colors[color]);
+        new CgramPalettes(Cgram).All.CopyFrom(colors);
     }
 
     /// <summary>
@@ -129,13 +128,14 @@ public sealed partial class FileSelectAreaMapGraphics
     /// <summary>Composes the unmasked 256-by-224 BG1 main scene plus additive BG3 subscreen, excluding OBJ labels and transition clipping; no menu state advances.</summary>
     /// <param name="includeBackdropInColorMath">True for steady/return $25 color math; false for forward-window $05 behavior, where transparent BG1 cells retain the backdrop without BG3 addition.</param>
     /// <returns>The owned RGBA frame, valid until this graphics owner renders again.</returns>
+    [PpuLayoutBoundary("backend: file-select area-map software PPU composition")]
     public Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true)
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
         Rgba32[] foreground = foregroundScratch ??= new Rgba32[256 * 224];
         foreground.AsSpan().Clear();
         SnesBgTilemapRenderer.Composite4BppViewport(
-            foreground, ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
+            foreground, ppu.Vram, ppu.Cgram, MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32));
         SnesLayerCompositor.Composite(pixels, foreground);
         Rgba32[] subscreen = subscreenScratch ??= new Rgba32[256 * 28 * 8];
         subscreen.AsSpan().Clear();

@@ -13,8 +13,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class MenuPpuState
 {
-    public const ushort Bg1TilemapWord = SnesPpuLayout.MenuBg1TilemapWord;
-    public const ushort Bg2TilemapWord = SnesPpuLayout.MenuBg2TilemapWord;
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
     public const int SpritemapPointerTableAddress = 0x82c569;
 
@@ -46,22 +44,22 @@ internal sealed class MenuPpuState
     public void BindMapTiles(MapTileAtlas? mapTiles)
     {
         (mapTiles ?? throw new InvalidOperationException(
-            "Menu PPU requires installed map tiles.")).LoadTo(Vram, 0x6000);
+            "Menu PPU requires installed map tiles.")).LoadTo(new MenuVram(Vram).MapCharacters);
     }
 
     public void BindMapSprites(MapSpriteCatalog? sprites)
     {
         (sprites ?? throw new InvalidOperationException(
             "Menu PPU requires installed sprite artwork."))
-            .LoadArtworkTo(Vram, MapSpriteFormat.FileSelectDestination);
+            .LoadArtworkTo(new MenuVram(Vram).ObjectCharacters);
     }
 
     public void BindMapPalettes(MapStaticPalettes? mapPalettes)
     {
         MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException(
             "Menu PPU requires installed palettes.");
-        for (int color = 0; color < SnesCgram.ColorCount; color++)
-            Cgram.SetColor(color, palettes.FileSelect[color]);
+        for (int color = 0; color < CgramPalettes.ColorCount; color++)
+            new CgramPalettes(Cgram).All.Write(color, palettes.FileSelect[color]);
     }
 
     public SnesCgram Cgram { get; } = new();
@@ -70,6 +68,6 @@ internal sealed class MenuPpuState
     {
         if (tilemapBytes.Length != 0x0800)
             throw new ArgumentException("Menu BG1 must contain one 32x32 two-byte tilemap.", nameof(tilemapBytes));
-        Vram.LoadBytes(Bg1TilemapWord * 2, tilemapBytes);
+        new MenuVram(Vram).Bg1Tilemap.Load(tilemapBytes);
     }
 }

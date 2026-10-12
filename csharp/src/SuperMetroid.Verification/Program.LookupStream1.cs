@@ -118,7 +118,7 @@ internal static partial class Program
         for (int page = 0; page < pages.Count; page++)
         {
             var queue = new VramWriteQueue();
-            queue.Enqueue((ushort)pageBytes, pages[page].SourceAddress, pages[page].EncodedVramDestination);
+            queue.Enqueue((ushort)pageBytes, pages[page].SourceAddress, VramDmaDestination.FromNative(pages[page].EncodedVramDestination));
             var actual = new SnesVram(); var expected = new SnesVram();
             expected.ExecuteQueuedAssetWrite(native.AsSpan(page * pageBytes, pageBytes).ToArray(), pages[page].EncodedVramDestination);
             queue.DrainTo(actual, ReferenceMutableMemory.From(rom), new DeathTileAssetProvider(stock));

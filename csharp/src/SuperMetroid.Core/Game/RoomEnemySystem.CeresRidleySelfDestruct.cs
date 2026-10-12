@@ -24,10 +24,8 @@ public sealed partial class RoomEnemySystem
             case 0:
                 // $A6:C062 copies four already-live colors before the warning graphics
                 // replace their tiles. These are palette indices, not byte offsets.
-                _cgram!.SetColor(97, _cgram.Colors[1]);
-                _cgram.SetColor(99, _cgram.Colors[3]);
-                _cgram.SetColor(81, _cgram.Colors[17]);
-                _cgram.SetColor(83, _cgram.Colors[19]);
+                CopyCeresWarningColors(CgramRows.BackgroundRow(0), CgramRows.BackgroundRow(6));
+                CopyCeresWarningColors(CgramRows.BackgroundRow(1), CgramRows.BackgroundRow(5));
                 state.CeresEscapeTransferListPointer = CeresEscapeVramTransferDefinitions.TimerSprites;
                 state.FunctionTimer = 2;
                 goto case 2;
@@ -121,6 +119,13 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    /// <summary>$A6:C062: colours one and three of <paramref name="source"/> replace those of <paramref name="destination"/>.</summary>
+    private static void CopyCeresWarningColors(CgramPalette source, CgramPalette destination)
+    {
+        destination.Write(1, source[1]);
+        destination.Write(3, source[3]);
+    }
+
     /// <summary>Ports DrawEmergencyText at $A6:C136 exactly.</summary>
     private void QueueCeresEmergencyText(VramWriteQueue? vramWriteQueue)
     {
@@ -137,10 +142,11 @@ public sealed partial class RoomEnemySystem
         vramWriteQueue.Enqueue(
             byteCount,
             page.SourceAddress,
-            CeresEscapeOverlayTilemapDefinitions.EmergencyDestination);
+            EnemyVram.CeresEmergencyTextDma);
     }
 
     /// <summary>Ports ProcessSpriteTilesTransfers at $A6:C26E one record per actor call.</summary>
+    [PpuLayoutBoundary("codec: Ceres escape VRAM transfer records' native destinations ($A6:C26E)")]
     private bool QueueNextCeresEscapeTransfer(
         RidleyEnemyState state,
         VramWriteQueue? vramWriteQueue)
@@ -174,7 +180,7 @@ public sealed partial class RoomEnemySystem
 
         if (EscapeTimerArtwork?.TryQueueNativeTransfer(
             vramWriteQueue, sourceAddress, byteCount, destination) != true)
-            vramWriteQueue.Enqueue(byteCount, sourceAddress, destination);
+            vramWriteQueue.Enqueue(byteCount, sourceAddress, VramDmaDestination.FromNative(destination));
 
         state.CeresEscapeTransferListPointer = unchecked((ushort)(pointer + 7));
         return CeresEscapeVramTransferDefinitions.IsTerminator(
@@ -182,6 +188,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Queues every record in the one-shot Japanese overlay list at $A6:C3B8.</summary>
+    [PpuLayoutBoundary("codec: Ceres Japanese overlay transfer records' native destinations ($A6:C3B8)")]
     private void QueueCeresTransferList(ushort pointer, VramWriteQueue? vramWriteQueue)
     {
         if (vramWriteQueue is null)
@@ -199,7 +206,7 @@ public sealed partial class RoomEnemySystem
                 throw new InvalidDataException(
                     $"Installed Ceres Japanese overlay ${pointer:X4} has no editable tilemap.");
             vramWriteQueue.Enqueue(transfer.ByteCount, transfer.SourceAddress,
-                transfer.DestinationWord);
+                VramDmaDestination.FromNative(transfer.DestinationWord));
         }
 
         throw new InvalidDataException("Ceres Japanese transfer list exceeded 32 records.");

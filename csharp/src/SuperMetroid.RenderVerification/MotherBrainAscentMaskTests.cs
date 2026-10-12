@@ -17,13 +17,13 @@ internal static class MotherBrainAscentMaskTests
             vram.LoadBytes(64 + row * 2, new byte[] { 0, 255 });
             vram.LoadBytes(96 + row * 2, new byte[] { 255, 0 });
         }
-        vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)1, 2048).ToArray(), SnesPpuLayout.GameplayBg1TilemapWord, 1);
-        vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x2002, 2048).ToArray(), SnesPpuLayout.GameplayBg2TilemapWord, 1);
+        vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)1, 2048).ToArray(), GameplayVramLayout.Bg1TilemapWord, 1);
+        vram.ExecuteWordTransfer(Enumerable.Repeat((ushort)0x2002, 2048).ToArray(), GameplayVramLayout.Bg2TilemapWord, 1);
         var oam = new byte[SnesPpuLayout.OamUploadByteCount];
         oam[0] = 16; oam[1] = 212; oam[2] = 3; oam[3] = 0x30;
         var memory = new PpuMemorySnapshot(vram.Bytes, cgram.Colors, oam, 1);
         var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
-            SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, 0x1000,
+            GameplayVramLayout.Bg2TilemapWord, 0, 0, 0x1000,
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
         ushort[] masks = Enumerable.Range(32, 192).Select(y => (ushort)(y < 56 ? 0x15 : y < 216 ? 0x13 : 0x05)).ToArray();
         foreach (bool active in new[] { true, false })

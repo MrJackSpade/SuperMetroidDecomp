@@ -319,6 +319,7 @@ public sealed partial class RoomEnemySystem
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(target.Position.X.Whole + projectile.Velocity.X.RawValue)), unchecked((ushort)(target.Position.Y.Whole + projectile.Velocity.Y.RawValue))));
     }
 
+    [PpuLayoutBoundary("codec: Mother Brain sprite tile transfer requests' native VRAM destinations")]
     private void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)
     {

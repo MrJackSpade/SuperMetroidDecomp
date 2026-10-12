@@ -45,10 +45,10 @@ public sealed class MotherBrainRoomColorPresentation
         int frame = offset / stride;
         for (int color = 0; color < MotherBrainRoomColorRomData.SliceColors; color++)
         {
-            cgram.SetColor(MotherBrainRoomColorRomData.FirstColor + color, flash.Color(frame, color));
+            new MotherBrainPalettes(cgram).RoomFirst.Write(color, flash.Color(frame, color));
             Bgr555 second = flash.Color(frame, MotherBrainRoomColorRomData.SliceColors + color);
-            cgram.SetColor(MotherBrainRoomColorRomData.SecondColor + color, second);
-            cgram.SetColor(MotherBrainRoomColorRomData.MirroredSecondColor + color, second);
+            new MotherBrainPalettes(cgram).RoomSecond.Write(color, second);
+            new MotherBrainPalettes(cgram).RoomSecondMirror.Write(color, second);
         }
     }
 
@@ -65,9 +65,9 @@ public sealed class MotherBrainRoomColorPresentation
         ArgumentNullException.ThrowIfNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.PhaseTwoColors; index++)
         {
-            cgram.SetColor(MotherBrainRoomColorRomData.PhaseTwoAttackColor + index,
+            new MotherBrainPalettes(cgram).PhaseTwoAttack.Write(index,
                 phaseTwoAttack.Color(index));
-            cgram.SetColor(MotherBrainRoomColorRomData.PhaseTwoRearLegColor + index,
+            new MotherBrainPalettes(cgram).PhaseTwoRearLegs.Write(index,
                 phaseTwoRearLeg?[index] ?? MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, index));
         }
     }
@@ -80,9 +80,9 @@ public sealed class MotherBrainRoomColorPresentation
         ArgumentNullException.ThrowIfNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.InitialColors; index++)
         {
-            cgram.SetColor(MotherBrainRoomColorRomData.InitialGlassShardColor + index,
+            new MotherBrainPalettes(cgram).GlassShards.Write(index,
                 initialGlassShard.Color(index));
-            cgram.SetColor(MotherBrainRoomColorRomData.InitialTubeProjectileColor + index,
+            new MotherBrainPalettes(cgram).TubeProjectiles.Write(index,
                 initialTubeProjectile.Color(index));
         }
     }
@@ -96,8 +96,8 @@ public sealed class MotherBrainRoomColorPresentation
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination; index++)
         {
-            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsFirstColor + index, Bgr555.Black);
-            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsSecondColor + index, Bgr555.Black);
+            new MotherBrainPalettes(cgram).RecoveryLightsFirst.Write(index, Bgr555.Black);
+            new MotherBrainPalettes(cgram).RecoveryLightsSecond.Write(index, Bgr555.Black);
         }
     }
 
@@ -115,9 +115,9 @@ public sealed class MotherBrainRoomColorPresentation
         for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination;
              index++)
         {
-            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsFirstColor + index,
+            new MotherBrainPalettes(cgram).RecoveryLightsFirst.Write(index,
                 recoveryLights.Color(frame, index));
-            cgram.SetColor(MotherBrainRoomColorRomData.RecoveryLightsSecondColor + index,
+            new MotherBrainPalettes(cgram).RecoveryLightsSecond.Write(index,
                 recoveryLights.Color(frame, MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination + index));
         }
     }
@@ -127,10 +127,10 @@ public sealed class MotherBrainRoomColorPresentation
         ArgumentNullException.ThrowIfNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.SliceColors; index++)
         {
-            cgram.SetColor(MotherBrainRoomColorRomData.FirstColor + index, colors[index]);
+            new MotherBrainPalettes(cgram).RoomFirst.Write(index, colors[index]);
             Bgr555 second = colors[MotherBrainRoomColorRomData.SliceColors + index];
-            cgram.SetColor(MotherBrainRoomColorRomData.SecondColor + index, second);
-            cgram.SetColor(MotherBrainRoomColorRomData.MirroredSecondColor + index, second);
+            new MotherBrainPalettes(cgram).RoomSecond.Write(index, second);
+            new MotherBrainPalettes(cgram).RoomSecondMirror.Write(index, second);
         }
     }
 

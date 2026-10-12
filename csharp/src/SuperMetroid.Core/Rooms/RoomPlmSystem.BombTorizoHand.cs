@@ -177,7 +177,12 @@ public sealed partial class RoomPlmSystem
 public readonly record struct PlmVramWriteRequest(
     ushort SizeInBytes,
     int SourceAddress,
-    ushort EncodedVramDestination);
+    ushort EncodedVramDestination)
+{
+    /// <summary>The queued-DMA destination the bytecode's native destination word encodes.</summary>
+    [PpuLayoutBoundary("codec: PLM bytecode VRAM write-table destination word")]
+    public VramDmaDestination Destination => VramDmaDestination.FromNative(EncodedVramDestination);
+}
 
 /// <summary>One <c>SpawnEprojWithRoomGfx($A993, parameter)</c> hand fragment.</summary>
 public readonly record struct BombTorizoStatueProjectileRequest(

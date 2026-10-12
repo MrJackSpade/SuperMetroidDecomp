@@ -88,7 +88,7 @@ public sealed partial class IntroCinematicState
             // targets must use the currently selected installed palette.
             var baseline = new SnesCgram();
             value.Palette.LoadTo(baseline);
-            baseline.Colors.CopyTo(introPalette);
+            new CgramPalettes(baseline).All.Colors.CopyTo(introPalette);
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(cgram);
             if (Phase is >= IntroCinematicPhase.WaitForPageOneMusicQueue and
@@ -99,27 +99,21 @@ public sealed partial class IntroCinematicState
                 value.FinalLine.Words.Span.CopyTo(textTilemap.AsSpan(
                     IntroCinematicRomData.Text.FinalLineDestinationStart,
                     IntroCinematicRomData.Text.FinalLineWordCount));
-                vram.ExecuteWordTransfer(value.FinalLine.Words.Span,
-                    (ushort)(IntroCinematicRomData.Layers.NarrationTilemapWord +
-                        IntroCinematicRomData.Text.FinalLineDestinationStart), 1);
+                new IntroVram(vram).NarrationTilemap.Write(value.FinalLine.Words.Span,
+                    IntroCinematicRomData.Text.FinalLineDestinationStart);
             }
-            vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
-                value.BackgroundCharacters.Transfer.Span);
-            vram.LoadBytes(IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
-                value.PortraitTilemap.Span);
+            var intro = new IntroVram(vram);
+            intro.BackgroundCharacters.Load(value.BackgroundCharacters.Transfer.Span);
+            intro.PortraitTilemap.Load(value.PortraitTilemap.Span);
             // The active eye rectangle overlays the base portrait after its VRAM upload.
             objects?.BindEyeArtwork(value.EyeFrames);
             // $8B:A66F replaces the initial BG3 card with live typewriter words
             // when page one begins. Never overwrite that current state on restore.
             if (InitialNarrationCardResident)
-                vram.LoadBytes(IntroCinematicRomData.Vram.NarrationTilemapDestinationByte,
-                    value.InitialNarrationTilemap.Span);
-            vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundPagesDestinationByte,
-                value.BackgroundPages.Span);
-            vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
-                value.IntroObjectCharacters.Transfer.Span);
-            vram.LoadBytes(IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte,
-                value.CinematicObjectCharacters.Transfer.Span);
+                intro.NarrationTilemap.Load(value.InitialNarrationTilemap.Span);
+            intro.BackgroundPages.Load(value.BackgroundPages.Span);
+            intro.IntroObjectCharacters.Load(value.IntroObjectCharacters.Transfer.Span);
+            intro.CinematicObjectCharacters.Load(value.CinematicObjectCharacters.Transfer.Span);
             // $8B:A3AC uploads beam tiles after the opening OBJ sheets; retain that
             // overlap without reloading the beam palette over a restored scene palette.
             SamusProjectileSystem.LoadBeamTiles(bus, vram, equippedBeams: 0,
@@ -148,7 +142,7 @@ public sealed partial class IntroCinematicState
     private readonly ushort[] textTilemap =
         new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
     private byte[] japaneseBlankCharacter = [];
-    private readonly Bgr555[] introPalette = new Bgr555[SnesCgram.ColorCount];
+    private readonly Bgr555[] introPalette = new Bgr555[CgramPalettes.ColorCount];
     private IntroCinematicObjectSystem? objects;
     private readonly IntroJapaneseSubtitles subtitles;
     private CinematicPaletteFader? paletteFader;
@@ -199,7 +193,7 @@ public sealed partial class IntroCinematicState
         this.beamArtwork = beamArtwork;
         this.samusBodyArtwork = samusBodyArtwork;
         characterArtwork.Palette.LoadTo(cgram);
-        cgram.Colors.CopyTo(introPalette);
+        new CgramPalettes(cgram).All.Colors.CopyTo(introPalette);
 
         byte[] bgCharacters = characterArtwork.BackgroundCharacters.Transfer.ToArray();
         byte[] fontOne = introFont.Transfer.ToArray();
@@ -224,19 +218,14 @@ public sealed partial class IntroCinematicState
         // decompression RAM. $8B:A86A repeats precisely this character when blanking the
         // optional Japanese glyph area; retain the source before host staging is discarded.
         // Literal VMADD values from `$8B:A469-$A529`, converted to physical byte offsets.
-        vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
-            bgCharacters.AsSpan(0, IntroCinematicRomData.Vram.BackgroundCharacterBytes));
+        var intro = new IntroVram(vram);
+        intro.BackgroundCharacters.Load(bgCharacters.AsSpan(0, IntroCinematicRomData.Vram.BackgroundCharacterBytes));
         ApplyIntroFont(fontOne);
-        vram.LoadBytes(IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
-            samusHeadTilemap.AsSpan(0, IntroCinematicRomData.Vram.SamusHeadTilemapBytes));
-        vram.LoadBytes(IntroCinematicRomData.Vram.NarrationTilemapDestinationByte,
-            firstNarrationTilemap.AsSpan(0, IntroCinematicRomData.Vram.NarrationTilemapBytes));
-        vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundPagesDestinationByte,
-            bg1Pages.AsSpan(0, IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
-        vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
-            characterArtwork.IntroObjectCharacters.Transfer.ToArray());
-        vram.LoadBytes(IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte,
-            introObjects.AsSpan(0, IntroCinematicRomData.Vram.ObjectCharacterBytes));
+        intro.PortraitTilemap.Load(samusHeadTilemap.AsSpan(0, IntroCinematicRomData.Vram.SamusHeadTilemapBytes));
+        intro.NarrationTilemap.Load(firstNarrationTilemap.AsSpan(0, IntroCinematicRomData.Vram.NarrationTilemapBytes));
+        intro.BackgroundPages.Load(bg1Pages.AsSpan(0, IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
+        intro.IntroObjectCharacters.Load(characterArtwork.IntroObjectCharacters.Transfer.ToArray());
+        intro.CinematicObjectCharacters.Load(introObjects.AsSpan(0, IntroCinematicRomData.Vram.ObjectCharacterBytes));
 
         // $8B:A3AC performs the ordinary beam tile/palette upload before copying the full
         // intro palette. The projectile tile DMA remains resident for both gameplay
@@ -261,7 +250,7 @@ public sealed partial class IntroCinematicState
         japaneseBlankCharacter = transfer.Slice(
             IntroCinematicRomData.Text.JapaneseBlankSourceOffset,
             IntroCinematicRomData.Text.JapaneseBlankCharacterByteCount).ToArray();
-        vram.LoadBytes(IntroCinematicRomData.Vram.FontOneDestinationByte, transfer);
+        new IntroVram(vram).FontOne.Load(transfer);
     }
 
     /// <summary>
@@ -1450,9 +1439,7 @@ public sealed partial class IntroCinematicState
             new byte[IntroCinematicRomData.Vram.JapaneseBlankCharactersByteCount];
         for (int offset = 0; offset < blankJapaneseCharacters.Length; offset += japaneseBlankCharacter.Length)
             japaneseBlankCharacter.CopyTo(blankJapaneseCharacters, offset);
-        vram.LoadBytes(
-            IntroCinematicRomData.Vram.JapaneseBlankCharactersDestinationByte,
-            blankJapaneseCharacters);
+        new IntroVram(vram).JapaneseBlankCharacters.Load(blankJapaneseCharacters);
 
         // ClearCinematicBgObjects($2F) fills the complete $7E:3000 staging tilemap. The
         // native border then replaces four 32-tile rows at the top and bottom.
@@ -1480,10 +1467,7 @@ public sealed partial class IntroCinematicState
         textTilemap[IntroCinematicRomData.Text.FinalBlankRightIndex] =
             IntroCinematicRomData.Text.FinalBlank.Raw;
 
-        vram.ExecuteWordTransfer(
-            textTilemap,
-            IntroCinematicRomData.Layers.NarrationTilemapWord,
-            1);
+        new IntroVram(vram).NarrationTilemap.Write(textTilemap);
         objects = new IntroCinematicObjectSystem(
             bus,
             vram,
@@ -1517,10 +1501,8 @@ public sealed partial class IntroCinematicState
             IntroCinematicRomData.Text.Blank.Raw,
             startIndex: IntroCinematicRomData.Text.GameplayBlankStartIndex,
             count: IntroCinematicRomData.Text.GameplayBlankWordCount);
-        vram.ExecuteWordTransfer(
-            textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount),
-            IntroCinematicRomData.Layers.NarrationTilemapWord,
-            1);
+        new IntroVram(vram).NarrationTilemap.Write(
+            textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount));
     }
 
     private void ClearPaletteSpans(IntroCinematicRomData.Palette.Regions spans)

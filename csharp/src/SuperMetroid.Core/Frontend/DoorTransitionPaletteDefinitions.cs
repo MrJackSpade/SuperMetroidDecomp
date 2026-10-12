@@ -5,26 +5,19 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Named color-copy operations of GameState_A_LoadingNextRoom, $82:E1F1-$E264.</summary>
 public static class DoorTransitionPaletteDefinitions
 {
-    /// <summary>$90:ACCD writes the sixteen beam colors directly to live sprite palette six.</summary>
-    private const int BeamPaletteStart = 224, BeamPaletteCount = 16;
-    /// <summary>$82:E52E writes Palettes_SpriteP4C4 when door IRQ scrolling completes.</summary>
-    public const int VisorColorIndex = 196;
     /// <summary>$82:E52B loads the ordinary green visor color before the final loading PLM call.</summary>
     private static readonly Bgr555 DoorCompletionVisorGreen = Bgr555.FromWord(0x3be0);
 
     /// <summary>Reproduces the live sprite-palette-six write of $90:ACCD after restoring the faded source colors; the newly loaded beam colors do not wait for the destination palette fade.</summary>
     /// <param name="current">Live CGRAM palette to receive colors 224..239; all other colors are retained.</param>
     /// <param name="loaded">Destination's captured palette, indexed by CGRAM color number, containing at least 240 colors.</param>
-    public static void RestoreLoadedBeamPalette(SnesCgram current, ReadOnlySpan<Bgr555> loaded)
-    {
-        for (int index = BeamPaletteStart; index < BeamPaletteStart + BeamPaletteCount; index++)
-            current.SetColor(index, loaded[index]);
-    }
+    public static void RestoreLoadedBeamPalette(SnesCgram current, ReadOnlySpan<Bgr555> loaded) =>
+        new DoorTransitionPalettes(current).RestoreBeamFrom(loaded);
 
     /// <summary>Performs $82:E52B-$E52E's live visor reset to $3BE0 when door scrolling completes, before the final loading PLM handler.</summary>
     /// <param name="current">Live CGRAM palette whose sprite-palette-four color four (index 196) is replaced; no fade target is modified.</param>
     public static void PublishCompletedScrollVisor(SnesCgram current) =>
-        current.SetColor(VisorColorIndex, DoorCompletionVisorGreen);
+        new DoorTransitionPalettes(current).Visor.Write(0, DoorCompletionVisorGreen);
 
     /// <summary>$82:E1F1: Palettes_BG3P2MinimapExplored; CGRAM slot copied unchanged during the source fade.</summary>
     private const int MinimapExplored = 9;

@@ -1,6 +1,8 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Rendering.Direct3D11;
 
 /// <summary>CPU/HLSL upload-layout identities; changes require matching shader and verification changes.</summary>
+[PpuLayoutBoundary("codec: GPU upload layout of the VRAM/CGRAM/OAM render snapshot")]
 internal static class D3D11ShaderLayout
 {
     internal const int SolidHeaderWords = 4;

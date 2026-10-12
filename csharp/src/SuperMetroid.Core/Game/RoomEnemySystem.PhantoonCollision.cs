@@ -273,8 +273,7 @@ public sealed partial class RoomEnemySystem
         if ((body.FrameCounter & 2) == 0 || (tentacles.Parameter2 & 0xff00) != 0)
             return;
 
-        for (int color = 0; color < 16; color++)
-            _cgram!.SetColor(112 + color, Bgr555.White);
+        BossPalettes.PhantoonBody.Fill(Bgr555.White);
         tentacles.Parameter2 |= 0x0100;
     }
 
@@ -282,8 +281,7 @@ public sealed partial class RoomEnemySystem
     {
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
         for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
-            _cgram!.SetColor(PhantoonColorRomData.BodyDestination + color,
-                ReadPhantoonHealthColor(healthBand, color));
+            BossPalettes.PhantoonBody.Write(color, ReadPhantoonHealthColor(healthBand, color));
     }
 
     /// <summary>Resolves the selected visual color; health-band selection stays in AI.</summary>

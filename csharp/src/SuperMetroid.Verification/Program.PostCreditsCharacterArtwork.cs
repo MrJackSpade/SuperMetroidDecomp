@@ -228,8 +228,8 @@ internal static partial class Program
                             if (fragment)
                             {
                                 int destination = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
-                                    ? EndingCreditsRomData.Rendering.PostCreditsFragmentADestination
-                                    : EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination;
+                                    ? (EndingVramLayout.PostCreditsFragmentA.Offset * 2)
+                                    : (EndingVramLayout.PostCreditsFragmentB.Offset * 2);
                                 int count = fileName == EndingObjectArtworkFormat.PostCreditsFragmentAFileName
                                     ? EndingObjectArtworkFormat.PostCreditsFragmentAByteCount
                                     : EndingObjectArtworkFormat.PostCreditsFragmentBByteCount;

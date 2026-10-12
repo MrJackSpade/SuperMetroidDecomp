@@ -62,7 +62,7 @@ public sealed class MapPaletteCycle
     {
         CheckFrame(frame);
         for (int color = 0; color < MapPaletteCycleFormat.ColorCount; color++)
-            destination.SetColor(firstColor + color,
+            new CgramPalettes(destination).All.Write(firstColor + color,
                 reverseColorEdits.TryGetValue(frame * MapPaletteCycleFormat.ColorCount + color, out Bgr555 edited)
                     ? edited : colors[Phase(frame)][color]);
     }

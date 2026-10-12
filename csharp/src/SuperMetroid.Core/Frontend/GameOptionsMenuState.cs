@@ -232,19 +232,20 @@ public sealed class GameOptionsMenuState
     }
 
     /// <summary>Renders the current options page, cursor, and brightness into a reusable RGBA frame.</summary>
+    [PpuLayoutBoundary("backend: options software PPU composition")]
     public Rgba32[] Render()
     {
         Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0),
+            ppu.Vram, ppu.Cgram, MenuVramLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0),
             new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
             new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight));
         SnesBgTilemapRenderer.Composite4BppViewport(
             background,
             ppu.Vram,
             ppu.Cgram,
-            MenuPpuState.Bg1TilemapWord,
+            MenuVramLayout.Bg1TilemapWord,
             0,
             new Position16<BgPlanePixels>(0, unchecked((ushort)bg1VerticalScroll)),
             new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),

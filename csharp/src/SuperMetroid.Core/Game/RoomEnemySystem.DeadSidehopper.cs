@@ -340,8 +340,8 @@ public sealed partial class RoomEnemySystem
             "Dead-sidehopper palette transformation requires installed artwork.");
         for (int color = 0; color < 15; color++)
         {
-            _cgram!.SetColor(
-                0x91 + color,
+            BossPalettes.DeadSidehopper.Write(
+                color,
                 colors.Resolve(SuperMetroid.Core.Assets.EnemyAuxiliaryPalette.DeadSidehopper,
                     state.PaletteStage - 1, color));
         }
@@ -524,6 +524,7 @@ public sealed partial class RoomEnemySystem
     private void BuildDeadSidehopperVramTransfers(DeadSidehopperEnemyState state) =>
         AppendDeadMonsterVramTransfers(state.VramTablePointer);
 
+    [PpuLayoutBoundary("codec: staged dead-monster corpse DMA records' native destinations")]
     private void QueueDeadSidehopperFrameVramTransfers(VramWriteQueue? queue)
     {
         if (queue is null)
@@ -533,7 +534,7 @@ public sealed partial class RoomEnemySystem
             queue.Enqueue(
                 transfer.SizeInBytes,
                 transfer.SourceAddress,
-                transfer.EncodedVramDestination);
+                VramDmaDestination.FromNative(transfer.EncodedVramDestination));
         }
     }
 

@@ -28,7 +28,7 @@ internal static partial class Program
         var installedIntro = CreateRetailIntroFixture(
             NewIntroFontGuard(nativeBus), introFont: font);
         AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
-            IntroCinematicRomData.Vram.FontOneDestinationByte,
+            (IntroVramLayout.FontOne.Offset * 2),
             IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Transfer.Span),
             "opening cinematic uploads the installed font without reading its ROM stream");
 
@@ -120,7 +120,7 @@ internal static partial class Program
         IntroFontAtlas editedFont = IntroFontAtlas.Load(editedFontPng);
         installedIntro.BindIntroFont(editedFont);
         AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
-            IntroCinematicRomData.Vram.FontOneDestinationByte,
+            (IntroVramLayout.FontOne.Offset * 2),
             IntroFontAtlasFormat.ByteCount).SequenceEqual(editedFont.Transfer.Span),
             "active opening cinematic rebinds edited font pixels");
 

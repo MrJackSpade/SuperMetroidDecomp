@@ -30,7 +30,7 @@ internal static partial class Program
                 { StandardObjectArt = baseline };
             runtime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
                 StandardObjectArtworkAddresses.Source,
-                StandardObjectArtworkFormat.EncodedVramDestination);
+                GameplayVram.ObjectCharactersDma());
             runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guard), runtime);
             AssertTrue(runtime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(baseline.Transfer.Span),
@@ -56,7 +56,7 @@ internal static partial class Program
                 { StandardObjectArt = edited };
             editedRuntime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
                 StandardObjectArtworkAddresses.Source,
-                StandardObjectArtworkFormat.EncodedVramDestination);
+                GameplayVram.ObjectCharactersDma());
             editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, ReferenceMutableMemory.From(guard), editedRuntime);
             AssertTrue(editedRuntime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(edited.Transfer.Span),

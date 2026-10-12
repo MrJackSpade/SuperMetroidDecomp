@@ -178,7 +178,7 @@ internal static partial class Program
             AssertTrue(atlas.Transfer.Span.SequenceEqual(native),
                 $"room atlas {name} preserves every native character byte");
             var vram = new SnesVram();
-            atlas.LoadTo(vram, 0);
+            atlas.LoadTo(new VramStore(vram).All);
             AssertTrue(vram.Bytes[..native.Length].SequenceEqual(native),
                 $"room atlas {name} uploads exactly the native character range");
         }

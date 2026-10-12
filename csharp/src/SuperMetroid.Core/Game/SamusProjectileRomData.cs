@@ -123,8 +123,6 @@ public static class SamusProjectileRomData
         public const int PseudoScrewPointers = 0x91d7ff;
         /// <summary>Hyper Beam shot palette pointers indexed by flash frame.</summary>
         public const int HyperBeamShotPointers = 0x91d829;
-        /// <summary>First CGRAM color occupied by Samus's OBJ palette.</summary>
-        public const int SamusCgramIndex = 192;
     }
 
     /// <summary>Missile, Super Missile, bomb, and linked-projectile definitions.</summary>

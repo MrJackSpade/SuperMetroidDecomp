@@ -11,6 +11,4 @@ public static class StandardObjectArtworkFormat
     public const string ManifestFileName = "standard-object-artwork.json";
     /// <summary>Selected $2E00-byte standard OBJ artwork span from $9A:D200; the native $82:8318 transfer spans $4000 bytes, while the intro uses the first $2000.</summary>
     public const int TransferByteCount = 0x2e00;
-    /// <summary>PPU word-address destination $6000 (VRAM byte offset $C000) for the standard OBJ transfer, with normal word increment.</summary>
-    public const ushort EncodedVramDestination = 0x6000;
 }

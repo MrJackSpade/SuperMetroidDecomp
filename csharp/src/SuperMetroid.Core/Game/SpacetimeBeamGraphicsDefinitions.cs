@@ -16,7 +16,7 @@ internal static class SpacetimeBeamGraphicsDefinitions
     {
         for (ushort color = 0; color < Assets.BeamPaletteDefinitions.ColorCount; color++)
             // The glitched pointer reads arbitrary words; the CGRAM port keeps fifteen bits.
-            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + color,
+            new SamusPalettes(cgram).Beam.Write(color,
                 Bgr555.FromCgramPortWord(new SamusOverreadMemory(bus).SpacetimePaletteWord(color)));
     }
 }

@@ -330,6 +330,7 @@ public sealed partial class RoomEnemySystem
                 record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
     }
 
+    [PpuLayoutBoundary("codec: staged Dead Torizo corpse DMA records' native destinations")]
     private void QueueDeadTorizoFrameVramTransfers(VramWriteQueue? queue)
     {
         if (queue is null)
@@ -339,7 +340,7 @@ public sealed partial class RoomEnemySystem
             queue.Enqueue(
                 transfer.SizeInBytes,
                 transfer.SourceAddress,
-                transfer.EncodedVramDestination);
+                VramDmaDestination.FromNative(transfer.EncodedVramDestination));
         }
     }
 

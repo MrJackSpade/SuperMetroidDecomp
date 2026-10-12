@@ -48,7 +48,7 @@ public sealed partial class FileSelectRoomMapGraphics
             mapPresentation.WorldArtwork, sprites, loadInitialBackground: false);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
-        ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
+        new MenuVram(ppu.Vram).AreaMapTilemap.Load(
             AreaMapTilemapBuilder.Build(mapPresentation.Get(area), system, hidden, revealMode));
 
         LoadFrame(mapPresentation.Screens, area);
@@ -58,7 +58,7 @@ public sealed partial class FileSelectRoomMapGraphics
     {
         (screens ?? throw new InvalidOperationException(
             "Room-map frame requires installed map-screen assets."))
-            .LoadTo(Vram, MenuPpuState.Bg2TilemapWord * 2, MapScreenDefinitions.RoomFrame(area));
+            .LoadTo(new MenuVram(Vram).Bg2Tilemap, MapScreenDefinitions.RoomFrame(area));
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
@@ -70,32 +70,33 @@ public sealed partial class FileSelectRoomMapGraphics
         icons.BindSprites(sprites);
         ppu.BindMapSprites(sprites);
         if (catalog is not null)
-            for (int color = 0; color < SnesCgram.ColorCount; color++)
+            for (int color = 0; color < CgramPalettes.ColorCount; color++)
                 if (color is < MapAnimationRomData.PaletteDestination or >= (MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount))
-                    Cgram.SetColor(color, catalog.Palettes.FileSelect[color]);
+                    new CgramPalettes(Cgram).All.Write(color, catalog.Palettes.FileSelect[color]);
         (catalog ?? throw new InvalidOperationException(
             "Room-map graphics require installed map presentation assets."))
-            .Tiles.LoadTo(Vram, FileSelectMapRomData.RoomCharacters * 2);
+            .Tiles.LoadTo(new MenuVram(Vram).MapCharacters);
         var system = icons.MapSystem;
         var area = icons.MapArea;
         ppu.BindWorldArtwork(catalog?.WorldArtwork);
         LoadFrame(catalog?.Screens, area);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
-        ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
+        new MenuVram(ppu.Vram).AreaMapTilemap.Load(
             AreaMapTilemapBuilder.Build((catalog ?? throw new InvalidOperationException(
                 "Room-map graphics require installed map presentation assets.")).Get(area), system, hidden));
     }
 
     /// <summary>BG2-only endpoint of $81:AC2D; room-map cells are not installed until $81:AD17.</summary>
     /// <returns>Owned 256-by-224 RGBA frame buffer, valid until this method renders again; BG2 uses fixed scroll (0, 24), with no map icons or timing updates.</returns>
+    [PpuLayoutBoundary("backend: file-select room-map software PPU composition")]
     public Rgba32[] RenderFrameOnly()
     {
         Rgba32[] pixels = frameOnlyBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
-        Array.Fill(pixels, Cgram.GetRgba(0));
+        Array.Fill(pixels, new CgramPalettes(Cgram).BackdropRgba);
         // Composite directly: transparent cells leave the backdrop, as compositing a plane would.
         SnesBgTilemapRenderer.Composite4BppViewport(pixels,
-            Vram, Cgram, MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
+            Vram, Cgram, MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
             new Position16<BgPlanePixels>(0, 24), new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), new Extent16<TilemapCells>(32, 32));
         return pixels;
     }
@@ -139,20 +140,21 @@ public sealed partial class FileSelectRoomMapGraphics
     /// <summary>Renders Mode-1 BG priorities with independent scrolling for map and fixed frame.</summary>
     /// <param name="scroll">BG1 scroll-register value in pixels.</param>
     /// <returns>Owned 256-by-224 RGBA buffer, overwritten by the next background or combined render; within each low/high priority tier the fixed BG2 frame precedes BG1 map cells.</returns>
+    [PpuLayoutBoundary("backend: file-select room-map software PPU composition")]
     public Rgba32[] RenderBackgrounds(Position16<MapPixels> scroll)
     {
         Rgba32[] pixels = backgroundsBuffer ??= new Rgba32[256 * 224];
-        Array.Fill(pixels, ppu.Cgram.GetRgba(0));
+        Array.Fill(pixels, new CgramPalettes(ppu.Cgram).BackdropRgba);
         for (int tier = 0; tier < 2; tier++)
         {
             // Mode 1 orders BG2 before BG1 within each background priority tier.
             bool priority = tier == 1;
             // Composited directly into the frame; transparent pixels leave it untouched.
             SnesBgTilemapRenderer.Composite4BppViewport(pixels,
-                Vram, Cgram, MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
+                Vram, Cgram, MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
                 new Position16<BgPlanePixels>(0, 24), SnesPpuLayout.ScreenSize, new Extent16<TilemapCells>(32, 32), priority: priority);
             SnesBgTilemapRenderer.Composite4BppViewport(pixels,
-                Vram, Cgram, MenuPpuState.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
+                Vram, Cgram, MenuVramLayout.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
                 scroll.AsBgPlaneScroll(), SnesPpuLayout.ScreenSize, priority: priority);
         }
         return pixels;

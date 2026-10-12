@@ -49,9 +49,9 @@ public sealed class MotherBrainHealthPalettePresentation
             throw new ArgumentOutOfRangeException(nameof(damageState));
         for (int color = 0; color < MotherBrainRainbowPaletteRomData.ColorCount; color++)
         {
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, body.Color(damageState, color));
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, body.Color(damageState, color));
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.SecondaryColor + color, backLegs.Color(damageState, color));
+            new MotherBrainPalettes(cgram).Body.Write(color, body.Color(damageState, color));
+            new MotherBrainPalettes(cgram).Brain.Write(color, body.Color(damageState, color));
+            new MotherBrainPalettes(cgram).RearLegs.Write(color, backLegs.Color(damageState, color));
         }
     }
 

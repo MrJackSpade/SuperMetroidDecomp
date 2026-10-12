@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 /// The translated routines still build authentic OAM and queue authentic VRAM transfers;
 /// this class merely makes those hardware buffers visible on a desktop and in PNG files.
 /// </remarks>
+[PpuLayoutBoundary("backend: software PPU OBJ rasterizer (OAM evaluation and OBJ character fetch)")]
 public static class SnesObjRenderer
 {
     /// <summary>Sentinel used when no opaque OBJ owns a raster pixel.</summary>

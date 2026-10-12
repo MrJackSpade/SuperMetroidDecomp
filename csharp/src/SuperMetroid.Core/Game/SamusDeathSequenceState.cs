@@ -291,16 +291,9 @@ public sealed class SamusDeathSequenceState
 
         Bgr555 shade = (artwork ?? throw new InvalidOperationException(
             "Samus death whiteout requires installed palette artwork.")).WhiteoutColor(AnimationCounter);
-        for (int color = 0; color < SamusPaletteRomData.Common.SamusObjPaletteStart; color++)
-            cgram.SetColor(color, shade);
-        for (int color =
-                SamusPaletteRomData.Common.SamusObjPaletteStart +
-                    SamusPaletteRomData.Common.ColorsPerObjPalette;
-            color < SamusPaletteRomData.Common.SuitlessObjPaletteStart;
-            color++)
-        {
-            cgram.SetColor(color, shade);
-        }
+        var palettes = new SamusPalettes(cgram);
+        palettes.DeathWhiteoutBelowSuit.Fill(shade);
+        palettes.DeathWhiteoutBetweenSuits.Fill(shade);
 
         if (AnimationCounter < 0x0014)
             AnimationCounter = unchecked((ushort)(AnimationCounter + 1));
@@ -321,9 +314,9 @@ public sealed class SamusDeathSequenceState
         {
             for (int color = 0; color < SamusDeathPaletteArtworkCatalog.ColorCount; color++)
             {
-                cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + color,
+                new SamusPalettes(cgram).Suit.Write(color,
                     artwork.SuitedColor(suitIndex / 2, paletteIndex, color));
-                cgram.SetColor(SamusPaletteRomData.Common.SuitlessObjPaletteStart + color,
+                new SamusPalettes(cgram).Suitless.Write(color,
                     artwork.SuitlessColor(paletteIndex, color));
             }
             return;
@@ -331,6 +324,7 @@ public sealed class SamusDeathSequenceState
         throw new InvalidOperationException("Samus death requires installed palette artwork.");
     }
 
+    [PpuLayoutBoundary("codec: Samus death tile segment records' native destinations")]
     private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
     {
         var segments =
@@ -341,7 +335,7 @@ public sealed class SamusDeathSequenceState
         vramWrites.Enqueue(
             sizeInBytes: SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
             sourceAddress: segment.SourceAddress,
-            encodedVramDestination: segment.EncodedVramDestination);
+            destination: VramDmaDestination.FromNative(segment.EncodedVramDestination));
         LastQueuedSegment = segmentIndex;
     }
 

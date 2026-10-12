@@ -8,33 +8,54 @@ internal static class VramDmaProducerContracts
         family = (owner, hash) switch
         {
             // #627 reviewed: native records now match through the typed EscapeTimerTilePage table; still enqueues only the two installed pages.
-            ("SuperMetroid.Core.Assets.EscapeTimerTileAtlas.TryQueueNativeTransfer", "D0CB15DC46B616672F4ABF1711B408E26C25499534E9EBADCDAA0010DF2E11BF") => "timer",
-            ("SuperMetroid.Core.Assets.GrappleTileAtlas.QueuePoint", "A2C82B42691558AB64B9927BB959BD43BDA58A64C27A998B69109A4DDED2299C") => "grapple-point",
-            ("SuperMetroid.Core.Assets.GrappleTileAtlas.QueueSegments", "4F3C3E18D4968EF278B1423ADA955413E7F0EF739943E6E2A2C310B1F4C32077") => "grapple-segment",
-            ("SuperMetroid.Core.Assets.ProjectileTrailAtlas.QueueTo", "AC33CFB7DD73737706097E3EE4FDF69AA3F192F309F06EE9AD1ED08EE950EB12") => "trails",
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueCeresEmergencyText", "54A804A7863688F277F41969841AFCF4B6F39E0A3AB348AC38B9F8E4E58A750C") => "emergency",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Assets.EscapeTimerTileAtlas.TryQueueNativeTransfer", "6C0779231792F33D50127AE5CB5D9EC517F124235A62C093B954CA18B1DD277F") => "timer",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Assets.GrappleTileAtlas.QueuePoint", "297DD83DB779E775F213058F544A6B8C60B9C1FA8077436C3B8C38A10D958830") => "grapple-point",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Assets.GrappleTileAtlas.QueueSegments", "46452EBDF1A2DB2C9F852D49EC81BFCCE4001C40EF030F0FEEE5DF8778CF60E8") => "grapple-segment",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Assets.ProjectileTrailAtlas.QueueTo", "8F3BFA7AD59D851120BDD276C6B514A9D4452927FAC9FC1D134A7CCA497D2CBC") => "trails",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueCeresEmergencyText", "A59704F1B07199E7D8C219E9F212CF0FF0054C081BB639D0AE44D2B1DF3AB3EE") => "emergency",
             // #627 reviewed: the escape-timer source guard now asks EscapeTimerTilePages.IsSource; transfer routing unchanged.
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueNextCeresEscapeTransfer", "BAAAD199EC31AE06CFBA606BAD73B4EA65CD810B452F40FA0323EAC0D351523A") => "ceres",
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueCeresTransferList", "A24FB0E2FF85491412E0521924419D6AEE6A0199BD978BD10E45EC123DAB01B9") => "ceres-japanese",
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueDeadSidehopperFrameVramTransfers", "7262A6E682A2CA5E114299556A10E169E1AC256BE9AE74FDC3F71A653890A6E0") => "corpse",
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueDeadTorizoFrameVramTransfers", "C38E4E76EC0C8172695329818A80151767AC4D67412EBE7962AF0C9203BEE66F") => "dead-torizo",
-            ("SuperMetroid.Core.Game.RoomEnemySystem.AdvanceKraidDeathBg3Transfer", "D22EF4DF07D73003473126C8FBB09CE03DF6BC26521AB970B5F71AEA4087312C") => "kraid",
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGraphicsUploads", "CF1DA21493A234AACBF7191BBD0264A72F282D3224338BF0C019FFD46F2543A0") => "enemies",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueNextCeresEscapeTransfer", "6FAB1BAF9C4205D7D0F2DB86E202B4D19C7F5630170BC2F3D74DA3830BBC6ED4") => "ceres",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueCeresTransferList", "210C7434F1DA503B4CB02D48FB5CE6DA699AA7DAFFE141F583C809904B6AF0BE") => "ceres-japanese",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueDeadSidehopperFrameVramTransfers", "EF3D714CDCC9C449DE6B22CC8679FCECFAC397308BF5AAF95E8B5ED2FB718580") => "corpse",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueDeadTorizoFrameVramTransfers", "C89748C8FEEBBB64D323600228ECBB97DD89BC37368BF99B8F474DD6BD000D6A") => "dead-torizo",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.AdvanceKraidDeathBg3Transfer", "6496DF692487A123D26832590F8A2DC7BA1CE328E7A233660508ABD48C55BEA3") => "kraid",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGraphicsUploads", "2C64F2B7BC45559D7CA1362930CE6EDE7BF953C6374FDE4F48793E321066B69A") => "enemies",
             // #627 re-pinned: only the gunship function write became the typed GunshipFunction.FireUpEngines.
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "9A200AA74DB1FC9E406E752D8AD2D3EFBEFDE2038A64B9439CFC3048F147E621") => "gunship",
-            ("SuperMetroid.Core.Game.RoomFxAnimatedTilesState.Step", "74D7F0380AB8B028C6809093235F87837DFD62D7794A242BEFA09C99182049CD") => "fx",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "38793C0CAA94D4826154247D6FC791CDEBCD4CF4992CEE52039D4FD874A185F9") => "gunship",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.RoomFxAnimatedTilesState.Step", "DBA98B7AA7364E53356FF5F085E846979519062D77DBCC4314A6E8D410ACEFD5") => "fx",
             // #628 reviewed: the OAM origin, layer-1 camera and Samus position became typed values; transfer source and count unchanged.
-            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "EC37A73DA413F9BD7373082C08B2959D7ED95D568D86E397609583E2F8F80649") => "arm",
-            ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "2EA2B64CC751F333B40AED2D5CD4E4FB7B6261003A1882E42E0CF34234C2EB4D") => "death",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "71A8B36C2F02E0B82996FDE11D51D35560044BAB105157E4BE37B653A3715EF8") => "arm",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "36126ABB3E9A9AC238EBF5FB38BEAD10705383A6B972F6978751B074FC4DC960") => "death",
             // #628 reviewed: the OAM origins, layer-1 camera and grapple anchor/flare became typed values; transfer source and count unchanged.
-            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "BBB8433532E18ED78343123D82F05922EE2C641B89B0F994B613ED7D47EA89A8") => "grapple-native",
-            ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "9400C1F1F3EB941C04621BC070CE56B89828DFFFD4A90A89DD48495304C9700B") => "beam",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "3A46FDAF849CD135A2F3083953A85A1C258FAD73DA5BFB03E86D0CB631C74E73") => "grapple-native",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "88C6638A97CCA42A88F03C6ECB9622FD9BFC013ADD394D524A07E3244B20074B") => "beam",
             // #627 re-pin: the chunk table parameter became ScrollingSkyChunkTable with the same two tables; sources and counts unchanged.
-            ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "A2AD8385A17B2882557B10624010100C822C3E1F6065403D06698A5C6B73C32B") => "sky",
-            ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "91776F442E0E3B352859873875ED9CC1EEF2DE5B7AE0404EF11E0B7B3FA74322") => "statues",
-            ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "3326DF0E41031BBC1A775D7CB9AE16CD0E0DEACDBFF496AD2482229F046152CE") => "treadmill",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "D4A69DE535DAB85451E27199652458C96B21B079078C25AA5C4A9C464F3D443C") => "sky",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.TourianStatueSequence.StepTiles", "1F6B454946130A398244264B243CCB7F64600E90844442D01C7993E82C666F55") => "statues",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.WreckedShipTreadmillAnimatedTilesState.Step", "2C16DDAE96CCA50EA3B18A5548E934889989B587526D7424B20F1A329A9A7D36") => "treadmill",
             // #628 reviewed: the camera and BG1 offset are read from their typed positions and the PLM step takes the camera as one Position16<RoomPixels>; PLM VRAM requests unchanged.
-            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "0988026C82C1790773401B94A5DD8959CDB8CADEA1A3D69796C98D23C29BBDAE") => "plm",
+            // #630 reviewed: the queued destination became a typed VramDmaDestination from a layout cell or native record; sources and counts unchanged.
+            ("SuperMetroid.Core.Runtime.SuperMetroidRuntime.RunPlmHandlerCore", "BBB4E43AC1D0F7D481607B4280683DAE286EECDE903D679E0D7160F49D018FD4") => "plm",
             _ => null,
         };
         return family is not null;

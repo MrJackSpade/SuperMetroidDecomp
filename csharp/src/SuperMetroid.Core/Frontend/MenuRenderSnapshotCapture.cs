@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Captures the shared menu compositor without retaining menu state.</summary>
 internal static class MenuRenderSnapshotCapture
 {
+    [PpuLayoutBoundary("codec: shared menu render packet layers")]
     internal static LayeredRenderSnapshot Capture(MenuPpuState ppu, OamBuffer oam,
         ushort bg1VerticalScroll, byte brightness)
     {
@@ -14,8 +15,8 @@ internal static class MenuRenderSnapshotCapture
         // gameplay priority ladder while moving composition to another backend.
         RenderLayer[] layers =
         [
-            new Bg4BppRenderLayer(MenuPpuState.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null),
-            new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, bg1VerticalScroll), new Extent16<TilemapCells>(32, 32), null),
+            new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null),
+            new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, bg1VerticalScroll), new Extent16<TilemapCells>(32, 32), null),
             new ObjRenderLayer(),
         ];
         return new(PpuMemorySnapshot.Capture(ppu.Vram, ppu.Cgram, oam), layers,

@@ -118,12 +118,12 @@ internal static partial class Program
                         out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} queued VRAM DMA resolves its installed PNG");
                 var vram = new SnesVram();
-                stock.LoadTo(pointer, byteCount, vram, 0);
+                stock.LoadTo(pointer, byteCount, new VramStore(vram).All, 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, definition);
                 var installedCgram = new SnesCgram();
-                stock.LoadPaletteTo(pointer, installedCgram, 8 * 16);
+                stock.LoadPaletteTo(pointer, new CgramPalettes(installedCgram).All.Slice(8 * 16, 16));
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                     $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
             }
@@ -216,15 +216,15 @@ internal static partial class Program
                 "Crocomire melt tilemap override survives catalog reload");
             var stockVram = new SnesVram();
             var editedVram = new SnesVram();
-            stock.LoadTo(editedPointer, editedByteCount, stockVram, 0);
-            edited.LoadTo(editedPointer, editedByteCount, editedVram, 0);
+            stock.LoadTo(editedPointer, editedByteCount, new VramStore(stockVram).All, 0);
+            edited.LoadTo(editedPointer, editedByteCount, new VramStore(editedVram).All, 0);
             AssertEqual((byte)(stockVram.ReadByte(0) ^ 0x80), editedVram.ReadByte(0),
                 "edited enemy PNG changes its first indexed pixel at the native tile location");
             AssertTrue(stockVram.Bytes[1..].SequenceEqual(editedVram.Bytes[1..]),
                 "enemy PNG edit leaves all neighboring VRAM bytes unchanged");
             var reloadedVram = new SnesVram();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .LoadTo(editedPointer, editedByteCount, reloadedVram, 0);
+                .LoadTo(editedPointer, editedByteCount, new VramStore(reloadedVram).All, 0);
             AssertTrue(reloadedVram.Bytes.SequenceEqual(editedVram.Bytes),
                 "enemy override survives content reload without modifying stock PNG");
 
@@ -242,8 +242,8 @@ internal static partial class Program
             EnemyTileArtworkCatalog editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             var originalColors = new SnesCgram();
             var changedColors = new SnesCgram();
-            stock.LoadPaletteTo(editedPointer, originalColors, 8 * 16);
-            editedPalette.LoadPaletteTo(editedPointer, changedColors, 8 * 16);
+            stock.LoadPaletteTo(editedPointer, new CgramPalettes(originalColors).All.Slice(8 * 16, 16));
+            editedPalette.LoadPaletteTo(editedPointer, new CgramPalettes(changedColors).All.Slice(8 * 16, 16));
             AssertEqual((ushort)(originalColors.Colors[128].ToWord() ^ 1), changedColors.Colors[128],
                 "RGB5 override changes its selected enemy palette channel");
             for (int color = 0; color < SnesCgram.ColorCount; color++)
@@ -252,7 +252,7 @@ internal static partial class Program
                         "enemy palette edit leaves all other CGRAM slots unchanged");
             var reloadedColors = new SnesCgram();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .LoadPaletteTo(editedPointer, reloadedColors, 8 * 16);
+                .LoadPaletteTo(editedPointer, new CgramPalettes(reloadedColors).All.Slice(8 * 16, 16));
             AssertTrue(reloadedColors.Colors.SequenceEqual(changedColors.Colors),
                 "enemy palette override survives catalog reload");
 

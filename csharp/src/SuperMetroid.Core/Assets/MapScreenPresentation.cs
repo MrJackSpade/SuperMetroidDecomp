@@ -9,8 +9,8 @@ public sealed class MapScreenPresentation
 {
     private readonly Dictionary<string, byte[]> pages;
     private MapScreenPresentation(Dictionary<string, byte[]> pages) => this.pages = pages;
-    /// <summary>Copies the named, compiled 32-by-32 tilemap page to the requested VRAM byte address.</summary>
-    public void LoadTo(SnesVram vram, int destinationByteAddress, string page) => vram.LoadBytes(destinationByteAddress, pages[page]);
+    /// <summary>Copies the named, compiled 32-by-32 tilemap page into <paramref name="destination"/>.</summary>
+    public void LoadTo(VramRegion destination, string page) => destination.Load(pages[page]);
     /// <summary>Loads and validates the complete set of named map-screen pages from JSON.</summary>
     public static MapScreenPresentation Load(Stream json)
     {

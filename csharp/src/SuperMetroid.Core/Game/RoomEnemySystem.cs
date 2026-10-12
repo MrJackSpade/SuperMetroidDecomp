@@ -526,13 +526,12 @@ public sealed partial class RoomEnemySystem
         EnsureLoaded();
         foreach (RoomEnemyGraphicsSetEntry entry in _graphicsSet)
         {
-            int destinationByteOffset = RoomEnemyRomLayout.VramByteBase + entry.StagingOffset;
-            if ((destinationByteOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
+            if ((entry.StagingOffset & 1) != 0 || entry.TileByteCount > ushort.MaxValue)
                 throw new InvalidDataException("Enemy tile DMA is not word-aligned or exceeds one native transfer.");
             queue.Enqueue(
                 unchecked((ushort)entry.TileByteCount),
                 entry.Definition.TileDataAddress,
-                unchecked((ushort)(destinationByteOffset / 2)));
+                EnemyVram.EnemyTilesDma(entry.StagingOffset / 2));
         }
     }
 
@@ -1113,24 +1112,23 @@ public sealed partial class RoomEnemySystem
             // enemy's selected code/data bank. Its assembly masks the entire low byte before
             // adding the native eight-row OBJ bias. Retail records use values zero through
             // seven, but retaining the wider mask makes corrupt data fail visibly.
-            int destinationColor = ((vramDestination & 0x00ff) + 8) * 16;
             (TileArtwork ?? throw new InvalidOperationException(
                 "Enemy population requires installed palette artwork."))
-                .LoadPaletteTo(definitionPointer, cgram, destinationColor);
+                .LoadPaletteTo(definitionPointer, new CgramPalettes(cgram).ObjectRow(vramDestination & 0x00ff));
 
             int byteCount = definition.TileDataSize & 0x7fff;
             int stagingOffset = (definition.TileDataSize & 0x8000) != 0
                 ? (vramDestination & 0x3000) >> 3
                 : nextStagingOffset;
             int vramByteOffset = RoomEnemyRomLayout.VramByteBase + stagingOffset;
-            if (vramByteOffset < 0 || vramByteOffset + byteCount > SnesVram.ByteCount)
+            if (vramByteOffset < 0 || stagingOffset + byteCount > new EnemyVram(vram).EnemyTiles.ByteCount)
             {
                 throw new InvalidDataException(
                     $"Enemy ${(int)definitionPointer:X4} tile DMA would leave VRAM: " +
                     $"offset ${vramByteOffset:X4}, size ${byteCount:X4}.");
             }
 
-            TileArtwork!.LoadTo(definitionPointer, byteCount, vram, vramByteOffset);
+            TileArtwork!.LoadTo(definitionPointer, byteCount, new EnemyVram(vram).EnemyTiles, stagingOffset);
 
             _graphicsSet.Add(new RoomEnemyGraphicsSetEntry(
                 definitionPointer,
@@ -2499,6 +2497,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports gunship function 17 at <c>$A2:ABC7</c>.</summary>
+    [PpuLayoutBoundary("codec: gunship liftoff transfer records' native VRAM destinations ($A2:ABC7)")]
     private void QueueGunshipTakeoffTiles(
         RoomEnemySlot top,
         VramWriteQueue? vramWriteQueue)
@@ -2513,10 +2512,10 @@ public sealed partial class RoomEnemySystem
             GunshipLiftoffTransferDefinitions.Frames[transferIndex];
         if (TileArtwork?.GunshipLiftoff is not null)
             vramWriteQueue.EnqueueAsset(transfer.Asset,
-                GunshipLiftoffTransferDefinitions.ByteCount, transfer.DestinationWord);
+                GunshipLiftoffTransferDefinitions.ByteCount, VramDmaDestination.FromNative(transfer.DestinationWord));
         else
             vramWriteQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
-                transfer.SourceAddress, transfer.DestinationWord);
+                transfer.SourceAddress, VramDmaDestination.FromNative(transfer.DestinationWord));
 
         top.VariableB++;
         if (top.VariableB >= GunshipLiftoffTransferDefinitions.Frames.Length)
@@ -2739,6 +2738,7 @@ public sealed partial class RoomEnemySystem
     /// resolves by its compiled descriptor. Unknown transfers cannot fall back
     /// to an address-based cartridge decoder.
     /// </summary>
+    [PpuLayoutBoundary("codec: Torizo instruction-list VRAM transfer records ($AA, bank-$A0 $814B)")]
     private void ApplyEnemyInstructionVramTransfer(RoomEnemySlot slot,
         ushort instruction)
     {

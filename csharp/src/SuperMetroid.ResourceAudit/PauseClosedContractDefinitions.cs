@@ -15,7 +15,7 @@ internal static class PauseClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/PauseReserveUiDefinitions.cs", "677659877C825CD0CB7CE19BF9F627A3723859123E43F71A5188F4D3DFC1C301"),
              new("csharp/src/SuperMetroid.Core/Frontend/PauseMenuDefinitions.cs", "8DA0EB3ACAC6D10737322F7DF139EB50153CBF7B7804FE8EF93711661911FD01")]),
         new("SuperMetroid.Core.Assets.PauseBackdropPresentation", "pause-backdrop-complete-area-images", ["CreateButtonTilemap", "LoadTo"],
-            [new("csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs", "7A1D73D3BA8D2B405361B80B7937CDDE2F511FBF3A8BB741D85E76EEE0F846B5"),
+            [new("csharp/src/SuperMetroid.Core/Assets/PauseBackdropPresentation.cs", "27A84400725E0A25CBF79829DD6F427E0073E353E72AACC57AEAAAD7331BAF30"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseBackdropDefinitions.cs", "7499F8AE9B15E860C7F6343E6F376F0DD5578BE728D4978B0FF44C401FCF8EB0"),
              new("csharp/src/SuperMetroid.Core/Assets/PauseTileGrid.cs", "11692E4C29574E1E271A9909DE1D2B7C610CFBC09DF70D2E3ACAB84D6510C92D"),
              new("csharp/src/SuperMetroid.Core/Game/AreaId.cs", "34967995C1C41594033A1B1824A26C2181EE2D90862E68A15EF36D53899F35B5")]),

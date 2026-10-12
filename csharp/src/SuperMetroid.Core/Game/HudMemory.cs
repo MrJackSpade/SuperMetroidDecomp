@@ -27,10 +27,10 @@ public readonly struct HudMemory(ISnesMemoryBus bus)
     /// <summary>The three mutable HUD rows, row-major.</summary>
     public WorkRamWordTable MutableTilemap => new(bus, HudWorkRam.MutableTilemap);
 
-    /// <summary>Appends the queue entry that DMAs the whole mutable tilemap buffer to <paramref name="vramDestination"/>.</summary>
-    public static void EnqueueMutableTilemapUpload(VramWriteQueue queue, ushort vramDestination)
+    /// <summary>Appends the queue entry that DMAs the whole mutable tilemap buffer to the HUD's mutable BG3 rows.</summary>
+    public static void EnqueueMutableTilemapUpload(VramWriteQueue queue)
     {
         Ensure.NotNull(queue);
-        queue.Enqueue(HudState.MutableByteCount, HudWorkRam.MutableTilemapAddress, vramDestination);
+        queue.Enqueue(HudState.MutableByteCount, HudWorkRam.MutableTilemapAddress, RoomFxVram.HudMutableRowsDma);
     }
 }

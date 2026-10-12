@@ -56,8 +56,7 @@ public sealed class FileSelectPresentation
     public int HelmetFrameDuration => document.HelmetFrameDuration;
 
     internal void LoadBackground(SnesVram vram) =>
-        vram.ExecuteWordTransfer(pages[FileSelectPresentationDefinitions.BackgroundPage],
-            MenuPpuState.Bg2TilemapWord, 1);
+        new MenuVram(vram).Bg2Tilemap.Write(pages[FileSelectPresentationDefinitions.BackgroundPage]);
 
     internal void CopyPage(string name, Span<ushort> destination)
     {

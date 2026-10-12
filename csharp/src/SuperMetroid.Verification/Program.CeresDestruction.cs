@@ -20,7 +20,7 @@ static void VerifyCeresDestructionCinematic()
     AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionRomData.Motion.ApproachAngle,
         "Ceres destruction typed approach angle");
     AssertTrue(
-        CeresDestructionRomData.Vram.ObjectCharacterDestinationByte +
+        (CeresVramLayout.ObjectCharacters.Offset * 2) +
             CeresDestructionRomData.Vram.Mode7CharacterBytes <= SnesVram.ByteCount,
         "Ceres destruction OBJ transfer fits VRAM");
 

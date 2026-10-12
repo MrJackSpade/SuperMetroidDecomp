@@ -56,10 +56,7 @@ public sealed partial class SamusProjectileSystem
                 SamusProjectileRomData.Beams.InitialSpeedRowBytes))
             : unchecked((ushort)(slot.InstructionPointer -
                 SamusProjectileRomData.Instructions.AnimationRecordByteCount));
-        ChainsawWindowRegisters.WriteWord(
-            unchecked((ushort)(GameplayWindowRegisterAddresses.Window12Selection +
-                slot.NativeByteIndex)),
-            inheritedY);
+        ChainsawWindowRegisters.StoreProjectileIndexedWord(slot.NativeByteIndex, inheritedY);
 
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(
             slot.Variable,

@@ -17,9 +17,7 @@ public sealed partial class RoomEnemySystem
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects &&
             step.PhaseAfter != step.PhaseBefore)
         {
-            for (int i = 0; i < MotherBrainDeathRomData.CorpseColorCount; i++)
-                _cgram!.SetColor(MotherBrainDeathRomData.CorpseColors + i,
-                    _cgram.Colors[MotherBrainDeathRomData.BrainColors + i]);
+            BossPalettes.MotherBrainCorpse.CopyFrom(BossPalettes.MotherBrainBrain.Colors);
             state.BrainPaletteIndex = sequence.BrainPaletteIndex;
             state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
@@ -46,7 +44,7 @@ public sealed partial class RoomEnemySystem
             WorkRamWordTable bg2 = EnemyScratch.EnemyBg2Tilemap;
             for (int i = 0; i < words.Length; i++)
                 bg2[i] = words[i];
-            _vram!.ExecuteWordTransfer(words, SnesPpuLayout.GameplayBg2TilemapWord, wordIncrement: 1);
+            new EnemyVram(_vram!).EnemyBg2Tilemap.Write(words);
             state.EnemyBg2TilemapSize = MotherBrainDeathRomData.Bg2LastByte;
             state.EnemyBg2TilemapTransferRequested = true;
         }
@@ -77,9 +75,7 @@ public sealed partial class RoomEnemySystem
             state.EscapeTypewriter = EscapeTypewriterPresentation is { } presentation
                 ? new(presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase)
                 : new(EscapeTypewriterRomData.ZebesText, EscapeTypewriterRomData.ZebesTileBase);
-            for (int i = 0; i < 2; i++)
-                _cgram!.SetColor(EscapeTypewriterRomData.ColorDestination + i,
-                    _cgram.Colors[EscapeTypewriterRomData.ColorSource + i]);
+            BossPalettes.EscapeTypewriterText.CopyFrom(BossPalettes.EscapeTypewriterSource.Colors);
             state.Bg2Scroll = Position16<Bg2Pixels>.Zero;
         }
         if (step.ExplodedDoorPaletteRequested)
@@ -118,10 +114,9 @@ public sealed partial class RoomEnemySystem
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             {
                 Bgr555 shared = colors.BodyColor(frame, color);
-                _cgram!.SetColor(MotherBrainDeathRomData.BodyColors + color, shared);
-                _cgram.SetColor(MotherBrainDeathRomData.BrainColors + color, shared);
-                _cgram.SetColor(MotherBrainDeathRomData.LegColors + color,
-                    colors.LegColor(frame, color));
+                BossPalettes.MotherBrainBody.Write(color, shared);
+                BossPalettes.MotherBrainBrain.Write(color, shared);
+                BossPalettes.MotherBrainLegs.Write(color, colors.LegColor(frame, color));
             }
             return;
         }
@@ -133,8 +128,7 @@ public sealed partial class RoomEnemySystem
         if (TileArtwork?.MotherBrainDeathColors is { } colors)
         {
             for (int color = 0; color < MotherBrainDeathRomData.CorpseColorCount; color++)
-                _cgram!.SetColor(MotherBrainDeathRomData.CorpseColors + color,
-                    colors.CorpseColor(frame, color));
+                BossPalettes.MotherBrainCorpse.Write(color, colors.CorpseColor(frame, color));
             return;
         }
         throw new InvalidOperationException("Mother Brain corpse fade requires installed colors.");
@@ -145,8 +139,7 @@ public sealed partial class RoomEnemySystem
         if (TileArtwork?.MotherBrainDeathColors is { } colors)
         {
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
-                _cgram!.SetColor(MotherBrainDeathRomData.BrainColors + color,
-                    colors.ExplodedDoorColor(color));
+                BossPalettes.MotherBrainBrain.Write(color, colors.ExplodedDoorColor(color));
             return;
         }
         throw new InvalidOperationException("Mother Brain exploded door requires installed colors.");

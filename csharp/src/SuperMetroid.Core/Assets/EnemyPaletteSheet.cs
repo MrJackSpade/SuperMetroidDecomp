@@ -59,15 +59,8 @@ public sealed class EnemyPaletteSheet
     }
 
     /// <summary>Copies all sixteen selected colors, including color zero, into consecutive current CGRAM entries; the room graphics-set owner selects the destination and controls palette animation.</summary>
-    /// <param name="cgram">Destination color memory to update.</param>
-    /// <param name="destinationColor">First CGRAM color-entry index, from 0 through 240, not a byte offset; no sixteen-color alignment is required by this transfer.</param>
-    public void LoadTo(SnesCgram cgram, int destinationColor)
-    {
-        ArgumentNullException.ThrowIfNull(cgram);
-        if (destinationColor < 0 || destinationColor + ColorCount > SnesCgram.ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(destinationColor));
-        for (int i = 0; i < ColorCount; i++) cgram.SetColor(destinationColor + i, colors[i]);
-    }
+    /// <param name="destination">The sixteen-colour OBJ palette row the room graphics-set record selects.</param>
+    public void LoadTo(CgramPalette destination) => destination.CopyFrom(colors);
 
     private static readonly JsonSerializerOptions Options = new()
     {

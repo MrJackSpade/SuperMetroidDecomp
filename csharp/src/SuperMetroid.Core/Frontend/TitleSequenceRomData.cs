@@ -145,9 +145,6 @@ public static class TitleSequenceRomData
             }
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
-
-        /// <summary>VRAM byte address $C000, corresponding to word $6000, for the title OBJ character sheet.</summary>
-        public const int ObjectCharacterDestinationByte = 0xc000;
         /// <summary>Byte length of the complete title OBJ character upload: $4000 bytes.</summary>
         public const int ObjectCharacterByteCount = 0x4000;
         /// <summary>Decompressed byte extent required for the Baby's Mode 7 character resource, separate from its $0100-byte animation page uploads.</summary>
@@ -158,14 +155,8 @@ public static class TitleSequenceRomData
         public const int Mode7MapByteCount = 0x1000;
         /// <summary>Blank map tile $FF filling the complete low-byte lane before the selected map prefix is uploaded.</summary>
         public const byte Mode7InitialMapByte = 0xff;
-        /// <summary>VRAM word address $3800 where Baby animation replaces high-byte character data while preserving each low-byte map value.</summary>
-        public const ushort BabyCharacterDestinationWord = 0x3800;
         /// <summary>Byte length of one Baby character source page; each byte replaces the high byte of a successive VRAM word.</summary>
         public const int BabyCharacterPageByteCount = 0x0100;
-        /// <summary>Mask $00FF retaining a VRAM word's Mode 7 map byte during Baby character updates.</summary>
-        public const ushort Mode7MapLowByteMask = 0x00ff;
-        /// <summary>Left shift positioning a Baby character byte in the high-byte Mode 7 lane of a VRAM word.</summary>
-        public const int Mode7CharacterByteShift = 8;
         /// <summary>Immutable four-phase Baby character-page cycle 0,1,2,1 derived from $8B:A131-A140.</summary>
         public static BabyPageSequence BabyAnimationSourcePages => default;
     }

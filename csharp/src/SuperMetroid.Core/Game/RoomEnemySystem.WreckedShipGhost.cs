@@ -159,9 +159,7 @@ public sealed partial class RoomEnemySystem
         // visible buffer, so clear it alongside the retained target buffer; otherwise the
         // first white ramp would begin from the graphics-set palette and overflow BGR fields.
         state.MutableTargetPalette.Clear();
-        int paletteStart = WreckedShipGhostPaletteStart(slot);
-        for (int color = 0; color < 16; color++)
-            _cgram!.SetColor(paletteStart + color, Bgr555.Black);
+        WreckedShipGhostPalette(slot).Fill(Bgr555.Black);
         _wreckedShipGhostStates[slot.SlotIndex] = state;
     }
 
@@ -327,18 +325,18 @@ public sealed partial class RoomEnemySystem
         WreckedShipGhostEnemyState state)
     {
         AdvanceWreckedShipGhostFlicker(slot, state);
-        int paletteStart = WreckedShipGhostPaletteStart(slot);
+        CgramPalette palette = WreckedShipGhostPalette(slot);
         int colorsChanged = 0;
-        for (int color = 0; color < 16; color++)
+        for (int color = 0; color < palette.Count; color++)
         {
-            Bgr555 current = _cgram!.Colors[paletteStart + color];
+            Bgr555 current = palette[color];
             if (current.Red >= 31)
                 continue;
 
             // Native adds $0421 as a word, raising red, green, and blue together. It gates
             // only on red and does not saturate the others: a full green or blue carries
             // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
-            _cgram.SetColor(paletteStart + color,
+            palette.Write(color,
                 Bgr555.FromCgramPortWord(unchecked((ushort)(current.ToWord() + 0x0421))));
             colorsChanged++;
         }
@@ -467,18 +465,18 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
     {
-        int paletteStart = WreckedShipGhostPaletteStart(slot);
+        CgramPalette palette = WreckedShipGhostPalette(slot);
         int componentsChanged = 0;
         ReadOnlySpan<Bgr555> target = state.TargetPalette.Span;
-        for (int color = 0; color < 16; color++)
+        for (int color = 0; color < palette.Count; color++)
         {
-            Bgr555 current = _cgram!.Colors[paletteStart + color];
+            Bgr555 current = palette[color];
             Bgr555 next = current;
             next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Red, ref componentsChanged);
             next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Green, ref componentsChanged);
             next = StepWreckedShipGhostPaletteComponent(next, target[color], ColorChannel.Blue, ref componentsChanged);
             if (next != current)
-                _cgram.SetColor(paletteStart + color, next);
+                palette.Write(color, next);
         }
         return componentsChanged;
     }
@@ -499,11 +497,8 @@ public sealed partial class RoomEnemySystem
         return current.With(channel, currentComponent);
     }
 
-    private static int WreckedShipGhostPaletteStart(RoomEnemySlot slot)
-    {
-        int objectPalette = (slot.PaletteIndex >> 9) & 7;
-        return 128 + objectPalette * 16;
-    }
+    private CgramPalette WreckedShipGhostPalette(RoomEnemySlot slot) =>
+        CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
 
     private WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
         _wreckedShipGhostStates[slot.SlotIndex] ?? throw new InvalidOperationException(

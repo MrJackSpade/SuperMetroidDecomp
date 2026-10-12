@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 
 public static partial class GameplayDisplayCapture
 {
+    [PpuLayoutBoundary("codec: Mode 7 gameplay render packet (BG3 and floor base registers)")]
     private static LayeredRenderSnapshot CaptureMode7Base(SuperMetroidRuntime runtime)
     {
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
@@ -20,7 +21,7 @@ public static partial class GameplayDisplayCapture
                 new Offset16<Mode7Pixels>(
                     unchecked((short)(getaway.Mode7Offset.X + shake.Bg1.X)),
                     unchecked((short)(getaway.Mode7Offset.Y + shake.Bg1.Y))));
-            floor = new(GameplayRenderDefinitions.CeresFloorFirstScanline, SnesPpuLayout.GameplayBg2TilemapWord,
+            floor = new(GameplayRenderDefinitions.CeresFloorFirstScanline, GameplayVramLayout.Bg2TilemapWord,
                 GameplayRenderDefinitions.CeresCharacterWord,
                 ppu.Bg2Scroll + shake.Bg2,
                 new Extent16<TilemapCells>(64, 32));
@@ -36,8 +37,8 @@ public static partial class GameplayDisplayCapture
                     unchecked((short)Add(ppu.Bg1Scroll.X, shake.Bg1.X)),
                     unchecked((short)Add(ppu.Bg1Scroll.Y, shake.Bg1.Y))));
         }
-        var layer = new Mode7GameplayRenderLayer(registers, SnesPpuLayout.GameplayHudTilemapWord,
-            SnesPpuLayout.GameplayHudCharacterBaseWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
+        var layer = new Mode7GameplayRenderLayer(registers, GameplayVramLayout.HudTilemapWord,
+            GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
         return new(PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedOam),
             new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
     }

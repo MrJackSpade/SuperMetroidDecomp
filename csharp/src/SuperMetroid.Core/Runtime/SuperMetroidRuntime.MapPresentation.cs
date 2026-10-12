@@ -24,26 +24,32 @@ public sealed partial class SuperMetroidRuntime
             Enemies.BindMapPresentation(value);
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;
             if (value is not null)
-                VramWrites.RebindBusSource(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount,
-                    SuperMetroid.Core.Hardware.VramAssetId.StandardHudTiles);
-            if (value is not null)
-                for (int quarter = 0; quarter < Game.KraidBackgroundRomData.StandardBg3TransferCount;
-                     quarter++)
-                    VramWrites.RebindBusSource(
-                        Game.KraidBackgroundRomData.StandardBg3TilesAddress +
-                            quarter * Game.KraidBackgroundRomData.StandardBg3TransferBytes,
-                        Game.KraidBackgroundRomData.StandardBg3TransferBytes,
-                        Game.KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter));
-            if (value is not null)
-            {
-                VramWrites.RebindBusSource(EscapeTimerTileRomData.FirstSourceAddress,
-                    EscapeTimerTileAtlasFormat.FirstByteCount,
-                    SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles);
-                VramWrites.RebindBusSource(EscapeTimerTileRomData.SecondSourceAddress,
-                    EscapeTimerTileAtlasFormat.SecondByteCount,
-                    SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerSecondTiles);
-            }
+                RebindLegacyArtworkTransfers();
         }
+    }
+
+    /// <summary>
+    /// Points pending transfers a restored legacy queue still sources from the cartridge bus at the
+    /// installed HUD, Kraid BG3 and escape-timer artwork, matched by their native source and size.
+    /// </summary>
+    [SuperMetroid.Core.Hardware.PpuLayoutBoundary("codec: legacy queued VRAM DMA records rebound from native bus sources to installed artwork")]
+    private void RebindLegacyArtworkTransfers()
+    {
+        VramWrites.RebindBusSource(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount,
+            SuperMetroid.Core.Hardware.VramAssetId.StandardHudTiles);
+        for (int quarter = 0; quarter < Game.KraidBackgroundRomData.StandardBg3TransferCount;
+             quarter++)
+            VramWrites.RebindBusSource(
+                Game.KraidBackgroundRomData.StandardBg3TilesAddress +
+                    quarter * Game.KraidBackgroundRomData.StandardBg3TransferBytes,
+                Game.KraidBackgroundRomData.StandardBg3TransferBytes,
+                Game.KraidBackgroundRomData.StandardBg3AssetForQuarter(quarter));
+        VramWrites.RebindBusSource(EscapeTimerTileRomData.FirstSourceAddress,
+            EscapeTimerTileAtlasFormat.FirstByteCount,
+            SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles);
+        VramWrites.RebindBusSource(EscapeTimerTileRomData.SecondSourceAddress,
+            EscapeTimerTileAtlasFormat.SecondByteCount,
+            SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerSecondTiles);
     }
 
     /// <summary>Rebinds current artwork when a saved or newly constructed Samus becomes active.</summary>
@@ -72,8 +78,7 @@ public sealed partial class SuperMetroidRuntime
         // his private BG2 tilemap occupies the ordinary $4000 HUD character
         // address. A restored-state art rebind must honor the *current* PPU
         // character base, or the next NMI paints HUD pixels across Kraid.
-        MapPresentation!.HudTiles.LoadCharactersTo(Vram,
-            GameplayHudCharacterBaseWord * sizeof(ushort));
+        MapPresentation!.HudTiles.LoadCharactersTo(HudCharactersAtCurrentBase());
         hudArtworkRefreshPending = false;
     }
 }

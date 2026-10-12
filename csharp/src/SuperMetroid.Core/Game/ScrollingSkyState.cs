@@ -132,29 +132,23 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
             unchecked((ushort)(ScrollingSkyChunkPointerDefinitions.Get(
                 pointerTable, lowerChunk) + lowerByteOffset));
 
-        ushort upperDestination = unchecked((ushort)(
-            RoomFxRomData.ScrollingSky.Bg2TilemapBaseWord +
-            4 * (unchecked((ushort)(
-                layer1YPosition - RoomFxRomData.ScrollingSky.UpperRowCameraOffset)) &
-                RoomFxRomData.ScrollingSky.TilemapPositionMask)));
-        ushort lowerDestination = unchecked((ushort)(
-            RoomFxRomData.ScrollingSky.Bg2TilemapBaseWord +
-            4 * (unchecked((ushort)(
-                layer1YPosition + RoomFxRomData.ScrollingSky.LowerRowCameraOffset)) &
-                RoomFxRomData.ScrollingSky.TilemapPositionMask)));
+        int upperRow = 4 * (unchecked((ushort)(
+            layer1YPosition - RoomFxRomData.ScrollingSky.UpperRowCameraOffset)) &
+            RoomFxRomData.ScrollingSky.TilemapPositionMask);
+        int lowerRow = 4 * (unchecked((ushort)(
+            layer1YPosition + RoomFxRomData.ScrollingSky.LowerRowCameraOffset)) &
+            RoomFxRomData.ScrollingSky.TilemapPositionMask);
 
-        writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, upperSource, upperDestination);
+        writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, upperSource, RoomFxVram.ScrollingSkyDma(upperRow));
         writes.Enqueue(
             RoomFxRomData.ScrollingSky.TilemapRowByteCount,
             upperSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-            unchecked((ushort)(
-                upperDestination + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount)));
-        writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, lowerSource, lowerDestination);
+            RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
+        writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, lowerSource, RoomFxVram.ScrollingSkyDma(lowerRow));
         writes.Enqueue(
             RoomFxRomData.ScrollingSky.TilemapRowByteCount,
             lowerSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-            unchecked((ushort)(
-                lowerDestination + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount)));
+            RoomFxVram.ScrollingSkyDma(lowerRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
     }
 
     private static int FindSection(ushort worldY)

@@ -196,8 +196,7 @@ public sealed partial class RoomEnemySystem
         // affects both consumers without changing the ninja's animation or slot state.
         (TileArtwork ?? throw new InvalidOperationException(
             "Gold Space Pirate requires installed palette artwork."))
-            .LoadPaletteTo(EnemyDefinitionId.PirateGoldWall,
-                _cgram!, NinjaSpacePiratePaletteDefinitions.TargetColor);
+            .LoadPaletteTo(EnemyDefinitionId.PirateGoldWall, new EnemyPalettes(_cgram!).NinjaSpacePirate);
     }
 
     /// <summary>Dispatches the literal function installed in native variable A.</summary>

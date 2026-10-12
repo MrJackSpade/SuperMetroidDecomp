@@ -14,14 +14,14 @@ internal static class VramDmaContractChecks
             class Producer {
                 const int Artwork = 0xADB200;
                 void Write(VramWriteQueue renamedQueue, int unknownSource) {
-                    renamedQueue.Enqueue(sourceAddress: Artwork, sizeInBytes: (ushort)1024, encodedVramDestination: 0);
-                    renamedQueue.Enqueue(1024, 0x7E2000, 0);
-                    renamedQueue.Enqueue(64, 0x801FF0, 0);
-                    renamedQueue.EnqueueAsset(VramAssetId.StandardHudTiles, 8192, 0);
-                    renamedQueue.EnqueueAsset(VramAssetId.StandardHudTiles, 8191, 0);
-                    renamedQueue.Enqueue(32, unknownSource, 0);
-                    renamedQueue.EnqueueAsset(VramAssetId.None, 32, 0);
-                    System.Action<ushort, int, ushort> indirect = renamedQueue.Enqueue;
+                    renamedQueue.Enqueue(sourceAddress: Artwork, sizeInBytes: (ushort)1024, destination: default);
+                    renamedQueue.Enqueue(1024, 0x7E2000, default);
+                    renamedQueue.Enqueue(64, 0x801FF0, default);
+                    renamedQueue.EnqueueAsset(VramAssetId.StandardHudTiles, 8192, default);
+                    renamedQueue.EnqueueAsset(VramAssetId.StandardHudTiles, 8191, default);
+                    renamedQueue.Enqueue(32, unknownSource, default);
+                    renamedQueue.EnqueueAsset(VramAssetId.None, 32, default);
+                    System.Action<ushort, int, VramDmaDestination> indirect = renamedQueue.Enqueue;
                 }
             }
             """, path: "dma-contract-fixture.cs");

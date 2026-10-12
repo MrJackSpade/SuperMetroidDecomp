@@ -37,7 +37,7 @@ internal static partial class Program
                 CeresFlightRomData.Vram.Mode7MapByteCount)),
             "installed front/rear Ceres maps preserve every consumed native byte");
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CeresFlightRomData.Assets.Palette, SnesCgram.ByteCount);
+            CeresFlightRomData.Assets.Palette, CgramPalettes.ByteCount);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * sizeof(ushort))),
                 stock.Palette.ColorAt(index), "installed Ceres palette preserves every native color");
@@ -427,7 +427,7 @@ internal static partial class Program
         for (int word = 0; word < CeresFlightRomData.Vram.Mode7MapSliceByteCount; word++)
             expected[word * 2] = artwork.Mode7Maps.Span[mapOffset + word];
         artwork.ObjectCharacters.Span.CopyTo(expected.AsSpan(
-            CeresFlightRomData.Vram.ObjectCharacterDestinationByte));
+            (CeresVramLayout.ObjectCharacters.Offset * 2)));
         return expected;
     }
 }

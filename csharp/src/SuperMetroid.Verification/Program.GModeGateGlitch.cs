@@ -92,16 +92,8 @@ internal static partial class Program
             }
 
             ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
-            bombs.StepFrame(bus, level, samus, input, input);
-            shots.StepFrame(
-                bus,
-                level,
-                samus,
-                input,
-                input,
-                layer1: new(0, 224),
-                bombs,
-                roomPlms: plms);
+            bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
+            shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
 
             SamusProjectileSlot shot = shots.Slots[0];
             if (shot.Type != 0 && shot.Position.X.Whole < 112 && passedGateFrame < 0)

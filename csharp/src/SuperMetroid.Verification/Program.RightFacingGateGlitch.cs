@@ -92,16 +92,8 @@ internal static partial class Program
             for (int frame = 0; frame < 30; frame++)
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
-                bombs.StepFrame(bus, level, samus, input, input);
-                shots.StepFrame(
-                    bus,
-                    level,
-                    samus,
-                    input,
-                    input,
-                    new((ushort)cameraX, (ushort)cameraY),
-                    bombs,
-                    roomPlms: plms);
+                bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
+                shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
                 var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);
                 if (gate.LoopTimer != 0)
                 {

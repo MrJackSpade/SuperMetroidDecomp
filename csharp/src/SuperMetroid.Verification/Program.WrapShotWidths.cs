@@ -35,8 +35,8 @@ internal static partial class Program
             for (int frame = 0; frame < 40; frame++)
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
-                bombs.StepFrame(bus, level, samus, input, input);
-                shots.StepFrame(bus, level, samus, input, input, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs, roomPlms: plms);
+                bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
+                shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs);
                 var shot = shots.Slots[0];
                 ushort targetWord = level.GetCollisionBlockByIndex(target).LevelWord;
                 if (hit < 0 && targetWord == 0x840c) hit = frame;

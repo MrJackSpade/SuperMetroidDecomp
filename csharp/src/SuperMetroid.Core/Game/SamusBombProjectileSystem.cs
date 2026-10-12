@@ -121,22 +121,14 @@ public sealed class SamusBombProjectileSystem
     /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
     /// overlap pass that the main gameplay loop invokes before movement-handler beta.
     /// </summary>
-    public BombProjectileFrameResult StepFrame(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        SamusState samus,
-        ushort controllerInput,
-        ushort controllerNewInput,
-        RoomPlmSystem? roomPlms = null,
-        bool deferSamusOverlap = false,
-        bool advancePowerBombHdma = true)
+    public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ushort controllerInput, ushort controllerNewInput, bool deferSamusOverlap = false, bool advancePowerBombHdma = true)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(terrain.Bus);
+        ArgumentNullException.ThrowIfNull(terrain.Level);
         ArgumentNullException.ThrowIfNull(samus);
 
         if (advancePowerBombHdma)
-            AdvancePowerBombHdma(bus, samus, controllerInput);
+            AdvancePowerBombHdma(terrain.Bus, samus, controllerInput);
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
@@ -194,10 +186,10 @@ public sealed class SamusBombProjectileSystem
             // that earlier guard separately from sounds produced after the pre-instruction.
             bool soundSuppressedBeforePreInstruction = PowerBombExplosion.IsActive;
             bool slotExplosionStarted = RunBombPreInstruction(
-                level,
+                terrain.Level,
                 slot,
                 blockReactions,
-                roomPlms,
+                terrain.Plms,
                 samus.LiquidPhysics.AreaIndex,
                 samus.Kinematics);
             explosionStarted |= slotExplosionStarted;

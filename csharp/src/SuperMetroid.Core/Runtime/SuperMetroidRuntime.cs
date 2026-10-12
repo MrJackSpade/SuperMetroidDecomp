@@ -1427,15 +1427,7 @@ public sealed partial class SuperMetroidRuntime
                     // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
                     // and palette FX while time is frozen. Normal bombs cannot be placed or
                     // advanced through this translated producer during the X-ray interval.
-                    BombProjectileFrameResult bombFrame = BombProjectiles.StepFrame(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        Controller1.Current,
-                        Controller1.NewlyPressed,
-                        Plms,
-                        deferSamusOverlap: true,
-                        advancePowerBombHdma: false);
+                    BombProjectileFrameResult bombFrame = BombProjectiles.StepFrame(new SamusTerrain { Bus = _addressSpace, Level = LevelData, Plms = Plms }, Samus, Controller1.Current, Controller1.NewlyPressed, deferSamusOverlap: true, advancePowerBombHdma: false);
 
                     if (bombFrame.BeamChargeConsumed)
                     {
@@ -1459,20 +1451,7 @@ public sealed partial class SuperMetroidRuntime
                     // so malformed callback-table entries can perform their literal WRAM
                     // writes, then reclaim ownership only when such a write occurred.
                     System.WritePersistentMirror(MemoryBus);
-                    SamusProjectileFrameResult projectileFrame = Projectiles.StepFrame(
-                        _addressSpace,
-                        LevelData,
-                        Samus,
-                        Controller1.Current,
-                        Controller1.NewlyPressed,
-                        Camera.PixelPosition,
-                        BombProjectiles,
-                        // Locked alpha advances existing shots without dispatching the
-                        // HUD weapon producer (including station command six).
-                        projectileProducerEnabled: !AlphaInputLocked() && !DebugGrappleItemSelected,
-                        roomPlms: Plms,
-                        controllerPreviousNewInput: Samus.PreviousDrawNewInput,
-                        producerSoundSuppressed: BombProjectiles.SoundSuppressedBeforeProjectileHandling);
+                    SamusProjectileFrameResult projectileFrame = Projectiles.StepFrame(new SamusTerrain { Bus = _addressSpace, Level = LevelData, Plms = Plms }, Samus, new ProjectileButtonInput { ControllerInput = Controller1.Current, ControllerNewInput = Controller1.NewlyPressed, ControllerPreviousNewInput = Samus.PreviousDrawNewInput }, Camera.PixelPosition, BombProjectiles, projectileProducerEnabled: !AlphaInputLocked() && !DebugGrappleItemSelected, producerSoundSuppressed: BombProjectiles.SoundSuppressedBeforeProjectileHandling);
                     if (projectileFrame.PersistentMemoryCorrupted)
                         System.LoadPersistentMirror(MemoryBus);
 

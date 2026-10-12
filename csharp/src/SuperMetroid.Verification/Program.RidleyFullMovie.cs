@@ -139,12 +139,12 @@ internal static partial class Program
         AssertTrue(samus.StationaryScriptControlLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
         typeof(SamusBombProjectileSystem).GetMethod("SetSharedCooldown", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(bombs, [(ushort)10]);
-        bombs.StepFrame(bus, runtime.LevelData!, samus, 0, 0, advancePowerBombHdma: false);
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = runtime.LevelData! }, samus, 0, 0, advancePowerBombHdma: false);
         AssertEqual((ushort)10, bombs.CooldownTimer, "native locked alpha preserves cooldown");
         var release = typeof(RoomEnemySystem).GetMethod("ReleaseNorfairRidleyGrab", BindingFlags.Instance | BindingFlags.NonPublic)!;
         release.Invoke(runtime.Enemies, [state, samus]);
         AssertTrue(!samus.InputLocked && !samus.StationaryScriptControlLocked, "native release restores ordinary control");
-        bombs.StepFrame(bus, runtime.LevelData!, samus, 0, 0, advancePowerBombHdma: false);
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = runtime.LevelData! }, samus, 0, 0, advancePowerBombHdma: false);
         AssertEqual((ushort)9, bombs.CooldownTimer, "native unlocked alpha resumes cooldown");
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.

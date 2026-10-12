@@ -25,32 +25,19 @@ public static partial class SnesGameplayFrameRenderer
         SnesVram vram,
         SnesCgram cgram,
         OamBuffer oam,
-        Position16<RoomPixels> bg1Scroll,
-        Position16<Bg2Pixels> bg2Scroll,
-        IReadOnlyList<ushort>? bg2HorizontalScrollByLine = null,
-        IReadOnlyList<ushort>? bg2VerticalScrollByLine = null,
-        Extent16<TilemapCells>? bg2TilemapSize = null,
-        ushort bg2TilemapBaseWord = GameplayVramLayout.Bg2TilemapWord,
-        ushort bg1CharacterBaseWord = 0,
-        ushort bg2CharacterBaseWord = 0,
-        ushort bg3CharacterBaseWord = GameplayVramLayout.HudCharacterWord,
+        OrdinaryGameplayRenderLayer layer,
         byte obsel = 0x03,
-        SnesMainScreenLayers mainScreenLayers =
-            SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
-        Rgba32[]? outputBuffer = null,
-        int bg2FirstScanline = 32, int bg2EndScanline = 224,
-        SnesWindowRegisters windowRegisters = default,
-        SnesMainScreenLayers mainScreenWindowMask = SnesMainScreenLayers.None,
-        BackgroundMosaicSampling bg2Mosaic = default,
-        ReadOnlySpan<ushort> mainScreenLayersByLine = default)
+        Rgba32[]? outputBuffer = null)
     {
+        ArgumentNullException.ThrowIfNull(layer);
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
+        OrdinaryGameplayRegisters registers = layer.Registers;
         Span<SnesMainScreenLayers> windowMasks = stackalloc SnesMainScreenLayers[Width];
-        if (mainScreenWindowMask == SnesMainScreenLayers.None)
+        if (registers.MainScreenWindowMask == SnesMainScreenLayers.None)
             windowMasks.Clear();
         else
             for (int x = 0; x < Width; x++)
-                windowMasks[x] = windowRegisters.MaskedLayers((byte)x, mainScreenWindowMask);
+                windowMasks[x] = registers.Windows.MaskedLayers((byte)x, registers.MainScreenWindowMask);
         // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
         // by TM and the relevant back-to-front ladder is OBJ0, OBJ1, BG2-low, BG1-low,
         // OBJ2, BG2-high, BG1-high, OBJ3. Samus's body entries use OBJ2, so cartridge-
@@ -72,23 +59,7 @@ public static partial class SnesGameplayFrameRenderer
                 obsel,
                 objectPixels,
                 objectPriorities);
-            CompositeOrdinaryGameplayViewport(
-                output,
-                vram,
-                cgram,
-                objectPixels,
-                objectPriorities,
-                bg1CharacterBaseWord,
-                bg2CharacterBaseWord,
-                bg1Scroll,
-                bg2Scroll,
-                bg2HorizontalScrollByLine,
-                bg2VerticalScrollByLine,
-                // Ordinary rooms use two horizontal 32x32 BG2 screens.
-                bg2TilemapSize ?? new Extent16<TilemapCells>(64, 32),
-                bg2TilemapBaseWord,
-                mainScreenLayers, bg2FirstScanline, bg2EndScanline, windowMasks, bg2Mosaic,
-                mainScreenLayersByLine);
+            CompositeOrdinaryGameplayViewport(output, vram, cgram, objectPixels, objectPriorities, layer, windowMasks);
         }
         finally
         {
@@ -98,8 +69,8 @@ public static partial class SnesGameplayFrameRenderer
             ArrayPool<Rgba32>.Shared.Return(rentedObjectPixels, clearArray: false);
             ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
         }
-        DrawHud(output, vram, cgram, bg3CharacterBaseWord);
-        if ((mainScreenWindowMask & SnesMainScreenLayers.Bg3) != 0)
+        DrawHud(output, vram, cgram, registers.HudCharacterWord);
+        if ((registers.MainScreenWindowMask & SnesMainScreenLayers.Bg3) != 0)
         {
             // The modeled HUD IRQ admits only BG3. A masked HUD pixel therefore
             // exposes backdrop, not the gameplay planes disabled on these scanlines.
@@ -124,18 +95,8 @@ public static partial class SnesGameplayFrameRenderer
         SnesCgram cgram,
         ReadOnlySpan<Rgba32> objectPixels,
         ReadOnlySpan<byte> objectPriorities,
-        ushort bg1CharacterBaseWord,
-        ushort bg2CharacterBaseWord,
-        Position16<RoomPixels> bg1Scroll,
-        Position16<Bg2Pixels> bg2Scroll,
-        IReadOnlyList<ushort>? bg2HorizontalScrollByLine,
-        IReadOnlyList<ushort>? bg2VerticalScrollByLine,
-        Extent16<TilemapCells> bg2TilemapSize,
-        ushort bg2TilemapBaseWord,
-        SnesMainScreenLayers mainScreenLayers,
-        int bg2FirstScanline, int bg2EndScanline,
-        ReadOnlySpan<SnesMainScreenLayers> windowMasks, BackgroundMosaicSampling bg2Mosaic,
-        ReadOnlySpan<ushort> mainScreenLayersByLine)
+        OrdinaryGameplayRenderLayer layer,
+        ReadOnlySpan<SnesMainScreenLayers> windowMasks)
     {
         if (objectPixels.Length != output.Length ||
             objectPriorities.Length != output.Length)
@@ -144,28 +105,22 @@ public static partial class SnesGameplayFrameRenderer
                 "A resolved gameplay OBJ raster must contain exactly 256x224 pixels.",
                 nameof(objectPixels));
         }
-        if (bg2HorizontalScrollByLine is not null &&
-            bg2HorizontalScrollByLine.Count < Height - HudHeight)
-        {
-            throw new ArgumentException(
-                "BG2 horizontal HDMA scrolls must cover all 192 gameplay lines.",
-                nameof(bg2HorizontalScrollByLine));
-        }
-        if (bg2VerticalScrollByLine is not null &&
-            bg2VerticalScrollByLine.Count < Height - HudHeight)
-        {
-            throw new ArgumentException(
-                "BG2 vertical HDMA scrolls must cover all 192 gameplay lines.",
-                nameof(bg2VerticalScrollByLine));
-        }
-        if (bg2TilemapSize.X is not (32 or 64) ||
-            bg2TilemapSize.Y is not (32 or 64) ||
-            bg2TilemapSize.X * bg2TilemapSize.Y is not (1024 or 2048 or 4096))
-        {
-            throw new ArgumentException(
-                "BG2 gameplay tilemaps must use 32 or 64 tiles on each axis.",
-                nameof(bg2TilemapSize));
-        }
+
+        // The layer validated its BG2 map size and every per-line table at construction.
+        OrdinaryGameplayRegisters registers = layer.Registers;
+        Position16<RoomPixels> bg1Scroll = registers.Bg1Scroll;
+        Position16<Bg2Pixels> bg2Scroll = registers.Bg2Scroll;
+        ReadOnlySpan<ushort> bg2HorizontalScrollByLine = layer.Bg2LineScrolls.Horizontal;
+        ReadOnlySpan<ushort> bg2VerticalScrollByLine = layer.Bg2LineScrolls.Vertical;
+        Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
+        ushort bg1CharacterBaseWord = registers.Bg1CharacterWord;
+        ushort bg2CharacterBaseWord = registers.Bg2CharacterWord;
+        ushort bg2TilemapBaseWord = registers.Bg2TilemapWord;
+        SnesMainScreenLayers mainScreenLayers = registers.MainScreenLayers;
+        int bg2FirstScanline = registers.Bg2FirstScanline;
+        int bg2EndScanline = registers.Bg2EndScanline;
+        BackgroundMosaicSampling bg2Mosaic = registers.Bg2Mosaic;
+        ReadOnlySpan<ushort> mainScreenLayersByLine = layer.MainScreenLayersByLine;
 
         // Resolve the complete Mode-1 ladder in a single destination scan. The previous
         // implementation walked the 256x192 viewport eight times (four BG insertions and
@@ -179,8 +134,6 @@ public static partial class SnesGameplayFrameRenderer
         ReadOnlySpan<byte> vramBytes = vram.Bytes;
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
-        if (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != Height - HudHeight)
-            throw new ArgumentException("Main-screen HDMA must cover exactly 192 gameplay lines.", nameof(mainScreenLayersByLine));
 
         int bg2XMask = bg2TilemapSize.X * 8 - 1;
         int bg2YMask = bg2TilemapSize.Y * 8 - 1;
@@ -197,10 +150,10 @@ public static partial class SnesGameplayFrameRenderer
             // physical scanline one. OBJ's preceding-line evaluation is separate.
             int physicalBackgroundY = screenY + SnesPpuLayout.FirstVisibleBackgroundScanline;
             int bg1ScrolledY = unchecked(bg1Scroll.Y + physicalBackgroundY) & 0xff;
-            ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine is null
+            ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine.IsEmpty
                 ? bg2Scroll.X
                 : bg2HorizontalScrollByLine[screenY - HudHeight];
-            ushort activeBg2VerticalScroll = bg2VerticalScrollByLine is null
+            ushort activeBg2VerticalScroll = bg2VerticalScrollByLine.IsEmpty
                 ? bg2Scroll.Y
                 : bg2VerticalScrollByLine[screenY - HudHeight];
             int bg2ScrolledY = bg2Mosaic.SourceY(screenY, activeBg2VerticalScroll) & bg2YMask;

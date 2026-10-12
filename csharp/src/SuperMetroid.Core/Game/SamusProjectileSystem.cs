@@ -348,11 +348,9 @@ public sealed partial class SamusProjectileSystem
     /// <summary>
     /// Runs the power-beam HUD producer and then handles all allocated ordinary slots.
     /// </summary>
-    /// <param name="bus">Address space passed to native pose, projectile, and collision helpers.</param>
-    /// <param name="level">Live room block geometry used for muzzle and moving-projectile collisions.</param>
+    /// <param name="terrain">SamusTerrain</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
-    /// <param name="controllerInput">Held controller word after the runtime's action-binding normalization.</param>
-    /// <param name="controllerNewInput">Current normalized press-edge word for firing decisions.</param>
+    /// <param name="buttons">The controller words Samus's projectile producer reads: held buttons, this frame's new presses, and the previous frame's new presses (#633).</param>
     /// <param name="layer1.X">Horizontal camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="layer1.Y">Vertical camera origin in whole room pixels, used by projectile offscreen handling.</param>
     /// <param name="sharedProjectiles">
@@ -361,24 +359,11 @@ public sealed partial class SamusProjectileSystem
     /// a successful shot just as bank $90 does.
     /// </param>
     /// <param name="projectileProducerEnabled">Whether to admit the HUD weapon producer; existing ordinary slots still run when this is false, subject to live X-ray freeze.</param>
-    /// <param name="roomPlms">Optional live PLM owner receiving projectile block-reaction effects.</param>
-    /// <param name="controllerPreviousNewInput">Previous normalized press-edge latch, independently consulted by native beam/missile firing rather than recomputed from held input.</param>
     /// <param name="producerSoundSuppressed">Optional captured sound-suppression decision at production; null uses the shared Power Bomb owner's current active state.</param>
-    public SamusProjectileFrameResult StepFrame(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        SamusState samus,
-        ushort controllerInput,
-        ushort controllerNewInput,
-        Position16<RoomPixels> layer1,
-        SamusBombProjectileSystem sharedProjectiles,
-        bool projectileProducerEnabled = true,
-        RoomPlmSystem? roomPlms = null,
-        ushort controllerPreviousNewInput = 0,
-        bool? producerSoundSuppressed = null)
+    public SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> layer1, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled = true, bool? producerSoundSuppressed = null)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(terrain.Bus);
+        ArgumentNullException.ThrowIfNull(terrain.Level);
         ArgumentNullException.ThrowIfNull(samus);
         ArgumentNullException.ThrowIfNull(sharedProjectiles);
 
@@ -399,7 +384,7 @@ public sealed partial class SamusProjectileSystem
         // nothing: held/released Shoot must leave the charge word untouched.
         // Existing projectiles still advance below. Pose input can leave spin
         // first, making the normal producer eligible on the following alpha.
-        SamusHudHandler hudHandler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(bus));
+        SamusHudHandler hudHandler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(terrain.Bus));
         bool preservesJumpHandlerCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
             hudHandler == SamusHudHandler.Jump;
         // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.
@@ -419,26 +404,26 @@ public sealed partial class SamusProjectileSystem
             // rejected; selection alone must not consume Shoot. Inputs are normalized
             // by the runtime, so the canonical Run bit also honors remapped bindings.
             bool xrayBeamFallback = samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
-                (controllerInput & (ushort)SnesButton.B) == 0;
+                (buttons.ControllerInput & (ushort)SnesButton.B) == 0;
             if (samus.SelectedHudItem is 0 or 3 || xrayBeamFallback)
             {
                 (firedSlot, queuedSound, queuedSoundMaximum) = HandleBeamInput(
-                    bus,
-                    level,
+                    terrain.Bus,
+                    terrain.Level,
                     samus,
-                    controllerInput,
+                    buttons.ControllerInput,
                     // FireUnchargedBeam tests both current and prior new-input latches.
-                    unchecked((ushort)(controllerNewInput | controllerPreviousNewInput)),
+                    unchecked((ushort)(buttons.ControllerNewInput | buttons.ControllerPreviousNewInput)),
                     sharedProjectiles,
-                    roomPlms);
+                    terrain.Plms);
             }
             else if (samus.SelectedHudItem is 1 or 2)
             {
                 (firedSlot, queuedSound) = TryFireMissile(
-                    bus,
+                    terrain.Bus,
                     samus,
-                    controllerNewInput,
-                    controllerPreviousNewInput,
+                    buttons.ControllerNewInput,
+                    buttons.ControllerPreviousNewInput,
                     sharedProjectiles);
                 if (queuedSound != 0)
                     queuedSoundMaximum = 6;
@@ -482,12 +467,12 @@ public sealed partial class SamusProjectileSystem
             {
                 ushort comboSound = 0;
                 if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward)
-                    comboSound = StepIceCombo(bus, samus, slot, sharedProjectiles, layer1);
+                    comboSound = StepIceCombo(terrain.Bus, samus, slot, sharedProjectiles, layer1);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.WaveCombo)
-                    comboSound = StepWaveCombo(bus, samus, slot, sharedProjectiles);
+                    comboSound = StepWaveCombo(terrain.Bus, samus, slot, sharedProjectiles);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.PlasmaCombo)
                     StepPlasmaCombo(samus, slot, sharedProjectiles, layer1);
-                else comboSound = StepSpazerCombo(bus, samus, slot, sharedProjectiles, layer1.Y);
+                else comboSound = StepSpazerCombo(terrain.Bus, samus, slot, sharedProjectiles, layer1.Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound != 0)
                     (comboSounds ??= []).Add(new SamusSoundRequest(
@@ -497,43 +482,43 @@ public sealed partial class SamusProjectileSystem
             else if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)
             {
                 collisionStartedExplosion |= RunNoWaveBeamPreInstruction(
-                    bus,
-                    level,
+                    terrain.Bus,
+                    terrain.Level,
                     slot,
                     layer1,
-                    roomPlms,
+                    terrain.Plms,
                     sharedProjectiles.PowerBombExplosion);
             }
             else if (slot.PreInstruction is
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail or
                 SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
             {
-                RunWaveBeamPreInstruction(bus, level, slot, layer1, roomPlms);
+                RunWaveBeamPreInstruction(terrain.Bus, terrain.Level, slot, layer1, terrain.Plms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
             {
-                RunHyperBeamPreInstruction(level, slot, layer1, roomPlms);
+                RunHyperBeamPreInstruction(terrain.Level, slot, layer1, terrain.Plms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
             {
                 collisionStartedExplosion |= RunMissilePreInstruction(
-                    bus,
-                    level,
+                    terrain.Bus,
+                    terrain.Level,
                     slot,
                     layer1,
                     sharedProjectiles,
-                    roomPlms);
+                    terrain.Plms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissile)
             {
                 collisionStartedExplosion |= RunSuperMissilePreInstruction(
-                    bus,
-                    level,
+                    terrain.Bus,
+                    terrain.Level,
                     samus,
                     slot,
                     layer1,
                     sharedProjectiles,
-                    roomPlms);
+                    terrain.Plms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissileLink)
             {
@@ -541,16 +526,16 @@ public sealed partial class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
             {
-                persistentMemoryCorrupted |= RunSpacetimePaletteCopyTail(bus, slot);
+                persistentMemoryCorrupted |= RunSpacetimePaletteCopyTail(terrain.Bus, slot);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb)
             {
                 RunChainsawWindowStoreThenPowerBombPreInstruction(
-                    level,
+                    terrain.Level,
                     samus,
                     slot,
                     sharedProjectiles,
-                    roomPlms);
+                    terrain.Plms);
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.PreInstruction ==
@@ -639,8 +624,7 @@ public sealed partial class SamusProjectileSystem
                     }
                 }
 
-                DrawFlareComponent(
-                    bus, oam, samus, layer1, component, mode7Transform, placement, compositions);
+                DrawFlareComponent(bus, oam, samus, layer1, component, mode7Transform, new ChargeFlareArtwork { Placement = placement, Compositions = compositions });
             }
             return;
         }
@@ -661,8 +645,7 @@ public sealed partial class SamusProjectileSystem
         for (int component = 0; component < componentCount; component++)
         {
             AdvanceFlareComponent(component);
-            DrawFlareComponent(
-                bus, oam, samus, layer1, component, mode7Transform, placement, compositions);
+            DrawFlareComponent(bus, oam, samus, layer1, component, mode7Transform, new ChargeFlareArtwork { Placement = placement, Compositions = compositions });
         }
     }
 

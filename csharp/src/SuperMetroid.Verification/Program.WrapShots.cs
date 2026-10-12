@@ -34,8 +34,8 @@ internal static partial class Program
             for (int frame = 0; frame < 40; frame++)
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
-                shared.StepFrame(bus, level, samus, input, input);
-                projectiles.StepFrame(bus, level, samus, input, input, new((ushort)(left != 0 ? 0 : 768), 0), shared, roomPlms: plms);
+                shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
+                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left != 0 ? 0 : 768), 0), shared);
                 var shot = projectiles.Slots[0];
                 string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},";
                 for (int row = 0; row < 128; row++)

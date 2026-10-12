@@ -80,6 +80,8 @@ internal static partial class Program
         Rgba32[] Draw(SnesMainScreenLayers enabled, SnesWindowRegisters windows = default,
             SnesMainScreenLayers admission = SnesMainScreenLayers.None) =>
             SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Vram, memory.Cgram, memory.Oam,
-                new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), mainScreenLayers: enabled, windowRegisters: windows, mainScreenWindowMask: admission);
+                new OrdinaryGameplayRenderLayer(new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11),
+                    new Extent16<TilemapCells>(64, 32), GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
+                    enabled, Windows: windows, MainScreenWindowMask: admission)));
     }
 }

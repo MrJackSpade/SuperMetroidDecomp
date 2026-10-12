@@ -38,7 +38,7 @@ internal static partial class Program
 
         var crouched = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         crouched.RefreshCollisionRadii(bus);
-        SamusKnockbackMovement.Start(bus, crouched, 0, 1, 5, level: level);
+        SamusKnockbackMovement.Start(bus, crouched, 0, new KnockbackLaunch { KnockbackXDirection = 1, KnockbackTimer = 5 }, level: level);
         AssertEqual(SamusPoseId.KnockbackLeftPose, crouched.Pose, "crouch contact installs hurt pose");
         AssertEqual(16, crouched.Kinematics.Radius.Y, "hurt commit retains live crouch radius");
         crouched.RefreshCollisionRadii(bus);

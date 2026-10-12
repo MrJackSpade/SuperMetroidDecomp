@@ -134,35 +134,20 @@ public sealed partial class SamusProjectileSystem
         _flareTimers[component] = delay;
     }
 
-    private void DrawFlareComponent(
-        ISnesAddressSpace bus,
-        OamBuffer oam,
-        SamusState samus,
-        Position16<RoomPixels> layer1,
-        int component,
-        SamusMode7Transform? mode7Transform,
-        Assets.ChargeFlarePlacementCatalog? placement,
-        Assets.ChargeFlareSpriteCatalog? compositions)
+    private void DrawFlareComponent(ISnesAddressSpace bus, OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)
     {
         byte direction = samus.ReadShotDirection(bus);
         if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
             return;
 
-        DrawFlareComponentWithMetadata(oam, samus, layer1, component,
-            mode7Transform, placement, compositions, direction,
-            samus.ReadMovementKind(bus) == SamusMovementType.Running,
-            unchecked((byte)samus.ReadGraphicsYOffset(bus)), samus.IsFacingLeft(bus));
+        DrawFlareComponentWithMetadata(oam, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.ReadMovementKind(bus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.ReadGraphicsYOffset(bus)), FacingLeft = samus.IsFacingLeft(bus) });
     }
 
-    private void DrawFlareComponentWithMetadata(
-        OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component,
-        SamusMode7Transform? mode7Transform, Assets.ChargeFlarePlacementCatalog? placement,
-        Assets.ChargeFlareSpriteCatalog? compositions, byte direction,
-        bool running, byte poseYOffset, bool facingLeft)
+    private void DrawFlareComponentWithMetadata(OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
-        var visualOffset = (placement ?? throw new InvalidOperationException(
+        var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
-            .Resolve(running, direction & 0x0f);
+            .Resolve(pose.Running, pose.Direction & 0x0f); // magic-number-audit: allow(PoseOrMovement) - low nibble of the native shot-direction byte
         short xOffset = visualOffset.X;
         short yOffset = visualOffset.Y;
 
@@ -176,7 +161,7 @@ public sealed partial class SamusProjectileSystem
             ? transform.Transform(samusPosition)
             : samusPosition;
         ushort screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1.X));
-        ushort screenY = unchecked((ushort)(renderPoint.Y + yOffset - poseYOffset - layer1.Y));
+        ushort screenY = unchecked((ushort)(renderPoint.Y + yOffset - pose.PoseYOffset - layer1.Y));
 
         // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
         // deliberately allows individual entries to wrap, matching charge sparks near an
@@ -185,12 +170,12 @@ public sealed partial class SamusProjectileSystem
             return;
 
 
-        ushort indexOffset = unchecked((ushort)(facingLeft
+        ushort indexOffset = unchecked((ushort)(pose.FacingLeft
             ? component switch { 0 => 0, 1 => 0x2a, _ => 0x30 }
             : component switch { 0 => 0, 1 => 0x1e, _ => 0x24 }));
         // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
         ushort tableIndex = unchecked((ushort)(indexOffset + (_flareFrames[component] & 0x00ff)));
-        var catalog = compositions ?? throw new InvalidOperationException(
+        var catalog = artwork.Compositions ?? throw new InvalidOperationException(
             "Charge flare requires installed sprite compositions.");
         // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then
         // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the

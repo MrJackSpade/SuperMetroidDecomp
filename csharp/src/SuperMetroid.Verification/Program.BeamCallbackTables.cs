@@ -62,19 +62,11 @@ internal static partial class Program
             {
                 for (int frame = 0; frame < 60; frame++)
                 {
-                    shared.StepFrame(bus, room, samus, 0, 0);
-                    projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                        frame == 0 ? (ushort)SnesButton.X : (ushort)0, new(0, 0), shared);
+                    shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, 0, 0);
+                    projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), shared);
                 }
             }
-            projectiles.StepFrame(
-                bus,
-                room,
-                samus,
-                charged ? (ushort)0 : (ushort)SnesButton.X,
-                charged ? (ushort)0 : (ushort)SnesButton.X,
-                new(0, 0),
-                shared);
+            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = charged ? (ushort)0 : (ushort)SnesButton.X, ControllerNewInput = charged ? (ushort)0 : (ushort)SnesButton.X }, new(0, 0), shared);
             AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the

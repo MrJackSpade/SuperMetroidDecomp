@@ -2688,10 +2688,12 @@ public sealed partial class RoomEnemySystem
         if ((enemy.SpritemapPointer & 0x8000) == 0)
             return false;
 
-        ushort targetLeft = unchecked((ushort)(targetPosition.X - targetRadius.X));
-        ushort targetRight = unchecked((ushort)(targetPosition.X + targetRadius.X));
-        ushort targetTop = unchecked((ushort)(targetPosition.Y - targetRadius.Y));
-        ushort targetBottom = unchecked((ushort)(targetPosition.Y + targetRadius.Y));
+        var target = new ExtendedHitboxTarget(
+            Left: unchecked((ushort)(targetPosition.X - targetRadius.X)),
+            Right: unchecked((ushort)(targetPosition.X + targetRadius.X)),
+            Top: unchecked((ushort)(targetPosition.Y - targetRadius.Y)),
+            Bottom: unchecked((ushort)(targetPosition.Y + targetRadius.Y)),
+            SelectShotCallback: selectShotCallback);
 
         if (CommonEnemyEmptyExtendedFrameDefinitions.HasFrame(
                 enemy.Definition.Bank, enemy.SpritemapPointer))
@@ -2699,11 +2701,7 @@ public sealed partial class RoomEnemySystem
             // The shared empty frame has a single zero-radius point at the
             // enemy origin. Run the same asymmetric native overlap test before
             // selecting its common touch/shot callback.
-            if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                    targetTop, targetBottom,
-                    enemy.Position.X.Whole, enemy.Position.Y.Whole,
-                    enemy.Position.X.Whole, enemy.Position.Y.Whole,
-                    selectShotCallback))
+            if (!OverlapsExtendedHitbox(target, enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
                 return false;
             callback = CommonEnemyEmptyExtendedFrameDefinitions.Callback(selectShotCallback);
             return true;
@@ -2729,9 +2727,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
                     ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -2758,9 +2754,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
                     ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -2791,9 +2785,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));
                     ushort right = unchecked((ushort)(componentX + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -2819,9 +2811,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
                     ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -2851,9 +2841,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));
                     ushort right = unchecked((ushort)(componentX + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -2881,9 +2869,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
                     ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -2909,9 +2895,7 @@ public sealed partial class RoomEnemySystem
                 ushort top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));
                 ushort right = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Right));
                 ushort bottom = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Bottom));
-                if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                        targetTop, targetBottom, left, top, right, bottom,
-                        selectShotCallback))
+                if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                     continue;
                 callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                 return true;
@@ -2937,9 +2921,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
                     ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -2979,9 +2961,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));
                     ushort right = unchecked((ushort)(componentX + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -3007,9 +2987,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
                     ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -3038,9 +3016,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));
                     ushort right = unchecked((ushort)(componentX + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
 
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
@@ -3067,9 +3043,7 @@ public sealed partial class RoomEnemySystem
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));
                     ushort right = unchecked((ushort)(componentX + hitbox.Right));
                     ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!OverlapsExtendedHitbox(targetLeft, targetRight,
-                            targetTop, targetBottom, left, top, right, bottom,
-                            selectShotCallback))
+                    if (!OverlapsExtendedHitbox(target, left, top, right, bottom))
                         continue;
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
@@ -3088,18 +3062,23 @@ public sealed partial class RoomEnemySystem
     /// walkers have different strict/inclusive boundaries in the cartridge.
     /// </summary>
     private static bool OverlapsExtendedHitbox(
-        ushort targetLeft, ushort targetRight, ushort targetTop,
-        ushort targetBottom, ushort left, ushort top, ushort right,
-        ushort bottom, bool selectShotCallback) =>
-        selectShotCallback
-            ? !IsNegative16(targetRight - left) &&
-              IsNegative16(targetLeft - right) &&
-              !IsNegative16(targetBottom - top) &&
-              IsNegative16(targetTop - bottom)
-            : IsNegative16(left - targetRight) &&
-              !IsNegative16(right - targetLeft) &&
-              IsNegative16(top - targetBottom) &&
-              !IsNegative16(bottom - targetTop);
+        ExtendedHitboxTarget target, ushort left, ushort top, ushort right, ushort bottom) =>
+        target.SelectShotCallback
+            ? !IsNegative16(target.Right - left) &&
+              IsNegative16(target.Left - right) &&
+              !IsNegative16(target.Bottom - top) &&
+              IsNegative16(target.Top - bottom)
+            : IsNegative16(left - target.Right) &&
+              !IsNegative16(right - target.Left) &&
+              IsNegative16(top - target.Bottom) &&
+              !IsNegative16(bottom - target.Top);
+
+    /// <summary>
+    /// The colliding projectile's or Samus's edges as <c>$A0:9A5A/$9B7F</c> compare them, and
+    /// whether the walker selects the shot (strict) or touch (inclusive) callback (#633).
+    /// </summary>
+    private readonly record struct ExtendedHitboxTarget(
+        ushort Left, ushort Right, ushort Top, ushort Bottom, bool SelectShotCallback);
 
     /// <summary>
     /// Identifies actors whose ordinary Samus-contact collision actually enters

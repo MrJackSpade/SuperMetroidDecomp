@@ -92,7 +92,7 @@ internal static partial class Program
         samus.Pose = SamusPoseId.SpinJumpRightPose;
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
-        SamusKnockbackMovement.Start(bus, samus, 0, 0, 4);
+        SamusKnockbackMovement.Start(bus, samus, 0, new KnockbackLaunch { KnockbackXDirection = 0, KnockbackTimer = 4 });
         samus.Position = samus.Position.WithWholeX(131);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
         samus.Position = samus.Position.WithWholeY(160);

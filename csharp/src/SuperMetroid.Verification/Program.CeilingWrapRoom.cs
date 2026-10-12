@@ -61,8 +61,8 @@ internal static partial class Program
         {
             ushort held = (ushort)SnesButton.X;
             ushort pressed = frame == 0 ? held : (ushort)0;
-            bombs.StepFrame(bus, level, samus, held, pressed);
-            shots.StepFrame(bus, level, samus, held, pressed, new(1109, 0), bombs, roomPlms: plms);
+            bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, held, pressed);
+            shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
             plms.Step(bus, level, runtime.BackgroundStreamer!, new PlmView { Layer1Position = new(1109, 0), Bg1XOffset = 0 });
             if (firstFull < 0 && plms.ActiveCount == 40) firstFull = frame;
         }

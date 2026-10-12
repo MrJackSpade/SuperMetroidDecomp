@@ -15,9 +15,8 @@ internal static class GameplayRenderAllocationVerification
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
         var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshot.Capture(vram, cgram, oam),
             [new OrdinaryGameplayRenderLayer(registers)], 3, 15);
-        var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, oam, new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
-            bg2TilemapSize: new Extent16<TilemapCells>(64, 32), bg2TilemapBaseWord: 0,
-            bg1CharacterBaseWord: 0, bg2CharacterBaseWord: 0, bg3CharacterBaseWord: 0);
+        var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, oam,
+            new OrdinaryGameplayRenderLayer(registers));
         for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(snapshot);
         long before = GC.GetAllocatedBytesForCurrentThread();
         var actual = SoftwareLayeredSnapshotRenderer.Render(snapshot);

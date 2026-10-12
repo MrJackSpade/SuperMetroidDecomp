@@ -34,7 +34,7 @@ internal static partial class Program
         for (int frame = 0; frame < 120; frame++)
         {
             ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
-            bombs.StepFrame(bus, assets.LevelData, samus, input, input);
+            bombs.StepFrame(new SamusTerrain { Bus = bus, Level = assets.LevelData }, samus, input, input);
             if (firstExplosion < 0 && bombs.Slots.Any(b => b.Type != 0 && b.BombTimer == 0)) firstExplosion = frame;
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             enemies.ResolveOrdinaryBombHits(bombs, shots, samus);

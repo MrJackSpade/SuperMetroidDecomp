@@ -50,8 +50,7 @@ internal sealed partial class InstalledSamusIsolationTests
             CheckJump(medium, left, highJump: true);
             CheckPosture(medium, left);
             Pair hurt = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose, medium: medium);
-            Require(hurt.Apply(label + " hit admission", actor => SamusKnockbackMovement.Start(actor.Memory,
-                actor.Samus, 0, left ? (ushort)1 : (ushort)0, level: actor.Level)), label + ": hurt was not admitted");
+            Require(hurt.Apply(label + " hit admission", actor => SamusKnockbackMovement.Start(actor.Memory, actor.Samus, 0, new KnockbackLaunch { KnockbackXDirection = left ? (ushort)1 : (ushort)0 }, level: actor.Level)), label + ": hurt was not admitted");
             for (ushort frame = 0; frame < 8; frame++)
                 hurt.Apply(label + $" knockback {frame}", actor =>
                 {

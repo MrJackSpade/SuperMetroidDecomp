@@ -1138,10 +1138,11 @@ static void VerifyFourBitBackgroundRendering()
         gameplayVram,
         gameplayCgram,
         gameplayOam,
-        bg1Scroll: new Position16<RoomPixels>(0, 0),
-        bg2Scroll: new Position16<Bg2Pixels>(0, 0x00e0),
-        bg2HorizontalScrollByLine: horizontalByLine,
-        bg2TilemapSize: new Extent16<TilemapCells>(32, 64));
+        new OrdinaryGameplayRenderLayer(
+            new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
+                new Extent16<TilemapCells>(32, 64), GameplayVramLayout.Bg2TilemapWord, 0, 0,
+                GameplayVramLayout.HudCharacterWord, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+            new Bg2HdmaScrollTables(horizontalByLine, default)));
     AssertEqual(new Rgba32(0, 0, 255),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
@@ -1160,10 +1161,10 @@ static void VerifyFourBitBackgroundRendering()
         gameplayVram,
         gameplayCgram,
         gameplayOam,
-        bg1Scroll: new Position16<RoomPixels>(0, 0),
-        bg2Scroll: new Position16<Bg2Pixels>(0, 0),
-        bg2TilemapSize: new Extent16<TilemapCells>(64, 64),
-        bg2TilemapBaseWord: kraidBg2BaseWord);
+        new OrdinaryGameplayRenderLayer(
+            new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
+                new Extent16<TilemapCells>(64, 64), kraidBg2BaseWord, 0, 0,
+                GameplayVramLayout.HudCharacterWord, SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj)));
     AssertEqual(new Rgba32(255, 0, 0),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
         "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");

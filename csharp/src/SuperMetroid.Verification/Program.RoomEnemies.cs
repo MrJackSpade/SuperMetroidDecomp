@@ -1109,16 +1109,9 @@ static void VerifyCeresRidleyRoomEntry()
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole + 8)), ridley.Position.Y.Whole));
-        sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
+        sharedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        projectiles.StepFrame(
-            bus,
-            air,
-            samus,
-            (ushort)SnesButton.X,
-            (ushort)SnesButton.X,
-            new(0, 0),
-            sharedProjectiles);
+        projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), sharedProjectiles);
         AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Slots[0].Position.X.Whole - projectiles.Slots[0].Radius.X > ridley.Position.X.Whole + 8,
@@ -1139,8 +1132,8 @@ static void VerifyCeresRidleyRoomEntry()
         // plus initialization, returning the same slot without shortening the program.
         for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
-            sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
-            projectiles.StepFrame(bus, air, samus, 0, 0, new(0, 0), sharedProjectiles);
+            sharedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), sharedProjectiles);
         }
 
         // This focused hit-counter test used to patch the cartridge cooldown to one.
@@ -1148,8 +1141,8 @@ static void VerifyCeresRidleyRoomEntry()
         // or speed up the separately stepped enemy phase/timer fixture.
         for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
         {
-            sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
-            projectiles.StepFrame(bus, air, samus, 0, 0, new(0, 0), sharedProjectiles);
+            sharedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), sharedProjectiles);
         }
         AssertEqual((ushort)0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 

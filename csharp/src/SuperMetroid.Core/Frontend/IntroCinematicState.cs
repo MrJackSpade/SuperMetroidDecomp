@@ -954,21 +954,8 @@ public sealed partial class IntroCinematicState
         // HandleHUDSpecificBehaviorAndProjectiles calls the shared cooldown owner before
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running
         // the real owner is still required for missile admission timing.
-        flashbackBombProjectiles.StepFrame(
-            bus,
-            flashbackLevel!,
-            flashbackSamus!,
-            flashbackDemoInput.Held,
-            flashbackDemoInput.NewlyPressed);
-        flashbackProjectiles.StepFrame(
-            bus,
-            flashbackLevel!,
-            flashbackSamus!,
-            flashbackDemoInput.Held,
-            flashbackDemoInput.NewlyPressed,
-            layer1: Position16<RoomPixels>.Zero,
-            flashbackBombProjectiles,
-            controllerPreviousNewInput: flashbackDemoInput.PublishedPreviousNewlyPressed);
+        flashbackBombProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = flashbackLevel! }, flashbackSamus!, flashbackDemoInput.Held, flashbackDemoInput.NewlyPressed);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = flashbackLevel! }, flashbackSamus!, new ProjectileButtonInput { ControllerInput = flashbackDemoInput.Held, ControllerNewInput = flashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = flashbackDemoInput.PublishedPreviousNewlyPressed }, layer1: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
         if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
         {
             audio?.QueueSound(
@@ -1080,12 +1067,7 @@ public sealed partial class IntroCinematicState
             samus.KnockbackTimer != 0 &&
             samus.KnockbackDirection == 0)
         {
-            SamusKnockbackMovement.Start(
-                bus,
-                samus,
-                demoInput,
-                samus.KnockbackXDirection,
-                samus.KnockbackTimer);
+            SamusKnockbackMovement.Start(bus, samus, demoInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer });
             transitionAccepted = true;
         }
 

@@ -612,12 +612,7 @@ public static partial class SamusGrappleMovement
         ushort knockbackXDirection = SamusState.IsFacingLeft(bus, samus.Pose)
             ? (ushort)1
             : (ushort)0;
-        SamusKnockbackMovement.Start(
-            bus,
-            samus,
-            controllerInput,
-            knockbackXDirection,
-            knockbackTimer: 5);
+        SamusKnockbackMovement.Start(bus, samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = 5 });
     }
 
     private static GrappleMovementResult StepWallGrab(

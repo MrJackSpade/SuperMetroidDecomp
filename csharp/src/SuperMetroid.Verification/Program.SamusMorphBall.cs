@@ -611,12 +611,7 @@ static void VerifySamusMorphBallMovement()
     };
     noBombItemSamus.RefreshCollisionRadii(bus);
     var noBombItemSystem = CreateBombFixture();
-    noBombItemSystem.StepFrame(
-        bus,
-        floor,
-        noBombItemSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X);
+    noBombItemSystem.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, noBombItemSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     AssertTrue(noBombItemSystem.BombCounter == 0 && noBombItemSystem.Slots.All(slot => !slot.IsActive),
         "bomb item bit gates placement");
 
@@ -628,12 +623,7 @@ static void VerifySamusMorphBallMovement()
     };
     bombProjectileSamus.RefreshCollisionRadii(bus);
     var bombs = CreateBombFixture();
-    bombs.StepFrame(
-        bus,
-        floor,
-        bombProjectileSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X);
+    bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     AssertTrue(bombs.Slots[0].IsActive && bombs.Slots.Skip(1).All(slot => !slot.IsActive),
         "first normal bomb uses physical slot zero");
     AssertEqual(1, bombs.BombCounter, "placement increments native bomb counter");
@@ -647,13 +637,8 @@ static void VerifySamusMorphBallMovement()
     // A new edge during the active low-byte cooldown is rejected without incrementing the
     // aggregate. Release is a separate frame so ControllerInputState-like edge semantics
     // are represented explicitly in this direct subsystem test.
-    bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
-    bombs.StepFrame(
-        bus,
-        floor,
-        bombProjectileSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X);
+    bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, 0, 0);
+    bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     AssertTrue(bombs.Slots.Skip(1).All(slot => !slot.IsActive),
         "active bomb cooldown rejects another edge");
     AssertEqual(1, bombs.BombCounter, "rejected edge does not alter bomb counter");
@@ -672,14 +657,9 @@ static void VerifySamusMorphBallMovement()
         };
         fixtureSamus.RefreshCollisionRadii(fixtureBus);
         var fixtureSystem = CreateBombFixture();
-        fixtureSystem.StepFrame(
-            fixtureBus,
-            fixtureFloor,
-            fixtureSamus,
-            (ushort)SnesButton.X,
-            (ushort)SnesButton.X);
+        fixtureSystem.StepFrame(new SamusTerrain { Bus = fixtureBus, Level = fixtureFloor }, fixtureSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
         while (fixtureSystem.Slots[0].BombTimer > 9)
-            fixtureSystem.StepFrame(fixtureBus, fixtureFloor, fixtureSamus, 0, 0);
+            fixtureSystem.StepFrame(new SamusTerrain { Bus = fixtureBus, Level = fixtureFloor }, fixtureSamus, 0, 0);
         return (fixtureSystem, fixtureSamus);
     }
 
@@ -693,12 +673,7 @@ static void VerifySamusMorphBallMovement()
         (SamusBombProjectileSystem directionSystem, SamusState directionSamus) =
             MakeDirectionFixture(bus, floor);
         directionSamus.Position = directionSamus.Position.WithWholeX(samusX);
-        BombProjectileFrameResult timerEight = directionSystem.StepFrame(
-            bus,
-            floor,
-            directionSamus,
-            0,
-            0);
+        BombProjectileFrameResult timerEight = directionSystem.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, directionSamus, 0, 0);
         AssertEqual(expectedDirection, timerEight.PublishedBombJumpDirection,
             $"timer-eight bomb direction at Samus X {samusX}");
         AssertEqual(expectedDirection, directionSamus.BombJumpDirection,
@@ -711,11 +686,11 @@ static void VerifySamusMorphBallMovement()
     // fifteen, publish direction at eight, emit a five-block no-op reaction cross at zero,
     // animate all five explosion records, execute delete, and decrement BombCounter.
     while (bombs.Slots[0].BombTimer > 15)
-        bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, 0, 0);
     AssertTrue(bombs.Slots[0].InstructionPointer >= 0x9fe3,
         "timer fifteen advances the live instruction pointer into fast animation");
     while (bombs.Slots[0].BombTimer > 8)
-        bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, 0, 0);
     AssertEqual(2, bombProjectileSamus.BombJumpDirection,
         "same-X timer-eight overlap publishes straight direction");
     AssertTrue(bombProjectileSamus.TrySetupPublishedBombJump(
@@ -729,7 +704,7 @@ static void VerifySamusMorphBallMovement()
 
     BombProjectileFrameResult explosion = default;
     while (!bombs.Slots[0].IsExploding)
-        explosion = bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+        explosion = bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, 0, 0);
     AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
     AssertEqual(0x0501, bombs.Slots[0].Type, "first explosion pass marks block cross handled");
     AssertEqual(0x8000, floor.GetCollisionBlockByIndex(4 * width + 3).LevelWord,
@@ -742,7 +717,7 @@ static void VerifySamusMorphBallMovement()
         "normal bomb fuse expiry queues cartridge library-two sound eight with Max6");
 
     for (int tick = 0; tick < 20 && bombs.BombCounter != 0; tick++)
-        bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, bombProjectileSamus, 0, 0);
     AssertEqual(0, bombs.BombCounter, "explosion delete decrements bomb counter");
     AssertTrue(!bombs.Slots[0].IsActive, "delete opcode clears complete bomb slot");
 
@@ -759,23 +734,13 @@ static void VerifySamusMorphBallMovement()
     };
     spreadSamus.RefreshCollisionRadii(bus);
     var spreadBombs = CreateBombFixture();
-    spreadBombs.StepFrame(
-        bus,
-        empty,
-        spreadSamus,
-        (ushort)(SnesButton.X | SnesButton.Down),
-        0);
+    spreadBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, spreadSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
     AssertTrue(spreadBombs.Slots.All(slot => !slot.IsActive),
         "held Down charges bomb spread without spawning");
     AssertEqual(1, spreadSamus.BombSpreadChargeTimeoutCounter,
         "held Down advances native bomb-spread timeout");
 
-    BombProjectileFrameResult spreadReleased = spreadBombs.StepFrame(
-        bus,
-        empty,
-        spreadSamus,
-        (ushort)SnesButton.X,
-        0);
+    BombProjectileFrameResult spreadReleased = spreadBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, spreadSamus, (ushort)SnesButton.X, 0);
     AssertTrue(spreadBombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread),
         "releasing Down while holding charged Shoot starts bomb spread");
     AssertTrue(spreadReleased.BeamChargeConsumed,
@@ -813,12 +778,7 @@ static void VerifySamusMorphBallMovement()
     };
     selectedPowerBombSpreadSamus.RefreshCollisionRadii(bus);
     var selectedPowerBombSpreadBombs = CreateBombFixture();
-    selectedPowerBombSpreadBombs.StepFrame(
-        bus,
-        empty,
-        selectedPowerBombSpreadSamus,
-        (ushort)SnesButton.X,
-        0);
+    selectedPowerBombSpreadBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, selectedPowerBombSpreadSamus, (ushort)SnesButton.X, 0);
     AssertTrue(selectedPowerBombSpreadBombs.Slots.All(slot => !slot.IsBombSpread),
         "selected Power Bomb bypasses charged regular-bomb spread");
     AssertTrue(selectedPowerBombSpreadBombs.Slots.All(slot => !slot.IsActive),
@@ -860,7 +820,7 @@ static void VerifySamusMorphBallMovement()
     bouncingSpread.BombSpreadYSubvelocity = 0;
     bouncingSpread.BombSpreadInitialYSubvelocity = 0x8000;
     bouncingSpread.BombSpreadBounceYVelocity = 0xfffe;
-    spreadBombs.StepFrame(bus, floor, spreadSamus, 0, 0);
+    spreadBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, spreadSamus, 0, 0);
     AssertEqual(63, bouncingSpread.Position.Y.Whole,
         "spread-bomb floor collision undoes penetrating Y movement");
     AssertEqual(0xfffe, bouncingSpread.BombSpreadYVelocity,
@@ -880,14 +840,12 @@ static void VerifySamusMorphBallMovement()
     };
     timeoutSamus.RefreshCollisionRadii(bus);
     var timeoutBombs = CreateBombFixture();
-    timeoutBombs.StepFrame(
-        bus, empty, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
+    timeoutBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
     AssertTrue(timeoutBombs.Slots.All(slot => !slot.IsActive),
         "timeout `$BF` advances to `$C0` before forced launch");
     AssertEqual(0x00c0, timeoutSamus.BombSpreadChargeTimeoutCounter,
         "last held charging frame reaches timeout threshold");
-    timeoutBombs.StepFrame(
-        bus, empty, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
+    timeoutBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
     AssertTrue(timeoutBombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread),
         "timeout `$C0` forces launch even while Down remains held");
 
@@ -901,8 +859,7 @@ static void VerifySamusMorphBallMovement()
         ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
     };
     var cancelledSpreadBombs = CreateBombFixture();
-    BombProjectileFrameResult cancelledSpread = cancelledSpreadBombs.StepFrame(
-        bus, empty, cancelledSpreadSamus, 0, 0);
+    BombProjectileFrameResult cancelledSpread = cancelledSpreadBombs.StepFrame(new SamusTerrain { Bus = bus, Level = empty }, cancelledSpreadSamus, 0, 0);
     AssertTrue(cancelledSpread.BeamChargeConsumed,
         "released Shoot publishes carried-charge cancellation");
     AssertTrue(cancelledSpreadBombs.Slots.All(slot => !slot.IsActive),
@@ -921,12 +878,7 @@ static void VerifySamusMorphBallMovement()
     };
     powerBombSamus.RefreshCollisionRadii(bus);
     var powerBombs = CreateBombFixture();
-    powerBombs.StepFrame(
-        bus,
-        floor,
-        powerBombSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X);
+    powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     AssertTrue(powerBombs.Slots[0].IsActive && powerBombs.Slots.Skip(1).All(slot => !slot.IsActive),
         "selected power bomb uses first physical bomb slot");
     AssertEqual(1, powerBombSamus.PowerBombs,
@@ -949,19 +901,14 @@ static void VerifySamusMorphBallMovement()
     // `$90:C157` shares the normal bomb's 60->15 timing and adds `$1C` to the live
     // instruction pointer. A second selected-item edge is rejected by the armed flag
     // before helper two can perturb either aggregate counter.
-    powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
-    powerBombs.StepFrame(
-        bus,
-        floor,
-        powerBombSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X);
+    powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
+    powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     AssertTrue(powerBombs.Slots.Skip(1).All(slot => !slot.IsActive),
         "negative power-bomb flag rejects a second placement");
     AssertEqual(1, powerBombs.BombCounter,
         "armed rejection preserves bomb aggregate");
     while (powerBombs.Slots[0].BombTimer > 15)
-        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
     AssertTrue(powerBombs.Slots[0].InstructionPointer >= 0x9fa3,
         "power-bomb timer fifteen enters retail fast list");
     var armedPowerBombOam = new OamBuffer();
@@ -972,7 +919,7 @@ static void VerifySamusMorphBallMovement()
 
     BombProjectileFrameResult powerBombFuse = default;
     while (!powerBombs.PowerBombExplosion.IsActive)
-        powerBombFuse = powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        powerBombFuse = powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
     AssertEqual(0, powerBombs.Slots[0].BombTimer,
         "$FFFF fuse sentinel is consumed by first mode-three collision call");
     AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
@@ -992,7 +939,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0, detonatedPowerBombOam.NextByteOffset,
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 
-    powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+    powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
     AssertEqual(0x0400, powerBombs.PowerBombExplosion.PreExplosionRadius,
         "first HDMA pass initializes the 4.00-pixel radius without expanding it");
     AssertEqual(PowerBombExplosionPhase.Inactive, powerBombs.PowerBombExplosion.RenderedPhase,
@@ -1001,8 +948,7 @@ static void VerifySamusMorphBallMovement()
     // The following HDMA pass runs the new pre-instruction. White pre-flash grows 4.00 by 48.00,
     // then the still-zero damaging radius scans the one-block rectangle's four duplicated
     // corners in bank-$94 top/left/bottom/right order.
-    powerBombs.StepFrame(
-        bus, floor, powerBombSamus, 0, 0);
+    powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
     AssertEqual(0x3400, powerBombs.PowerBombExplosion.PreExplosionRadius,
         "first white pre-explosion frame applies $3000 speed");
     AssertEqual(0x2f80, powerBombs.PowerBombExplosion.RadiusSpeed,
@@ -1011,7 +957,7 @@ static void VerifySamusMorphBallMovement()
     int whiteFlashFrames = 1;
     while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.PreExplosionWhite)
     {
-        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
         whiteFlashFrames++;
         AssertTrue(whiteFlashFrames < 32, "white pre-explosion phase terminates");
     }
@@ -1023,7 +969,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0x9f06, powerBombs.PowerBombExplosion.ShapeDefinitionPointer,
         "yellow pre-explosion starts at shape table $9F06");
 
-    StepFrames(4, _ => powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0));
+    StepFrames(4, _ => powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0));
     AssertEqual(PowerBombExplosionPhase.ExplosionYellow,
         powerBombs.PowerBombExplosion.Phase,
         "four 192-byte yellow shapes advance to damaging explosion");
@@ -1035,7 +981,7 @@ static void VerifySamusMorphBallMovement()
     int yellowExplosionFrames = 0;
     while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.ExplosionYellow)
     {
-        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
         yellowExplosionFrames++;
         AssertTrue(yellowExplosionFrames < 128, "yellow explosion reaches $8600 threshold");
     }
@@ -1050,7 +996,7 @@ static void VerifySamusMorphBallMovement()
     int whiteExplosionFrames = 0;
     while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.ExplosionWhite)
     {
-        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
         whiteExplosionFrames++;
         AssertTrue(whiteExplosionFrames < 32, "white explosion shape sequence terminates");
     }
@@ -1067,7 +1013,7 @@ static void VerifySamusMorphBallMovement()
     int afterglowFrames = 0;
     while (powerBombs.PowerBombExplosion.IsActive)
     {
-        powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+        powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
         afterglowFrames++;
         AssertTrue(afterglowFrames < 160, "power-bomb afterglow reaches cleanup");
     }
@@ -1111,23 +1057,11 @@ static void VerifySamusMorphBallMovement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     reactionSamus.RefreshCollisionRadii(bus);
-    reactionBombs.StepFrame(
-        bus,
-        reactionLevel,
-        reactionSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X,
-        reactionPlms);
+    reactionBombs.StepFrame(new SamusTerrain { Bus = bus, Level = reactionLevel, Plms = reactionPlms }, reactionSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
 
     while (!reactionBombs.Slots[0].IsExploding)
     {
-        reactionBombs.StepFrame(
-            bus,
-            reactionLevel,
-            reactionSamus,
-            0,
-            0,
-            reactionPlms);
+        reactionBombs.StepFrame(new SamusTerrain { Bus = bus, Level = reactionLevel, Plms = reactionPlms }, reactionSamus, 0, 0);
     }
 
     AssertEqual(RoomCollisionType.HorizontalExtension,
@@ -1201,22 +1135,10 @@ static void VerifySamusMorphBallMovement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     integratedRevealSamus.RefreshCollisionRadii(bus);
-    integratedRevealBombs.StepFrame(
-        bus,
-        integratedRevealLevel,
-        integratedRevealSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X,
-        integratedRevealPlms);
+    integratedRevealBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedRevealLevel, Plms = integratedRevealPlms }, integratedRevealSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     while (!integratedRevealBombs.Slots[0].IsExploding)
     {
-        integratedRevealBombs.StepFrame(
-            bus,
-            integratedRevealLevel,
-            integratedRevealSamus,
-            0,
-            0,
-            integratedRevealPlms);
+        integratedRevealBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedRevealLevel, Plms = integratedRevealPlms }, integratedRevealSamus, 0, 0);
     }
     AssertEqual(RoomCollisionType.ShootableBlock,
         integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).CollisionType,
@@ -1258,22 +1180,10 @@ static void VerifySamusMorphBallMovement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     bombDoorSamus.RefreshCollisionRadii(bus);
-    bombDoorBombs.StepFrame(
-        bus,
-        bombDoorLevel,
-        bombDoorSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X,
-        bombDoorPlms);
+    bombDoorBombs.StepFrame(new SamusTerrain { Bus = bus, Level = bombDoorLevel, Plms = bombDoorPlms }, bombDoorSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     while (!bombDoorBombs.Slots[0].IsExploding)
     {
-        bombDoorBombs.StepFrame(
-            bus,
-            bombDoorLevel,
-            bombDoorSamus,
-            0,
-            0,
-            bombDoorPlms);
+        bombDoorBombs.StepFrame(new SamusTerrain { Bus = bus, Level = bombDoorLevel, Plms = bombDoorPlms }, bombDoorSamus, 0, 0);
     }
     AssertEqual(1, bombDoorPlms.ActiveCount,
         "normal bomb allocates one blue-door opening PLM");
@@ -1411,33 +1321,15 @@ static void VerifySamusMorphBallMovement()
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
     integratedPowerBombSamus.RefreshCollisionRadii(bus);
-    integratedPowerBombs.StepFrame(
-        bus,
-        integratedPowerBombLevel,
-        integratedPowerBombSamus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X,
-        integratedPowerBombPlms);
+    integratedPowerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedPowerBombLevel, Plms = integratedPowerBombPlms }, integratedPowerBombSamus, (ushort)SnesButton.X, (ushort)SnesButton.X);
     while (!integratedPowerBombs.PowerBombExplosion.IsActive)
     {
-        integratedPowerBombs.StepFrame(
-            bus,
-            integratedPowerBombLevel,
-            integratedPowerBombSamus,
-            0,
-            0,
-            integratedPowerBombPlms);
+        integratedPowerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedPowerBombLevel, Plms = integratedPowerBombPlms }, integratedPowerBombSamus, 0, 0);
     }
     AssertEqual(0xc321,
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "power-bomb fuse frame leaves gated block intact before radius scan");
-    integratedPowerBombs.StepFrame(
-        bus,
-        integratedPowerBombLevel,
-        integratedPowerBombSamus,
-        0,
-        0,
-        integratedPowerBombPlms);
+    integratedPowerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedPowerBombLevel, Plms = integratedPowerBombPlms }, integratedPowerBombSamus, 0, 0);
     AssertTrue(integratedPowerBombPlms.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
         "expanding power bomb visits BTS-eight shootable block");
     AssertEqual(0x8057,
@@ -1845,20 +1737,14 @@ private static void RunPowerBombToInitialBoundary(
     };
     samus.RefreshCollisionRadii(bus);
     var bombs = CreateBombFixture();
-    bombs.StepFrame(
-        bus,
-        level,
-        samus,
-        (ushort)SnesButton.X,
-        (ushort)SnesButton.X,
-        plms);
+    bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, (ushort)SnesButton.X, (ushort)SnesButton.X);
 
     while (!bombs.PowerBombExplosion.IsActive)
-        bombs.StepFrame(bus, level, samus, 0, 0, plms);
+        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, 0, 0);
 
     // `$90:C157` first turns the fuse-expiration sentinel into zero. The following frame
     // is the first `$94:A06A` boundary scan, initially the single center block.
-    bombs.StepFrame(bus, level, samus, 0, 0, plms);
+    bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, 0, 0);
 }
 
 

@@ -32,8 +32,7 @@ internal static partial class Program
             // Down postpones a valid full-charge spread. The no-edge rejection below
             // therefore belongs only to the ordinary-bomb/Power-Bomb helper, not to
             // releasing a spread. Equipment guards that skip that helper preserve charge.
-            var result = bombs.StepFrame(bus, level, samus,
-                (ushort)(SnesButton.X | SnesButton.Down), freshShoot ? (ushort)SnesButton.X : (ushort)0);
+            var result = bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, (ushort)(SnesButton.X | SnesButton.Down), freshShoot ? (ushort)SnesButton.X : (ushort)0);
             bool helperRuns = powerBombSelected || bombsEquipped && charge < 60;
             bool cancelled = helperRuns && !freshShoot && charge != 0;
             string context = $"charge={charge}, Bombs={bombsEquipped}, PB={powerBombSelected}, edge={freshShoot}";
@@ -58,7 +57,7 @@ internal static partial class Program
                 SelectedHudItem = selection, PowerBombs = 2, ProjectileFlareCounter = charge,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) };
             var bombs = CreateBombFixture();
-            var result = bombs.StepFrame(bus, level, samus, (ushort)SnesButton.Down, 0);
+            var result = bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, (ushort)SnesButton.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";
             AssertEqual(charge != 0, result.BeamChargeConsumed, $"outer native cancellation command: {context}");
             AssertEqual(charge != 0 ? 1 : 0, result.SoundRequests!.Count(sound => sound ==

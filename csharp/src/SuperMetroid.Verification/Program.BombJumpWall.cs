@@ -83,7 +83,7 @@ internal static partial class Program
         // until the common hurt-expiry command restores both.
         hurt.Pose = SamusPoseId.NormalJumpForwardRightPose;
         hurt.RefreshCollisionRadii(bus);
-        AssertTrue(SamusKnockbackMovement.Start(bus, hurt, 0, 0), "normal hurt interrupts humanoid bomb start");
+        AssertTrue(SamusKnockbackMovement.Start(bus, hurt, 0, new KnockbackLaunch { KnockbackXDirection = 0 }), "normal hurt interrupts humanoid bomb start");
         AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");
         AssertTrue(hurt.BombJumpPoseInputLocked, "hurt admission preserves independent bomb input lock");
         hurt.KnockbackTimer = 0;

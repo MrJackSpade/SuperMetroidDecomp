@@ -100,10 +100,13 @@ public static class SuperMetroidRuntimeFrameRenderer
                     verticalFx,
                     bg2Scroll.Y)
                 : null;
-            frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                runtime.Vram,
-                runtime.Cgram,
-                runtime.DisplayedOam,
+            // Crocomire's melting table spans every PPU scanline; gameplay reads lines 0..191 of it.
+            ushort[]? horizontalScrolls = runtime.Enemies.Phantoon?.Wave.DisplayedScrolls ?? lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls;
+            ushort[]? verticalScrolls = crocomireOwnsBg2
+                ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
+                    ? melting.Bg2ScrollByScanline.Take(Bg2HdmaScrollTables.GameplayLines).ToArray() : null
+                : lavaAcidBg2VerticalScrolls;
+            var registers = new OrdinaryGameplayRegisters(
                 bg1Scroll,
                 new Position16<Bg2Pixels>(
                     kraidOwnsBg2
@@ -120,32 +123,31 @@ public static class SuperMetroidRuntimeFrameRenderer
                             : runtime.TourianStatues.Enabled
                                 ? unchecked((ushort)(displayedPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset + shake.Bg2.Y))
                                 : bg2Scroll.Y),
-                bg2HorizontalScrollByLine:
-                    runtime.Enemies.Phantoon?.Wave.DisplayedScrolls ?? lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
-                bg2VerticalScrollByLine: crocomireOwnsBg2
-                    ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
-                        ? melting.Bg2ScrollByScanline : null
-                    : lavaAcidBg2VerticalScrolls,
-                bg2TilemapSize: kraidOwnsBg2
+                kraidOwnsBg2
                     ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)
                     : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? new Extent16<TilemapCells>(32, 32)
                     : scrollingSky?.HorizontalHdmaConfigured != true && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue
                         ? new Extent16<TilemapCells>(64, 32)
                         : new Extent16<TilemapCells>(32, 64),
-                bg2TilemapBaseWord: kraidOwnsBg2
+                kraidOwnsBg2
                     ? KraidBackgroundRomData.LiveBg2TilemapWord
                     : GameplayVramLayout.Bg2TilemapWord,
-                bg1CharacterBaseWord: bgCharacterBaseWord,
-                bg2CharacterBaseWord: bgCharacterBaseWord,
-                bg3CharacterBaseWord: runtime.GameplayHudCharacterBaseWord,
-                mainScreenLayers: runtime.DoorTransitionMainScreenLayers ??
+                Bg1CharacterWord: bgCharacterBaseWord,
+                Bg2CharacterWord: bgCharacterBaseWord,
+                HudCharacterWord: runtime.GameplayHudCharacterBaseWord,
+                MainScreenLayers: runtime.DoorTransitionMainScreenLayers ??
                     (SnesMainScreenLayers.Bg1 |
                      SnesMainScreenLayers.Bg2 |
                      SnesMainScreenLayers.Obj),
-                bg2FirstScanline: runtime.DisplayedGameplayPpu.Bg2FirstScanline,
-                bg2EndScanline: runtime.DisplayedGameplayPpu.Bg2EndScanline,
-                mainScreenLayersByLine: runtime.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrain?.RisingHdmaActive == true
-                    ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default,
+                Bg2FirstScanline: runtime.DisplayedGameplayPpu.Bg2FirstScanline,
+                Bg2EndScanline: runtime.DisplayedGameplayPpu.Bg2EndScanline);
+            frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
+                runtime.Vram,
+                runtime.Cgram,
+                runtime.DisplayedOam,
+                new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(horizontalScrolls, verticalScrolls),
+                    runtime.DoorTransitionMainScreenLayers is null && runtime.Enemies.MotherBrain?.RisingHdmaActive == true
+                    ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default),
                 outputBuffer: runtime.GameplayFrameBuffer);
         }
 

@@ -66,7 +66,7 @@ internal static partial class Program
             hurt.HorizontalSpeed.ExtraRunSpeed = ushort.MaxValue;
             hurt.HorizontalSpeed.ExtraRunSubspeed = ushort.MaxValue;
             hurt.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
-            AssertTrue(SamusKnockbackMovement.Start(poseOnly, hurt, input, side, knockbackTimer: 11), "Native hurt branch admitted");
+            AssertTrue(SamusKnockbackMovement.Start(poseOnly, hurt, input, new KnockbackLaunch { KnockbackXDirection = side, KnockbackTimer = 11 }), "Native hurt branch admitted");
             int medium = (equipment & 4) != 0 || environment == 3 ? 0 : environment;
             AssertEqual(Word(0x909ee9 + medium * 2), hurt.Kinematics.YSpeed, "Hurt native whole launch");
             AssertEqual(Word(0x909eef + medium * 2), hurt.Kinematics.YSubspeed, "Hurt native fractional launch");

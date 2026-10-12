@@ -99,14 +99,7 @@ public static class SoftwareLayeredSnapshotRenderer
                 case OrdinaryGameplayRenderLayer gameplay:
                     OrdinaryGameplayRegisters r = gameplay.Registers;
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                        memory.Vram, memory.Cgram, memory.Oam, r.Bg1Scroll, r.Bg2Scroll,
-                        gameplay.Bg2LineScrolls.Horizontal.IsEmpty ? null : gameplay.Bg2LineScrolls.Horizontal.ToArray(),
-                        gameplay.Bg2LineScrolls.Vertical.IsEmpty ? null : gameplay.Bg2LineScrolls.Vertical.ToArray(),
-                        r.Bg2MapSize, r.Bg2TilemapWord,
-                        r.Bg1CharacterWord, r.Bg2CharacterWord, r.HudCharacterWord,
-                        snapshot.ObjectSelection, r.MainScreenLayers, gameplayOutputBuffer,
-                        r.Bg2FirstScanline, r.Bg2EndScanline, r.Windows, r.MainScreenWindowMask, r.Bg2Mosaic,
-                        gameplay.MainScreenLayersByLine);
+                        memory.Vram, memory.Cgram, memory.Oam, gameplay, snapshot.ObjectSelection, gameplayOutputBuffer);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = scratch.Colors(256 * 32 * 8);

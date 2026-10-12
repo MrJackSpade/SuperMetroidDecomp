@@ -426,9 +426,7 @@ internal static partial class Program
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
                 var cgram = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(guard, cgram,
-                        SamusMovementType.Running, 0, items,
-                        cycleColors: edited.SamusFullBodyCycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(guard, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: edited.SamusFullBodyCycleColors),
                     "Speed Booster reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
@@ -437,10 +435,7 @@ internal static partial class Program
             {
                 var screw = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
                 var cgram = new SnesCgram();
-                AssertTrue(screw.UpdateSpeedBoosterPalette(guard, cgram,
-                        SamusMovementType.SpinJumping, 1,
-                        (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack),
-                        cycleColors: edited.SamusFullBodyCycleColors),
+                AssertTrue(screw.UpdateSpeedBoosterPalette(guard, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack) }, cycleColors: edited.SamusFullBodyCycleColors),
                     "Screw Attack reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
                     Math.Min(phase, 6 - phase));

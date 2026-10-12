@@ -19,19 +19,19 @@ internal static partial class Program
             var projectiles = new SamusProjectileSystem { FrameBindings = frames };
             var bombs = new SamusBombProjectileSystem { FrameBindings = frames };
             for (int frame = 0; frame < 60; frame++)
-                projectiles.StepFrame(bus, air, samus, (ushort)SnesButton.X, 0, new(0, 0), bombs);
+                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = 0 }, new(0, 0), bombs);
             AssertEqual(60, projectiles.FlareCounter, "spin charge fixture armed through real producer");
             samus.Pose = pose;
             foreach (ushort input in new ushort[] { (ushort)SnesButton.X, 0, 0 })
             {
-                projectiles.StepFrame(bus, air, samus, input, 0, new(0, 0), bombs);
+                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = 0 }, new(0, 0), bombs);
                 AssertEqual(60, projectiles.FlareCounter, $"pose {(int)pose:X2} preserves charge on hold/release");
                 AssertTrue(projectiles.LastFiredProjectileSnapshot is null, $"pose {(int)pose:X2} does not produce a release shot");
                 AssertEqual(0, projectiles.ProjectileCounter, $"pose {(int)pose:X2} keeps empty projectile slots");
             }
             // Leaving spin must restore normal release semantics, not lock charge forever.
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            projectiles.StepFrame(bus, air, samus, 0, 0, new(0, 0), bombs);
+            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), bombs);
             AssertEqual(0, projectiles.FlareCounter, "ordinary pose consumes the retained charge");
         }
     }

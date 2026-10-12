@@ -38,7 +38,7 @@ internal static partial class Program
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         for (int frame = 0; frame < 3; frame++)
         {
-            shots.StepFrame(bus, level, samus, 0, 0, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
+            shots.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
             AssertEqual(0, Hit(), "The same shot cannot damage the head on a subsequent frame");
             AssertEqual((ushort)17550, head.Health, "Later overlap preserves health after the one impact");
             AssertEqual((ushort)0xf00, state.WalkCounter, "Later overlap does not repeat recoil");

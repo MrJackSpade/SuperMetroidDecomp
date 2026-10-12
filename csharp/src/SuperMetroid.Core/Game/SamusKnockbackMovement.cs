@@ -50,13 +50,7 @@ public static class SamusKnockbackMovement
             return false;
         }
 
-        return Start(
-            bus,
-            samus,
-            controllerInput,
-            samus.KnockbackXDirection,
-            samus.KnockbackTimer,
-            level, nmiFrameCounter, plms);
+        return Start(bus, samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer }, level, nmiFrameCounter, plms);
     }
 
     /// <summary>
@@ -66,10 +60,7 @@ public static class SamusKnockbackMovement
     /// <param name="bus">Address space passed to native pose metadata, hurt animation, and launch helpers.</param>
     /// <param name="samus">Mutable player owner receiving the hurt pose, timer, movement handler, and cancellation of incompatible movement state.</param>
     /// <param name="controllerInput">Held SNES button word used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
-    /// <param name="knockbackXDirection">
-    /// Bank-$A0's `$0A54`: zero means move left, one means move right.
-    /// </param>
-    /// <param name="knockbackTimer">Nonzero producer-owned timer in gameplay updates; normal contact supplies five, while scripted intro Rinka contact supplies eleven.</param>
+    /// <param name="launch">How a knockback starts: its horizontal direction and timer (#633).</param>
     /// <param name="level">Optional live room geometry for hurt-pose expansion collision; null leaves that collision pass to explicitly positioned cinematic or diagnostic callers.</param>
     /// <param name="nmiFrameCounter">Native NMI counter passed to pose-expansion block reactions when room geometry is supplied.</param>
     /// <param name="plms">Optional live PLM owner receiving those collision reactions.</param>
@@ -77,22 +68,14 @@ public static class SamusKnockbackMovement
     /// True when the movement-type table installs the special knockback handler. False for
     /// native interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    public static bool Start(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        ushort controllerInput,
-        ushort knockbackXDirection,
-        ushort knockbackTimer = 5,
-        RoomLevelData? level = null,
-        ushort nmiFrameCounter = 0,
-        RoomPlmSystem? plms = null)
+    public static bool Start(ISnesAddressSpace bus, SamusState samus, ushort controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        if (knockbackXDirection > 1)
-            throw new ArgumentOutOfRangeException(nameof(knockbackXDirection));
-        if (knockbackTimer == 0)
-            throw new ArgumentOutOfRangeException(nameof(knockbackTimer));
+        if (launch.KnockbackXDirection > 1)
+            throw new ArgumentOutOfRangeException(nameof(launch.KnockbackXDirection));
+        if (launch.KnockbackTimer == 0)
+            throw new ArgumentOutOfRangeException(nameof(launch.KnockbackTimer));
         if (samus.KnockbackActive || samus.KnockbackDirection != 0)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
@@ -140,7 +123,7 @@ public static class SamusKnockbackMovement
         // Enemy contact has already established `$18AA` before `$90:DDE9` selects a pose.
         // Turning, grapple, current knockback, damage boost, and special type-$1B bodies all
         // return carry clear: they retain the timer/flicker but do not install `$90:DF38`.
-        samus.KnockbackTimer = knockbackTimer;
+        samus.KnockbackTimer = launch.KnockbackTimer;
         if (suppressesKnockback)
             return false;
 
@@ -180,7 +163,7 @@ public static class SamusKnockbackMovement
         // when choosing a ball's vertical branch: right-facing ball art always gets up-right
         // direction two, and left-facing art gets up-left direction one. Humanoid `$91:EDB0`
         // retains the unusual forward-held selection of down-left/down-right directions.
-        samus.KnockbackXDirection = knockbackXDirection;
+        samus.KnockbackXDirection = launch.KnockbackXDirection;
         if (morphed)
         {
             samus.KnockbackDirection = facingLeft ? (ushort)1 : (ushort)2;
@@ -190,7 +173,7 @@ public static class SamusKnockbackMovement
             bool forwardHeld = facingLeft
                 ? (controllerInput & (ushort)SnesButton.Left) != 0
                 : (controllerInput & (ushort)SnesButton.Right) != 0;
-            samus.KnockbackDirection = knockbackXDirection == 0
+            samus.KnockbackDirection = launch.KnockbackXDirection == 0
                 ? forwardHeld ? (ushort)4 : (ushort)1
                 : forwardHeld ? (ushort)5 : (ushort)2;
         }

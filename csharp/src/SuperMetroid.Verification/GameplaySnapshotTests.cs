@@ -31,12 +31,9 @@ internal static partial class Program
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
                 mapSize, GameplayVramLayout.Bg2TilemapWord, 0, 0x6000,
                 GameplayVramLayout.HudCharacterWord, layers);
-            Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                live.Vram, live.Cgram, live.Oam, registers.Bg1Scroll, registers.Bg2Scroll,
-                x.Length == 0 ? null : x, y.Length == 0 ? null : y,
-                mapSize, registers.Bg2TilemapWord, registers.Bg1CharacterWord,
-                registers.Bg2CharacterWord, registers.HudCharacterWord, mainScreenLayers: layers);
             var layer = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(x, y));
+            Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
+                live.Vram, live.Cgram, live.Oam, layer);
             // Mutating both caller arrays after capture must not alter retained HDMA.
             Array.Fill(x, (ushort)1234);
             Array.Fill(y, (ushort)5678);

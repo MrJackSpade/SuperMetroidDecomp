@@ -335,27 +335,18 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(
-        ISnesAddressSpace bus,
-        SnesCgram cgram,
-        SamusMovementType movementType,
-        ushort animationFrame,
-        ushort equippedItems,
-        bool suppressActiveSpeedBoosterPalette = false,
-        bool bottomBoundarySubmerged = false,
-        SamusSuitColorCatalog? suitColors = null,
-        SamusFullBodyCycleColorCatalog? cycleColors = null)
+    public bool UpdateSpeedBoosterPalette(ISnesAddressSpace bus, SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
 
-        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(bus, cgram, equippedItems, suitColors);
-        ushort suitTableOffset = equippedItems.GetSuitPaletteTableOffset();
+        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(bus, cgram, frame.EquippedItems, suitColors);
+        ushort suitTableOffset = frame.EquippedItems.GetSuitPaletteTableOffset();
 
         // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
         // immediate normal-palette copy above still occurs, but handler zero must not advance
         // its hidden four-frame Speed Booster cycle beneath handler one or six.
-        if (suppressActiveSpeedBoosterPalette)
+        if (frame.SuppressActiveSpeedBoosterPalette)
             return paletteCopied;
 
         // `$91:D9B2-$D9D8` tests the suit-palette Gravity bit before it asks whether
@@ -366,14 +357,14 @@ public sealed class SamusHorizontalSpeedState
         // though the raw room-FX comparison still says the body is underwater. The caller
         // supplies the raw boundary result so this state owner does not invent a second,
         // subtly different interpretation of the room's FX words.
-        bool gravitySuitEquipped = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
-        if (!gravitySuitEquipped && bottomBoundarySubmerged)
+        bool gravitySuitEquipped = frame.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
+        if (!gravitySuitEquipped && frame.BottomBoundarySubmerged)
             return paletteCopied;
 
-        bool screwAttackEquipped = (equippedItems & 0x0008) != 0;
-        if (movementType == SamusMovementType.SpinJumping && screwAttackEquipped)
+        bool screwAttackEquipped = (frame.EquippedItems & 0x0008) != 0;
+        if (frame.MovementType == SamusMovementType.SpinJumping && screwAttackEquipped)
         {
-            if (animationFrame == 0)
+            if (frame.AnimationFrame == 0)
             {
                 // `$91:DA43` resets only the palette-list byte offset. Frame zero retains
                 // the already loaded normal suit colors; it does not emit a Screw palette.
@@ -381,12 +372,12 @@ public sealed class SamusHorizontalSpeedState
                 return paletteCopied;
             }
 
-            if (unchecked((short)(animationFrame - 0x1b)) >= 0)
+            if (unchecked((short)(frame.AnimationFrame - 0x1b)) >= 0)
             {
                 // Carry clear at `$91:DA48` asks the outer palette dispatcher to copy
                 // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
                 // CGRAM is the desktop runtime's directly visible palette buffer.
-                LoadNormalSuitPalette(cgram, equippedItems, suitColors);
+                LoadNormalSuitPalette(cgram, frame.EquippedItems, suitColors);
                 return true;
             }
 
@@ -394,12 +385,12 @@ public sealed class SamusHorizontalSpeedState
             return true;
         }
 
-        if (movementType == SamusMovementType.WallJumping)
+        if (frame.MovementType == SamusMovementType.WallJumping)
         {
             if (!screwAttackEquipped)
                 return paletteCopied;
 
-            if (animationFrame < 3)
+            if (frame.AnimationFrame < 3)
             {
                 // Wall-jump command `$FB` reserves frames 0..2 for the normal suit colors;
                 // its Screw family begins on frame three and shares the same six pointers.

@@ -513,7 +513,7 @@ static void VerifySamusKnockbackAndDamageBoost()
 
     // A source to Samus's left publishes X direction one (move right). With no forward
     // input, `$91:EDB0` chooses up-right direction two and `$90:99D6` installs 5.0000.
-    SamusKnockbackMovement.Start(bus, samus, controllerInput: 0, knockbackXDirection: 1);
+    SamusKnockbackMovement.Start(bus, samus, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = 1 });
     AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "right-facing knockback pose");
     AssertEqual(2, samus.KnockbackDirection, "up-right knockback direction");
     AssertEqual(1, samus.KnockbackXDirection, "knockback X direction publication");
@@ -532,12 +532,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
-    SamusKnockbackMovement.Start(
-        bus,
-        introTimedKnockback,
-        controllerInput: 0,
-        knockbackXDirection: 1,
-        knockbackTimer: 11);
+    SamusKnockbackMovement.Start(bus, introTimedKnockback, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = 1, KnockbackTimer = 11 });
     AssertEqual(11, introTimedKnockback.KnockbackTimer,
         "intro Rinka preserves producer-owned eleven-frame knockback timer");
     AssertEqual(SamusPoseId.KnockbackRightPose, introTimedKnockback.Pose,
@@ -609,11 +604,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 75)),
     };
     downKnockback.RefreshCollisionRadii(bus);
-    SamusKnockbackMovement.Start(
-        bus,
-        downKnockback,
-        controllerInput: (ushort)SnesButton.Right,
-        knockbackXDirection: 0);
+    SamusKnockbackMovement.Start(bus, downKnockback, controllerInput: (ushort)SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = 0 });
     // The no-speed-calculation down probe does not change the vertical words, so the
     // impact speed seen by `$91:F078` is the live speed entering this frame.
     ushort impactYSpeed = downKnockback.Kinematics.YSpeed;
@@ -712,7 +703,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
-    SamusKnockbackMovement.Start(bus, expires, 0, knockbackXDirection: 1);
+    SamusKnockbackMovement.Start(bus, expires, 0, new KnockbackLaunch { KnockbackXDirection = 1 });
     expires.RefreshCollisionRadii(bus);
     // The runtime shifts pose history every gameplay frame. By command-one expiry an
     // uninterrupted hurt body therefore names the same hurt pose as both current and
@@ -761,11 +752,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         ushort preservedFrame = ball.AnimationFrame;
         ushort preservedTimer = ball.AnimationFrameTimer;
 
-        SamusKnockbackMovement.Start(
-            bus,
-            ball,
-            controllerInput: (ushort)(SnesButton.Left | SnesButton.Right),
-            knockbackXDirection: hitSide);
+        SamusKnockbackMovement.Start(bus, ball, controllerInput: (ushort)(SnesButton.Left | SnesButton.Right), launch: new KnockbackLaunch { KnockbackXDirection = hitSide });
         AssertEqual(
             pose,
             ball.Pose,
@@ -802,11 +789,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     };
     ballExpires.RefreshCollisionRadii(bus);
     ballExpires.InitializeAnimation(bus, initialFrame: 3);
-    SamusKnockbackMovement.Start(
-        bus,
-        ballExpires,
-        controllerInput: (ushort)SnesButton.Right,
-        knockbackXDirection: 0);
+    SamusKnockbackMovement.Start(bus, ballExpires, controllerInput: (ushort)SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = 0 });
     ballExpires.PoseHistory.PreviousPose = SamusPoseId.MorphBallGroundRightPose;
     ushort retainedBallFrame = ballExpires.AnimationFrame;
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer;
@@ -914,12 +897,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.TurningRightToLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
-    bool turnStarted = SamusKnockbackMovement.Start(
-        bus,
-        suppressedTurnHit,
-        controllerInput: 0,
-        knockbackXDirection: 1,
-        knockbackTimer: 7);
+    bool turnStarted = SamusKnockbackMovement.Start(bus, suppressedTurnHit, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = 1, KnockbackTimer = 7 });
     AssertTrue(!turnStarted, "movement type $0E suppresses knockback transition");
     AssertTrue(!suppressedTurnHit.KnockbackActive,
         "suppressed grounded-turn hit leaves normal movement installed");
@@ -941,11 +919,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.UnusedKnockbackRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
-    bool unusedStarted = SamusKnockbackMovement.Start(
-        bus,
-        unusedMovementHit,
-        controllerInput: 0,
-        knockbackXDirection: 0);
+    bool unusedStarted = SamusKnockbackMovement.Start(bus, unusedMovementHit, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = 0 });
     AssertTrue(unusedStarted, "movement type $07 installs native unused knockback arm");
     AssertEqual(SamusPoseId.UnusedKnockbackRightPose, unusedMovementHit.Pose,
         "movement type $07 selects right-facing pose $33");

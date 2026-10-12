@@ -58,10 +58,7 @@ internal static partial class Program
             {
                 var speed = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
                 var actual = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(
-                    guarded, actual, SamusMovementType.SpinJumping, 1,
-                    (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack),
-                    cycleColors: cycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(guarded, actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack) }, cycleColors: cycleColors),
                     "Screw Attack copies a palette without reading either pointer table");
                 int shade = Math.Min(phase, 6 - phase);
                 AssertPaletteColors(rom, actual, 0x9ca0 + suit * 0x200 + shade * 0x20,
@@ -79,9 +76,7 @@ internal static partial class Program
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
                 var actual = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(
-                    guarded, actual, SamusMovementType.Running, 0, items,
-                    cycleColors: cycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(guarded, actual, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: cycleColors),
                     "active Speed Booster copies a palette without reading either pointer table");
                 AssertPaletteColors(rom, actual, 0x9b20 + suit * 0x200 + phase * 0x20,
                     $"active Speed Booster suit {suit}, phase {phase}");
@@ -131,9 +126,7 @@ internal static partial class Program
 
         var adjacentScrew = new SamusHorizontalSpeedState { SpecialPaletteFrame = 12 };
         var adjacentScrewColors = new SnesCgram();
-        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(
-            rom, adjacentScrewColors, SamusMovementType.SpinJumping, 1,
-            (ushort)SamusEquipmentFlags.ScrewAttack, cycleColors: cycleColors),
+        AssertTrue(adjacentScrew.UpdateSpeedBoosterPalette(rom, adjacentScrewColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (ushort)SamusEquipmentFlags.ScrewAttack }, cycleColors: cycleColors),
             "non-catalog Screw Attack phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentScrewColors, 0x9ea0,
             "Screw Attack phase twelve reads the adjacent Varia list");
@@ -145,9 +138,7 @@ internal static partial class Program
             SpecialPaletteFrame = 8,
         };
         var adjacentBoostColors = new SnesCgram();
-        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(
-            rom, adjacentBoostColors, SamusMovementType.Running, 0, 0,
-            cycleColors: cycleColors),
+        AssertTrue(adjacentBoost.UpdateSpeedBoosterPalette(rom, adjacentBoostColors, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0 }, cycleColors: cycleColors),
             "non-catalog Speed Booster phase retains native adjacent-data read");
         AssertPaletteColors(rom, adjacentBoostColors, 0x9d20,
             "Speed Booster phase eight reads the adjacent Varia list");

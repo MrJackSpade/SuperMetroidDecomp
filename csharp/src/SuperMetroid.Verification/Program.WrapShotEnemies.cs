@@ -51,8 +51,8 @@ internal static partial class Program
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
-                bombs.StepFrame(bus, level, samus, input, input);
-                shots.StepFrame(bus, level, samus, input, input, new((ushort)(left ? 0 : 768), 0), bombs, roomPlms: plms);
+                bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
+                shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
                 AssertEqual(0, runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
             }
             AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).LevelWord, "Same shot actually triggers the remote tile");

@@ -93,14 +93,7 @@ internal static partial class Program
         system.WritePersistentMirror(bus);
         FillProgressionPadding(bus, 0xa5);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        SamusProjectileFrameResult held = projectiles.StepFrame(
-            gameplayBus,
-            level,
-            samus,
-            (ushort)SnesButton.X,
-            (ushort)SnesButton.X,
-            new(0, 0),
-            shared);
+        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Bus = gameplayBus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), shared);
         AssertEqual((int?)0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertTrue(!held.PersistentMemoryCorrupted,
@@ -112,14 +105,7 @@ internal static partial class Program
 
         system.WritePersistentMirror(bus);
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
-        SamusProjectileFrameResult released = projectiles.StepFrame(
-            gameplayBus,
-            level,
-            samus,
-            0,
-            0,
-            new(0, 0),
-            shared);
+        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Bus = gameplayBus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         AssertEqual((int?)1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         AssertTrue(released.PersistentMemoryCorrupted,

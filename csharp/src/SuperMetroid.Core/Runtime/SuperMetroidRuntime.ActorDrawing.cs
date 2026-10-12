@@ -82,21 +82,10 @@ public sealed partial class SuperMetroidRuntime
                     LastBeamChargePaletteStep.Action == SamusBeamChargePaletteAction.RestoredNormalSuit;
 
                 if (!chargeGlowRestoredNormalPalette)
-                    Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
-                    _addressSpace,
-                    Cgram,
-                    Samus.ReadMovementType(_addressSpace),
-                    Samus.AnimationFrame,
-                    Samus.EquippedItems,
-                    suppressActiveSpeedBoosterPalette:
-                        Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
+                    Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_addressSpace, Cgram, new SpeedBoosterPaletteFrame { MovementType = Samus.ReadMovementType(_addressSpace), AnimationFrame = Samus.AnimationFrame, EquippedItems = Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
                         Samus.CrystalFlash.SpecialPaletteKind ==
                             SamusSpecialPaletteType.CrystalFlash ||
-                        Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray,
-                    bottomBoundarySubmerged:
-                        Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus),
-                    suitColors: MapPresentation?.SamusSuitColors,
-                    cycleColors: MapPresentation?.SamusFullBodyCycleColors);
+                        Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus) }, suitColors: MapPresentation?.SamusSuitColors, cycleColors: MapPresentation?.SamusFullBodyCycleColors);
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
             // execute only when charge handling returned carry clear.

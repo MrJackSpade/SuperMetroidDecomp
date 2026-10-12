@@ -38,7 +38,7 @@ public static class EnemyQuadraticSpeedDefinitions
     {
         ushort fraction = ReadWord(byteOffset);
         short whole = unchecked((short)ReadWord(byteOffset + 2));
-        return (whole << 16) | fraction;
+        return (SnesSixteenSixteen.FromWhole(whole)) | fraction;
     }
 
     private static byte ReadByte(int offset)

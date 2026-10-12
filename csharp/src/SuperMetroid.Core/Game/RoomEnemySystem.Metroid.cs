@@ -245,13 +245,13 @@ public sealed partial class RoomEnemySystem
         // This is observably not a clean full-word delta: crossing a 256-pixel boundary can
         // reverse the short route. Preserve the byte arithmetic instead of “fixing” it.
         int yVelocity = CalculateMetroidClosingVelocity(targetY, slot.Position.Y.Whole);
-        StoreMetroidYVelocity(state, yVelocity << 16);
-        if (MoveEnemyVertically(level, slot, yVelocity << 16))
+        StoreMetroidYVelocity(state, SnesSixteenSixteen.FromWhole(yVelocity));
+        if (MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(yVelocity)))
             StoreMetroidYVelocity(state, 0);
 
         int xVelocity = CalculateMetroidClosingVelocity(samus.Position.X.Whole, slot.Position.X.Whole);
-        StoreMetroidXVelocity(state, xVelocity << 16);
-        if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity << 16))
+        StoreMetroidXVelocity(state, SnesSixteenSixteen.FromWhole(xVelocity));
+        if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, SnesSixteenSixteen.FromWhole(xVelocity)))
             StoreMetroidXVelocity(state, 0);
     }
 
@@ -484,7 +484,7 @@ public sealed partial class RoomEnemySystem
 
     private static int ClampMetroidVelocity(int velocity)
     {
-        short whole = unchecked((short)(velocity >> 16));
+        short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
         if (whole >= MetroidMaximumVelocity)
             return MetroidMaximumVelocity << 16;
         if (whole < -MetroidMaximumVelocity)

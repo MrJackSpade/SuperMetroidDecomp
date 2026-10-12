@@ -913,9 +913,9 @@ public sealed partial class RoomEnemySystem
         // Ridley's velocities are signed 8.8 values, but the original routine accumulates
         // their fractional byte into the *high* byte of the ordinary 16-bit subposition.
         // Reproduce the byte carry explicitly; a generic 16.16 helper would be off by 256.
-        int fraction = (position.Fraction >> 8) + (velocityWord & 0xff);
+        int fraction = (position.Fraction >> 8) + (SnesEightEight.FractionOf(velocityWord));
         ushort subposition = unchecked((ushort)((position.Fraction & 0x00ff) | ((fraction & 0xff) << 8)));
-        ushort next = unchecked((ushort)(position.Whole + (sbyte)(velocityWord >> 8) + (fraction >> 8)));
+        ushort next = unchecked((ushort)(position.Whole + (sbyte)(SnesEightEight.WholeOf(velocityWord)) + (fraction >> 8)));
 
         if (unchecked((short)(next - minimum)) < 0)
             return (new(minimum, subposition), 0);
@@ -929,11 +929,11 @@ public sealed partial class RoomEnemySystem
         ushort subposition,
         ushort velocityWord)
     {
-        int fraction = (subposition >> 8) + (velocityWord & 0xff);
+        int fraction = (subposition >> 8) + (SnesEightEight.FractionOf(velocityWord));
         ushort nextSubposition = unchecked((ushort)(
             (subposition & 0x00ff) | ((fraction & 0xff) << 8)));
         ushort nextPosition = unchecked((ushort)(
-            position + (sbyte)(velocityWord >> 8) + (fraction >> 8)));
+            position + (sbyte)(SnesEightEight.WholeOf(velocityWord)) + (fraction >> 8)));
         return (nextPosition, nextSubposition);
     }
 

@@ -651,7 +651,7 @@ public sealed class RoomLayer3FxState
             return true;
 
         short velocity = unchecked((short)PackedYVelocity);
-        int delta = velocity << 8;
+        int delta = SnesSixteenSixteen.FromEightEight(velocity);
         uint fixedPosition = ((uint)BaseYPosition << 16) | baseYSubposition;
         fixedPosition = unchecked(fixedPosition + (uint)delta);
         ushort candidate = SnesFixedPosition.WholeOf(unchecked((int)fixedPosition));

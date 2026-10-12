@@ -44,7 +44,7 @@ internal static partial class Program
             AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");
             AssertEqual(whole, projectile.Variable1, "Actual spark whole launch field");
             AssertEqual(fraction, projectile.Variable0, "Actual spark fractional launch field");
-            uint expected = unchecked((new SnesFixedPosition(source.Position.X.Whole, source.Position.X.Fraction).RawValue) + ((uint)whole << 16 | fraction));
+            uint expected = unchecked((new SnesFixedPosition(source.Position.X.Whole, source.Position.X.Fraction).RawValue) + (SnesSixteenSixteen.FromWhole((uint)whole) | fraction));
             move(projectile);
             AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");

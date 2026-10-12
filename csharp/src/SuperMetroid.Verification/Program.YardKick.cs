@@ -27,7 +27,7 @@ internal static partial class Program
             state.Behavior = YardBehavior.NormalCrawling;
             samus.Position = samus.Position.WithWhole(actor.Position.Whole);
             samus.InvincibilityTimer = 0;
-            samus.AbsoluteMovedLastFrameXFixed = ((uint)whole << 16) | fraction;
+            samus.AbsoluteMovedLastFrameXFixed = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
             AssertTrue(enemies.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor.NativeIndex),
                 "Yard kick enters through native contact dispatcher");
             bool left = pose == SamusPoseId.FacingLeftNormalPose;

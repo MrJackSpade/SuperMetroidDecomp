@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -300,7 +301,7 @@ public sealed partial class RoomEnemySystem
                 "Wall Space Pirate climbing requires room collision data.");
         }
 
-        int displacement = unchecked((short)signedPixelDisplacement) << 16;
+        int displacement = SnesSixteenSixteen.FromWhole((short)signedPixelDisplacement);
         if (!MoveEnemyVertically(level, slot, displacement))
         {
             cursor = unchecked((ushort)(cursor + 4));

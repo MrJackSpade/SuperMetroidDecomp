@@ -480,7 +480,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static int ComposeEvirFixed(short whole, ushort fraction) =>
-        unchecked((whole << 16) | fraction);
+        unchecked((SnesSixteenSixteen.FromWhole(whole)) | fraction);
 
 
     private static void RequestEvirInstruction(

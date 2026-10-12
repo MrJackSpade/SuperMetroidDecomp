@@ -32,7 +32,7 @@ public static class ZoaSpeedDefinitions
     private static byte Byte(int offset)
     {
         uint speed = RecordSpeeds[offset / 4];
-        uint nativeWords = (speed >> 16) | (speed << 16);
+        uint nativeWords = (SnesSixteenSixteen.WholeOf(speed)) | (SnesSixteenSixteen.FromWhole(speed));
         return (byte)(nativeWords >> (8 * (offset & 3)));
     }
 }

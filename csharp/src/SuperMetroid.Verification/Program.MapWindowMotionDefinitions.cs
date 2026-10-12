@@ -97,7 +97,7 @@ internal static partial class Program
         {
             int address = FileSelectMapRomData.WindowVelocities + area * FileSelectMapRomData.VelocityRecordBytes + edge * 4;
             return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address) |
-                ((uint)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2) << 16);
+                (SnesSixteenSixteen.FromWhole((uint)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
         }
         return new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.WindowTimers + area * 2),
             ReadVelocity(0), ReadVelocity(1), ReadVelocity(2), ReadVelocity(3));

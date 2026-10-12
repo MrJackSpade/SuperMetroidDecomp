@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -347,7 +348,7 @@ public sealed partial class RoomEnemySystem
                         level,
                         slot,
                         ReadQuadraticEnemySpeed(
-                            unchecked((ushort)(state.YSpeedTableIndex >> 8)),
+                            unchecked((ushort)(SnesEightEight.WholeOf(state.YSpeedTableIndex))),
                             negative: false)))
                 {
                     return;
@@ -375,7 +376,7 @@ public sealed partial class RoomEnemySystem
                 // native AND $7F00 is retained even though valid bounce indexes stay below
                 // $4000; it documents the exact table-index formation seen in a debugger.
                 ushort tableIndex = unchecked((ushort)(
-                    (state.YSpeedTableIndex & 0x7f00) >> 8));
+                    SnesEightEight.WholeOf(state.YSpeedTableIndex & 0x7f00)));
                 MoveEnemyVertically(
                     level,
                     slot,
@@ -406,7 +407,7 @@ public sealed partial class RoomEnemySystem
             whole = unchecked((short)(whole + (state.MovingLeft ? -16 : 16)));
         }
 
-        int displacement = unchecked((whole << 16) | fraction);
+        int displacement = unchecked((SnesSixteenSixteen.FromWhole(whole)) | fraction);
         bool collided = MoveEnemyHorizontallyTreatingSlopesAsWalls(
             level,
             slot,

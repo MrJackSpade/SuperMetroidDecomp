@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -257,7 +258,7 @@ public sealed partial class RoomEnemySystem
 
         // XBA/AND #$00FF discards the product's fractional byte. Boyon has no Y subposition
         // integration here: each frame moves by exactly the product's high byte.
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + (state.Speed >> 8))));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + (SnesEightEight.WholeOf(state.Speed)))));
         if (IsNegative16(state.SpeedTableIndex - state.InitialBounceSpeedTableIndex))
             return;
 
@@ -270,7 +271,7 @@ public sealed partial class RoomEnemySystem
     private static void MoveBoyonRising(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (state.Speed >> 8))));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (SnesEightEight.WholeOf(state.Speed)))));
         state.SpeedTableIndex = unchecked((ushort)(state.SpeedTableIndex - 1));
         if ((state.SpeedTableIndex & 0x8000) != 0)
             state.BounceMovement = BoyonBounceMovement.Falling;

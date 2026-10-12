@@ -34,8 +34,8 @@ internal static partial class Program
             AssertEqual(nativeY, particle.Velocity.Y.RawValue, $"native launch gravity for random {random}");
             // Children run later in the same descending pool pass, so seed the
             // subsequent integration from the already-advanced production position.
-            int x = (particle.Position.X.Whole << 16) | particle.Position.X.Fraction;
-            int y = (particle.Position.Y.Whole << 16) | particle.Position.Y.Fraction;
+            int x = (SnesSixteenSixteen.FromWhole(particle.Position.X.Whole)) | particle.Position.X.Fraction;
+            int y = (SnesSixteenSixteen.FromWhole(particle.Position.Y.Whole)) | particle.Position.Y.Fraction;
             short vy = unchecked((short)particle.Velocity.Y.RawValue);
             bool crossed = false;
             for (int frame = 0; frame < 200 && particle.IsActive; frame++)

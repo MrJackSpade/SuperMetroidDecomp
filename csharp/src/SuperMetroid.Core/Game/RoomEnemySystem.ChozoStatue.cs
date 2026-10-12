@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
@@ -383,11 +384,11 @@ public sealed partial class RoomEnemySystem
         _ = MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             statue,
-            signedVelocity << 8);
+            SnesSixteenSixteen.FromEightEight(signedVelocity));
         _ = MoveEnemyVertically(
             level,
             statue,
-            Math.Abs((int)signedVelocity) << 8);
+            SnesSixteenSixteen.FromEightEight(Math.Abs((int)signedVelocity)));
         AlignEnemyYWithNonSquareSlope(level, statue);
 
         // The two 32-word tables are joint offsets indexed by the exact byte offset above.

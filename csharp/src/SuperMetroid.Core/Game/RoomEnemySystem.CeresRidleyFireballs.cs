@@ -1318,7 +1318,7 @@ public sealed partial class RoomEnemySystem
         ushort subposition = horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
         short velocity = unchecked((short)(horizontal ? projectile.Velocity.X.RawValue : projectile.Velocity.Y.RawValue));
         int fixedPosition = (position << 16) | subposition;
-        fixedPosition = unchecked(fixedPosition + (velocity << 8));
+        fixedPosition = unchecked(fixedPosition + (SnesSixteenSixteen.FromEightEight(velocity)));
         ushort nextPosition = SnesFixedPosition.WholeOf(fixedPosition);
         ushort nextSubposition = unchecked((ushort)fixedPosition);
 

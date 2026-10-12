@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Game;
@@ -153,7 +154,7 @@ public sealed class SamusKinematicsState
     public bool PositionAdjustedBySlope { get; set; }
 
     /// <summary>Current vertical speed as an unsigned native high/low pair.</summary>
-    public uint VerticalSpeedFixed => ((uint)YSpeed << 16) | YSubspeed;
+    public uint VerticalSpeedFixed => (SnesSixteenSixteen.FromWhole((uint)YSpeed)) | YSubspeed;
 
     /// <summary>
     /// Whole-pixel top collision boundary returned by <c>Get_Samus_Top_Boundary</c>.

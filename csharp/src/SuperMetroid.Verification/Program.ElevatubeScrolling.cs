@@ -30,7 +30,7 @@ internal static partial class Program
             for (int frame = 0; frame < 180; frame++)
             {
                 uint beforeY = samus.Kinematics.Position.Y.RawValue;
-                uint expectedY = unchecked(beforeY + (uint)((short)runtime.MaridiaElevatube.Velocity << 8));
+                uint expectedY = unchecked(beforeY + (uint)(SnesSixteenSixteen.FromEightEight((short)runtime.MaridiaElevatube.Velocity)));
                 AssertTrue(samus.StationaryScriptControlLocked,
                     "both tube entry callbacks install native command-zero ownership");
                 runtime.StepFrame(0);

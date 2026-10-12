@@ -32,11 +32,11 @@ public sealed partial class SamusProjectileSystem
             SpawnTrail(bus, slot);
         }
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)))));
-        uint x = unchecked(new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction).RawValue + (uint)(slot.Velocity.X.SignedRawValue << 8));
+        uint x = unchecked(new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction).RawValue + (uint)(SnesSixteenSixteen.FromEightEight(slot.Velocity.X.SignedRawValue)));
         slot.Position = slot.Position.WithWholeX(SnesFixedPosition.WholeOf(unchecked((int)x))).WithFractionX(unchecked((ushort)x));
         short ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)));
         slot.Variable = unchecked((ushort)ySpeed);
-        uint y = unchecked(new SnesFixedPosition(slot.Position.Y.Whole, slot.Position.Y.Fraction).RawValue + (uint)(ySpeed << 8));
+        uint y = unchecked(new SnesFixedPosition(slot.Position.Y.Whole, slot.Position.Y.Fraction).RawValue + (uint)(SnesSixteenSixteen.FromEightEight(ySpeed)));
         slot.Position = slot.Position.WithWholeY(SnesFixedPosition.WholeOf(unchecked((int)y))).WithFractionY(unchecked((ushort)y));
         shared.SetSharedCooldown(2);
         FlareCounter = 0;

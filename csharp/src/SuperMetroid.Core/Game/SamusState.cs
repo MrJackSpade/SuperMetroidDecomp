@@ -571,7 +571,7 @@ public sealed partial class SamusState
         {
             // `$91:FF49`: move away from the floor by
             // radiusDifference-spaceToMoveDown, preserving the old bottom boundary.
-            int freeWholePixels = Math.Max(0, downward.AcceptedDisplacement >> 16);
+            int freeWholePixels = Math.Max(0, SnesSixteenSixteen.WholeOf(downward.AcceptedDisplacement));
             centerAdjustment = -(radiusDifference - freeWholePixels);
 
             // `$91:FF58` checks the proposed upward correction against the opposite side.
@@ -591,7 +591,7 @@ public sealed partial class SamusState
         {
             // `$91:FF20` is the mirror: move down only as far as necessary to clear the
             // ceiling while admitting the enlarged body.
-            int acceptedWhole = unchecked((short)(upward.AcceptedDisplacement >> 16));
+            int acceptedWhole = unchecked((short)(SnesSixteenSixteen.WholeOf(upward.AcceptedDisplacement)));
             int freeWholePixels = Math.Max(0, -acceptedWhole);
             centerAdjustment = radiusDifference - freeWholePixels;
 
@@ -659,14 +659,14 @@ public sealed partial class SamusState
         SamusPoseId targetPose,
         RoomPlmSystem? plms)
     {
-        short wholePixels = unchecked((short)(displacement >> 16));
+        short wholePixels = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
         if ((Math.Abs(wholePixels) & 0xfff8) != 0)
         {
             // `$94:96C0` computes `(signedWhole & $FFF0) | 8`. Retain the literal
             // two's-complement expression rather than replacing it with a magnitude
             // shortcut; negative probes deliberately produce -8 for the known pose radii.
             short intermediateWhole = unchecked((short)((wholePixels & 0xfff0) | 8));
-            BlockMoveResult intermediate = Probe(intermediateWhole << 16);
+            BlockMoveResult intermediate = Probe(SnesSixteenSixteen.FromWhole(intermediateWhole));
             if (intermediate.Collided)
                 return intermediate;
         }

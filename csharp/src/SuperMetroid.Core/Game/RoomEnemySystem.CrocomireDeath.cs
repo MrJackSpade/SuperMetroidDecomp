@@ -231,14 +231,14 @@ public sealed partial class RoomEnemySystem
         accelerationFraction = unchecked((byte)(accelerationFraction + 0x80));
         int accelerationWhole = SnesUnsignedEightEight.Whole(state.StepCounter) + 3 + accelerationCarry;
         accelerationWhole = Math.Min(accelerationWhole, 48);
-        state.StepCounter = unchecked((ushort)((accelerationWhole << 8) | accelerationFraction));
+        state.StepCounter = unchecked((ushort)((SnesEightEight.FromWhole(accelerationWhole)) | accelerationFraction));
 
         byte speedFraction = (byte)state.ReactionTimer;
         int speedCarry = speedFraction + accelerationWhole > 0xff ? 1 : 0;
         speedFraction = unchecked((byte)(speedFraction + accelerationWhole));
         int speedWhole = SnesUnsignedEightEight.Whole(state.ReactionTimer) + speedCarry;
         speedWhole = Math.Min(speedWhole, 3);
-        state.ReactionTimer = unchecked((ushort)((speedWhole << 8) | speedFraction));
+        state.ReactionTimer = unchecked((ushort)((SnesEightEight.FromWhole(speedWhole)) | speedFraction));
 
         byte subpositionHigh = SnesLittleEndian.HighByte(state.ProjectileCounter);
         int subpositionSum = subpositionHigh + speedFraction;
@@ -275,7 +275,7 @@ public sealed partial class RoomEnemySystem
             speedFraction = 0xff;
             speedWhole = 0;
         }
-        state.ReactionTimer = unchecked((ushort)((speedWhole << 8) | speedFraction));
+        state.ReactionTimer = unchecked((ushort)((SnesEightEight.FromWhole(speedWhole)) | speedFraction));
 
         byte subpositionHigh = SnesLittleEndian.HighByte(state.ProjectileCounter);
         bool subpositionBorrow = subpositionHigh < speedFraction;
@@ -592,10 +592,10 @@ public sealed partial class RoomEnemySystem
         uint delta,
         ushort maximumWhole)
     {
-        uint fixedValue = ((uint)whole << 16) | fraction;
+        uint fixedValue = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
         fixedValue = unchecked(fixedValue + delta);
         if (SnesFixedPosition.WholeOf(unchecked((int)fixedValue)) >= maximumWhole)
-            fixedValue = (fixedValue & 0xffff) | ((uint)maximumWhole << 16);
+            fixedValue = (SnesSixteenSixteen.FractionOf(fixedValue)) | (SnesSixteenSixteen.FromWhole((uint)maximumWhole));
         return ((ushort)fixedValue, SnesFixedPosition.WholeOf(unchecked((int)fixedValue)));
     }
 
@@ -605,7 +605,7 @@ public sealed partial class RoomEnemySystem
         ushort whole)
     {
         uint fixedPosition = position.RawValue;
-        uint delta = ((uint)whole << 16) | fraction;
+        uint delta = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
         fixedPosition = unchecked(fixedPosition + delta);
         return SnesFixedPosition.FromRaw(fixedPosition);
     }

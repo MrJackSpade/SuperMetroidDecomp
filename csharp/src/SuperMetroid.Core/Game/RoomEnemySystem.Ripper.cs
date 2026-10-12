@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -116,7 +117,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level)
     {
         RequireRipperTerrain(level, "GRipper");
-        int displacement = unchecked(((short)state.XVelocity << 16) | state.XSubvelocity);
+        int displacement = unchecked((SnesSixteenSixteen.FromWhole((short)state.XVelocity)) | state.XSubvelocity);
         bool reverse = MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level!,
             slot,

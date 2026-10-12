@@ -27,9 +27,9 @@ internal static partial class Program
         {
             // Whole and fractional X as one 16.16 position, so the accepted displacement
             // is the exact difference across the movement step.
-            int xBefore = samus.Position.X.Whole << 16 | samus.Kinematics.Position.X.Fraction;
+            int xBefore = SnesSixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
             SamusAerialMovement.StepSpinJump(memory, level, samus, 0, frame);
-            int xAfter = samus.Position.X.Whole << 16 | samus.Kinematics.Position.X.Fraction;
+            int xAfter = SnesSixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
             AssertEqual(-0x00016000, xAfter - xBefore,
                 $"recorded neutral spin carry at frame {frame} matches cartridge carry-set branch");
             AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed, "retained spin whole speed");

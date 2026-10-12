@@ -393,7 +393,7 @@ public sealed partial class RoomEnemySystem
             ? WreckedShipGhostVerticalAccelerationFraction
             : -WreckedShipGhostVerticalAccelerationFraction;
         velocity = unchecked((uint)(velocity + acceleration));
-        state.VerticalVelocityWhole = unchecked((ushort)(velocity >> 16));
+        state.VerticalVelocityWhole = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
         state.VerticalVelocityFraction = unchecked((ushort)velocity);
 
         state.PhaseTimer = unchecked((ushort)(state.PhaseTimer - 1));

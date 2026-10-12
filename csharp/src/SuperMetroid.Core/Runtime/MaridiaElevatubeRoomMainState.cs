@@ -90,7 +90,7 @@ public sealed class MaridiaElevatubeRoomMainState
         // Native stores the whole and fractional X words separately every frame.
         activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new SnesFixedPosition(MaridiaElevatubeRomData.SamusCenterX, 0));
 
-        int displacement = unchecked((short)Velocity) << 8;
+        int displacement = SnesSixteenSixteen.FromEightEight((short)Velocity);
         uint trackedPosition = ((uint)Position << 16) | scratch.Var1;
         trackedPosition = unchecked(trackedPosition + (uint)displacement);
         Position = SnesFixedPosition.WholeOf(unchecked((int)trackedPosition));

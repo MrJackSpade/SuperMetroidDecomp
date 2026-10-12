@@ -17,7 +17,7 @@ public readonly record struct SnesAngle : IComparable<SnesAngle>
     public ushort RawValue { get; }
 
     /// <summary>The high-byte index consumed by 256-entry trigonometry tables.</summary>
-    public byte TableIndex => unchecked((byte)(RawValue >> 8));
+    public byte TableIndex => unchecked((byte)(SnesEightEight.WholeOf(RawValue)));
 
     /// <summary>Zero turns.</summary>
     public static SnesAngle Zero { get; } = new(0x0000);

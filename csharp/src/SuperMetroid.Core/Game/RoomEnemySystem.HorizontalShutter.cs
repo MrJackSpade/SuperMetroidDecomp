@@ -20,7 +20,7 @@ public sealed partial class RoomEnemySystem
 
         ushort packedSpeedAndDirection = slot.CurrentInstruction;
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
-        state.PrimaryDirection = unchecked((byte)(packedSpeedAndDirection >> 8));
+        state.PrimaryDirection = unchecked((byte)(SnesEightEight.WholeOf(packedSpeedAndDirection)));
         state.ReactionDirection = unchecked((ushort)(state.PrimaryDirection ^ 1));
 
         int speedRecordOffset = state.SpeedTableIndex * 8;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -192,7 +193,7 @@ public sealed partial class RoomEnemySystem
         // The stored speed is signed 8.8; Enemy_MoveRight_IgnoreSlopes receives signed
         // 16.16, hence the exact eight-bit shift. The event test is inside the collision
         // branch in the retail routine and must not turn an animal around in open space.
-        int horizontalDisplacement = unchecked((short)state.HorizontalSpeed) << 8;
+        int horizontalDisplacement = SnesSixteenSixteen.FromEightEight((short)state.HorizontalSpeed);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
             slot.InstructionTimer = 1;

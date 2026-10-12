@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -126,10 +127,10 @@ public sealed class SkulteraEnemyState
     }
 
     /// <summary>Complete signed 16.16 rightward displacement selected at initialization.</summary>
-    public int RightDisplacement => (RightVelocity << 16) | RightSubvelocity;
+    public int RightDisplacement => (SnesSixteenSixteen.FromWhole(RightVelocity)) | RightSubvelocity;
 
     /// <summary>Complete signed 16.16 leftward displacement selected at initialization.</summary>
-    public int LeftDisplacement => (LeftVelocity << 16) | LeftSubvelocity;
+    public int LeftDisplacement => (SnesSixteenSixteen.FromWhole(LeftVelocity)) | LeftSubvelocity;
 }
 
 /// <summary>Literal translation of Skultera enemy <c>$D6FF</c> at <c>$A3:902A-$9287</c>.</summary>

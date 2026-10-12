@@ -40,7 +40,7 @@ internal static partial class Program
                     parts += original.Parts.Length;
                     expectedOam.AddEnemySpritemap(original.Parts,
                         new Position16<OamPixels>(unchecked((ushort)(fixture.Actor.Position.X.Whole + original.Offset.X)), unchecked((ushort)(fixture.Actor.Position.Y.Whole + original.Offset.Y))), 0, 0,
-                        clipVerticalWrap: true, originYIsOnScreen: ((fixture.Actor.Position.Y.Whole + original.Offset.Y) >> 8) == 0);
+                        clipVerticalWrap: true, originYIsOnScreen: (SnesEightEight.WholeOf(fixture.Actor.Position.Y.Whole + original.Offset.Y)) == 0);
                 }
                 ReadOnlyMemory<EnemyBg2TilemapWrite> writes = StockBossWrites(installed, frame);
                 AssertEqual(native.Bg2.Length, writes.Length, frame.Name + " exact BG2 run count");

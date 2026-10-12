@@ -219,7 +219,7 @@ public sealed class SamusSuitPickupState
 
     private void StepUniformWidening()
     {
-        byte amount = unchecked((byte)(LightBeamWideningSpeed >> 8));
+        byte amount = unchecked((byte)(SnesEightEight.WholeOf(LightBeamWideningSpeed)));
         byte left = unchecked((byte)LightBeamPosition);
         byte right = SnesLittleEndian.HighByte(LightBeamPosition);
         left = unchecked((byte)(left - amount));
@@ -238,7 +238,7 @@ public sealed class SamusSuitPickupState
     {
         AdvanceColorTowardWhite();
 
-        byte amount = unchecked((byte)(LightBeamWideningSpeed >> 8));
+        byte amount = unchecked((byte)(SnesEightEight.WholeOf(LightBeamWideningSpeed)));
         byte oldLeft = unchecked((byte)LightBeamPosition);
         byte left = unchecked((byte)(oldLeft - amount));
         byte right = SnesLittleEndian.HighByte(LightBeamPosition);
@@ -311,7 +311,7 @@ public sealed class SamusSuitPickupState
             AdvanceColorTowardOrange();
 
         LightBeamPosition = unchecked((ushort)(
-            LightBeamPosition + (LightBeamWideningSpeed >> 8)));
+            LightBeamPosition + (SnesEightEight.WholeOf(LightBeamWideningSpeed))));
         int scanlineCount = unchecked((short)LightBeamPosition);
         for (int i = 0; i < Math.Max(1, scanlineCount); i++)
             _windowTable[i] = SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;

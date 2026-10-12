@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -47,7 +48,7 @@ internal static class SamusExtraDisplacement
         if (kinematics.PositionAdjustedBySlope)
             return 0x00010000;
 
-        uint total = ((uint)horizontalSpeed.TotalSpeed << 16) |
+        uint total = (SnesSixteenSixteen.FromWhole((uint)horizontalSpeed.TotalSpeed)) |
             horizontalSpeed.TotalSubspeed;
         return unchecked((int)(total + 0x00010000u));
     }

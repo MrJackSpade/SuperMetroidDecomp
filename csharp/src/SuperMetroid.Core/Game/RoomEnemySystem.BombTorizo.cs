@@ -483,7 +483,7 @@ public sealed partial class RoomEnemySystem
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        int displacement = state.Velocity.Y.SignedRawValue << 8;
+        int displacement = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
         if (MoveEnemyVertically(level, torizo, displacement))
         {
             short velocity = state.Velocity.Y.SignedRawValue;
@@ -507,13 +507,13 @@ public sealed partial class RoomEnemySystem
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             torizo,
-            state.Velocity.X.SignedRawValue << 8);
+            SnesSixteenSixteen.FromEightEight(state.Velocity.X.SignedRawValue));
         AlignEnemyYWithNonSquareSlope(level, torizo);
 
         if (MoveEnemyVertically(
                 level,
                 torizo,
-                state.Velocity.Y.SignedRawValue << 8))
+                SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue)))
         {
             torizo.CurrentInstruction = state.ReturnInstruction;
             torizo.InstructionTimer = 1;
@@ -551,7 +551,7 @@ public sealed partial class RoomEnemySystem
         }
 
         int fallingSpeed = Math.Min(Math.Abs(state.Velocity.X.SignedRawValue) + 1, 15);
-        if (!MoveEnemyVertically(level, torizo, fallingSpeed << 16))
+        if (!MoveEnemyVertically(level, torizo, SnesSixteenSixteen.FromWhole(fallingSpeed)))
         {
             // $AA:C752 swaps to the authored in-air list while the downward probe remains
             // clear. Landing itself is handled by the list-installed gravity/jump callback.
@@ -586,7 +586,7 @@ public sealed partial class RoomEnemySystem
         int fallingSpeed = Math.Min(
             Math.Abs(state.Velocity.X.SignedRawValue) + 1,
             15);
-        if (!MoveEnemyVertically(level, torizo, fallingSpeed << 16))
+        if (!MoveEnemyVertically(level, torizo, SnesSixteenSixteen.FromWhole(fallingSpeed)))
         {
             torizo.CurrentInstruction = (torizo.Parameter1 & 0x8000) != 0
                 ? TorizoInstructionLists.AirborneFacingRight

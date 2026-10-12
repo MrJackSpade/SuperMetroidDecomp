@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -644,7 +645,7 @@ public sealed partial class RoomEnemySystem
 
         // Only the whole word is passed to MoveEnemyDown; the fraction influences later
         // whole-speed carries but is not itself part of this frame's displacement.
-        if (!MoveEnemyVertically(level, mama, state.Velocity.Y.WholePixels << 16))
+        if (!MoveEnemyVertically(level, mama, SnesSixteenSixteen.FromWhole(state.Velocity.Y.WholePixels)))
             return;
 
         InstallTurtleInstruction(
@@ -750,12 +751,12 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                level, baby, state.Velocity.X << 16))
+                level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X)))
         {
             state.Velocity = state.Velocity.WithX(unchecked((short)-state.Velocity.X));
             return;
         }
-        MoveEnemyVertically(level, baby, state.Velocity.Y << 16);
+        MoveEnemyVertically(level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.Y));
     }
 
     /// <summary>Instruction <c>$A2:9381</c>: crawl across the sleeping parent contour.</summary>
@@ -780,7 +781,7 @@ public sealed partial class RoomEnemySystem
         ushort previousY = baby.Position.Y.Whole;
         baby.Position = baby.Position.WithWholeY(state.SpawnTopBoundary);
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level, baby, state.Velocity.X << 16);
+            level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
 
         RoomEnemySlot parentSlot = SlotFromNativeIndex(state.ParentNativeIndex);
         MamaTurtleEnemyState parent = RequireMamaTurtleState(parentSlot);
@@ -908,7 +909,7 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.Radius.X)));
         state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-            level!, baby, state.Velocity.X << 16);
+            level!, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
         WakeMamaTurtle(state);
     }
 

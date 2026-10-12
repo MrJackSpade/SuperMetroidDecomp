@@ -831,7 +831,7 @@ false,             CrashSequenceFinished: true);
         uint speed = unchecked(Compose(
             samus.Kinematics.YSpeed,
             samus.Kinematics.YSubspeed) + acceleration);
-        samus.Kinematics.YSpeed = unchecked((ushort)(speed >> 16));
+        samus.Kinematics.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed)));
         samus.Kinematics.YSubspeed = unchecked((ushort)speed);
 
         // The native clamp operates on a temporary displacement, not stored velocity.

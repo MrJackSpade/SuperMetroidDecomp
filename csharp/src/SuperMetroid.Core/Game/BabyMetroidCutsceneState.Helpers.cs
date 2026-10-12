@@ -254,7 +254,7 @@ public sealed partial class BabyMetroidCutsceneState
         {
             int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 0x0500);
             Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            ushort prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(Velocity.Y.RawValue >> 8))));
+            ushort prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
             if (unchecked((short)(prediction - targetY)) < 0)
                 return false;
         }
@@ -262,7 +262,7 @@ public sealed partial class BabyMetroidCutsceneState
         {
             int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -0x0500);
             Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            ushort prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(Velocity.Y.RawValue >> 8))));
+            ushort prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.Y.RawValue)))));
             short predictedDifference = unchecked((short)(prediction - targetY));
             if (predictedDifference > 0)
                 return false;
@@ -279,7 +279,7 @@ public sealed partial class BabyMetroidCutsceneState
         {
             int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 0x0500);
             Velocity = Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            ushort prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(Velocity.X.RawValue >> 8))));
+            ushort prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
             if (unchecked((short)(prediction - targetX)) < 0)
                 return false;
         }
@@ -289,7 +289,7 @@ public sealed partial class BabyMetroidCutsceneState
             // there is no BEQ before BPL at `$A9:F619-$F61B`.
             int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -0x0500);
             Velocity = Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)velocity)));
-            ushort prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(Velocity.X.RawValue >> 8))));
+            ushort prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(SnesEightEight.WholeOf(Velocity.X.RawValue)))));
             short predictedDifference = unchecked((short)(prediction - targetX));
             if (predictedDifference > 0)
                 return false;

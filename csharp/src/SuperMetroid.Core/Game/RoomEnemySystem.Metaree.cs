@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -223,7 +224,7 @@ public sealed partial class RoomEnemySystem
         if (EnemyHasSolidHighBitAhead(
                 level,
                 slot,
-                state.YVelocity << 16,
+                SnesSixteenSixteen.FromWhole(state.YVelocity),
                 movingDown: true))
         {
             slot.InstructionTimer = 1;

@@ -23,7 +23,7 @@ public sealed partial class RoomEnemySystem
         {
             // $A6:D9CF isolates bits 8..11 after multiplying the 8.8 velocity by four,
             // converts the resulting word-table byte index, and clamps that index to $E.
-            int tableIndex = Math.Min(7, ((largestAxisVelocity << 2) & 0x0f00) >> 8);
+            int tableIndex = Math.Min(7, SnesEightEight.WholeOf((largestAxisVelocity << 2) & 0x0f00));
             ushort delta = CeresRidleyWingAnimationDeltas[tableIndex];
             if (state.Velocity.Y.SignedRawValue >= 0)
                 delta >>= 1;

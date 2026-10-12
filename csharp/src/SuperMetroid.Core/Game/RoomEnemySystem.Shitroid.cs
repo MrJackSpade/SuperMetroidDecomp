@@ -777,7 +777,7 @@ public sealed partial class RoomEnemySystem
         velocityWord = unchecked((ushort)velocity);
 
         int predicted = unchecked((short)(
-            current + unchecked((sbyte)(velocityWord >> 8)) - target));
+            current + unchecked((sbyte)(SnesEightEight.WholeOf(velocityWord))) - target));
         bool crossed = delta >= 0 ? predicted <= 0 : predicted >= 0;
         if (crossed)
             velocityWord = 0;

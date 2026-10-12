@@ -122,7 +122,7 @@ public sealed partial class RoomEnemySystem
         byte randomEnemyCounter)
     {
         int displacement = ReadQuadraticEnemySpeed(
-            unchecked((ushort)(segment.Velocity.Y.RawValue >> 8)),
+            unchecked((ushort)(SnesEightEight.WholeOf(segment.Velocity.Y.RawValue))),
             negative: false);
         segment.Position = segment.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
         if (unchecked((short)(segment.Position.Y.Whole - 200)) < 0)

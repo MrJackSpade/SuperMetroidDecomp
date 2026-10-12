@@ -22,14 +22,14 @@ internal static partial class Program
             BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [tube]);
         var step = typeof(RoomEnemySystem).GetMethod("RunMotherBrainFallingTubeMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
-        uint expectedPosition = (uint)tube.Position.Y.Whole << 16;
+        uint expectedPosition = SnesSixteenSixteen.FromWhole((uint)tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;
         ushort previousHeadY = state.Head.Position.Y.Whole;
         int frame;
         for (frame = 0; frame < 200; frame++)
         {
             speed += 6;
-            expectedPosition += (uint)speed << 8;
+            expectedPosition += SnesSixteenSixteen.FromEightEight((uint)speed);
             ushort expectedY = SnesFixedPosition.WholeOf(unchecked((int)expectedPosition));
             ushort expectedHead = (ushort)Math.Min(expectedY - 56, 196);
             step(tube);

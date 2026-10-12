@@ -592,7 +592,7 @@ public sealed partial class RoomEnemySystem
         Math.Abs(unchecked((short)(actor - samus))) < distance;
 
     private static int ComposeDachoraFixed(ushort whole, ushort fraction) =>
-        unchecked(((int)(short)whole << 16) | fraction);
+        unchecked((SnesSixteenSixteen.FromWhole((int)(short)whole)) | fraction);
 
     private static (ushort Whole, ushort Fraction) AddDachoraFixed(
         ushort whole,
@@ -600,8 +600,8 @@ public sealed partial class RoomEnemySystem
         ushort wholeIncrement,
         ushort fractionIncrement)
     {
-        uint value = ((uint)whole << 16) | fraction;
-        uint increment = ((uint)wholeIncrement << 16) | fractionIncrement;
+        uint value = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
+        uint increment = (SnesSixteenSixteen.FromWhole((uint)wholeIncrement)) | fractionIncrement;
         value = unchecked(value + increment);
         return (SnesFixedPosition.WholeOf(unchecked((int)value)), unchecked((ushort)value));
     }

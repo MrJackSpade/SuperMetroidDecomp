@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -19,7 +20,7 @@ public sealed partial class SamusProjectileSystem
         // of its pixel offset. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
         if (remaining >= 16 || unchecked((short)slot.Position.Y.Whole) < 0 ||
-            (slot.Position.Y.Whole >> 8) >= (level.Size.Y + 15) / 16 ||
+            (SnesEightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||
             (targetX >> 8) >= (level.Size.X + 15) / 16)
             return;
 
@@ -66,7 +67,7 @@ public sealed partial class SamusProjectileSystem
         ushort targetY = unchecked((ushort)(slot.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole - slot.Radius.Y
             : slot.Position.Y.Whole + slot.Radius.Y - 1));
-        int centerScreenX = slot.Position.X.Whole >> 8;
+        int centerScreenX = SnesEightEight.WholeOf(slot.Position.X.Whole);
         if (centerScreenX >= (level.Size.X + 15) / 16 ||
             (targetY >> 8) >= (level.Size.Y + 15) / 16)
             return;

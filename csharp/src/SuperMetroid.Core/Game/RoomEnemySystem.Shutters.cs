@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -288,7 +289,7 @@ public sealed partial class RoomEnemySystem
         ushort subvelocity)
     {
         uint fixedPosition = position.RawValue;
-        int velocity = unchecked((wholeVelocity << 16) | subvelocity);
+        int velocity = unchecked((SnesSixteenSixteen.FromWhole(wholeVelocity)) | subvelocity);
         fixedPosition = unchecked(fixedPosition + (uint)velocity);
         return SnesFixedPosition.FromRaw(fixedPosition);
     }

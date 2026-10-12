@@ -399,7 +399,7 @@ public static class SamusMorphBallMovement
         {
             newSpeed = unchecked(oldSpeed - acceleration);
         }
-        state.YSpeed = unchecked((ushort)(newSpeed >> 16));
+        state.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(newSpeed)));
         state.YSubspeed = unchecked((ushort)newSpeed);
 
         int displacement = state.YDirection == SamusVerticalDirection.Down

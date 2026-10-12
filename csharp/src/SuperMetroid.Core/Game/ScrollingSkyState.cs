@@ -100,7 +100,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
         {
             SkyScrollSection section = RoomFxRomData.ScrollingSky.GetSection(index);
-            uint velocity = ((uint)section.Speed << 16) | section.Subspeed;
+            uint velocity = (SnesSixteenSixteen.FromWhole((uint)section.Speed)) | section.Subspeed;
             _fixedHorizontalScrolls[section.DataSlot] = unchecked(
                 _fixedHorizontalScrolls[section.DataSlot] + velocity);
         }

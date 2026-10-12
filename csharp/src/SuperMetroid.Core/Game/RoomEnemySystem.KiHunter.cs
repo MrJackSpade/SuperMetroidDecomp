@@ -438,7 +438,7 @@ public sealed partial class RoomEnemySystem
         ushort targetX = unchecked((ushort)(
             state.TargetXOrSpeedIndex +
             ReadEightBitCosineProduct(state.Angle, state.SwoopRadius.X)));
-        int horizontalDisplacement = unchecked((short)(targetX - body.Position.X.Whole)) << 16;
+        int horizontalDisplacement = SnesSixteenSixteen.FromWhole((short)(targetX - body.Position.X.Whole));
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
             state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(leftArc ? (short)1 : (short)-1, 0));
@@ -450,7 +450,7 @@ public sealed partial class RoomEnemySystem
         ushort targetY = unchecked((ushort)(
             state.SwoopOriginY +
             ReadEightBitNegativeSineProduct(state.Angle, state.SwoopRadius.Y)));
-        int verticalDisplacement = unchecked((short)(targetY - body.Position.Y.Whole)) << 16;
+        int verticalDisplacement = SnesSixteenSixteen.FromWhole((short)(targetY - body.Position.Y.Whole));
         if (MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
     }
@@ -660,7 +660,7 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(
                 level,
                 wings,
-                unchecked((short)(desiredY - wings.Position.Y.Whole)) << 16))
+                SnesSixteenSixteen.FromWhole((short)(desiredY - wings.Position.Y.Whole))))
         {
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
             wings.Position = wings.Position.WithWhole(state.SavedWingPosition);
@@ -745,7 +745,7 @@ public sealed partial class RoomEnemySystem
         do
         {
             state.DetachedSpeedReset = unchecked((ushort)(state.DetachedSpeedReset + 384));
-            ushort index = unchecked((byte)(state.DetachedSpeedReset >> 8));
+            ushort index = unchecked((byte)(SnesEightEight.WholeOf(state.DetachedSpeedReset)));
             state.DetachedSpeedAccumulator = unchecked((ushort)(
                 state.DetachedSpeedAccumulator +
                 EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + 1)));
@@ -775,7 +775,7 @@ public sealed partial class RoomEnemySystem
 
     private static ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)
     {
-        int index = unchecked((byte)(speedIndex >> 8));
+        int index = unchecked((byte)(SnesEightEight.WholeOf(speedIndex)));
         // These deliberately unaligned reads are literal: F7DB reads at record +5 and
         // F8AD at record +1, combining adjacent bytes instead of consuming a normal 16.16
         // table component. Replacing this with ReadQuadraticEnemySpeed changes the orbit.

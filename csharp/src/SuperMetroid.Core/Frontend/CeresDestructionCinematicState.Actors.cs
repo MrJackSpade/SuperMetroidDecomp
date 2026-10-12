@@ -245,7 +245,7 @@ internal sealed partial class CeresDestructionCinematicState
         // The bank-$8B pre-instructions use XBA to split an unsigned 8.8 velocity into
         // whole/subposition words before a 16-bit subtraction with borrow.
         uint fixedPosition = new SnesFixedPosition(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
-        uint fixedVelocity = (uint)velocity << 8;
+        uint fixedVelocity = SnesSixteenSixteen.FromEightEight((uint)velocity);
         fixedPosition = unchecked(fixedPosition - fixedVelocity);
         actor.Position = actor.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
     }

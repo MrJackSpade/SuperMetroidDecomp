@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -172,10 +173,10 @@ public sealed class PlatformEnemyState
     }
 
     /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update, combining the rightward whole and fractional velocity words without changing backing state.</summary>
-    public int RightDisplacement => (RightVelocity << 16) | RightSubvelocity;
+    public int RightDisplacement => (SnesSixteenSixteen.FromWhole(RightVelocity)) | RightSubvelocity;
 
     /// <summary>Signed 16.16 room-pixel displacement per horizontal actor update, combining the leftward whole and fractional velocity words and preserving their two's-complement representation.</summary>
-    public int LeftDisplacement => (LeftVelocity << 16) | LeftSubvelocity;
+    public int LeftDisplacement => (SnesSixteenSixteen.FromWhole(LeftVelocity)) | LeftSubvelocity;
 }
 
 /// <summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -170,7 +171,7 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer + 1));
         uint subvelocity = (uint)state.YSubvelocity + 0x8000;
         state.YSubvelocity = unchecked((ushort)subvelocity);
-        state.YVelocity = unchecked((ushort)(state.YVelocity + (subvelocity >> 16)));
+        state.YVelocity = unchecked((ushort)(state.YVelocity + (SnesSixteenSixteen.WholeOf(subvelocity))));
     }
 
     /// <summary>

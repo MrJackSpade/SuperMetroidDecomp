@@ -439,7 +439,7 @@ public sealed partial class RoomEnemySystem
         bool movingRight,
         bool rising)
     {
-        int xPixels = state.Speed >> 8;
+        int xPixels = SnesEightEight.WholeOf(state.Speed);
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (movingRight ? xPixels : -xPixels))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole +
             (rising ? -NinjaPirateSpinVerticalPixels : NinjaPirateSpinVerticalPixels))));
@@ -490,7 +490,7 @@ public sealed partial class RoomEnemySystem
         NinjaSpacePirateEnemyState state,
         bool movingRight)
     {
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (state.Speed >> 8))));
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (SnesEightEight.WholeOf(state.Speed)))));
         state.Speed = unchecked((ushort)(state.Speed - 0x0040));
         if (unchecked((short)state.Speed) >= 0)
             return;
@@ -525,7 +525,7 @@ public sealed partial class RoomEnemySystem
         // the low byte as only the low eight bits of the fractional word. This odd packing is
         // preserved literally; treating Speed as a conventional 8.8 fixed value is subtly
         // different from the 65816 register setup at $B2:F9CB/$FA9F.
-        int displacement = ((state.Speed >> 8) << 16) | (state.Speed & 0x00ff);
+        int displacement = (SnesSixteenSixteen.FromWhole(SnesEightEight.WholeOf(state.Speed))) | (SnesEightEight.FractionOf(state.Speed));
         bool landed = MoveEnemyVertically(level, slot, displacement);
         if (!landed)
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -475,10 +476,10 @@ public sealed partial class RoomEnemySystem
         // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
         // hop's $0140 therefore moves exactly one pixel per frame either way.
         ushort xSpeed = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).XSpeed;
-        short whole = unchecked((short)(xSpeed >> 8));
+        short whole = unchecked((short)(SnesEightEight.WholeOf(xSpeed)));
         if (state.Direction == PuyoDirection.Left)
             whole = unchecked((short)-whole);
-        int horizontalDisplacement = whole << 16;
+        int horizontalDisplacement = SnesSixteenSixteen.FromWhole(whole);
 
         if (!MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,

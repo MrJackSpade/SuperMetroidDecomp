@@ -385,7 +385,7 @@ public sealed partial class SamusProjectileSystem
             return;
 
         short velocity = vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
-        int wholeMagnitude = (Math.Abs((int)velocity) & 0xff00) >> 8;
+        int wholeMagnitude = SnesEightEight.WholeOf(Math.Abs((int)velocity) & 0xff00);
         bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
         {
@@ -445,7 +445,7 @@ public sealed partial class SamusProjectileSystem
         // width is stored in 256-pixel screens; coordinates in/past the first out-of-room
         // high byte skip reaction and are left for the later 64-pixel viewport deletion.
         int roomWidthInScreens = (level.Size.X + 15) >> 4;
-        if ((slot.Position.X.Whole >> 8) >= roomWidthInScreens)
+        if ((SnesEightEight.WholeOf(slot.Position.X.Whole)) >= roomWidthInScreens)
             return false;
         return MissilePointReaction(
             level, slot, horizontalMovement: true, roomPlms: roomPlms);
@@ -459,7 +459,7 @@ public sealed partial class SamusProjectileSystem
         slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y.SignedRawValue));
 
         int roomHeightInScreens = (level.Size.Y + 15) >> 4;
-        if ((slot.Position.Y.Whole >> 8) >= roomHeightInScreens)
+        if ((SnesEightEight.WholeOf(slot.Position.Y.Whole)) >= roomHeightInScreens)
             return false;
         return MissilePointReaction(
             level, slot, horizontalMovement: false, roomPlms: roomPlms);

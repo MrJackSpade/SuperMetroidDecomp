@@ -44,8 +44,8 @@ internal static partial class Program
             slot.Position = new(new(256, 0x8123), new(256, 0x8123));
             uint start = 0x01008123;
             carry(slot, statue, samus, level, offset);
-            uint x = unchecked(start + (uint)(velocity << 8));
-            uint y = start + (uint)(Math.Abs((int)velocity) << 8);
+            uint x = unchecked(start + (uint)(SnesSixteenSixteen.FromEightEight(velocity)));
+            uint y = start + (uint)(SnesSixteenSixteen.FromEightEight(Math.Abs((int)velocity)));
             AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)x)), slot.Position.X.Whole, "Chozo real signed X movement");
             AssertEqual((ushort)x, slot.Position.X.Fraction, "Chozo real fractional X");
             AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)y)), slot.Position.Y.Whole, "Chozo real absolute Y movement");

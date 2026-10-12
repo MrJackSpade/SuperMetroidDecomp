@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Frontend;
@@ -75,7 +76,7 @@ internal sealed partial class EndingCreditsState
                 break;
             case EndingSpritePreInstruction.MoveFlyawayStars:
                 int velocity = unchecked((int)(((uint)sprite.GeneralTimer << 16) | sprite.Position.Y.Fraction)) - 32;
-                sprite.GeneralTimer = unchecked((ushort)(velocity >> 16));
+                sprite.GeneralTimer = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
                 uint position = unchecked(IntroCinematicMotion.Packed(sprite.Position.X) + (uint)velocity);
                 sprite.Position = new(
                     IntroCinematicMotion.Unpacked(position),

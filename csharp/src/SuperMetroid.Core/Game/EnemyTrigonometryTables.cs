@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Immutable integer samples used by the shared enemy multiplication routines.
@@ -29,7 +30,7 @@ public static class EnemyTrigonometryTables
     public static ushort MultiplySignedSine(ushort speed, byte angle)
     {
         short sample = SignedSine(angle);
-        int magnitude = speed * Math.Abs((int)sample) >> 8;
+        int magnitude = SnesEightEight.WholeOf(speed * Math.Abs((int)sample));
         return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
     }
 

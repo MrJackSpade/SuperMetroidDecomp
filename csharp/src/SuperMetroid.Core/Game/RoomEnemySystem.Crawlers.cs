@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -261,7 +262,7 @@ public sealed partial class RoomEnemySystem
         {
             state.ConsecutiveTurnCounter = 0;
             AlignEnemyYWithNonSquareSlope(level, slot);
-            int tangent = state.Velocity.Y.SignedRawValue << 8;
+            int tangent = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
             if (MoveEnemyVertically(level, slot, tangent))
             {
                 state.Velocity = state.Velocity.ReversedX();
@@ -400,7 +401,7 @@ public sealed partial class RoomEnemySystem
         {
             state.ConsecutiveTurnCounter = 0;
             AlignEnemyYWithNonSquareSlope(level, slot);
-            int tangent = state.Velocity.Y.SignedRawValue << 8;
+            int tangent = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
             if (!MoveEnemyVertically(level, slot, tangent))
                 return;
 
@@ -466,7 +467,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         int displacement = unchecked(
-            ((short)state.FallingYVelocity << 16) | state.FallingYSubvelocity);
+            (SnesSixteenSixteen.FromWhole((short)state.FallingYVelocity)) | state.FallingYSubvelocity);
         if (MoveEnemyVertically(level, slot, displacement))
         {
             // Parameter $FF is the native "choose default speed after first landing" path.
@@ -483,9 +484,9 @@ public sealed partial class RoomEnemySystem
 
         if ((short)(state.FallingYVelocity - 4) < 0)
         {
-            uint velocity = ((uint)state.FallingYVelocity << 16) | state.FallingYSubvelocity;
+            uint velocity = (SnesSixteenSixteen.FromWhole((uint)state.FallingYVelocity)) | state.FallingYSubvelocity;
             velocity = unchecked(velocity + 0x00008000);
-            state.FallingYVelocity = unchecked((ushort)(velocity >> 16));
+            state.FallingYVelocity = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
             state.FallingYSubvelocity = unchecked((ushort)velocity);
         }
 
@@ -568,7 +569,7 @@ public sealed partial class RoomEnemySystem
                 return CrawlerSlopeDefinitions.Scale(velocity.X.RawValue, slopeShape);
             }
         }
-        return velocity.X.SignedRawValue << 8;
+        return SnesSixteenSixteen.FromEightEight(velocity.X.SignedRawValue);
     }
 
     private CrawlerEnemyState RequireCrawlerState(RoomEnemySlot slot) =>
@@ -578,8 +579,8 @@ public sealed partial class RoomEnemySystem
     private static int Shift8AddMagnitude(ushort velocity, int wholePixels)
     {
         int signedVelocity = unchecked((short)velocity);
-        int bias = wholePixels << 16;
-        return unchecked((signedVelocity << 8) + (signedVelocity < 0 ? -bias : bias));
+        int bias = SnesSixteenSixteen.FromWhole(wholePixels);
+        return unchecked((SnesSixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
     }
 
     private static ushort Negate16(ushort value) => unchecked((ushort)-value);

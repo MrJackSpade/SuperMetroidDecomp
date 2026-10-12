@@ -90,8 +90,8 @@ internal static partial class Program
                 QuicksandDefinitions.SurfacePhysics(suit != 0);
             AssertEqual(
                 direction == SamusVerticalDirection.None
-                    ? physics.StationaryDisplacement << 8
-                    : physics.MovingDisplacement << 8,
+                    ? SnesEightEight.FromWhole(physics.StationaryDisplacement)
+                    : SnesEightEight.FromWhole(physics.MovingDisplacement),
                 body.ExtraDisplacement.Y.RawValue,
                 $"production quicksand suit {suit} direction {(int)direction} displacement");
         }

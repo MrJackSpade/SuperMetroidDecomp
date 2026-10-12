@@ -239,7 +239,7 @@ public sealed partial class RoomEnemySystem
         // Only the cursor's high byte reaches the eight-byte quadratic table index. Choot
         // applies the table's separately stored negative pair, including its fractional
         // negation bug, without consulting room collision during this authored leap.
-        ushort tableIndex = unchecked((ushort)(state.YSpeedTableIndex >> 8));
+        ushort tableIndex = unchecked((ushort)(SnesEightEight.WholeOf(state.YSpeedTableIndex)));
         int upwardDisplacement = ReadQuadraticEnemySpeed(tableIndex, negative: true);
         uint fixedY = slot.Position.Y.RawValue;
         fixedY = unchecked(fixedY + (uint)upwardDisplacement);

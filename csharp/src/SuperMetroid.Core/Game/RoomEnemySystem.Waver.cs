@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -99,7 +100,7 @@ public sealed partial class RoomEnemySystem
         var state = new WaverEnemyState(slot)
         {
             XSubvelocity = unchecked((ushort)signedSpeed),
-            XVelocity = unchecked((short)(signedSpeed >> 16)),
+            XVelocity = unchecked((short)(SnesSixteenSixteen.WholeOf(signedSpeed))),
             CurrentInstructionListIndex = WaverAnimationSelector.None,
             Angle = 0,
             SpinFinished = false,
@@ -125,7 +126,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Waver AI requires active room collision data.");
 
         int horizontalDisplacement =
-            (state.XVelocity << 16) | state.XSubvelocity;
+            (SnesSixteenSixteen.FromWhole(state.XVelocity)) | state.XSubvelocity;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -136,7 +137,7 @@ public sealed partial class RoomEnemySystem
             // negation; expressing that value directly preserves the native ±1.5 px/frame.
             horizontalDisplacement = unchecked(-horizontalDisplacement);
             state.XSubvelocity = unchecked((ushort)horizontalDisplacement);
-            state.XVelocity = unchecked((short)(horizontalDisplacement >> 16));
+            state.XVelocity = unchecked((short)(SnesSixteenSixteen.WholeOf(horizontalDisplacement)));
             state.RequestedInstructionListIndex =
                 (state.RequestedInstructionListIndex ^ WaverAnimationSelector.FacingRight) &
                 WaverAnimationSelector.FacingRight;

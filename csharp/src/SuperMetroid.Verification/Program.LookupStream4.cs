@@ -694,7 +694,7 @@ internal static partial class Program
         {
             ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2);
-            return unchecked((int)((uint)whole << 16 | fraction));
+            return unchecked((int)(SnesSixteenSixteen.FromWhole((uint)whole) | fraction));
         }
         for (int index = 0; index < 16; index++)
             AssertEqual(Native(0x8BDD02 + index * 4), EndingCreditsRomData.Motion.PlanetFastDelta(index), "native fast shake signed fixed-point value");

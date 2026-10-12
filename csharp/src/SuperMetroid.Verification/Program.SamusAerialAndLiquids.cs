@@ -111,7 +111,7 @@ static void VerifySamusAerialMovement()
     };
     spinLeft.HorizontalSpeed.BaseSpeed = 1;
     spinLeft.ApplyOrdinaryJumpTransition(bus, SamusPoseId.SpinJumpLeftPose);
-    int spinStartX = (spinLeft.Position.X.Whole << 16) | spinLeft.Kinematics.Position.X.Fraction;
+    int spinStartX = (SnesSixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction;
     SamusAerialMovement.StepSpinJump(
         bus,
         level,
@@ -119,7 +119,7 @@ static void VerifySamusAerialMovement()
         (ushort)(SnesButton.Left | SnesButton.A),
         nmiFrameCounter: 0);
     AssertEqual(-0x00016000,
-        ((spinLeft.Position.X.Whole << 16) | spinLeft.Kinematics.Position.X.Fraction) - spinStartX,
+        ((SnesSixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction) - spinStartX,
         "left spin jump reaches native cap");
     AssertEqual(2, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
     AssertEqual(46, spinLeft.Position.X.Whole, "left spin jump whole X");

@@ -757,7 +757,7 @@ public static class SamusAerialMovement
         if (!probe.Collided)
             return default;
 
-        ushort distance = unchecked((ushort)Math.Abs(probe.AcceptedDisplacement >> 16));
+        ushort distance = unchecked((ushort)Math.Abs(SnesSixteenSixteen.WholeOf(probe.AcceptedDisplacement)));
         ushort firstEligibleFrame = SamusState.IsScrewAttackPose(samus.Pose)
             ? (ushort)0x1b
             : (ushort)0x0b;
@@ -807,9 +807,8 @@ public static class SamusAerialMovement
         // The 65816 reads a deliberately unaligned word beginning at `$0B2D`: the high
         // byte of Y subspeed followed by the low byte of whole Y speed. In host terms that
         // is the magnitude converted from 16.16 to 8.8 without rounding.
-        ushort fallingVelocity8_8 = unchecked((ushort)(
-            (samus.Kinematics.YSpeed << 8) |
-            (samus.Kinematics.YSubspeed >> 8)));
+        ushort fallingVelocity8_8 = unchecked((ushort)SnesEightEight.FromSixteenSixteen(
+            samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed));
         // `$0AD2` is written by the preceding animation pass, not recomputed here. This
         // matters while crossing a surface: the top-boundary gate above and remembered
         // velocity window can intentionally describe different samples for one frame.
@@ -850,7 +849,7 @@ public static class SamusAerialMovement
 
     private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
     {
-        state.YSpeed = unchecked((ushort)(speed >> 16));
+        state.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed)));
         state.YSubspeed = unchecked((ushort)speed);
     }
 

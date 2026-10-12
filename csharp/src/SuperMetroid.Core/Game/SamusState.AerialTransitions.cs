@@ -503,8 +503,8 @@ public sealed partial class SamusState
     {
         SamusHorizontalSpeedState speed = HorizontalSpeed;
         uint combinedSpeed = unchecked(speed.BaseFixed +
-            ((uint)speed.ExtraRunSpeed << 16) + speed.ExtraRunSubspeed);
-        speed.BaseSpeed = unchecked((ushort)(combinedSpeed >> 16));
+            (SnesSixteenSixteen.FromWhole((uint)speed.ExtraRunSpeed)) + speed.ExtraRunSubspeed);
+        speed.BaseSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed)));
         speed.BaseSubspeed = unchecked((ushort)combinedSpeed);
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;

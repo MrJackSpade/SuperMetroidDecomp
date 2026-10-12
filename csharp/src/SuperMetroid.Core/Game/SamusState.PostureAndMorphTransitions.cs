@@ -218,7 +218,7 @@ public sealed partial class SamusState
                 bus, level, SamusPostureDefinitions.CrouchEntryDownwardPixels << 16,
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
             Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
-                Kinematics.Position.Y.Whole + (alignment.AcceptedDisplacement >> 16))));
+                Kinematics.Position.Y.Whole + (SnesSixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
@@ -329,7 +329,7 @@ public sealed partial class SamusState
                 bus, level, SamusPostureDefinitions.MorphEntryDownwardPixels << 16,
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
             Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
-                Kinematics.Position.Y.Whole + (alignment.AcceptedDisplacement >> 16))));
+                Kinematics.Position.Y.Whole + (SnesSixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
             // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
@@ -496,7 +496,7 @@ public sealed partial class SamusState
             // clears the extra words, and selects mode one so displacement initially keeps
             // travelling in the old direction while the ball decelerates through its turn.
             uint combined = unchecked(HorizontalSpeed.BaseFixed +
-                ((uint)HorizontalSpeed.ExtraRunSpeed << 16) +
+                (SnesSixteenSixteen.FromWhole((uint)HorizontalSpeed.ExtraRunSpeed)) +
                 HorizontalSpeed.ExtraRunSubspeed);
             HorizontalSpeed.BaseSpeed = SnesFixedPosition.WholeOf(unchecked((int)combined));
             HorizontalSpeed.BaseSubspeed = unchecked((ushort)combined);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -353,7 +354,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        int horizontalDisplacement = state.XVelocity << 16;
+        int horizontalDisplacement = SnesSixteenSixteen.FromWhole(state.XVelocity);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
             state.XVelocity = unchecked((short)-state.XVelocity);

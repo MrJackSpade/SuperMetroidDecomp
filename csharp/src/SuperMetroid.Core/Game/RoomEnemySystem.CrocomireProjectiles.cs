@@ -159,10 +159,10 @@ public sealed partial class RoomEnemySystem
         // The 65816 switches to 8-bit A here. The high acceleration byte is added to the
         // fractional velocity byte; carry advances the signed integral velocity byte, which
         // is then capped by this physical slot's maximum.
-        int velocityFractionSum = (projectile.Velocity.X.RawValue & 0x00ff) + (acceleration >> 8);
+        int velocityFractionSum = (SnesEightEight.FractionOf(projectile.Velocity.X.RawValue)) + (acceleration >> 8);
         byte velocityFraction = unchecked((byte)velocityFractionSum);
         byte velocityWhole = unchecked((byte)(
-            (projectile.Velocity.X.RawValue >> 8) + (velocityFractionSum >> 8)));
+            (SnesEightEight.WholeOf(projectile.Velocity.X.RawValue)) + (velocityFractionSum >> 8)));
         byte maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
@@ -179,7 +179,7 @@ public sealed partial class RoomEnemySystem
         // Y velocity and position are ordinary signed 16.16 pairs, with $3000 acceleration.
         uint velocity = unchecked(((uint)projectile.Velocity.Y.RawValue << 16) | projectile.Variable1);
         velocity = unchecked(velocity + 0x00003000u);
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(velocity >> 16))));
+        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)))));
         projectile.Variable1 = unchecked((ushort)velocity);
         uint position = unchecked(projectile.Position.Y.RawValue);
         position = unchecked(position + velocity);

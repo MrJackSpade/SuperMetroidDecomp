@@ -325,7 +325,7 @@ public sealed class SamusHorizontalSpeedState
     public byte ReadSpeedBoosterAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
     {
         Ensure.NotNull(bus);
-        byte stage = unchecked((byte)(SpeedBoostCounter >> 8));
+        byte stage = unchecked((byte)(SnesEightEight.WholeOf(SpeedBoostCounter)));
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
         return SamusRunningCadenceDefinitions.ReadAnimationByte(bus, delayList, byteIndex);
     }
@@ -818,7 +818,7 @@ public sealed class SamusHorizontalSpeedState
             if (DecelerationMultiplier != 0)
             {
                 int highProduct = DecelerationMultiplier * entry.Deceleration;
-                int lowProduct = DecelerationMultiplier * (entry.DecelerationSubspeed >> 8);
+                int lowProduct = DecelerationMultiplier * (SnesEightEight.WholeOf(entry.DecelerationSubspeed));
                 deltaSpeed = unchecked((ushort)(highProduct >> 8));
                 deltaSubspeed = unchecked((ushort)lowProduct);
             }
@@ -883,7 +883,7 @@ public sealed class SamusHorizontalSpeedState
             if (DecelerationMultiplier != 0)
             {
                 int highProduct = DecelerationMultiplier * entry.Deceleration;
-                int lowProduct = DecelerationMultiplier * (entry.DecelerationSubspeed >> 8);
+                int lowProduct = DecelerationMultiplier * (SnesEightEight.WholeOf(entry.DecelerationSubspeed));
                 deltaSpeed = unchecked((ushort)(highProduct >> 8));
                 deltaSubspeed = unchecked((ushort)lowProduct);
             }
@@ -975,7 +975,7 @@ public sealed class SamusHorizontalSpeedState
 
     private static int ClampDisplacement(int displacement)
     {
-        short high = unchecked((short)(displacement >> 16));
+        short high = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
         ushort low = unchecked((ushort)displacement);
 
         if (high < 0)

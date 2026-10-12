@@ -107,7 +107,7 @@ internal static class SnesSignedEightEightAccess
     extension(SnesSignedEightEight self)
     {
         /// <summary>Signed whole-pixel byte.</summary>
-        internal sbyte WholePixels => unchecked((sbyte)(self.RawValue >> 8));
+        internal sbyte WholePixels => unchecked((sbyte)(SnesEightEight.WholeOf(self.RawValue)));
 
         /// <summary>Unsigned 1/256-pixel fraction byte.</summary>
         internal byte Fraction => unchecked((byte)self.RawValue);

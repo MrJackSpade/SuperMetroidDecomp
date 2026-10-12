@@ -248,7 +248,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData? level)
     {
         bool beforeTerrainBoundary = unchecked((short)(slot.Position.X.Whole - 544)) < 0;
-        int horizontalDisplacement = state.Velocity.X.SignedRawValue << 8;
+        int horizontalDisplacement = SnesSixteenSixteen.FromEightEight(state.Velocity.X.SignedRawValue);
         if (beforeTerrainBoundary)
         {
             MoveDeadSidehopperAxisDirect(
@@ -280,7 +280,7 @@ public sealed partial class RoomEnemySystem
             return unchecked((short)(slot.Position.Y.Whole - 184)) >= 0;
         }
 
-        int verticalDisplacement = state.Velocity.Y.SignedRawValue << 8;
+        int verticalDisplacement = SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
         return MoveEnemyVertically(
             RequireDeadSidehopperLevel(level),
             slot,
@@ -298,7 +298,7 @@ public sealed partial class RoomEnemySystem
         subposition = unchecked((ushort)(
             (subposition & 0x00ff) | ((carry & 0xff) << 8)));
         position = unchecked((ushort)(
-            position + unchecked((sbyte)(velocity >> 8)) + (carry >> 8)));
+            position + unchecked((sbyte)(SnesEightEight.WholeOf(velocity))) + (carry >> 8)));
         if (horizontal)
         {
             slot.Position = slot.Position.WithX(new(position, subposition));

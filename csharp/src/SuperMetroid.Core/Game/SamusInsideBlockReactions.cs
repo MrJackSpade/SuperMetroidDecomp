@@ -84,20 +84,20 @@ public static class SamusInsideBlockReactions
                     {
                         case SamusVerticalDirection.None:
                             body.YSpeed = body.YSubspeed = 0;
-                            SetExtra(physics.StationaryDisplacement << 8);
+                            SetExtra(SnesEightEight.FromWhole(physics.StationaryDisplacement));
                             break;
                         case SamusVerticalDirection.Up:
                             ushort limit = physics.UpwardSpeedLimit;
                             // The original compares the middle word of the 16.16 speed.
-                            if ((ushort)(body.VerticalSpeedFixed >> 8) > limit)
+                            if ((ushort)(SnesEightEight.WholeOf(body.VerticalSpeedFixed)) > limit)
                             {
                                 body.YSpeed = (ushort)(limit >> 8);
                                 body.YSubspeed = unchecked((ushort)(limit << 8));
                             }
-                            SetExtra(physics.MovingDisplacement << 8);
+                            SetExtra(SnesEightEight.FromWhole(physics.MovingDisplacement));
                             break;
                         case SamusVerticalDirection.Down:
-                            SetExtra(physics.MovingDisplacement << 8);
+                            SetExtra(SnesEightEight.FromWhole(physics.MovingDisplacement));
                             break;
                         default:
                             throw new InvalidOperationException(
@@ -216,7 +216,7 @@ public static class SamusInsideBlockReactions
             displacement = 0;
             return true;
         }
-        if (body.YDirection == SamusVerticalDirection.None && (ushort)((uint)displacement >> 8) > (QuicksandRomData.SurfaceProbeLimit >> 8))
+        if (body.YDirection == SamusVerticalDirection.None && (ushort)(SnesEightEight.WholeOf((uint)displacement)) > (QuicksandRomData.SurfaceProbeLimit >> 8))
             displacement = (displacement & unchecked((int)0xff0000ff)) | QuicksandRomData.SurfaceProbeLimit;
         surfaceContact = true;
         return false;

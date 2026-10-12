@@ -669,8 +669,8 @@ public sealed partial class SamusState
         // with two independent 16-bit ADCs and their carry. Use one wrapping 16.16 add to
         // preserve exactly that pair of operations, including overflow at the high word.
         uint combinedSpeed = unchecked(speed.BaseFixed +
-            ((uint)speed.ExtraRunSpeed << 16) + speed.ExtraRunSubspeed);
-        speed.BaseSpeed = unchecked((ushort)(combinedSpeed >> 16));
+            (SnesSixteenSixteen.FromWhole((uint)speed.ExtraRunSpeed)) + speed.ExtraRunSubspeed);
+        speed.BaseSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed)));
         speed.BaseSubspeed = unchecked((ushort)combinedSpeed);
 
         // The native handler consumes the extra component and selects acceleration mode

@@ -355,7 +355,7 @@ internal sealed class IntroBabyDiscoveryState
             positiveLimit: 0x0280,
             negativeLimit: unchecked((short)0xfd80)));
         // $8B:BB79-$BB9E: a baby moving left draws over Samus; otherwise Samus draws first.
-        SamusDisplay = unchecked((sbyte)(BabyVelocity.X.RawValue >> 8)) < 0
+        SamusDisplay = unchecked((sbyte)(SnesEightEight.WholeOf(BabyVelocity.X.RawValue))) < 0
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, horizontal: true, BabyVelocity.X);

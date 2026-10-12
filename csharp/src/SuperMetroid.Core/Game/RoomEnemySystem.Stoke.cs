@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -179,7 +180,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     level,
-                    ((int)(short)state.LeftVelocity << 16) | state.LeftSubvelocity,
+                    (SnesSixteenSixteen.FromWhole((int)(short)state.LeftVelocity)) | state.LeftSubvelocity,
                     StokeInstructionProgramDefinitions.AttackingLeft);
                 return;
 
@@ -188,7 +189,7 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     level,
-                    ((int)(short)state.RightVelocity << 16) | state.RightSubvelocity,
+                    (SnesSixteenSixteen.FromWhole((int)(short)state.RightVelocity)) | state.RightSubvelocity,
                     StokeInstructionProgramDefinitions.AttackingRight);
                 return;
 

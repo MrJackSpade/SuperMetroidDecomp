@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
@@ -161,7 +162,7 @@ public sealed partial class RoomEnemySystem
 
     private static int ClampMochtroidVelocity(int velocity)
     {
-        short whole = unchecked((short)(velocity >> 16));
+        short whole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
         if (whole >= MochtroidMaximumVelocity)
             return MochtroidMaximumVelocity << 16;
         if (whole < -MochtroidMaximumVelocity)

@@ -969,10 +969,10 @@ internal sealed partial class EndingCreditsState
     private void StepPlanetEscapeAccelerating()
     {
         StepFlyawayFade();
-        int velocity = (planetVelocityWhole << 16) | planetVelocityFraction;
+        int velocity = (SnesSixteenSixteen.FromWhole(planetVelocityWhole)) | planetVelocityFraction;
         velocity = unchecked(
             velocity - EndingCreditsRomData.Motion.AccelerationDelta16Point16);
-        planetVelocityWhole = unchecked((short)(velocity >> 16));
+        planetVelocityWhole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
         planetVelocityFraction = unchecked((ushort)velocity);
         mode7 = mode7.WithX(AddSignedFixed(mode7.X, velocity));
         if (mode7Zoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&

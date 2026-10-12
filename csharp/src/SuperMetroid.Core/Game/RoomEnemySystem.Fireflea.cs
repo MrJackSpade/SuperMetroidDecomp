@@ -164,7 +164,7 @@ public sealed partial class RoomEnemySystem
         (short wholeSpeed, ushort fractionalSpeed) =
             ReadLinearEnemySpeed(state.SpeedTableIndex);
         uint fixedY = slot.Position.Y.RawValue;
-        int displacement = (wholeSpeed << 16) | fractionalSpeed;
+        int displacement = (SnesSixteenSixteen.FromWhole(wholeSpeed)) | fractionalSpeed;
         fixedY = unchecked(fixedY + (uint)displacement);
         slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
 

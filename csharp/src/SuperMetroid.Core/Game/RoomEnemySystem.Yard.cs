@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -420,7 +421,7 @@ public sealed partial class RoomEnemySystem
         {
             bool slopeAdjusted = AlignEnemyYWithNonSquareSlopeAndReportAdjustment(level, slot);
             HandleYardTurnTransitionDisabling(state, slopeAdjusted);
-            int tangent = state.CrawlingVelocity.Y.SignedRawValue << 8;
+            int tangent = SnesSixteenSixteen.FromEightEight(state.CrawlingVelocity.Y.SignedRawValue);
             if (MoveEnemyVertically(level, slot, tangent))
             {
                 state.CrawlingVelocity = state.CrawlingVelocity.WithX(NegateEightEight(state.CrawlingVelocity.X));
@@ -731,7 +732,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static int ComposeSignedFixed(ushort whole, ushort fraction) =>
-        unchecked((int)(((uint)whole << 16) | fraction));
+        unchecked((int)((SnesSixteenSixteen.FromWhole((uint)whole)) | fraction));
 
     private YardEnemyState RequireYardState(RoomEnemySlot slot) =>
         _yardStates[slot.SlotIndex] ?? throw new InvalidOperationException(

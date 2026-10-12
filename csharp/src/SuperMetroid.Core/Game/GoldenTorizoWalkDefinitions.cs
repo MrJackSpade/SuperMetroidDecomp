@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
@@ -14,6 +15,6 @@ public static class GoldenTorizoWalkDefinitions
     {
         if (byteOffset > 38) throw new ArgumentOutOfRangeException(nameof(byteOffset));
         ushort value = unchecked((ushort)Displacement(byteOffset >> 1));
-        return (byteOffset & 1) == 0 ? value : (ushort)((value >> 8) | (unchecked((ushort)Displacement((byteOffset >> 1) + 1)) << 8));
+        return (byteOffset & 1) == 0 ? value : SnesLittleEndian.Word(SnesLittleEndian.HighByte(value), unchecked((byte)Displacement((byteOffset >> 1) + 1)));
     }
 }

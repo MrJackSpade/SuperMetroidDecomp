@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Pinned NTSC bank-$90 vertical mechanics; presentation overrides do not alter physics.</summary>
@@ -50,5 +51,5 @@ internal static class SamusVerticalMotionDefinitions
     });
 
     private static (ushort Whole, ushort Fraction) SplitSpeed(int speed) =>
-        ((ushort)(speed >> 8), (ushort)((speed & 0xff) << 8));
+        ((ushort)SnesEightEight.WholeOf(speed), (ushort)SnesSixteenSixteen.FractionOf(SnesSixteenSixteen.FromEightEight(speed)));
 }

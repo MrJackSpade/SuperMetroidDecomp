@@ -28,6 +28,71 @@ public static class SnesUnsignedEightEight
     public static byte Whole(ushort value) => unchecked((byte)(value >> 8));
 }
 
+/// <summary>
+/// The native 16.16 layout as raw arithmetic (#223): a whole word in the upper sixteen bits and a fraction word in
+/// the lower sixteen, for routines that combine or split velocities, speeds and positions in registers. The
+/// <c>int</c> overloads keep two's-complement sign (arithmetic shifts); the <c>uint</c> overloads are unsigned.
+/// </summary>
+[SnesEncodingOwner]
+public static class SnesSixteenSixteen
+{
+    private const int FractionBits = 16;
+    private const int FractionMask = 0xffff;
+
+    /// <summary>The raw 16.16 value with whole part <paramref name="whole"/> and no fraction.</summary>
+    public static int FromWhole(int whole) => whole << FractionBits;
+
+    /// <inheritdoc cref="FromWhole(int)"/>
+    public static uint FromWhole(uint whole) => whole << FractionBits;
+
+    /// <summary>A raw 8.8 value widened to 16.16: whole units move to the whole word, 1/256ths to the fraction's high byte.</summary>
+    public static int FromEightEight(int raw) => raw << (FractionBits - 8);
+
+    /// <inheritdoc cref="FromEightEight(int)"/>
+    public static uint FromEightEight(uint raw) => raw << (FractionBits - 8);
+
+    /// <summary>The whole part of a raw 16.16 value.</summary>
+    public static int WholeOf(int raw) => raw >> FractionBits;
+
+    /// <inheritdoc cref="WholeOf(int)"/>
+    public static uint WholeOf(uint raw) => raw >> FractionBits;
+
+    /// <summary>The fraction word of a raw 16.16 value.</summary>
+    public static int FractionOf(int raw) => raw & FractionMask;
+
+    /// <inheritdoc cref="FractionOf(int)"/>
+    public static uint FractionOf(uint raw) => raw & FractionMask;
+}
+
+/// <summary>
+/// The native 8.8 layout as raw arithmetic (#223): whole units in the high byte and 1/256ths in the low byte, as
+/// 8.8 velocities, speeds and displacements keep them. The <c>int</c> overloads keep two's-complement sign.
+/// </summary>
+[SnesEncodingOwner]
+public static class SnesEightEight
+{
+    private const int FractionBits = 8;
+    private const int FractionMask = 0xff;
+
+    /// <summary>The raw 8.8 value with whole part <paramref name="whole"/> and no fraction.</summary>
+    public static int FromWhole(int whole) => whole << FractionBits;
+
+    /// <summary>The whole part of a raw 8.8 value.</summary>
+    public static int WholeOf(int raw) => raw >> FractionBits;
+
+    /// <inheritdoc cref="WholeOf(int)"/>
+    public static uint WholeOf(uint raw) => raw >> FractionBits;
+
+    /// <summary>The fraction byte of a raw 8.8 value.</summary>
+    public static int FractionOf(int raw) => raw & FractionMask;
+
+    /// <summary>
+    /// The 8.8 value of a 16.16 whole and fraction pair, truncating the fraction to its high byte: the unaligned word
+    /// a routine reads across the fraction's high byte and the whole's low byte.
+    /// </summary>
+    public static int FromSixteenSixteen(int whole, int fraction) => (whole << FractionBits) | (fraction >> FractionBits);
+}
+
 /// <summary>A signed native 16.16 displacement with explicit whole and fractional halves.</summary>
 [SnesEncodingOwner]
 public readonly record struct SnesSignedSixteenSixteen

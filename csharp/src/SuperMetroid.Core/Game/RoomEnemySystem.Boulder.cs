@@ -247,7 +247,7 @@ public sealed partial class RoomEnemySystem
     private void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = ReadQuadraticEnemySpeed(
-            unchecked((byte)(state.BounceSpeedAccumulator >> 8)),
+            unchecked((byte)(SnesEightEight.WholeOf(state.BounceSpeedAccumulator))),
             negative: false);
         if (MoveEnemyVertically(level, slot, verticalDisplacement))
         {
@@ -290,7 +290,7 @@ public sealed partial class RoomEnemySystem
     {
         int verticalDisplacement = unchecked(
             ReadQuadraticEnemySpeed(
-                unchecked((byte)(state.TravelSpeedAccumulator >> 8)),
+                unchecked((byte)(SnesEightEight.WholeOf(state.TravelSpeedAccumulator))),
                 negative: false) +
             (state.VerticalCompensation << 16));
         MoveEnemyVertically(level, slot, verticalDisplacement);
@@ -337,7 +337,7 @@ public sealed partial class RoomEnemySystem
 
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         ReadQuadraticEnemySpeed(
-            unchecked((byte)(state.TravelSpeedAccumulator >> 8)),
+            unchecked((byte)(SnesEightEight.WholeOf(state.TravelSpeedAccumulator))),
             negative: state.DirectionSelector != 0);
 
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, ushort accumulator, bool negative)

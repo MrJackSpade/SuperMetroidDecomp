@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -302,8 +303,8 @@ public sealed class ScrollBoundaryCamera
         if (Position.X.Whole > roomMaximum)
             SetWholeX(roomMaximum);
 
-        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
-        int currentCell = row + (Position.X.Whole >> 8);
+        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + 0x0080))) * Scrolls.Size.X;
+        int currentCell = row + (SnesEightEight.WholeOf(Position.X.Whole));
 
         if (Scrolls.ReadNativeState(currentCell) == RoomScrollState.RedBoundary)
         {
@@ -355,8 +356,8 @@ public sealed class ScrollBoundaryCamera
         if (timeIsFrozen)
             return;
 
-        int centeredXScreen = (ushort)(Position.X.Whole + 0x0080) >> 8;
-        int preClampCell = (Position.Y.Whole >> 8) * Scrolls.Size.X + centeredXScreen;
+        int centeredXScreen = SnesEightEight.WholeOf((ushort)(Position.X.Whole + 0x0080));
+        int preClampCell = (SnesEightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
 
         // Blue scroll cells align the 224-line gameplay viewport to the top of the screen;
         // red and green cells permit the ROM's $1F-pixel lower alignment. Crucially, the
@@ -373,7 +374,7 @@ public sealed class ScrollBoundaryCamera
         if (Position.Y.Whole > roomMaximum)
             SetWholeY(roomMaximum);
 
-        int currentCell = (Position.Y.Whole >> 8) * Scrolls.Size.X + centeredXScreen;
+        int currentCell = (SnesEightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
         if (Scrolls.ReadNativeState(currentCell) == RoomScrollState.RedBoundary)
         {
             // A red current cell pushes downward toward its bottom boundary. As in the X
@@ -440,8 +441,8 @@ public sealed class ScrollBoundaryCamera
 
         // The horizontal routines sample the row containing the screen's vertical center
         // (Y+$80), then the screen immediately to the right of the camera's high X byte.
-        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
-        int rightCell = row + (Position.X.Whole >> 8) + 1;
+        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + 0x0080))) * Scrolls.Size.X;
+        int rightCell = row + (SnesEightEight.WholeOf(Position.X.Whole)) + 1;
         if (Scrolls.ReadNativeState(rightCell) != RoomScrollState.RedBoundary)
             return;
 
@@ -467,8 +468,8 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
-        int currentCell = row + (Position.X.Whole >> 8);
+        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + 0x0080))) * Scrolls.Size.X;
+        int currentCell = row + (SnesEightEight.WholeOf(Position.X.Whole));
         if (Scrolls.ReadNativeState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
@@ -550,8 +551,8 @@ public sealed class ScrollBoundaryCamera
 
     private int VerticalCellIndex()
     {
-        int xScreenAtCenter = (ushort)(Position.X.Whole + 0x0080) >> 8;
-        int yScreen = Position.Y.Whole >> 8;
+        int xScreenAtCenter = SnesEightEight.WholeOf((ushort)(Position.X.Whole + 0x0080));
+        int yScreen = SnesEightEight.WholeOf(Position.Y.Whole);
         return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
 

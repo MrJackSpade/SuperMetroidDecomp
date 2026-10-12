@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -512,7 +513,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static int ComposePowampVerticalDisplacement(PowampEnemyState state) =>
-        unchecked((unchecked((short)state.YVelocity) << 16) | state.YSubvelocity);
+        unchecked((SnesSixteenSixteen.FromWhole((short)state.YVelocity)) | state.YSubvelocity);
 
     private static bool IsPowampCentered(ushort wiggleIndex) => wiggleIndex is 0 or 6;
 

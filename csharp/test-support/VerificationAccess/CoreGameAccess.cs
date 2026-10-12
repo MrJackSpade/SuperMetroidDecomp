@@ -1607,7 +1607,7 @@ internal static class RoomFxRecordDefinitionAccess
             4 => (byte)self.TargetYPosition,
             5 => SnesLittleEndian.HighByte(self.TargetYPosition),
             6 => (byte)self.PackedYVelocity,
-            7 => (byte)(self.PackedYVelocity >> 8),
+            7 => (byte)(SnesEightEight.WholeOf(self.PackedYVelocity)),
             8 => self.Timer,
             9 => self.Type,
             10 => self.DefaultLayerBlend,

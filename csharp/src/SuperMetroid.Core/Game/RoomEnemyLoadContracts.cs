@@ -29,12 +29,16 @@ public interface IGlobalEventFlags
     void Clear(EventNumber eventNumber);
 }
 
-/// <summary>The current area's boss, mini-boss and Torizo defeat bits.</summary>
-public interface IAreaBossFlags
+/// <summary>Reads the current area's boss, mini-boss and Torizo defeat bits (#633).</summary>
+public interface IAreaBossFlagReader
 {
     /// <summary>Whether any of <paramref name="bits"/> is set for the current area.</summary>
     bool IsDefeated(BossBits bits);
+}
 
+/// <summary>The current area's boss, mini-boss and Torizo defeat bits.</summary>
+public interface IAreaBossFlags : IAreaBossFlagReader
+{
     /// <summary>Sets <paramref name="bits"/> for the current area.</summary>
     void SetDefeated(BossBits bits);
 }

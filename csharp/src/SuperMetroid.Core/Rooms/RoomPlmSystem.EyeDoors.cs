@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Rooms;
 public sealed partial class RoomPlmSystem
 {
     private Bank80SystemState? _eyeDoorSystem;
-    private Func<SamusState?>? _eyeDoorSamus;
-    private Action<EyeDoorProjectileRequest>? _spawnEyeDoorProjectile;
+    private IRoomSamusAccess? _eyeDoorSamus;
+    private IRoomPlmEnemyEffects? _eyeDoorEnemies;
 
     private static bool IsEyeDoorHeader(PlmHeaderId header) => header is
         PlmHeaderId.EyeDoorEyeFacingRight or
@@ -164,7 +164,7 @@ public sealed partial class RoomPlmSystem
 
             case RoomPlmInstruction.GotoIfSamusNear:
             {
-                SamusState? samus = _eyeDoorSamus?.Invoke();
+                SamusState? samus = _eyeDoorSamus?.Current;
                 if (samus is null)
                     throw new InvalidOperationException("Eye-door proximity bytecode requires Samus.");
                 int plmX = slot.BlockIndex % level.Size.X;
@@ -281,9 +281,9 @@ public sealed partial class RoomPlmSystem
         EyeDoorProjectileDefinition definitionPointer,
         ushort parameter)
     {
-        Action<EyeDoorProjectileRequest> spawn = _spawnEyeDoorProjectile ??
+        IRoomPlmEnemyEffects enemies = _eyeDoorEnemies ??
             throw new InvalidOperationException("Eye-door bytecode has no bank-$86 spawn owner.");
-        spawn(new EyeDoorProjectileRequest(
+        enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
             definitionPointer,
             parameter,
             slot.BlockIndex,
@@ -314,7 +314,7 @@ public sealed partial class RoomPlmSystem
     {
         _eyeDoorSystem = null;
         _eyeDoorSamus = null;
-        _spawnEyeDoorProjectile = null;
+        _eyeDoorEnemies = null;
     }
 
     private sealed class EyeDoorPlmState(EyeDoorComponent component)

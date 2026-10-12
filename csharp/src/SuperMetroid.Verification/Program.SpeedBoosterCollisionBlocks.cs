@@ -158,16 +158,7 @@ internal static partial class Program
             behaviors,
             blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        int parsed = plms.LoadRoomPopulation(
-            bus,
-            level,
-            level.CreateBackgroundStreamer(),
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(bus, emptyPopulation),
-            new Bank80SystemState(),
-            area,
-            getSamus: () => null,
-            isAreaTorizoDefeated: () => false);
+        int parsed = plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), area), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, parsed, "speed-block fixture begins with an empty room PLM population");
         return (bus, level, plms, blockIndex);
     }

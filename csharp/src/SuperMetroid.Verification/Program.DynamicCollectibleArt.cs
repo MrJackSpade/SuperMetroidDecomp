@@ -126,9 +126,7 @@ internal static partial class Program
             new ushort[width * 64], new byte[0x400 * 8]);
         var vram = new SnesVram();
         var plms = new RoomPlmSystem { DynamicCollectibleArt = art };
-        plms.LoadRoomPopulation(bus, level, level.CreateBackgroundStreamer(),
-            vram, RoomPlmPopulationDefinition.FromCompiled(0x83fe), new Bank80SystemState(), AreaId.Crateria,
-            () => new SamusState(), () => false);
+        plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         CollectiblePlmSnapshot item = plms.Collectibles.Single();
         byte[] tiles = vram.Bytes.Slice(0x3e00 * 2, 0x100).ToArray();
         ushort firstWord = BinaryPrimitives.ReadUInt16LittleEndian(

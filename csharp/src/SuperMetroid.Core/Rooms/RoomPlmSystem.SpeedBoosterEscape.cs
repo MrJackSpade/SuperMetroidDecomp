@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Rooms;
 public sealed partial class RoomPlmSystem
 {
     private RoomLayer3FxState? _speedBoosterEscapeFx;
-    private Action<ushort>? _writeEarthquakeTimer;
+    private IRoomEarthquakeWriter? _roomEarthquake;
 
     private void ResetSpeedBoosterEscapeState()
     {
         _speedBoosterEscapeFx = null;
-        _writeEarthquakeTimer = null;
+        _roomEarthquake = null;
     }
 
     /// <summary>
@@ -22,14 +22,13 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     private void SetupSpeedBoosterEscapeSlot(PlmSlot slot)
     {
-        if (_hasEvent is null || _setEvent is null || _speedBoosterEscapeFx is null ||
-            _writeEarthquakeTimer is null)
+        if (_events is null || _speedBoosterEscapeFx is null || _roomEarthquake is null)
         {
             throw new InvalidOperationException(
                 "Speed Booster escape PLM requires event, room-FX, and earthquake owners.");
         }
 
-        if (_hasEvent(EventNumber.OutranSpeedBoosterLavaquake))
+        if (_events.Has(EventNumber.OutranSpeedBoosterLavaquake))
             ClearSlot(slot);
     }
 
@@ -42,7 +41,7 @@ public sealed partial class RoomPlmSystem
         RoomLayer3FxState fx = _speedBoosterEscapeFx
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM lost its room-FX owner.");
-        SamusState samus = _collectibleSamus?.Invoke()
+        SamusState samus = _collectibleSamus?.Current
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM has no live Samus owner.");
 
@@ -86,8 +85,8 @@ public sealed partial class RoomPlmSystem
                 targetYPosition: ushort.MaxValue,
                 packedYVelocity: 0,
                 timer: 0);
-            (_writeEarthquakeTimer ?? throw new InvalidOperationException(
-                "Speed Booster escape PLM lost its earthquake owner."))(0);
+            (_roomEarthquake ?? throw new InvalidOperationException(
+                "Speed Booster escape PLM lost its earthquake owner.")).SetTimer(0);
             ClearSlot(slot);
             return;
         }
@@ -113,8 +112,8 @@ public sealed partial class RoomPlmSystem
             SpeedBoosterEscapeStageDefinitions.Resolve(slot.LoopTimer);
         if (stage is null)
         {
-            (_setEvent ?? throw new InvalidOperationException(
-                "Speed Booster escape PLM lost its event writer."))(
+            (_events ?? throw new InvalidOperationException(
+                "Speed Booster escape PLM lost its event writer.")).Set(
                     EventNumber.OutranSpeedBoosterLavaquake);
             return;
         }

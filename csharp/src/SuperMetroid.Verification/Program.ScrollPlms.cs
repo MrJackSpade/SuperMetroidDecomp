@@ -27,16 +27,7 @@ internal static partial class Program
             new ushort[width * height],
             new byte[8]);
         var plms = new RoomPlmSystem();
-        AssertEqual(5, plms.LoadRoomPopulation(
-                bus,
-                level,
-                level.CreateBackgroundStreamer(),
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(bus, population),
-                new Bank80SystemState(),
-                0,
-                () => new SamusState(),
-                () => false),
+        AssertEqual(5, plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "single loader parses the trigger and four synchronous extensions");
         AssertEqual(1, plms.ScrollPlms.Count,
             "extension setup consumes no persistent PLM slot");

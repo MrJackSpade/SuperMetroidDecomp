@@ -76,7 +76,7 @@ public sealed partial class RoomPlmSystem
             return new SaveStationConfirmationResult(false, []);
         }
 
-        SamusState samus = _collectibleSamus?.Invoke()
+        SamusState samus = _collectibleSamus?.Current
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)((samus.Position.X.Whole + 8) & 0xfff0)));
         samus.ApplyForwardFacingPoseSetup(bus);
@@ -105,7 +105,7 @@ public sealed partial class RoomPlmSystem
                 $"message $18 while in {station.SavePhase}.");
         }
 
-        SamusState samus = _collectibleSamus?.Invoke()
+        SamusState samus = _collectibleSamus?.Current
             ?? throw new InvalidOperationException("Completed save station has no live Samus owner.");
         samus.InputLocked = false;
         station.SavePhase = SaveStationPhase.Idle;
@@ -352,7 +352,7 @@ public sealed partial class RoomPlmSystem
                 // animation running to release her. Collision itself remains solid.
                 if (slot.Station.Kind is StationKind.Energy or StationKind.Missile)
                 {
-                    SamusState samus = _collectibleSamus?.Invoke()
+                    SamusState samus = _collectibleSamus?.Current
                         ?? throw new InvalidOperationException("Recharge setup has no live Samus owner.");
                     if (slot.Station.Kind == StationKind.Energy
                         ? samus.Health == samus.MaxHealth
@@ -373,7 +373,7 @@ public sealed partial class RoomPlmSystem
                 // resident list and does not execute command six at this setup seam.
                 if (slot.Station.Kind != StationKind.Save)
                 {
-                    SamusState samus = _collectibleSamus?.Invoke()
+                    SamusState samus = _collectibleSamus?.Current
                         ?? throw new InvalidOperationException(
                             $"{slot.Station.Kind} station setup has no live Samus owner.");
                     samus.LockIntoRefillStation();
@@ -388,7 +388,7 @@ public sealed partial class RoomPlmSystem
     private bool IsSaveStationTriggerCentered(int blockIndex, int roomWidthInBlocks)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        SamusState samus = _collectibleSamus?.Invoke()
+        SamusState samus = _collectibleSamus?.Current
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
         ushort probeX = unchecked((ushort)(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset));
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
@@ -406,7 +406,7 @@ public sealed partial class RoomPlmSystem
         if (station is null)
             return false;
 
-        SamusState samus = _collectibleSamus?.Invoke()
+        SamusState samus = _collectibleSamus?.Current
             ?? throw new InvalidOperationException(
                 $"{station.Kind} station has no live Samus owner.");
 

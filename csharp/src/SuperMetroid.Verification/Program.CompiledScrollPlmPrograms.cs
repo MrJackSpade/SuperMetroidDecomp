@@ -24,10 +24,7 @@ internal static partial class Program
             new ushort[width * 64], new byte[width * 64],
             new ushort[width * 64], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.LoadRoomPopulation(guarded, level,
-                level.CreateBackgroundStreamer(), new SnesVram(), RoomPlmPopulationDefinition.FromCompiled(0x8230),
-                new Bank80SystemState(), AreaId.Crateria,
-                () => new SamusState(), () => false),
+        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x8230), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "retail scroll-only population loads from compiled placement");
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(guarded,
             size: new Extent16<RoomScreens>(4, 4),

@@ -16,9 +16,7 @@ internal static partial class Program
         var system = new Bank80SystemState();
         // The real escape room population installs event ownership; its grey door may
         // continue stepping alongside the rescue animation, as it does in gameplay.
-        plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(bus, 0x8412),
-            system, AreaId.Crateria, () => null, () => true,
-            hasEvent: system.HasEvent, setEvent: system.SetEvent);
+        plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         int origin = level.GetBlockIndex(new(15, 10));
         plms.SetupCrittersEscapeBlock(level, origin);
         AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Behavior, "rescue origin is shootable BTS 4F");

@@ -42,9 +42,7 @@ internal static partial class Program
                 new byte[32 * 16], blockDefinitions: definitions);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem { ElevatorPlatformVisuals = visuals };
-            AssertEqual(1, plms.LoadRoomPopulation(bus, level, streamer,
-                new SnesVram(), RoomPlmPopulationImporter.Read(bus, population), new Bank80SystemState(), AreaId.Crateria,
-                getSamus: () => null, isAreaTorizoDefeated: () => false),
+            AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 "elevator visual fixture loads one real PLM");
             plms.Step(bus, level, streamer, new(0, 0), 0);
             int index = Enumerable.Range(0, 32 * 16).Single(block =>

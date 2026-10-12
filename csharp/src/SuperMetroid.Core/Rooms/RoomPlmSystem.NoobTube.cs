@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 public sealed partial class RoomPlmSystem
 {
-    private Action<ushort>? _writeNoobTubeEarthquakeType;
-    private Action<NoobTubeProjectileRequest>? _spawnNoobTubeProjectile;
+    private IRoomEarthquakeWriter? _noobTubeEarthquake;
+    private IRoomPlmEnemyEffects? _noobTubeEnemies;
     private RoomLayer3FxState? _noobTubeRoomFx;
 
     private void ResetNoobTubeState()
     {
-        _writeNoobTubeEarthquakeType = null;
-        _spawnNoobTubeProjectile = null;
+        _noobTubeEarthquake = null;
+        _noobTubeEnemies = null;
         _noobTubeRoomFx = null;
     }
 
@@ -110,7 +110,7 @@ public sealed partial class RoomPlmSystem
                         $"N00b tube referenced event ${eventNumber:X4}, not event $000B.");
                 }
                 ushort target = ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
-                slot.InstructionPointer = RequireNoobTubeEventReader()(NoobTubePlmRomData.BrokenEvent)
+                slot.InstructionPointer = RequireNoobTubeEvents().Has(NoobTubePlmRomData.BrokenEvent)
                     ? target
                     : unchecked((ushort)(cursor + 6));
                 return true;
@@ -149,10 +149,10 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstruction.TriggerNoobTubeEarthquake:
-                (_writeNoobTubeEarthquakeType ?? throw new InvalidOperationException(
-                    "N00b tube has no earthquake-type writer."))(NoobTubePlmRomData.EarthquakeType);
-                (_writeEarthquakeTimer ?? throw new InvalidOperationException(
-                    "N00b tube has no earthquake-timer writer."))(NoobTubePlmRomData.EarthquakeTimer);
+                (_noobTubeEarthquake ?? throw new InvalidOperationException(
+                    "N00b tube has no earthquake-type writer.")).SetType(NoobTubePlmRomData.EarthquakeType);
+                (_roomEarthquake ?? throw new InvalidOperationException(
+                    "N00b tube has no earthquake-timer writer.")).SetTimer(NoobTubePlmRomData.EarthquakeTimer);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -163,8 +163,8 @@ public sealed partial class RoomPlmSystem
                     throw new InvalidDataException(
                         $"N00b tube attempted to set event ${setEvent:X4}, not event $000B.");
                 }
-                (_setEvent ?? throw new InvalidOperationException(
-                    "N00b tube has no event writer."))(NoobTubePlmRomData.BrokenEvent);
+                (_events ?? throw new InvalidOperationException(
+                    "N00b tube has no event writer.")).Set(NoobTubePlmRomData.BrokenEvent);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
@@ -183,16 +183,16 @@ public sealed partial class RoomPlmSystem
         }
     }
 
-    private Func<EventNumber, bool> RequireNoobTubeEventReader() =>
-        _hasEvent ?? throw new InvalidOperationException("N00b tube has no event reader.");
+    private IGlobalEventFlags RequireNoobTubeEvents() =>
+        _events ?? throw new InvalidOperationException("N00b tube has no event reader.");
 
     private SamusState RequireNoobTubeSamus() =>
-        _collectibleSamus?.Invoke() ?? throw new InvalidOperationException(
+        _collectibleSamus?.Current ?? throw new InvalidOperationException(
             "N00b tube has no active Samus actor.");
 
     private void SpawnNoobTubeProjectile(PlmSlot slot, NoobTubeProjectileDefinition definition, ushort parameter) =>
-        (_spawnNoobTubeProjectile ?? throw new InvalidOperationException(
-            "N00b tube has no enemy-projectile spawner."))(
+        (_noobTubeEnemies ?? throw new InvalidOperationException(
+            "N00b tube has no enemy-projectile spawner.")).SpawnNoobTubeProjectile(
             new NoobTubeProjectileRequest(definition, parameter, slot.BlockIndex));
 
 }

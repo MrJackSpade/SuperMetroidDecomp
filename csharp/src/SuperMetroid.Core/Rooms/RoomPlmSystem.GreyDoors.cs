@@ -9,7 +9,7 @@ public sealed partial class RoomPlmSystem
 {
     private Bank80SystemState? _greyDoorSystem;
     private AreaId _greyDoorArea;
-    private Func<bool>? _isTourianStatueFinished;
+    private ITourianStatueProgress? _tourianStatue;
 
     private bool TryStepGreyDoor(
         ISnesAddressSpace bus,
@@ -160,7 +160,7 @@ public sealed partial class RoomPlmSystem
             GreyDoorCondition.EnemyDeathQuota => enemyDeaths >= enemyDeathQuota,
             GreyDoorCondition.Never => false,
             GreyDoorCondition.TourianStatueFinished =>
-                _isTourianStatueFinished?.Invoke() == true,
+                _tourianStatue?.IsFinished == true,
             GreyDoorCondition.CrittersEscaped =>
                 system.HasEvent(EventNumber.CrittersEscaped),
             _ => throw new InvalidDataException(

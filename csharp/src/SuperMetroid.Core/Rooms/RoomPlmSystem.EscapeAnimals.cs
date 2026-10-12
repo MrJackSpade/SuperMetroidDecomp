@@ -25,11 +25,11 @@ public sealed partial class RoomPlmSystem
     public bool TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
     {
         ArgumentNullException.ThrowIfNull(level);
-        Func<EventNumber, bool> hasEvent = _hasEvent ?? throw new InvalidOperationException(
+        IGlobalEventFlags events = _events ?? throw new InvalidOperationException(
             "Crateria mainstreet escape passage requires the room event owner.");
         if (_slots.All(slot => slot.Active))
             return false;
-        if (!hasEvent(EventNumber.CrittersEscaped))
+        if (!events.Has(EventNumber.CrittersEscaped))
             return false;
         for (int index = _slots.Length - 1; index >= 0; index--)
         {

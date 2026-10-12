@@ -42,27 +42,12 @@ internal static partial class Program
         bool brokenEvent = false;
         var plms = new RoomPlmSystem();
 
-        int parsed = plms.LoadRoomPopulation(
-            guarded,
-            level,
-            streamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(guarded, populationPointer),
-            new Bank80SystemState(),
-            AreaId.Maridia,
-            getSamus: () => samus,
-            isAreaTorizoDefeated: () => false,
-            hasEvent: eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent && brokenEvent,
-            setEvent: eventNumber =>
+        int parsed = plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent && brokenEvent, SetEvent = eventNumber =>
             {
                 AssertEqual(NoobTubePlmRomData.BrokenEvent, eventNumber,
                     "n00b tube writes its cartridge event");
                 brokenEvent = true;
-            },
-            roomFx: roomFx,
-            setEarthquakeTimer: earthquakes.Add,
-            setEarthquakeType: earthquakes.Add,
-            spawnNoobTubeProjectile: projectiles.Add);
+            } }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = earthquakes.Add, WriteType = earthquakes.Add }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
         AssertEqual(1, parsed, "n00b-tube population record loads");
         AssertEqual(NoobTubePlmRomData.SolidProjectileTriggerLevelWord,
@@ -320,25 +305,10 @@ internal static partial class Program
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var plms = new RoomPlmSystem();
-        plms.LoadRoomPopulation(
-            guarded,
-            level,
-            streamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(guarded, populationPointer),
-            new Bank80SystemState(),
-            AreaId.Maridia,
-            getSamus: () => samus,
-            isAreaTorizoDefeated: () => false,
-            hasEvent: eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent,
-            setEvent: _ => throw new InvalidOperationException(
-                "Already-broken n00b tube must not set its event again."),
-            roomFx: roomFx,
-            setEarthquakeTimer: _ => throw new InvalidOperationException(
-                "Already-broken n00b tube must not start an earthquake."),
-            setEarthquakeType: _ => throw new InvalidOperationException(
-                "Already-broken n00b tube must not start an earthquake."),
-            spawnNoobTubeProjectile: projectiles.Add);
+        plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
+                "Already-broken n00b tube must not set its event again.") }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => throw new InvalidOperationException(
+                "Already-broken n00b tube must not start an earthquake."), WriteType = _ => throw new InvalidOperationException(
+                "Already-broken n00b tube must not start an earthquake.") }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
         StepNoobTube(plms, guarded, level, streamer);
         AssertEqual(0, plms.ActiveCount, "event-$0B n00b tube deletes on its first step");

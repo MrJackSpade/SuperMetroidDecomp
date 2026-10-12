@@ -8,7 +8,6 @@ internal static partial class Program
 {
     private static void VerifyDebuggerVersionCompatibility()
     {
-        Suite(nameof(VerifyRoomCallbackStateIdentity), () => VerifyRoomCallbackStateIdentity());
         Suite(nameof(VerifyLegacyShinesparkGraph), () => VerifyLegacyShinesparkGraph());
         Suite(nameof(VerifyDebuggerSpatialFieldMerges), () => VerifyDebuggerSpatialFieldMerges());
         Suite(nameof(VerifyFieldIdentityRestorationIgnoresMetadataOrder), () => VerifyFieldIdentityRestorationIgnoresMetadataOrder());

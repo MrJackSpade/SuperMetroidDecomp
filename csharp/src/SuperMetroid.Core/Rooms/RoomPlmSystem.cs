@@ -211,9 +211,8 @@ public sealed partial class RoomPlmSystem
         _greyDoorSystem = null;
         _greyDoorArea = AreaId.Crateria;
         _activeAreaIndex = AreaId.Crateria;
-        _isTourianStatueFinished = null;
-        _hasEvent = null;
-        _setEvent = null;
+        _tourianStatue = null;
+        _events = null;
         ResetSpeedBoosterEscapeState();
         ResetMotherBrainGlassState();
         ResetCollectibleState();
@@ -1213,7 +1212,7 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
                 case RoomPlmInstruction.SetAnimalsEscapedEvent:
-                    (_setEvent ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))(EventNumber.CrittersEscaped);
+                    (_events ?? throw new InvalidOperationException("Animal rescue requires the room event owner.")).Set(EventNumber.CrittersEscaped);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
                 case RoomPlmInstruction.InstallPreInstruction:
@@ -1499,25 +1498,25 @@ public sealed partial class RoomPlmSystem
         if (RoomPlmBombedRevealDrawDefinitions.TryGet(drawPointer, out var bombedReveal))
         {
             DrawCompiledBlockInstruction(level, streamer, bombedReveal, origin,
-                layer1Position, bg1XOffset, useShotBlockVisuals: false);
+                layer1Position, bg1XOffset);
             return;
         }
         if (CrateriaMainstreetEscapePassagePlmDefinitions.TryGetDraw(drawPointer, out var clearedPassage))
         {
             DrawCompiledBlockInstruction(level, streamer, clearedPassage, origin,
-                layer1Position, bg1XOffset, useShotBlockVisuals: false);
+                layer1Position, bg1XOffset);
             return;
         }
         if (OldTourianEscapeShaftWallPlmDefinitions.TryGetDraw(drawPointer, out var openWall))
         {
             DrawCompiledBlockInstruction(level, streamer, openWall, origin,
-                layer1Position, bg1XOffset, useShotBlockVisuals: false);
+                layer1Position, bg1XOffset);
             return;
         }
         if (EscapeAnimalPlmDrawDefinitions.TryGet(drawPointer, out var animalWall))
         {
             DrawCompiledBlockInstruction(level, streamer, animalWall, origin,
-                layer1Position, bg1XOffset, useShotBlockVisuals: false);
+                layer1Position, bg1XOffset);
             return;
         }
         if (RoomPlmShotBlockDrawDefinitions.TryGet(drawPointer, out var compiled))
@@ -1924,29 +1923,7 @@ public sealed partial class RoomPlmSystem
         RoomPlmShotBlockDrawDefinitions.DrawList definition,
         Position16<RoomBlocks> origin,
         Position16<RoomPixels> layer1Position,
-        ushort bg1XOffset,
-        bool useShotBlockVisuals,
-        RoomPlmStationVisualCatalog? customVisuals = null,
-        RoomPlmDownwardGateVisualCatalog? gateVisuals = null,
-        RoomPlmElevatorPlatformVisualCatalog? elevatorPlatformVisuals = null,
-        RoomPlmBlueDoorVisualCatalog? blueDoorVisuals = null,
-        RoomPlmColoredDoorVisualCatalog? coloredDoorVisuals = null,
-        RoomPlmGreyDoorVisualCatalog? greyDoorVisuals = null,
-        RoomPlmEyeDoorVisualCatalog? eyeDoorVisuals = null,
-        RoomPlmMotherBrainGlassVisualCatalog? motherBrainGlassVisuals = null,
-        RoomPlmNoobTubeVisualCatalog? noobTubeVisuals = null,
-        RoomPlmEscapeGateVisualCatalog? escapeGateVisuals = null,
-        RoomPlmBombTorizoHandVisualCatalog? bombTorizoHandVisuals = null,
-        RoomPlmDraygonCannonVisualCatalog? draygonCannonVisuals = null,
-        RoomPlmChozoStatueVisualCatalog? chozoStatueVisuals = null,
-        RoomPlmLinkedRestoreVisualCatalog? linkedRestoreVisuals = null,
-        RoomPlmTourianAccessVisualCatalog? tourianAccessVisuals = null,
-        RoomPlmSpeedBoosterVisualCatalog? speedBoosterVisuals = null,
-        RoomPlmMaridiaElevatubeVisualCatalog? maridiaElevatubeVisuals = null,
-        RoomPlmSporeSpawnCeilingVisualCatalog? sporeSpawnCeilingVisuals = null,
-        RoomPlmSamusEaterVisualCatalog? samusEaterVisuals = null,
-        RoomPlmCrocomireVisualCatalog? crocomireVisuals = null,
-        RoomPlmMotherBrainFakeDeathVisualCatalog? motherBrainFakeDeathVisuals = null)
+        ushort bg1XOffset)
     {
         Position16<RoomBlocks> entry = origin;
         ReadOnlySpan<RoomPlmShotBlockDrawDefinitions.Run> runs = definition.Runs.Span;
@@ -1962,30 +1939,7 @@ public sealed partial class RoomPlmSystem
             {
                 Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : offset)), checked((short)(vertical ? offset : 0)));
                 ushort physicalWord = run.LevelWords.Span[offset];
-                ushort visualWord = (useShotBlockVisuals ? ShotBlockVisuals : null)
-                    ?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? customVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? gateVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? elevatorPlatformVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? blueDoorVisuals?.GetWord(definition.Pointer, offset)
-                    ?? coloredDoorVisuals?.GetWord(definition.Pointer, offset)
-                    ?? greyDoorVisuals?.GetWord(definition.Pointer, offset)
-                    ?? eyeDoorVisuals?.GetWord(definition.Pointer, offset)
-                    ?? motherBrainGlassVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? noobTubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? escapeGateVisuals?.GetWord(definition.Pointer, offset)
-                    ?? bombTorizoHandVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? draygonCannonVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? chozoStatueVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? linkedRestoreVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? tourianAccessVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? speedBoosterVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? maridiaElevatubeVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? sporeSpawnCeilingVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? samusEaterVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? crocomireVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? motherBrainFakeDeathVisuals?.GetWord(definition.Pointer, runIndex, offset)
-                    ?? new RoomLevelWord(physicalWord).VisualWord;
+                ushort visualWord = new RoomLevelWord(physicalWord).VisualWord;
                 DrawPlmWordAt(level, streamer, definition.Pointer, block,
                     physicalWord, layer1Position, bg1XOffset, visualWord);
             }

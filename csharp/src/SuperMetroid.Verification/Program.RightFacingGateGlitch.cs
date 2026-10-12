@@ -82,16 +82,7 @@ internal static partial class Program
             };
             var plms = new RoomPlmSystem();
             var streamer = level.CreateBackgroundStreamer(0);
-            plms.LoadRoomPopulation(
-                bus,
-                level,
-                streamer,
-                populationVram,
-                RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer),
-                new Bank80SystemState(),
-                runtime.ActiveRoom.AreaIndex,
-                () => samus,
-                () => false);
+            plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, populationVram, new Bank80SystemState(), runtime.ActiveRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.ActiveRoom!.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             for (int warm = 0; warm < 2; warm++)
                 plms.Step(bus, level, streamer, new((ushort)cameraX, (ushort)cameraY), 0);
             plms.TakeDownwardGateProjectileRequests();

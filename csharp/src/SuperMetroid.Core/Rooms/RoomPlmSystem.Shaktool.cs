@@ -30,7 +30,7 @@ public sealed partial class RoomPlmSystem
         ushort powerBombExplosionStatus)
     {
         if (slot.PreInstruction != ShaktoolRoomPlmRomData.PreInstruction) return;
-        if (scrolls is null || _collectibleSamus?.Invoke() is not { } samus || _setEvent is null)
+        if (scrolls is null || _collectibleSamus?.Current is not { } samus || _events is null)
             throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
         // The cartridge tests the entire status word, not just its active high bit.
         // This also admits the pending/time-frozen status value.
@@ -38,7 +38,7 @@ public sealed partial class RoomPlmSystem
             for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
                 scrolls.SetStorage(cell, RoomScrollState.Blue);
         if (samus.Position.X.Whole <= ShaktoolRoomPlmRomData.ClearedPathXBoundary) return;
-        _setEvent(EventNumber.ShaktoolClearedPath);
+        _events.Set(EventNumber.ShaktoolClearedPath);
         // B8D2 clears only the ID; inactive instruction/timer words remain in RAM.
         slot.HeaderPointer = 0;
         slot.Active = false;

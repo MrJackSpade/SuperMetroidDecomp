@@ -24,7 +24,7 @@ public sealed partial class RoomPlmSystem
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
     private readonly List<PlmMusicRequest> _musicRequests = [];
-    private Func<SamusState?>? _bombTorizoSamus;
+    private IRoomSamusAccess? _bombTorizoSamus;
 
     /// <summary>Raw seven-byte VRAM queue entries emitted during the latest PLM pass.</summary>
     public IReadOnlyList<PlmVramWriteRequest> VramWriteRequests => _vramWriteRequests;
@@ -48,9 +48,9 @@ public sealed partial class RoomPlmSystem
     private void SetupBombTorizoHandSlot(
         RoomLevelData level,
         PlmSlot slot,
-        Func<bool> isAreaTorizoDefeated)
+        IAreaBossFlagReader bosses)
     {
-        if (isAreaTorizoDefeated())
+        if (bosses.IsDefeated(BossBits.AreaTorizo))
         {
             // Setup deletes synchronously, so the next population record may reuse this ID.
             ClearSlot(slot);
@@ -88,7 +88,7 @@ public sealed partial class RoomPlmSystem
                 $"Bomb Torizo hand has invalid pre-instruction $84:{slot.PreInstruction:X4}.");
         }
 
-        SamusState samus = _bombTorizoSamus?.Invoke()
+        SamusState samus = _bombTorizoSamus?.Current
             ?? throw new InvalidOperationException(
                 "A live Bomb Torizo hand PLM has no active Samus inventory owner.");
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))

@@ -48,9 +48,7 @@ internal static partial class Program
                 new ushort[width * width], definitions);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             var plms = new RoomPlmSystem { StationVisuals = visuals };
-            plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(bus, population),
-                new Bank80SystemState(), AreaId.Crateria,
-                () => new SamusState(), () => false);
+            plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertTrue(plms.TilemapUpdates.Count > 0,
                 "station frame publishes an immediate PLM redraw");

@@ -17,63 +17,39 @@ public sealed partial class RoomPlmSystem
     /// the next record can consequently reuse that same highest native slot. Retail
     /// loads require decoded records; no population or header can be read from a bus.
     /// </summary>
-    public int LoadRoomPopulation(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        SnesVram vram,
-        RoomPlmPopulationDefinition population,
-        Bank80SystemState system,
-        AreaId areaIndex,
-        Func<SamusState?> getSamus,
-        Func<bool> isAreaTorizoDefeated,
-        Func<bool>? isTourianStatueFinished = null,
-        Func<BossBits, bool>? hasAreaBossBit = null,
-        Func<EventNumber, bool>? hasEvent = null,
-        Action<EventNumber>? setEvent = null,
-        RoomLayer3FxState? roomFx = null,
-        Action<ushort>? setEarthquakeTimer = null,
-        Action<ushort>? setEarthquakeType = null,
-        Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null,
-        Action<EyeDoorProjectileRequest>? spawnEyeDoorProjectile = null,
-        Action? spawnOldTourianEscapeShaftWallExplosion = null,
-        Action<ushort>? disableDraygonCannon = null)
+    public int LoadRoomPopulation(PlmRoom room, RoomPlmPopulationDefinition population, RoomPlmServices services)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(level);
-        ArgumentNullException.ThrowIfNull(streamer);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(system);
+        ArgumentNullException.ThrowIfNull(room);
         ArgumentNullException.ThrowIfNull(population);
-        ArgumentNullException.ThrowIfNull(getSamus);
-        ArgumentNullException.ThrowIfNull(isAreaTorizoDefeated);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(services.Samus);
+        ArgumentNullException.ThrowIfNull(services.Bosses);
 
         // These are room-owned services used later by resident pre-instructions. They are
         // installed once, not once per family scan, so every actor in this population sees
         // the same cartridge/runtime state owner.
-        _coloredDoorSystem = system;
-        _greyDoorSystem = system;
-        _greyDoorArea = areaIndex;
-        _activeAreaIndex = areaIndex;
-        _isTourianStatueFinished = isTourianStatueFinished;
-        _collectibleSystem = system;
-        _collectibleSamus = getSamus;
-        _bombTorizoSamus = getSamus;
-        _motherBrainHasAreaBossBit = hasAreaBossBit;
-        _hasEvent = hasEvent;
-        _setEvent = setEvent;
-        _speedBoosterEscapeFx = roomFx;
-        _noobTubeRoomFx = roomFx;
-        _writeEarthquakeTimer = setEarthquakeTimer;
-        _writeNoobTubeEarthquakeType = setEarthquakeType;
-        _spawnNoobTubeProjectile = spawnNoobTubeProjectile;
-        _downwardGateSamus = getSamus;
-        _downwardGateRoomWidth = level.Size.X;
-        _eyeDoorSystem = system;
-        _eyeDoorSamus = getSamus;
-        _spawnEyeDoorProjectile = spawnEyeDoorProjectile;
-        _spawnOldTourianEscapeShaftWallExplosion = spawnOldTourianEscapeShaftWallExplosion;
-        _disableDraygonCannon = disableDraygonCannon;
+        _coloredDoorSystem = room.System;
+        _greyDoorSystem = room.System;
+        _greyDoorArea = room.AreaIndex;
+        _activeAreaIndex = room.AreaIndex;
+        _tourianStatue = services.TourianStatue;
+        _collectibleSystem = room.System;
+        _collectibleSamus = services.Samus;
+        _bombTorizoSamus = services.Samus;
+        _motherBrainBosses = services.Bosses;
+        _events = services.Events;
+        _speedBoosterEscapeFx = services.RoomFx;
+        _noobTubeRoomFx = services.RoomFx;
+        _roomEarthquake = services.Earthquake;
+        _noobTubeEarthquake = services.Earthquake;
+        _noobTubeEnemies = services.Enemies;
+        _downwardGateSamus = services.Samus;
+        _downwardGateRoomWidth = room.Level.Size.X;
+        _eyeDoorSystem = room.System;
+        _eyeDoorSamus = services.Samus;
+        _eyeDoorEnemies = services.Enemies;
+        _oldTourianWallEnemies = services.Enemies;
+        _draygonCannonEnemies = services.Enemies;
 
         ushort populationPointer = population.Pointer;
         int spawnedRecordCount = 0;
@@ -94,7 +70,7 @@ recordIndex,
                 // dimensions. The bounded native allocation preserves that ordering for
                 // the two shipped off-room door records; setup routines that genuinely
                 // require authored terrain still validate when they consume the index.
-                blockIndex = level.GetPlmBlockIndex(record.Block);
+                blockIndex = room.Level.GetPlmBlockIndex(record.Block);
             }
             catch (ArgumentOutOfRangeException error)
             {
@@ -110,17 +86,7 @@ recordIndex,
             if (slot is null)
                 continue; // The native routine returns carry set when all forty IDs are live.
 
-            if (!TryRunRoomPopulationSetup(
-                    bus,
-                    level,
-                    streamer,
-                    vram,
-                    system,
-                    areaIndex,
-                    isAreaTorizoDefeated,
-                    record,
-                    slot,
-                    placement))
+            if (!TryRunRoomPopulationSetup(room, services.Bosses, record, slot, placement))
             {
                 // Do not leave the preallocated but untranslated actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact ROM
@@ -197,17 +163,15 @@ recordIndex,
     }
 
     private bool TryRunRoomPopulationSetup(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        BackgroundTilemapStreamer streamer,
-        SnesVram vram,
-        Bank80SystemState system,
-        AreaId areaIndex,
-        Func<bool> isAreaTorizoDefeated,
+        PlmRoom room,
+        IAreaBossFlagReader bosses,
         RoomPlmPopulationRecord record,
         PlmSlot slot,
         RoomPlmPlacement placement)
     {
+        (ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, SnesVram vram,
+            Bank80SystemState system, AreaId areaIndex) =
+            (room.Bus, room.Level, room.Streamer, room.Vram, room.System, room.AreaIndex);
         PlmHeaderId header = record.HeaderPointer;
         if (TryIdentifyColoredDoor(
                 header,
@@ -252,7 +216,7 @@ recordIndex,
 
         if (header == PlmHeaderId.BombTorizoHand)
         {
-            SetupBombTorizoHandSlot(level, slot, isAreaTorizoDefeated);
+            SetupBombTorizoHandSlot(level, slot, bosses);
             return true;
         }
 

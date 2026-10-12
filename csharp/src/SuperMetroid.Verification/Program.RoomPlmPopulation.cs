@@ -166,16 +166,7 @@ internal static partial class Program
                 blockDefinitions: new byte[0x400 * 8]);
             var system = new Bank80SystemState();
             var plms = new RoomPlmSystem();
-            AssertEqual(1, plms.LoadRoomPopulation(
-                    bus,
-                    level,
-                    level.CreateBackgroundStreamer(),
-                    new SnesVram(),
-                    decoded,
-                    system,
-                    AreaId.Crateria,
-                    () => new SamusState(),
-                    () => false),
+            AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), system, AreaId.Crateria), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident door $84:{(int)definition.Header:X4} loads through production setup");
 
             var enteringDoor = new CartridgeDoorHeader(
@@ -253,16 +244,7 @@ internal static partial class Program
             MaxMissiles = 15,
         };
         var plms = new RoomPlmSystem();
-        int parsed = plms.LoadRoomPopulation(
-            bus,
-            level,
-            streamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(bus, population),
-            system,
-            areaIndex: AreaId.Crateria,
-            getSamus: () => samus,
-            isAreaTorizoDefeated: () => false);
+        int parsed = plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(4, parsed, "single parser consumes every six-byte record once");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
@@ -364,16 +346,7 @@ internal static partial class Program
             CollectedItems = SamusEquipmentFlags.Bombs.ToNativeWord(),
         };
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.LoadRoomPopulation(
-                bus,
-                level,
-                streamer,
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(bus, population),
-                system,
-                AreaId.Crateria,
-                () => samus,
-                () => false),
+        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Bomb Torizo grey door loads through the shared room population");
 
         var enteringDoor = new CartridgeDoorHeader(
@@ -492,16 +465,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.LoadRoomPopulation(
-                bus,
-                level,
-                streamer,
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(bus, population),
-                system,
-                AreaId.Brinstar,
-                () => new SamusState(),
-                () => false),
+        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Brinstar pre-map grey door loads through the shared population path");
 
         var enteringDoor = new CartridgeDoorHeader(
@@ -583,16 +547,7 @@ internal static partial class Program
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.LoadRoomPopulation(
-                bus,
-                level,
-                level.CreateBackgroundStreamer(),
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(bus, population),
-                new Bank80SystemState(),
-                AreaId.WreckedShip,
-                () => new SamusState(),
-                () => false),
+        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.WreckedShip), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Wrecked Ship attic record is accepted by sequential loader");
         RoomPlmSlotSnapshot loaded = plms.PopulationSlots.Single();
         AssertEqual(39, loaded.NativeSlotIndex,
@@ -675,20 +630,7 @@ internal static partial class Program
             Action<ushort> writeEarthquake)
         {
             var plms = new RoomPlmSystem();
-            AssertEqual(1, plms.LoadRoomPopulation(
-                    bus,
-                    level,
-                    level.CreateBackgroundStreamer(),
-                    new SnesVram(),
-                    RoomPlmPopulationImporter.Read(bus, population),
-                    system,
-                    AreaId.Norfair,
-                    () => samus,
-                    () => false,
-                    hasEvent: system.HasEvent,
-                    setEvent: system.SetEvent,
-                    roomFx: fx,
-                    setEarthquakeTimer: writeEarthquake),
+            AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = fx, Earthquake = new FixtureRoomEarthquake { WriteTimer = writeEarthquake } }),
                 "Speed Booster escape record is accepted by sequential loader");
             return plms;
         }
@@ -833,16 +775,7 @@ internal static partial class Program
             blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem();
-        AssertEqual(2, plms.LoadRoomPopulation(
-                bus,
-                level,
-                streamer,
-                new SnesVram(),
-                decoded,
-                new Bank80SystemState(),
-                AreaId.Brinstar,
-                () => new SamusState(),
-                () => false),
+        AssertEqual(2, plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room colored door and following record both run setup");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(39, slots[0].NativeSlotIndex,
@@ -866,16 +799,7 @@ internal static partial class Program
                 new(offRoomX, offRoomY), 0x9800, new byte[] { 0x80 }),
         ]);
         AssertThrows<ArgumentOutOfRangeException>(
-            () => new RoomPlmSystem().LoadRoomPopulation(
-                bus,
-                level,
-                streamer,
-                new SnesVram(),
-                malformed,
-                new Bank80SystemState(),
-                AreaId.Brinstar,
-                () => new SamusState(),
-                () => false),
+            () => new RoomPlmSystem().LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), malformed, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room scroll owner fails when setup consumes a required logical block");
     }
 
@@ -931,16 +855,7 @@ internal static partial class Program
         BackgroundTilemapStreamer ordinaryStreamer = ordinaryLevel.CreateBackgroundStreamer();
         var ordinary = new RoomPlmSystem();
         var system = new Bank80SystemState();
-        AssertEqual(1, ordinary.LoadRoomPopulation(
-                guarded,
-                ordinaryLevel,
-                ordinaryStreamer,
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(guarded, population),
-                system,
-                AreaId.Tourian,
-                () => new SamusState(),
-                () => false),
+        AssertEqual(1, ordinary.LoadRoomPopulation(new PlmRoom(guarded, ordinaryLevel, ordinaryStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "escape gate population record is accepted by the sequential loader");
         AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).LevelWord,
             "C8CA setup clears collision class bits without deleting its resident slot");
@@ -965,16 +880,7 @@ internal static partial class Program
         escapeLevel.SetForegroundEntry(gateBlock, originalGateWord);
         BackgroundTilemapStreamer escapeStreamer = escapeLevel.CreateBackgroundStreamer();
         var escape = new RoomPlmSystem();
-        escape.LoadRoomPopulation(
-            guarded,
-            escapeLevel,
-            escapeStreamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(guarded, population),
-            system,
-            AreaId.Tourian,
-            () => new SamusState(),
-            () => false);
+        escape.LoadRoomPopulation(new PlmRoom(guarded, escapeLevel, escapeStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new CartridgeDoorHeader(
             Pointer: 0xaa8c,
             DestinationRoomPointer: 0xde4d,
@@ -1101,18 +1007,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
-        AssertEqual(5, plms.LoadRoomPopulation(
-                bus,
-                level,
-                streamer,
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(bus, population),
-                system,
-                AreaId.Tourian,
-                () => new SamusState(),
-                () => false,
-                hasEvent: system.HasEvent,
-                setEvent: system.SetEvent),
+        AssertEqual(5, plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
             "Metroids-cleared population loads all argument families");
 
         plms.Step(bus, level, streamer, new(0, 0), 0, enemyDeaths: 2, enemyDeathQuota: 3);
@@ -1154,16 +1049,7 @@ internal static partial class Program
             0x00, 0x00,
         ]);
         AssertThrows<InvalidDataException>(
-            () => new RoomPlmSystem().LoadRoomPopulation(
-                bus,
-                level,
-                streamer,
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(bus, invalidPopulation),
-                new Bank80SystemState(),
-                AreaId.Tourian,
-                () => new SamusState(),
-                () => false),
+            () => new RoomPlmSystem().LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, invalidPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "odd Metroids-cleared room argument fails loudly");
     }
 
@@ -1205,10 +1091,7 @@ internal static partial class Program
         var samus = new SamusState();
         var system = new Bank80SystemState();
         var plms = new RoomPlmSystem();
-        AssertEqual(0, plms.LoadRoomPopulation(bus, level, streamer,
-                new SnesVram(), RoomPlmPopulationImporter.Read(bus, emptyPopulation), system, AreaId.Maridia,
-                () => samus, () => false,
-                hasEvent: system.HasEvent, setEvent: system.SetEvent),
+        AssertEqual(0, plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, emptyPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
             "empty fixture reserves no PLM before Shaktool setup spawn");
         AssertTrue(plms.TrySpawnShaktoolRoomController(scrolls),
             "Shaktool room setup spawns its resident controller");
@@ -1265,16 +1148,7 @@ internal static partial class Program
         var system = new Bank80SystemState();
         var samus = new SamusState { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
         var plms = new RoomPlmSystem { StationVisuals = visuals };
-        plms.LoadRoomPopulation(
-            bus,
-            level,
-            streamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(bus, population),
-            system,
-            areaIndex: AreaId.Norfair,
-            getSamus: () => samus,
-            isAreaTorizoDefeated: () => false);
+        plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(3, plms.Stations.Count, "map, missile, and save parents share one pool");
         AssertEqual(0x47, level.GetCollisionBlock(new(7, 6)).Behavior,
@@ -1466,16 +1340,7 @@ internal static partial class Program
         NotSupportedException? error = null;
         try
         {
-            plms.LoadRoomPopulation(
-                bus,
-                level,
-                level.CreateBackgroundStreamer(),
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(bus, population),
-                new Bank80SystemState(),
-                0,
-                () => new SamusState(),
-                () => false);
+            plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         }
         catch (NotSupportedException caught)
         {

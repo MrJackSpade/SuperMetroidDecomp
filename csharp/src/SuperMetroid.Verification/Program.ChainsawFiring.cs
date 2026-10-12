@@ -208,16 +208,7 @@ internal static partial class Program
             new byte[8]);
         var interferencePlms = new RoomPlmSystem();
         var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
-        AssertEqual(1, interferencePlms.LoadRoomPopulation(
-                interferenceBus,
-                interferenceLevel,
-                interferenceStreamer,
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation),
-                new Bank80SystemState(),
-                AreaId.Crateria,
-                () => new SamusState(),
-                () => false),
+        AssertEqual(1, interferencePlms.LoadRoomPopulation(new PlmRoom(interferenceBus, interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
         interferencePlms.Step(
             interferenceBus,

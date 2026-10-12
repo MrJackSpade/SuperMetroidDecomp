@@ -47,8 +47,8 @@ public sealed partial class RoomPlmSystem
         if (eventNumber is null || enemyDeaths < enemyDeathQuota)
             return;
 
-        (_setEvent ?? throw new InvalidOperationException(
-            "Metroids-cleared PLM reached its kill quota without a room event writer."))(
+        (_events ?? throw new InvalidOperationException(
+            "Metroids-cleared PLM reached its kill quota without a room event writer.")).Set(
                 eventNumber.Value);
     }
 }

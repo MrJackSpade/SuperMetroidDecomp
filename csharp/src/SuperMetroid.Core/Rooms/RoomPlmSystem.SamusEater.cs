@@ -32,7 +32,7 @@ public sealed partial class RoomPlmSystem
         // Native descending allocation simply returns when all slots are occupied.
     }
 
-    private SamusState RequirePlantSamus() => _collectibleSamus?.Invoke()
+    private SamusState RequirePlantSamus() => _collectibleSamus?.Current
         ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
 
     private void RunSamusEaterPreInstruction(PlmSlot slot)

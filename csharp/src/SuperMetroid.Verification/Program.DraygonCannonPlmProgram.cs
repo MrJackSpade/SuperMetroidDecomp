@@ -55,11 +55,7 @@ internal static partial class Program
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
         plms.DraygonCannonVisuals = new RoomPlmDraygonCannonVisualCatalog(entries);
-        AssertEqual(4, plms.LoadRoomPopulation(guarded, level, streamer,
-            new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9000), new Bank80SystemState(), AreaId.Maridia,
-            getSamus: () => null,
-            isAreaTorizoDefeated: () => false,
-            disableDraygonCannon: disabled.Add),
+        AssertEqual(4, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabled.Add } }),
             "four retail cannon headers load with cartridge program lists");
 
         static void Step(RoomPlmSystem plms, ISnesAddressSpace bus,

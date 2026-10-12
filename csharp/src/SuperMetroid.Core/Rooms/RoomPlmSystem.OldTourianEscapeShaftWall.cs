@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge translation of PLM $84:B964, the old Tourian escape shaft fake wall.</summary>
 public sealed partial class RoomPlmSystem
 {
-    private Action? _spawnOldTourianEscapeShaftWallExplosion;
+    private IRoomPlmEnemyEffects? _oldTourianWallEnemies;
 
     private void ResetOldTourianEscapeShaftWallState() =>
-        _spawnOldTourianEscapeShaftWallExplosion = null;
+        _oldTourianWallEnemies = null;
 
     /// <summary>
     /// Runs room setup $8F:91A9: Spawn_Hardcoded_PLM at block ($10,$87), whose setup
@@ -56,7 +56,7 @@ public sealed partial class RoomPlmSystem
                 $"Old Tourian escape-shaft wall installed unknown pre-instruction $84:{slot.PreInstruction:X4}.");
         }
 
-        SamusState samus = _collectibleSamus?.Invoke()
+        SamusState samus = _collectibleSamus?.Current
             ?? throw new InvalidOperationException("Old Tourian escape-shaft wall has no live Samus owner.");
         if (OldTourianEscapeShaftWallPlmDefinitions.WakeTargetX >= samus.Position.X.Whole ||
             OldTourianEscapeShaftWallPlmDefinitions.WakeTargetY >= samus.Position.Y.Whole)
@@ -66,7 +66,7 @@ public sealed partial class RoomPlmSystem
         // leaves the loop timer alone.
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
         slot.InstructionTimer = 1;
-        (_spawnOldTourianEscapeShaftWallExplosion ?? throw new InvalidOperationException(
-            "Old Tourian escape-shaft wall has no enemy-projectile owner."))();
+        (_oldTourianWallEnemies ?? throw new InvalidOperationException(
+            "Old Tourian escape-shaft wall has no enemy-projectile owner.")).SpawnOldTourianEscapeShaftWallExplosion();
     }
 }

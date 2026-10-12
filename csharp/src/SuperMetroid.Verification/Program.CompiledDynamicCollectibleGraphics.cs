@@ -24,10 +24,7 @@ internal static partial class Program
             new ushort[width * 64], new byte[0x400 * 8]);
         var vram = new SnesVram();
         var plms = new RoomPlmSystem();
-        plms.LoadRoomPopulation(guarded, level,
-            level.CreateBackgroundStreamer(), vram, RoomPlmPopulationDefinition.FromCompiled(0x83fe),
-            new Bank80SystemState(), AreaId.Crateria,
-            () => new SamusState(), () => false);
+        plms.LoadRoomPopulation(new PlmRoom(guarded, level, level.CreateBackgroundStreamer(), vram, new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x83fe), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertTrue(plms.Collectibles.Any(item =>
                 item.Kind == InWorldCollectibleKind.Bombs),
             "retail Bombs item remains allocated after compiled graphics upload");

@@ -886,33 +886,21 @@ public sealed partial class SuperMetroidRuntime
         // can observe the resulting physical header/argument ordering. All room families
         // enter through this one parser; an unsupported header throws with complete record
         // context instead of being skipped by a collection of sibling scans.
+        var areaServices = new RoomEnemyRuntimeServices(this, room.AreaIndex);
+        var plmServices = new RoomPlmRuntimeServices(this);
         Plms.LoadRoomPopulation(
-            _addressSpace,
-            LevelData,
-            BackgroundStreamer,
-            Vram,
+            new PlmRoom(_addressSpace, LevelData, BackgroundStreamer, Vram, System, room.AreaIndex),
             RoomPlmPopulationDefinition.FromCompiled(room.State.PlmPointer),
-            System,
-            room.AreaIndex,
-            getSamus: () => Samus,
-            isAreaTorizoDefeated: () =>
-                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
-            isTourianStatueFinished: () => Enemies.TourianEntranceStatueFinished,
-            hasAreaBossBit: mask => System.HasAnyBossBits(room.AreaIndex, mask),
-            hasEvent: System.HasEvent,
-            setEvent: System.SetEvent,
-            roomFx: RoomLayer3Fx,
-            setEarthquakeTimer: value => Enemies.EarthquakeTimer = value,
-            setEarthquakeType: value => Enemies.EarthquakeType = value,
-            spawnNoobTubeProjectile: request =>
-                Enemies.SpawnNoobTubeProjectile(request, LevelData.Size.X),
-            spawnEyeDoorProjectile: request =>
-                Enemies.SpawnEyeDoorProjectile(
-                    request,
-                    LevelData.Size.X,
-                    System),
-            spawnOldTourianEscapeShaftWallExplosion: Enemies.SpawnOldTourianEscapeShaftWallExplosion,
-            disableDraygonCannon: Enemies.DisableDraygonCannon);
+            new RoomPlmServices
+            {
+                Samus = plmServices,
+                Bosses = areaServices.Bosses,
+                Events = areaServices.Events,
+                TourianStatue = plmServices,
+                RoomFx = RoomLayer3Fx,
+                Earthquake = plmServices,
+                Enemies = plmServices,
+            });
 
         // `$82:E8DD/$82:EB93` runs the bank-$8F door program only after destination PLMs
         // exist and before enemy initialization/initial viewport construction. Several of
@@ -1422,6 +1410,33 @@ public sealed partial class SuperMetroidRuntime
             ? new RoomAssetCatalogs(characters, palettes, metatiles, layouts)
             : throw new InvalidOperationException(
                 "Room loading requires installed character, palette, metatile, and visual-layout assets.");
+
+    /// <summary>
+    /// The runtime's Samus, Tourian statue, room shake and enemy pool as the services resident room
+    /// PLMs call (#633). Every member reads the runtime when called, never a load-time snapshot.
+    /// </summary>
+    private sealed class RoomPlmRuntimeServices(SuperMetroidRuntime runtime) :
+        IRoomSamusAccess, ITourianStatueProgress, IRoomEarthquakeWriter, IRoomPlmEnemyEffects
+    {
+        public SamusState? Current => runtime.Samus;
+
+        public bool IsFinished => runtime.Enemies.TourianEntranceStatueFinished;
+
+        public void SetTimer(ushort timer) => runtime.Enemies.EarthquakeTimer = timer;
+
+        public void SetType(ushort type) => runtime.Enemies.EarthquakeType = type;
+
+        public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
+            runtime.Enemies.SpawnNoobTubeProjectile(request, runtime.LevelData.Size.X);
+
+        public void SpawnEyeDoorProjectile(EyeDoorProjectileRequest request) =>
+            runtime.Enemies.SpawnEyeDoorProjectile(request, runtime.LevelData.Size.X, runtime.System);
+
+        public void SpawnOldTourianEscapeShaftWallExplosion() =>
+            runtime.Enemies.SpawnOldTourianEscapeShaftWallExplosion();
+
+        public void DisableDraygonCannon(ushort variablePointer) => runtime.Enemies.DisableDraygonCannon(variablePointer);
+    }
 }
 
 /// <summary>Room-header fields shared by camera tracking and minimap publication.</summary>

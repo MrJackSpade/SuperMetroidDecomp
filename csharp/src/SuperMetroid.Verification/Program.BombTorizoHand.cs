@@ -46,17 +46,7 @@ internal static partial class Program
         ]);
         plms.BombTorizoHandVisuals = editedVisuals;
 
-        AssertEqual(1, plms.LoadRoomPopulation(
-                guarded,
-                level,
-                streamer,
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(guarded, population),
-                new Bank80SystemState(),
-                areaIndex: AreaId.Crateria,
-                getSamus: () => samus,
-                isAreaTorizoDefeated: () => false,
-                isTourianStatueFinished: null),
+        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "undefeated Bomb Torizo hand occupies PLM slot");
         AssertTrue(plms.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "enemy header scan sees live Bomb Torizo hand");
@@ -153,16 +143,7 @@ internal static partial class Program
             "terminal hand music request");
 
         var defeated = new RoomPlmSystem();
-        AssertEqual(1, defeated.LoadRoomPopulation(
-                guarded,
-                level,
-                streamer,
-                new SnesVram(),
-                RoomPlmPopulationImporter.Read(guarded, population),
-                new Bank80SystemState(),
-                areaIndex: AreaId.Crateria,
-                getSamus: () => samus,
-                isAreaTorizoDefeated: () => true),
+        AssertEqual(1, defeated.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true } }),
             "single loader still parses defeated hand record before setup deletes it");
         AssertTrue(!defeated.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "defeated setup exposes no transient hand header");

@@ -75,11 +75,7 @@ internal static partial class Program
             new ushort[width * height], blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { NoobTubeVisuals = visuals };
-        AssertEqual(1, plms.LoadRoomPopulation(guarded, level, streamer,
-                new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9400), new Bank80SystemState(), AreaId.Maridia,
-                () => new SamusState(), () => false,
-                hasEvent: _ => false,
-                setEvent: _ => { }),
+        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"n00b tube loads for draw ${selected.Pointer:X4}");
         plms.DrawSolePlmFrameForVerification(guarded, level, streamer, selected.Pointer);
 

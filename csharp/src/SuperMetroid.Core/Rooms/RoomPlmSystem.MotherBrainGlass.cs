@@ -16,9 +16,8 @@ public sealed partial class RoomPlmSystem
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
-    private Func<BossBits, bool>? _motherBrainHasAreaBossBit;
-    private Func<EventNumber, bool>? _hasEvent;
-    private Action<EventNumber>? _setEvent;
+    private IAreaBossFlagReader? _motherBrainBosses;
+    private IGlobalEventFlags? _events;
     private int _motherBrainGlassSlotIndex = -1;
     private bool _motherBrainGlassWasLoaded;
     private ushort _motherBrainGlassLastRoomArgument;
@@ -84,7 +83,7 @@ public sealed partial class RoomPlmSystem
     private void ResetMotherBrainGlassState()
     {
         _motherBrainGlassProjectileRequests.Clear();
-        _motherBrainHasAreaBossBit = null;
+        _motherBrainBosses = null;
         _motherBrainGlassSlotIndex = -1;
         _motherBrainGlassWasLoaded = false;
         _motherBrainGlassLastRoomArgument = 0;
@@ -139,7 +138,7 @@ public sealed partial class RoomPlmSystem
                     ReadProgramByte(bus, unchecked((ushort)(cursor + 2))),
                     "Mother Brain glass area-boss branch");
                 ushort bossTarget = ReadProgramWord(bus, unchecked((ushort)(cursor + 3)));
-                slot.InstructionPointer = _motherBrainHasAreaBossBit?.Invoke(bossMask) == true
+                slot.InstructionPointer = _motherBrainBosses?.IsDefeated(bossMask) == true
                     ? bossTarget
                     : unchecked((ushort)(cursor + 5));
                 return true;
@@ -148,7 +147,7 @@ public sealed partial class RoomPlmSystem
                 ushort eventNumber = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 EventNumber namedEvent = ResolveMotherBrainGlassEvent(eventNumber);
                 ushort eventTarget = ReadProgramWord(bus, unchecked((ushort)(cursor + 4)));
-                slot.InstructionPointer = _hasEvent?.Invoke(namedEvent) == true
+                slot.InstructionPointer = _events?.Has(namedEvent) == true
                     ? eventTarget
                     : unchecked((ushort)(cursor + 6));
                 return true;
@@ -182,8 +181,8 @@ public sealed partial class RoomPlmSystem
             case RoomPlmInstruction.SetEvent:
                 ushort setEventNumber = ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
                 EventNumber eventToSet = ResolveMotherBrainGlassEvent(setEventNumber);
-                (_setEvent ?? throw new InvalidOperationException(
-                    "Mother Brain glass has no event writer."))(eventToSet);
+                (_events ?? throw new InvalidOperationException(
+                    "Mother Brain glass has no event writer.")).Set(eventToSet);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 

@@ -55,13 +55,7 @@ internal static partial class Program
             new ushort[width * height], new byte[width * height],
             new ushort[width * height], new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        int count = plms.LoadRoomPopulation(bus, level,
-            level.CreateBackgroundStreamer(), new SnesVram(), (useCompiled ? RoomPlmPopulationDefinition.FromCompiled(pointer) : RoomPlmPopulationImporter.Read(bus, pointer)),
-            new Bank80SystemState(), AreaId.Crateria,
-            () => new SamusState(), () => false,
-            hasAreaBossBit: _ => false,
-            hasEvent: _ => false,
-            setEvent: _ => { });
+        int count = plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), (useCompiled ? RoomPlmPopulationDefinition.FromCompiled(pointer) : RoomPlmPopulationImporter.Read(bus, pointer)), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
         return (count, plms.PopulationSlots.ToArray());
     }
 

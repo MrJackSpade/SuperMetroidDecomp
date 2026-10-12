@@ -303,17 +303,7 @@ internal static partial class Program
             MaxHealth = 99,
         };
         var plms = new RoomPlmSystem();
-        int loaded = plms.LoadRoomPopulation(
-            bus,
-            level,
-            streamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(bus, population),
-            system,
-            areaIndex: AreaId.Crateria,
-            getSamus: () => samus,
-            isAreaTorizoDefeated: () => false,
-            roomFx: roomFx);
+        int loaded = plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, RoomFx = roomFx });
         AssertEqual(1, loaded, "one-item room population load count");
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }

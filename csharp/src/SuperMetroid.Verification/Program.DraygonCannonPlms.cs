@@ -25,17 +25,7 @@ internal static partial class Program
         var disabledWords = new List<ushort>();
         var plms = new RoomPlmSystem();
 
-        AssertEqual(4, plms.LoadRoomPopulation(
-            bus,
-            level,
-            streamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(bus, pointer: 0x9000),
-            new Bank80SystemState(),
-            AreaId.Maridia,
-            getSamus: () => null,
-            isAreaTorizoDefeated: () => false,
-            disableDraygonCannon: disabledWords.Add),
+        AssertEqual(4, plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, pointer: 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabledWords.Add } }),
             "Draygon cannon population record count");
 
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();

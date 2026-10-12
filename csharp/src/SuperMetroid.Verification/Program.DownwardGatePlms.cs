@@ -263,16 +263,7 @@ internal static partial class Program
             blockDefinitions: blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { DownwardGateVisuals = visuals };
-        int parsed = plms.LoadRoomPopulation(
-            NewDownwardGateHeaderReadGuard(bus),
-            level,
-            streamer,
-            new SnesVram(),
-            population,
-            new Bank80SystemState(),
-            AreaId.Brinstar,
-            getSamus: () => null,
-            isAreaTorizoDefeated: () => false);
+        int parsed = plms.LoadRoomPopulation(new PlmRoom(NewDownwardGateHeaderReadGuard(bus), level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }

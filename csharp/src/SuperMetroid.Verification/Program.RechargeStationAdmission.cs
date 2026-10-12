@@ -19,9 +19,7 @@ internal static partial class Program
             var streamer = level.CreateBackgroundStreamer();
             var samus = new SamusState { Health = 199, MaxHealth = 199, Missiles = 15, MaxMissiles = 15 };
             var plms = new RoomPlmSystem();
-            plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(),
-                RoomPlmPopulationImporter.Read(bus, 0x9000), new Bank80SystemState(),
-                areaIndex: AreaId.Crateria, getSamus: () => samus, isAreaTorizoDefeated: () => false);
+            plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             int accessX = right ? 9 : 7;
             var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Behavior);
             bool Touch() => plms.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,

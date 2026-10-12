@@ -42,17 +42,12 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         bool eventSet = false;
         var plms = new RoomPlmSystem();
-        AssertEqual(1, plms.LoadRoomPopulation(guarded, level, streamer,
-            new SnesVram(), RoomPlmPopulationImporter.Read(guarded, 0x9000), new Bank80SystemState(), AreaId.Tourian,
-            () => new SamusState(), () => false,
-            hasAreaBossBit: _ => false,
-            hasEvent: _ => eventSet,
-            setEvent: eventNumber =>
+        AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => eventSet, SetEvent = eventNumber =>
             {
                 AssertEqual(EventNumber.MotherBrainGlassDestroyed, eventNumber,
                     "glass completion sets the native break event");
                 eventSet = true;
-            }), "glass PLM loads for complete program test");
+            } } }), "glass PLM loads for complete program test");
 
         // With no head hits, the first one-frame draw must loop at the $0002
         // threshold instead of shattering early. Both passes use the guarded

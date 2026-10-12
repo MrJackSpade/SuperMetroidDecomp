@@ -77,9 +77,7 @@ internal static partial class Program
                 var plms = new RoomPlmSystem();
                 var bus = new TestAddressSpace();
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);
-                AssertEqual(1,plms.LoadRoomPopulation(bus,level,level.CreateBackgroundStreamer(),new SnesVram(),
-                    SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(bus,0x9400),new Bank80SystemState(),
-                    AreaId.Crateria,() => null,() => false),"Eye door draw dispatcher fixture");
+                AssertEqual(1,plms.LoadRoomPopulation(new PlmRoom(bus, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(bus,0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),"Eye door draw dispatcher fixture");
                 plms.DrawSolePlmFrameForVerification(bus, level, level.CreateBackgroundStreamer(), pointer);
                 for (int cell = 0; cell < count; cell++)
                     AssertEqual(ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2)),

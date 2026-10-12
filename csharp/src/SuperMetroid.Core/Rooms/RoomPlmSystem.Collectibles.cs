@@ -21,7 +21,7 @@ public sealed partial class RoomPlmSystem
 
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
     private Bank80SystemState? _collectibleSystem;
-    private Func<SamusState?>? _collectibleSamus;
+    private IRoomSamusAccess? _collectibleSamus;
     private int _nextCollectibleGraphicsSlot;
     private CollectiblePickupEvent? _lastCollectiblePickup;
     private bool _collectibleFanfareRequested;
@@ -559,7 +559,7 @@ public sealed partial class RoomPlmSystem
     {
         CollectiblePlmState item = slot.Item
             ?? throw new InvalidOperationException("A non-item PLM attempted acquisition.");
-        SamusState samus = _collectibleSamus?.Invoke()
+        SamusState samus = _collectibleSamus?.Current
             ?? throw new InvalidOperationException(
                 "A live collectible was triggered before the room owned Samus state.");
         Bank80SystemState system = _collectibleSystem

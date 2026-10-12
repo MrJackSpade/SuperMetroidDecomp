@@ -8,7 +8,7 @@ public sealed partial class RoomPlmSystem
 {
     private readonly List<DownwardGateProjectileRequest> _downwardGateProjectileRequests = new();
     private readonly List<PlmSoundRequest> _pendingDownwardGateSounds = new();
-    private Func<SamusState?>? _downwardGateSamus;
+    private IRoomSamusAccess? _downwardGateSamus;
     private int _downwardGateRoomWidth;
 
     /// <summary>
@@ -170,7 +170,7 @@ public sealed partial class RoomPlmSystem
 
     private bool IsSamusInsideDownwardGateColumn(PlmSlot slot)
     {
-        SamusState? samus = _downwardGateSamus?.Invoke();
+        SamusState? samus = _downwardGateSamus?.Current;
         if (samus is null)
             return false;
         if (_downwardGateRoomWidth <= 0)

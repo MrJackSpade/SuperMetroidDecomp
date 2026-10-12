@@ -86,10 +86,7 @@ internal static partial class Program
             var system = new Bank80SystemState();
             var guarded = NewColoredDoorDrawReadGuard(bus, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            AssertEqual(1, plms.LoadRoomPopulation(guarded, level,
-                    streamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population),
-                    system, AreaId.Crateria,
-                    () => new SamusState(), () => false),
+            AssertEqual(1, plms.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"resident colored-door header ${(int)header:X4} loads");
             ushort initial = ReadWord(rom, 0x840000 | ((ushort)header + 2));
             ushort firstDraw = ReadWord(rom, 0x840000 | (initial + 14));
@@ -160,9 +157,7 @@ internal static partial class Program
                 new ushort[width * width], blockDefinitions);
             BackgroundTilemapStreamer reopenedStreamer = reopenedLevel.CreateBackgroundStreamer();
             var reopened = new RoomPlmSystem { ColoredDoorVisuals = stock };
-            AssertEqual(1, reopened.LoadRoomPopulation(guarded, reopenedLevel,
-                reopenedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system,
-                AreaId.Crateria, () => new SamusState(), () => false),
+            AssertEqual(1, reopened.LoadRoomPopulation(new PlmRoom(guarded, reopenedLevel, reopenedStreamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"opened colored door ${(int)header:X4} reloads");
             reopened.Step(guarded, reopenedLevel, reopenedStreamer, new(0, 0), 0);
             AssertEqual(0, reopened.ActiveCount,

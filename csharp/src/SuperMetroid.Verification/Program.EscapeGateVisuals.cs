@@ -86,9 +86,7 @@ internal static partial class Program
         RoomLevelData closedLevel = CreateLevel();
         BackgroundTilemapStreamer closedStreamer = closedLevel.CreateBackgroundStreamer();
         var closed = new RoomPlmSystem { EscapeGateVisuals = edited };
-        AssertEqual(1, closed.LoadRoomPopulation(guarded, closedLevel,
-                closedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Tourian,
-                () => new SamusState(), () => false),
+        AssertEqual(1, closed.LoadRoomPopulation(new PlmRoom(guarded, closedLevel, closedStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape gate loads its real resident header");
         closed.Step(guarded, closedLevel, closedStreamer, new(0, 0), 0);
         AssertEqual((ushort)0x830f,
@@ -104,9 +102,7 @@ internal static partial class Program
         RoomLevelData closingLevel = CreateLevel();
         BackgroundTilemapStreamer closingStreamer = closingLevel.CreateBackgroundStreamer();
         var closing = new RoomPlmSystem { EscapeGateVisuals = edited };
-        AssertEqual(1, closing.LoadRoomPopulation(guarded, closingLevel,
-                closingStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Tourian,
-                () => new SamusState(), () => false),
+        AssertEqual(1, closing.LoadRoomPopulation(new PlmRoom(guarded, closingLevel, closingStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape closure loads resident gate");
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0xaa8c,

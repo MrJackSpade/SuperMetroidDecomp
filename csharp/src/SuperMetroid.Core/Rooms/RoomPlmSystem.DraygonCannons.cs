@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge-authored wall-cannon PLMs used by Draygon's room.</summary>
 public sealed partial class RoomPlmSystem
 {
-    private Action<ushort>? _disableDraygonCannon;
+    private IRoomPlmEnemyEffects? _draygonCannonEnemies;
 
     private static bool IsDraygonCannonHeader(PlmHeaderId header) => header is
         PlmHeaderId.DraygonCannonFacingRight or
@@ -146,8 +146,8 @@ public sealed partial class RoomPlmSystem
         PlmSlot slot,
         DraygonCannonPlmState state)
     {
-        (_disableDraygonCannon ?? throw new InvalidOperationException(
-            "Draygon cannon bytecode has no enemy-control-word writer."))(state.VariablePointer);
+        (_draygonCannonEnemies ?? throw new InvalidOperationException(
+            "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(state.VariablePointer);
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,
@@ -171,7 +171,7 @@ public sealed partial class RoomPlmSystem
         level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
     }
 
-    private void ResetDraygonCannonState() => _disableDraygonCannon = null;
+    private void ResetDraygonCannonState() => _draygonCannonEnemies = null;
 
     private sealed class DraygonCannonPlmState(
         ushort variablePointer,

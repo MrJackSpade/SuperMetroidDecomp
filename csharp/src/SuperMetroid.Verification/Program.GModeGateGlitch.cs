@@ -358,16 +358,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState { Health = 1, MaxHealth = 99 };
         var plms = new RoomPlmSystem();
-        plms.LoadRoomPopulation(
-            bus,
-            level,
-            streamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(bus, population),
-            new Bank80SystemState(),
-            AreaId.Crateria,
-            getSamus: () => samus,
-            isAreaTorizoDefeated: () => false);
+        plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         int accessBlock = level.GetBlockIndex(new(stationX + 1, stationY));
         AssertTrue(plms.TryNotifyStationTouch(
@@ -443,22 +434,7 @@ internal static partial class Program
         bool brokenEvent = false;
         var projectiles = new List<NoobTubeProjectileRequest>();
         var plms = new RoomPlmSystem();
-        plms.LoadRoomPopulation(
-            bus,
-            level,
-            streamer,
-            new SnesVram(),
-            RoomPlmPopulationImporter.Read(bus, population),
-            new Bank80SystemState(),
-            AreaId.Maridia,
-            getSamus: () => samus,
-            isAreaTorizoDefeated: () => false,
-            hasEvent: _ => false,
-            setEvent: _ => brokenEvent = true,
-            roomFx: roomFx,
-            setEarthquakeTimer: _ => { },
-            setEarthquakeType: _ => { },
-            spawnNoobTubeProjectile: projectiles.Add);
+        plms.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => brokenEvent = true }, RoomFx = roomFx, Earthquake = new FixtureRoomEarthquake { WriteTimer = _ => { }, WriteType = _ => { } }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
         StepNoobTube(plms, bus, level, streamer);
 
         AssertTrue(plms.TryNotifyResidentProjectileHit(

@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
@@ -127,9 +128,7 @@ internal static partial class Program
         AssertEqual(1, exposed.System.LoadedItemCount, "exposed item setup increments saved counter");
         AssertEqual(1, shot.System.LoadedItemCount, "collected shot-block setup increments saved counter");
         shot.System.LoadedItemCount = ushort.MaxValue;
-        shot.Plms.LoadRoomPopulation(fixtureBus, shot.Level, shot.Streamer, new SnesVram(),
-            SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000),
-            shot.System, areaIndex: AreaId.Crateria, getSamus: () => shot.Samus, isAreaTorizoDefeated: () => false);
+        shot.Plms.LoadRoomPopulation(new PlmRoom(fixtureBus, shot.Level, shot.Streamer, new SnesVram(), shot.System, AreaId.Crateria), SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, shot.System.LoadedItemCount, "saved item-load counter wraps as a native word");
         ram.SelectSlot(0);
     }
